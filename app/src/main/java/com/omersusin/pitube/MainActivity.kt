@@ -1,7 +1,9 @@
 package com.omersusin.pitube
 
+import android.Manifest
 import android.app.PictureInPictureParams
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -39,6 +41,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startService(Intent(this, PlaybackService::class.java))
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+        }
         setContent {
             var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
             PiTubeTheme(themeMode = themeMode) {
@@ -73,27 +78,23 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
     var showLogin by remember { mutableStateOf(false) }
+    var showDownloads by remember { mutableStateOf(false) }
+    var showHistory by remember { mutableStateOf(false) }
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     var selectedChannel by remember { mutableStateOf<String?>(null) }
     var account by remember { mutableStateOf<AccountFetcher.AccountInfo?>(null) }
 
-    // Refresh account identity when app opens or after login screen closes
     LaunchedEffect(showLogin) {
         if (AuthManager.isLoggedIn(context)) {
-            account = AccountFetcher.getCached(context)
-                ?: AccountFetcher.fetch(context)?.also { AccountFetcher.cache(context, it) }
+            account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)?.also { AccountFetcher.cache(context, it) }
         } else account = null
     }
 
-    if (selectedChannel != null) {
-        ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it })
-        return
-    }
+    if (showDownloads) { DownloadsScreen(onBack = { showDownloads = false }); return }
+    if (showHistory) { HistoryScreen(onBack = { showHistory = false }, onVideoClick = { selectedVideo = it }); return }
+    if (selectedChannel != null) { ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it }); return }
     if (showLogin) { YouTubeLoginScreen(onBack = { showLogin = false }); return }
-    if (selectedVideo != null) {
-        VideoPlayerScreen(video = selectedVideo!!, onBack = { selectedVideo = null }, onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it })
-        return
-    }
+    if (selectedVideo != null) { VideoPlayerScreen(video = selectedVideo!!, onBack = { selectedVideo = null }, onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it }); return }
 
     val tabs = listOf(
         TabItem("Home", Icons.Default.Home),
@@ -109,19 +110,10 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                     title = { Text("piTube", style = MaterialTheme.typography.titleLarge) },
                     actions = {
                         IconButton(onClick = { selectedTab = 4 }) { Icon(Icons.Default.Search, contentDescription = "Search") }
-                        Surface(
-                            modifier = Modifier.size(32.dp).clickable { selectedTab = 3 },
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
+                        Surface(modifier = Modifier.size(32.dp).clickable { selectedTab = 3 }, shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
                             val url = account?.avatarUrl
-                            if (url != null) {
-                                AsyncImage(model = url, contentDescription = "Profile", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                            } else {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text((account?.name?.firstOrNull() ?: 'U').toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.bodyMedium)
-                                }
-                            }
+                            if (url != null) AsyncImage(model = url, contentDescription = "Profile", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                            else Box(contentAlignment = Alignment.Center) { Text((account?.name?.firstOrNull() ?: 'U').toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.bodyMedium) }
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                     }
@@ -131,12 +123,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
         bottomBar = {
             NavigationBar {
                 tabs.forEachIndexed { index, tab ->
-                    NavigationBarItem(
-                        icon = { Icon(tab.icon, contentDescription = tab.label) },
-                        label = { Text(tab.label) },
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index }
-                    )
+                    NavigationBarItem(icon = { Icon(tab.icon, contentDescription = tab.label) }, label = { Text(tab.label) }, selected = selectedTab == index, onClick = { selectedTab = index })
                 }
             }
         }
@@ -146,7 +133,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                 0 -> HomeScreen(onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it })
                 1 -> ShortsScreen()
                 2 -> SubscriptionsScreen(onVideoClick = { selectedVideo = it })
-                3 -> SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { selectedTab = 0 }, onOpenLogin = { showLogin = true }, account = account)
+                3 -> SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { selectedTab = 0 }, onOpenLogin = { showLogin = true }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, account = account)
                 4 -> SearchScreen(onVideoClick = { selectedVideo = it })
             }
         }

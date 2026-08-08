@@ -65,7 +65,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var error by remember { mutableStateOf<String?>(null) }
     var segments by remember { mutableStateOf<List<SponsorSegment>>(emptyList()) }
     var votes by remember { mutableStateOf<VoteInfo?>(null) }
-    var downloadState by remember { mutableIntStateOf(-1) }
+    var downloadStarted by remember { mutableStateOf(false) }
     var deArrowTitle by remember { mutableStateOf<String?>(null) }
     var showOriginal by remember { mutableStateOf(false) }
     var sleepChoice by remember { mutableIntStateOf(0) }
@@ -82,7 +82,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
 
     LaunchedEffect(video.videoId) {
         HistoryManager.addToHistory(context, video)
-        isLoading = true; error = null; downloadState = -1; deArrowTitle = null; showOriginal = false
+        isLoading = true; error = null; downloadStarted = false; deArrowTitle = null; showOriginal = false; chatMessages = emptyList()
         notes = NotesManager.getNotes(context, video.videoId)
         scope.launch {
             try {
@@ -92,15 +92,24 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 try { piped = PipedApiService.create().getStreams(video.videoId) } catch (e: Exception) { }
                 streamInfo = piped ?: r?.let { StreamInfo(title = it.title, description = it.description, uploader = it.uploader, uploaderUrl = it.uploaderUrl, hls = it.playUrl, dash = null) }
                 val mediaSource = r?.let { StreamResolver.buildMediaSource(context, it) }
-                if (mediaSource != null) {
-                    exoPlayer.setMediaSource(mediaSource)
-                    exoPlayer.prepare()
-                    exoPlayer.playWhenReady = true
-                } else { error = "Could not find stream URL" }
+                if (mediaSource != null) { exoPlayer.setMediaSource(mediaSource); exoPlayer.prepare(); exoPlayer.playWhenReady = true } else { error = "Could not find stream URL" }
                 try { if (PrefsManager.isSponsorBlockEnabled(context)) segments = SponsorBlockService.create().getSegments(video.videoId, """["sponsor","selfpromo","intro","outro","preview"]""") } catch (e: Exception) { segments = emptyList() }
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
             } catch (e: Exception) { error = e.message } finally { isLoading = false }
+        }
+        // Live chat polling
+        scope.launch {
+            try {
+                var token = LiveChatManager.getInitialContinuation(video.videoId)
+                if (token != null) showChat = true
+                while (token != null) {
+                    val res = LiveChatManager.poll(token)
+                    if (res.first.isNotEmpty()) chatMessages = (chatMessages + res.first).takeLast(200)
+                    token = res.second
+                    delay(4000)
+                }
+            } catch (e: Exception) { }
         }
     }
 
@@ -126,7 +135,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 item { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = true } }, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)) }
                 streamInfo?.let { info ->
                     item { Column(modifier = Modifier.padding(16.dp)) { Text(text = if (!showOriginal && deArrowTitle != null) deArrowTitle!! else info.title.ifBlank { video.title }, style = MaterialTheme.typography.titleLarge); if (deArrowTitle != null && deArrowTitle != info.title) { TextButton(onClick = { showOriginal = !showOriginal }) { Text(if (showOriginal) "🎯 Show honest title" else "Show original title", style = MaterialTheme.typography.bodySmall) } }; Spacer(modifier = Modifier.height(4.dp)); Row(modifier = Modifier.clickable { onChannelClick(info.uploaderUrl.substringAfter("/channel/")) }) { Text(info.uploader, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary) } } }
-                    item { Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) { Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceVariant) { Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.likes?.toLong() ?: 0L)); Spacer(modifier = Modifier.width(12.dp)); Icon(Icons.Default.ThumbDown, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.dislikes?.toLong() ?: 0L)) } }; TextButton(onClick = { sleepChoice = when (sleepChoice) { 0 -> 5; 5 -> 15; 15 -> 30; else -> 0 }; sleepDeadline = if (sleepChoice == 0) 0L else System.currentTimeMillis() + sleepChoice * 60_000L }) { Text(if (sleepChoice == 0) "😴 Sleep" else "😴 ${sleepChoice}m") }; Spacer(modifier = Modifier.weight(1f)); Button(onClick = { if (downloadState == -1 || downloadState >= 101) { downloadState = 0; scope.launch(Dispatchers.IO) { val r = resolved; val videoUrl = r?.downloadUrl ?: info.videoStreams.filter { it.mimeType.contains("mp4", true) }.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url ?: info.hls; val audioUrl = r?.audioUrl ?: info.audioStreams.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url; if (videoUrl == null) { downloadState = 102; return@launch }; DownloadManager.downloadVideo(context, info.title.ifBlank { video.title }, videoUrl, audioUrl, onProgress = { p -> downloadState = p }, onDone = { downloadState = 101 }, onError = { downloadState = 102 }) } } }) { when { downloadState in 0..100 -> Text("$downloadState%"); downloadState == 101 -> Icon(Icons.Default.Done, contentDescription = "Done"); downloadState == 102 -> Text("Retry"); else -> Icon(Icons.Default.Download, contentDescription = "Download") } } } }
+                    item { Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) { Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceVariant) { Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.likes?.toLong() ?: 0L)); Spacer(modifier = Modifier.width(12.dp)); Icon(Icons.Default.ThumbDown, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.dislikes?.toLong() ?: 0L)) } }; TextButton(onClick = { sleepChoice = when (sleepChoice) { 0 -> 5; 5 -> 15; 15 -> 30; else -> 0 }; sleepDeadline = if (sleepChoice == 0) 0L else System.currentTimeMillis() + sleepChoice * 60_000L }) { Text(if (sleepChoice == 0) "😴 Sleep" else "😴 ${sleepChoice}m") }; Spacer(modifier = Modifier.weight(1f)); Button(onClick = { if (!downloadStarted) { downloadStarted = true; val r = resolved; val title = info.title.ifBlank { video.title }; val item = DownloadTracker.start(video.videoId + "_" + System.currentTimeMillis(), title); DownloadManager.downloadVideo(context, title, r?.downloadUrl, r?.audioUrl, r?.playUrl, item) } }) { if (downloadStarted) Icon(Icons.Default.Done, contentDescription = "Started") else Icon(Icons.Default.Download, contentDescription = "Download") } } }
                     if (showChat && chatMessages.isNotEmpty()) { item { Text("Live Chat", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp), color = MaterialTheme.colorScheme.primary) }; items(chatMessages.reversed().take(50)) { msg -> Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) { Text("${msg.author}: ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary); Text(msg.text, style = MaterialTheme.typography.bodyMedium) } } }
                     item { var expanded by remember { mutableStateOf(false) }; Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).clickable { expanded = !expanded }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) { Column(modifier = Modifier.padding(12.dp)) { Text(info.description, style = MaterialTheme.typography.bodyMedium, maxLines = if (expanded) Int.MAX_VALUE else 3, overflow = TextOverflow.Ellipsis); Text(text = if (expanded) "Show less" else "Show more", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) } } }
                     item { Column(modifier = Modifier.padding(horizontal = 16.dp)) { Text("📝 Timestamp Notes", style = MaterialTheme.typography.titleMedium); Spacer(modifier = Modifier.height(8.dp)); Row(verticalAlignment = Alignment.CenterVertically) { OutlinedTextField(value = noteText, onValueChange = { noteText = it }, modifier = Modifier.weight(1f), placeholder = { Text("Note...") }, singleLine = true); Spacer(modifier = Modifier.width(8.dp)); Button(onClick = { if (noteText.isNotBlank()) { NotesManager.addNote(context, video.videoId, VideoNote(exoPlayer.currentPosition, noteText.trim())); notes = NotesManager.getNotes(context, video.videoId); noteText = "" } }) { Icon(Icons.Default.Add, contentDescription = "Add") } }; notes.forEachIndexed { index, note -> Row(modifier = Modifier.fillMaxWidth().clickable { exoPlayer.seekTo(note.timeMs) }.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) { Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.colorScheme.primaryContainer) { Text(formatTimestamp(note.timeMs), modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.bodySmall) }; Spacer(modifier = Modifier.width(8.dp)); Text(note.text, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium); IconButton(onClick = { NotesManager.deleteNote(context, video.videoId, index); notes = NotesManager.getNotes(context, video.videoId) }) { Icon(Icons.Default.Close, contentDescription = "Delete", modifier = Modifier.size(16.dp)) } } } } }

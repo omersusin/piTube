@@ -6,6 +6,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +28,8 @@ fun SettingsScreen(
     onThemeChange: (ThemeMode) -> Unit,
     onBack: () -> Unit,
     onOpenLogin: () -> Unit,
+    onOpenDownloads: () -> Unit,
+    onOpenHistory: () -> Unit,
     account: AccountFetcher.AccountInfo?
 ) {
     val context = LocalContext.current
@@ -39,23 +43,16 @@ fun SettingsScreen(
             IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") }
             Text("Settings", style = MaterialTheme.typography.headlineMedium)
         }
-
         Spacer(modifier = Modifier.height(24.dp))
 
         Text("Account", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-
         if (isLoggedIn) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(modifier = Modifier.size(48.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
                     val url = account?.avatarUrl
-                    if (url != null) {
-                        AsyncImage(model = url, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                    } else {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text((account?.name?.firstOrNull() ?: 'U').toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleMedium)
-                        }
-                    }
+                    if (url != null) AsyncImage(model = url, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    else Box(contentAlignment = Alignment.Center) { Text((account?.name?.firstOrNull() ?: 'U').toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleMedium) }
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
@@ -64,43 +61,38 @@ fun SettingsScreen(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = {
-                AuthManager.logout(context)
-                AccountFetcher.clearCache(context)
-                isLoggedIn = false
-            }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
-                Text("Logout")
-            }
+            Button(onClick = { AuthManager.logout(context); AccountFetcher.clearCache(context); isLoggedIn = false }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) { Text("Logout") }
         } else {
             Text("Not logged in", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = onOpenLogin) {
-                Icon(Icons.Default.AccountCircle, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign in with Google")
-            }
+            Button(onClick = onOpenLogin) { Icon(Icons.Default.AccountCircle, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Sign in with Google") }
         }
+        Spacer(modifier = Modifier.height(24.dp))
 
+        Text("Library", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth().clickable { onOpenDownloads() }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Download, contentDescription = null); Spacer(modifier = Modifier.width(12.dp)); Text("Downloads", style = MaterialTheme.typography.bodyLarge)
+        }
+        Row(modifier = Modifier.fillMaxWidth().clickable { onOpenHistory() }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.History, contentDescription = null); Spacer(modifier = Modifier.width(12.dp)); Text("Watch History", style = MaterialTheme.typography.bodyLarge)
+        }
         Spacer(modifier = Modifier.height(24.dp))
 
         Text("Playback", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("SponsorBlock", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Switch(checked = sponsorBlock, onCheckedChange = { sponsorBlock = it; PrefsManager.setSponsorBlockEnabled(context, it) })
         }
-
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Volume Normalization", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Switch(checked = volNorm, onCheckedChange = { volNorm = it; PrefsManager.setVolumeNormalizationEnabled(context, it) })
         }
-
         Spacer(modifier = Modifier.height(24.dp))
 
         Text("Wellbeing", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("Zen Mode", style = MaterialTheme.typography.bodyLarge)
@@ -108,23 +100,12 @@ fun SettingsScreen(
             }
             Switch(checked = zenMode, onCheckedChange = { zenMode = it; PrefsManager.setZenMode(context, it) })
         }
-
         Spacer(modifier = Modifier.height(24.dp))
 
         Text("Appearance", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = currentTheme == ThemeMode.SYSTEM, onClick = { onThemeChange(ThemeMode.SYSTEM) })
-            Text("System", modifier = Modifier.clickable { onThemeChange(ThemeMode.SYSTEM) })
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = currentTheme == ThemeMode.LIGHT, onClick = { onThemeChange(ThemeMode.LIGHT) })
-            Text("Light", modifier = Modifier.clickable { onThemeChange(ThemeMode.LIGHT) })
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = currentTheme == ThemeMode.DARK, onClick = { onThemeChange(ThemeMode.DARK) })
-            Text("Dark", modifier = Modifier.clickable { onThemeChange(ThemeMode.DARK) })
-        }
+        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.SYSTEM, onClick = { onThemeChange(ThemeMode.SYSTEM) }); Text("System", modifier = Modifier.clickable { onThemeChange(ThemeMode.SYSTEM) }) }
+        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.LIGHT, onClick = { onThemeChange(ThemeMode.LIGHT) }); Text("Light", modifier = Modifier.clickable { onThemeChange(ThemeMode.LIGHT) }) }
+        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.DARK, onClick = { onThemeChange(ThemeMode.DARK) }); Text("Dark", modifier = Modifier.clickable { onThemeChange(ThemeMode.DARK) }) }
     }
 }
