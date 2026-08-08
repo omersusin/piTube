@@ -13,31 +13,28 @@ object PrefsManager {
     private const val KEY_HIDE_COMMENTS = "hide_comments"
     private const val KEY_AUTO_EXPAND = "auto_expand_desc"
     private const val KEY_HIDE_LIKES = "hide_like_buttons"
+    private const val KEY_DEBUG = "debug_auth"
 
-    fun isSponsorBlockEnabled(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_SPONSORBLOCK, true)
-    fun setSponsorBlockEnabled(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_SPONSORBLOCK, enabled).apply() }
+    private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    fun isZenMode(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ZEN, false)
-    fun setZenMode(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ZEN, enabled).apply() }
-
-    fun isVolumeNormalizationEnabled(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_VOL_NORM, false)
-    fun setVolumeNormalizationEnabled(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_VOL_NORM, enabled).apply() }
-
-    fun getPlaybackSpeed(context: Context): Float = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat(KEY_SPEED, 1.0f)
-    fun setPlaybackSpeed(context: Context, speed: Float) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putFloat(KEY_SPEED, speed).apply() }
-
-    fun isHideShorts(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_HIDE_SHORTS, false)
-    fun setHideShorts(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_HIDE_SHORTS, enabled).apply() }
-
-    fun isHideCounters(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_HIDE_COUNTERS, false)
-    fun setHideCounters(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_HIDE_COUNTERS, enabled).apply() }
-
-    fun isHideComments(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_HIDE_COMMENTS, false)
-    fun setHideComments(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_HIDE_COMMENTS, enabled).apply() }
-
-    fun isAutoExpandDesc(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_AUTO_EXPAND, false)
-    fun setAutoExpandDesc(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_AUTO_EXPAND, enabled).apply() }
-
-    fun isHideLikeButtons(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_HIDE_LIKES, false)
-    fun setHideLikeButtons(context: Context, enabled: Boolean) { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_HIDE_LIKES, enabled).apply() }
+    fun isSponsorBlockEnabled(context: Context) = prefs(context).getBoolean(KEY_SPONSORBLOCK, true)
+    fun setSponsorBlockEnabled(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_SPONSORBLOCK, e).apply()
+    fun isZenMode(context: Context) = prefs(context).getBoolean(KEY_ZEN, false)
+    fun setZenMode(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_ZEN, e).apply()
+    fun isVolumeNormalizationEnabled(context: Context) = prefs(context).getBoolean(KEY_VOL_NORM, false)
+    fun setVolumeNormalizationEnabled(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_VOL_NORM, e).apply()
+    fun getPlaybackSpeed(context: Context) = prefs(context).getFloat(KEY_SPEED, 1.0f)
+    fun setPlaybackSpeed(context: Context, s: Float) = prefs(context).edit().putFloat(KEY_SPEED, s).apply()
+    fun isHideShorts(context: Context) = prefs(context).getBoolean(KEY_HIDE_SHORTS, false)
+    fun setHideShorts(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_HIDE_SHORTS, e).apply()
+    fun isHideCounters(context: Context) = prefs(context).getBoolean(KEY_HIDE_COUNTERS, false)
+    fun setHideCounters(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_HIDE_COUNTERS, e).apply()
+    fun isHideComments(context: Context) = prefs(context).getBoolean(KEY_HIDE_COMMENTS, false)
+    fun setHideComments(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_HIDE_COMMENTS, e).apply()
+    fun isAutoExpandDesc(context: Context) = prefs(context).getBoolean(KEY_AUTO_EXPAND, false)
+    fun setAutoExpandDesc(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_AUTO_EXPAND, e).apply()
+    fun isHideLikeButtons(context: Context) = prefs(context).getBoolean(KEY_HIDE_LIKES, false)
+    fun setHideLikeButtons(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_HIDE_LIKES, e).apply()
+    fun isDebugAuth(context: Context) = prefs(context).getBoolean(KEY_DEBUG, false)
+    fun setDebugAuth(context: Context, e: Boolean) = prefs(context).edit().putBoolean(KEY_DEBUG, e).apply()
 }

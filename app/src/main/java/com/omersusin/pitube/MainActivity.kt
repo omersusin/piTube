@@ -109,6 +109,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
     var showLogin by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     var showDownloads by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
@@ -126,15 +127,17 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
             selectedVideo != null -> { if (PlayerHolder.getPlayer(context).isPlaying) NowPlaying.showMini.value = true; selectedVideo = null }
             selectedChannel != null -> selectedChannel = null
             showLogin -> showLogin = false
+            showSettings -> showSettings = false
             showDownloads -> showDownloads = false
             showHistory -> showHistory = false
-            selectedTab == 4 || selectedTab == 3 -> selectedTab = 0
+            selectedTab == 4 -> selectedTab = 0
             else -> (context as? android.app.Activity)?.finish()
         }
     }
 
     if (showDownloads) { DownloadsScreen(onBack = { showDownloads = false }); return }
     if (showHistory) { HistoryScreen(onBack = { showHistory = false }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }); return }
+    if (showSettings) { SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { showSettings = false }, onOpenLogin = { showLogin = true }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, account = account); return }
     if (selectedChannel != null) { ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }); return }
     if (showLogin) { YouTubeLoginScreen(onBack = { showLogin = false }); return }
     if (selectedVideo != null) { VideoPlayerScreen(video = selectedVideo!!, onBack = { if (PlayerHolder.getPlayer(context).isPlaying) NowPlaying.showMini.value = true; selectedVideo = null }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }, onChannelClick = { selectedChannel = it }); return }
@@ -186,7 +189,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                 0 -> HomeScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }, onChannelClick = { selectedChannel = it })
                 1 -> ShortsScreen()
                 2 -> SubscriptionsScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
-                3 -> SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { selectedTab = 0 }, onOpenLogin = { showLogin = true }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, account = account)
+                3 -> YouScreen(account = account, onOpenSettings = { showSettings = true }, onOpenSearch = { selectedTab = 4 }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, onOpenLogin = { showLogin = true }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
                 4 -> SearchScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
             }
         }

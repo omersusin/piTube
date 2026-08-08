@@ -1,6 +1,7 @@
 package com.omersusin.pitube.data
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -11,18 +12,33 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.security.MessageDigest
 
+object AuthDebug { val snippet = mutableStateOf("") }
+
 object InnerTubeFeed {
     private val client = OkHttpClient()
-    private const val WEB_VERSION = "2.20250311.00.00"
+    private const val WEB_VERSION = "2.20260114.08.00"
     private const val UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    private const val ORIGIN = "https://www.youtube.com"
 
-    private fun sha1(s: String): String =
-        MessageDigest.getInstance("SHA-1").digest(s.toByteArray()).joinToString("") { "%02x".format(it) }
+    private fun sha1(s: String): String = MessageDigest.getInstance("SHA-1").digest(s.toByteArray()).joinToString("") { "%02x".format(it) }
 
-    private fun sapisidHash(cookies: Map<String, String>): String? {
-        val s = cookies["SAPISID"] ?: cookies["__Secure-3PAPISID"] ?: cookies["APISID"] ?: return null
+    private fun tsHash(cookieValue: String): String {
         val ts = System.currentTimeMillis() / 1000
-        return "${ts}_${sha1("$ts $s https://www.youtube.com")}"
+        return "${ts}_${sha1("$ts $cookieValue $ORIGIN")}"
+    }
+
+    private fun applyAuth(rb: Request.Builder, context: Context) {
+        val cookies = AuthManager.getCookies(context)
+        rb.addHeader("Cookie", AuthManager.getRawCookies(context))
+        rb.addHeader("User-Agent", UA)
+        rb.addHeader("Origin", ORIGIN)
+        rb.addHeader("Referer", "$ORIGIN/")
+        rb.addHeader("X-Origin", ORIGIN)
+        rb.addHeader("X-YouTube-Client-Name", "1")
+        rb.addHeader("X-YouTube-Client-Version", WEB_VERSION)
+        cookies["SAPISID"]?.let { rb.addHeader("Authorization", "SAPISIDHASH ${tsHash(it)}") }
+        cookies["__Secure-3PAPISID"]?.let { rb.addHeader("SAPISID3PHASH", tsHash(it)) }
+        cookies["__Secure-1PAPISID"]?.let { rb.addHeader("SAPISID1PHASH", tsHash(it)) }
     }
 
     private fun bodyJson(extra: (JSONObject) -> Unit): String {
@@ -36,31 +52,39 @@ object InnerTubeFeed {
         return root.toString()
     }
 
+    suspend fun fetchAccount(context: Context): AccountFetcher.AccountInfo? = withContext(Dispatchers.IO) {
+        try {
+            if (!AuthManager.isLoggedIn(context)) return@withContext null
+            val rb = Request.Builder().url("https://www.youtube.com/youtubei/v1/account/account_menu?prettyPrint=false")
+                .addHeader("Content-Type", "application/json")
+            applyAuth(rb, context)
+            val resp = client.newCall(rb.post(bodyJson { }.toRequestBody("application/json".toMediaType())).build()).execute()
+            val body = resp.body?.string() ?: ""
+            AuthDebug.snippet.value = "account_menu ${resp.code}: ${body.take(300)}"
+            val h = JSONObject(body).optJSONObject("header")?.optJSONObject("activeAccountHeaderRenderer") ?: return@withContext null
+            val name = h.optJSONObject("title")?.optString("simpleText")
+                ?: h.optJSONObject("title")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text") ?: ""
+            val handle = h.optJSONObject("accountHandle")?.optString("simpleText") ?: ""
+            val photo = h.optJSONObject("accountPhoto")?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url")
+            if (name.isBlank()) null else AccountFetcher.AccountInfo(name, photo, handle)
+        } catch (e: Exception) { e.printStackTrace(); null }
+    }
+
     suspend fun fetchFeed(context: Context, browseId: String): List<VideoItem> = withContext(Dispatchers.IO) {
         try {
             val cookies = AuthManager.getCookies(context)
             if (cookies.isEmpty()) return@withContext emptyList()
-            val raw = AuthManager.getRawCookies(context)
-            val auth = sapisidHash(cookies)
-
             val out = mutableListOf<VideoItem>()
             var token: String? = null
-
             for (page in 0..2) {
                 val body = if (token == null) bodyJson { it.put("browseId", browseId) } else bodyJson { it.put("continuation", token) }
-                val rb = Request.Builder()
-                    .url("https://www.youtube.com/youtubei/v1/browse?prettyPrint=false")
+                val rb = Request.Builder().url("https://www.youtube.com/youtubei/v1/browse?prettyPrint=false")
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("User-Agent", UA)
-                    .addHeader("Cookie", raw)
-                    .addHeader("Origin", "https://www.youtube.com")
-                    .addHeader("Referer", "https://www.youtube.com/")
-                    .addHeader("X-YouTube-Client-Name", "1")
-                    .addHeader("X-YouTube-Client-Version", WEB_VERSION)
-                if (auth != null) rb.addHeader("Authorization", "SAPISIDHASH $auth")
+                applyAuth(rb, context)
                 val resp = client.newCall(rb.post(body.toRequestBody("application/json".toMediaType())).build()).execute()
-                val json = JSONObject(resp.body?.string() ?: "{}")
-
+                val bodyStr = resp.body?.string() ?: "{}"
+                if (page == 0) AuthDebug.snippet.value = "browse $browseId ${resp.code}: ${bodyStr.take(300)}"
+                val json = JSONObject(bodyStr)
                 val before = out.size
                 walkVideos(json, out)
                 token = findToken(json)
