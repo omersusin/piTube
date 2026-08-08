@@ -18,9 +18,10 @@ data class UserBrain(
     val preferredTopics: Set<String> = emptySet(),
     val blockedTopics: Set<String> = emptySet(),
     val blockedChannels: Set<String> = emptySet(),
-    val watchHistory: Map<String, Float> = emptyMap(), // videoId -> percent watched
-    val impressionCount: Map<String, Int> = emptyMap(), // videoId -> times shown
-    val topicAffinities: Map<String, Double> = emptyMap() // "topic1|topic2" -> affinity
+    val watchHistory: Map<String, Float> = emptyMap(),
+    val impressionCount: Map<String, Int> = emptyMap(),
+    val topicAffinities: Map<String, Double> = emptyMap(),
+    val hasCompletedOnboarding: Boolean = false
 )
 
 enum class InteractionType { CLICK, LIKED, WATCHED, SKIPPED, DISLIKED }
@@ -74,11 +75,11 @@ object FlowNeuroEngine {
             InteractionType.DISLIKED -> -0.40
         }
 
-        val newTopicScores = current.topicScores.toMutableMap()
-        topics.forEach { topic ->
-            val currentScore = newTopicScores[topic] ?: 0.0
-            newTopicScores[topic] = max(0.0, min(1.0, currentScore + learningRate))
-        }
+        val newTopicScores = NeuroVectorMath.adjustVector(
+            current.topicScores.toMutableMap(),
+            topics.associateWith { 1.0 },
+            learningRate
+        )
 
         val newChannelScores = current.channelScores.toMutableMap()
         if (channelId != null) {
@@ -137,14 +138,16 @@ object FlowNeuroEngine {
 
         candidates.map { video ->
             val videoTopics = extractTopics(video.title, video.uploaderName)
-            val personalityScore = videoTopics.mapNotNull { current.topicScores[it] }.average().coerceIn(0.0, 1.0)
+            val videoVector = videoTopics.associateWith { 1.0 }
+            val personalityScore = NeuroVectorMath.calculateCosineSimilarity(current.topicScores, videoVector)
             
             val noveltyScore = 1.0 - personalityScore
             
             var totalScore = (personalityScore * wPersonality) + (noveltyScore * wNovelty)
 
-            if (current.channelScores.containsKey(video.url.substringAfter("channel/").substringBefore("/"))) {
-                val channelScore = current.channelScores[video.url.substringAfter("channel/").substringBefore("/")] ?: 0.5
+            val channelKey = video.url.substringAfter("channel/").substringBefore("/")
+            if (current.channelScores.containsKey(channelKey)) {
+                val channelScore = current.channelScores[channelKey] ?: 0.5
                 totalScore += (channelScore - 0.5) * 0.15
             }
 
@@ -183,6 +186,32 @@ object FlowNeuroEngine {
             .distinct()
         
         return words.take(10)
+    }
+
+    suspend fun completeOnboarding(context: Context, selectedTopics: Set<String>) = withContext(Dispatchers.IO) {
+        initialize(context)
+        val current = brain ?: return@withContext
+        val topicWeights = mutableMapOf<String, Double>()
+        selectedTopics.forEachIndexed { index, topic ->
+            val weight = when {
+                index < 3 -> 0.55
+                index < 6 -> 0.40
+                else -> 0.30
+            }
+            topicWeights[topic.lowercase()] = weight
+        }
+        brain = current.copy(
+            topicScores = topicWeights,
+            preferredTopics = selectedTopics,
+            hasCompletedOnboarding = true
+        )
+        save(context)
+    }
+
+    suspend fun needsOnboarding(context: Context): Boolean = withContext(Dispatchers.IO) {
+        initialize(context)
+        val current = brain ?: return@withContext true
+        !current.hasCompletedOnboarding && current.totalInteractions < 5
     }
 
     suspend fun addPreferredTopic(context: Context, topic: String) = withContext(Dispatchers.IO) {
@@ -232,5 +261,21 @@ object FlowNeuroEngine {
     suspend fun reset(context: Context) = withContext(Dispatchers.IO) {
         brain = UserBrain()
         save(context)
+    }
+
+    suspend fun exportBrain(context: Context): String = withContext(Dispatchers.IO) {
+        initialize(context)
+        gson.toJson(brain ?: UserBrain())
+    }
+
+    suspend fun importBrain(context: Context, json: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val type = object : TypeToken<UserBrain>() {}.type
+            brain = gson.fromJson(json, type)
+            save(context)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

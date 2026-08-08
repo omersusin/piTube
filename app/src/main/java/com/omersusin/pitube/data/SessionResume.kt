@@ -4,16 +4,49 @@ import android.content.Context
 import com.google.gson.Gson
 import java.io.File
 
+data class ResumeData(
+    val videoId: String,
+    val title: String,
+    val thumbnailUrl: String?,
+    val channelName: String,
+    val positionMs: Long,
+    val durationMs: Long,
+    val timestamp: Long = System.currentTimeMillis()
+)
+
 object SessionResume {
-    data class Snapshot(val video: VideoItem, val position: Long, val ts: Long)
+    private const val FILE_NAME = "session_resume.json"
     private val gson = Gson()
 
-    fun save(context: Context, video: VideoItem, position: Long) {
-        File(context.filesDir, "session.json").writeText(gson.toJson(Snapshot(video, position, System.currentTimeMillis())))
+    private fun getFile(context: Context) = File(context.filesDir, FILE_NAME)
+
+    fun save(context: Context, video: VideoItem, positionMs: Long) {
+        try {
+            val data = ResumeData(
+                videoId = video.id,
+                title = video.title,
+                thumbnailUrl = video.thumbnailUrl,
+                channelName = video.uploaderName,
+                positionMs = positionMs,
+                durationMs = (video.duration * 1000).toLong()
+            )
+            getFile(context).writeText(gson.toJson(data))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
-    fun load(context: Context): Snapshot? = try {
-        val f = File(context.filesDir, "session.json")
-        if (!f.exists()) null else gson.fromJson(f.readText(), Snapshot::class.java)
-    } catch (e: Exception) { null }
-    fun clear(context: Context) { File(context.filesDir, "session.json").delete() }
+
+    fun load(context: Context): ResumeData? {
+        val file = getFile(context)
+        if (!file.exists()) return null
+        return try {
+            gson.fromJson(file.readText(), ResumeData::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun clear(context: Context) {
+        getFile(context).delete()
+    }
 }

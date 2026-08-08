@@ -5,34 +5,56 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
 
-data class VideoNote(val timeMs: Long, val text: String)
+data class VideoNote(
+    val timeMs: Long,
+    val text: String,
+    val timestamp: Long = System.currentTimeMillis()
+)
 
 object NotesManager {
-    private const val FILE_NAME = "notes.json"
+    private const val FILE_PREFIX = "notes_"
     private val gson = Gson()
 
-    private fun loadAll(context: Context): MutableMap<String, List<VideoNote>> {
-        val file = File(context.filesDir, FILE_NAME)
-        if (!file.exists()) return mutableMapOf()
+    private fun getFile(context: Context, videoId: String) = File(context.filesDir, "$FILE_PREFIX$videoId.json")
+
+    fun getNotes(context: Context, videoId: String): List<VideoNote> {
+        val file = getFile(context, videoId)
+        if (!file.exists()) return emptyList()
         return try {
-            val type = object : TypeToken<MutableMap<String, List<VideoNote>>>() {}.type
-            gson.fromJson(file.readText(), type) ?: mutableMapOf()
-        } catch (e: Exception) { mutableMapOf() }
+            val type = object : TypeToken<List<VideoNote>>() {}.type
+            gson.fromJson(file.readText(), type) ?: emptyList()
+        } catch (e: Exception) { emptyList() }
     }
 
-    fun getNotes(context: Context, videoId: String): List<VideoNote> = loadAll(context)[videoId] ?: emptyList()
-
     fun addNote(context: Context, videoId: String, note: VideoNote) {
-        val all = loadAll(context)
-        all[videoId] = (all[videoId] ?: emptyList()) + note
-        File(context.filesDir, FILE_NAME).writeText(gson.toJson(all))
+        val notes = getNotes(context, videoId).toMutableList()
+        notes.add(note)
+        notes.sortBy { it.timeMs }
+        saveNotes(context, videoId, notes)
+    }
+
+    fun updateNote(context: Context, videoId: String, index: Int, note: VideoNote) {
+        val notes = getNotes(context, videoId).toMutableList()
+        if (index in notes.indices) {
+            notes[index] = note
+            notes.sortBy { it.timeMs }
+            saveNotes(context, videoId, notes)
+        }
     }
 
     fun deleteNote(context: Context, videoId: String, index: Int) {
-        val all = loadAll(context)
-        val list = all[videoId]?.toMutableList() ?: return
-        if (index in list.indices) list.removeAt(index)
-        all[videoId] = list
-        File(context.filesDir, FILE_NAME).writeText(gson.toJson(all))
+        val notes = getNotes(context, videoId).toMutableList()
+        if (index in notes.indices) {
+            notes.removeAt(index)
+            saveNotes(context, videoId, notes)
+        }
+    }
+
+    fun clearNotes(context: Context, videoId: String) {
+        getFile(context, videoId).delete()
+    }
+
+    private fun saveNotes(context: Context, videoId: String, notes: List<VideoNote>) {
+        getFile(context, videoId).writeText(gson.toJson(notes))
     }
 }
