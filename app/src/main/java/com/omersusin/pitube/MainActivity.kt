@@ -111,6 +111,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     var showLogin by remember { mutableStateOf(false) }
     var showDownloads by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     var showStats by remember { mutableStateOf(false) }
     var showSubsMgmt by remember { mutableStateOf(false) }
     var showNotInterested by remember { mutableStateOf(false) }
