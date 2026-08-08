@@ -16,7 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.AccountFetcher
+import com.omersusin.pitube.data.PlaylistRepository
 import com.omersusin.pitube.data.VideoItem
+import com.omersusin.pitube.ui.components.PlaylistCard
 
 @Composable
 fun YouScreen(
@@ -169,6 +171,25 @@ fun YouScreen(
                         Text("Sign In", style = MaterialTheme.typography.bodyLarge)
                     }
                 }
+            }
+        }
+
+        // Playlists Section
+        val playlists = remember { PlaylistRepository.getAll(context) }
+        if (playlists.isNotEmpty()) {
+            item {
+                Text(
+                    "Playlists",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+            items(playlists.size) { index ->
+                PlaylistCard(
+                    playlist = playlists[index],
+                    onClick = { /* TODO: open playlist */ }
+                )
             }
         }
     }

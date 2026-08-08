@@ -76,6 +76,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var chatMessages by remember { mutableStateOf<List<ChatMessage>>(emptyList()) }
     var showChat by remember { mutableStateOf(false) }
     var showSpeedDialog by remember { mutableStateOf(false) }
+    var showFlowComments by remember { mutableStateOf(false) }
     var captionTracks by remember { mutableStateOf<List<Captions.Track>>(emptyList()) }
     var activeCaption by remember { mutableStateOf<Captions.Track?>(null) }
     var captions by remember { mutableStateOf<List<Captions.Cue>>(emptyList()) }
@@ -451,15 +452,66 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 }
                 if (!zenMode && streamInfo?.relatedStreams?.isNotEmpty() == true) { item { Text("Related Videos", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp)) }; streamInfo?.relatedStreams?.let { related -> items(related.filter { !it.isShort || !PrefsManager.isHideShorts(context) }) { rv -> Row(modifier = Modifier.fillMaxWidth().clickable { onVideoClick(rv) }.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { AsyncImage(model = rv.safeThumb, contentDescription = null, modifier = Modifier.width(140.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop); Spacer(modifier = Modifier.width(12.dp)); Column { Text(rv.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis); Spacer(modifier = Modifier.height(4.dp)); Text(rv.uploaderName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } } } } }
                 if (!hideComments) {
-                    item { Text("Comments", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp)) }
                     val commentCount = comments.itemCount
-                    if (comments.loadState.refresh is androidx.paging.LoadState.Loading) { item { Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() } } } else { items(commentCount) { index -> val c = comments[index]; if (c != null) { Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) { AsyncImage(model = c.authorThumbnail, contentDescription = null, modifier = Modifier.size(32.dp).clip(CircleShape), contentScale = ContentScale.Crop); Spacer(modifier = Modifier.width(12.dp)); Column { Text("${c.author} - ${c.commentedTime}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant); Spacer(modifier = Modifier.height(2.dp)); Text(c.commentText, style = MaterialTheme.typography.bodyMedium); Spacer(modifier = Modifier.height(2.dp)); if (!hideCounters) { Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(14.dp)); Spacer(modifier = Modifier.width(4.dp)); Text(formatCount(c.likes), style = MaterialTheme.typography.bodySmall) } } } } } }; if (comments.loadState.append is androidx.paging.LoadState.Loading) { item { Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() } } } }
+                    if (commentCount > 0) {
+                        item {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .clickable { showFlowComments = true },
+                                shape = MaterialTheme.shapes.medium,
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Comments",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = formatCount(commentCount.toLong()),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        Icons.Default.ArrowForward,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                    } else if (comments.loadState.refresh is androidx.paging.LoadState.Loading) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) { CircularProgressIndicator() }
+                        }
+                    }
                 }
             }
         }
     }
 
-    if (showSpeedDialog) { AlertDialog(onDismissRequest = { showSpeedDialog = false }, title = { Text("Playback Speed") }, text = { Column { listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f).forEach { speed -> Row(modifier = Modifier.fillMaxWidth().clickable { currentSpeed = speed; exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(speed); PrefsManager.setPlaybackSpeed(context, speed); showSpeedDialog = false }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentSpeed == speed, onClick = { currentSpeed = speed; exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(speed); PrefsManager.setPlaybackSpeed(context, speed); showSpeedDialog = false }); Spacer(modifier = Modifier.width(8.dp)); Text("${speed}x") } } } }, confirmButton = { TextButton(onClick = { showSpeedDialog = false }) { Text("Close") } }) }
+    if (showSpeedDialog) {
+        ModalBottomSheet(onDismissRequest = { showSpeedDialog = false }) {
+            PlaybackSpeedSlider(
+                currentSpeed = currentSpeed,
+                onSpeedChange = { speed ->
+                    currentSpeed = speed
+                    exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(speed)
+                    PrefsManager.setPlaybackSpeed(context, speed)
+                }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
     
     if (showQuickActions) {
         VideoQuickActionsBottomSheet(
@@ -520,6 +572,14 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 showDescription = false
             },
             onDismiss = { showDescription = false }
+        )
+    }
+
+    // Flow Comments Bottom Sheet
+    if (showFlowComments) {
+        FlowCommentsBottomSheet(
+            videoId = video.videoId,
+            onDismiss = { showFlowComments = false }
         )
     }
 }
