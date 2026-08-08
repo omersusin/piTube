@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Rational
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -64,8 +65,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (PlayerHolder.getPlayer(this).isPlaying && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            runCatching { enterPictureInPictureMode(PictureInPictureParams.Builder().build()) }
+        val player = PlayerHolder.getPlayer(this)
+        if (player.isPlaying) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                try {
+                    val params = PictureInPictureParams.Builder()
+                        .setAspectRatio(Rational(16, 9))
+                        .build()
+                    enterPictureInPictureMode(params)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
@@ -85,11 +96,22 @@ fun MiniPlayerBar(onOpen: () -> Unit, onClose: () -> Unit) {
     val context = LocalContext.current
     val item = NowPlaying.current.value ?: return
     var playing by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { while (true) { playing = PlayerHolder.getPlayer(context).isPlaying; delay(500) } }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            playing = PlayerHolder.getPlayer(context).isPlaying
+            delay(500)
+        }
+    }
+
     Surface(
-        modifier = Modifier.fillMaxWidth().height(64.dp).clickable(onClick = onOpen),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .clickable(onClick = onOpen),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        tonalElevation = 4.dp
+        tonalElevation = 4.dp,
+        shadowElevation = 8.dp
     ) {
         Row(
             modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
@@ -98,13 +120,27 @@ fun MiniPlayerBar(onOpen: () -> Unit, onClose: () -> Unit) {
             AsyncImage(
                 model = item.safeThumb,
                 contentDescription = null,
-                modifier = Modifier.width(100.dp).height(56.dp).clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(item.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
-                Text(item.uploaderName, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    item.title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    item.uploaderName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
             IconButton(onClick = {
                 val p = PlayerHolder.getPlayer(context)
@@ -117,7 +153,11 @@ fun MiniPlayerBar(onOpen: () -> Unit, onClose: () -> Unit) {
                 )
             }
             IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -144,9 +184,28 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
         else account = null
     }
 
+    // Show mini player when video is playing and we're not in video player
+    val isPlaying = remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val player = PlayerHolder.getPlayer(context)
+            isPlaying.value = player.isPlaying
+            // Auto-show mini player when video starts playing and we navigate away
+            if (player.isPlaying && NowPlaying.current.value != null && selectedVideo == null) {
+                NowPlaying.showMini.value = true
+            }
+            delay(500)
+        }
+    }
+
     BackHandler {
         when {
-            selectedVideo != null -> { if (PlayerHolder.getPlayer(context).isPlaying) NowPlaying.showMini.value = true; selectedVideo = null }
+            selectedVideo != null -> {
+                if (PlayerHolder.getPlayer(context).isPlaying) {
+                    NowPlaying.showMini.value = true
+                }
+                selectedVideo = null
+            }
             selectedChannel != null -> selectedChannel = null
             showLogin -> showLogin = false
             showSettings -> showSettings = false
@@ -191,10 +250,17 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
         },
         bottomBar = {
             Column {
-                if (NowPlaying.showMini.value && selectedVideo == null) {
+                if (NowPlaying.showMini.value && selectedVideo == null && NowPlaying.current.value != null) {
                     MiniPlayerBar(
-                        onOpen = { NowPlaying.showMini.value = false; selectedVideo = NowPlaying.current.value },
-                        onClose = { PlayerHolder.getPlayer(context).stop(); NowPlaying.showMini.value = false; NowPlaying.current.value = null }
+                        onOpen = {
+                            NowPlaying.showMini.value = false
+                            selectedVideo = NowPlaying.current.value
+                        },
+                        onClose = {
+                            PlayerHolder.getPlayer(context).stop()
+                            NowPlaying.showMini.value = false
+                            NowPlaying.current.value = null
+                        }
                     )
                 }
                 NavigationBar {
