@@ -14,7 +14,7 @@ import com.omersusin.pitube.data.WatchHistoryRepository
 @Composable
 fun StatsScreen() {
     val context = LocalContext.current
-    val stats by remember { mutableStateOf(StatsRepository.stats(context)) }
+    val stats = remember { StatsRepository.stats(context) }
     val history by remember { mutableStateOf(WatchHistoryRepository.getHistory(context)) }
     
     LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -27,7 +27,7 @@ fun StatsScreen() {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Column {
                             Text("Total Plays", style = MaterialTheme.typography.bodySmall)
-                            Text("${stats.totalPlays}", style = MaterialTheme.typography.headlineMedium)
+                            Text(text = "${stats.totalPlays}", style = MaterialTheme.typography.headlineMedium)
                         }
                         Column {
                             Text("Day Streak", style = MaterialTheme.typography.bodySmall)
@@ -40,7 +40,7 @@ fun StatsScreen() {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Column {
                             Text("Completed", style = MaterialTheme.typography.bodySmall)
-                            Text("${stats.completedVideos}", style = MaterialTheme.typography.titleLarge)
+                            Text(text = "${stats.completedVideos}", style = MaterialTheme.typography.titleLarge)
                         }
                         Column {
                             Text("Avg Watch", style = MaterialTheme.typography.bodySmall)
@@ -55,14 +55,14 @@ fun StatsScreen() {
             Text("Top Channels", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
         }
         
-        items(stats.topChannels) { (channel, count) ->
+        items(stats.topChannels) { pair -> val channel = pair.first; val count = pair.second
             Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(channel, style = MaterialTheme.typography.bodyLarge)
-                    Text("${count} plays", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = "${count} plays", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

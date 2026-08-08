@@ -54,3 +54,7 @@ object WatchHistoryRepository {
         file.writeText(gson.toJson(history))
     }
 }
+
+fun WatchHistoryEntry.completionPercentage(): Int {
+    return if (totalDurationMs > 0) ((watchDurationMs.toFloat() / totalDurationMs) * 100).toInt() else 0
+}

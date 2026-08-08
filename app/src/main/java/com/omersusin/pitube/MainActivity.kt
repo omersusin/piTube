@@ -209,7 +209,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                 1 -> ShortsScreen()
                 2 -> SubscriptionsScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
                 3 -> YouScreen(account = account, onOpenSettings = { showSettings = true }, onOpenSearch = { selectedTab = 4 }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, onOpenLogin = { showLogin = true }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
-                4 -> SearchScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
+                4 -> SearchScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }, onChannelClick = { selectedChannel = it })
             }
         }
     }
