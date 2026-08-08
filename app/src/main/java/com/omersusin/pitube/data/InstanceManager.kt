@@ -1,0 +1,51 @@
+package com.omersusin.pitube.data
+
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.IOException
+
+data class PipedInstanceInfo(val api_url: String?)
+
+object InstanceManager {
+    private val defaults = listOf(
+        "pipedapi.kavin.rocks",
+        "pipedapi.adminforge.de",
+        "api.piped.private.coffee",
+        "pipedapi.reallyaweso.me"
+    )
+    @Volatile var instances: List<String> = defaults
+    @Volatile var current: String = defaults[0]
+
+    fun refreshInstances() {
+        try {
+            val client = OkHttpClient()
+            val req = Request.Builder().url("https://piped-instances.kavin.rocks/").build()
+            val resp = client.newCall(req).execute()
+            val body = resp.body?.string() ?: return
+            val type = object : TypeToken<List<PipedInstanceInfo>>() {}.type
+            val list: List<PipedInstanceInfo> = Gson().fromJson(body, type) ?: return
+            val hosts = list.mapNotNull { it.api_url?.removePrefix("https://")?.removePrefix("http://") }.distinct()
+            if (hosts.isNotEmpty()) instances = hosts
+        } catch (e: Exception) { }
+    }
+}
+
+class PipedFailoverInterceptor : okhttp3.Interceptor {
+    override fun intercept(chain: okhttp3.Interceptor.Chain): okhttp3.Response {
+        val hosts = (listOf(InstanceManager.current) + InstanceManager.instances.filter { it != InstanceManager.current }).distinct()
+        var lastError: IOException? = null
+        val original = chain.request()
+        for (host in hosts) {
+            try {
+                val newUrl = original.url.newBuilder().scheme("https").host(host).build()
+                val res = chain.proceed(original.newBuilder().url(newUrl).build())
+                if (res.isSuccessful) { InstanceManager.current = host; return res }
+                if (res.code == 400 || res.code == 404) return res
+                res.close()
+            } catch (e: IOException) { lastError = e }
+        }
+        throw lastError ?: IOException("All Piped instances failed")
+    }
+}
