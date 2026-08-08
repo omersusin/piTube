@@ -22,6 +22,8 @@ import com.omersusin.pitube.data.AccountFetcher
 import com.omersusin.pitube.data.AuthManager
 import com.omersusin.pitube.data.KodaAuth
 import com.omersusin.pitube.data.PrefsManager
+import com.omersusin.pitube.data.ProfileKind
+import com.omersusin.pitube.data.ProfileManager
 import com.omersusin.pitube.ui.theme.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +54,9 @@ fun SettingsScreen(
     var cookieText by remember { mutableStateOf("") }
     var cookieError by remember { mutableStateOf("") }
     var showThemeDialog by remember { mutableStateOf(false) }
+    val profileManager = remember { ProfileManager(context) }
+    val profiles by profileManager.profiles.collectAsState()
+    val activeProfileId by profileManager.activeProfileId.collectAsState()
 
     Scaffold(
         topBar = {
@@ -121,8 +126,11 @@ fun SettingsScreen(
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(
                                     onClick = {
+                                        val activeProfile = profileManager.active()
+                                        if (activeProfile.kind == ProfileKind.YOUTUBE) {
+                                            profileManager.replaceWithFreshLocal(activeProfile.id)
+                                        }
                                         AuthManager.logout(context)
-                                        AccountFetcher.clearCache(context)
                                         isLoggedIn = false
                                     },
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -150,6 +158,97 @@ fun SettingsScreen(
                                     }
                                     OutlinedButton(onClick = { showCookieDialog = true }) {
                                         Text("Paste Cookies")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Library Section
+            item {
+                SectionHeader("Profiles")
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column {
+                        profiles.forEachIndexed { index, profile ->
+                            if (index > 0) HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                            val isActive = profile.id == activeProfileId
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        profileManager.setActive(profile.id)
+                                        AccountFetcher.clearCache(context)
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Surface(
+                                    modifier = Modifier.size(40.dp),
+                                    shape = CircleShape,
+                                    color = if (isActive) MaterialTheme.colorScheme.primaryContainer
+                                    else MaterialTheme.colorScheme.surfaceVariant
+                                ) {
+                                    val url = profile.avatarUrl
+                                    if (url != null) AsyncImage(
+                                        model = url,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    else Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            if (profile.kind == ProfileKind.YOUTUBE) Icons.Default.Person
+                                            else Icons.Default.AccountCircle,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp),
+                                            tint = if (isActive) MaterialTheme.colorScheme.onPrimaryContainer
+                                            else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        profile.name,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = if (isActive) FontWeight.Medium else FontWeight.Normal
+                                    )
+                                    if (!profile.handle.isNullOrBlank()) {
+                                        Text(
+                                            profile.handle,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Text(
+                                        if (profile.kind == ProfileKind.YOUTUBE) "YouTube" else "Local",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                if (isActive) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = "Active",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                if (profiles.size > 1 && profile.kind == ProfileKind.YOUTUBE) {
+                                    IconButton(onClick = {
+                                        profileManager.remove(profile.id)
+                                        AccountFetcher.clearCache(context)
+                                    }) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Remove",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(18.dp)
+                                        )
                                     }
                                 }
                             }
@@ -441,9 +540,17 @@ fun SettingsScreen(
                     if (missing.isNotEmpty()) {
                         cookieError = "Missing: ${missing.joinToString(", ")}"
                     } else {
+                        val activeProfile = profileManager.active()
+                        if (activeProfile.kind == ProfileKind.LOCAL) {
+                            profileManager.addYouTubeProfile(
+                                cookies = normalized,
+                                name = null
+                            )
+                        } else {
+                            profileManager.saveCookiesFor(activeProfile.id, normalized)
+                        }
                         AuthManager.saveRawCookies(context, normalized)
                         isLoggedIn = true
-                        AccountFetcher.clearCache(context)
                         showCookieDialog = false
                         cookieText = ""
                         cookieError = ""

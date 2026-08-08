@@ -8,6 +8,7 @@ import androidx.security.crypto.MasterKey
 object AuthManager {
     private const val PREFS_NAME = "piTubeAuth"
     private const val KEY_RAW = "raw_cookies"
+    private const val KEY_ACTIVE_PROFILE_ID = "active_profile_id"
 
     @Volatile
     private var cachedPrefs: SharedPreferences? = null
@@ -30,18 +31,29 @@ object AuthManager {
         editor.apply()
     }
 
-    fun saveRawCookies(context: Context, raw: String) { getPrefs(context).edit().putString(KEY_RAW, raw).apply() }
+    fun saveRawCookies(context: Context, raw: String) {
+        getPrefs(context).edit().putString(KEY_RAW, raw).apply()
+    }
+
+    fun getActiveProfileId(context: Context): String =
+        getPrefs(context).getString(KEY_ACTIVE_PROFILE_ID, null).orEmpty()
+
+    fun setActiveProfileId(context: Context, id: String) {
+        getPrefs(context).edit().putString(KEY_ACTIVE_PROFILE_ID, id).apply()
+    }
 
     fun getRawCookies(context: Context): String {
         val prefs = getPrefs(context)
         val raw = prefs.getString(KEY_RAW, null)
         if (!raw.isNullOrBlank()) return raw
-        return prefs.all.filterKeys { it != KEY_RAW }.entries.joinToString("; ") { "${it.key}=${it.value}" }
+        return prefs.all.filterKeys { it != KEY_RAW && it != KEY_ACTIVE_PROFILE_ID }
+            .entries.joinToString("; ") { "${it.key}=${it.value}" }
     }
 
     fun getCookies(context: Context): Map<String, String> {
         val prefs = getPrefs(context)
-        val map = prefs.all.filterKeys { it != KEY_RAW }.mapValues { it.value.toString() }.toMutableMap()
+        val map = prefs.all.filterKeys { it != KEY_RAW && it != KEY_ACTIVE_PROFILE_ID }
+            .mapValues { it.value.toString() }.toMutableMap()
         if (map.isEmpty()) {
             val raw = prefs.getString(KEY_RAW, null) ?: return emptyMap()
             raw.split(";").forEach { part ->

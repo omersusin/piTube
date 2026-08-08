@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.omersusin.pitube.data.AuthManager
+import com.omersusin.pitube.data.ProfileKind
+import com.omersusin.pitube.data.ProfileManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +23,7 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
     var isLoading by remember { mutableStateOf(true) }
     var loginAttempted by remember { mutableStateOf(false) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+    val profileManager = remember { ProfileManager(context) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -67,6 +70,12 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
                                             if (parts.size == 2) cookieMap[parts[0].trim()] = parts[1].trim()
                                         }
                                         AuthManager.saveCookies(ctx, cookieMap)
+                                        val activeProfile = profileManager.active()
+                                        if (activeProfile.kind == ProfileKind.LOCAL) {
+                                            profileManager.addYouTubeProfile(cookies = raw)
+                                        } else {
+                                            profileManager.saveCookiesFor(activeProfile.id, raw)
+                                        }
                                         onBack()
                                         return
                                     }
@@ -84,6 +93,12 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
                                             if (parts.size == 2) cookieMap[parts[0].trim()] = parts[1].trim()
                                         }
                                         AuthManager.saveCookies(ctx, cookieMap)
+                                        val activeProfile = profileManager.active()
+                                        if (activeProfile.kind == ProfileKind.LOCAL) {
+                                            profileManager.addYouTubeProfile(cookies = cookieString)
+                                        } else {
+                                            profileManager.saveCookiesFor(activeProfile.id, cookieString)
+                                        }
                                         onBack()
                                     }
                                 }

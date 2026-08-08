@@ -13,7 +13,14 @@ import org.schabi.newpipe.extractor.localization.Localization
 class PiTubeApplication : Application() {
     private val appScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+    companion object {
+        lateinit var instance: PiTubeApplication
+            private set
+    }
+
     override fun onCreate() {
+        super.onCreate()
+        instance = this
         super.onCreate()
         NewPipe.init(CookieDownloader(emptyMap()))
         NewPipe.setupLocalization(Localization("en"))

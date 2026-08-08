@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.AccountFetcher
 import com.omersusin.pitube.data.PlaylistRepository
+import com.omersusin.pitube.data.ProfileKind
+import com.omersusin.pitube.data.ProfileManager
 import com.omersusin.pitube.data.VideoItem
 import com.omersusin.pitube.ui.components.PlaylistCard
 
@@ -33,6 +35,9 @@ fun YouScreen(
     val context = LocalContext.current
     var showLiked by remember { mutableStateOf(false) }
     var showStats by remember { mutableStateOf(false) }
+    val profileManager = remember { ProfileManager(context) }
+    val profiles by profileManager.profiles.collectAsState()
+    val activeProfileId by profileManager.activeProfileId.collectAsState()
 
     if (showLiked) { LikedVideosScreen(onBack = { showLiked = false }, onVideoClick = onVideoClick); return }
     if (showStats) { StatsScreen(onBack = { showStats = false }); return }
