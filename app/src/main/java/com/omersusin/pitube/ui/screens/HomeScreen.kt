@@ -4,75 +4,77 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.omersusin.pitube.data.AuthManager
-import com.omersusin.pitube.data.InnerTubeFeed
-import com.omersusin.pitube.data.PipedApiService
-import com.omersusin.pitube.data.PrefsManager
-import com.omersusin.pitube.data.VideoItem
+import com.omersusin.pitube.data.*
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Unit) {
     val context = LocalContext.current
-    val zenMode = remember { PrefsManager.isZenMode(context) }
-
-    if (zenMode) {
-        SubscriptionsScreen(onVideoClick = onVideoClick)
-        return
-    }
-
-    var videos by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
-
+    
+    var videos by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
+    var recommendations by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                var list = emptyList<VideoItem>()
-                if (AuthManager.isLoggedIn(context)) {
-                    list = InnerTubeFeed.fetchFeed(context, "FEwhat_to_watch")
+                val trending = PipedApiService.create().getTrending()
+                videos = trending.items
+                
+                val history = WatchHistoryRepository.getRecentWatches(context, 5)
+                if (history.isNotEmpty()) {
+                    val seed = history.first()
+                    val seedVideo = VideoItem(
+                        videoId = seed.videoId,
+                        title = seed.title,
+                        thumbnailUrl = seed.thumbnailUrl,
+                        uploaderName = seed.channelName,
+                        isShort = false
+                    )
+                    recommendations = RecommendationEngine.getRecommendations(context, seedVideo, 10)
                 }
-                if (list.isEmpty()) list = PipedApiService.create().getTrending()
-                videos = list
+            } catch (e: Exception) {
+                // Fallback to empty
+            } finally {
                 isLoading = false
-            } catch (e: Exception) { error = e.message; isLoading = false }
+            }
         }
     }
-
-    if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
-    else if (error != null) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Error: $error", color = MaterialTheme.colorScheme.error) } }
-    else {
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 8.dp)) {
-            items(videos) { video -> VideoCard(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.url.substringAfter("channel/")) }) }
-        }
-    }
-}
-
-@Composable
-fun VideoCard(video: VideoItem, onClick: () -> Unit, onChannelClick: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-        Box(modifier = Modifier.clickable(onClick = onClick)) {
-            AsyncImage(model = video.safeThumb, contentDescription = video.title, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f), contentScale = ContentScale.Crop)
-        }
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
-            AsyncImage(model = video.uploaderAvatar, contentDescription = video.uploaderName, modifier = Modifier.size(36.dp).clip(RoundedCornerShape(18.dp)).clickable(onClick = onChannelClick), contentScale = ContentScale.Crop)
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.clickable(onClick = onClick)) {
-                Text(video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Spacer(modifier = Modifier.height(2.dp))
-                Text("${video.uploaderName}${video.uploadedDate?.let { " • $it" } ?: ""}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        if (isLoading) {
+            item {
+                Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+        } else {
+            if (recommendations.isNotEmpty()) {
+                item {
+                    Text("Recommended for You", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
+                }
+                items(recommendations) { video ->
+                    VideoListItem(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.uploaderName) })
+                }
+                
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+            
+            item {
+                Text("Trending", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
+            }
+            items(videos) { video ->
+                VideoListItem(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.uploaderName) })
             }
         }
     }

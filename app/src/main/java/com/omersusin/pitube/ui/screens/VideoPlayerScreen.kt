@@ -1,5 +1,10 @@
 package com.omersusin.pitube.ui.screens
 
+import com.omersusin.pitube.data.WatchHistoryRepository
+import com.omersusin.pitube.data.PlaybackSessionRepository
+import com.omersusin.pitube.data.StatsRepository
+import com.omersusin.pitube.data.SearchHistoryRepository
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
