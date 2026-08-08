@@ -1,5 +1,7 @@
 package com.omersusin.pitube.ui.screens
 
+import android.app.Activity
+import android.media.AudioManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +34,8 @@ import coil.compose.AsyncImage
 import com.omersusin.pitube.PipState
 import com.omersusin.pitube.data.*
 import com.omersusin.pitube.data.addWatchHistory
-import androidx.compose.runtime.remember
+import com.omersusin.pitube.ui.components.VideoQuickActionsBottomSheet
+import com.omersusin.pitube.ui.components.videoPlayerControls
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -53,6 +57,10 @@ class CommentsPagingSource(private val api: PipedApiService, private val videoId
 @Composable
 fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Unit) {
     val context = LocalContext.current
+    val activity = context as? Activity
+    val audioManager = context.getSystemService(AudioManager::class.java)
+    val maxVolume = audioManager?.getMaxVolume(AudioManager.STREAM_MUSIC) ?: 15
+
     var streamInfo by remember { mutableStateOf<StreamInfo?>(null) }
     var resolved by remember { mutableStateOf<StreamResolver.Resolved?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -75,6 +83,17 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var currentCaption by remember { mutableStateOf("") }
     var subscribed by remember { mutableStateOf(false) }
     var showHideDialog by remember { mutableStateOf(false) }
+    var showQuickActions by remember { mutableStateOf(false) }
+
+    // Gesture state
+    var showControls by remember { mutableStateOf(true) }
+    var isSeekForwardActive by remember { mutableStateOf(false) }
+    var isSeekBackActive by remember { mutableStateOf(false) }
+    var seekAccumulatedSeconds by remember { mutableIntStateOf(0) }
+    var brightnessLevel by remember { mutableFloatStateOf(0.5f) }
+    var volumeLevel by remember { mutableFloatStateOf(1.0f) }
+    var showBrightnessOverlay by remember { mutableStateOf(false) }
+    var showVolumeOverlay by remember { mutableStateOf(false) }
 
     val zenMode = remember { PrefsManager.isZenMode(context) }
     val hideCounters = remember { PrefsManager.isHideCounters(context) }
@@ -147,18 +166,196 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
         }
     }
 
+    // Auto-hide controls
+    LaunchedEffect(showControls) {
+        if (showControls) {
+            delay(3000)
+            showControls = false
+        }
+    }
+
     val inPip = PipState.inPip.value
     Column(modifier = Modifier.fillMaxSize()) {
-        if (!inPip) TopAppBar(title = { }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }, actions = { if (chatMessages.isNotEmpty()) { IconButton(onClick = { showChat = !showChat }) { Icon(Icons.Default.Chat, contentDescription = "Chat", tint = if (showChat) MaterialTheme.colorScheme.primary else Color.Unspecified) } } ; IconButton(onClick = { showHideDialog = true }) { Icon(Icons.Default.VisibilityOff, contentDescription = "Hide") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background))
+        if (!inPip) TopAppBar(title = { }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }, actions = { if (chatMessages.isNotEmpty()) { IconButton(onClick = { showChat = !showChat }) { Icon(Icons.Default.Chat, contentDescription = "Chat", tint = if (showChat) MaterialTheme.colorScheme.primary else Color.Unspecified) } } ; IconButton(onClick = { showQuickActions = true }) { Icon(Icons.Default.MoreVert, contentDescription = "More") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background))
         if (inPip) { Box(modifier = Modifier.fillMaxSize().background(Color.Black)) { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize()) } }
         else if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
         else if (error != null) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Error: $error", color = MaterialTheme.colorScheme.error) } }
         else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item {
-                    Box {
-                        AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = true } }, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black))
-                        if (currentCaption.isNotBlank()) { Surface(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 50.dp), color = Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(4.dp)) { Text(currentCaption, color = Color.White, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.bodyLarge) } }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(16f / 9f)
+                            .background(Color.Black)
+                            .videoPlayerControls(
+                                showControls = showControls,
+                                onShowControlsChange = { showControls = it },
+                                onSeekForward = { seconds ->
+                                    isSeekForwardActive = true
+                                    seekAccumulatedSeconds = seconds
+                                    val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtMost(exoPlayer.duration)
+                                    exoPlayer.seekTo(target)
+                                    scope.launch { delay(500); isSeekForwardActive = false }
+                                },
+                                onSeekBack = { seconds ->
+                                    isSeekBackActive = true
+                                    seekAccumulatedSeconds = seconds
+                                    val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtLeast(0)
+                                    exoPlayer.seekTo(target)
+                                    scope.launch { delay(500); isSeekBackActive = false }
+                                },
+                                currentPosition = { exoPlayer.currentPosition },
+                                duration = exoPlayer.duration,
+                                isFullscreen = false,
+                                onBrightnessChange = { brightnessLevel = it },
+                                onShowBrightnessChange = { showBrightnessOverlay = it },
+                                onVolumeChange = { volumeLevel = it },
+                                onShowVolumeChange = { showVolumeOverlay = it },
+                                onBack = onBack,
+                                brightnessLevel = brightnessLevel,
+                                volumeLevel = volumeLevel,
+                                maxVolume = maxVolume,
+                                audioManager = audioManager,
+                                activity = activity,
+                                onPlayPause = {
+                                    if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
+                                },
+                                doubleTapSeekMs = 10_000L
+                            )
+                    ) {
+                        AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize())
+                        
+                        // Overlay controls
+                        if (showControls) {
+                            // Top gradient
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(80.dp)
+                                    .align(Alignment.TopCenter)
+                                    .background Brush.verticalGradient(
+                                        colors = listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent)
+                                    )
+                            )
+                            
+                            // Bottom controls
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter)
+                                    .background(Brush.verticalGradient(
+                                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
+                                    ))
+                                    .padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = formatTimestamp(exoPlayer.currentPosition),
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Text(
+                                        text = formatTimestamp(exoPlayer.duration),
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                LinearProgressIndicator(
+                                    progress = { 
+                                        if (exoPlayer.duration > 0) exoPlayer.currentPosition.toFloat() / exoPlayer.duration 
+                                        else 0f 
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    trackColor = Color.White.copy(alpha = 0.3f)
+                                )
+                            }
+                        }
+                        
+                        // Seek overlay
+                        if (isSeekForwardActive || isSeekBackActive) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.3f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        if (isSeekForwardActive) Icons.Default.FastForward else Icons.Default.FastRewind,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(48.dp)
+                                    )
+                                    Text(
+                                        text = "${seekAccumulatedSeconds}s",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.headlineMedium
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Brightness overlay
+                        if (showBrightnessOverlay) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.CenterStart)
+                                    .padding(start = 16.dp)
+                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                    .padding(12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Brightness6, contentDescription = null, tint = Color.White)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text("${(brightnessLevel * 100).toInt()}%", color = Color.White, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        
+                        // Volume overlay
+                        if (showVolumeOverlay) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 16.dp)
+                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                    .padding(12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        if (volumeLevel == 0f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                                        contentDescription = null,
+                                        tint = Color.White
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text("${(volumeLevel * 100).toInt()}%", color = Color.White, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        
+                        // Caption
+                        if (currentCaption.isNotBlank()) {
+                            Surface(
+                                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp),
+                                color = Color.Black.copy(alpha = 0.7f),
+                                shape = RoundedCornerShape(4.dp)
+                            ) {
+                                Text(
+                                    currentCaption,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
                     }
                 }
                 streamInfo?.let { info ->
@@ -181,6 +378,20 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     }
 
     if (showSpeedDialog) { AlertDialog(onDismissRequest = { showSpeedDialog = false }, title = { Text("Playback Speed") }, text = { Column { listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f).forEach { speed -> Row(modifier = Modifier.fillMaxWidth().clickable { currentSpeed = speed; exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(speed); PrefsManager.setPlaybackSpeed(context, speed); showSpeedDialog = false }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentSpeed == speed, onClick = { currentSpeed = speed; exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(speed); PrefsManager.setPlaybackSpeed(context, speed); showSpeedDialog = false }); Spacer(modifier = Modifier.width(8.dp)); Text("${speed}x") } } } }, confirmButton = { TextButton(onClick = { showSpeedDialog = false }) { Text("Close") } }) }
+    
+    if (showQuickActions) {
+        VideoQuickActionsBottomSheet(
+            video = video,
+            onDismiss = { showQuickActions = false },
+            onChannelClick = onChannelClick,
+            onBlockChannel = { channelName ->
+                val notInterestedRepo = NotInterestedRepository(context)
+                notInterestedRepo.blockChannel(channelId = null, name = channelName)
+            },
+            onNotInterested = { onBack() }
+        )
+    }
+    
     if (showHideDialog) {
         val notInterestedRepo = remember { NotInterestedRepository(context) }
         AlertDialog(
