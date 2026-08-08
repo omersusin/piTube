@@ -7,33 +7,41 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.AccountFetcher
 import com.omersusin.pitube.data.AuthManager
+import com.omersusin.pitube.data.NowPlaying
 import com.omersusin.pitube.data.PlayerHolder
 import com.omersusin.pitube.data.VideoItem
 import com.omersusin.pitube.service.PlaybackService
 import com.omersusin.pitube.ui.screens.*
 import com.omersusin.pitube.ui.theme.PiTubeTheme
 import com.omersusin.pitube.ui.theme.ThemeMode
+import kotlinx.coroutines.delay
 
 object PipState { val inPip = mutableStateOf(false) }
 
@@ -72,6 +80,29 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun MiniPlayerBar(onOpen: () -> Unit, onClose: () -> Unit) {
+    val context = LocalContext.current
+    val item = NowPlaying.current.value ?: return
+    var playing by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { while (true) { playing = PlayerHolder.getPlayer(context).isPlaying; delay(500) } }
+    Row(
+        modifier = Modifier.fillMaxWidth().height(56.dp).background(MaterialTheme.colorScheme.surfaceVariant).clickable(onClick = onOpen).padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(model = item.safeThumb, contentDescription = null, modifier = Modifier.width(88.dp).height(48.dp).clip(RoundedCornerShape(6.dp)), contentScale = ContentScale.Crop)
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(item.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
+            Text(item.uploaderName, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        IconButton(onClick = { val p = PlayerHolder.getPlayer(context); if (p.isPlaying) p.pause() else p.play() }) {
+            Icon(if (playing) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = "Play/Pause")
+        }
+        IconButton(onClick = onClose) { Icon(Icons.Default.Close, contentDescription = "Close") }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
@@ -90,18 +121,25 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
         } else account = null
     }
 
-    if (showDownloads) { DownloadsScreen(onBack = { showDownloads = false }); return }
-    if (showHistory) { HistoryScreen(onBack = { showHistory = false }, onVideoClick = { selectedVideo = it }); return }
-    if (selectedChannel != null) { ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it }); return }
-    if (showLogin) { YouTubeLoginScreen(onBack = { showLogin = false }); return }
-    if (selectedVideo != null) { VideoPlayerScreen(video = selectedVideo!!, onBack = { selectedVideo = null }, onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it }); return }
+    BackHandler {
+        when {
+            selectedVideo != null -> { if (PlayerHolder.getPlayer(context).isPlaying) NowPlaying.showMini.value = true; selectedVideo = null }
+            selectedChannel != null -> selectedChannel = null
+            showLogin -> showLogin = false
+            showDownloads -> showDownloads = false
+            showHistory -> showHistory = false
+            selectedTab == 4 || selectedTab == 3 -> selectedTab = 0
+            else -> (context as? android.app.Activity)?.finish()
+        }
+    }
 
-    val tabs = listOf(
-        TabItem("Home", Icons.Default.Home),
-        TabItem("Shorts", Icons.Default.PlayArrow),
-        TabItem("Subs", Icons.Default.Subscriptions),
-        TabItem("Settings", Icons.Default.Settings)
-    )
+    if (showDownloads) { DownloadsScreen(onBack = { showDownloads = false }); return }
+    if (showHistory) { HistoryScreen(onBack = { showHistory = false }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }); return }
+    if (selectedChannel != null) { ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }); return }
+    if (showLogin) { YouTubeLoginScreen(onBack = { showLogin = false }); return }
+    if (selectedVideo != null) { VideoPlayerScreen(video = selectedVideo!!, onBack = { if (PlayerHolder.getPlayer(context).isPlaying) NowPlaying.showMini.value = true; selectedVideo = null }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }, onChannelClick = { selectedChannel = it }); return }
+
+    val showMini = NowPlaying.showMini.value && NowPlaying.current.value != null
 
     Scaffold(
         topBar = {
@@ -110,34 +148,47 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                     title = { Text("piTube", style = MaterialTheme.typography.titleLarge) },
                     actions = {
                         IconButton(onClick = { selectedTab = 4 }) { Icon(Icons.Default.Search, contentDescription = "Search") }
-                        Surface(modifier = Modifier.size(32.dp).clickable { selectedTab = 3 }, shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
-                            val url = account?.avatarUrl
-                            if (url != null) AsyncImage(model = url, contentDescription = "Profile", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                            else Box(contentAlignment = Alignment.Center) { Text((account?.name?.firstOrNull() ?: 'U').toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.bodyMedium) }
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                     }
                 )
             }
         },
         bottomBar = {
-            NavigationBar {
-                tabs.forEachIndexed { index, tab ->
-                    NavigationBarItem(icon = { Icon(tab.icon, contentDescription = tab.label) }, label = { Text(tab.label) }, selected = selectedTab == index, onClick = { selectedTab = index })
+            Column {
+                if (showMini && selectedVideo == null) {
+                    MiniPlayerBar(
+                        onOpen = { NowPlaying.showMini.value = false; selectedVideo = NowPlaying.current.value },
+                        onClose = { PlayerHolder.getPlayer(context).stop(); NowPlaying.showMini.value = false; NowPlaying.current.value = null }
+                    )
+                }
+                NavigationBar {
+                    NavigationBarItem(icon = { Icon(Icons.Default.Home, contentDescription = "Home") }, label = { Text("Home") }, selected = selectedTab == 0, onClick = { selectedTab = 0 })
+                    NavigationBarItem(icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Shorts") }, label = { Text("Shorts") }, selected = selectedTab == 1, onClick = { selectedTab = 1 })
+                    NavigationBarItem(icon = { Icon(Icons.Default.Subscriptions, contentDescription = "Subs") }, label = { Text("Subs") }, selected = selectedTab == 2, onClick = { selectedTab = 2 })
+                    NavigationBarItem(
+                        icon = {
+                            Surface(modifier = Modifier.size(24.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
+                                val url = account?.avatarUrl
+                                if (url != null) AsyncImage(model = url, contentDescription = "You", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                else Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.Person, contentDescription = "You", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onPrimary) }
+                            }
+                        },
+                        label = { Text("You") },
+                        selected = selectedTab == 3,
+                        onClick = { selectedTab = 3 }
+                    )
                 }
             }
         }
     ) { paddingValues ->
         Surface(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             when (selectedTab) {
-                0 -> HomeScreen(onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it })
+                0 -> HomeScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }, onChannelClick = { selectedChannel = it })
                 1 -> ShortsScreen()
-                2 -> SubscriptionsScreen(onVideoClick = { selectedVideo = it })
+                2 -> SubscriptionsScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
                 3 -> SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { selectedTab = 0 }, onOpenLogin = { showLogin = true }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, account = account)
-                4 -> SearchScreen(onVideoClick = { selectedVideo = it })
+                4 -> SearchScreen(onVideoClick = { selectedVideo = it; NowPlaying.current.value = it })
             }
         }
     }
 }
-
-data class TabItem(val label: String, val icon: ImageVector)

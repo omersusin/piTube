@@ -19,65 +19,32 @@ import com.omersusin.pitube.data.AuthManager
 fun YouTubeLoginScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
-    var showCookiePaste by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("YouTube Login") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-            
+    Scaffold(topBar = { TopAppBar(title = { Text("YouTube Login") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }) }) { padding ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
                     WebView(ctx).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
-                        
                         webViewClient = object : WebViewClient() {
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 super.onPageFinished(view, url)
                                 isLoading = false
-                                
-                                // Check if we are on YouTube and logged in
                                 if (url?.contains("youtube.com") == true) {
                                     val cookieManager = CookieManager.getInstance()
-                                    val cookies = cookieManager.getCookie(url)
-                                    if (cookies != null && cookies.contains("SID=")) {
-                                        // Extract specific cookies
+                                    val raw = cookieManager.getCookie("https://www.youtube.com") ?: cookieManager.getCookie(url)
+                                    if (raw != null && raw.contains("SID=")) {
+                                        AuthManager.saveRawCookies(ctx, raw)
                                         val cookieMap = mutableMapOf<String, String>()
-                                        cookies.split(";").forEach { cookie ->
+                                        raw.split(";").forEach { cookie ->
                                             val parts = cookie.trim().split("=")
-                                            if (parts.size == 2) {
-                                                val key = parts[0]
-                                                val value = parts[1]
-                                                if (key in listOf("SID", "HSID", "SSID", "APISID", "SAPISID", "LOGIN_INFO", "PREF")) {
-                                                    cookieMap[key] = value
-                                                }
-                                            }
+                                            if (parts.size >= 2) cookieMap[parts[0]] = parts.drop(1).joinToString("=")
                                         }
-                                        if (cookieMap.isNotEmpty()) {
-                                            AuthManager.saveCookies(ctx, cookieMap)
-                                            // Navigate back to settings
-                                            onBack() 
-                                        }
+                                        AuthManager.saveCookies(ctx, cookieMap)
+                                        onBack()
                                     }
                                 }
                             }

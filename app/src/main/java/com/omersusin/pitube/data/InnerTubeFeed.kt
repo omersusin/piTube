@@ -13,125 +13,99 @@ import java.security.MessageDigest
 
 object InnerTubeFeed {
     private val client = OkHttpClient()
+    private const val WEB_VERSION = "2.20250311.00.00"
+    private const val UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
     private fun sha1(s: String): String =
         MessageDigest.getInstance("SHA-1").digest(s.toByteArray()).joinToString("") { "%02x".format(it) }
 
-    private fun getAuthHeader(cookies: Map<String, String>): String? {
-        // Google recently changed cookie names, check all possibilities
-        val sapisid = cookies["SAPISID"] ?: cookies["__Secure-3PAPISID"] ?: cookies["APISID"] ?: return null
+    private fun sapisidHash(cookies: Map<String, String>): String? {
+        val s = cookies["SAPISID"] ?: cookies["__Secure-3PAPISID"] ?: cookies["APISID"] ?: return null
         val ts = System.currentTimeMillis() / 1000
-        return "${ts}_${sha1("$ts $sapisid https://www.youtube.com")}"
+        return "${ts}_${sha1("$ts $s https://www.youtube.com")}"
     }
 
-    private fun buildContext(): JSONObject {
-        return JSONObject().apply {
-            put("context", JSONObject().apply {
-                put("client", JSONObject().apply {
-                    put("clientName", "ANDROID")
-                    put("clientVersion", "19.09.37")
-                    put("androidSdkVersion", 30)
-                    put("hl", "en")
-                    put("gl", "US")
-                })
+    private fun bodyJson(extra: (JSONObject) -> Unit): String {
+        val root = JSONObject()
+        root.put("context", JSONObject().apply {
+            put("client", JSONObject().apply {
+                put("clientName", "WEB"); put("clientVersion", WEB_VERSION); put("hl", "en"); put("gl", "US")
             })
-        }
+        })
+        extra(root)
+        return root.toString()
     }
 
     suspend fun fetchFeed(context: Context, browseId: String): List<VideoItem> = withContext(Dispatchers.IO) {
         try {
             val cookies = AuthManager.getCookies(context)
-            val auth = getAuthHeader(cookies)
-            val cookieHeader = cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
-            
-            val out = mutableListOf<VideoItem>()
-            var continuationToken: String? = null
-            
-            // Fetch up to 3 pages to get a full feed
-            for (page in 0..2) {
-                val body = buildContext()
-                if (continuationToken == null) {
-                    body.put("browseId", browseId)
-                } else {
-                    body.put("continuation", continuationToken)
-                }
+            if (cookies.isEmpty()) return@withContext emptyList()
+            val raw = AuthManager.getRawCookies(context)
+            val auth = sapisidHash(cookies)
 
-                val reqBuilder = Request.Builder()
+            val out = mutableListOf<VideoItem>()
+            var token: String? = null
+
+            for (page in 0..2) {
+                val body = if (token == null) bodyJson { it.put("browseId", browseId) } else bodyJson { it.put("continuation", token) }
+                val rb = Request.Builder()
                     .url("https://www.youtube.com/youtubei/v1/browse?prettyPrint=false")
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("User-Agent", "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip")
-                    .post(body.toString().toRequestBody("application/json".toMediaType()))
-
-                if (cookieHeader.isNotBlank()) reqBuilder.addHeader("Cookie", cookieHeader)
-                if (auth != null) reqBuilder.addHeader("Authorization", "SAPISIDHASH $auth")
-                reqBuilder.addHeader("X-YouTube-Client-Name", "3")
-                reqBuilder.addHeader("X-YouTube-Client-Version", "19.09.37")
-
-                val resp = client.newCall(reqBuilder.build()).execute()
+                    .addHeader("User-Agent", UA)
+                    .addHeader("Cookie", raw)
+                    .addHeader("Origin", "https://www.youtube.com")
+                    .addHeader("Referer", "https://www.youtube.com/")
+                    .addHeader("X-YouTube-Client-Name", "1")
+                    .addHeader("X-YouTube-Client-Version", WEB_VERSION)
+                if (auth != null) rb.addHeader("Authorization", "SAPISIDHASH $auth")
+                val resp = client.newCall(rb.post(body.toRequestBody("application/json".toMediaType())).build()).execute()
                 val json = JSONObject(resp.body?.string() ?: "{}")
-                
-                continuationToken = null
-                parseResponse(json, out, page == 0) { continuationToken = it }
-                
-                if (continuationToken == null) break
+
+                val before = out.size
+                walkVideos(json, out)
+                token = findToken(json)
+                if (out.size == before || token == null) break
             }
-            
             out.distinctBy { it.videoId }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
+        } catch (e: Exception) { e.printStackTrace(); emptyList() }
+    }
+
+    private fun walkVideos(node: Any?, out: MutableList<VideoItem>) {
+        when (node) {
+            is JSONObject -> {
+                val vr = node.optJSONObject("videoRenderer")
+                    ?: node.optJSONObject("richItemRenderer")?.optJSONObject("content")?.optJSONObject("videoRenderer")
+                if (vr != null) runCatching {
+                    val id = vr.getString("videoId")
+                    val title = vr.optJSONObject("title")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
+                        ?: vr.optJSONObject("title")?.optString("simpleText") ?: ""
+                    val thumb = vr.optJSONObject("thumbnail")?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url") ?: ""
+                    val by = vr.optJSONObject("shortBylineText")?.optJSONArray("runs")?.optJSONObject(0)
+                    val date = vr.optJSONObject("publishedTimeText")?.optString("simpleText")
+                    out.add(VideoItem(url = "https://www.youtube.com/watch?v=$id", title = title, thumbnailUrl = thumb,
+                        uploaderName = by?.optString("text") ?: "", uploaderAvatar = null, duration = 0, views = 0,
+                        uploadedDate = date, isShort = false))
+                }
+                val keys = node.keys()
+                while (keys.hasNext()) walkVideos(node.opt(keys.next()), out)
+            }
+            is JSONArray -> { for (i in 0 until node.length()) walkVideos(node.opt(i), out) }
         }
     }
 
-    private fun parseResponse(json: JSONObject, out: MutableList<VideoItem>, isInitial: Boolean, onContinuation: (String) -> Unit) {
-        val itemsArray: JSONArray? = if (isInitial) {
-            json.optJSONObject("contents")
-                ?.optJSONObject("twoColumnBrowseResultsRenderer")
-                ?.optJSONArray("tabs")
-                ?.optJSONObject(0)
-                ?.optJSONObject("tabRenderer")
-                ?.optJSONObject("content")
-                ?.optJSONObject("richGridRenderer")
-                ?.optJSONArray("contents")
-        } else {
-            json.optJSONArray("onResponseReceivedActions")
-                ?.optJSONObject(0)
-                ?.optJSONObject("appendContinuationItemsAction")
-                ?.optJSONArray("continuationItems")
-        }
-
-        if (itemsArray == null) return
-
-        for (i in 0 until itemsArray.length()) {
-            val item = itemsArray.optJSONObject(i) ?: continue
-            
-            val videoRenderer = item.optJSONObject("richItemRenderer")?.optJSONObject("content")?.optJSONObject("videoRenderer")
-                ?: item.optJSONObject("videoRenderer")
-                
-            if (videoRenderer != null) {
-                runCatching {
-                    val id = videoRenderer.getString("videoId")
-                    val title = videoRenderer.getJSONObject("title").optJSONArray("runs")?.optJSONObject(0)?.optString("text") 
-                        ?: videoRenderer.optJSONObject("title")?.optString("simpleText") ?: ""
-                    val thumb = videoRenderer.getJSONObject("thumbnail").getJSONArray("thumbnails").optJSONObject(0)?.optString("url") ?: ""
-                    val by = videoRenderer.optJSONObject("shortBylineText")?.optJSONArray("runs")?.optJSONObject(0)
-                    val date = videoRenderer.optJSONObject("publishedTimeText")?.optString("simpleText")
-                    
-                    out.add(VideoItem(
-                        url = "https://www.youtube.com/watch?v=$id", title = title, thumbnailUrl = thumb,
-                        uploaderName = by?.optString("text") ?: "", uploaderAvatar = null, duration = 0,
-                        views = 0, uploadedDate = date, isShort = false
-                    ))
+    private fun findToken(node: Any?): String? {
+        when (node) {
+            is JSONObject -> {
+                val cr = node.optJSONObject("continuationItemRenderer")
+                if (cr != null) {
+                    val t = cr.optJSONObject("continuationEndpoint")?.optJSONObject("continuationCommand")?.optString("token")
+                    if (!t.isNullOrBlank()) return t
                 }
+                val keys = node.keys()
+                while (keys.hasNext()) { findToken(node.opt(keys.next()))?.let { return it } }
             }
-            
-            val contRenderer = item.optJSONObject("continuationItemRenderer")
-            if (contRenderer != null) {
-                val token = contRenderer.optJSONObject("continuationEndpoint")
-                    ?.optJSONObject("continuationCommand")
-                    ?.optString("token")
-                if (token != null) onContinuation(token)
-            }
+            is JSONArray -> { for (i in 0 until node.length()) { findToken(node.opt(i))?.let { return it } } }
         }
+        return null
     }
 }

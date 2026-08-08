@@ -33,12 +33,13 @@ fun SettingsScreen(
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn(context)) }
     var sponsorBlock by remember { mutableStateOf(PrefsManager.isSponsorBlockEnabled(context)) }
     var zenMode by remember { mutableStateOf(PrefsManager.isZenMode(context)) }
-    var volNorm by remember { mutableStateOf(PrefsManager.isVolumeNormalizationEnabled(context)) }
     var hideShorts by remember { mutableStateOf(PrefsManager.isHideShorts(context)) }
     var hideCounters by remember { mutableStateOf(PrefsManager.isHideCounters(context)) }
     var hideComments by remember { mutableStateOf(PrefsManager.isHideComments(context)) }
     var autoExpand by remember { mutableStateOf(PrefsManager.isAutoExpandDesc(context)) }
     var hideLikes by remember { mutableStateOf(PrefsManager.isHideLikeButtons(context)) }
+    var showCookieDialog by remember { mutableStateOf(false) }
+    var cookieText by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") }; Text("Settings", style = MaterialTheme.typography.headlineMedium) }
@@ -57,11 +58,19 @@ fun SettingsScreen(
                 Column { Text(account?.name ?: "Logged in to YouTube", style = MaterialTheme.typography.bodyLarge); Text("Google account", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { AuthManager.logout(context); AccountFetcher.clearCache(context); isLoggedIn = false }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) { Text("Logout") }
+            Row {
+                Button(onClick = { AuthManager.logout(context); AccountFetcher.clearCache(context); isLoggedIn = false }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) { Text("Logout") }
+                Spacer(modifier = Modifier.width(8.dp))
+                OutlinedButton(onClick = { showCookieDialog = true }) { Text("Paste cookies") }
+            }
         } else {
             Text("Not logged in", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = onOpenLogin) { Icon(Icons.Default.AccountCircle, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Sign in with Google") }
+            Row {
+                Button(onClick = onOpenLogin) { Icon(Icons.Default.AccountCircle, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Sign in with Google") }
+                Spacer(modifier = Modifier.width(8.dp))
+                OutlinedButton(onClick = { showCookieDialog = true }) { Text("Paste cookies") }
+            }
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -95,5 +104,15 @@ fun SettingsScreen(
         Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.SYSTEM, onClick = { onThemeChange(ThemeMode.SYSTEM) }); Text("System", modifier = Modifier.clickable { onThemeChange(ThemeMode.SYSTEM) }) }
         Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.LIGHT, onClick = { onThemeChange(ThemeMode.LIGHT) }); Text("Light", modifier = Modifier.clickable { onThemeChange(ThemeMode.LIGHT) }) }
         Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.DARK, onClick = { onThemeChange(ThemeMode.DARK) }); Text("Dark", modifier = Modifier.clickable { onThemeChange(ThemeMode.DARK) }) }
+    }
+
+    if (showCookieDialog) {
+        AlertDialog(
+            onDismissRequest = { showCookieDialog = false },
+            title = { Text("Paste YouTube cookies") },
+            text = { Column { Text("On your PC: open youtube.com → F12 → Network → copy the Cookie header value.", style = MaterialTheme.typography.bodySmall); Spacer(modifier = Modifier.height(8.dp)); OutlinedTextField(value = cookieText, onValueChange = { cookieText = it }, modifier = Modifier.fillMaxWidth(), minLines = 3) } },
+            confirmButton = { Button(onClick = { AuthManager.saveRawCookies(context, cookieText.trim()); isLoggedIn = true; showCookieDialog = false }) { Text("Save") } },
+            dismissButton = { TextButton(onClick = { showCookieDialog = false }) { Text("Cancel") } }
+        )
     }
 }

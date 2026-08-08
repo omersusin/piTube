@@ -14,76 +14,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.omersusin.pitube.data.ChannelInfo
-import com.omersusin.pitube.data.PipedApiService
+import com.omersusin.pitube.data.ChannelResolver
 import com.omersusin.pitube.data.VideoItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit) {
-    var channelInfo by remember { mutableStateOf<ChannelInfo?>(null) }
+    var page by remember { mutableStateOf<ChannelResolver.ChannelPage?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(channelId) {
-        try {
-            channelInfo = PipedApiService.create().getChannel(channelId)
-        } catch (e: Exception) { } finally { isLoading = false }
+        scope.launch { page = ChannelResolver.resolve(channelId); isLoading = false }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(channelInfo?.name ?: "Channel") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") }
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(page?.name ?: "Channel") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }) }) { padding ->
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        } else if (channelInfo != null) {
+        } else if (page == null || page!!.videos.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { Text("No videos found") }
+        } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
                 item {
                     Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        AsyncImage(
-                            model = channelInfo!!.avatarUrl,
-                            contentDescription = null,
-                            modifier = Modifier.size(96.dp).clip(CircleShape)
-                        )
+                        page?.avatarUrl?.let { AsyncImage(model = it, contentDescription = null, modifier = Modifier.size(96.dp).clip(CircleShape)) }
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(channelInfo!!.name, style = MaterialTheme.typography.headlineMedium)
+                        Text(page?.name ?: "", style = MaterialTheme.typography.headlineMedium)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Videos", style = MaterialTheme.typography.titleMedium)
                     }
                 }
-                
-                item {
-                    Text("Videos", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp))
-                }
-                
-                items(channelInfo!!.relatedStreams) { video ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onVideoClick(video) }
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AsyncImage(
-                            model = video.thumbnailUrl,
-                            contentDescription = null,
-                            modifier = Modifier.width(120.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(video.uploaderName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                items(page!!.videos) { video ->
+                    Column(modifier = Modifier.fillMaxWidth().clickable { onVideoClick(video) }.padding(bottom = 16.dp)) {
+                        AsyncImage(model = video.safeThumb, contentDescription = null, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f), contentScale = ContentScale.Crop)
+                        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                            Text(video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text("${video.uploaderName}${video.uploadedDate?.let { " • $it" } ?: ""}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
