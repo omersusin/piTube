@@ -42,6 +42,9 @@ import com.omersusin.pitube.service.PlaybackService
 import com.omersusin.pitube.ui.screens.*
 import com.omersusin.pitube.ui.theme.PiTubeTheme
 import com.omersusin.pitube.ui.theme.ThemeMode
+import com.omersusin.pitube.ui.components.PiTubeSplashScreen
+import com.omersusin.pitube.ui.components.FloatingBottomNavBar
+import com.omersusin.pitube.ui.components.NavItem
 import kotlinx.coroutines.delay
 
 object PipState { val inPip = mutableStateOf(false) }
@@ -167,6 +170,7 @@ fun MiniPlayerBar(onOpen: () -> Unit, onClose: () -> Unit) {
 @Composable
 fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     val context = LocalContext.current
+    var showSplash by remember { mutableStateOf(true) }
     var selectedTab by remember { mutableIntStateOf(0) }
     var showLogin by remember { mutableStateOf(false) }
     var showDownloads by remember { mutableStateOf(false) }
@@ -178,6 +182,11 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     var selectedChannel by remember { mutableStateOf<String?>(null) }
     var account by remember { mutableStateOf<AccountFetcher.AccountInfo?>(null) }
+
+    if (showSplash) {
+        PiTubeSplashScreen(onAnimationFinished = { showSplash = false })
+        return
+    }
 
     LaunchedEffect(showLogin) {
         if (AuthManager.isLoggedIn(context)) {
@@ -246,6 +255,13 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
         TabItem("You", Icons.Default.Person)
     )
 
+    val navItems = listOf(
+        NavItem(0, Icons.Filled.Home, Icons.Outlined.Home, "Home"),
+        NavItem(1, Icons.Filled.PlayArrow, Icons.Outlined.PlayArrow, "Shorts"),
+        NavItem(2, Icons.Filled.Subscriptions, Icons.Outlined.Subscriptions, "Subs"),
+        NavItem(3, Icons.Filled.Person, Icons.Outlined.Person, "You")
+    )
+
     Scaffold(
         topBar = {
             if (selectedTab != 3) {
@@ -273,24 +289,11 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                         }
                     )
                 }
-                NavigationBar {
-                    tabs.forEachIndexed { index, tab ->
-                        NavigationBarItem(
-                            icon = {
-                                if (index == 3) {
-                                    Surface(modifier = Modifier.size(24.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
-                                        val url = account?.avatarUrl
-                                        if (url != null) AsyncImage(model = url, contentDescription = "You", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                                        else Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.Person, "You", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onPrimary) }
-                                    }
-                                } else Icon(tab.icon, contentDescription = tab.label)
-                            },
-                            label = { Text(tab.label) },
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index }
-                        )
-                    }
-                }
+                FloatingBottomNavBar(
+                    selectedIndex = selectedTab,
+                    onItemSelected = { selectedTab = it },
+                    items = navItems
+                )
             }
         }
     ) { paddingValues ->

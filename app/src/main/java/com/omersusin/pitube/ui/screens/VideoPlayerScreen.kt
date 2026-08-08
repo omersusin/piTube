@@ -363,7 +363,46 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 streamInfo?.let { info ->
                     item { Column(modifier = Modifier.padding(16.dp)) { Text(text = if (!showOriginal && deArrowTitle != null) deArrowTitle!! else info.title.ifBlank { video.title }, style = MaterialTheme.typography.titleLarge); if (deArrowTitle != null && deArrowTitle != info.title) { TextButton(onClick = { showOriginal = !showOriginal }) { Text(if (showOriginal) "Show honest title" else "Show original title", style = MaterialTheme.typography.bodySmall) } }; Spacer(modifier = Modifier.height(4.dp)); Row(modifier = Modifier.clickable { onChannelClick(info.uploaderUrl.substringAfter("/channel/")) }, verticalAlignment = Alignment.CenterVertically) { AsyncImage(model = video.uploaderAvatar, contentDescription = null, modifier = Modifier.size(40.dp).clip(CircleShape), contentScale = ContentScale.Crop); Spacer(modifier = Modifier.width(8.dp)); Text(info.uploader, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f)); Button(onClick = { scope.launch { if (VideoEngagement.subscribe(context, info.uploaderUrl.substringAfter("/channel/"), !subscribed)) subscribed = !subscribed } }, colors = ButtonDefaults.buttonColors(containerColor = if (subscribed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.error)) { Text(if (subscribed) "Subscribed" else "Subscribe") } } } }
                     if (!hideLikes && !hideCounters) {
-                        item { Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) { Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceVariant) { Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.likes?.toLong() ?: 0L)); Spacer(modifier = Modifier.width(12.dp)); Icon(Icons.Default.ThumbDown, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.dislikes?.toLong() ?: 0L)) } }; TextButton(onClick = { sleepChoice = when (sleepChoice) { 0 -> 5; 5 -> 15; 15 -> 30; else -> 0 }; sleepDeadline = if (sleepChoice == 0) 0L else System.currentTimeMillis() + sleepChoice * 60_000L }) { Text(if (sleepChoice == 0) "Sleep" else "${sleepChoice}m") }; Spacer(modifier = Modifier.weight(1f)); IconButton(onClick = { showSpeedDialog = true }) { Icon(Icons.Default.Speed, contentDescription = "Speed", tint = if (currentSpeed != 1.0f) MaterialTheme.colorScheme.primary else Color.Unspecified) }; if (captionTracks.isNotEmpty()) { IconButton(onClick = { activeCaption = if (activeCaption == null) captionTracks.firstOrNull() else null }) { Icon(Icons.Default.Subtitles, contentDescription = "CC", tint = if (activeCaption != null) MaterialTheme.colorScheme.primary else Color.Unspecified) } }; Button(onClick = { if (!downloadStarted) { downloadStarted = true; val r = resolved; val title = info.title.ifBlank { video.title }; val item = DownloadTracker.start(video.videoId + "_" + System.currentTimeMillis(), title); DownloadManager.downloadVideo(context, title, r?.downloadUrl, r?.audioUrl, r?.playUrl, item) } }) { if (downloadStarted) Icon(Icons.Default.Done, contentDescription = "Started") else Icon(Icons.Default.Download, contentDescription = "Download") } } }
+                        item {
+                            VideoActionRow(
+                                likeState = if (votes?.likes != null && votes!!.likes > 0) "LIKED" else "NONE",
+                                likeCount = votes?.likes?.toLong(),
+                                dislikeCount = votes?.dislikes?.toLong(),
+                                onLikeClick = { scope.launch { VideoEngagement.like(context, video.videoId, true) } },
+                                onDislikeClick = { scope.launch { VideoEngagement.like(context, video.videoId, false) } },
+                                onShareClick = {
+                                    val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(android.content.Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=${video.videoId}")
+                                    }
+                                    context.startActivity(android.content.Intent.createChooser(shareIntent, "Share video"))
+                                },
+                                onDownloadClick = {
+                                    if (!downloadStarted) {
+                                        downloadStarted = true
+                                        val r = resolved
+                                        val title = info.title.ifBlank { video.title }
+                                        val item = DownloadTracker.start(video.videoId + "_" + System.currentTimeMillis(), title)
+                                        DownloadManager.downloadVideo(context, title, r?.downloadUrl, r?.audioUrl, r?.playUrl, item)
+                                    }
+                                },
+                                onSaveClick = { /* TODO: save */ },
+                                isSaved = false,
+                                isDownloaded = downloadStarted,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextButton(onClick = { sleepChoice = when (sleepChoice) { 0 -> 5; 5 -> 15; 15 -> 30; else -> 0 }; sleepDeadline = if (sleepChoice == 0) 0L else System.currentTimeMillis() + sleepChoice * 60_000L }) { Text(if (sleepChoice == 0) "Sleep" else "${sleepChoice}m") }
+                                Spacer(modifier = Modifier.weight(1f))
+                                IconButton(onClick = { showSpeedDialog = true }) { Icon(Icons.Default.Speed, contentDescription = "Speed", tint = if (currentSpeed != 1.0f) MaterialTheme.colorScheme.primary else Color.Unspecified) }
+                                if (captionTracks.isNotEmpty()) { IconButton(onClick = { activeCaption = if (activeCaption == null) captionTracks.firstOrNull() else null }) { Icon(Icons.Default.Subtitles, contentDescription = "CC", tint = if (activeCaption != null) MaterialTheme.colorScheme.primary else Color.Unspecified) } }
+                            }
+                        }
                     }
                     // Chapters button
                     if (chapters.isNotEmpty()) {

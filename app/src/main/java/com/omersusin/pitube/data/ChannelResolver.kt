@@ -8,7 +8,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
-data class ChannelPage(val name: String, val avatarUrl: String?, val videos: List<VideoItem>)
+data class ChannelPage(val name: String, val avatarUrl: String?, val bannerUrl: String? = null, val videos: List<VideoItem>)
 
 object ChannelResolver {
     private val client = OkHttpClient.Builder()
@@ -34,6 +34,8 @@ object ChannelResolver {
                 ?.optJSONObject("channelMetadataRenderer")
             val name = metadata?.optString("title") ?: ""
             val avatar = metadata?.optJSONObject("avatar")
+                ?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url")
+            val banner = metadata?.optJSONObject("banner")
                 ?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url")
 
             val videos = mutableListOf<VideoItem>()
@@ -85,7 +87,7 @@ object ChannelResolver {
                 }
             }
 
-            ChannelPage(name, avatar, videos)
+            ChannelPage(name, avatar, banner, videos)
         } catch (e: Exception) {
             e.printStackTrace()
             null

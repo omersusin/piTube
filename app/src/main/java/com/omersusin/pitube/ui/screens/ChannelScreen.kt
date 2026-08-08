@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.ChannelResolver
 import com.omersusin.pitube.data.VideoItem
+import com.omersusin.pitube.ui.components.ChannelBanner
 import androidx.activity.compose.BackHandler
 import kotlinx.coroutines.launch
 
@@ -64,6 +65,9 @@ fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoIte
             }
         } else {
             Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                // Channel Banner
+                ChannelBanner(imageUrl = page?.bannerUrl)
+
                 // Channel Header
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
