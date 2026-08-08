@@ -33,31 +33,37 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     var isLoadingMore by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     var isGrid by remember { mutableStateOf(false) }
-    var loadCount by remember { mutableIntStateOf(0) }
+    var feedPage by remember { mutableIntStateOf(0) }
 
     val listState = rememberLazyListState()
+    val isLoggedIn = remember { AuthManager.isLoggedIn(context) }
 
     val loadMore = {
         if (!isLoadingMore) {
             scope.launch {
                 isLoadingMore = true
                 try {
-                    delay(500) // Debounce
-                    val api = PipedApiService.create()
-                    // Get trending with different regions for variety
-                    val regions = listOf("US", "GB", "DE", "JP", "IN", "BR", "FR", "KR")
-                    val region = regions[loadCount % regions.size]
-                    loadCount++
-                    
-                    val moreVideos = api.getTrending(region)
-                    
-                    // Filter out already shown videos
-                    val currentIds = videos.map { it.videoId }.toSet()
-                    val newVideos = moreVideos.filter { it.videoId !in currentIds }
-                    
-                    // Add new videos with some shuffling for variety
-                    if (newVideos.isNotEmpty()) {
-                        videos = videos + newVideos.shuffled()
+                    delay(500)
+                    if (isLoggedIn) {
+                        // Load more from personalized feed
+                        feedPage++
+                        val feedVideos = InnerTubeFeed.fetchFeed(context, "FEwhat_to_watch")
+                        val currentIds = videos.map { it.videoId }.toSet()
+                        val newVideos = feedVideos.filter { it.videoId !in currentIds }
+                        if (newVideos.isNotEmpty()) {
+                            videos = videos + newVideos
+                        }
+                    } else {
+                        // Load more trending
+                        val regions = listOf("US", "GB", "DE", "JP", "IN", "BR", "FR", "KR")
+                        val region = regions[feedPage % regions.size]
+                        feedPage++
+                        val moreVideos = PipedApiService.create().getTrending(region)
+                        val currentIds = videos.map { it.videoId }.toSet()
+                        val newVideos = moreVideos.filter { it.videoId !in currentIds }
+                        if (newVideos.isNotEmpty()) {
+                            videos = videos + newVideos.shuffled()
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -71,13 +77,25 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     val refresh = {
         scope.launch {
             isRefreshing = true
-            loadCount = 0
+            feedPage = 0
             try {
-                FlowNeuroEngine.initialize(context)
-                val api = PipedApiService.create()
-                val trending = api.getTrending()
-                val ranked = FlowNeuroEngine.rank(context, trending)
-                videos = ranked
+                if (isLoggedIn) {
+                    // Fetch personalized feed from YouTube
+                    val feedVideos = InnerTubeFeed.fetchFeed(context, "FEwhat_to_watch")
+                    if (feedVideos.isNotEmpty()) {
+                        videos = feedVideos
+                    } else {
+                        // Fallback to trending if personalized feed is empty
+                        videos = PipedApiService.create().getTrending()
+                    }
+                } else {
+                    // Not logged in - use trending
+                    FlowNeuroEngine.initialize(context)
+                    val api = PipedApiService.create()
+                    val trending = api.getTrending()
+                    val ranked = FlowNeuroEngine.rank(context, trending)
+                    videos = ranked
+                }
             } catch (e: Exception) {
                 try {
                     videos = PipedApiService.create().getTrending()
