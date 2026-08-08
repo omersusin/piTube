@@ -219,3 +219,11 @@ fun loadTheme(ctx: android.content.Context): ThemeMode = try {
 fun saveTheme(ctx: android.content.Context, m: ThemeMode) {
     ctx.getSharedPreferences("pitube_theme", 0).edit().putString("mode", m.name).apply()
 }
+
+fun loadTheme(ctx: android.content.Context): ThemeMode = try {
+    ThemeMode.valueOf(ctx.getSharedPreferences("pitube_theme", 0).getString("mode", "SYSTEM") ?: "SYSTEM")
+} catch (e: Exception) { ThemeMode.SYSTEM }
+
+fun saveTheme(ctx: android.content.Context, m: ThemeMode) {
+    ctx.getSharedPreferences("pitube_theme", 0).edit().putString("mode", m.name).apply()
+}
