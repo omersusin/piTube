@@ -34,8 +34,7 @@ import coil.compose.AsyncImage
 import com.omersusin.pitube.PipState
 import com.omersusin.pitube.data.*
 import com.omersusin.pitube.data.addWatchHistory
-import com.omersusin.pitube.ui.components.VideoQuickActionsBottomSheet
-import com.omersusin.pitube.ui.components.videoPlayerControls
+import com.omersusin.pitube.ui.components.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -84,6 +83,9 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var subscribed by remember { mutableStateOf(false) }
     var showHideDialog by remember { mutableStateOf(false) }
     var showQuickActions by remember { mutableStateOf(false) }
+    var showChapters by remember { mutableStateOf(false) }
+    var showDescription by remember { mutableStateOf(false) }
+    var chapters by remember { mutableStateOf<List<VideoChapter>>(emptyList()) }
 
     // Gesture state
     var showControls by remember { mutableStateOf(true) }
@@ -134,6 +136,8 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
                 try { captionTracks = Captions.tracks(video.videoId) } catch (e: Exception) { }
+                // Load chapters from stream info
+                chapters = streamInfo?.chapters ?: emptyList()
             } catch (e: Exception) { error = e.message } finally { isLoading = false }
         }
         scope.launch {
@@ -363,8 +367,49 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                     if (!hideLikes && !hideCounters) {
                         item { Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) { Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceVariant) { Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.ThumbUp, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.likes?.toLong() ?: 0L)); Spacer(modifier = Modifier.width(12.dp)); Icon(Icons.Default.ThumbDown, contentDescription = null, modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(6.dp)); Text(formatCount(votes?.dislikes?.toLong() ?: 0L)) } }; TextButton(onClick = { sleepChoice = when (sleepChoice) { 0 -> 5; 5 -> 15; 15 -> 30; else -> 0 }; sleepDeadline = if (sleepChoice == 0) 0L else System.currentTimeMillis() + sleepChoice * 60_000L }) { Text(if (sleepChoice == 0) "Sleep" else "${sleepChoice}m") }; Spacer(modifier = Modifier.weight(1f)); IconButton(onClick = { showSpeedDialog = true }) { Icon(Icons.Default.Speed, contentDescription = "Speed", tint = if (currentSpeed != 1.0f) MaterialTheme.colorScheme.primary else Color.Unspecified) }; if (captionTracks.isNotEmpty()) { IconButton(onClick = { activeCaption = if (activeCaption == null) captionTracks.firstOrNull() else null }) { Icon(Icons.Default.Subtitles, contentDescription = "CC", tint = if (activeCaption != null) MaterialTheme.colorScheme.primary else Color.Unspecified) } }; Button(onClick = { if (!downloadStarted) { downloadStarted = true; val r = resolved; val title = info.title.ifBlank { video.title }; val item = DownloadTracker.start(video.videoId + "_" + System.currentTimeMillis(), title); DownloadManager.downloadVideo(context, title, r?.downloadUrl, r?.audioUrl, r?.playUrl, item) } }) { if (downloadStarted) Icon(Icons.Default.Done, contentDescription = "Started") else Icon(Icons.Default.Download, contentDescription = "Download") } } }
                     }
+                    // Chapters button
+                    if (chapters.isNotEmpty()) {
+                        item {
+                            OutlinedButton(
+                                onClick = { showChapters = true },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Icon(Icons.Default.List, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Chapters (${chapters.size})")
+                            }
+                        }
+                    }
+                    
                     if (showChat && chatMessages.isNotEmpty()) { item { Text("Live Chat", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp), color = MaterialTheme.colorScheme.primary) }; items(chatMessages.reversed().take(50)) { msg -> Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) { Text("${msg.author}: ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary); Text(msg.text, style = MaterialTheme.typography.bodyMedium) } } }
-                    item { var expanded by remember { mutableStateOf(descriptionExpanded) }; Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).clickable { expanded = !expanded }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) { Column(modifier = Modifier.padding(12.dp)) { Text(info.description, style = MaterialTheme.typography.bodyMedium, maxLines = if (expanded) Int.MAX_VALUE else 3, overflow = TextOverflow.Ellipsis); Text(text = if (expanded) "Show less" else "Show more", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp)) } } }
+                    
+                    // Description with show more button
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .clickable { showDescription = true },
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    info.description,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Show more...",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
                     item { Column(modifier = Modifier.padding(horizontal = 16.dp)) { Text("Timestamp Notes", style = MaterialTheme.typography.titleMedium); Spacer(modifier = Modifier.height(8.dp)); Row(verticalAlignment = Alignment.CenterVertically) { OutlinedTextField(value = noteText, onValueChange = { noteText = it }, modifier = Modifier.weight(1f), placeholder = { Text("Note...") }, singleLine = true); Spacer(modifier = Modifier.width(8.dp)); Button(onClick = { if (noteText.isNotBlank()) { NotesManager.addNote(context, video.videoId, VideoNote(exoPlayer.currentPosition, noteText.trim())); notes = NotesManager.getNotes(context, video.videoId); noteText = "" } }) { Icon(Icons.Default.Add, contentDescription = "Add") } }; notes.forEachIndexed { index, note -> Row(modifier = Modifier.fillMaxWidth().clickable { exoPlayer.seekTo(note.timeMs) }.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) { Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.colorScheme.primaryContainer) { Text(formatTimestamp(note.timeMs), modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.bodySmall) }; Spacer(modifier = Modifier.width(8.dp)); Text(note.text, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium); IconButton(onClick = { NotesManager.deleteNote(context, video.videoId, index); notes = NotesManager.getNotes(context, video.videoId) }) { Icon(Icons.Default.Close, contentDescription = "Delete", modifier = Modifier.size(16.dp)) } } } } }
                 }
                 if (!zenMode && streamInfo?.relatedStreams?.isNotEmpty() == true) { item { Text("Related Videos", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp)) }; streamInfo?.relatedStreams?.let { related -> items(related.filter { !it.isShort || !PrefsManager.isHideShorts(context) }) { rv -> Row(modifier = Modifier.fillMaxWidth().clickable { onVideoClick(rv) }.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { AsyncImage(model = rv.safeThumb, contentDescription = null, modifier = Modifier.width(140.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop); Spacer(modifier = Modifier.width(12.dp)); Column { Text(rv.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis); Spacer(modifier = Modifier.height(4.dp)); Text(rv.uploaderName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } } } } }
@@ -412,6 +457,32 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                     onBack()
                 }) { Text("Hide Channel") }
             }
+        )
+    }
+
+    // Chapters Bottom Sheet
+    if (showChapters && chapters.isNotEmpty()) {
+        ChaptersBottomSheet(
+            chapters = chapters,
+            currentPositionMs = exoPlayer.currentPosition,
+            onChapterClick = { timestampMs ->
+                exoPlayer.seekTo(timestampMs)
+                showChapters = false
+            },
+            onDismiss = { showChapters = false }
+        )
+    }
+
+    // Description Bottom Sheet
+    if (showDescription && streamInfo != null) {
+        DescriptionBottomSheet(
+            streamInfo = streamInfo!!,
+            currentPositionMs = exoPlayer.currentPosition,
+            onTimestampClick = { timestampMs ->
+                exoPlayer.seekTo(timestampMs)
+                showDescription = false
+            },
+            onDismiss = { showDescription = false }
         )
     }
 }
