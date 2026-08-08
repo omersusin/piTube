@@ -20,7 +20,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.omersusin.pitube.data.AccountFetcher
+import com.omersusin.pitube.data.AuthManager
 import com.omersusin.pitube.data.PlayerHolder
 import com.omersusin.pitube.data.VideoItem
 import com.omersusin.pitube.service.PlaybackService
@@ -65,10 +70,20 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
+    val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
     var showLogin by remember { mutableStateOf(false) }
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     var selectedChannel by remember { mutableStateOf<String?>(null) }
+    var account by remember { mutableStateOf<AccountFetcher.AccountInfo?>(null) }
+
+    // Refresh account identity when app opens or after login screen closes
+    LaunchedEffect(showLogin) {
+        if (AuthManager.isLoggedIn(context)) {
+            account = AccountFetcher.getCached(context)
+                ?: AccountFetcher.fetch(context)?.also { AccountFetcher.cache(context, it) }
+        } else account = null
+    }
 
     if (selectedChannel != null) {
         ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it })
@@ -99,8 +114,13 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                             shape = CircleShape,
                             color = MaterialTheme.colorScheme.primary
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("U", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.bodyMedium)
+                            val url = account?.avatarUrl
+                            if (url != null) {
+                                AsyncImage(model = url, contentDescription = "Profile", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                            } else {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text((account?.name?.firstOrNull() ?: 'U').toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.bodyMedium)
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.width(12.dp))
@@ -126,7 +146,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                 0 -> HomeScreen(onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it })
                 1 -> ShortsScreen()
                 2 -> SubscriptionsScreen(onVideoClick = { selectedVideo = it })
-                3 -> SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { selectedTab = 0 }, onOpenLogin = { showLogin = true })
+                3 -> SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { selectedTab = 0 }, onOpenLogin = { showLogin = true }, account = account)
                 4 -> SearchScreen(onVideoClick = { selectedVideo = it })
             }
         }

@@ -2,6 +2,7 @@ package com.omersusin.pitube.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
@@ -9,8 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.omersusin.pitube.data.AccountFetcher
 import com.omersusin.pitube.data.AuthManager
 import com.omersusin.pitube.data.PrefsManager
 import com.omersusin.pitube.ui.theme.ThemeMode
@@ -21,7 +25,8 @@ fun SettingsScreen(
     currentTheme: ThemeMode,
     onThemeChange: (ThemeMode) -> Unit,
     onBack: () -> Unit,
-    onOpenLogin: () -> Unit
+    onOpenLogin: () -> Unit,
+    account: AccountFetcher.AccountInfo?
 ) {
     val context = LocalContext.current
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn(context)) }
@@ -41,10 +46,27 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         if (isLoggedIn) {
-            Text("Logged in to YouTube", style = MaterialTheme.typography.bodyLarge)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(modifier = Modifier.size(48.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
+                    val url = account?.avatarUrl
+                    if (url != null) {
+                        AsyncImage(model = url, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                    } else {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text((account?.name?.firstOrNull() ?: 'U').toString(), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(account?.name ?: "Logged in to YouTube", style = MaterialTheme.typography.bodyLarge)
+                    Text("Google account", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = {
                 AuthManager.logout(context)
+                AccountFetcher.clearCache(context)
                 isLoggedIn = false
             }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
                 Text("Logout")
@@ -66,18 +88,12 @@ fun SettingsScreen(
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("SponsorBlock", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            Switch(checked = sponsorBlock, onCheckedChange = {
-                sponsorBlock = it
-                PrefsManager.setSponsorBlockEnabled(context, it)
-            })
+            Switch(checked = sponsorBlock, onCheckedChange = { sponsorBlock = it; PrefsManager.setSponsorBlockEnabled(context, it) })
         }
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Volume Normalization", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            Switch(checked = volNorm, onCheckedChange = {
-                volNorm = it
-                PrefsManager.setVolumeNormalizationEnabled(context, it)
-            })
+            Switch(checked = volNorm, onCheckedChange = { volNorm = it; PrefsManager.setVolumeNormalizationEnabled(context, it) })
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -90,10 +106,7 @@ fun SettingsScreen(
                 Text("Zen Mode", style = MaterialTheme.typography.bodyLarge)
                 Text("Home shows only subscriptions", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Switch(checked = zenMode, onCheckedChange = {
-                zenMode = it
-                PrefsManager.setZenMode(context, it)
-            })
+            Switch(checked = zenMode, onCheckedChange = { zenMode = it; PrefsManager.setZenMode(context, it) })
         }
 
         Spacer(modifier = Modifier.height(24.dp))
