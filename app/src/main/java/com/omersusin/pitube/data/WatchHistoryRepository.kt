@@ -58,3 +58,16 @@ object WatchHistoryRepository {
 fun WatchHistoryEntry.completionPercentage(): Int {
     return if (totalDurationMs > 0) ((watchDurationMs.toFloat() / totalDurationMs) * 100).toInt() else 0
 }
+
+fun addVideo(context: Context, video: VideoItem) {
+    try {
+        val file = java.io.File(context.filesDir, "watch_history.json")
+        val gson = com.google.gson.Gson()
+        val type = object : com.google.gson.reflect.TypeToken<MutableList<VideoItem>>() {}.type
+        val list: MutableList<VideoItem> = if (file.exists()) (gson.fromJson(file.readText(), type) ?: mutableListOf()) else mutableListOf()
+        list.removeAll { it.videoId == video.videoId }
+        list.add(0, video)
+        if (list.size > 100) list.removeAt(list.size - 1)
+        file.writeText(gson.toJson(list))
+    } catch (e: Exception) { e.printStackTrace() }
+}

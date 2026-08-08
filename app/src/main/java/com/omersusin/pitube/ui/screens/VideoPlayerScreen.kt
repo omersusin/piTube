@@ -98,7 +98,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     val comments = remember(video.videoId) { Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(PipedApiService.create(), video.videoId) }.flow }.collectAsLazyPagingItems()
 
     LaunchedEffect(video.videoId) {
-        HistoryManager.addToHistory(context, video)
+        HistoryManager.addToHistory(context, video); WatchHistoryRepository.addVideo(context, video)
         StatsRepo.record(context, video.videoId, video.uploaderName)
         isLoading = true; error = null; downloadStarted = false; deArrowTitle = null; showOriginal = false; chatMessages = emptyList()
         notes = NotesManager.getNotes(context, video.videoId)

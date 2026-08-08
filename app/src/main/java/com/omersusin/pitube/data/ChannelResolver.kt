@@ -2,29 +2,44 @@ package com.omersusin.pitube.data
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.schabi.newpipe.extractor.ServiceList
+import org.schabi.newpipe.extractor.channel.ChannelInfo
+import org.schabi.newpipe.extractor.stream.StreamInfoItem
+
+data class ChannelPage(val name: String, val avatarUrl: String?, val videos: List<VideoItem>)
 
 object ChannelResolver {
-    data class ChannelPage(val name: String, val avatarUrl: String?, val videos: List<VideoItem>)
-
     suspend fun resolve(channelIdOrUrl: String): ChannelPage? = withContext(Dispatchers.IO) {
-        val raw = channelIdOrUrl.trim()
-        val id = when {
-            raw.contains("/channel/") -> raw.substringAfter("/channel/").trim('/')
-            raw.startsWith("UC") -> raw
-            else -> raw
-        }
-        // 1) Piped
-        if (id.startsWith("UC")) {
-            try {
-                val ch = PipedApiService.create().getChannel(id)
-                if (ch.relatedStreams.isNotEmpty()) {
-                    return@withContext ChannelPage(ch.name ?: "", ch.avatarUrl, ch.relatedStreams.filter { !it.isShort })
+        try {
+            val url = toUrl(channelIdOrUrl)
+            val info = ChannelInfo.getInfo(ServiceList.YouTube, url)
+            val avatar = info.avatars?.firstOrNull()?.url
+            val videos = info.relatedItems?.mapNotNull { item ->
+                (item as? StreamInfoItem)?.let { s ->
+                    VideoItem(
+                        url = s.url ?: return@let null,
+                        title = s.name ?: "",
+                        thumbnailUrl = s.thumbnails?.firstOrNull()?.url,
+                        uploaderName = s.uploaderName ?: info.name ?: "",
+                        uploaderAvatar = avatar,
+                        uploaderUrl = s.uploaderUrl ?: url,
+                        duration = s.duration.toInt(),
+                        views = s.viewCount,
+                        uploadedDate = s.textualUploadDate,
+                        isShort = s.isShortFormContent
+                    )
                 }
-            } catch (e: Exception) { e.printStackTrace() }
+            } ?: emptyList()
+            ChannelPage(info.name ?: "", avatar, videos)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-        // 2) InnerTube browse (works without auth)
-        if (id.startsWith("UC")) {
-            InnerTubeFeed.browseChannel(id)
-        } else null
+    }
+
+    private fun toUrl(input: String): String = when {
+        input.startsWith("http") -> input
+        input.startsWith("@") || input.startsWith("user/") || input.startsWith("c/") -> "https://www.youtube.com/$input"
+        else -> "https://www.youtube.com/channel/$input"
     }
 }
