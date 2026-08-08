@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -63,8 +62,8 @@ fun YouScreen(
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text(account?.name ?: "Loading...", style = MaterialTheme.typography.headlineMedium)
-                        Text("${account?.handle ?: ""}  •  piTube member", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(account?.name ?: "Google account", style = MaterialTheme.typography.headlineMedium)
+                        Text("${account?.handle ?: "@piTube"}  •  member", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             } else {

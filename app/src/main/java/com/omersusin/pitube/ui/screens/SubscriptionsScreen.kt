@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.omersusin.pitube.data.AuthDebug
 import com.omersusin.pitube.data.AuthManager
 import com.omersusin.pitube.data.InnerTubeFeed
 import com.omersusin.pitube.data.VideoItem
@@ -27,6 +28,7 @@ fun SubscriptionsScreen(onVideoClick: (VideoItem) -> Unit) {
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val debugSnippet by AuthDebug.snippet
 
     fun load() {
         isLoading = true
@@ -47,17 +49,22 @@ fun SubscriptionsScreen(onVideoClick: (VideoItem) -> Unit) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Sign in to see your subscriptions", style = MaterialTheme.typography.bodyLarge)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Tap the profile circle (top right) → Sign in", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Tap the You tab → Sign in", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         } else if (error != null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
                     Text(error!!, color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = { load() }) { Text("Retry") }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Debug:", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(debugSnippet.ifBlank { "No probe yet." }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("If this looks logged-out, use You → Settings → Paste cookies.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else {
