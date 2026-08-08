@@ -42,7 +42,7 @@ object NotInterestedRepository {
     }
 
     fun markVideoNotInterested(context: Context, videoId: String, channelId: String?, channelName: String?) {
-        val current = getAll(context).toMutableList()
+        var current = getAll(context).toMutableList()
         current.removeAll { it.videoId == videoId }
         current.add(0, NotInterestedEntry(videoId = videoId, channelId = channelId, channelName = channelName))
         if (current.size > MAX_VIDEOS) {
@@ -58,7 +58,7 @@ object NotInterestedRepository {
     }
 
     fun markChannelNotInterested(context: Context, channelId: String, channelName: String?) {
-        val current = getAll(context).toMutableList()
+        var current = getAll(context).toMutableList()
         current.removeAll { it.channelId == channelId }
         current.add(0, NotInterestedEntry(videoId = null, channelId = channelId, channelName = channelName))
         if (current.count { it.channelId != null } > MAX_CHANNELS) {
@@ -70,13 +70,13 @@ object NotInterestedRepository {
     }
 
     fun undo(context: Context, videoId: String?) {
-        val current = getAll(context).toMutableList()
+        var current = getAll(context).toMutableList()
         current.removeAll { it.videoId == videoId }
         save(context, current)
     }
 
     fun undoChannel(context: Context, channelId: String) {
-        val current = getAll(context).toMutableList()
+        var current = getAll(context).toMutableList()
         current.removeAll { it.channelId == channelId }
         save(context, current)
     }
