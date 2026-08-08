@@ -1,5 +1,6 @@
 package com.omersusin.pitube.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,6 +38,7 @@ fun SettingsScreen(
     onOpenNotInterested: () -> Unit,
     account: AccountFetcher.AccountInfo?
 ) {
+    BackHandler { onBack() }
     val context = LocalContext.current
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn(context)) }
     var sponsorBlock by remember { mutableStateOf(PrefsManager.isSponsorBlockEnabled(context)) }

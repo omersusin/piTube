@@ -12,11 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.BackHandler
 import com.omersusin.pitube.data.NotInterestedRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotInterestedScreen(onBack: () -> Unit) {
+    BackHandler { onBack() }
     val context = LocalContext.current
     val repo = remember { NotInterestedRepository(context) }
     val hiddenVideos by repo.hiddenVideos.collectAsState()

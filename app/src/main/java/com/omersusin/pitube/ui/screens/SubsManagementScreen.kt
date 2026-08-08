@@ -15,12 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.BackHandler
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.LocalSubs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubsManagementScreen(onBack: () -> Unit) {
+    BackHandler { onBack() }
     val context = LocalContext.current
     var subs by remember { mutableStateOf(LocalSubs.getAll(context)) }
 

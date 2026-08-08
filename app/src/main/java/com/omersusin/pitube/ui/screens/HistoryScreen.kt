@@ -19,12 +19,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.activity.compose.BackHandler
 import com.omersusin.pitube.data.HistoryManager
 import com.omersusin.pitube.data.VideoItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit) {
+    BackHandler { onBack() }
     val context = LocalContext.current
     var history by remember { mutableStateOf(HistoryManager.getHistory(context)) }
     var showClearDialog by remember { mutableStateOf(false) }

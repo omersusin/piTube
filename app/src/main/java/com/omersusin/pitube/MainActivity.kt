@@ -180,8 +180,18 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     var account by remember { mutableStateOf<AccountFetcher.AccountInfo?>(null) }
 
     LaunchedEffect(showLogin) {
-        if (AuthManager.isLoggedIn(context)) account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)
-        else account = null
+        if (AuthManager.isLoggedIn(context)) {
+            account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)
+        } else {
+            account = null
+        }
+    }
+
+    // Also refresh account on first composition
+    LaunchedEffect(Unit) {
+        if (AuthManager.isLoggedIn(context)) {
+            account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)
+        }
     }
 
     // Show mini player when video is playing and we're not in video player

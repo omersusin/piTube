@@ -11,12 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.BackHandler
 import com.omersusin.pitube.data.StatsRepository
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(onBack: () -> Unit) {
+    BackHandler { onBack() }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var stats by remember { mutableStateOf<com.omersusin.pitube.data.GlobalStats?>(null) }
