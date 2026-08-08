@@ -15,7 +15,8 @@ object ChannelResolver {
             ex.fetchPage()
             val name = runCatching { ex.name }.getOrNull() ?: ""
             val avatar = runCatching { ex.avatarUrl }.getOrNull()
-            val items = runCatching { ex.initialPage.items }.getOrNull() ?: emptyList()
+            val page = runCatching { ex.initialPage }.getOrNull()
+            val items = page?.items ?: emptyList()
             val videos = items.filterIsInstance<StreamInfoItem>().map { it ->
                 VideoItem(
                     url = it.url ?: "",
