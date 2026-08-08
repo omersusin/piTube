@@ -86,20 +86,40 @@ fun MiniPlayerBar(onOpen: () -> Unit, onClose: () -> Unit) {
     val item = NowPlaying.current.value ?: return
     var playing by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { while (true) { playing = PlayerHolder.getPlayer(context).isPlaying; delay(500) } }
-    Row(
-        modifier = Modifier.fillMaxWidth().height(56.dp).background(MaterialTheme.colorScheme.surfaceVariant).clickable(onClick = onOpen).padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        modifier = Modifier.fillMaxWidth().height(64.dp).clickable(onClick = onOpen),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 4.dp
     ) {
-        AsyncImage(model = item.safeThumb, contentDescription = null, modifier = Modifier.width(88.dp).height(48.dp).clip(RoundedCornerShape(6.dp)), contentScale = ContentScale.Crop)
-        Spacer(modifier = Modifier.width(8.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(item.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
-            Text(item.uploaderName, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = item.safeThumb,
+                contentDescription = null,
+                modifier = Modifier.width(100.dp).height(56.dp).clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(item.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
+                Text(item.uploaderName, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            IconButton(onClick = {
+                val p = PlayerHolder.getPlayer(context)
+                if (p.isPlaying) p.pause() else p.play()
+            }) {
+                Icon(
+                    if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = "Play/Pause",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
-        IconButton(onClick = { val p = PlayerHolder.getPlayer(context); if (p.isPlaying) p.pause() else p.play() }) {
-            Icon(if (playing) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = "Play/Pause")
-        }
-        IconButton(onClick = onClose) { Icon(Icons.Default.Close, contentDescription = "Close") }
     }
 }
 
@@ -215,20 +235,19 @@ data class TabItem(val label: String, val icon: androidx.compose.ui.graphics.vec
 
 fun loadTheme(context: android.content.Context): com.omersusin.pitube.ui.theme.ThemeMode {
     val prefs = context.getSharedPreferences("theme_prefs", android.content.Context.MODE_PRIVATE)
-    return when (prefs.getString("theme_mode", "system")) {
-        "light" -> com.omersusin.pitube.ui.theme.ThemeMode.LIGHT
-        "dark" -> com.omersusin.pitube.ui.theme.ThemeMode.DARK
-        "amoled" -> com.omersusin.pitube.ui.theme.ThemeMode.AMOLED
-        else -> com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM
+    val saved = prefs.getString("theme_mode", "system") ?: "system"
+    return try {
+        com.omersusin.pitube.ui.theme.ThemeMode.valueOf(saved.uppercase())
+    } catch (e: Exception) {
+        when (saved) {
+            "amoled" -> com.omersusin.pitube.ui.theme.ThemeMode.AMOLED
+            "system" -> com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM
+            else -> com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM
+        }
     }
 }
 
 fun saveTheme(context: android.content.Context, mode: com.omersusin.pitube.ui.theme.ThemeMode) {
     val prefs = context.getSharedPreferences("theme_prefs", android.content.Context.MODE_PRIVATE)
-    prefs.edit().putString("theme_mode", when(mode) {
-        com.omersusin.pitube.ui.theme.ThemeMode.LIGHT -> "light"
-        com.omersusin.pitube.ui.theme.ThemeMode.DARK -> "dark"
-        com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM -> "system"
-        com.omersusin.pitube.ui.theme.ThemeMode.AMOLED -> "amoled"
-    }).apply()
+    prefs.edit().putString("theme_mode", mode.name).apply()
 }

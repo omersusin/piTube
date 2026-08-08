@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,19 +24,56 @@ fun SubsManagementScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var subs by remember { mutableStateOf(LocalSubs.getAll(context)) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("Manage Subscriptions") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back") } })
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Manage Subscriptions") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back") } }
+            )
+        }
+    ) { paddingValues ->
         if (subs.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No local subscriptions yet.\nSubscribe from a channel page.") }
+            Box(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.Subscriptions, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("No local subscriptions", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Subscribe from a channel page", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(subs) { sub ->
-                    Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        AsyncImage(model = sub.avatarUrl, contentDescription = null, modifier = Modifier.size(40.dp).clip(CircleShape))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(sub.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                        IconButton(onClick = { LocalSubs.unsubscribe(context, sub.channelId); subs = LocalSubs.getAll(context) }) {
-                            Icon(Icons.Default.Delete, "Remove")
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AsyncImage(
+                                model = sub.avatarUrl,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp).clip(CircleShape)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                sub.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(onClick = {
+                                LocalSubs.unsubscribe(context, sub.channelId)
+                                subs = LocalSubs.getAll(context)
+                            }) {
+                                Icon(Icons.Default.Delete, "Remove", tint = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 }

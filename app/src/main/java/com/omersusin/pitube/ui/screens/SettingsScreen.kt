@@ -2,6 +2,9 @@ package com.omersusin.pitube.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,7 +19,7 @@ import coil.compose.AsyncImage
 import com.omersusin.pitube.data.AccountFetcher
 import com.omersusin.pitube.data.AuthManager
 import com.omersusin.pitube.data.KodaAuth
-import com.omersusin.pitube.data.NotInterested
+import com.omersusin.pitube.data.NotInterestedRepository
 import com.omersusin.pitube.data.PrefsManager
 import com.omersusin.pitube.ui.theme.ThemeMode
 
@@ -46,6 +49,7 @@ fun SettingsScreen(
     var showCookieDialog by remember { mutableStateOf(false) }
     var cookieText by remember { mutableStateOf("") }
     var cookieError by remember { mutableStateOf("") }
+    var showThemeDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") }; Text("Settings", style = MaterialTheme.typography.headlineMedium) }
@@ -110,17 +114,65 @@ fun SettingsScreen(
 
         Text("Appearance", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.SYSTEM, onClick = { onThemeChange(ThemeMode.SYSTEM) }); Text("System", modifier = Modifier.clickable { onThemeChange(ThemeMode.SYSTEM) }) }
-        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.LIGHT, onClick = { onThemeChange(ThemeMode.LIGHT) }); Text("Light", modifier = Modifier.clickable { onThemeChange(ThemeMode.LIGHT) }) }
-        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.DARK, onClick = { onThemeChange(ThemeMode.DARK) }); Text("Dark", modifier = Modifier.clickable { onThemeChange(ThemeMode.DARK) }) }
-        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.AMOLED, onClick = { onThemeChange(ThemeMode.AMOLED) }); Text("AMOLED", modifier = Modifier.clickable { onThemeChange(ThemeMode.AMOLED) }) }
+        Row(modifier = Modifier.fillMaxWidth().clickable { showThemeDialog = true }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Palette, contentDescription = null)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Theme", style = MaterialTheme.typography.bodyLarge)
+                Text(currentTheme.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Icon(Icons.Default.ChevronRight, contentDescription = null)
+        }
+    }
+
+    if (showThemeDialog) {
+        AlertDialog(
+            onDismissRequest = { showThemeDialog = false },
+            title = { Text("Choose Theme") },
+            text = {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(ThemeMode.entries.toList()) { mode ->
+                        val isSelected = currentTheme == mode
+                        Card(
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .clickable {
+                                    onThemeChange(mode)
+                                    showThemeDialog = false
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSelected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize().padding(4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = mode.name.replace("_", "\n").take(12),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showThemeDialog = false }) { Text("Cancel") } }
+        )
     }
 
     if (showCookieDialog) {
         AlertDialog(
             onDismissRequest = { showCookieDialog = false },
             title = { Text("Paste YouTube cookies") },
-            text = { Column { Text("On your PC: open youtube.com → F12 → Network → copy the Cookie header value.", style = MaterialTheme.typography.bodySmall); Spacer(modifier = Modifier.height(8.dp)); OutlinedTextField(value = cookieText, onValueChange = { cookieText = it }, modifier = Modifier.fillMaxWidth(), minLines = 3); if (cookieError.isNotBlank()) { Spacer(modifier = Modifier.height(4.dp)); Text(cookieError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) } } },
+            text = { Column { Text("On your PC: open youtube.com -> F12 -> Network -> copy the Cookie header value.", style = MaterialTheme.typography.bodySmall); Spacer(modifier = Modifier.height(8.dp)); OutlinedTextField(value = cookieText, onValueChange = { cookieText = it }, modifier = Modifier.fillMaxWidth(), minLines = 3); if (cookieError.isNotBlank()) { Spacer(modifier = Modifier.height(4.dp)); Text(cookieError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) } } },
             confirmButton = { Button(onClick = {
                 val normalized = KodaAuth.normalize(cookieText)
                 val missing = KodaAuth.missingRequired(normalized)
