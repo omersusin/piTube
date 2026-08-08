@@ -7,7 +7,7 @@ data class VttCue(
 )
 
 object WebVttParser {
-    private val TIMESTAMP = Regex("""(\d+):(\d{2})(?::(\d{2}))?.,""")
+    private val TIMESTAMP = Regex("""(\d+):(\d{2})(?::(\d{2}))?[.,](\d{1,3})""")
     private val TAG = Regex("<[^>]*>")
 
     fun parse(vtt: String): List<VttCue> {

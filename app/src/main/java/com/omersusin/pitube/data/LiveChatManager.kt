@@ -10,8 +10,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
-data class ChatMessage(val author: String, val text: String, val timestamp: String)
-
 object LiveChatManager {
     private val client = OkHttpClient.Builder().readTimeout(15, TimeUnit.SECONDS).build()
     private const val UA = "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip"

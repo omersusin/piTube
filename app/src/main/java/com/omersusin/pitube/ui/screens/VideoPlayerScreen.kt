@@ -31,6 +31,7 @@ import coil.compose.AsyncImage
 import com.omersusin.pitube.PipState
 import com.omersusin.pitube.data.*
 import com.omersusin.pitube.data.addWatchHistory
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -90,7 +91,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
 
     LaunchedEffect(video.videoId) {
         HistoryManager.addToHistory(context, video)
-        StatsRepo.record(context, video.videoId, video.uploaderName)
+        scope.launch { StatsRepository(context).addPlayEvent(video, 0L) }
         addWatchHistory(context, video.videoId, video.title, video.uploaderName, video.thumbnailUrl)
         isLoading = true; error = null; downloadStarted = false; deArrowTitle = null; showOriginal = false; chatMessages = emptyList()
         notes = NotesManager.getNotes(context, video.videoId)
@@ -180,5 +181,26 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     }
 
     if (showSpeedDialog) { AlertDialog(onDismissRequest = { showSpeedDialog = false }, title = { Text("Playback Speed") }, text = { Column { listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f).forEach { speed -> Row(modifier = Modifier.fillMaxWidth().clickable { currentSpeed = speed; exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(speed); PrefsManager.setPlaybackSpeed(context, speed); showSpeedDialog = false }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentSpeed == speed, onClick = { currentSpeed = speed; exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(speed); PrefsManager.setPlaybackSpeed(context, speed); showSpeedDialog = false }); Spacer(modifier = Modifier.width(8.dp)); Text("${speed}x") } } } }, confirmButton = { TextButton(onClick = { showSpeedDialog = false }) { Text("Close") } }) }
-    if (showHideDialog) { AlertDialog(onDismissRequest = { showHideDialog = false }, title = { Text("Not Interested") }, text = { Text("Hide this video or channel from recommendations?") }, confirmButton = { Button(onClick = { NotInterested.hideVideo(context, video); showHideDialog = false; onBack() }) { Text("Hide Video") } }, dismissButton = { TextButton(onClick = { NotInterested.hideChannel(context, video.uploaderName); showHideDialog = false; onBack() }) { Text("Hide Channel") } }) }
+    if (showHideDialog) {
+        val notInterestedRepo = remember { NotInterestedRepository(context) }
+        AlertDialog(
+            onDismissRequest = { showHideDialog = false },
+            title = { Text("Not Interested") },
+            text = { Text("Hide this video or channel from recommendations?") },
+            confirmButton = {
+                Button(onClick = {
+                    notInterestedRepo.hideVideo(video)
+                    showHideDialog = false
+                    onBack()
+                }) { Text("Hide Video") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    notInterestedRepo.blockChannel(channelId = null, name = video.uploaderName)
+                    showHideDialog = false
+                    onBack()
+                }) { Text("Hide Channel") }
+            }
+        )
+    }
 }

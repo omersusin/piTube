@@ -201,7 +201,7 @@ object SubscriptionTransfer {
 
     private fun attribute(attrs: String, name: String): String? {
         val quote = '"'
-        val pattern = "b" + Regex.escape(name) + "s*=s*$quote([^$quote]*)$quote"
+        val pattern = "\\b" + Regex.escape(name) + "\\s*=\\s*$quote([^$quote]*)$quote"
         return Regex(pattern).find(attrs)?.groupValues?.get(1)?.takeIf { it.isNotBlank() }
     }
 

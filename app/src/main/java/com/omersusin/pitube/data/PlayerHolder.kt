@@ -3,24 +3,30 @@ package com.omersusin.pitube.data
 import android.content.Context
 import androidx.media3.common.AudioAttributes
 import androidx.media3.exoplayer.ExoPlayer
+import java.util.concurrent.atomic.AtomicReference
 
 object PlayerHolder {
-    private var _player: ExoPlayer? = null
+    private val _player = AtomicReference<ExoPlayer?>(null)
 
     fun getPlayer(context: Context): ExoPlayer {
-        if (_player == null) {
-            _player = ExoPlayer.Builder(context)
+        return _player.get() ?: run {
+            val player = ExoPlayer.Builder(context)
                 .setAudioAttributes(AudioAttributes.DEFAULT, true)
                 .setHandleAudioBecomingNoisy(true)
                 .build()
+            if (_player.compareAndSet(null, player)) player else {
+                player.release()
+                _player.get()!!
+            }
         }
-        return _player!!
     }
 
     fun applyPrefs(context: Context) {
-        val p = _player ?: return
+        val p = _player.get() ?: return
         p.volume = if (PrefsManager.isVolumeNormalizationEnabled(context)) 1.5f else 1.0f
     }
 
-    fun releasePlayer() { _player?.release(); _player = null }
+    fun releasePlayer() {
+        _player.getAndSet(null)?.release()
+    }
 }

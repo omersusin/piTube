@@ -18,7 +18,8 @@ object KodaAuth {
     fun getSapisid(cookieString: String): String? = SAPISID_NAMES.firstNotNullOfOrNull { getCookieValue(cookieString, it) }
 
     fun normalize(raw: String): String = raw.trim().removeSurrounding("\"").trim()
-        .removePrefix("Cookie:").removePrefix("cookie:").replace(Regex("\\s*[\\r\\n]+\\s*"), " ")
+        .removePrefix("Cookie:").removePrefix("cookie:")
+        .replace(Regex("\\s*[\\r\\n]+\\s*"), " ")
         .trim().trim(';').trim()
 
     fun missingRequired(cookieString: String): List<String> {

@@ -218,6 +218,7 @@ fun loadTheme(context: android.content.Context): com.omersusin.pitube.ui.theme.T
     return when (prefs.getString("theme_mode", "system")) {
         "light" -> com.omersusin.pitube.ui.theme.ThemeMode.LIGHT
         "dark" -> com.omersusin.pitube.ui.theme.ThemeMode.DARK
+        "amoled" -> com.omersusin.pitube.ui.theme.ThemeMode.AMOLED
         else -> com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM
     }
 }

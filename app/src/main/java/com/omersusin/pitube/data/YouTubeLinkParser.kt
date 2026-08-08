@@ -36,7 +36,8 @@ object YouTubeLinkParser {
         val host = uri.host?.lowercase() ?: return null
         val isYouTubeHost = host == "youtu.be" ||
             host == "youtube.com" || host.endsWith(".youtube.com") ||
-            host == "youtube-nocookie.com" || host.endsWith(".youtube-nocookie.com")
+            host == "youtube-nocookie.com" || host.endsWith(".youtube-nocookie.com") ||
+            host == "music.youtube.com" || host.endsWith(".music.youtube.com")
         if (!isYouTubeHost) return null
 
         val segments = try { uri.pathSegments } catch (e: Exception) { emptyList<String>() }
@@ -58,5 +59,23 @@ object YouTubeLinkParser {
             playlistId = playlistId,
             isMusicLink = host == "music.youtube.com"
         )
+    }
+
+    fun isYouTubeUrl(url: String): Boolean {
+        val text = url.trim()
+        if (text.isEmpty()) return false
+        val candidate = when {
+            text.startsWith("http://", ignoreCase = true) ||
+                text.startsWith("https://", ignoreCase = true) -> text
+            text.contains("youtube.com/", ignoreCase = true) ||
+                text.contains("youtu.be/", ignoreCase = true) -> "https://$text"
+            else -> return false
+        }
+        val uri = try { Uri.parse(candidate) } catch (e: Exception) { return false }
+        val host = uri.host?.lowercase() ?: return false
+        return host == "youtu.be" ||
+            host == "youtube.com" || host.endsWith(".youtube.com") ||
+            host == "youtube-nocookie.com" || host.endsWith(".youtube-nocookie.com") ||
+            host == "music.youtube.com" || host.endsWith(".music.youtube.com")
     }
 }

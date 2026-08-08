@@ -1,76 +1,62 @@
 package com.omersusin.pitube.data
 
 import android.content.Context
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.File
 import java.util.UUID
 
-data class LocalSubscription(
-    val channelId: String,
-    val name: String,
-    val avatarUrl: String? = null,
-    val handle: String? = null,
-    val subscribedAt: Long = System.currentTimeMillis()
-)
+class LocalSubscriptionsRepository(context: Context) {
 
-data class SubscriptionGroup(
-    val id: String,
-    val name: String,
-    val channelIds: List<String> = emptyList()
-)
+    private val appContext = context.applicationContext
+    private val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-object LocalSubscriptionsRepository {
-    private const val FILE_NAME = "local_subscriptions.json"
-    private const val GROUPS_FILE_NAME = "subscription_groups.json"
-    private val gson = Gson()
-
-    private val _subscriptions = MutableStateFlow<List<LocalSubscription>>(emptyList())
-    val subscriptions: StateFlow<List<LocalSubscription>> = _subscriptions.asStateFlow()
-
-    private val _groups = MutableStateFlow<List<SubscriptionGroup>>(emptyList())
-    val groups: StateFlow<List<SubscriptionGroup>> = _groups.asStateFlow()
-
-    private var initialized = false
-
-    fun initialize(context: Context) {
-        if (initialized) return
-        _subscriptions.value = loadSubscriptions(context)
-        _groups.value = loadGroups(context)
-        initialized = true
+    init {
+        synchronized(LOCK) {
+            if (sharedSubscriptions == null) {
+                sharedSubscriptions = MutableStateFlow(loadSubscriptions())
+                sharedGroups = MutableStateFlow(loadGroups())
+            }
+        }
     }
 
-    fun isSubscribed(context: Context, channelId: String?): Boolean {
+    private val subscriptionsState: MutableStateFlow<List<LocalSubscription>>
+        get() = sharedSubscriptions!!
+
+    private val groupsState: MutableStateFlow<List<SubscriptionGroup>>
+        get() = sharedGroups!!
+
+    val subscriptions: StateFlow<List<LocalSubscription>> get() = subscriptionsState.asStateFlow()
+    val groups: StateFlow<List<SubscriptionGroup>> get() = groupsState.asStateFlow()
+
+    fun getAll(): List<LocalSubscription> = subscriptionsState.value
+
+    fun getAllSortedByName(): List<LocalSubscription> =
+        subscriptionsState.value.sortedBy { it.name.lowercase() }
+
+    fun isSubscribed(channelId: String?): Boolean {
         if (channelId.isNullOrBlank()) return false
-        initialize(context)
-        return _subscriptions.value.any { it.channelId == channelId }
+        return subscriptionsState.value.any { it.channelId == channelId }
     }
 
-    fun get(context: Context, channelId: String): LocalSubscription? {
-        initialize(context)
-        return _subscriptions.value.find { it.channelId == channelId }
+    fun get(channelId: String): LocalSubscription? =
+        subscriptionsState.value.firstOrNull { it.channelId == channelId }
+
+    fun getGroup(groupId: String): SubscriptionGroup? =
+        groupsState.value.firstOrNull { it.id == groupId }
+
+    fun channelsInGroup(groupId: String?): List<LocalSubscription> {
+        val group = groupId?.let { getGroup(it) } ?: return getAll()
+        val ids = group.channelIds.toSet()
+        return getAll().filter { it.channelId in ids }
     }
 
-    fun getAll(context: Context): List<LocalSubscription> {
-        initialize(context)
-        return _subscriptions.value
-    }
-
-    fun getAllSortedByName(context: Context): List<LocalSubscription> {
-        initialize(context)
-        return _subscriptions.value.sortedBy { it.name.lowercase() }
-    }
-
-    fun subscribe(context: Context, subscription: LocalSubscription) {
+    fun subscribe(subscription: LocalSubscription) {
         if (subscription.channelId.isBlank()) return
-        initialize(context)
-        val current = _subscriptions.value
-        val existing = current.find { it.channelId == subscription.channelId }
+        val current = subscriptionsState.value
+        val existing = current.firstOrNull { it.channelId == subscription.channelId }
         val next = if (existing == null) {
             listOf(subscription) + current
         } else {
@@ -84,35 +70,34 @@ object LocalSubscriptionsRepository {
                 } else it
             }
         }
-        saveSubscriptions(context, next)
+        saveSubscriptions(next)
     }
 
-    fun unsubscribe(context: Context, channelId: String) {
-        initialize(context)
-        val next = _subscriptions.value.filterNot { it.channelId == channelId }
-        saveSubscriptions(context, next)
-        val prunedGroups = _groups.value.map { group ->
+    fun unsubscribe(channelId: String) {
+        val next = subscriptionsState.value.filterNot { it.channelId == channelId }
+        if (next.size == subscriptionsState.value.size) return
+        saveSubscriptions(next)
+        val prunedGroups = groupsState.value.map { group ->
             if (channelId in group.channelIds) {
                 group.copy(channelIds = group.channelIds - channelId)
             } else group
         }
-        if (prunedGroups != _groups.value) saveGroups(context, prunedGroups)
+        if (prunedGroups != groupsState.value) saveGroups(prunedGroups)
     }
 
-    fun toggle(context: Context, subscription: LocalSubscription): Boolean {
-        return if (isSubscribed(context, subscription.channelId)) {
-            unsubscribe(context, subscription.channelId)
+    fun toggle(subscription: LocalSubscription): Boolean {
+        return if (isSubscribed(subscription.channelId)) {
+            unsubscribe(subscription.channelId)
             false
         } else {
-            subscribe(context, subscription)
+            subscribe(subscription)
             true
         }
     }
 
-    fun importAll(context: Context, channels: List<LocalSubscription>): Int {
+    fun importAll(channels: List<LocalSubscription>): Int {
         if (channels.isEmpty()) return 0
-        initialize(context)
-        val current = _subscriptions.value
+        val current = subscriptionsState.value
         val known = current.map { it.channelId }.toMutableSet()
         val additions = mutableListOf<LocalSubscription>()
         for (channel in channels) {
@@ -120,79 +105,47 @@ object LocalSubscriptionsRepository {
             if (known.add(channel.channelId)) additions.add(channel)
         }
         if (additions.isEmpty()) return 0
-        saveSubscriptions(context, additions + current)
+        saveSubscriptions(additions + current)
         return additions.size
     }
 
-    fun clearAll(context: Context) {
-        saveSubscriptions(context, emptyList())
-        saveGroups(context, emptyList())
+    fun clearAll() {
+        saveSubscriptions(emptyList())
+        saveGroups(emptyList())
     }
 
-    fun createGroup(context: Context, name: String, channelIds: List<String> = emptyList()): String {
-        initialize(context)
+    fun createGroup(name: String, channelIds: List<String> = emptyList()): String {
         val id = UUID.randomUUID().toString()
-        saveGroups(context, _groups.value + SubscriptionGroup(id, name.trim(), channelIds))
+        saveGroups(groupsState.value + SubscriptionGroup(id, name.trim(), channelIds))
         return id
     }
 
-    fun renameGroup(context: Context, groupId: String, name: String) {
-        initialize(context)
-        saveGroups(context, _groups.value.map {
+    fun renameGroup(groupId: String, name: String) {
+        saveGroups(groupsState.value.map {
             if (it.id == groupId) it.copy(name = name.trim()) else it
         })
     }
 
-    fun deleteGroup(context: Context, groupId: String) {
-        initialize(context)
-        saveGroups(context, _groups.value.filterNot { it.id == groupId })
+    fun deleteGroup(groupId: String) {
+        saveGroups(groupsState.value.filterNot { it.id == groupId })
     }
 
-    fun setGroupChannels(context: Context, groupId: String, channelIds: List<String>) {
-        initialize(context)
-        saveGroups(context, _groups.value.map {
+    fun setGroupChannels(groupId: String, channelIds: List<String>) {
+        saveGroups(groupsState.value.map {
             if (it.id == groupId) it.copy(channelIds = channelIds.distinct()) else it
         })
     }
 
-    fun toggleChannelInGroup(context: Context, groupId: String, channelId: String) {
-        initialize(context)
-        saveGroups(context, _groups.value.map { group ->
+    fun toggleChannelInGroup(groupId: String, channelId: String) {
+        saveGroups(groupsState.value.map { group ->
             if (group.id != groupId) group
             else if (channelId in group.channelIds) group.copy(channelIds = group.channelIds - channelId)
             else group.copy(channelIds = group.channelIds + channelId)
         })
     }
 
-    fun channelsInGroup(context: Context, groupId: String?): List<LocalSubscription> {
-        initialize(context)
-        val group = groupId?.let { _groups.value.find { g -> g.id == it } } ?: return getAll(context)
-        val ids = group.channelIds.toSet()
-        return getAll(context).filter { it.channelId in ids }
-    }
-
-    private fun loadSubscriptions(context: Context): List<LocalSubscription> {
-        val file = File(context.filesDir, FILE_NAME)
-        if (!file.exists()) return emptyList()
-        return try {
-            val raw = file.readText()
-            val array = JSONArray(raw)
-            (0 until array.length()).mapNotNull { i ->
-                val obj = array.optJSONObject(i) ?: return@mapNotNull null
-                val channelId = obj.optString("channelId").takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                LocalSubscription(
-                    channelId = channelId,
-                    name = obj.optString("name").takeIf { it.isNotBlank() } ?: channelId,
-                    avatarUrl = obj.optString("avatarUrl").takeIf { it.isNotBlank() },
-                    handle = obj.optString("handle").takeIf { it.isNotBlank() },
-                    subscribedAt = obj.optLong("subscribedAt", 0L)
-                )
-            }.distinctBy { it.channelId }
-        } catch (e: Exception) { emptyList() }
-    }
-
-    private fun saveSubscriptions(context: Context, list: List<LocalSubscription>) {
-        _subscriptions.value = list
+    private fun saveSubscriptions(list: List<LocalSubscription>) {
+        subscriptionsState.value = list
         val array = JSONArray()
         list.forEach { sub ->
             array.put(JSONObject().apply {
@@ -203,14 +156,46 @@ object LocalSubscriptionsRepository {
                 put("subscribedAt", sub.subscribedAt)
             })
         }
-        File(context.filesDir, FILE_NAME).writeText(array.toString())
+        prefs.edit().putString(KEY_SUBSCRIPTIONS, array.toString()).apply()
     }
 
-    private fun loadGroups(context: Context): List<SubscriptionGroup> {
-        val file = File(context.filesDir, GROUPS_FILE_NAME)
-        if (!file.exists()) return emptyList()
+    private fun loadSubscriptions(): List<LocalSubscription> {
+        val raw = prefs.getString(KEY_SUBSCRIPTIONS, null) ?: return emptyList()
         return try {
-            val raw = file.readText()
+            val array = JSONArray(raw)
+            (0 until array.length()).mapNotNull { i ->
+                val obj = array.optJSONObject(i) ?: return@mapNotNull null
+                val channelId = obj.optString("channelId").takeIf { it.isNotBlank() }
+                    ?: return@mapNotNull null
+                LocalSubscription(
+                    channelId = channelId,
+                    name = obj.optString("name").takeIf { it.isNotBlank() } ?: channelId,
+                    avatarUrl = obj.optString("avatarUrl").takeIf { it.isNotBlank() && it != "null" },
+                    handle = obj.optString("handle").takeIf { it.isNotBlank() && it != "null" },
+                    subscribedAt = obj.optLong("subscribedAt", 0L)
+                )
+            }.distinctBy { it.channelId }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun saveGroups(list: List<SubscriptionGroup>) {
+        groupsState.value = list
+        val array = JSONArray()
+        list.forEach { group ->
+            array.put(JSONObject().apply {
+                put("id", group.id)
+                put("name", group.name)
+                put("channelIds", JSONArray().also { ids -> group.channelIds.forEach(ids::put) })
+            })
+        }
+        prefs.edit().putString(KEY_GROUPS, array.toString()).apply()
+    }
+
+    private fun loadGroups(): List<SubscriptionGroup> {
+        val raw = prefs.getString(KEY_GROUPS, null) ?: return emptyList()
+        return try {
             val array = JSONArray(raw)
             (0 until array.length()).mapNotNull { i ->
                 val obj = array.optJSONObject(i) ?: return@mapNotNull null
@@ -224,19 +209,22 @@ object LocalSubscriptionsRepository {
                     }
                 )
             }
-        } catch (e: Exception) { emptyList() }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
-    private fun saveGroups(context: Context, list: List<SubscriptionGroup>) {
-        _groups.value = list
-        val array = JSONArray()
-        list.forEach { group ->
-            array.put(JSONObject().apply {
-                put("id", group.id)
-                put("name", group.name)
-                put("channelIds", JSONArray().also { ids -> group.channelIds.forEach(ids::put) })
-            })
-        }
-        File(context.filesDir, GROUPS_FILE_NAME).writeText(array.toString())
+    companion object {
+        private const val PREFS_NAME = "local_subscriptions"
+        private const val KEY_SUBSCRIPTIONS = "subscriptions"
+        private const val KEY_GROUPS = "groups"
+
+        private val LOCK = Any()
+
+        @Volatile
+        private var sharedSubscriptions: MutableStateFlow<List<LocalSubscription>>? = null
+
+        @Volatile
+        private var sharedGroups: MutableStateFlow<List<SubscriptionGroup>>? = null
     }
 }

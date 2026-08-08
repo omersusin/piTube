@@ -113,6 +113,7 @@ fun SettingsScreen(
         Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.SYSTEM, onClick = { onThemeChange(ThemeMode.SYSTEM) }); Text("System", modifier = Modifier.clickable { onThemeChange(ThemeMode.SYSTEM) }) }
         Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.LIGHT, onClick = { onThemeChange(ThemeMode.LIGHT) }); Text("Light", modifier = Modifier.clickable { onThemeChange(ThemeMode.LIGHT) }) }
         Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.DARK, onClick = { onThemeChange(ThemeMode.DARK) }); Text("Dark", modifier = Modifier.clickable { onThemeChange(ThemeMode.DARK) }) }
+        Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.AMOLED, onClick = { onThemeChange(ThemeMode.AMOLED) }); Text("AMOLED", modifier = Modifier.clickable { onThemeChange(ThemeMode.AMOLED) }) }
     }
 
     if (showCookieDialog) {
