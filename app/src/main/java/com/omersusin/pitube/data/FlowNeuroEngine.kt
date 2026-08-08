@@ -132,13 +132,15 @@ object FlowNeuroEngine {
         val current = brain ?: return@withContext candidates
 
         val boredomFactor = (current.consecutiveSkips / 20.0).coerceIn(0.0, 0.5)
-        val wPersonality = 0.3 - (boredomFactor * 0.3)
-        val wNovelty = 0.3 + boredomFactor
+        val wPersonality = 0.2 - (boredomFactor * 0.2) // Further reduced
+        val wNovelty = 0.4 + boredomFactor
 
-        // Count videos per channel to limit single channel dominance
+        // Track channel appearances for diversity enforcement
         val channelCounts = mutableMapOf<String, Int>()
+        val result = mutableListOf<VideoItem>()
 
-        candidates.shuffled().map { video ->
+        // Sort by score first, then enforce diversity
+        val scored = candidates.shuffled().map { video ->
             val videoTopics = extractTopics(video.title, video.uploaderName)
             val videoVector = videoTopics.associateWith { 1.0 }
             val personalityScore = NeuroVectorMath.calculateCosineSimilarity(current.topicScores, videoVector)
@@ -147,22 +149,11 @@ object FlowNeuroEngine {
             
             var totalScore = (personalityScore * wPersonality) + (noveltyScore * wNovelty)
 
-            // Use channel name as key (more reliable than URL parsing)
+            // Very small channel preference boost
             val channelName = video.uploaderName.lowercase()
-            val channelCount = channelCounts.getOrDefault(channelName, 0)
-            channelCounts[channelName] = channelCount + 1
-
-            // Small channel preference boost (capped to prevent single channel dominance)
-            if (current.channelScores.containsKey(channelName) && channelCount < 3) {
+            if (current.channelScores.containsKey(channelName)) {
                 val channelScore = current.channelScores[channelName] ?: 0.5
-                totalScore += (channelScore - 0.5) * 0.05 // Reduced from 0.15
-            }
-
-            // Penalize if too many from same channel already in feed
-            if (channelCount >= 3) {
-                totalScore *= 0.1 // Heavy penalty for 4th+ video from same channel
-            } else if (channelCount >= 2) {
-                totalScore *= 0.5 // Moderate penalty for 3rd video
+                totalScore += (channelScore - 0.5) * 0.02 // Minimal boost
             }
 
             val watched = current.watchHistory[video.videoId] ?: 0f
@@ -180,14 +171,30 @@ object FlowNeuroEngine {
                 for (i in videoTopics.indices) {
                     for (j in i + 1 until videoTopics.size) {
                         val key = if (videoTopics[i] < videoTopics[j]) "${videoTopics[i]}|${videoTopics[j]}" else "${videoTopics[j]}|${videoTopics[i]}"
-                        affinityBoost += (current.topicAffinities[key] ?: 0.0) * 0.03
+                        affinityBoost += (current.topicAffinities[key] ?: 0.0) * 0.02
                     }
                 }
-                totalScore += affinityBoost.coerceAtMost(0.1)
+                totalScore += affinityBoost.coerceAtMost(0.05)
             }
 
             video to totalScore
-        }.sortedByDescending { it.second }.map { it.first }
+        }.sortedByDescending { it.second }
+
+        // Enforce strict channel diversity: max 2 videos per channel in top 20
+        for ((video, score) in scored) {
+            val channelName = video.uploaderName.lowercase()
+            val count = channelCounts.getOrDefault(channelName, 0)
+            
+            if (count >= 2 && result.size < 20) {
+                // Skip this video if we already have 2 from this channel
+                continue
+            }
+            
+            channelCounts[channelName] = count + 1
+            result.add(video)
+        }
+
+        result
     }
 
     private fun extractTopics(title: String, channelName: String): List<String> {

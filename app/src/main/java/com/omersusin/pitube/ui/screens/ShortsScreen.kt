@@ -38,62 +38,108 @@ fun ShortsScreen() {
     val context = LocalContext.current
     var shorts by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         scope.launch {
             try {
                 val api = PipedApiService.create()
-                // Try dedicated shorts endpoint first
+                // Try dedicated shorts endpoint
                 try {
                     val shortsList = api.getShorts()
-                    shorts = shortsList.filter { it.url.contains("/shorts/") || it.duration in 1..180 }
-                } catch (e: Exception) {
-                    // Fallback: get trending and filter for shorts-like videos
-                    val trending = api.getTrending()
-                    shorts = trending.filter { video ->
-                        video.url.contains("/shorts/") ||
-                        (video.duration in 1..60 && video.isShort)
+                    // Only keep actual shorts (vertical videos, typically < 60s)
+                    shorts = shortsList.filter { video ->
+                        video.url.contains("/shorts/") || 
+                        (video.duration in 1..180 && video.isShort)
                     }
-                }
-                // If still no shorts, show first few trending as fallback
-                if (shorts.isEmpty()) {
+                } catch (e: Exception) {
+                    // Fallback: get trending and filter strictly for shorts
                     try {
                         val trending = api.getTrending()
-                        shorts = trending.take(5)
-                    } catch (e: Exception) {}
+                        shorts = trending.filter { video ->
+                            video.url.contains("/shorts/") ||
+                            (video.isShort && video.duration in 1..180)
+                        }
+                    } catch (e2: Exception) {
+                        error = "Failed to load shorts"
+                    }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                error = e.message
             } finally {
                 isLoading = false
             }
         }
     }
 
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    when {
+        isLoading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
-    } else if (shorts.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No shorts found")
+        error != null -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = error ?: "Error loading shorts",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        isLoading = true
+                        error = null
+                        scope.launch {
+                            try {
+                                val api = PipedApiService.create()
+                                val shortsList = api.getShorts()
+                                shorts = shortsList.filter { it.url.contains("/shorts/") || it.duration in 1..180 }
+                            } catch (e: Exception) {
+                                error = e.message
+                            } finally {
+                                isLoading = false
+                            }
+                        }
+                    }) {
+                        Text("Retry")
+                    }
+                }
+            }
         }
-    } else {
-        val pagerState = rememberPagerState(pageCount = { shorts.size })
-        LaunchedEffect(pagerState.currentPage) {
-            val nextIndex = pagerState.currentPage + 1
-            if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId, context)
+        shorts.isEmpty() -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "No shorts available",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Check back later for new shorts",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
-        VerticalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            pageSize = PageSize.Fill
-        ) { page ->
-            ShortVideoPlayer(
-                video = shorts[page],
-                isActive = page == pagerState.currentPage
-            )
+        else -> {
+            val pagerState = rememberPagerState(pageCount = { shorts.size })
+            LaunchedEffect(pagerState.currentPage) {
+                val nextIndex = pagerState.currentPage + 1
+                if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId, context)
+            }
+            VerticalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                pageSize = PageSize.Fill
+            ) { page ->
+                ShortVideoPlayer(
+                    video = shorts[page],
+                    isActive = page == pagerState.currentPage
+                )
+            }
         }
     }
 }

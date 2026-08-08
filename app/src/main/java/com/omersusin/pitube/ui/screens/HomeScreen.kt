@@ -20,6 +20,7 @@ import coil.compose.AsyncImage
 import com.omersusin.pitube.data.*
 import com.omersusin.pitube.ui.components.VideoListItem
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,22 +33,32 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     var isLoadingMore by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     var isGrid by remember { mutableStateOf(false) }
-    var nextPageToken by remember { mutableStateOf<String?>(null) }
+    var loadCount by remember { mutableIntStateOf(0) }
 
     val listState = rememberLazyListState()
 
     val loadMore = {
-        if (!isLoadingMore && nextPageToken != null) {
+        if (!isLoadingMore) {
             scope.launch {
                 isLoadingMore = true
                 try {
+                    delay(500) // Debounce
                     val api = PipedApiService.create()
-                    // Piped doesn't have pagination for trending, so we just shuffle for variety
-                    val moreVideos = api.getTrending()
-                    val newVideos = moreVideos.filter { new ->
-                        videos.none { it.videoId == new.videoId }
+                    // Get trending with different regions for variety
+                    val regions = listOf("US", "GB", "DE", "JP", "IN", "BR", "FR", "KR")
+                    val region = regions[loadCount % regions.size]
+                    loadCount++
+                    
+                    val moreVideos = api.getTrending(region)
+                    
+                    // Filter out already shown videos
+                    val currentIds = videos.map { it.videoId }.toSet()
+                    val newVideos = moreVideos.filter { it.videoId !in currentIds }
+                    
+                    // Add new videos with some shuffling for variety
+                    if (newVideos.isNotEmpty()) {
+                        videos = videos + newVideos.shuffled()
                     }
-                    videos = videos + newVideos.shuffled()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
@@ -60,17 +71,16 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     val refresh = {
         scope.launch {
             isRefreshing = true
+            loadCount = 0
             try {
                 FlowNeuroEngine.initialize(context)
                 val api = PipedApiService.create()
                 val trending = api.getTrending()
                 val ranked = FlowNeuroEngine.rank(context, trending)
                 videos = ranked
-                nextPageToken = "next" // Enable load more
             } catch (e: Exception) {
                 try {
                     videos = PipedApiService.create().getTrending()
-                    nextPageToken = "next"
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 }
