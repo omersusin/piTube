@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.ClickableText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.omersusin.pitube.data.StreamInfo
@@ -136,29 +137,27 @@ fun DescriptionBottomSheet(
                         }
                     }
 
-                    Text(
+                    ClickableText(
                         text = annotatedString,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 8.dp)
-                            .clickable { offset ->
-                                // Handle timestamp clicks
-                                annotatedString.getStringAnnotations("TIMESTAMP", offset, offset)
-                                    .firstOrNull()?.let { annotation ->
-                                        val timestampMs = annotation.item.toLongOrNull() ?: 0L
-                                        onTimestampClick(timestampMs)
-                                        onDismiss()
-                                    }
-                                // Handle URL clicks
-                                annotatedString.getStringAnnotations("URL", offset, offset)
-                                    .firstOrNull()?.let { annotation ->
-                                        try {
-                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
-                                            context.startActivity(intent)
-                                        } catch (_: Exception) {}
-                                    }
-                            }
+                            .padding(horizontal = 20.dp, vertical = 8.dp),
+                        onClick = { offset ->
+                            annotatedString.getStringAnnotations("TIMESTAMP", offset, offset)
+                                .firstOrNull()?.let { annotation ->
+                                    val timestampMs = annotation.item.toLongOrNull() ?: 0L
+                                    onTimestampClick(timestampMs)
+                                    onDismiss()
+                                }
+                            annotatedString.getStringAnnotations("URL", offset, offset)
+                                .firstOrNull()?.let { annotation ->
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {}
+                                }
+                        }
                     )
                 }
             }
