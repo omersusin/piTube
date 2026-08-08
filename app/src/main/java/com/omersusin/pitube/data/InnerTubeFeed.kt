@@ -27,7 +27,7 @@ object InnerTubeFeed {
                 .url(INNERTUBE_URL)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
-                .addHeader("Authorization", authHeader)
+                .addHeader("Authorization", authHeader ?: "")
                 .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
                 .post(body.toRequestBody("application/json".toMediaType()))
                 .build()

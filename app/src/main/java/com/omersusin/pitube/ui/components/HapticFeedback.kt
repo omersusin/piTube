@@ -8,15 +8,15 @@ import android.os.VibratorManager
 
 object HapticFeedback {
     fun performClick(context: Context) {
-        performHaptic(context, VibrationEffect.KEYBOARD_TAP)
+        performHaptic(context, 0) // KEYBOARD_TAP equivalent
     }
 
     fun performLongPress(context: Context) {
-        performHaptic(context, VibrationEffect.LONG_PRESS)
+        performHaptic(context, 0) // Long press equivalent
     }
 
     fun performDoubleTap(context: Context) {
-        performHaptic(context, VibrationEffect.CONFIRM)
+        performHaptic(context, 0) // Confirm equivalent
     }
 
     private fun performHaptic(context: Context, effectId: Int) {
@@ -28,7 +28,12 @@ object HapticFeedback {
                 @Suppress("DEPRECATION")
                 context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             }
-            vibrator?.vibrate(VibrationEffect.createPredefined(effectId))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator?.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator?.vibrate(50)
+            }
         } catch (_: Exception) { }
     }
 }

@@ -64,11 +64,11 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
                                 // Also check if we're on YouTube and have basic auth cookies
                                 if (url?.contains("youtube.com") == true && !loginAttempted) {
                                     loginAttempted = true
-                                    val allCookies = cookieManager.getAllCookies()
-                                    if (allCookies?.contains("SID=") == true) {
-                                        AuthManager.saveRawCookies(ctx, allCookies)
+                                    val cookieString = cookieManager.getCookie("youtube.com") ?: ""
+                                    if (cookieString.contains("SID=")) {
+                                        AuthManager.saveRawCookies(ctx, cookieString)
                                         val cookieMap = mutableMapOf<String, String>()
-                                        allCookies.split(";").forEach { cookie ->
+                                        cookieString.split(";").forEach { cookie ->
                                             val parts = cookie.trim().split("=", limit = 2)
                                             if (parts.size == 2) cookieMap[parts[0].trim()] = parts[1].trim()
                                         }

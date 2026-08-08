@@ -81,30 +81,7 @@ fun DescriptionBottomSheet(
                 }
             }
 
-            // Stats row
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    if (streamInfo.views > 0) {
-                        Text(
-                            text = "${formatViewCount(streamInfo.views)} views",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    if (streamInfo.uploadDate.isNotBlank()) {
-                        Text(
-                            text = streamInfo.uploadDate,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            // Description text with clickable timestamps
 
             // Description text with clickable timestamps
             item {

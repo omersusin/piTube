@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.VideoChapter
 
+private fun formatTimestamp(ms: Long): String = String.format("%d:%02d", ms / 60000, (ms / 1000) % 60)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChaptersBottomSheet(

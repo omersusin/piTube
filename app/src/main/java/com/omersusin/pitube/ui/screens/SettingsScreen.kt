@@ -249,7 +249,7 @@ fun SettingsScreen(
                         )
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         SettingsToggleItem(
-                            icon = Icons.Default.Statistics,
+                            icon = Icons.Default.VisibilityOff,
                             label = "Hide Counters",
                             description = "Hide view/like counts",
                             checked = hideCounters,
@@ -342,7 +342,9 @@ fun SettingsScreen(
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(ThemeMode.entries.chunked(3)) { row ->
+                    val rows = ThemeMode.entries.chunked(3)
+                    items(rows.size) { rowIndex ->
+                        val row = rows[rowIndex]
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()

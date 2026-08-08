@@ -58,7 +58,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     val context = LocalContext.current
     val activity = context as? Activity
     val audioManager = context.getSystemService(AudioManager::class.java)
-    val maxVolume = audioManager?.getMaxVolume(AudioManager.STREAM_MUSIC) ?: 15
+    val maxVolume = audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC) ?: 15
 
     var streamInfo by remember { mutableStateOf<StreamInfo?>(null) }
     var resolved by remember { mutableStateOf<StreamResolver.Resolved?>(null) }
@@ -136,8 +136,6 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
                 try { captionTracks = Captions.tracks(video.videoId) } catch (e: Exception) { }
-                // Load chapters from stream info
-                chapters = streamInfo?.chapters ?: emptyList()
             } catch (e: Exception) { error = e.message } finally { isLoading = false }
         }
         scope.launch {
@@ -238,9 +236,9 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                                     .fillMaxWidth()
                                     .height(80.dp)
                                     .align(Alignment.TopCenter)
-                                    .background Brush.verticalGradient(
+                                    .background(Brush.verticalGradient(
                                         colors = listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent)
-                                    )
+                                    ))
                             )
                             
                             // Bottom controls
