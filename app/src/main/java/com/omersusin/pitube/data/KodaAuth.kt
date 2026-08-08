@@ -13,7 +13,7 @@ object KodaAuth {
 
     fun getCookieValue(cookieString: String, name: String): String? =
         cookieString.split(";").map { it.trim().split("=", limit = 2) }
-            .find { it.first() == name }?.getOrNull(1)?.takeIf { it.isNotBlank() }
+            .find { it.isNotEmpty() && it.first() == name }?.getOrNull(1)?.takeIf { it.isNotBlank() }
 
     fun getSapisid(cookieString: String): String? = SAPISID_NAMES.firstNotNullOfOrNull { getCookieValue(cookieString, it) }
 

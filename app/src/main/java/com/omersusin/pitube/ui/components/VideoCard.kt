@@ -115,7 +115,7 @@ fun VideoCard(
                                 Modifier.combinedClickable(
                                     interactionSource = interactionSource,
                                     indication = null,
-                                    onClick = { onChannelClick(video.uploaderName) },
+                                    onClick = { onChannelClick(video.channelId ?: video.uploaderUrl?.substringAfter("/channel/")?.substringBefore("/") ?: "") },
                                     onLongClick = null
                                 )
                             } else {

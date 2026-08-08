@@ -23,6 +23,10 @@ object InstanceManager {
 
     val gson: Gson = GsonBuilder().setLenient().create()
 
+    init {
+        Thread { refreshInstances() }.start()
+    }
+
     fun refreshInstances() {
         try {
             val client = OkHttpClient()

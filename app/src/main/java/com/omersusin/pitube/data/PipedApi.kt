@@ -42,7 +42,11 @@ interface PipedApiService {
             OkHttpClient.Builder().addInterceptor(PipedFailoverInterceptor())
                 .connectTimeout(15, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS).build()
         }
-        fun create(): PipedApiService = Retrofit.Builder().baseUrl(BASE_URL).client(client)
-            .addConverterFactory(GsonConverterFactory.create(InstanceManager.gson)).build().create(PipedApiService::class.java)
+        @Volatile private var instance: PipedApiService? = null
+
+        fun create(): PipedApiService = instance ?: synchronized(this) {
+            instance ?: Retrofit.Builder().baseUrl(BASE_URL).client(client)
+                .addConverterFactory(GsonConverterFactory.create(InstanceManager.gson)).build().create(PipedApiService::class.java).also { instance = it }
+        }
     }
 }

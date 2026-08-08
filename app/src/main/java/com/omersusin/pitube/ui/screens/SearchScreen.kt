@@ -154,7 +154,7 @@ fun SearchScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> 
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(results) { video ->
-                    VideoListItem(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.uploaderName) })
+                    VideoListItem(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.channelId ?: video.uploaderUrl?.substringAfter("/channel/")?.substringBefore("/") ?: "") })
                 }
             }
         }

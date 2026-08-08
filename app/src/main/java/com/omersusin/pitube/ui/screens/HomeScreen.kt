@@ -170,7 +170,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                                 )
                             }
                         },
-                        onChannelClick = { onChannelClick(video.uploaderName) }
+                        onChannelClick = { onChannelClick(video.channelId ?: video.uploaderUrl?.substringAfter("/channel/")?.substringBefore("/") ?: "") }
                     )
                 }
                 if (isLoadingMore) {

@@ -19,6 +19,13 @@ object StreamResolver {
     private const val TAG = "StreamResolver"
     private const val INNERTUBE_API_URL = "https://www.youtube.com/youtubei/v1/player"
 
+    private val httpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+    }
+
     data class Resolved(
         val title: String,
         val description: String,
@@ -44,7 +51,6 @@ object StreamResolver {
         val hl: String = "en"
     )
 
-    // ANDROID_VR: Most reliable - returns pre-signed URLs, no signature cipher needed
     private val ANDROID_VR_CLIENT = ClientConfig(
         clientName = "ANDROID_VR",
         clientVersion = "1.60.19",
@@ -52,12 +58,9 @@ object StreamResolver {
         deviceModel = "Quest 3",
         userAgent = "com.google.android.apps.youtube.vr.oculus/1.60.19 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
         osName = "Android",
-        osVersion = "12L",
-        gl = "US",
-        hl = "en"
+        osVersion = "12L"
     )
 
-    // IOS: Good fallback, may require newer version
     private val IOS_CLIENT = ClientConfig(
         clientName = "IOS",
         clientVersion = "19.45.4",
@@ -65,27 +68,24 @@ object StreamResolver {
         deviceModel = "iPhone16,2",
         userAgent = "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)",
         osName = "iOS",
-        osVersion = "18.1.0",
-        gl = "US",
-        hl = "en"
+        osVersion = "18.1.0"
     )
 
-    // WEB_CREATOR: Requires auth, may need PO token
     private val WEB_CREATOR_CLIENT = ClientConfig(
         clientName = "WEB_CREATOR",
         clientVersion = "1.20241205.01.00",
         apiKey = "AIzaSyBUPetSUmoZL-OhlxA7wSac5XinrygCqMo",
         userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         osName = "Windows",
-        osVersion = "10.0.0",
-        gl = "US",
-        hl = "en"
+        osVersion = "10.0.0"
     )
 
     fun resolve(videoId: String, context: Context): Resolved? {
-        val cookies = AuthManager.getCookies(context)
-        val cookieString = cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
         val rawCookies = AuthManager.getRawCookies(context)
+        val cookieString = if (rawCookies.isNotBlank()) rawCookies else run {
+            val cookies = AuthManager.getCookies(context)
+            cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
+        }
         val authHeader = if (rawCookies.isNotBlank()) KodaAuth.authHeader(rawCookies) else null
 
         // ANDROID_VR first - most reliable, no cipher/PO token needed
@@ -156,80 +156,76 @@ object StreamResolver {
         }
 
         return try {
-            val httpClient = OkHttpClient.Builder()
-                .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
-                .build()
             val response = httpClient.newCall(requestBuilder.build()).execute()
-            if (!response.isSuccessful) {
-                Log.w(TAG, "${client.clientName} HTTP ${response.code} for $videoId")
-                return null
-            }
-            KodaAuth.refreshFromResponse(context, response)
-
-            val body = response.body?.string() ?: return null
-            val json = JSONObject(body)
-
-            val playabilityStatus = json.optJSONObject("playabilityStatus")
-            val status = playabilityStatus?.optString("status")
-            if (status != "OK") {
-                val reason = playabilityStatus?.optString("reason", "")
-                Log.w(TAG, "${client.clientName} status=$status reason=$reason for $videoId")
-                return null
-            }
-
-            val videoDetails = json.optJSONObject("videoDetails") ?: return null
-            val title = videoDetails.optString("title", "")
-            val description = videoDetails.optString("shortDescription", "")
-            val uploader = videoDetails.optString("author", "")
-            val uploaderUrl = "https://www.youtube.com/channel/${videoDetails.optString("channelId", "")}"
-
-            val streamingData = json.optJSONObject("streamingData") ?: return null
-            var videoUrl: String? = null
-            var audioUrl: String? = null
-            val hlsUrl: String? = streamingData.optString("hlsManifestUrl").takeIf { it.isNotBlank() }
-
-            // Prefer adaptive formats (separate video+audio for best quality)
-            val adaptiveFormats = streamingData.optJSONArray("adaptiveFormats")
-            if (adaptiveFormats != null) {
-                for (i in 0 until adaptiveFormats.length()) {
-                    val format = adaptiveFormats.getJSONObject(i)
-                    val mimeType = format.optString("mimeType", "")
-                    val url = format.optString("url", "")
-                    val signatureCipher = format.optString("signatureCipher", "")
-
-                    // Skip formats that require cipher decoding (we can't do that)
-                    if (url.isBlank() && signatureCipher.isNotBlank()) continue
-                    if (url.isBlank()) continue
-
-                    if (mimeType.startsWith("video/") && videoUrl == null && !mimeType.contains("audio")) {
-                        videoUrl = url
-                    } else if (mimeType.startsWith("audio/") && audioUrl == null) {
-                        audioUrl = url
-                    }
-
-                    if (videoUrl != null && audioUrl != null) break
+            response.use { resp ->
+                if (!resp.isSuccessful) {
+                    Log.w(TAG, "${client.clientName} HTTP ${resp.code} for $videoId")
+                    return null
                 }
-            }
+                KodaAuth.refreshFromResponse(context, resp)
 
-            // Fallback to regular formats (combined audio+video)
-            if (videoUrl == null && audioUrl == null) {
-                val formats = streamingData.optJSONArray("formats")
-                if (formats != null && formats.length() > 0) {
-                    // Find the best combined format
-                    for (i in 0 until formats.length()) {
-                        val format = formats.getJSONObject(i)
+                val body = resp.body?.string() ?: return null
+                val json = JSONObject(body)
+
+                val playabilityStatus = json.optJSONObject("playabilityStatus")
+                val status = playabilityStatus?.optString("status")
+                if (status != "OK") {
+                    val reason = playabilityStatus?.optString("reason", "")
+                    Log.w(TAG, "${client.clientName} status=$status reason=$reason for $videoId")
+                    return null
+                }
+
+                val videoDetails = json.optJSONObject("videoDetails") ?: return null
+                val title = videoDetails.optString("title", "")
+                val description = videoDetails.optString("shortDescription", "")
+                val uploader = videoDetails.optString("author", "")
+                val uploaderUrl = "https://www.youtube.com/channel/${videoDetails.optString("channelId", "")}"
+
+                val streamingData = json.optJSONObject("streamingData") ?: return null
+                var videoUrl: String? = null
+                var audioUrl: String? = null
+                val hlsUrl: String? = streamingData.optString("hlsManifestUrl").takeIf { it.isNotBlank() }
+
+                // Prefer adaptive formats (separate video+audio for best quality)
+                val adaptiveFormats = streamingData.optJSONArray("adaptiveFormats")
+                if (adaptiveFormats != null) {
+                    for (i in 0 until adaptiveFormats.length()) {
+                        val format = adaptiveFormats.getJSONObject(i)
+                        val mimeType = format.optString("mimeType", "")
                         val url = format.optString("url", "")
-                        if (url.isNotBlank()) {
+                        val signatureCipher = format.optString("signatureCipher", "")
+
+                        if (url.isBlank() && signatureCipher.isNotBlank()) continue
+                        if (url.isBlank()) continue
+
+                        if (mimeType.startsWith("video/") && videoUrl == null && !mimeType.contains("audio")) {
                             videoUrl = url
-                            break
+                        } else if (mimeType.startsWith("audio/") && audioUrl == null) {
+                            audioUrl = url
+                        }
+
+                        if (videoUrl != null && audioUrl != null) break
+                    }
+                }
+
+                // Fallback to regular formats (combined audio+video)
+                if (videoUrl == null && audioUrl == null) {
+                    val formats = streamingData.optJSONArray("formats")
+                    if (formats != null && formats.length() > 0) {
+                        for (i in 0 until formats.length()) {
+                            val format = formats.getJSONObject(i)
+                            val url = format.optString("url", "")
+                            if (url.isNotBlank()) {
+                                videoUrl = url
+                                break
+                            }
                         }
                     }
                 }
-            }
 
-            Log.d(TAG, "${client.clientName} resolved $videoId: video=${videoUrl != null} audio=${audioUrl != null} hls=${hlsUrl != null}")
-            Resolved(title, description, uploader, uploaderUrl, videoUrl, audioUrl, hlsUrl)
+                Log.d(TAG, "${client.clientName} resolved $videoId: video=${videoUrl != null} audio=${audioUrl != null} hls=${hlsUrl != null}")
+                Resolved(title, description, uploader, uploaderUrl, videoUrl, audioUrl, hlsUrl)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "${client.clientName} error for $videoId: ${e.message}")
             e.printStackTrace()

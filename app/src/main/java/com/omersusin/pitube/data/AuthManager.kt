@@ -9,15 +9,23 @@ object AuthManager {
     private const val PREFS_NAME = "piTubeAuth"
     private const val KEY_RAW = "raw_cookies"
 
+    @Volatile
+    private var cachedPrefs: SharedPreferences? = null
+
     private fun getPrefs(context: Context): SharedPreferences {
+        cachedPrefs?.let { return it }
         val masterKey = MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
-        return EncryptedSharedPreferences.create(context, PREFS_NAME, masterKey,
+        val prefs = EncryptedSharedPreferences.create(context, PREFS_NAME, masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+        cachedPrefs = prefs
+        return prefs
     }
 
     fun saveCookies(context: Context, cookies: Map<String, String>) {
         val editor = getPrefs(context).edit()
+        editor.clear()
+        editor.putString(KEY_RAW, cookies.entries.joinToString("; ") { "${it.key}=${it.value}" })
         cookies.forEach { (k, v) -> editor.putString(k, v) }
         editor.apply()
     }
@@ -46,5 +54,8 @@ object AuthManager {
 
     fun isLoggedIn(context: Context): Boolean = getRawCookies(context).isNotBlank()
 
-    fun logout(context: Context) { getPrefs(context).edit().clear().apply() }
+    fun logout(context: Context) {
+        getPrefs(context).edit().clear().apply()
+        cachedPrefs = null
+    }
 }

@@ -33,7 +33,7 @@ fun VideoListItem(video: VideoItem, onClick: () -> Unit, onChannelClick: (String
                 video.uploaderName,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.clickable { onChannelClick(video.uploaderUrl ?: video.uploaderName) }
+                modifier = Modifier.clickable { onChannelClick(video.channelId ?: video.uploaderUrl?.substringAfter("/channel/")?.substringBefore("/") ?: "") }
             )
         }
     }
