@@ -101,7 +101,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                     exoPlayer.prepare()
                     exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(currentSpeed)
                     exoPlayer.playWhenReady = true
-                } else { error = "Could not find stream URL" }
+                } else { error = (r?.let { "No playable stream: hls=" + (it.hlsUrl != null) + " prog=" + (it.playUrl != null) + " merge=" + (it.videoOnlyUrl != null && it.audioUrl != null) } ?: "All sources failed (NewPipe+InnerTube+Piped)") }
                 try { if (PrefsManager.isSponsorBlockEnabled(context)) segments = SponsorBlockService.create().getSegments(video.videoId, """["sponsor","selfpromo","intro","outro","preview"]""") } catch (e: Exception) { segments = emptyList() }
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }

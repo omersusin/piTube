@@ -24,14 +24,8 @@ object InnerTubeFeed {
     data class PlayerData(val hls: String?, val progressive: ItStream?, val videoOnly: ItStream?, val audio: ItStream?)
 
     private fun sha1(s: String): String = MessageDigest.getInstance("SHA-1").digest(s.toByteArray()).joinToString("") { "%02x".format(it) }
-
-    private fun tsHash(cookieValue: String): String {
-        val ts = System.currentTimeMillis() / 1000
-        return "${ts}_${sha1("$ts $cookieValue $ORIGIN")}"
-    }
-
-    private fun sapisidOf(cookies: Map<String, String>): String? =
-        cookies["SAPISID"] ?: cookies["__Secure-1PAPISID"] ?: cookies["APISID"] ?: cookies["__Secure-3PAPISID"]
+    private fun tsHash(v: String): String { val ts = System.currentTimeMillis() / 1000; return "${ts}_${sha1("$ts $v $ORIGIN")}" }
+    private fun sapisidOf(c: Map<String, String>): String? = c["SAPISID"] ?: c["__Secure-1PAPISID"] ?: c["APISID"] ?: c["__Secure-3PAPISID"]
 
     private fun applyAuth(rb: Request.Builder, context: Context) {
         val cookies = AuthManager.getCookies(context)
@@ -47,31 +41,95 @@ object InnerTubeFeed {
 
     private fun bodyJson(extra: (JSONObject) -> Unit): String {
         val root = JSONObject()
-        root.put("context", JSONObject().apply {
-            put("client", JSONObject().apply {
-                put("clientName", "WEB"); put("clientVersion", WEB_VERSION); put("hl", "en"); put("gl", "US")
-            })
-        })
+        root.put("context", JSONObject().apply { put("client", JSONObject().apply {
+            put("clientName", "WEB"); put("clientVersion", WEB_VERSION); put("hl", "en"); put("gl", "US") }) })
         extra(root)
         return root.toString()
     }
 
-    suspend fun fetchPlayer(videoId: String): PlayerData? = withContext(Dispatchers.IO) {
-        try {
+    // ---------- GENERIC VIDEO PARSER (handles old + new renderer names) ----------
+    private fun firstText(node: JSONObject, key: String): String? {
+        val o = node.optJSONObject(key) ?: return null
+        return o.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
+            ?: o.optString("simpleText", "").takeIf { it.isNotBlank() }
+            ?: o.optString("content", "").takeIf { it.isNotBlank() }
+    }
+
+    private fun walkVideos(node: Any?, out: MutableList<VideoItem>) {
+        when (node) {
+            is JSONObject -> {
+                val id = node.optString("videoId", "").takeIf { it.length in 8..15 }
+                    ?: node.optString("contentId", "").takeIf { it.length in 8..15 }
+                if (id != null) {
+                    val title = firstText(node, "title") ?: firstText(node, "headline")
+                        ?: node.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")?.optJSONObject("title")?.optString("content")
+                    val thumb = node.optJSONObject("thumbnail")?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url")
+                        ?: node.optJSONObject("contentImage")?.optJSONObject("thumbnailViewModel")?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url")
+                        ?: node.optJSONObject("contentImage")?.optJSONObject("thumbnailViewModel")?.optString("imageUrl")
+                    if (title != null || thumb != null) {
+                        val by = node.optJSONObject("shortBylineText")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
+                            ?: node.optJSONObject("longBylineText")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
+                            ?: node.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")?.optJSONObject("metadata")
+                                ?.optJSONObject("contentViewModel")?.optJSONArray("textParts")?.optJSONObject(0)
+                                ?.optJSONObject("text")?.optString("content")
+                        val date = node.optJSONObject("publishedTimeText")?.optString("simpleText")
+                            ?: node.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")?.optJSONObject("metadata")
+                                ?.optJSONObject("contentViewModel")?.optJSONArray("textParts")?.optJSONObject(1)?.optJSONObject("text")?.optString("content")
+                        out.add(VideoItem("https://www.youtube.com/watch?v=$id", title ?: "", thumb, by ?: "", null, 0, 0, date, false))
+                    }
+                }
+                val keys = node.keys()
+                while (keys.hasNext()) walkVideos(node.opt(keys.next()), out)
+            }
+            is JSONArray -> { for (i in 0 until node.length()) walkVideos(node.opt(i), out) }
+        }
+    }
+
+    private fun findFirst(node: Any?, key: String): JSONObject? {
+        when (node) {
+            is JSONObject -> {
+                node.optJSONObject(key)?.let { return it }
+                val keys = node.keys()
+                while (keys.hasNext()) { findFirst(node.opt(keys.next()), key)?.let { return it } }
+            }
+            is JSONArray -> { for (i in 0 until node.length()) { findFirst(node.opt(i), key)?.let { return it } } }
+        }
+        return null
+    }
+
+    private fun findToken(node: Any?): String? {
+        when (node) {
+            is JSONObject -> {
+                val cr = node.optJSONObject("continuationItemRenderer")
+                if (cr != null) {
+                    val t = cr.optJSONObject("continuationEndpoint")?.optJSONObject("continuationCommand")?.optString("token")
+                    if (!t.isNullOrBlank()) return t
+                }
+                val keys = node.keys()
+                while (keys.hasNext()) { findToken(node.opt(keys.next()))?.let { return it } }
+            }
+            is JSONArray -> { for (i in 0 until node.length()) { findToken(node.opt(i))?.let { return it } } }
+        }
+        return null
+    }
+
+    // ---------- PLAYER (multi-client) ----------
+    private fun tryClient(videoId: String, clientName: String, clientVersion: String, android: Boolean): PlayerData? {
+        return try {
             val body = JSONObject().apply {
                 put("videoId", videoId)
                 put("contentCheckOk", true); put("racyCheckOk", true)
                 put("context", JSONObject().apply { put("client", JSONObject().apply {
-                    put("clientName", "ANDROID"); put("clientVersion", "19.09.37"); put("androidSdkVersion", 30); put("hl", "en"); put("gl", "US")
+                    put("clientName", clientName); put("clientVersion", clientVersion); put("hl", "en"); put("gl", "US")
+                    if (android) put("androidSdkVersion", 30)
                 }) })
             }
+            val ua = if (android) "com.google.android.youtube/$clientVersion (Linux; U; Android 11) gzip" else UA
             val req = Request.Builder().url("https://www.youtube.com/youtubei/v1/player?prettyPrint=false")
-                .addHeader("Content-Type", "application/json")
-                .addHeader("User-Agent", "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip")
+                .addHeader("Content-Type", "application/json").addHeader("User-Agent", ua)
                 .post(body.toString().toRequestBody("application/json".toMediaType())).build()
             val json = JSONObject(client.newCall(req).execute().body?.string() ?: "{}")
-            val sd = json.optJSONObject("streamingData") ?: return@withContext null
-            val hls = sd.optString("hlsManifestUrl", "").takeIf { it.isNotBlank() }
+            val sd = json.optJSONObject("streamingData") ?: return null
             fun parse(arr: JSONArray?): List<ItStream> {
                 val out = mutableListOf<ItStream>()
                 if (arr != null) for (i in 0 until arr.length()) {
@@ -84,7 +142,7 @@ object InnerTubeFeed {
             val formats = parse(sd.optJSONArray("formats"))
             val adaptive = parse(sd.optJSONArray("adaptiveFormats"))
             PlayerData(
-                hls = hls,
+                hls = sd.optString("hlsManifestUrl", "").takeIf { it.isNotBlank() },
                 progressive = formats.maxByOrNull { it.height },
                 videoOnly = adaptive.filter { it.mime.startsWith("video") }.maxByOrNull { it.height },
                 audio = adaptive.filter { it.mime.startsWith("audio") }.maxByOrNull { it.bitrate }
@@ -92,6 +150,13 @@ object InnerTubeFeed {
         } catch (e: Exception) { null }
     }
 
+    suspend fun fetchPlayer(videoId: String): PlayerData? = withContext(Dispatchers.IO) {
+        tryClient(videoId, "ANDROID", "19.09.37", true)?.takeIf { it.hls != null || it.progressive != null || it.videoOnly != null }
+            ?: tryClient(videoId, "TVHTML5", "7.20260114.12.00", false)?.takeIf { it.hls != null || it.progressive != null || it.videoOnly != null }
+            ?: tryClient(videoId, "IOS", "19.28.1", false)
+    }
+
+    // ---------- ACCOUNT ----------
     suspend fun fetchAccount(context: Context): AccountFetcher.AccountInfo? = withContext(Dispatchers.IO) {
         try {
             if (!AuthManager.isLoggedIn(context)) return@withContext null
@@ -101,7 +166,8 @@ object InnerTubeFeed {
             val resp = client.newCall(rb.post(bodyJson { }.toRequestBody("application/json".toMediaType())).build()).execute()
             val bodyStr = resp.body?.string() ?: ""
             AuthDebug.snippet.value = "account_menu ${resp.code}: ${bodyStr.take(300)}"
-            val h = JSONObject(bodyStr).optJSONObject("header")?.optJSONObject("activeAccountHeaderRenderer") ?: return@withContext null
+            val json = JSONObject(bodyStr)
+            val h = findFirst(json, "activeAccountHeaderRenderer") ?: return@withContext null
             val name = h.optJSONObject("title")?.optString("simpleText")
                 ?: h.optJSONObject("title")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text") ?: ""
             val handle = h.optJSONObject("accountHandle")?.optString("simpleText") ?: ""
@@ -110,10 +176,10 @@ object InnerTubeFeed {
         } catch (e: Exception) { e.printStackTrace(); null }
     }
 
+    // ---------- FEEDS ----------
     suspend fun fetchFeed(context: Context, browseId: String): List<VideoItem> = withContext(Dispatchers.IO) {
         try {
-            val cookies = AuthManager.getCookies(context)
-            if (cookies.isEmpty()) return@withContext emptyList()
+            if (AuthManager.getCookies(context).isEmpty()) return@withContext emptyList()
             val out = mutableListOf<VideoItem>()
             var token: String? = null
             for (page in 0..2) {
@@ -147,44 +213,5 @@ object InnerTubeFeed {
             walkVideos(json, videos)
             ChannelResolver.ChannelPage(name, avatar, videos.distinctBy { it.videoId })
         } catch (e: Exception) { null }
-    }
-
-    private fun walkVideos(node: Any?, out: MutableList<VideoItem>) {
-        when (node) {
-            is JSONObject -> {
-                val vr = node.optJSONObject("videoRenderer")
-                    ?: node.optJSONObject("richItemRenderer")?.optJSONObject("content")?.optJSONObject("videoRenderer")
-                if (vr != null) runCatching {
-                    val id = vr.getString("videoId")
-                    val title = vr.optJSONObject("title")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
-                        ?: vr.optJSONObject("title")?.optString("simpleText") ?: ""
-                    val thumb = vr.optJSONObject("thumbnail")?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url") ?: ""
-                    val by = vr.optJSONObject("shortBylineText")?.optJSONArray("runs")?.optJSONObject(0)
-                    val date = vr.optJSONObject("publishedTimeText")?.optString("simpleText")
-                    out.add(VideoItem(url = "https://www.youtube.com/watch?v=$id", title = title, thumbnailUrl = thumb,
-                        uploaderName = by?.optString("text") ?: "", uploaderAvatar = null, duration = 0, views = 0,
-                        uploadedDate = date, isShort = false))
-                }
-                val keys = node.keys()
-                while (keys.hasNext()) walkVideos(node.opt(keys.next()), out)
-            }
-            is JSONArray -> { for (i in 0 until node.length()) walkVideos(node.opt(i), out) }
-        }
-    }
-
-    private fun findToken(node: Any?): String? {
-        when (node) {
-            is JSONObject -> {
-                val cr = node.optJSONObject("continuationItemRenderer")
-                if (cr != null) {
-                    val t = cr.optJSONObject("continuationEndpoint")?.optJSONObject("continuationCommand")?.optString("token")
-                    if (!t.isNullOrBlank()) return t
-                }
-                val keys = node.keys()
-                while (keys.hasNext()) { findToken(node.opt(keys.next()))?.let { return it } }
-            }
-            is JSONArray -> { for (i in 0 until node.length()) { findToken(node.opt(i))?.let { return it } } }
-        }
-        return null
     }
 }
