@@ -2,7 +2,7 @@ package com.omersusin.pitube.data
 
 import org.json.JSONObject
 
-data class RichLink(val text: String, val url: String?, val timestamp: Long?, val hashtag: Boolean = false)
+data class RichLink(val text: String, val url: String?, val timestampMs: Long?, val hashtag: Boolean = false)
 
 object RichTextParser {
     fun parse(node: JSONObject): List<RichLink> {
@@ -14,12 +14,17 @@ object RichTextParser {
             val nav = run.optJSONObject("navigationEndpoint")
             val url = nav?.optJSONObject("urlEndpoint")?.optString("url")
                 ?: nav?.optJSONObject("commandMetadata")?.optJSONObject("webCommandMetadata")?.optString("url")
-            val ts = nav?.optJSONObject("watchEndpoint")?.optLong("startTimeSeconds", 0L)
-            val hashtag = nav?.optJSONObject("commandMetadata")?.optJSONObject("webCommandMetadata")?.optString("url")?.startsWith("/hashtag/") == true
-            out.add(RichLink(text, url, if (ts != null if (ts != 0L) ts * 1000 else nullif (ts != 0L) ts * 1000 else null ts != 0L) ts * 1000 else null, hashtag))
+            val watchEp = nav?.optJSONObject("watchEndpoint")
+            val rawTs: Long? = watchEp?.let {
+                val v = it.optLong("startTimeSeconds", -1L)
+                if (v >= 0) v else null
+            }
+            val tsMs: Long? = rawTs?.let { if (it > 0) it * 1000L else null }
+            val isHashtag = nav?.optJSONObject("commandMetadata")?.optJSONObject("webCommandMetadata")?.optString("url")?.startsWith("/hashtag/") == true
+            out.add(RichLink(text, url, tsMs, isHashtag))
         }
         return out
     }
-    
+
     fun toPlainText(links: List<RichLink>): String = links.joinToString("") { it.text }
 }
