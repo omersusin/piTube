@@ -29,6 +29,7 @@ data class CommentsResponse(val comments: List<Comment>, val nextpage: String? =
 
 interface PipedApiService {
     @GET("trending") suspend fun getTrending(@Query("region") region: String = "US"): List<VideoItem>
+    @GET("trending/shorts") suspend fun getShorts(@Query("region") region: String = "US"): List<VideoItem>
     @GET("search") suspend fun search(@Query("q") query: String, @Query("filter") filter: String = "videos"): SearchResult
     @GET("streams/{videoId}") suspend fun getStreams(@Path("videoId") videoId: String): StreamInfo
     @GET("channel/{channelId}") suspend fun getChannel(@Path("channelId") channelId: String): ChannelInfo
@@ -36,7 +37,7 @@ interface PipedApiService {
     @GET("nextpage/comments/{videoId}") suspend fun getNextComments(@Path("videoId") videoId: String, @Query("nextpage") nextPage: String): CommentsResponse
 
     companion object {
-        private const val BASE_URL = "https://pipedapi.kavin.rocks/"
+        private const val BASE_URL = "https://pipedapi.adminforge.de/"
         private val client by lazy {
             OkHttpClient.Builder().addInterceptor(PipedFailoverInterceptor())
                 .connectTimeout(15, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS).build()

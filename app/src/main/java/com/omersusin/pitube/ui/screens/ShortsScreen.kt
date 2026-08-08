@@ -24,10 +24,10 @@ import kotlinx.coroutines.launch
 private object ShortsPrefetchCache {
     private val cache = mutableMapOf<String, StreamResolver.Resolved?>()
     private val inFlight = mutableSetOf<String>()
-    suspend fun prefetch(videoId: String, context: android.content.Context) { 
+    suspend fun prefetch(videoId: String, context: android.content.Context) {
         if (cache.containsKey(videoId) || !inFlight.add(videoId)) return
         cache[videoId] = StreamResolver.resolve(videoId, context)
-        inFlight.remove(videoId) 
+        inFlight.remove(videoId)
     }
     fun take(videoId: String): StreamResolver.Resolved? = cache.remove(videoId)
 }
@@ -39,16 +39,62 @@ fun ShortsScreen() {
     var shorts by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) { scope.launch { try { val allVideos = PipedApiService.create().getTrending(); shorts = allVideos.filter { it.isShort || it.duration in 1..60 }; if (shorts.isEmpty()) shorts = allVideos.take(10) } catch (e: Exception) { e.printStackTrace() } finally { isLoading = false } } }
-    if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
-    else if (shorts.isEmpty()) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No shorts found") } }
-    else {
-        val pagerState = rememberPagerState(pageCount = { shorts.size })
-        LaunchedEffect(pagerState.currentPage) { 
-            val nextIndex = pagerState.currentPage + 1
-            if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId, context) 
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            try {
+                val api = PipedApiService.create()
+                // Try dedicated shorts endpoint first
+                try {
+                    val shortsList = api.getShorts()
+                    shorts = shortsList.filter { it.url.contains("/shorts/") || it.duration in 1..180 }
+                } catch (e: Exception) {
+                    // Fallback: get trending and filter for shorts-like videos
+                    val trending = api.getTrending()
+                    shorts = trending.filter { video ->
+                        video.url.contains("/shorts/") ||
+                        (video.duration in 1..60 && video.isShort)
+                    }
+                }
+                // If still no shorts, show first few trending as fallback
+                if (shorts.isEmpty()) {
+                    try {
+                        val trending = api.getTrending()
+                        shorts = trending.take(5)
+                    } catch (e: Exception) {}
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                isLoading = false
+            }
         }
-        VerticalPager(state = pagerState, modifier = Modifier.fillMaxSize(), pageSize = PageSize.Fill) { page -> ShortVideoPlayer(video = shorts[page], isActive = page == pagerState.currentPage) }
+    }
+
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else if (shorts.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No shorts found")
+        }
+    } else {
+        val pagerState = rememberPagerState(pageCount = { shorts.size })
+        LaunchedEffect(pagerState.currentPage) {
+            val nextIndex = pagerState.currentPage + 1
+            if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId, context)
+        }
+        VerticalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            pageSize = PageSize.Fill
+        ) { page ->
+            ShortVideoPlayer(
+                video = shorts[page],
+                isActive = page == pagerState.currentPage
+            )
+        }
     }
 }
 
@@ -58,18 +104,62 @@ fun ShortVideoPlayer(video: VideoItem, isActive: Boolean) {
     val context = LocalContext.current
     val exoPlayer = remember { ExoPlayer.Builder(context).build() }
     var mediaReady by remember { mutableStateOf(false) }
+
     LaunchedEffect(video.videoId) {
         mediaReady = false
         try {
-            val resolved = ShortsPrefetchCache.take(video.videoId) ?: StreamResolver.resolve(video.videoId, context)
+            val resolved = ShortsPrefetchCache.take(video.videoId)
+                ?: StreamResolver.resolve(video.videoId, context)
             val source = resolved?.let { StreamResolver.buildMediaSource(context, it) }
-            if (source != null) { exoPlayer.setMediaSource(source); exoPlayer.prepare(); exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ONE; mediaReady = true }
-        } catch (e: Exception) { e.printStackTrace() }
+            if (source != null) {
+                exoPlayer.setMediaSource(source)
+                exoPlayer.prepare()
+                exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ONE
+                mediaReady = true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
-    LaunchedEffect(isActive, mediaReady) { exoPlayer.playWhenReady = isActive && mediaReady; if (!isActive) exoPlayer.pause() }
-    DisposableEffect(Unit) { onDispose { exoPlayer.release() } }
+
+    LaunchedEffect(isActive, mediaReady) {
+        exoPlayer.playWhenReady = isActive && mediaReady
+        if (!isActive) exoPlayer.pause()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { exoPlayer.release() }
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        AndroidView(factory = { ctx -> PlayerView(ctx).apply { player = exoPlayer; useController = false; resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM } }, modifier = Modifier.fillMaxSize())
-        Column(modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)) { Text(video.title, color = Color.White, style = MaterialTheme.typography.titleMedium); Spacer(modifier = Modifier.height(4.dp)); Text(video.uploaderName, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall) }
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = exoPlayer
+                    useController = true
+                    resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+                .padding(bottom = 48.dp)
+        ) {
+            Text(
+                video.title,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                video.uploaderName,
+                color = Color.White.copy(alpha = 0.8f),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }

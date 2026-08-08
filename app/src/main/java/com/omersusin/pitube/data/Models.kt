@@ -20,7 +20,13 @@ data class VideoItem(
     val publishedAtMs: Long? = null,
     val dismissal: DismissalTokens? = null
 ) {
-    val videoId: String get() = url.substringAfter("watch?v=").substringBefore("&")
+    val videoId: String get() {
+        return when {
+            url.contains("/shorts/") -> url.substringAfter("/shorts/").substringBefore("?")
+            url.contains("watch?v=") -> url.substringAfter("watch?v=").substringBefore("&")
+            else -> url.substringAfterLast("/").substringBefore("?")
+        }
+    }
     val id: String get() = videoId
     val safeThumb: String get() = thumbnailUrl ?: "https://i.ytimg.com/vi/$videoId/hqdefault.jpg"
 
