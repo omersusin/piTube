@@ -11,15 +11,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.omersusin.pitube.data.StatsRepository
+import com.omersusin.pitube.data.HistoryManager
 import com.omersusin.pitube.data.WatchHistoryRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val stats = remember { StatsRepository.stats(context) }
-    val history by remember { mutableStateOf(WatchHistoryRepository.getHistory(context)) }
+    val history = remember { HistoryManager.getHistory(context) }
+    val watchHistory = remember { WatchHistoryRepository.getHistory(context) }
+    
+    val totalPlays = history.size
+    val uniqueChannels = history.map { it.uploaderName }.distinct().size
+    val avgWatchTimeMs = if (watchHistory.isNotEmpty()) {
+        watchHistory.map { it.watchDurationMs }.average().toLong()
+    } else 0L
+    
+    val topChannels = history.groupBy { it.uploaderName }
+        .map { (channel, videos) -> Pair(channel, videos.size) }
+        .sortedByDescending { it.second }
+        .take(5)
 
     Scaffold(
         topBar = {
@@ -45,12 +56,8 @@ fun StatsScreen(onBack: () -> Unit) {
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column {
-                                Text("Total Plays", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                                Text(stats.totalPlays.toString(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            }
-                        }
+                        Text("Total Plays", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text(totalPlays.toString(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 }
             }
@@ -61,75 +68,43 @@ fun StatsScreen(onBack: () -> Unit) {
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column {
-                                Text("Current Streak", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                                Text("${stats.streak} days", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                            }
-                        }
+                        Text("Unique Channels", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                        Text(uniqueChannels.toString(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     }
                 }
             }
 
             item {
-                Text("Top Channels", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
-            }
-            
-            items(stats.topChannels) { pair ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
                 ) {
-                    Text(
-                        "${stats.topChannels.indexOf(pair) + 1}.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.width(24.dp)
-                    )
-                    Text(pair.first, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                    Text("${pair.second} plays", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Avg Watch Time", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+                        Text("${avgWatchTimeMs / 1000}s", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+                    }
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Recent Watches", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
-            }
-
-            items(history.take(10)) { entry ->
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
+            if (topChannels.isNotEmpty()) {
+                item {
+                    Text("Top Channels", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 8.dp))
+                }
+                
+                items(topChannels) { pair ->
+                    val channel = pair.first
+                    val count = pair.second
                     Row(
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                entry.title,
-                                style = MaterialTheme.typography.bodyMedium,
-                                maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                            )
-                            Text(
-                                entry.channelName,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            val percentage = if (entry.totalDurationMs > 0) (entry.watchDurationMs * 100 / entry.totalDurationMs) else 0
-                            Text(
-                                text = "$percentage%",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = if (entry.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = "${entry.watchDurationMs / 1000}s",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(
+                            "${topChannels.indexOf(pair) + 1}.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.width(24.dp)
+                        )
+                        Text(channel, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        Text("$count plays", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
