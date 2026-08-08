@@ -2,44 +2,35 @@ package com.omersusin.pitube.data
 
 import android.content.Context
 
-object SearchHistoryRepository {
-    private const val MAX_ITEMS = 20
+class SearchHistoryRepository(context: Context) {
+    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     
-    fun addQuery(context: Context, query: String) {
+    fun getHistory(): List<String> {
+        val historyString = prefs.getString(KEY_HISTORY, "") ?: ""
+        return if (historyString.isEmpty()) emptyList() else historyString.split("|")
+    }
+    
+    fun addQuery(query: String) {
         if (query.isBlank()) return
-        val history = getHistory(context).toMutableList()
-        history.remove(query)
-        history.add(0, query)
-        if (history.size > MAX_ITEMS) {
-            history.removeAt(history.size - 1)
-        }
-        context.getSharedPreferences("search_history", Context.MODE_PRIVATE)
-            .edit()
-            .putStringSet("queries", history.toSet())
-            .putString("order", history.joinToString("|||"))
-            .apply()
+        val current = getHistory().toMutableList()
+        current.remove(query)
+        current.add(0, query)
+        val limited = current.take(15)
+        prefs.edit().putString(KEY_HISTORY, limited.joinToString("|")).apply()
     }
     
-    fun getHistory(context: Context): List<String> {
-        val prefs = context.getSharedPreferences("search_history", Context.MODE_PRIVATE)
-        val order = prefs.getString("order", "") ?: return emptyList()
-        return order.split("|||").filter { it.isNotBlank() }
+    fun removeQuery(query: String) {
+        val current = getHistory().toMutableList()
+        current.remove(query)
+        prefs.edit().putString(KEY_HISTORY, current.joinToString("|")).apply()
     }
     
-    fun removeQuery(context: Context, query: String) {
-        val history = getHistory(context).toMutableList()
-        history.remove(query)
-        context.getSharedPreferences("search_history", Context.MODE_PRIVATE)
-            .edit()
-            .putStringSet("queries", history.toSet())
-            .putString("order", history.joinToString("|||"))
-            .apply()
+    fun clearHistory() {
+        prefs.edit().remove(KEY_HISTORY).apply()
     }
     
-    fun clearHistory(context: Context) {
-        context.getSharedPreferences("search_history", Context.MODE_PRIVATE)
-            .edit()
-            .clear()
-            .apply()
+    companion object {
+        private const val PREFS_NAME = "search_history"
+        private const val KEY_HISTORY = "history_list"
     }
 }

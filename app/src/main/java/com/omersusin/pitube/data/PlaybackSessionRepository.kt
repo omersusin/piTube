@@ -1,37 +1,57 @@
 package com.omersusin.pitube.data
 
 import android.content.Context
-import com.google.gson.Gson
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import java.io.File
+import android.util.Log
 
+@Serializable
 data class PlaybackSession(
     val videoId: String,
     val positionMs: Long,
     val savedAt: Long
 )
 
-object PlaybackSessionRepository {
-    private const val SESSION_FILE = "playback_session.json"
-    private val gson = Gson()
-
-    private fun getSessionFile(context: Context) = File(context.filesDir, SESSION_FILE)
-
-    fun saveSession(context: Context, videoId: String, positionMs: Long) {
-        val session = PlaybackSession(videoId, positionMs, System.currentTimeMillis())
-        val file = getSessionFile(context)
-        file.writeText(gson.toJson(session))
+class PlaybackSessionRepository(context: Context) {
+    companion object {
+        private const val TAG = "PlaybackSession"
+        private const val FILE_NAME = "playback_session.json"
     }
 
-    fun getSession(context: Context): PlaybackSession? {
-        val file = getSessionFile(context)
-        if (!file.exists()) return null
-        
-        return try {
-            val json = file.readText()
-            gson.fromJson(json, PlaybackSession::class.java)
+    private val sessionFile = File(context.filesDir, FILE_NAME)
+    private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+
+    fun save(videoId: String, positionMs: Long) {
+        if (videoId.isBlank()) return
+        try {
+            val session = PlaybackSession(
+                videoId = videoId,
+                positionMs = positionMs.coerceAtLeast(0L),
+                savedAt = System.currentTimeMillis()
+            )
+            sessionFile.writeText(json.encodeToString(session))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Failed to save playback session", e)
+        }
+    }
+
+    fun load(): PlaybackSession? {
+        return try {
+            if (!sessionFile.exists()) return null
+            json.decodeFromString<PlaybackSession>(sessionFile.readText())
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to load playback session", e)
             null
+        }
+    }
+
+    fun clear() {
+        try {
+            sessionFile.delete()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to clear playback session", e)
         }
     }
 }
