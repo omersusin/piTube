@@ -24,7 +24,7 @@ class VolumeNormalizationProcessor(private val enabled: Boolean) : BaseAudioProc
         }
         val rms = Math.sqrt(sum / sampleCount)
         val target = 4000.0
-        val gain = if (rms in 1.0 until target) (target / rms).coerceAtMost(2.5) else 1.0
+        val gain = if (rms >= 1.0 && rms < target) (target / rms).coerceAtMost(2.5) else 1.0
 
         val output = replaceOutputBuffer(sampleCount * 2)
         for (i in 0 until sampleCount) {
