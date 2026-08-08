@@ -135,15 +135,15 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 try { if (PrefsManager.isSponsorBlockEnabled(context)) segments = SponsorBlockService.create().getSegments(video.videoId, """["sponsor","selfpromo","intro","outro","preview"]""") } catch (e: Exception) { segments = emptyList() }
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
-                try { captionTracks = Captions.tracks(video.videoId) } catch (e: Exception) { }
+                try { captionTracks = Captions.tracks(context, video.videoId) } catch (e: Exception) { }
             } catch (e: Exception) { error = e.message } finally { isLoading = false }
         }
         scope.launch {
             try {
-                var token = LiveChatManager.getInitialContinuation(video.videoId)
+                var token = LiveChatManager.getInitialContinuation(context, video.videoId)
                 if (token != null) showChat = true
                 while (token != null) {
-                    val res = LiveChatManager.poll(token)
+                    val res = LiveChatManager.poll(context, token)
                     if (res.first.isNotEmpty()) chatMessages = (chatMessages + res.first).takeLast(200)
                     token = res.second
                     delay(4000)

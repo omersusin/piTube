@@ -1,19 +1,27 @@
 package com.omersusin.pitube.data
 
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
 object AccountFetcher {
     private const val TAG = "AccountFetcher"
+    private const val API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+    private const val CLIENT_VERSION = "2.20260114.08.00"
+    private const val UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
     data class AccountInfo(val name: String, val avatarUrl: String?, val handle: String?)
 
-    private val client = okhttp3.OkHttpClient.Builder()
-        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-        .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
         .build()
 
     fun getCached(context: Context): AccountInfo? {
@@ -45,29 +53,30 @@ object AccountFetcher {
 
             val authHeader = KodaAuth.authHeader(rawCookies)
 
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20260114.08.00","hl":"en","gl":"US"}}}"""
-            val req = okhttp3.Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/account/account_menu?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"$CLIENT_VERSION","hl":"en","gl":"US"}}}"""
+            val reqBuilder = Request.Builder()
+                .url("https://www.youtube.com/youtubei/v1/account/account_menu?key=$API_KEY")
                 .post(body.toRequestBody("application/json".toMediaType()))
                 .addHeader("Cookie", rawCookies)
-                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+                .addHeader("User-Agent", UA)
+                .addHeader("X-YouTube-Client-Name", "1")
+                .addHeader("X-YouTube-Client-Version", CLIENT_VERSION)
                 .addHeader("Origin", "https://www.youtube.com")
                 .addHeader("X-Goog-AuthUser", "0")
-                .apply { if (authHeader != null) addHeader("Authorization", authHeader) }
-                .build()
-            val resp = client.newCall(req).execute()
+            if (authHeader != null) reqBuilder.addHeader("Authorization", authHeader)
+
+            val resp = client.newCall(reqBuilder.build()).execute()
             resp.use { r ->
+                KodaAuth.refreshFromResponse(context, r)
                 if (!r.isSuccessful) {
                     Log.w(TAG, "HTTP ${r.code}")
                     return@withContext null
                 }
-                val json = org.json.JSONObject(r.body?.string() ?: return@withContext null)
+                val json = JSONObject(r.body?.string() ?: return@withContext null)
 
-                // Try multiple response formats
                 var name: String? = null
                 var photo: String? = null
 
-                // Format 1: actions -> openPopupAction -> multiPageMenuRenderer
                 val actions = json.optJSONArray("actions")
                 if (actions != null) {
                     val item = actions.optJSONObject(0)
@@ -86,7 +95,6 @@ object AccountFetcher {
                     }
                 }
 
-                // Format 2: header -> accountSectionListRenderer
                 if (name == null) {
                     val header = json.optJSONObject("header")
                         ?.optJSONObject("accountSectionListRenderer")
@@ -99,7 +107,6 @@ object AccountFetcher {
                     }
                 }
 
-                // Format 3: Direct profile info
                 if (name == null) {
                     name = json.optString("name", null)
                     photo = json.optString("photoUrl", null)
