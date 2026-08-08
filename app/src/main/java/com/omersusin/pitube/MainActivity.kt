@@ -212,3 +212,21 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
 
 data class TabItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
+
+fun loadTheme(context: android.content.Context): com.omersusin.pitube.ui.theme.ThemeMode {
+    val prefs = context.getSharedPreferences("theme_prefs", android.content.Context.MODE_PRIVATE)
+    return when (prefs.getString("theme_mode", "system")) {
+        "light" -> com.omersusin.pitube.ui.theme.ThemeMode.LIGHT
+        "dark" -> com.omersusin.pitube.ui.theme.ThemeMode.DARK
+        else -> com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM
+    }
+}
+
+fun saveTheme(context: android.content.Context, mode: com.omersusin.pitube.ui.theme.ThemeMode) {
+    val prefs = context.getSharedPreferences("theme_prefs", android.content.Context.MODE_PRIVATE)
+    prefs.edit().putString("theme_mode", when(mode) {
+        com.omersusin.pitube.ui.theme.ThemeMode.LIGHT -> "light"
+        com.omersusin.pitube.ui.theme.ThemeMode.DARK -> "dark"
+        com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM -> "system"
+    }).apply()
+}

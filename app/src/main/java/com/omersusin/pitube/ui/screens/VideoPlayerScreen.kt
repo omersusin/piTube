@@ -99,7 +99,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     val comments = remember(video.videoId) { Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(PipedApiService.create(), video.videoId) }.flow }.collectAsLazyPagingItems()
 
     LaunchedEffect(video.videoId) {
-        HistoryManager.addToHistory(context, video); WatchHistoryRepository.addVideo(context, video)
+        HistoryManager.addToHistory(context, video); WatchHistoryRepository.addWatchHistory(context, video.videoId, video.title, video.uploaderName, video.thumbnailUrl)
         StatsRepo.record(context, video.videoId, video.uploaderName)
         isLoading = true; error = null; downloadStarted = false; deArrowTitle = null; showOriginal = false; chatMessages = emptyList()
         notes = NotesManager.getNotes(context, video.videoId)
@@ -224,4 +224,28 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
             confirmButton = { Button(onClick = { NotInterested.hideVideo(context, video); showHideDialog = false; onBack() }) { Text("Hide Video") } },
             dismissButton = { TextButton(onClick = { NotInterested.hideChannel(context, video.uploaderName); showHideDialog = false; onBack() }) { Text("Hide Channel") } })
     }
+}
+
+private fun addWatchHistory(context: android.content.Context, videoId: String, title: String, uploader: String, thumbnail: String) {
+    val prefs = context.getSharedPreferences("watch_history", android.content.Context.MODE_PRIVATE)
+    val gson = com.google.gson.Gson()
+    val type = object : com.google.gson.reflect.TypeToken<MutableList<com.omersusin.pitube.data.WatchHistoryItem>>() {}.type
+    val history: MutableList<com.omersusin.pitube.data.WatchHistoryItem> = try {
+        gson.fromJson(prefs.getString("items", "[]"), type) ?: mutableListOf()
+    } catch (e: Exception) { mutableListOf() }
+    
+    history.removeAll { it.videoId == videoId }
+    history.add(0, com.omersusin.pitube.data.WatchHistoryItem(
+        videoId = videoId,
+        title = title,
+        uploader = uploader,
+        thumbnailUrl = thumbnail,
+        watchedAt = System.currentTimeMillis()
+    ))
+    
+    if (history.size > 100) {
+        history.removeAt(history.size - 1)
+    }
+    
+    prefs.edit().putString("items", gson.toJson(history)).apply()
 }

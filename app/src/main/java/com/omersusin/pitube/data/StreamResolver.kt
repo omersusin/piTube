@@ -1,67 +1,79 @@
 package com.omersusin.pitube.data
 
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MimeTypes
-import androidx.media3.datasource.DataSource
-import androidx.media3.exoplayer.hls.HlsMediaSource
-import androidx.media3.exoplayer.source.MediaSource
-import androidx.media3.exoplayer.source.MergingMediaSource
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.schabi.newpipe.extractor.ServiceList
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 object StreamResolver {
-    enum class Strategy { HLS, PROGRESSIVE, MERGED, NONE }
-    data class Resolved(val strategy: Strategy, val hlsUrl: String?, val playUrl: String?, val videoOnlyUrl: String?, val downloadUrl: String?, val audioUrl: String?, val title: String, val description: String, val uploader: String, val uploaderUrl: String)
+    private const val INNERTUBE_API_URL = "https://www.youtube.com/youtubei/v1/player"
+    private const val INNERTUBE_API_KEY = "AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA"
 
-    private fun qualityOf(res: String?) = res?.filter { it.isDigit() }?.toIntOrNull() ?: 0
-    fun hasPlayable(r: Resolved?) = r != null && (r.hlsUrl != null || r.playUrl != null || (r.videoOnlyUrl != null && r.audioUrl != null))
+    fun fetchPlayer(videoId: String, context: android.content.Context): PlayerData? {
+        val client = OkHttpClient()
+        val cookies = AuthManager.getCookies(context)
 
-    suspend fun resolve(videoId: String): Resolved? = withContext(Dispatchers.IO) {
-        var r: Resolved? = null
-        try {
-            val ex = ServiceList.YouTube.getStreamExtractor("https://www.youtube.com/watch?v=$videoId")
-            ex.fetchPage()
-            val hls = runCatching { ex.hlsUrl }.getOrNull()?.takeIf { it.isNotBlank() }
-            val withAudio = runCatching { ex.videoStreams }.getOrNull() ?: emptyList()
-            val videoOnly = runCatching { ex.videoOnlyStreams }.getOrNull() ?: emptyList()
-            val audios = runCatching { ex.audioStreams }.getOrNull() ?: emptyList()
-            val prog = withAudio.maxByOrNull { qualityOf(it.resolution) }
-            val bestOnly = videoOnly.maxByOrNull { qualityOf(it.resolution) }
-            val bestAudio = audios.maxByOrNull { it.averageBitrate }
-            r = Resolved(Strategy.HLS, hls, prog?.content, bestOnly?.content, bestOnly?.content ?: prog?.content, bestAudio?.content,
-                runCatching { ex.name }.getOrNull() ?: "", runCatching { ex.description?.content }.getOrNull() ?: "",
-                runCatching { ex.uploaderName }.getOrNull() ?: "", runCatching { ex.uploaderUrl }.getOrNull() ?: "")
-        } catch (e: Exception) { e.printStackTrace() }
-        if (!hasPlayable(r)) {
-            val p = InnerTubeFeed.fetchPlayer(videoId)
-            if (good(p)) r = Resolved(Strategy.HLS, p!!.hls, p.progressive?.url, p.videoOnly?.url, p.videoOnly?.url ?: p.progressive?.url, p.audio?.url, "", "", "", "")
+        val requestBody = """
+            {
+                "context": {
+                    "client": {
+                        "clientName": "WEB",
+                        "clientVersion": "2.20240101.00.00"
+                    }
+                },
+                "videoId": "$videoId"
+            }
+        """.trimIndent()
+
+        val request = Request.Builder()
+            .url("$INNERTUBE_API_URL?key=$INNERTUBE_API_KEY")
+            .post(requestBody.toRequestBody("application/json".toMediaType()))
+            .addHeader("Cookie", cookies)
+            .build()
+
+        return try {
+            val response = client.newCall(request).execute()
+            if (!response.isSuccessful) return null
+            
+            val json = JSONObject(response.body?.string() ?: return null)
+            val streamingData = json.optJSONObject("streamingData") ?: return null
+            
+            val formats = streamingData.optJSONArray("formats")
+            val adaptiveFormats = streamingData.optJSONArray("adaptiveFormats")
+            
+            var bestVideoUrl: String? = null
+            var bestAudioUrl: String? = null
+            
+            // Find best video stream
+            if (adaptiveFormats != null) {
+                for (i in 0 until adaptiveFormats.length()) {
+                    val format = adaptiveFormats.getJSONObject(i)
+                    val mimeType = format.optString("mimeType")
+                    val url = format.optString("url")
+                    
+                    if (mimeType.startsWith("video/") && bestVideoUrl == null) {
+                        bestVideoUrl = url
+                    } else if (mimeType.startsWith("audio/") && bestAudioUrl == null) {
+                        bestAudioUrl = url
+                    }
+                    
+                    if (bestVideoUrl != null && bestAudioUrl != null) break
+                }
+            }
+            
+            // Fallback to regular formats
+            if (bestVideoUrl == null && formats != null && formats.length() > 0) {
+                bestVideoUrl = formats.getJSONObject(0).optString("url")
+            }
+            
+            if (bestVideoUrl != null || bestAudioUrl != null) {
+                PlayerData(bestVideoUrl, bestAudioUrl)
+            } else null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-        if (!hasPlayable(r)) {
-            try {
-                val info = PipedApiService.create().getStreams(videoId)
-                val vid = info.videoStreams.filter { !it.videoOnly && it.mimeType.contains("mp4", true) }.maxByOrNull { qualityOf(it.quality) }
-                val vo = info.videoStreams.filter { it.videoOnly }.maxByOrNull { qualityOf(it.quality) }
-                val au = info.audioStreams.maxByOrNull { qualityOf(it.quality) }
-                if (info.hls != null || vid != null || vo != null) r = Resolved(Strategy.HLS, info.hls, vid?.url, vo?.url, vo?.url ?: vid?.url, au?.url, info.title, info.description, info.uploader, info.uploaderUrl)
-            } catch (e: Exception) { }
-        }
-        r
     }
-    private fun good(p: InnerTubeFeed.PlayerData?) = p != null && (p.hls != null || p.progressive != null || p.videoOnly != null)
 
-    fun buildMediaSource(context: android.content.Context, resolved: Resolved): MediaSource? {
-        val factory: DataSource.Factory = ChunkedStreamDataSource.factory()
-        resolved.hlsUrl?.let { hls ->
-            val item = MediaItem.Builder().setUri(hls).setMimeType(MimeTypes.APPLICATION_M3U8).build()
-            return HlsMediaSource.Factory(factory).createMediaSource(item)
-        }
-        resolved.playUrl?.let { url -> return ProgressiveMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(url)) }
-        val vo = resolved.videoOnlyUrl; val au = resolved.audioUrl
-        if (vo != null && au != null) {
-            return MergingMediaSource(ProgressiveMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(vo)), ProgressiveMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(au)))
-        }
-        return null
-    }
+    data class PlayerData(val videoUrl: String?, val audioUrl: String?)
 }
