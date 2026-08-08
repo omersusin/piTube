@@ -61,6 +61,7 @@ class CommentsPagingSource(private val api: PipedApiService, private val videoId
 fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Unit) {
     val context = LocalContext.current
     var streamInfo by remember { mutableStateOf<StreamInfo?>(null) }
+    var resolved by remember { mutableStateOf<StreamResolver.Resolved?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var segments by remember { mutableStateOf<List<SponsorSegment>>(emptyList()) }
@@ -72,12 +73,9 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var sleepDeadline by remember { mutableLongStateOf(0L) }
     var noteText by remember { mutableStateOf("") }
     var notes by remember(video.videoId) { mutableStateOf(NotesManager.getNotes(context, video.videoId)) }
-    val zenMode = remember { PrefsManager.isZenMode(context) }
-    
-    // Live Chat State
     var chatMessages by remember { mutableStateOf<List<ChatMessage>>(emptyList()) }
     var showChat by remember { mutableStateOf(false) }
-    
+    val zenMode = remember { PrefsManager.isZenMode(context) }
     val scope = rememberCoroutineScope()
     val exoPlayer = remember { PlayerHolder.getPlayer(context) }
 
@@ -89,37 +87,30 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
         HistoryManager.addToHistory(context, video)
         isLoading = true; error = null; downloadState = -1; deArrowTitle = null; showOriginal = false
         notes = NotesManager.getNotes(context, video.videoId)
-        chatMessages = emptyList() // Reset chat
         scope.launch {
             try {
-                val api = PipedApiService.create()
-                var info: StreamInfo? = null
-                try { info = api.getStreams(video.videoId) } catch (e: Exception) { }
+                // 1. Real streams via NewPipe Extractor
+                val r = StreamResolver.resolve(video.videoId)
+                resolved = r
 
-                // InnerTube fallback
-                if (info?.hls.isNullOrBlank()) {
-                    val itUrl = InnerTubeApi.getStreamUrl(video.videoId)
-                    info = info?.copy(hls = itUrl) ?: StreamInfo(title = video.title, description = "", uploader = video.uploaderName, uploaderUrl = "", hls = itUrl, dash = null)
+                // 2. Metadata (related, description) via Piped
+                var piped: StreamInfo? = null
+                try { piped = PipedApiService.create().getStreams(video.videoId) } catch (e: Exception) { }
+                streamInfo = piped ?: r?.let {
+                    StreamInfo(title = it.title, description = it.description, uploader = it.uploader,
+                        uploaderUrl = it.uploaderUrl, hls = it.playUrl, dash = null)
                 }
-                streamInfo = info
 
-                info?.hls?.let { hlsUrl ->
-                    exoPlayer.setMediaItem(MediaItem.fromUri(hlsUrl))
+                val playUrl = r?.playUrl
+                if (playUrl != null) {
+                    exoPlayer.setMediaItem(MediaItem.fromUri(playUrl))
                     exoPlayer.prepare()
                     exoPlayer.playWhenReady = true
-                } ?: run { error = "Could not find stream URL" }
+                } else { error = "Could not find stream URL" }
 
                 try { if (PrefsManager.isSponsorBlockEnabled(context)) segments = SponsorBlockService.create().getSegments(video.videoId, """["sponsor","selfpromo","intro","outro","preview"]""") } catch (e: Exception) { segments = emptyList() }
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
-                
-                // Auto-load chat if live (duration -1 or hls stream usually implies live)
-                if (info?.hls?.contains(".m3u8") == true) {
-                     try { 
-                         chatMessages = LiveChatManager.fetchChat(video.url) 
-                         if (chatMessages.isNotEmpty()) showChat = true
-                     } catch (e: Exception) { }
-                }
             } catch (e: Exception) { error = e.message } finally { isLoading = false }
         }
     }
@@ -139,27 +130,25 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
 
     Column(modifier = Modifier.fillMaxSize()) {
         if (!inPip) TopAppBar(
-            title = { }, 
-            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }, 
+            title = { },
+            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } },
             actions = {
                 if (chatMessages.isNotEmpty()) {
-                    IconButton(onClick = { showChat = !showChat }) {
-                        Icon(Icons.Default.Chat, contentDescription = "Chat", tint = if (showChat) MaterialTheme.colorScheme.primary else Color.Unspecified)
-                    }
+                    IconButton(onClick = { showChat = !showChat }) { Icon(Icons.Default.Chat, contentDescription = "Chat", tint = if (showChat) MaterialTheme.colorScheme.primary else Color.Unspecified) }
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
         )
-        if (inPip) { Box(modifier = Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black)) { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize()) } }
+        if (inPip) { Box(modifier = Modifier.fillMaxSize().background(Color.Black)) { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize()) } }
         else if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
         else if (error != null) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Error: $error", color = MaterialTheme.colorScheme.error) } }
         else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = true } }, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(androidx.compose.ui.graphics.Color.Black)) }
+                item { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = true } }, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)) }
                 streamInfo?.let { info ->
                     item {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = if (!showOriginal && deArrowTitle != null) deArrowTitle!! else info.title, style = MaterialTheme.typography.titleLarge)
+                            Text(text = if (!showOriginal && deArrowTitle != null) deArrowTitle!! else info.title.ifBlank { video.title }, style = MaterialTheme.typography.titleLarge)
                             if (deArrowTitle != null && deArrowTitle != info.title) { TextButton(onClick = { showOriginal = !showOriginal }) { Text(if (showOriginal) "🎯 Show honest title" else "Show original title", style = MaterialTheme.typography.bodySmall) } }
                             Spacer(modifier = Modifier.height(4.dp))
                             Row(modifier = Modifier.clickable { onChannelClick(info.uploaderUrl.substringAfter("/channel/")) }) { Text(info.uploader, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary) }
@@ -179,12 +168,11 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                                 if (downloadState == -1 || downloadState >= 101) {
                                     downloadState = 0
                                     scope.launch(Dispatchers.IO) {
-                                        val videoUrl = info.videoStreams.filter { !it.videoOnly && it.mimeType.contains("mp4", true) }.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
-                                            ?: info.videoStreams.filter { it.videoOnly && it.mimeType.contains("mp4", true) }.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
-                                            ?: info.hls
-                                        val audioUrl = info.audioStreams.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
+                                        val r = resolved
+                                        val videoUrl = r?.downloadUrl ?: info.videoStreams.filter { it.mimeType.contains("mp4", true) }.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url ?: info.hls
+                                        val audioUrl = r?.audioUrl ?: info.audioStreams.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
                                         if (videoUrl == null) { downloadState = 102; return@launch }
-                                        DownloadManager.downloadVideo(context, info.title, videoUrl, audioUrl, onProgress = { p -> downloadState = p }, onDone = { downloadState = 101 }, onError = { downloadState = 102 })
+                                        DownloadManager.downloadVideo(context, info.title.ifBlank { video.title }, videoUrl, audioUrl, onProgress = { p -> downloadState = p }, onDone = { downloadState = 101 }, onError = { downloadState = 102 })
                                     }
                                 }
                             }) {
@@ -192,12 +180,8 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                             }
                         }
                     }
-                    
-                    // Chat Section
                     if (showChat && chatMessages.isNotEmpty()) {
-                        item {
-                            Text("Live Chat", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp), color = MaterialTheme.colorScheme.primary)
-                        }
+                        item { Text("Live Chat", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp), color = MaterialTheme.colorScheme.primary) }
                         items(chatMessages.reversed().take(50)) { msg ->
                             Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                                 Text("${msg.author}: ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
@@ -205,7 +189,6 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                             }
                         }
                     }
-
                     item {
                         var expanded by remember { mutableStateOf(false) }
                         Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).clickable { expanded = !expanded }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
@@ -235,7 +218,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                     }
                 }
 
-                if (!zenMode) {
+                if (!zenMode && streamInfo?.relatedStreams?.isNotEmpty() == true) {
                     item { Text("Related Videos", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp)) }
                     streamInfo?.relatedStreams?.let { related ->
                         items(related.filter { !it.isShort }) { rv ->
@@ -248,7 +231,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                     }
                 }
 
-                item { Text("Comments (Infinite Scroll)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp)) }
+                item { Text("Comments", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp)) }
                 val commentCount = comments.itemCount
                 if (comments.loadState.refresh is androidx.paging.LoadState.Loading) {
                     item { Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }

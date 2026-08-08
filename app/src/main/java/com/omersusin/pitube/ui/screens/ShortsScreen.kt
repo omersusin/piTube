@@ -18,13 +18,13 @@ import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.omersusin.pitube.data.PipedApiService
+import com.omersusin.pitube.data.StreamResolver
 import com.omersusin.pitube.data.VideoItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShortsScreen() {
-    val context = LocalContext.current
     var shorts by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
@@ -33,7 +33,7 @@ fun ShortsScreen() {
         scope.launch {
             try {
                 val allVideos = PipedApiService.create().getTrending()
-                shorts = allVideos.filter { it.isShort || it.duration < 60 }
+                shorts = allVideos.filter { it.isShort || it.duration in 1..60 }
                 if (shorts.isEmpty()) shorts = allVideos.take(10)
             } catch (e: Exception) { e.printStackTrace() } finally { isLoading = false }
         }
@@ -51,14 +51,12 @@ fun ShortsScreen() {
 @Composable
 fun ShortVideoPlayer(video: VideoItem) {
     val context = LocalContext.current
-    var streamUrl by remember { mutableStateOf<String?>(null) }
     val exoPlayer = remember { ExoPlayer.Builder(context).build() }
 
     LaunchedEffect(video.videoId) {
         try {
-            val streamInfo = PipedApiService.create().getStreams(video.videoId)
-            streamUrl = streamInfo.hls ?: streamInfo.dash
-            streamUrl?.let {
+            val resolved = StreamResolver.resolve(video.videoId)
+            resolved?.playUrl?.let {
                 exoPlayer.setMediaItem(MediaItem.fromUri(it))
                 exoPlayer.prepare()
                 exoPlayer.playWhenReady = true
@@ -80,7 +78,6 @@ fun ShortVideoPlayer(video: VideoItem) {
             },
             modifier = Modifier.fillMaxSize()
         )
-
         Column(modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)) {
             Text(video.title, color = Color.White, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.AuthManager
+import com.omersusin.pitube.data.InnerTubeFeed
 import com.omersusin.pitube.data.PipedApiService
 import com.omersusin.pitube.data.PrefsManager
 import com.omersusin.pitube.data.VideoItem
@@ -27,17 +28,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     val zenMode = remember { PrefsManager.isZenMode(context) }
 
     if (zenMode) {
-        if (AuthManager.isLoggedIn(context)) {
-            SubscriptionsScreen(onVideoClick = onVideoClick)
-        } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("🧘 Zen Mode", style = MaterialTheme.typography.headlineMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Sign in with Google to see only your subscriptions.", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-        }
+        SubscriptionsScreen(onVideoClick = onVideoClick)
         return
     }
 
@@ -48,8 +39,15 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 
     LaunchedEffect(Unit) {
         scope.launch {
-            try { videos = PipedApiService.create().getTrending(); isLoading = false }
-            catch (e: Exception) { error = e.message; isLoading = false }
+            try {
+                var list = emptyList<VideoItem>()
+                if (AuthManager.isLoggedIn(context)) {
+                    list = InnerTubeFeed.fetchFeed(context, "FEwhat_to_watch")
+                }
+                if (list.isEmpty()) list = PipedApiService.create().getTrending()
+                videos = list
+                isLoading = false
+            } catch (e: Exception) { error = e.message; isLoading = false }
         }
     }
 

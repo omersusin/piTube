@@ -6,8 +6,9 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlayArrow
@@ -16,8 +17,10 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import com.omersusin.pitube.data.PlayerHolder
 import com.omersusin.pitube.data.VideoItem
 import com.omersusin.pitube.service.PlaybackService
@@ -63,7 +66,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    var showSettings by remember { mutableStateOf(false) }
     var showLogin by remember { mutableStateOf(false) }
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     var selectedChannel by remember { mutableStateOf<String?>(null) }
@@ -77,24 +79,34 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
         VideoPlayerScreen(video = selectedVideo!!, onBack = { selectedVideo = null }, onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it })
         return
     }
-    if (showSettings) {
-        SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { showSettings = false }, onOpenLogin = { showLogin = true })
-        return
-    }
 
     val tabs = listOf(
         TabItem("Home", Icons.Default.Home),
         TabItem("Shorts", Icons.Default.PlayArrow),
         TabItem("Subs", Icons.Default.Subscriptions),
-        TabItem("Search", Icons.Default.Search)
+        TabItem("Settings", Icons.Default.Settings)
     )
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("piTube", style = MaterialTheme.typography.titleLarge) },
-                actions = { IconButton(onClick = { showSettings = true }) { Icon(Icons.Default.Settings, contentDescription = "Settings") } }
-            )
+            if (selectedTab != 3) {
+                TopAppBar(
+                    title = { Text("piTube", style = MaterialTheme.typography.titleLarge) },
+                    actions = {
+                        IconButton(onClick = { selectedTab = 4 }) { Icon(Icons.Default.Search, contentDescription = "Search") }
+                        Surface(
+                            modifier = Modifier.size(32.dp).clickable { selectedTab = 3 },
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("U", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+                )
+            }
         },
         bottomBar = {
             NavigationBar {
@@ -114,7 +126,8 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                 0 -> HomeScreen(onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it })
                 1 -> ShortsScreen()
                 2 -> SubscriptionsScreen(onVideoClick = { selectedVideo = it })
-                3 -> SearchScreen(onVideoClick = { selectedVideo = it })
+                3 -> SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { selectedTab = 0 }, onOpenLogin = { showLogin = true })
+                4 -> SearchScreen(onVideoClick = { selectedVideo = it })
             }
         }
     }
