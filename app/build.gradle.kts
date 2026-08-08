@@ -52,13 +52,11 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
     
-    // Media3 (ExoPlayer + Session for background playback)
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")
     implementation("androidx.media3:media3-common:1.3.1")
     implementation("androidx.media3:media3-session:1.3.1")
     
-    // Paging 3 for comments
     implementation("androidx.paging:paging-runtime:3.2.1")
     implementation("androidx.paging:paging-compose:3.2.1")
     
@@ -67,5 +65,3 @@ dependencies {
     
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
-
-repositories { maven("https://jitpack.io") }
