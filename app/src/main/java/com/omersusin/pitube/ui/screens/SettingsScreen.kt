@@ -103,6 +103,13 @@ fun SettingsScreen(
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Medium
                                     )
+                                    if (!account?.handle.isNullOrBlank()) {
+                                        Text(
+                                            account?.handle ?: "",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                     Text(
                                         "Google Account",
                                         style = MaterialTheme.typography.bodySmall,

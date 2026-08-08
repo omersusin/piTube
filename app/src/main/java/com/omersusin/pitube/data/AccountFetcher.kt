@@ -17,7 +17,12 @@ object AccountFetcher {
     private const val CLIENT_VERSION = "2.20260114.08.00"
     private const val UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
-    data class AccountInfo(val name: String, val avatarUrl: String?, val handle: String?)
+    data class AccountInfo(
+        val name: String,
+        val avatarUrl: String?,
+        val handle: String?,
+        val channelId: String? = null
+    )
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -29,7 +34,8 @@ object AccountFetcher {
         val name = prefs.getString("name", null) ?: return null
         val photo = prefs.getString("photo", null)
         val handle = prefs.getString("handle", null)
-        return AccountInfo(name, photo, handle)
+        val channelId = prefs.getString("channelId", null)
+        return AccountInfo(name, photo, handle, channelId)
     }
 
     fun cache(context: Context, info: AccountInfo?) {
@@ -39,6 +45,7 @@ object AccountFetcher {
             .putString("name", info.name)
             .putString("photo", info.avatarUrl ?: "")
             .putString("handle", info.handle ?: "")
+            .putString("channelId", info.channelId ?: "")
             .apply()
     }
 
@@ -72,11 +79,16 @@ object AccountFetcher {
                     Log.w(TAG, "HTTP ${r.code}")
                     return@withContext null
                 }
-                val json = JSONObject(r.body?.string() ?: return@withContext null)
+                val bodyStr = r.body?.string() ?: return@withContext null
+                Log.d(TAG, "Response length: ${bodyStr.length}")
+                val json = JSONObject(bodyStr)
 
                 var name: String? = null
                 var photo: String? = null
+                var handle: String? = null
+                var channelId: String? = null
 
+                // Try primary path: actions[0].openPopupAction.popup.multiPageMenuRenderer
                 val actions = json.optJSONArray("actions")
                 if (actions != null) {
                     val item = actions.optJSONObject(0)
@@ -92,9 +104,17 @@ object AccountFetcher {
                     if (item != null) {
                         name = item.optString("accountName", null)
                         photo = item.optString("accountPhoto", null)
+                        handle = item.optString("accountHandle", null)
+                        if (handle.isNullOrBlank()) handle = item.optString("channelHandle", null)
+                        channelId = item.optString("channelId", null)
+                        if (channelId.isNullOrBlank()) {
+                            val navEndpoint = item.optJSONObject("navigationEndpoint")
+                            channelId = navEndpoint?.optJSONObject("browseEndpoint")?.optString("browseId", null)
+                        }
                     }
                 }
 
+                // Fallback: try header path
                 if (name == null) {
                     val header = json.optJSONObject("header")
                         ?.optJSONObject("accountSectionListRenderer")
@@ -104,12 +124,21 @@ object AccountFetcher {
                     if (header != null) {
                         name = header.optString("accountName", null)
                         photo = header.optString("accountPhoto", null)
+                        handle = header.optString("accountHandle", null)
+                        if (handle.isNullOrBlank()) handle = header.optString("channelHandle", null)
+                        channelId = header.optString("channelId", null)
                     }
                 }
 
+                // Fallback: flat fields
                 if (name == null) {
                     name = json.optString("name", null)
                     photo = json.optString("photoUrl", null)
+                }
+
+                // Fallback: scan for handle in profile
+                if (handle.isNullOrBlank()) {
+                    handle = findHandleInJson(json)
                 }
 
                 if (name.isNullOrBlank()) {
@@ -117,8 +146,8 @@ object AccountFetcher {
                     return@withContext null
                 }
 
-                Log.d(TAG, "Fetched account: $name")
-                val info = AccountInfo(name, photo, null)
+                Log.d(TAG, "Fetched account: $name, handle=$handle, channelId=$channelId")
+                val info = AccountInfo(name, photo, handle, channelId)
                 cache(context, info)
                 info
             }
@@ -127,5 +156,34 @@ object AccountFetcher {
             e.printStackTrace()
             null
         }
+    }
+
+    private fun findHandleInJson(json: JSONObject): String? {
+        // Search common locations for handle
+        val paths = listOf(
+            "header" to "accountChannelHandle",
+            "header" to "handle",
+        )
+        for ((parent, field) in paths) {
+            val value = json.optJSONObject(parent)?.optString(field, null)
+            if (!value.isNullOrBlank()) return value
+        }
+        // Search in accountSectionListRenderer
+        val sections = json.optJSONObject("header")
+            ?.optJSONObject("accountSectionListRenderer")
+            ?.optJSONArray("contents")
+        if (sections != null) {
+            for (i in 0 until sections.length()) {
+                val section = sections.optJSONObject(i)
+                val accountItem = section?.optJSONObject("accountItem")
+                if (accountItem != null) {
+                    val h = accountItem.optString("accountHandle", null)
+                    if (!h.isNullOrBlank()) return h
+                    val ch = accountItem.optString("channelHandle", null)
+                    if (!ch.isNullOrBlank()) return ch
+                }
+            }
+        }
+        return null
     }
 }
