@@ -120,7 +120,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     var account by remember { mutableStateOf<AccountFetcher.AccountInfo?>(null) }
 
     LaunchedEffect(showLogin) {
-        if (AuthManager.isLoggedIn(context)) account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)?.also { AccountFetcher.cache(context, it) }
+        if (AuthManager.isLoggedIn(context)) account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)
         else account = null
     }
 
@@ -228,5 +228,6 @@ fun saveTheme(context: android.content.Context, mode: com.omersusin.pitube.ui.th
         com.omersusin.pitube.ui.theme.ThemeMode.LIGHT -> "light"
         com.omersusin.pitube.ui.theme.ThemeMode.DARK -> "dark"
         com.omersusin.pitube.ui.theme.ThemeMode.SYSTEM -> "system"
+        com.omersusin.pitube.ui.theme.ThemeMode.AMOLED -> "amoled"
     }).apply()
 }

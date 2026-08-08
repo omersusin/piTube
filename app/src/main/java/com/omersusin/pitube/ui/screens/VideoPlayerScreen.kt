@@ -226,7 +226,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     }
 }
 
-private fun addWatchHistory(context: android.content.Context, videoId: String, title: String, uploader: String, thumbnail: String) {
+
     val prefs = context.getSharedPreferences("watch_history", android.content.Context.MODE_PRIVATE)
     val gson = com.google.gson.Gson()
     val type = object : com.google.gson.reflect.TypeToken<MutableList<com.omersusin.pitube.data.WatchHistoryItem>>() {}.type

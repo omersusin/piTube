@@ -11,11 +11,19 @@ object AccountFetcher {
     private const val INNERTUBE_API_URL = "https://www.youtube.com/youtubei/v1/account/account_menu"
     private const val INNERTUBE_API_KEY = "AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA"
 
-    fun fetchAccount(context: Context): AccountInfo? {
+    data class AccountInfo(
+        val name: String,
+        val avatarUrl: String?,
+        val handle: String? = null
+    )
+
+    fun fetch(context: Context): AccountInfo? {
         val client = OkHttpClient()
         val cookies = AuthManager.getCookies(context)
         
         if (cookies.isEmpty()) return null
+
+        val cookieString = cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
 
         val requestBody = """
             {
@@ -31,7 +39,7 @@ object AccountFetcher {
         val request = Request.Builder()
             .url("$INNERTUBE_API_URL?key=$INNERTUBE_API_KEY")
             .post(requestBody.toRequestBody("application/json".toMediaType()))
-            .addHeader("Cookie", cookies)
+            .addHeader("Cookie", cookieString)
             .build()
 
         return try {
@@ -45,27 +53,29 @@ object AccountFetcher {
             val accountName = accountItem.optString("accountName", "Unknown")
             val accountPhoto = accountItem.optString("accountPhoto", "")
             
-            AccountInfo(accountName, accountPhoto)
+            val info = AccountInfo(accountName, accountPhoto, null)
+            cache(context, info)
+            info
         } catch (e: IOException) {
             e.printStackTrace()
             null
         }
     }
 
-    fun getCachedAccount(context: Context): AccountInfo? {
+    fun getCached(context: Context): AccountInfo? {
         val prefs = context.getSharedPreferences("account_cache", Context.MODE_PRIVATE)
         val name = prefs.getString("name", null) ?: return null
-        val photo = prefs.getString("photo", "") ?: ""
-        return AccountInfo(name, photo)
+        val photo = prefs.getString("photo", "")
+        val handle = prefs.getString("handle", null)
+        return AccountInfo(name, photo, handle)
     }
 
-    fun cacheAccount(context: Context, info: AccountInfo) {
+    fun cache(context: Context, info: AccountInfo) {
         val prefs = context.getSharedPreferences("account_cache", Context.MODE_PRIVATE)
         prefs.edit()
             .putString("name", info.name)
-            .putString("photo", info.photoUrl)
+            .putString("photo", info.avatarUrl ?: "")
+            .putString("handle", info.handle ?: "")
             .apply()
     }
-
-    data class AccountInfo(val name: String, val photoUrl: String)
 }

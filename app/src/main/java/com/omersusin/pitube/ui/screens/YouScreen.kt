@@ -43,7 +43,7 @@ fun YouScreen(
                     else Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.Person, null, tint = MaterialTheme.colorScheme.onPrimary) }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Column { Text(account?.name ?: "Not signed in", style = MaterialTheme.typography.titleLarge); Text(account?.handle ?: "", style = MaterialTheme.typography.bodySmall) }
+                Column { Text(account?.name ?: "Not signed in", style = MaterialTheme.typography.titleLarge); Text(account?.handle ?: "" ?: "", style = MaterialTheme.typography.bodySmall) }
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = onOpenSettings) { Icon(Icons.Default.Settings, "Settings") }
             }
