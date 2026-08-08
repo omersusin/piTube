@@ -11,6 +11,11 @@ object AccountFetcher {
     private const val TAG = "AccountFetcher"
     data class AccountInfo(val name: String, val avatarUrl: String?, val handle: String?)
 
+    private val client = okhttp3.OkHttpClient.Builder()
+        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
+
     fun getCached(context: Context): AccountInfo? {
         val prefs = context.getSharedPreferences("account_cache", Context.MODE_PRIVATE)
         val name = prefs.getString("name", null) ?: return null
@@ -37,11 +42,6 @@ object AccountFetcher {
         try {
             val rawCookies = AuthManager.getRawCookies(context)
             if (rawCookies.isBlank()) return@withContext null
-
-            val client = okhttp3.OkHttpClient.Builder()
-                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-                .build()
 
             val authHeader = KodaAuth.authHeader(rawCookies)
 

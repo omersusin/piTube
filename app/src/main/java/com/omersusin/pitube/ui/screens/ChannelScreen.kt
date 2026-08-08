@@ -22,11 +22,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.ChannelResolver
 import com.omersusin.pitube.data.VideoItem
+import androidx.activity.compose.BackHandler
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit) {
+    BackHandler { onBack() }
     var page by remember { mutableStateOf<com.omersusin.pitube.data.ChannelPage?>(null) }
     var loading by remember { mutableStateOf(true) }
     var selectedTab by remember { mutableIntStateOf(0) }

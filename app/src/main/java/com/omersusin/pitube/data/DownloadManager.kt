@@ -66,30 +66,36 @@ object DownloadManager {
         val videoExtractor = MediaExtractor().apply { setDataSource(videoFile.path) }
         val audioExtractor = MediaExtractor().apply { setDataSource(audioFile.path) }
         val muxer = MediaMuxer(outputFile.path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-        videoExtractor.selectTrack(0)
-        val videoTrack = muxer.addTrack(videoExtractor.getTrackFormat(0))
-        audioExtractor.selectTrack(0)
-        val audioTrack = muxer.addTrack(audioExtractor.getTrackFormat(0))
-        muxer.start()
-        val buffer = ByteBuffer.allocate(1024 * 1024)
-        val bufferInfo = MediaCodec.BufferInfo()
-        while (true) {
-            bufferInfo.size = videoExtractor.readSampleData(buffer, 0)
-            if (bufferInfo.size < 0) break
-            bufferInfo.presentationTimeUs = videoExtractor.sampleTime
-            bufferInfo.flags = videoExtractor.sampleFlags
-            muxer.writeSampleData(videoTrack, buffer, bufferInfo)
-            videoExtractor.advance()
+        try {
+            videoExtractor.selectTrack(0)
+            val videoTrack = muxer.addTrack(videoExtractor.getTrackFormat(0))
+            audioExtractor.selectTrack(0)
+            val audioTrack = muxer.addTrack(audioExtractor.getTrackFormat(0))
+            muxer.start()
+            val buffer = ByteBuffer.allocate(1024 * 1024)
+            val bufferInfo = MediaCodec.BufferInfo()
+            while (true) {
+                bufferInfo.size = videoExtractor.readSampleData(buffer, 0)
+                if (bufferInfo.size < 0) break
+                bufferInfo.presentationTimeUs = videoExtractor.sampleTime
+                bufferInfo.flags = videoExtractor.sampleFlags
+                muxer.writeSampleData(videoTrack, buffer, bufferInfo)
+                videoExtractor.advance()
+            }
+            while (true) {
+                bufferInfo.size = audioExtractor.readSampleData(buffer, 0)
+                if (bufferInfo.size < 0) break
+                bufferInfo.presentationTimeUs = audioExtractor.sampleTime
+                bufferInfo.flags = audioExtractor.sampleFlags
+                muxer.writeSampleData(audioTrack, buffer, bufferInfo)
+                audioExtractor.advance()
+            }
+            muxer.stop()
+        } finally {
+            try { muxer.release() } catch (_: Exception) {}
+            try { videoExtractor.release() } catch (_: Exception) {}
+            try { audioExtractor.release() } catch (_: Exception) {}
         }
-        while (true) {
-            bufferInfo.size = audioExtractor.readSampleData(buffer, 0)
-            if (bufferInfo.size < 0) break
-            bufferInfo.presentationTimeUs = audioExtractor.sampleTime
-            bufferInfo.flags = audioExtractor.sampleFlags
-            muxer.writeSampleData(audioTrack, buffer, bufferInfo)
-            audioExtractor.advance()
-        }
-        muxer.stop(); muxer.release(); videoExtractor.release(); audioExtractor.release()
     }
 
     private fun saveToMediaStore(context: Context, file: File, name: String) {
@@ -101,7 +107,17 @@ object DownloadManager {
             }
         }
         val uri = context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-        if (uri != null) context.contentResolver.openOutputStream(uri)?.use { it.write(file.readBytes()) }
+        if (uri != null) {
+            context.contentResolver.openOutputStream(uri)?.use { out ->
+                file.inputStream().use { input ->
+                    val buffer = ByteArray(8192)
+                    var read: Int
+                    while (input.read(buffer).also { read = it } != -1) {
+                        out.write(buffer, 0, read)
+                    }
+                }
+            }
+        }
         file.delete()
     }
 

@@ -49,9 +49,9 @@ object DeArrowService {
             val titlesArray = obj.optJSONArray("titles")
             if (titlesArray != null) {
                 for (i in 0 until titlesArray.length()) {
-                    val t = titlesArray.getJSONObject(i)
+                    val t = titlesArray.optJSONObject(i) ?: continue
                     titles.add(DeArrowTitle(
-                        title = t.getString("title"),
+                        title = t.optString("title", ""),
                         votes = t.optInt("votes", 0),
                         locked = t.optBoolean("locked", false),
                         original = t.optBoolean("original", false)
@@ -63,9 +63,9 @@ object DeArrowService {
             val thumbsArray = obj.optJSONArray("thumbnails")
             if (thumbsArray != null) {
                 for (i in 0 until thumbsArray.length()) {
-                    val t = thumbsArray.getJSONObject(i)
+                    val t = thumbsArray.optJSONObject(i) ?: continue
                     thumbnails.add(DeArrowThumbnail(
-                        timestamp = if (t.has("timestamp")) t.getDouble("timestamp").toFloat() else null,
+                        timestamp = if (t.has("timestamp") && !t.isNull("timestamp")) t.getDouble("timestamp").toFloat() else null,
                         votes = t.optInt("votes", 0),
                         locked = t.optBoolean("locked", false),
                         original = t.optBoolean("original", false)

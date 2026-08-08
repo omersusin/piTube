@@ -31,7 +31,7 @@ object GoogleSubscriptionRepository {
                     GoogleFeedVideo(
                         name = item.name,
                         url = item.url,
-                        thumbnailUrl = item.thumbnails?.get(0)?.url ?: "",
+                        thumbnailUrl = item.thumbnails?.firstOrNull()?.url ?: "",
                         uploaderName = item.uploaderName,
                         uploaderUrl = item.uploaderUrl,
                         duration = item.duration,

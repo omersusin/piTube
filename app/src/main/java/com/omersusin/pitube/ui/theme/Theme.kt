@@ -385,32 +385,23 @@ private fun ColorScheme.withVariant(variant: ThemeVariant): ColorScheme {
     val isDark = variant != ThemeVariant.LIGHT
     val isAmoled = variant == ThemeVariant.AMOLED
     if (variant == ThemeVariant.LIGHT) return complete(isDark = false)
+    // Keep the existing scheme's background/surface colors — don't replace them
+    // Only override for generic DARK/AMOLED (SYSTEM, DARK, AMOLED) where we want algorithmic dark
     val base = if (isDark) {
         darkColorScheme(
             primary = primary,
-            onPrimary = if (ColorUtils.calculateLuminance(primary.toArgb()) > 0.45) Color.Black else Color.White,
+            onPrimary = onPrimary,
             secondary = secondary,
-            onSecondary = if (ColorUtils.calculateLuminance(secondary.toArgb()) > 0.45) Color.Black else Color.White,
-            background = if (isAmoled) Color.Black else primary.adjust(saturationFactor = 0.12f, lightnessOverride = 0.055f),
-            onBackground = Color(0xFFE6E1E5),
-            surface = if (isAmoled) Color.Black else primary.adjust(saturationFactor = 0.10f, lightnessOverride = 0.08f),
-            onSurface = Color(0xFFE6E1E5),
+            onSecondary = onSecondary,
+            background = background,
+            onBackground = onBackground,
+            surface = surface,
+            onSurface = onSurface,
             error = error,
             onError = onError
         )
     } else {
-        darkColorScheme(
-            primary = primary,
-            onPrimary = Color.White,
-            secondary = secondary,
-            onSecondary = Color.White,
-            background = Color.Black,
-            onBackground = Color.White,
-            surface = Color.Black,
-            onSurface = Color.White,
-            error = error,
-            onError = Color.White
-        )
+        this
     }
     return base.complete(isDark = isDark, isOled = isAmoled)
 }
@@ -493,7 +484,9 @@ fun PiTubeTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDark
+            // Use luminance of background to determine if status bar icons should be light
+            val backgroundLuminance = ColorUtils.calculateLuminance(colorScheme.background.toArgb())
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = backgroundLuminance > 0.45
         }
     }
 

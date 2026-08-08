@@ -56,6 +56,7 @@ class SubscriptionFeedRepository(private val context: Context) {
                         allEntries.addAll(feed.entries)
                     }
                 }
+                response.close()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -65,8 +66,8 @@ class SubscriptionFeedRepository(private val context: Context) {
             CachedVideo(
                 videoId = entry.videoId,
                 title = entry.title,
-                channelName = "",
-                channelId = null,
+                channelName = "",  // RSS doesn't provide this directly
+                channelId = null,  // RSS doesn't provide this
                 thumbnailUrl = entry.thumbnailUrl,
                 duration = 0,
                 viewCount = entry.viewCount,

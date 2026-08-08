@@ -37,19 +37,22 @@ fun SubscriptionsScreen(onVideoClick: (VideoItem) -> Unit) {
                 try {
                     val url = "https://www.youtube.com/feeds/videos.xml?channel_id=${sub.channelId}"
                     val client = okhttp3.OkHttpClient()
-                    val resp = client.newCall(okhttp3.Request.Builder().url(url).build()).execute()
-                    val xml = resp.body?.string() ?: ""
-                    val feed = ChannelRssParser.parse(xml)
-                    feed.entries.forEach { e ->
-                        merged.add(VideoItem(
-                            url = "https://www.youtube.com/watch?v=${e.videoId}",
-                            title = e.title,
-                            thumbnailUrl = e.thumbnailUrl,
-                            uploaderName = feed.channelName ?: sub.name,
-                            uploaderAvatar = sub.avatarUrl,
-                            uploaderUrl = "https://www.youtube.com/channel/${sub.channelId}",
-                            duration = 0, views = e.viewCount, uploadedDate = null, isShort = false
-                        ))
+                    val req = okhttp3.Request.Builder().url(url).build()
+                    val resp = client.newCall(req).execute()
+                    resp.use { r ->
+                        val xml = r.body?.string() ?: ""
+                        val feed = ChannelRssParser.parse(xml)
+                        feed.entries.forEach { e ->
+                            merged.add(VideoItem(
+                                url = "https://www.youtube.com/watch?v=${e.videoId}",
+                                title = e.title,
+                                thumbnailUrl = e.thumbnailUrl,
+                                uploaderName = feed.channelName ?: sub.name,
+                                uploaderAvatar = sub.avatarUrl,
+                                uploaderUrl = "https://www.youtube.com/channel/${sub.channelId}",
+                                duration = 0, views = e.viewCount, uploadedDate = null, isShort = false
+                            ))
+                        }
                     }
                 } catch (e: Exception) {}
             }

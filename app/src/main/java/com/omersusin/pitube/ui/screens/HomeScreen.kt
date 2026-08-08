@@ -45,8 +45,8 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                 try {
                     delay(500)
                     if (isLoggedIn) {
-                        // Load more from personalized feed
-                        feedPage++
+                        // Load more from personalized feed — InnerTubeFeed doesn't support pages yet,
+                        // so we shuffle to give some variety on subsequent loads
                         val feedVideos = InnerTubeFeed.fetchFeed(context, "FEwhat_to_watch")
                         val currentIds = videos.map { it.videoId }.toSet()
                         val newVideos = feedVideos.filter { it.videoId !in currentIds }
@@ -140,6 +140,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
         } else if (isGrid) {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 160.dp),
+                state = listState,
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

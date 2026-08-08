@@ -26,6 +26,11 @@ fun SubsManagementScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var subs by remember { mutableStateOf(LocalSubs.getAll(context)) }
 
+    // Refresh when screen comes into focus
+    LaunchedEffect(Unit) {
+        subs = LocalSubs.getAll(context)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

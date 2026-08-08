@@ -20,13 +20,17 @@ object VideoEngagement {
             val cookies = AuthManager.getRawCookies(context)
             if (cookies.isBlank() || channelId.isBlank()) return@withContext false
             val ep = if (subscribe) "subscription/subscribe" else "subscription/unsubscribe"
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20240101.00.00"}},"channelIds":["$channelId"]}"""
-            val req = Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/$ep")
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20241201.00.00"}},"channelIds":["$channelId"]}"""
+            val sapisidhash = KodaAuth.authHeader(cookies)
+            val reqBuilder = Request.Builder()
+                .url("https://www.youtube.com/youtubei/v1/$ep?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
+                .addHeader("X-YouTube-Client-Name", "1")
+                .addHeader("X-YouTube-Client-Version", "2.20241201.00.00")
                 .post(body.toRequestBody("application/json".toMediaType()))
-                .build()
+            if (sapisidhash != null) reqBuilder.addHeader("Authorization", sapisidhash)
+            val req = reqBuilder.build()
             val resp = client.newCall(req).execute()
             KodaAuth.refreshFromResponse(context, resp)
             resp.isSuccessful
@@ -41,13 +45,17 @@ object VideoEngagement {
                 like -> "LIKE"
                 else -> "INDIFFERENT"
             }
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20240101.00.00"}},"target":{"videoId":"$videoId"},"rating":"$rating"}"""
-            val req = Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/next")
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20241201.00.00"}},"target":{"videoId":"$videoId"},"rating":"$rating"}"""
+            val sapisidhash = KodaAuth.authHeader(cookies)
+            val reqBuilder = Request.Builder()
+                .url("https://www.youtube.com/youtubei/v1/like/like?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
+                .addHeader("X-YouTube-Client-Name", "1")
+                .addHeader("X-YouTube-Client-Version", "2.20241201.00.00")
                 .post(body.toRequestBody("application/json".toMediaType()))
-                .build()
+            if (sapisidhash != null) reqBuilder.addHeader("Authorization", sapisidhash)
+            val req = reqBuilder.build()
             val resp = client.newCall(req).execute()
             KodaAuth.refreshFromResponse(context, resp)
             resp.isSuccessful
@@ -58,13 +66,17 @@ object VideoEngagement {
         try {
             val cookies = AuthManager.getRawCookies(context)
             if (cookies.isBlank() || token.isBlank()) return@withContext false
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20240101.00.00"}},"feedbackTokens":["$token"]}"""
-            val req = Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/feedback")
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20241201.00.00"}},"feedbackTokens":["$token"]}"""
+            val sapisidhash = KodaAuth.authHeader(cookies)
+            val reqBuilder = Request.Builder()
+                .url("https://www.youtube.com/youtubei/v1/feedback?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
+                .addHeader("X-YouTube-Client-Name", "1")
+                .addHeader("X-YouTube-Client-Version", "2.20241201.00.00")
                 .post(body.toRequestBody("application/json".toMediaType()))
-                .build()
+            if (sapisidhash != null) reqBuilder.addHeader("Authorization", sapisidhash)
+            val req = reqBuilder.build()
             val resp = client.newCall(req).execute()
             KodaAuth.refreshFromResponse(context, resp)
             resp.isSuccessful

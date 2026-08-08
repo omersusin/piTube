@@ -5,6 +5,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import kotlin.math.ln
 import kotlin.math.max
@@ -29,6 +31,7 @@ enum class InteractionType { CLICK, LIKED, WATCHED, SKIPPED, DISLIKED }
 object FlowNeuroEngine {
     private const val FILE_NAME = "neuro_brain.json"
     private val gson = Gson()
+    private val mutex = Mutex()
     private var brain: UserBrain? = null
 
     private fun getFile(context: Context) = File(context.filesDir, FILE_NAME)
@@ -64,58 +67,60 @@ object FlowNeuroEngine {
         percentWatched: Float = 0f
     ) = withContext(Dispatchers.IO) {
         initialize(context)
-        val current = brain ?: return@withContext
-        val topics = extractTopics(title, channelName)
-        
-        val learningRate = when (type) {
-            InteractionType.CLICK -> 0.03
-            InteractionType.LIKED -> 0.30
-            InteractionType.WATCHED -> 0.15 * percentWatched
-            InteractionType.SKIPPED -> -0.15
-            InteractionType.DISLIKED -> -0.40
-        }
+        mutex.withLock {
+            val current = brain ?: return@withLock
+            val topics = extractTopics(title, channelName)
+            
+            val learningRate = when (type) {
+                InteractionType.CLICK -> 0.03
+                InteractionType.LIKED -> 0.30
+                InteractionType.WATCHED -> 0.15 * percentWatched
+                InteractionType.SKIPPED -> -0.15
+                InteractionType.DISLIKED -> -0.40
+            }
 
-        val newTopicScores = NeuroVectorMath.adjustVector(
-            current.topicScores.toMutableMap(),
-            topics.associateWith { 1.0 },
-            learningRate
-        )
+            val newTopicScores = NeuroVectorMath.adjustVector(
+                current.topicScores.toMutableMap(),
+                topics.associateWith { 1.0 },
+                learningRate
+            )
 
-        val newChannelScores = current.channelScores.toMutableMap()
-        val channelKey = channelName.lowercase()
-        val currentScore = newChannelScores[channelKey] ?: 0.5
-        val outcome = if (learningRate > 0) 1.0 else 0.0
-        newChannelScores[channelKey] = (currentScore * 0.9) + (outcome * 0.1)
+            val newChannelScores = current.channelScores.toMutableMap()
+            val channelKey = channelName.lowercase()
+            val currentScore = newChannelScores[channelKey] ?: 0.5
+            val outcome = if (learningRate > 0) 1.0 else 0.0
+            newChannelScores[channelKey] = (currentScore * 0.9) + (outcome * 0.1)
 
-        val newWatchHistory = current.watchHistory.toMutableMap()
-        if (type == InteractionType.WATCHED && percentWatched > 0.15f) {
-            newWatchHistory[videoId] = max(newWatchHistory[videoId] ?: 0f, percentWatched)
-        }
+            val newWatchHistory = current.watchHistory.toMutableMap()
+            if (type == InteractionType.WATCHED && percentWatched > 0.15f) {
+                newWatchHistory[videoId] = max(newWatchHistory[videoId] ?: 0f, percentWatched)
+            }
 
-        val newConsecutiveSkips = when (type) {
-            InteractionType.CLICK, InteractionType.LIKED, InteractionType.WATCHED -> 0
-            InteractionType.SKIPPED, InteractionType.DISLIKED -> min(current.consecutiveSkips + 1, 30)
-        }
+            val newConsecutiveSkips = when (type) {
+                InteractionType.CLICK, InteractionType.LIKED, InteractionType.WATCHED -> 0
+                InteractionType.SKIPPED, InteractionType.DISLIKED -> min(current.consecutiveSkips + 1, 30)
+            }
 
-        val newAffinities = current.topicAffinities.toMutableMap()
-        if (learningRate > 0 && topics.size >= 2) {
-            for (i in topics.indices) {
-                for (j in i + 1 until topics.size) {
-                    val key = if (topics[i] < topics[j]) "${topics[i]}|${topics[j]}" else "${topics[j]}|${topics[i]}"
-                    newAffinities[key] = min(1.0, (newAffinities[key] ?: 0.0) + 0.01)
+            val newAffinities = current.topicAffinities.toMutableMap()
+            if (learningRate > 0 && topics.size >= 2) {
+                for (i in topics.indices) {
+                    for (j in i + 1 until topics.size) {
+                        val key = if (topics[i] < topics[j]) "${topics[i]}|${topics[j]}" else "${topics[j]}|${topics[i]}"
+                        newAffinities[key] = min(1.0, (newAffinities[key] ?: 0.0) + 0.01)
+                    }
                 }
             }
-        }
 
-        brain = current.copy(
-            topicScores = newTopicScores,
-            channelScores = newChannelScores,
-            totalInteractions = current.totalInteractions + 1,
-            consecutiveSkips = newConsecutiveSkips,
-            watchHistory = newWatchHistory,
-            topicAffinities = newAffinities
-        )
-        save(context)
+            brain = current.copy(
+                topicScores = newTopicScores,
+                channelScores = newChannelScores,
+                totalInteractions = current.totalInteractions + 1,
+                consecutiveSkips = newConsecutiveSkips,
+                watchHistory = newWatchHistory,
+                topicAffinities = newAffinities
+            )
+            save(context)
+        }
     }
 
     suspend fun recordImpression(context: Context, videoId: String) = withContext(Dispatchers.IO) {

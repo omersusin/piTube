@@ -26,10 +26,10 @@ object CacheManager {
         override fun onCacheInitialized() {}
         override fun onStartFile(cache: Cache, key: String, position: Long, length: Long) { if (length != C.LENGTH_UNSET.toLong()) evict(cache, length) }
         override fun onSpanAdded(cache: Cache, span: CacheSpan) { synchronized(lock) { lru.add(span); size += span.length; _size.value = size }; evict(cache, 0) }
-        override fun onSpanRemoved(cache: Cache, span: CacheSpan) { synchronized(lock) { if (lru.remove(span)) { size -= span.length; _size.value = size } } }
+        override fun onSpanRemoved(cache: Cache, span: CacheSpan) { synchronized(lock) { if (lru.remove(span)) { size = (size - span.length).coerceAtLeast(0); _size.value = size } } }
         override fun onSpanTouched(cache: Cache, old: CacheSpan, new: CacheSpan) { onSpanRemoved(cache, old); onSpanAdded(cache, new) }
         fun updateMax(cache: Cache, m: Long) { max = m; evict(cache, 0) }
-        private fun evict(cache: Cache, req: Long) { while (true) { val v = synchronized(lock) { if (size + req <= max) null else lru.firstOrNull() } ?: return; cache.removeSpan(v); synchronized(lock) { if (lru.remove(v)) { size -= v.length; _size.value = size } } } }
+        private fun evict(cache: Cache, req: Long) { while (true) { val v = synchronized(lock) { if (size + req <= max) null else lru.firstOrNull() } ?: return; cache.removeSpan(v); synchronized(lock) { if (lru.remove(v)) { size = (size - v.length).coerceAtLeast(0); _size.value = size } } } }
     }
     @Synchronized fun initialize(context: Context, mb: Long = DEFAULT_CACHE_SIZE_MB) {
         if (simpleCache != null) { setMaxCacheSize(context, mb); return }

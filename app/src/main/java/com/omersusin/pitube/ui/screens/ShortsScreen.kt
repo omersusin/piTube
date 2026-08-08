@@ -20,10 +20,11 @@ import com.omersusin.pitube.data.PipedApiService
 import com.omersusin.pitube.data.StreamResolver
 import com.omersusin.pitube.data.VideoItem
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 
 private object ShortsPrefetchCache {
-    private val cache = mutableMapOf<String, StreamResolver.Resolved?>()
-    private val inFlight = mutableSetOf<String>()
+    private val cache = ConcurrentHashMap<String, StreamResolver.Resolved?>()
+    private val inFlight = ConcurrentHashMap.newKeySet<String>()
     suspend fun prefetch(videoId: String, context: android.content.Context) {
         if (cache.containsKey(videoId) || !inFlight.add(videoId)) return
         cache[videoId] = StreamResolver.resolve(videoId, context)

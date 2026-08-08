@@ -23,7 +23,7 @@ object PlayerHolder {
 
     fun applyPrefs(context: Context) {
         val p = _player.get() ?: return
-        p.volume = if (PrefsManager.isVolumeNormalizationEnabled(context)) 1.5f else 1.0f
+        p.volume = if (PrefsManager.isVolumeNormalizationEnabled(context)) 0.7f else 1.0f
     }
 
     fun releasePlayer() {

@@ -118,12 +118,13 @@ object ChannelRssParser {
     }
 
     fun newEntriesSince(entries: List<ChannelRssEntry>, lastVideoId: String?): List<ChannelRssEntry> {
-        if (entries.isEmpty() || lastVideoId == null) return emptyList()
+        if (entries.isEmpty()) return emptyList()
+        if (lastVideoId == null) return entries.take(MAX_NEW_PER_CHANNEL)
         val knownIndex = entries.indexOfFirst { it.videoId == lastVideoId }
         return when {
             knownIndex == 0 -> emptyList()
             knownIndex > 0 -> entries.take(minOf(knownIndex, MAX_NEW_PER_CHANNEL))
-            else -> entries.take(1)
+            else -> entries.take(MAX_NEW_PER_CHANNEL)
         }
     }
 }

@@ -37,10 +37,10 @@ class LocalSubscriptionsRepository(context: Context) {
     }
 
     private val subscriptionsState: MutableStateFlow<List<LocalSubscription>>
-        get() = sharedSubscriptions!!
+        get() = sharedSubscriptions ?: MutableStateFlow(emptyList())
 
     private val groupsState: MutableStateFlow<List<SubscriptionGroup>>
-        get() = sharedGroups!!
+        get() = sharedGroups ?: MutableStateFlow(emptyList())
 
     val subscriptions: StateFlow<List<LocalSubscription>> get() = subscriptionsState.asStateFlow()
     val groups: StateFlow<List<SubscriptionGroup>> get() = groupsState.asStateFlow()

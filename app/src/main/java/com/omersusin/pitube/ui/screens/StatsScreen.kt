@@ -24,9 +24,7 @@ fun StatsScreen(onBack: () -> Unit) {
     var stats by remember { mutableStateOf<com.omersusin.pitube.data.GlobalStats?>(null) }
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            stats = StatsRepository(context).getGlobalStats()
-        }
+        stats = StatsRepository(context).getGlobalStats()
     }
 
     Scaffold(

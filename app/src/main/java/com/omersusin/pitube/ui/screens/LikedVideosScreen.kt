@@ -23,7 +23,13 @@ import com.omersusin.pitube.data.VideoItem
 @Composable
 fun LikedVideosScreen(onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val liked = remember { LikedVideosRepository.getAll(context) }
+    var liked by remember { mutableStateOf(LikedVideosRepository.getAll(context)) }
+
+    // Refresh on recomposition
+    DisposableEffect(Unit) {
+        liked = LikedVideosRepository.getAll(context)
+        onDispose {}
+    }
 
     Scaffold(
         topBar = {

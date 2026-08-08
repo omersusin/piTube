@@ -39,8 +39,14 @@ object PlaylistRepository {
         }.sortedByDescending { it.createdAt }
     }
 
-    fun get(context: Context, id: String): UserPlaylist? =
-        getAll(context).find { it.id == id }
+    fun get(context: Context, id: String): UserPlaylist? {
+        val file = File(getPlaylistDir(context), "$id.json")
+        if (!file.exists()) return null
+        return try {
+            val type = object : TypeToken<UserPlaylist>() {}.type
+            gson.fromJson(file.readText(), type)
+        } catch (e: Exception) { null }
+    }
 
     suspend fun create(context: Context, name: String, description: String?): String = withContext(Dispatchers.IO) {
         val id = UUID.randomUUID().toString()

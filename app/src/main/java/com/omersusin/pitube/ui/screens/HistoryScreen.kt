@@ -31,6 +31,11 @@ fun HistoryScreen(onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit) {
     var history by remember { mutableStateOf(HistoryManager.getHistory(context)) }
     var showClearDialog by remember { mutableStateOf(false) }
 
+    // Refresh when screen comes into focus
+    LaunchedEffect(Unit) {
+        history = HistoryManager.getHistory(context)
+    }
+
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },

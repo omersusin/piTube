@@ -187,25 +187,41 @@ object StreamResolver {
                 val hlsUrl: String? = streamingData.optString("hlsManifestUrl").takeIf { it.isNotBlank() }
 
                 // Prefer adaptive formats (separate video+audio for best quality)
+                // Sort by quality: prefer 1080p/720p, then by bitrate
                 val adaptiveFormats = streamingData.optJSONArray("adaptiveFormats")
                 if (adaptiveFormats != null) {
+                    // Collect all video and audio formats with quality info
+                    val videoFormats = mutableListOf<Pair<Int, String>>() // quality to URL
+                    val audioFormats = mutableListOf<Pair<Int, String>>() // bitrate to URL
+                    
                     for (i in 0 until adaptiveFormats.length()) {
                         val format = adaptiveFormats.getJSONObject(i)
                         val mimeType = format.optString("mimeType", "")
                         val url = format.optString("url", "")
                         val signatureCipher = format.optString("signatureCipher", "")
 
-                        if (url.isBlank() && signatureCipher.isNotBlank()) continue
                         if (url.isBlank()) continue
+                        if (signatureCipher.isNotBlank()) continue
 
-                        if (mimeType.startsWith("video/") && videoUrl == null && !mimeType.contains("audio")) {
-                            videoUrl = url
-                        } else if (mimeType.startsWith("audio/") && audioUrl == null) {
-                            audioUrl = url
+                        if (mimeType.startsWith("video/") && !mimeType.contains("audio")) {
+                            // Extract quality from label like "1080p60" or "720p"
+                            val qualityLabel = format.optString("qualityLabel", "")
+                            val quality = qualityLabel.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+                            videoFormats.add(quality to url)
+                        } else if (mimeType.startsWith("audio/")) {
+                            val bitrate = format.optInt("bitrate", 0)
+                            audioFormats.add(bitrate to url)
                         }
-
-                        if (videoUrl != null && audioUrl != null) break
                     }
+                    
+                    // Pick best video (highest quality <= 1080p)
+                    videoUrl = videoFormats
+                        .filter { it.first <= 1080 }
+                        .maxByOrNull { it.first }?.second
+                        ?: videoFormats.maxByOrNull { it.first }?.second
+                    
+                    // Pick best audio (highest bitrate)
+                    audioUrl = audioFormats.maxByOrNull { it.first }?.second
                 }
 
                 // Fallback to regular formats (combined audio+video)

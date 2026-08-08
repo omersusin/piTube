@@ -20,6 +20,16 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
     var loginAttempted by remember { mutableStateOf(false) }
+    var webView by remember { mutableStateOf<WebView?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            webView?.let { w ->
+                w.stopLoading()
+                w.destroy()
+            }
+        }
+    }
 
     Scaffold(topBar = { TopAppBar(title = { Text("YouTube Login") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }) }) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -32,6 +42,7 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
                         settings.domStorageEnabled = true
                         settings.setSupportMultipleWindows(false)
                         settings.userAgentString = "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
+                        webView = this
                         webViewClient = object : WebViewClient() {
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 super.onPageFinished(view, url)

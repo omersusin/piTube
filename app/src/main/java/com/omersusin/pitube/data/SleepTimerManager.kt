@@ -31,8 +31,17 @@ object SleepTimerManager {
         isActive = true
         
         timerJob = CoroutineScope(Dispatchers.Main).launch {
-            delay(durationMs)
-            firePause()
+            // Tick every second to update remaining time display
+            val startTime = System.currentTimeMillis()
+            while (isActive) {
+                delay(1000)
+                val elapsed = System.currentTimeMillis() - startTime
+                remainingMs = (durationMs - elapsed).coerceAtLeast(0)
+                if (remainingMs <= 0) {
+                    firePause()
+                    break
+                }
+            }
         }
     }
     

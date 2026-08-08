@@ -157,7 +157,7 @@ object InnerTubeFeed {
     private fun parseDuration(text: String): Int {
         val parts = text.split(":")
         return when (parts.size) {
-            2 -> parts[0].toIntOrNull() ?: 0 * 60 + (parts[1].toIntOrNull() ?: 0)
+            2 -> (parts[0].toIntOrNull() ?: 0) * 60 + (parts[1].toIntOrNull() ?: 0)
             3 -> (parts[0].toIntOrNull() ?: 0) * 3600 + (parts[1].toIntOrNull() ?: 0) * 60 + (parts[2].toIntOrNull() ?: 0)
             else -> 0
         }

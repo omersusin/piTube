@@ -65,7 +65,27 @@ fun SearchScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> 
                     ))
                 } catch (e: Exception) { results = emptyList() }
             } else {
-                try { results = PipedApiService.create().search(q).items } catch (e: Exception) { results = emptyList() }
+                // Build search query with filters
+                val searchQuery = buildString {
+                    append(q)
+                    if (selectedUploadDate != "Any") {
+                        when (selectedUploadDate) {
+                            "Hour" -> append(" E")      // last hour
+                            "Today" -> append(" D")     // today
+                            "This week" -> append(" W") // this week
+                            "This month" -> append(" M") // this month
+                            "This year" -> append(" Y")  // this year
+                        }
+                    }
+                    if (selectedDuration != "Any") {
+                        when (selectedDuration) {
+                            "Short (< 4 min)" -> append(" short")
+                            "Medium (4-20 min)" -> append(" medium")
+                            "Long (> 20 min)" -> append(" long")
+                        }
+                    }
+                }
+                try { results = PipedApiService.create().search(searchQuery).items } catch (e: Exception) { results = emptyList() }
             }
             isLoading = false
         }
