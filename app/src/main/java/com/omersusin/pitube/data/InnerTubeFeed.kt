@@ -12,7 +12,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.security.MessageDigest
 
-object AuthDebug { val snippet = mutableStateOf("") }
+object AuthDebug { val snippet = mutableStateOf(""); val diag = mutableStateOf("") }
 
 object InnerTubeFeed {
     private val client = OkHttpClient()
@@ -189,7 +189,7 @@ object InnerTubeFeed {
                 applyAuth(rb, context)
                 val resp = client.newCall(rb.post(body.toRequestBody("application/json".toMediaType())).build()).execute()
                 val bodyStr = resp.body?.string() ?: "{}"
-                if (page == 0) AuthDebug.snippet.value = "browse $browseId ${resp.code}: ${bodyStr.take(300)}"
+                if (page == 0) { AuthDebug.snippet.value = "browse $browseId ${resp.code}: ${bodyStr.take(300)}"; AuthDebug.diag.value = "vr=" + bodyStr.contains("videoRenderer") + " rich=" + bodyStr.contains("richItemRenderer") + " lockup=" + bodyStr.contains("ockupViewModel") + " reel=" + bodyStr.contains("reelItemRenderer") + " found=" + out.size }
                 val json = JSONObject(bodyStr)
                 val before = out.size
                 walkVideos(json, out)

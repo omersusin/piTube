@@ -29,6 +29,7 @@ fun SubscriptionsScreen(onVideoClick: (VideoItem) -> Unit) {
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val debugSnippet by AuthDebug.snippet
+    val debugDiag by AuthDebug.diag
 
     fun load() {
         isLoading = true
@@ -62,6 +63,7 @@ fun SubscriptionsScreen(onVideoClick: (VideoItem) -> Unit) {
                     Button(onClick = { load() }) { Text("Retry") }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Debug:", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(debugDiag, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                     Text(debugSnippet.ifBlank { "No probe yet." }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("If this looks logged-out, use You → Settings → Paste cookies.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
