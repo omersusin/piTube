@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,17 +16,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.PipedApiService
+import com.omersusin.pitube.data.SearchHistoryManager
 import com.omersusin.pitube.data.VideoItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(onVideoClick: (VideoItem) -> Unit) {
+    val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
@@ -33,12 +37,16 @@ fun SearchScreen(onVideoClick: (VideoItem) -> Unit) {
     val scope = rememberCoroutineScope()
     val searchHistory = remember { mutableStateListOf<String>() }
 
+    LaunchedEffect(Unit) { searchHistory.clear(); searchHistory.addAll(SearchHistoryManager.getHistory(context)) }
+
     val performSearch: (String) -> Unit = { query ->
         if (query.isNotBlank()) {
             searchQuery = query
             isSearching = true
             hasSearched = true
-            if (!searchHistory.contains(query)) searchHistory.add(0, query)
+            SearchHistoryManager.addToHistory(context, query)
+            searchHistory.clear()
+            searchHistory.addAll(SearchHistoryManager.getHistory(context))
             scope.launch {
                 try { searchResults = PipedApiService.create().search(query).items }
                 catch (e: Exception) { searchResults = emptyList() }
@@ -48,32 +56,22 @@ fun SearchScreen(onVideoClick: (VideoItem) -> Unit) {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        OutlinedTextField(
-            value = searchQuery, onValueChange = { searchQuery = it },
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            placeholder = { Text("Search piTube...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { performSearch(searchQuery) }),
-            shape = RoundedCornerShape(24.dp)
-        )
-
-        if (isSearching) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        } else if (!hasSearched) {
+        OutlinedTextField(value = searchQuery, onValueChange = { searchQuery = it }, modifier = Modifier.fillMaxWidth().padding(16.dp), placeholder = { Text("Search piTube...") }, leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }, trailingIcon = { if (searchQuery.isNotEmpty()) IconButton(onClick = { searchQuery = "" }) { Icon(Icons.Default.Close, contentDescription = "Clear") } }, singleLine = true, keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { performSearch(searchQuery) }), shape = RoundedCornerShape(24.dp))
+        if (isSearching) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
+        else if (!hasSearched) {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
                 if (searchHistory.isNotEmpty()) {
-                    item { Text("Recent Searches", style = MaterialTheme.typography.titleMedium); Spacer(modifier = Modifier.height(8.dp)) }
+                    item { Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text("Recent Searches", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f)); TextButton(onClick = { SearchHistoryManager.clearHistory(context); searchHistory.clear() }) { Text("Clear all") } }; Spacer(modifier = Modifier.height(8.dp)) }
                     items(searchHistory) { history ->
-                        Text(text = history, modifier = Modifier.fillMaxWidth().clickable { performSearch(history) }.padding(vertical = 8.dp), style = MaterialTheme.typography.bodyLarge)
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = history, modifier = Modifier.weight(1f).clickable { performSearch(history) }.padding(vertical = 4.dp), style = MaterialTheme.typography.bodyLarge)
+                            IconButton(onClick = { SearchHistoryManager.removeFromHistory(context, history); searchHistory.remove(history) }) { Icon(Icons.Default.Close, contentDescription = "Remove", modifier = Modifier.size(16.dp)) }
+                        }
                     }
                 } else { item { Text("Search for videos...", style = MaterialTheme.typography.bodyLarge) } }
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(searchResults) { video -> SearchVideoCard(video = video, onClick = { onVideoClick(video) }) }
-            }
+            LazyColumn(modifier = Modifier.fillMaxSize()) { items(searchResults) { video -> SearchVideoCard(video = video, onClick = { onVideoClick(video) }) } }
         }
     }
 }
