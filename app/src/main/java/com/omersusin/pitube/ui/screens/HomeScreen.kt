@@ -66,7 +66,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 fun VideoCard(video: VideoItem, onClick: () -> Unit, onChannelClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         Box(modifier = Modifier.clickable(onClick = onClick)) {
-            AsyncImage(model = video.thumbnailUrl, contentDescription = video.title, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f), contentScale = ContentScale.Crop)
+            AsyncImage(model = video.safeThumb, contentDescription = video.title, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f), contentScale = ContentScale.Crop)
         }
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
             AsyncImage(model = video.uploaderAvatar, contentDescription = video.uploaderName, modifier = Modifier.size(36.dp).clip(RoundedCornerShape(18.dp)).clickable(onClick = onChannelClick), contentScale = ContentScale.Crop)
@@ -74,7 +74,7 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, onChannelClick: () -> Unit)
             Column(modifier = Modifier.clickable(onClick = onClick)) {
                 Text(video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Spacer(modifier = Modifier.height(2.dp))
-                Text("${video.uploaderName} • ${video.uploadedDate}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("${video.uploaderName}${video.uploadedDate?.let { " • $it" } ?: ""}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

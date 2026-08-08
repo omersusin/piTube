@@ -6,7 +6,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 
-data class PipedInstanceInfo(val api_url: String?)
+data class PipedInstanceInfo(val api_url: String?, val up: Boolean = false)
 
 object InstanceManager {
     private val defaults = listOf(
@@ -26,8 +26,8 @@ object InstanceManager {
             val body = resp.body?.string() ?: return
             val type = object : TypeToken<List<PipedInstanceInfo>>() {}.type
             val list: List<PipedInstanceInfo> = Gson().fromJson(body, type) ?: return
-            val hosts = list.mapNotNull { it.api_url?.removePrefix("https://")?.removePrefix("http://") }.distinct()
-            if (hosts.isNotEmpty()) instances = hosts
+            val hosts = list.filter { it.up }.mapNotNull { it.api_url?.removePrefix("https://")?.removePrefix("http://") }.distinct()
+            if (hosts.isNotEmpty()) { instances = hosts; current = hosts[0] }
         } catch (e: Exception) { }
     }
 }

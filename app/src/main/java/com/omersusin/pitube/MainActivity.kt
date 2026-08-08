@@ -31,11 +31,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startService(Intent(this, PlaybackService::class.java))
-        
         setContent {
             var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
             PiTubeTheme(themeMode = themeMode) {
-                PiTubeApp(themeMode = themeMode, onThemeChange = { themeMode = it })
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    PiTubeApp(themeMode = themeMode, onThemeChange = { themeMode = it })
+                }
             }
         }
     }
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode)
         PipState.inPip.value = isInPictureInPictureMode
     }
-    
+
     override fun onDestroy() {
         super.onDestroy()
         if (isFinishing) PlayerHolder.releasePlayer()
@@ -68,26 +69,14 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     var selectedChannel by remember { mutableStateOf<String?>(null) }
 
     if (selectedChannel != null) {
-        ChannelScreen(
-            channelId = selectedChannel!!,
-            onBack = { selectedChannel = null },
-            onVideoClick = { selectedVideo = it }
-        )
+        ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it })
         return
     }
-
     if (showLogin) { YouTubeLoginScreen(onBack = { showLogin = false }); return }
-
     if (selectedVideo != null) {
-        VideoPlayerScreen(
-            video = selectedVideo!!,
-            onBack = { selectedVideo = null },
-            onVideoClick = { newVideo -> selectedVideo = newVideo },
-            onChannelClick = { id -> selectedChannel = id }
-        )
+        VideoPlayerScreen(video = selectedVideo!!, onBack = { selectedVideo = null }, onVideoClick = { selectedVideo = it }, onChannelClick = { selectedChannel = it })
         return
     }
-
     if (showSettings) {
         SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { showSettings = false }, onOpenLogin = { showLogin = true })
         return

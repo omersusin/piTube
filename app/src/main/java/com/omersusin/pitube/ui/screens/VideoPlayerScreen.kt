@@ -85,12 +85,28 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
         scope.launch {
             try {
                 val api = PipedApiService.create()
-                streamInfo = api.getStreams(video.videoId)
-                streamInfo?.hls?.let { exoPlayer.setMediaItem(MediaItem.fromUri(it)); exoPlayer.prepare(); exoPlayer.playWhenReady = true }
-                    ?: run { error = "No stream" }
-                try { if (PrefsManager.isSponsorBlockEnabled(context)) segments = SponsorBlockService.create().getSegments(video.videoId, """["sponsor","selfpromo","intro","outro","preview"]""") } catch (e: Exception) {}
-                try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) {}
-                try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) {}
+                var info: StreamInfo? = null
+                try { info = api.getStreams(video.videoId) } catch (e: Exception) { }
+
+                // InnerTube fallback if Piped has no stream
+                if (info?.hls.isNullOrBlank()) {
+                    val itUrl = InnerTubeApi.getStreamUrl(video.videoId)
+                    info = info?.copy(hls = itUrl) ?: StreamInfo(
+                        title = video.title, description = "", uploader = video.uploaderName,
+                        uploaderUrl = "", hls = itUrl, dash = null
+                    )
+                }
+                streamInfo = info
+
+                info?.hls?.let { hlsUrl ->
+                    exoPlayer.setMediaItem(MediaItem.fromUri(hlsUrl))
+                    exoPlayer.prepare()
+                    exoPlayer.playWhenReady = true
+                } ?: run { error = "Could not find stream URL" }
+
+                try { if (PrefsManager.isSponsorBlockEnabled(context)) segments = SponsorBlockService.create().getSegments(video.videoId, """["sponsor","selfpromo","intro","outro","preview"]""") } catch (e: Exception) { segments = emptyList() }
+                try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
+                try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
             } catch (e: Exception) { error = e.message } finally { isLoading = false }
         }
     }
@@ -139,12 +155,12 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                                 if (downloadState == -1 || downloadState >= 101) {
                                     downloadState = 0
                                     scope.launch(Dispatchers.IO) {
-                                        val video = info.videoStreams.filter { !it.videoOnly && it.mimeType.contains("mp4", true) }.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
+                                        val videoUrl = info.videoStreams.filter { !it.videoOnly && it.mimeType.contains("mp4", true) }.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
                                             ?: info.videoStreams.filter { it.videoOnly && it.mimeType.contains("mp4", true) }.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
                                             ?: info.hls
-                                        val audio = info.audioStreams.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
-                                        if (video == null) { downloadState = 102; return@launch }
-                                        DownloadManager.downloadVideo(context, info.title, video, audio, onProgress = { p -> downloadState = p }, onDone = { downloadState = 101 }, onError = { downloadState = 102 })
+                                        val audioUrl = info.audioStreams.maxByOrNull { it.quality.filter { c -> c.isDigit() }.toIntOrNull() ?: 0 }?.url
+                                        if (videoUrl == null) { downloadState = 102; return@launch }
+                                        DownloadManager.downloadVideo(context, info.title, videoUrl, audioUrl, onProgress = { p -> downloadState = p }, onDone = { downloadState = 101 }, onError = { downloadState = 102 })
                                     }
                                 }
                             }) {
@@ -186,7 +202,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                     streamInfo?.relatedStreams?.let { related ->
                         items(related.filter { !it.isShort }) { rv ->
                             Row(modifier = Modifier.fillMaxWidth().clickable { onVideoClick(rv) }.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                AsyncImage(model = rv.thumbnailUrl, contentDescription = null, modifier = Modifier.width(140.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop)
+                                AsyncImage(model = rv.safeThumb, contentDescription = null, modifier = Modifier.width(140.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop)
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column { Text(rv.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis); Spacer(modifier = Modifier.height(4.dp)); Text(rv.uploaderName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                             }
@@ -195,7 +211,6 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 }
 
                 item { Text("Comments (Infinite Scroll)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 0.dp)) }
-                
                 val commentCount = comments.itemCount
                 if (comments.loadState.refresh is androidx.paging.LoadState.Loading) {
                     item { Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
@@ -216,7 +231,6 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                             }
                         }
                     }
-                    
                     if (comments.loadState.append is androidx.paging.LoadState.Loading) {
                         item { Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
                     }
