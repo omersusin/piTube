@@ -1,15 +1,16 @@
 package com.omersusin.pitube.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.omersusin.pitube.data.*
+import com.omersusin.pitube.ui.components.VideoListItem
 import kotlinx.coroutines.launch
 
 @Composable
@@ -25,22 +26,15 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
         scope.launch {
             try {
                 val trending = PipedApiService.create().getTrending()
-                videos = trending.items
+                videos = trending
                 
                 val history = WatchHistoryRepository.getRecentWatches(context, 5)
                 if (history.isNotEmpty()) {
                     val seed = history.first()
-                    val seedVideo = VideoItem(
-                        videoId = seed.videoId,
-                        title = seed.title,
-                        thumbnailUrl = seed.thumbnailUrl,
-                        uploaderName = seed.channelName,
-                        isShort = false
-                    )
-                    recommendations = RecommendationEngine.getRecommendations(context, seedVideo, 10)
+                    recommendations = RecommendationEngine.getRecommendations(context, seed.videoId, 10)
                 }
             } catch (e: Exception) {
-                // Fallback to empty
+                e.printStackTrace()
             } finally {
                 isLoading = false
             }
@@ -50,17 +44,28 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         if (isLoading) {
             item {
-                Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     CircularProgressIndicator()
                 }
             }
         } else {
             if (recommendations.isNotEmpty()) {
                 item {
-                    Text("Recommended for You", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
+                    Text(
+                        "Recommended for You",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
                 items(recommendations) { video ->
-                    VideoListItem(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.uploaderName) })
+                    VideoListItem(
+                        video = video,
+                        onClick = { onVideoClick(video) },
+                        onChannelClick = { onChannelClick(video.uploaderName) }
+                    )
                 }
                 
                 item {
@@ -71,10 +76,18 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
             }
             
             item {
-                Text("Trending", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp))
+                Text(
+                    "Trending",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
             items(videos) { video ->
-                VideoListItem(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.uploaderName) })
+                VideoListItem(
+                    video = video,
+                    onClick = { onVideoClick(video) },
+                    onChannelClick = { onChannelClick(video.uploaderName) }
+                )
             }
         }
     }
