@@ -21,11 +21,14 @@ object InnerTubeFeed {
             val cookies = AuthManager.getRawCookies(context)
             if (cookies.isBlank()) return@withContext emptyList()
 
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20240101.00.00"}},"browseId":"$browseId"}"""
+            val authHeader = KodaAuth.authHeader(cookies)
+            val body = """{"context":{"client":{"clientName":"WEB_CREATOR","clientVersion":"1.20241205.01.00"}},"browseId":"$browseId"}"""
             val req = Request.Builder()
                 .url(INNERTUBE_URL)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
+                .addHeader("Authorization", authHeader)
+                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
                 .post(body.toRequestBody("application/json".toMediaType()))
                 .build()
 

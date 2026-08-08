@@ -19,6 +19,7 @@ import com.omersusin.pitube.data.AuthManager
 fun YouTubeLoginScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
+    var loginAttempted by remember { mutableStateOf(false) }
 
     Scaffold(topBar = { TopAppBar(title = { Text("YouTube Login") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }) }) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -29,19 +30,47 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
                     WebView(ctx).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
+                        settings.setSupportMultipleWindows(false)
+                        settings.userAgentString = "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
                         webViewClient = object : WebViewClient() {
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 super.onPageFinished(view, url)
                                 isLoading = false
-                                if (url?.contains("youtube.com") == true) {
-                                    val cookieManager = CookieManager.getInstance()
-                                    val raw = cookieManager.getCookie("https://www.youtube.com") ?: cookieManager.getCookie(url)
-                                    if (raw != null && raw.contains("SID=")) {
+
+                                // Check for YouTube cookies on multiple possible domains
+                                val cookieManager = CookieManager.getInstance()
+                                val domains = listOf(
+                                    "https://www.youtube.com",
+                                    "https://youtube.com",
+                                    "https://accounts.google.com",
+                                    url
+                                ).filterNotNull()
+
+                                for (domain in domains) {
+                                    val raw = cookieManager.getCookie(domain)
+                                    if (raw != null && raw.contains("SID=") && raw.contains("__Secure-1PSID")) {
                                         AuthManager.saveRawCookies(ctx, raw)
                                         val cookieMap = mutableMapOf<String, String>()
                                         raw.split(";").forEach { cookie ->
-                                            val parts = cookie.trim().split("=")
-                                            if (parts.size >= 2) cookieMap[parts[0]] = parts.drop(1).joinToString("=")
+                                            val parts = cookie.trim().split("=", limit = 2)
+                                            if (parts.size == 2) cookieMap[parts[0].trim()] = parts[1].trim()
+                                        }
+                                        AuthManager.saveCookies(ctx, cookieMap)
+                                        onBack()
+                                        return
+                                    }
+                                }
+
+                                // Also check if we're on YouTube and have basic auth cookies
+                                if (url?.contains("youtube.com") == true && !loginAttempted) {
+                                    loginAttempted = true
+                                    val allCookies = cookieManager.getAllCookies()
+                                    if (allCookies?.contains("SID=") == true) {
+                                        AuthManager.saveRawCookies(ctx, allCookies)
+                                        val cookieMap = mutableMapOf<String, String>()
+                                        allCookies.split(";").forEach { cookie ->
+                                            val parts = cookie.trim().split("=", limit = 2)
+                                            if (parts.size == 2) cookieMap[parts[0].trim()] = parts[1].trim()
                                         }
                                         AuthManager.saveCookies(ctx, cookieMap)
                                         onBack()

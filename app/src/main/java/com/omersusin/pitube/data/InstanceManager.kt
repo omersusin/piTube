@@ -10,10 +10,12 @@ data class PipedInstanceInfo(val api_url: String?, val up: Boolean = false)
 
 object InstanceManager {
     private val defaults = listOf(
-        "pipedapi.kavin.rocks",
         "pipedapi.adminforge.de",
         "api.piped.private.coffee",
-        "pipedapi.reallyaweso.me"
+        "pipedapi.r4fo.com",
+        "pipedapi.leptons.xyz",
+        "piped-api.lunar.icu",
+        "pipedapi.kavin.rocks"
     )
     @Volatile var instances: List<String> = defaults
     @Volatile var current: String = defaults[0]
