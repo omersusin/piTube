@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 private object ShortsPrefetchCache {
     private val cache = mutableMapOf<String, StreamResolver.Resolved?>()
     private val inFlight = mutableSetOf<String>()
-    suspend fun prefetch(videoId: String) { if (cache.containsKey(videoId) || !inFlight.add(videoId)) return; cache[videoId] = StreamResolver.resolve(videoId); inFlight.remove(videoId) }
+    suspend fun prefetch(videoId: String, context: android.content.Context) { if (cache.containsKey(videoId) || !inFlight.add(videoId)) return; cache[videoId] = StreamResolver.resolve(videoId, context); inFlight.remove(videoId) }
     fun take(videoId: String): StreamResolver.Resolved? = cache.remove(videoId)
 }
 
@@ -39,7 +39,7 @@ fun ShortsScreen() {
     else if (shorts.isEmpty()) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No shorts found") } }
     else {
         val pagerState = rememberPagerState(pageCount = { shorts.size })
-        LaunchedEffect(pagerState.currentPage) { val nextIndex = pagerState.currentPage + 1; if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId) }
+        LaunchedEffect(pagerState.currentPage) { val nextIndex = pagerState.currentPage + 1; if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId, context) }
         VerticalPager(state = pagerState, modifier = Modifier.fillMaxSize(), pageSize = PageSize.Fill) { page -> ShortVideoPlayer(video = shorts[page], isActive = page == pagerState.currentPage) }
     }
 }
@@ -53,7 +53,7 @@ fun ShortVideoPlayer(video: VideoItem, isActive: Boolean) {
     LaunchedEffect(video.videoId) {
         mediaReady = false
         try {
-            val resolved = ShortsPrefetchCache.take(video.videoId) ?: StreamResolver.resolve(video.videoId)
+            val resolved = ShortsPrefetchCache.take(video.videoId) ?: StreamResolver.resolve(video.videoId, context)
             val source = resolved?.let { StreamResolver.buildMediaSource(context, it) }
             if (source != null) { exoPlayer.setMediaSource(source); exoPlayer.prepare(); exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ONE; mediaReady = true }
         } catch (e: Exception) { e.printStackTrace() }

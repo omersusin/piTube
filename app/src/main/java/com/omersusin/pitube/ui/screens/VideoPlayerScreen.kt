@@ -96,7 +96,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
         notes = NotesManager.getNotes(context, video.videoId)
         scope.launch {
             try {
-                val r = StreamResolver.resolve(video.videoId)
+                val r = StreamResolver.resolve(video.videoId, context)
                 resolved = r
                 var piped: StreamInfo? = null
                 try { piped = PipedApiService.create().getStreams(video.videoId) } catch (e: Exception) { }
