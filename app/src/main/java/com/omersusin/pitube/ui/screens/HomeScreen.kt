@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
@@ -36,6 +37,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     var feedPage by remember { mutableIntStateOf(0) }
 
     val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
     val isLoggedIn = remember { AuthManager.isLoggedIn(context) }
 
     val loadMore = {
@@ -111,11 +113,22 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 
     LaunchedEffect(Unit) { refresh() }
 
-    // Infinite scroll trigger
+    // Infinite scroll trigger for both list and grid
     LaunchedEffect(listState) {
         snapshotFlow {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             val totalItems = listState.layoutInfo.totalItemsCount
+            lastVisibleItem >= totalItems - 5
+        }.collect { shouldLoadMore ->
+            if (shouldLoadMore && !isLoadingMore && !isRefreshing) {
+                loadMore()
+            }
+        }
+    }
+    LaunchedEffect(gridState) {
+        snapshotFlow {
+            val lastVisibleItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = gridState.layoutInfo.totalItemsCount
             lastVisibleItem >= totalItems - 5
         }.collect { shouldLoadMore ->
             if (shouldLoadMore && !isLoadingMore && !isRefreshing) {
@@ -140,7 +153,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
         } else if (isGrid) {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 160.dp),
-                state = listState,
+                state = gridState,
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
