@@ -37,7 +37,7 @@ object StreamResolver {
             extractor.fetchPage()
 
             val title = extractor.name ?: ""
-            val description = extractor.description?.textContent ?: extractor.description?.toString() ?: ""
+            val description = extractor.description?.content ?: extractor.description?.toString() ?: ""
             val uploader = extractor.uploaderName ?: ""
             val uploaderUrl = extractor.uploaderUrl ?: ""
             val hlsUrl = extractor.hlsUrl
@@ -45,11 +45,11 @@ object StreamResolver {
             // Pick best video stream (highest quality <= 1080p)
             val videoStreams = extractor.videoStreams ?: emptyList()
             val bestVideo = videoStreams
-                .filter { it.videoOnly && !it.url.isNullOrBlank() }
+                .filter { it.isVideoOnly && !it.url.isNullOrBlank() }
                 .filter { it.quality.uppercase().let { q -> q.contains("1080") || q.contains("720") } }
                 .maxByOrNull { it.quality?.replace(Regex("[^0-9]"), "")?.toIntOrNull() ?: 0 }
                 ?: videoStreams
-                    .filter { it.videoOnly && !it.url.isNullOrBlank() }
+                    .filter { it.isVideoOnly && !it.url.isNullOrBlank() }
                     .maxByOrNull { it.quality?.replace(Regex("[^0-9]"), "")?.toIntOrNull() ?: 0 }
 
             // Pick best audio stream (highest bitrate)

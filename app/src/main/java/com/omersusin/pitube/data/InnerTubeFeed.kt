@@ -33,7 +33,7 @@ object InnerTubeFeed {
                         uploaderAvatar = "",
                         uploaderUrl = item.uploaderUrl ?: "",
                         channelId = "",
-                        duration = item.duration,
+                        duration = item.duration.toInt(),
                         views = item.viewCount,
                         uploadedDate = item.textualUploadDate ?: "",
                         isShort = false
