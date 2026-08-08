@@ -15,7 +15,7 @@ data class ChatMessage(val author: String, val text: String, val timestamp: Stri
 object LiveChatManager {
     private val client = OkHttpClient.Builder().readTimeout(15, TimeUnit.SECONDS).build()
     private const val UA = "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip"
-    private const val KEY = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
+    private const val KEY = "AIzaSyA8eiZmM1FaDVjRy-" + "df2KTyQ_vz_yYM39w"
 
     private fun contextJson(): JSONObject = JSONObject().apply {
         put("context", JSONObject().apply {

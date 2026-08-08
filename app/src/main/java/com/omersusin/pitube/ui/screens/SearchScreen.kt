@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -15,8 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.omersusin.pitube.data.*
+import com.omersusin.pitube.data.PipedApiService
+import com.omersusin.pitube.data.SearchHistoryRepository
+import com.omersusin.pitube.data.VideoItem
+import com.omersusin.pitube.data.YouTubeLinkParser
 import com.omersusin.pitube.ui.components.VideoListItem
 import kotlinx.coroutines.launch
 
@@ -26,127 +31,68 @@ fun SearchScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> 
     var query by remember { mutableStateOf("") }
     var results by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
-    var dateFilter by remember { mutableStateOf(VideoSearchDateFilter.ANY) }
-    var sortBy by remember { mutableStateOf(VideoSearchSort.RELEVANCE) }
-    var showFilterMenu by remember { mutableStateOf(false) }
+    var hasSearched by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var history by remember { mutableStateOf(SearchHistoryRepository.getHistory(context)) }
     val scope = rememberCoroutineScope()
 
     fun performSearch(q: String) {
-        val parsed = YouTubeLinkParser.parse(q)
-        if (parsed?.videoId != null) {
-            // If user pasted a URL, treat as video navigation
-            scope.launch {
-                try {
-                    val info = PipedApiService.create().getStreams(parsed.videoId)
-                    val video = VideoItem(
-                        id = parsed.videoId,
-                        title = info.title,
-                        description = info.description,
-                        thumbnailUrl = info.uploaderUrl,
-                        uploader = info.uploader,
-                        viewCount = 0L,
-                        duration = 0
-                    )
-                    onVideoClick(video)
-                } catch (e: Exception) { /* fall through */ }
-            }
-            return
-        }
         if (q.isBlank()) return
         scope.launch {
-            isLoading = true
+            isLoading = true; hasSearched = true
             SearchHistoryRepository.addQuery(context, q)
             history = SearchHistoryRepository.getHistory(context)
-            val effectiveQuery = dateFilter.applyTo(q)
-            try {
-                results = PipedApiService.create().search(effectiveQuery).items
-            } catch (e: Exception) {
-                results = emptyList()
+            val parsed = YouTubeLinkParser.parse(q)
+            if (parsed?.videoId != null) {
+                try {
+                    val info = PipedApiService.create().getStreams(parsed.videoId)
+                    results = listOf(VideoItem(
+                        url = "https://www.youtube.com/watch?v=${parsed.videoId}",
+                        title = info.title, thumbnailUrl = null, uploaderName = info.uploader,
+                        uploaderAvatar = null, duration = 0, views = 0L, uploadedDate = null, isShort = false
+                    ))
+                } catch (e: Exception) { results = emptyList() }
+            } else {
+                try { results = PipedApiService.create().search(q).items } catch (e: Exception) { results = emptyList() }
             }
             isLoading = false
         }
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item {
-            Column {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp, 16.dp, 16.dp, 8.dp),
-                    placeholder = { Text("Search videos or paste URL...") },
-                    leadingIcon = { Icon(Icons.Default.Search, "Search") },
-                    trailingIcon = {
-                        Row {
-                            IconButton(onClick = { showFilterMenu = !showFilterMenu }) {
-                                Text(if (dateFilter == VideoSearchDateFilter.ANY) "⚙" else "🎯")
-                            }
-                            if (query.isNotEmpty()) {
-                                IconButton(onClick = { performSearch(query) }) {
-                                    Icon(Icons.Default.Search, "Search")
-                                }
-                            }
-                        }
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { performSearch(query) })
-                )
-                if (showFilterMenu) {
-                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        Text("Filter: ", style = MaterialTheme.typography.bodySmall)
-                        VideoSearchDateFilter.values().forEach { f ->
-                            FilterChip(
-                                selected = dateFilter == f,
-                                onClick = { dateFilter = f },
-                                label = { Text(f.label, style = MaterialTheme.typography.labelSmall) },
-                                modifier = Modifier.padding(end = 4.dp)
-                            )
-                        }
-                    }
-                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        Text("Sort: ", style = MaterialTheme.typography.bodySmall)
-                        VideoSearchSort.values().forEach { s ->
-                            FilterChip(
-                                selected = sortBy == s,
-                                onClick = { sortBy = s },
-                                label = { Text(s.label, style = MaterialTheme.typography.labelSmall) },
-                                modifier = Modifier.padding(end = 4.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
+    Column(modifier = Modifier.fillMaxSize()) {
+        OutlinedTextField(
+            value = query, onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            placeholder = { Text("Search videos or paste a YouTube link...") },
+            leadingIcon = { Icon(Icons.Default.Search, "Search") },
+            trailingIcon = { if (query.isNotEmpty()) IconButton(onClick = { query = "" }) { Icon(Icons.Default.Close, "Clear") } },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { performSearch(query) }),
+            shape = RoundedCornerShape(24.dp)
+        )
         if (isLoading) {
-            item { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
-        } else if (results.isEmpty() && query.isEmpty()) {
-            item { Text("Recent Searches", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(16.dp)) }
-            items(history) { h ->
-                ListItem(
-                    headlineContent = { Text(h) },
-                    modifier = Modifier.clickable {
-                        query = h
-                        performSearch(h)
-                    },
-                    trailingContent = {
-                        IconButton(onClick = {
-                            SearchHistoryRepository.removeQuery(context, h)
-                            history = SearchHistoryRepository.getHistory(context)
-                        }) { Icon(Icons.Default.Close, "Remove") }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        } else if (!hasSearched) {
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                if (history.isNotEmpty()) {
+                    item { Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Recent Searches", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { SearchHistoryRepository.clearHistory(context); history = emptyList() }) { Text("Clear all") }
+                    } }
+                    items(history) { h ->
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(h, modifier = Modifier.weight(1f).clickable { query = h; performSearch(h) }.padding(vertical = 4.dp), style = MaterialTheme.typography.bodyLarge)
+                            IconButton(onClick = { SearchHistoryRepository.removeQuery(context, h); history = SearchHistoryRepository.getHistory(context) }) { Icon(Icons.Default.Close, "Remove", modifier = Modifier.size(16.dp)) }
+                        }
                     }
-                )
+                } else { item { Text("Search for videos...", style = MaterialTheme.typography.bodyLarge) } }
             }
         } else {
-            items(results) { video ->
-                VideoListItem(
-                    video = video,
-                    onClick = { onVideoClick(video) },
-                    onChannelClick = { onChannelClick(video.uploaderName) }
-                )
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(results) { video ->
+                    VideoListItem(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.uploaderName) })
+                }
             }
         }
     }

@@ -70,7 +70,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                         scope.launch {
                             FlowNeuroEngine.recordInteraction(
                                 context = context,
-                                videoId = video.id,
+                                videoId = video.videoId,
                                 title = video.title,
                                 channelName = video.uploaderName,
                                 channelId = null,

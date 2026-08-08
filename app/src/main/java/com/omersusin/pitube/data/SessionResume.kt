@@ -23,7 +23,7 @@ object SessionResume {
     fun save(context: Context, video: VideoItem, positionMs: Long) {
         try {
             val data = ResumeData(
-                videoId = video.id,
+                videoId = video.videoId,
                 title = video.title,
                 thumbnailUrl = video.thumbnailUrl,
                 channelName = video.uploaderName,

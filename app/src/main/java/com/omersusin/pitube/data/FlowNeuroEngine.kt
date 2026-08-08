@@ -151,12 +151,12 @@ object FlowNeuroEngine {
                 totalScore += (channelScore - 0.5) * 0.15
             }
 
-            val watched = current.watchHistory[video.id] ?: 0f
+            val watched = current.watchHistory[video.videoId] ?: 0f
             if (watched > 0.85f) totalScore *= 0.02
             else if (watched > 0.50f) totalScore *= 0.30
             else if (watched > 0.15f) totalScore *= 0.70
 
-            val impressions = current.impressionCount[video.id] ?: 0
+            val impressions = current.impressionCount[video.videoId] ?: 0
             if (impressions >= 5) totalScore *= 0.05
             else if (impressions >= 3) totalScore *= 0.15
             else if (impressions >= 1) totalScore *= 0.35

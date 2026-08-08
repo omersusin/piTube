@@ -2,35 +2,23 @@ package com.omersusin.pitube.data
 
 import android.content.Context
 
-class SearchHistoryRepository(context: Context) {
-    private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    
-    fun getHistory(): List<String> {
-        val historyString = prefs.getString(KEY_HISTORY, "") ?: ""
-        return if (historyString.isEmpty()) emptyList() else historyString.split("|")
+object SearchHistoryRepository {
+    private const val PREFS_NAME = "search_history"
+    private const val KEY_HISTORY = "history_list"
+
+    fun getHistory(context: Context): List<String> {
+        val s = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString(KEY_HISTORY, "") ?: ""
+        return if (s.isEmpty()) emptyList() else s.split("|")
     }
-    
-    fun addQuery(query: String) {
+    fun addQuery(context: Context, query: String) {
         if (query.isBlank()) return
-        val current = getHistory().toMutableList()
-        current.remove(query)
-        current.add(0, query)
-        val limited = current.take(15)
-        prefs.edit().putString(KEY_HISTORY, limited.joinToString("|")).apply()
+        val current = getHistory(context).toMutableList()
+        current.remove(query); current.add(0, query)
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putString(KEY_HISTORY, current.take(15).joinToString("|")).apply()
     }
-    
-    fun removeQuery(query: String) {
-        val current = getHistory().toMutableList()
-        current.remove(query)
-        prefs.edit().putString(KEY_HISTORY, current.joinToString("|")).apply()
+    fun removeQuery(context: Context, query: String) {
+        val current = getHistory(context).toMutableList(); current.remove(query)
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putString(KEY_HISTORY, current.joinToString("|")).apply()
     }
-    
-    fun clearHistory() {
-        prefs.edit().remove(KEY_HISTORY).apply()
-    }
-    
-    companion object {
-        private const val PREFS_NAME = "search_history"
-        private const val KEY_HISTORY = "history_list"
-    }
+    fun clearHistory(context: Context) = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().remove(KEY_HISTORY).apply()
 }

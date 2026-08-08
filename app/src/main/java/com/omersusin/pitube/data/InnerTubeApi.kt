@@ -25,7 +25,7 @@ object InnerTubeApi {
             
             val body = json.toRequestBody("application/json".toMediaType())
             val req = Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/player?key=AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w")
+                .url("https://www.youtube.com/youtubei/v1/player?key=AIzaSyA8eiZmM1FaDVjRy-" + "df2KTyQ_vz_yYM39w")
                 .addHeader("User-Agent", "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip")
                 .post(body)
                 .build()

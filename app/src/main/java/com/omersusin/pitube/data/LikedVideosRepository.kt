@@ -20,12 +20,12 @@ object LikedVideosRepository {
     }
 
     fun isLiked(context: Context, videoId: String): Boolean =
-        getAll(context).any { it.id == videoId || it.url == videoId }
+        getAll(context).any { it.videoId == videoId || it.url == videoId }
 
     fun toggle(context: Context, video: VideoItem): Boolean {
         val current = getAll(context).toMutableList()
-        val id = video.id
-        val existing = current.find { it.id == id || it.url == id }
+        val id = video.videoId
+        val existing = current.find { it.videoId == id || it.url == id }
         return if (existing != null) {
             current.remove(existing)
             save(context, current)
@@ -39,14 +39,14 @@ object LikedVideosRepository {
 
     fun like(context: Context, video: VideoItem) {
         val current = getAll(context).toMutableList()
-        if (current.any { it.id == video.id || it.url == video.id }) return
+        if (current.any { it.videoId == video.videoId || it.url == video.videoId }) return
         current.add(0, video)
         save(context, current)
     }
 
     fun unlike(context: Context, videoId: String) {
         val current = getAll(context).toMutableList()
-        current.removeAll { it.id == videoId || it.url == videoId }
+        current.removeAll { it.videoId == videoId || it.url == videoId }
         save(context, current)
     }
 

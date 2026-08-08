@@ -1,57 +1,19 @@
 package com.omersusin.pitube.data
 
 import android.content.Context
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
+import com.google.gson.Gson
 import java.io.File
-import android.util.Log
 
-@Serializable
-data class PlaybackSession(
-    val videoId: String,
-    val positionMs: Long,
-    val savedAt: Long
-)
+data class PlaybackSession(val video: VideoItem, val positionMs: Long, val savedAt: Long)
 
 class PlaybackSessionRepository(context: Context) {
-    companion object {
-        private const val TAG = "PlaybackSession"
-        private const val FILE_NAME = "playback_session.json"
+    private val file = File(context.filesDir, "playback_session.json")
+    private val gson = Gson()
+    fun save(video: VideoItem, positionMs: Long) {
+        try { file.writeText(gson.toJson(PlaybackSession(video, positionMs, System.currentTimeMillis()))) } catch (e: Exception) {}
     }
-
-    private val sessionFile = File(context.filesDir, FILE_NAME)
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true }
-
-    fun save(videoId: String, positionMs: Long) {
-        if (videoId.isBlank()) return
-        try {
-            val session = PlaybackSession(
-                videoId = videoId,
-                positionMs = positionMs.coerceAtLeast(0L),
-                savedAt = System.currentTimeMillis()
-            )
-            sessionFile.writeText(json.encodeToString(session))
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to save playback session", e)
-        }
-    }
-
-    fun load(): PlaybackSession? {
-        return try {
-            if (!sessionFile.exists()) return null
-            json.decodeFromString<PlaybackSession>(sessionFile.readText())
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to load playback session", e)
-            null
-        }
-    }
-
-    fun clear() {
-        try {
-            sessionFile.delete()
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to clear playback session", e)
-        }
-    }
+    fun load(): PlaybackSession? = try {
+        if (!file.exists()) null else gson.fromJson(file.readText(), PlaybackSession::class.java)
+    } catch (e: Exception) { null }
+    fun clear() { try { file.delete() } catch (e: Exception) {} }
 }
