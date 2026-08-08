@@ -1,5 +1,6 @@
 package com.omersusin.pitube.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.PageSize
@@ -20,6 +21,7 @@ import com.omersusin.pitube.data.PipedApiService
 import com.omersusin.pitube.data.VideoItem
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShortsScreen() {
     val context = LocalContext.current
@@ -30,40 +32,22 @@ fun ShortsScreen() {
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                // Piped doesn't have a dedicated shorts trending endpoint yet, 
-                // so we filter short videos from trending/search.
-                val api = PipedApiService.create()
-                val allVideos = api.getTrending()
+                val allVideos = PipedApiService.create().getTrending()
                 shorts = allVideos.filter { it.isShort || it.duration < 60 }
-                if (shorts.isEmpty()) shorts = allVideos.take(10) // Fallback
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                isLoading = false
-            }
+                if (shorts.isEmpty()) shorts = allVideos.take(10)
+            } catch (e: Exception) { e.printStackTrace() } finally { isLoading = false }
         }
     }
 
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else if (shorts.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No shorts found")
-        }
-    } else {
+    if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
+    else if (shorts.isEmpty()) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No shorts found") } }
+    else {
         val pagerState = rememberPagerState(pageCount = { shorts.size })
-        VerticalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            pageSize = PageSize.Fill
-        ) { page ->
-            ShortVideoPlayer(shorts[page])
-        }
+        VerticalPager(state = pagerState, modifier = Modifier.fillMaxSize(), pageSize = PageSize.Fill) { page -> ShortVideoPlayer(shorts[page]) }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShortVideoPlayer(video: VideoItem) {
     val context = LocalContext.current
@@ -72,8 +56,7 @@ fun ShortVideoPlayer(video: VideoItem) {
 
     LaunchedEffect(video.videoId) {
         try {
-            val api = PipedApiService.create()
-            val streamInfo = api.getStreams(video.videoId)
+            val streamInfo = PipedApiService.create().getStreams(video.videoId)
             streamUrl = streamInfo.hls ?: streamInfo.dash
             streamUrl?.let {
                 exoPlayer.setMediaItem(MediaItem.fromUri(it))
@@ -81,37 +64,24 @@ fun ShortVideoPlayer(video: VideoItem) {
                 exoPlayer.playWhenReady = true
                 exoPlayer.repeatMode = ExoPlayer.REPEAT_MODE_ONE
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        } catch (e: Exception) { e.printStackTrace() }
     }
 
-    DisposableEffect(Unit) {
-        onDispose { exoPlayer.release() }
-    }
+    DisposableEffect(Unit) { onDispose { exoPlayer.release() } }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         AndroidView(
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     player = exoPlayer
-                    useController = false // Hide controls for Shorts feel
+                    useController = false
                     resizeMode = androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                 }
             },
             modifier = Modifier.fillMaxSize()
         )
-        
-        // Overlay Info
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
-        ) {
+
+        Column(modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)) {
             Text(video.title, color = Color.White, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
             Text(video.uploaderName, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)

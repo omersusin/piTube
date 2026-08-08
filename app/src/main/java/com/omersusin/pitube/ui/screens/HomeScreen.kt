@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -22,10 +23,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Unit) {
-    val zenMode = remember { PrefsManager.isZenMode(androidx.compose.ui.platform.LocalContext.current) }
+    val context = LocalContext.current
+    val zenMode = remember { PrefsManager.isZenMode(context) }
 
     if (zenMode) {
-        if (AuthManager.isLoggedIn(androidx.compose.ui.platform.LocalContext.current)) {
+        if (AuthManager.isLoggedIn(context)) {
             SubscriptionsScreen(onVideoClick = onVideoClick)
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -46,13 +48,13 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 
     LaunchedEffect(Unit) {
         scope.launch {
-            try { videos = PipedApiService.create().getTrending(); isLoading = false } 
+            try { videos = PipedApiService.create().getTrending(); isLoading = false }
             catch (e: Exception) { error = e.message; isLoading = false }
         }
     }
 
-    if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } } 
-    else if (error != null) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Error: $error", color = MaterialTheme.colorScheme.error) } } 
+    if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
+    else if (error != null) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Error: $error", color = MaterialTheme.colorScheme.error) } }
     else {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 8.dp)) {
             items(videos) { video -> VideoCard(video = video, onClick = { onVideoClick(video) }, onChannelClick = { onChannelClick(video.url.substringAfter("channel/")) }) }
@@ -67,12 +69,7 @@ fun VideoCard(video: VideoItem, onClick: () -> Unit, onChannelClick: () -> Unit)
             AsyncImage(model = video.thumbnailUrl, contentDescription = video.title, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f), contentScale = ContentScale.Crop)
         }
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
-            AsyncImage(
-                model = video.uploaderAvatar,
-                contentDescription = video.uploaderName,
-                modifier = Modifier.size(36.dp).clip(RoundedCornerShape(18.dp)).clickable(onClick = onChannelClick),
-                contentScale = ContentScale.Crop
-            )
+            AsyncImage(model = video.uploaderAvatar, contentDescription = video.uploaderName, modifier = Modifier.size(36.dp).clip(RoundedCornerShape(18.dp)).clickable(onClick = onChannelClick), contentScale = ContentScale.Crop)
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.clickable(onClick = onClick)) {
                 Text(video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)

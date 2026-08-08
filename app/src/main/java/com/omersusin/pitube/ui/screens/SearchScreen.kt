@@ -25,44 +25,32 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen() {
+fun SearchScreen(onVideoClick: (VideoItem) -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
     var hasSearched by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    
     val searchHistory = remember { mutableStateListOf<String>() }
-    
+
     val performSearch: (String) -> Unit = { query ->
         if (query.isNotBlank()) {
             searchQuery = query
             isSearching = true
             hasSearched = true
-            if (!searchHistory.contains(query)) {
-                searchHistory.add(0, query)
-            }
+            if (!searchHistory.contains(query)) searchHistory.add(0, query)
             scope.launch {
-                try {
-                    val api = PipedApiService.create()
-                    val result = api.search(query)
-                    searchResults = result.items
-                } catch (e: Exception) {
-                    searchResults = emptyList()
-                }
+                try { searchResults = PipedApiService.create().search(query).items }
+                catch (e: Exception) { searchResults = emptyList() }
                 isSearching = false
             }
         }
     }
-    
+
     Column(modifier = Modifier.fillMaxSize()) {
-        // Search Bar
         OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            value = searchQuery, onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             placeholder = { Text("Search piTube...") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             singleLine = true,
@@ -70,80 +58,35 @@ fun SearchScreen() {
             keyboardActions = KeyboardActions(onSearch = { performSearch(searchQuery) }),
             shape = RoundedCornerShape(24.dp)
         )
-        
+
         if (isSearching) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         } else if (!hasSearched) {
-            // Show trending searches / history
             LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
                 if (searchHistory.isNotEmpty()) {
-                    item {
-                        Text("Recent Searches", style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
+                    item { Text("Recent Searches", style = MaterialTheme.typography.titleMedium); Spacer(modifier = Modifier.height(8.dp)) }
                     items(searchHistory) { history ->
-                        Text(
-                            text = history,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { performSearch(history) }
-                                .padding(vertical = 8.dp),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Text(text = history, modifier = Modifier.fillMaxWidth().clickable { performSearch(history) }.padding(vertical = 8.dp), style = MaterialTheme.typography.bodyLarge)
                     }
-                } else {
-                    item {
-                        Text("Search for videos...", style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
+                } else { item { Text("Search for videos...", style = MaterialTheme.typography.bodyLarge) } }
             }
         } else {
-            // Show results
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(searchResults) { video ->
-                    SearchVideoCard(video = video)
-                }
+                items(searchResults) { video -> SearchVideoCard(video = video, onClick = { onVideoClick(video) }) }
             }
         }
     }
 }
 
 @Composable
-fun SearchVideoCard(video: VideoItem) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* TODO: Open video */ }
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AsyncImage(
-            model = video.thumbnailUrl,
-            contentDescription = video.title,
-            modifier = Modifier
-                .width(140.dp)
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
-        
+fun SearchVideoCard(video: VideoItem, onClick: () -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        AsyncImage(model = video.thumbnailUrl, contentDescription = video.title, modifier = Modifier.width(140.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop)
         Spacer(modifier = Modifier.width(12.dp))
-        
         Column {
-            Text(
-                text = video.title,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            Text(text = video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = video.uploaderName,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Text(text = video.uploaderName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
