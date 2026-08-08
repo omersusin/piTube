@@ -1,9 +1,8 @@
 package com.omersusin.pitube.ui.screens
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
@@ -20,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.*
 import com.omersusin.pitube.ui.components.VideoListItem
+import com.omersusin.pitube.ui.components.pressScale
+import com.omersusin.pitube.ui.components.thumbnailGradientOverlay
+import com.omersusin.pitube.ui.components.rememberFeedGridLayout
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 
@@ -39,6 +41,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
     val isLoggedIn = remember { AuthManager.isLoggedIn(context) }
+    val feedLayout = rememberFeedGridLayout(LocalContext.current.resources.displayMetrics.widthDp.dp)
 
     val loadMore = {
         if (!isLoadingMore) {
@@ -151,12 +154,12 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                 Text("No videos available", style = MaterialTheme.typography.bodyLarge)
             }
         } else if (isGrid) {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 160.dp),
+            androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(feedLayout.columns),
                 state = gridState,
-                contentPadding = PaddingValues(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(feedLayout.contentPadding),
+                verticalArrangement = Arrangement.spacedBy(feedLayout.cardSpacing),
+                horizontalArrangement = Arrangement.spacedBy(feedLayout.cardSpacing)
             ) {
                 items(videos) { video ->
                     VideoGridItem(
@@ -219,8 +222,12 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 
 @Composable
 private fun VideoGridItem(video: VideoItem, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .pressScale(interactionSource),
+        interactionSource = interactionSource,
         onClick = onClick
     ) {
         Column {
@@ -229,7 +236,8 @@ private fun VideoGridItem(video: VideoItem, onClick: () -> Unit) {
                 contentDescription = video.title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(16f / 9f),
+                    .aspectRatio(16f / 9f)
+                    .thumbnailGradientOverlay(),
                 contentScale = ContentScale.Crop
             )
             Column(modifier = Modifier.padding(8.dp)) {

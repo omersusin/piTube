@@ -38,6 +38,7 @@ fun YouScreen(
     val profileManager = remember { ProfileManager(context) }
     val profiles by profileManager.profiles.collectAsState()
     val activeProfileId by profileManager.activeProfileId.collectAsState()
+    val playlists = remember { PlaylistRepository.getAll(context) }
 
     if (showLiked) { LikedVideosScreen(onBack = { showLiked = false }, onVideoClick = onVideoClick); return }
     if (showStats) { StatsScreen(onBack = { showStats = false }); return }
@@ -180,7 +181,6 @@ fun YouScreen(
         }
 
         // Playlists Section
-        val playlists = remember { PlaylistRepository.getAll(context) }
         if (playlists.isNotEmpty()) {
             item {
                 Text(

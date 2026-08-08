@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -23,93 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
-@Composable
-fun FlowActionButton(
-    icon: @Composable () -> Unit,
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true
-) {
-    Card(
-        modifier = modifier
-            .padding(2.dp)
-            .clickable(enabled = enabled) { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (enabled) MaterialTheme.colorScheme.surfaceVariant 
-                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier.size(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                icon()
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant 
-                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-@Composable
-fun FlowActionGrid(
-    actions: List<FlowAction>,
-    modifier: Modifier = Modifier,
-    columns: Int = 3
-) {
-    val rows = actions.chunked(columns)
-    
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        rows.forEach { row ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                row.forEach { action ->
-                    FlowActionButton(
-                        icon = action.icon,
-                        text = action.text,
-                        onClick = action.onClick,
-                        modifier = Modifier.weight(1f),
-                        enabled = action.enabled
-                    )
-                }
-                
-                repeat(columns - row.size) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
+data class FlowMenuItemData(
+    val icon: (@Composable () -> Unit)? = null,
+    val title: @Composable () -> Unit,
+    val description: (@Composable () -> Unit)? = null,
+    val onClick: (() -> Unit)? = null,
+    val trailingContent: (@Composable () -> Unit)? = null
+)
 
 @Composable
 fun FlowMenuGroup(
@@ -164,6 +89,21 @@ private fun FlowMenuItemRow(
             ProvideTextStyle(MaterialTheme.typography.titleMedium) {
                 item.title()
             }
+
+            item.description?.let { desc ->
+                Spacer(modifier = Modifier.height(2.dp))
+                ProvideTextStyle(
+                    MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                ) {
+                    desc()
+                }
+            }
+        }
+        item.trailingContent?.let { trailing ->
+            Spacer(modifier = Modifier.width(8.dp))
+            trailing()
         }
     }
 }
@@ -176,9 +116,25 @@ fun FlowMenuSectionHeader(
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp
         ),
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(horizontal = 20.dp, vertical = 12.dp)
     )
+}
+
+@Composable
+fun FlowMenuContainer(
+    content: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 32.dp)
+    ) {
+        content()
+    }
 }
