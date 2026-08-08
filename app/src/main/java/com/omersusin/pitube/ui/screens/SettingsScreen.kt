@@ -27,6 +27,7 @@ fun SettingsScreen(
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn(context)) }
     var sponsorBlock by remember { mutableStateOf(PrefsManager.isSponsorBlockEnabled(context)) }
     var zenMode by remember { mutableStateOf(PrefsManager.isZenMode(context)) }
+    var volNorm by remember { mutableStateOf(PrefsManager.isVolumeNormalizationEnabled(context)) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -64,10 +65,18 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("SponsorBlock (skip sponsors)", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            Text("SponsorBlock", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Switch(checked = sponsorBlock, onCheckedChange = {
                 sponsorBlock = it
                 PrefsManager.setSponsorBlockEnabled(context, it)
+            })
+        }
+
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Volume Normalization", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            Switch(checked = volNorm, onCheckedChange = {
+                volNorm = it
+                PrefsManager.setVolumeNormalizationEnabled(context, it)
             })
         }
 
@@ -79,7 +88,7 @@ fun SettingsScreen(
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("Zen Mode", style = MaterialTheme.typography.bodyLarge)
-                Text("Home shows only subscriptions, hides related videos", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Home shows only subscriptions", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Switch(checked = zenMode, onCheckedChange = {
                 zenMode = it
