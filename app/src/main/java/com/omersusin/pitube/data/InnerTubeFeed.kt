@@ -47,7 +47,6 @@ object InnerTubeFeed {
         return root.toString()
     }
 
-    // ---------- GENERIC VIDEO PARSER (handles old + new renderer names) ----------
     private fun firstText(node: JSONObject, key: String): String? {
         val o = node.optJSONObject(key) ?: return null
         return o.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
@@ -70,11 +69,8 @@ object InnerTubeFeed {
                         val by = node.optJSONObject("shortBylineText")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
                             ?: node.optJSONObject("longBylineText")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
                             ?: node.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")?.optJSONObject("metadata")
-                                ?.optJSONObject("contentViewModel")?.optJSONArray("textParts")?.optJSONObject(0)
-                                ?.optJSONObject("text")?.optString("content")
+                                ?.optJSONObject("contentViewModel")?.optJSONArray("textParts")?.optJSONObject(0)?.optJSONObject("text")?.optString("content")
                         val date = node.optJSONObject("publishedTimeText")?.optString("simpleText")
-                            ?: node.optJSONObject("metadata")?.optJSONObject("lockupMetadataViewModel")?.optJSONObject("metadata")
-                                ?.optJSONObject("contentViewModel")?.optJSONArray("textParts")?.optJSONObject(1)?.optJSONObject("text")?.optString("content")
                         out.add(VideoItem("https://www.youtube.com/watch?v=$id", title ?: "", thumb, by ?: "", null, 0, 0, date, false))
                     }
                 }
@@ -87,11 +83,7 @@ object InnerTubeFeed {
 
     private fun findFirst(node: Any?, key: String): JSONObject? {
         when (node) {
-            is JSONObject -> {
-                node.optJSONObject(key)?.let { return it }
-                val keys = node.keys()
-                while (keys.hasNext()) { findFirst(node.opt(keys.next()), key)?.let { return it } }
-            }
+            is JSONObject -> { node.optJSONObject(key)?.let { return it }; val k = node.keys(); while (k.hasNext()) { findFirst(node.opt(k.next()), key)?.let { return it } } }
             is JSONArray -> { for (i in 0 until node.length()) { findFirst(node.opt(i), key)?.let { return it } } }
         }
         return null
@@ -101,30 +93,29 @@ object InnerTubeFeed {
         when (node) {
             is JSONObject -> {
                 val cr = node.optJSONObject("continuationItemRenderer")
-                if (cr != null) {
-                    val t = cr.optJSONObject("continuationEndpoint")?.optJSONObject("continuationCommand")?.optString("token")
-                    if (!t.isNullOrBlank()) return t
-                }
-                val keys = node.keys()
-                while (keys.hasNext()) { findToken(node.opt(keys.next()))?.let { return it } }
+                if (cr != null) { val t = cr.optJSONObject("continuationEndpoint")?.optJSONObject("continuationCommand")?.optString("token"); if (!t.isNullOrBlank()) return t }
+                val k = node.keys(); while (k.hasNext()) { findToken(node.opt(k.next()))?.let { return it } }
             }
             is JSONArray -> { for (i in 0 until node.length()) { findToken(node.opt(i))?.let { return it } } }
         }
         return null
     }
 
-    // ---------- PLAYER (multi-client) ----------
-    private fun tryClient(videoId: String, clientName: String, clientVersion: String, android: Boolean): PlayerData? {
+    private fun tryClient(videoId: String, clientName: String, clientVersion: String, android: Boolean, ios: Boolean = false): PlayerData? {
         return try {
             val body = JSONObject().apply {
-                put("videoId", videoId)
-                put("contentCheckOk", true); put("racyCheckOk", true)
+                put("videoId", videoId); put("contentCheckOk", true); put("racyCheckOk", true)
                 put("context", JSONObject().apply { put("client", JSONObject().apply {
                     put("clientName", clientName); put("clientVersion", clientVersion); put("hl", "en"); put("gl", "US")
                     if (android) put("androidSdkVersion", 30)
+                    if (ios) { put("deviceModel", "iPhone14,5"); put("osVersion", "17.0") }
                 }) })
             }
-            val ua = if (android) "com.google.android.youtube/$clientVersion (Linux; U; Android 11) gzip" else UA
+            val ua = when {
+                android -> "com.google.android.youtube/$clientVersion (Linux; U; Android 11) gzip"
+                ios -> "com.google.ios.youtube/$clientVersion (iPhone; CPU iOS 17_0 like Mac OS X)"
+                else -> UA
+            }
             val req = Request.Builder().url("https://www.youtube.com/youtubei/v1/player?prettyPrint=false")
                 .addHeader("Content-Type", "application/json").addHeader("User-Agent", ua)
                 .post(body.toString().toRequestBody("application/json".toMediaType())).build()
@@ -141,42 +132,40 @@ object InnerTubeFeed {
             }
             val formats = parse(sd.optJSONArray("formats"))
             val adaptive = parse(sd.optJSONArray("adaptiveFormats"))
-            PlayerData(
-                hls = sd.optString("hlsManifestUrl", "").takeIf { it.isNotBlank() },
-                progressive = formats.maxByOrNull { it.height },
-                videoOnly = adaptive.filter { it.mime.startsWith("video") }.maxByOrNull { it.height },
-                audio = adaptive.filter { it.mime.startsWith("audio") }.maxByOrNull { it.bitrate }
-            )
+            PlayerData(sd.optString("hlsManifestUrl", "").takeIf { it.isNotBlank() },
+                formats.maxByOrNull { it.height },
+                adaptive.filter { it.mime.startsWith("video") }.maxByOrNull { it.height },
+                adaptive.filter { it.mime.startsWith("audio") }.maxByOrNull { it.bitrate })
         } catch (e: Exception) { null }
     }
 
+    private fun good(p: PlayerData?) = p != null && (p.hls != null || p.progressive != null || p.videoOnly != null)
+
     suspend fun fetchPlayer(videoId: String): PlayerData? = withContext(Dispatchers.IO) {
-        tryClient(videoId, "ANDROID", "19.09.37", true)?.takeIf { it.hls != null || it.progressive != null || it.videoOnly != null }
-            ?: tryClient(videoId, "TVHTML5", "7.20260114.12.00", false)?.takeIf { it.hls != null || it.progressive != null || it.videoOnly != null }
-            ?: tryClient(videoId, "IOS", "19.28.1", false)
+        tryClient(videoId, "ANDROID_VR", "1.57.20240101", true)?.takeIf { good(it) }
+            ?: tryClient(videoId, "ANDROID", "19.09.37", true)?.takeIf { good(it) }
+            ?: tryClient(videoId, "IOS", "19.28.1", false, true)?.takeIf { good(it) }
+            ?: tryClient(videoId, "TVHTML5", "7.20260114.12.00", false)
+            ?: tryClient(videoId, "WEB_EMBEDDED", WEB_VERSION, false)
     }
 
-    // ---------- ACCOUNT ----------
     suspend fun fetchAccount(context: Context): AccountFetcher.AccountInfo? = withContext(Dispatchers.IO) {
         try {
             if (!AuthManager.isLoggedIn(context)) return@withContext null
-            val rb = Request.Builder().url("https://www.youtube.com/youtubei/v1/account/account_menu?prettyPrint=false")
-                .addHeader("Content-Type", "application/json")
+            val rb = Request.Builder().url("https://www.youtube.com/youtubei/v1/account/account_menu?prettyPrint=false").addHeader("Content-Type", "application/json")
             applyAuth(rb, context)
             val resp = client.newCall(rb.post(bodyJson { }.toRequestBody("application/json".toMediaType())).build()).execute()
+            KodaAuth.refreshFromResponse(context, resp)
             val bodyStr = resp.body?.string() ?: ""
             AuthDebug.snippet.value = "account_menu ${resp.code}: ${bodyStr.take(300)}"
-            val json = JSONObject(bodyStr)
-            val h = findFirst(json, "activeAccountHeaderRenderer") ?: return@withContext null
-            val name = h.optJSONObject("title")?.optString("simpleText")
-                ?: h.optJSONObject("title")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text") ?: ""
+            val h = findFirst(JSONObject(bodyStr), "activeAccountHeaderRenderer") ?: return@withContext null
+            val name = h.optJSONObject("title")?.optString("simpleText") ?: h.optJSONObject("title")?.optJSONArray("runs")?.optJSONObject(0)?.optString("text") ?: ""
             val handle = h.optJSONObject("accountHandle")?.optString("simpleText") ?: ""
             val photo = h.optJSONObject("accountPhoto")?.optJSONArray("thumbnails")?.optJSONObject(0)?.optString("url")
             if (name.isBlank()) null else AccountFetcher.AccountInfo(name, photo, handle)
         } catch (e: Exception) { e.printStackTrace(); null }
     }
 
-    // ---------- FEEDS ----------
     suspend fun fetchFeed(context: Context, browseId: String): List<VideoItem> = withContext(Dispatchers.IO) {
         try {
             if (AuthManager.getCookies(context).isEmpty()) return@withContext emptyList()
@@ -184,15 +173,19 @@ object InnerTubeFeed {
             var token: String? = null
             for (page in 0..2) {
                 val body = if (token == null) bodyJson { it.put("browseId", browseId) } else bodyJson { it.put("continuation", token) }
-                val rb = Request.Builder().url("https://www.youtube.com/youtubei/v1/browse?prettyPrint=false")
-                    .addHeader("Content-Type", "application/json")
+                val rb = Request.Builder().url("https://www.youtube.com/youtubei/v1/browse?prettyPrint=false").addHeader("Content-Type", "application/json")
                 applyAuth(rb, context)
                 val resp = client.newCall(rb.post(body.toRequestBody("application/json".toMediaType())).build()).execute()
+                KodaAuth.refreshFromResponse(context, resp)
                 val bodyStr = resp.body?.string() ?: "{}"
-                if (page == 0) { AuthDebug.snippet.value = "browse $browseId ${resp.code}: ${bodyStr.take(300)}"; AuthDebug.diag.value = "vr=" + bodyStr.contains("videoRenderer") + " rich=" + bodyStr.contains("richItemRenderer") + " lockup=" + bodyStr.contains("ockupViewModel") + " reel=" + bodyStr.contains("reelItemRenderer") + " found=" + out.size }
+                if (page == 0) {
+                    AuthDebug.snippet.value = "browse $browseId ${resp.code}: ${bodyStr.take(300)}"
+                    AuthDebug.diag.value = "vr=" + bodyStr.contains("videoRenderer") + " rich=" + bodyStr.contains("richItemRenderer") + " lockup=" + bodyStr.contains("ockupViewModel") + " reel=" + bodyStr.contains("reelItemRenderer")
+                }
                 val json = JSONObject(bodyStr)
                 val before = out.size
                 walkVideos(json, out)
+                AuthDebug.diag.value = (AuthDebug.diag.value) + " found=" + out.size
                 token = findToken(json)
                 if (out.size == before || token == null) break
             }

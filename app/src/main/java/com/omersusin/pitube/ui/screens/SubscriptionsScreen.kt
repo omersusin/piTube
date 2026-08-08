@@ -37,7 +37,7 @@ fun SubscriptionsScreen(onVideoClick: (VideoItem) -> Unit) {
         scope.launch {
             val list = InnerTubeFeed.fetchFeed(context, "FEsubscriptions")
             if (list.isEmpty()) error = "No videos found in your feed"
-            videos = list
+            videos = list.filter { !NotInterested.isHidden(context, it.videoId, it.uploaderName) }
             isLoading = false
         }
     }
