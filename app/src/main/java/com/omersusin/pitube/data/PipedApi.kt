@@ -43,6 +43,6 @@ interface PipedApiService {
                 .connectTimeout(15, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS).build()
         }
         fun create(): PipedApiService = Retrofit.Builder().baseUrl(BASE_URL).client(client)
-            .addConverterFactory(GsonConverterFactory.create()).build().create(PipedApiService::class.java)
+            .addConverterFactory(GsonConverterFactory.create(InstanceManager.gson)).build().create(PipedApiService::class.java)
     }
 }
