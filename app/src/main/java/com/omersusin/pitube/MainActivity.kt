@@ -53,10 +53,10 @@ class MainActivity : ComponentActivity() {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
         }
         setContent {
-            var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
+            var themeMode by remember { mutableStateOf(loadTheme(this@MainActivity)) }
             PiTubeTheme(themeMode = themeMode) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    PiTubeApp(themeMode = themeMode, onThemeChange = { themeMode = it })
+                    PiTubeApp(themeMode = themeMode, onThemeChange = { themeMode = it; saveTheme(this@MainActivity, it) })
                 }
             }
         }
@@ -211,3 +211,11 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
 }
 
 data class TabItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+
+fun loadTheme(ctx: android.content.Context): ThemeMode = try {
+    ThemeMode.valueOf(ctx.getSharedPreferences("pitube_theme", 0).getString("mode", "SYSTEM") ?: "SYSTEM")
+} catch (e: Exception) { ThemeMode.SYSTEM }
+
+fun saveTheme(ctx: android.content.Context, m: ThemeMode) {
+    ctx.getSharedPreferences("pitube_theme", 0).edit().putString("mode", m.name).apply()
+}

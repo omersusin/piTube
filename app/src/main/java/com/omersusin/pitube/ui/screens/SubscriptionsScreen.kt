@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -15,71 +14,59 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.omersusin.pitube.data.AuthDebug
-import com.omersusin.pitube.data.AuthManager
-import com.omersusin.pitube.data.NotInterested
-import com.omersusin.pitube.data.InnerTubeFeed
-import com.omersusin.pitube.data.VideoItem
+import com.omersusin.pitube.data.*
 import kotlinx.coroutines.launch
 
 @Composable
 fun SubscriptionsScreen(onVideoClick: (VideoItem) -> Unit) {
     val context = LocalContext.current
     var videos by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
-    val debugSnippet by AuthDebug.snippet
-    val debugDiag by AuthDebug.diag
 
-    fun load() {
-        isLoading = true
-        error = null
+    LaunchedEffect(Unit) {
         scope.launch {
-            val list = InnerTubeFeed.fetchFeed(context, "FEsubscriptions")
-            if (list.isEmpty()) error = "No videos found in your feed"
-            videos = list.filter { !NotInterested.isHidden(context, it.videoId, it.uploaderName) }
-            isLoading = false
+            val merged = mutableListOf<VideoItem>()
+            // Account feed
+            try { merged.addAll(InnerTubeFeed.fetchFeed(context, "FEsubscriptions")) } catch (e: Exception) {}
+            // Local RSS subs
+            for (sub in LocalSubs.getAll(context)) {
+                try {
+                    val url = "https://www.youtube.com/feeds/videos.xml?channel_id=${sub.channelId}"
+                    val client = okhttp3.OkHttpClient()
+                    val resp = client.newCall(okhttp3.Request.Builder().url(url).build()).execute()
+                    val xml = resp.body?.string() ?: ""
+                    val feed = ChannelRssParser.parse(xml)
+                    feed.entries.forEach { e ->
+                        merged.add(VideoItem(
+                            url = "https://www.youtube.com/watch?v=${e.videoId}",
+                            title = e.title,
+                            thumbnailUrl = e.thumbnailUrl,
+                            uploaderName = feed.channelName ?: sub.name,
+                            uploaderAvatar = sub.avatarUrl,
+                            uploaderUrl = "https://www.youtube.com/channel/${sub.channelId}",
+                            duration = 0, views = e.viewCount, uploadedDate = null, isShort = false
+                        ))
+                    }
+                } catch (e: Exception) {}
+            }
+            videos = merged.distinctBy { it.videoId }
+            loading = false
         }
     }
 
-    LaunchedEffect(Unit) { if (AuthManager.isLoggedIn(context)) load() else isLoading = false }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        if (!AuthManager.isLoggedIn(context)) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Sign in to see your subscriptions", style = MaterialTheme.typography.bodyLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Tap the You tab → Sign in", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        } else if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        } else if (error != null) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
-                    Text(error!!, color = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { load() }) { Text("Retry") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Debug:", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(debugDiag, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                    Text(debugSnippet.ifBlank { "No probe yet." }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("If this looks logged-out, use You → Settings → Paste cookies.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 8.dp)) {
-                items(videos) { video ->
-                    Column(modifier = Modifier.fillMaxWidth().clickable { onVideoClick(video) }.padding(bottom = 16.dp)) {
-                        AsyncImage(model = video.safeThumb, contentDescription = video.title, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f), contentScale = ContentScale.Crop)
-                        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                            Text(video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text("${video.uploaderName}${video.uploadedDate?.let { " • $it" } ?: ""}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+    if (loading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) { CircularProgressIndicator() }
+    } else if (videos.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) { Text("No subscription videos.\nSign in or add local subscriptions.") }
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(videos) { video ->
+                Column(modifier = Modifier.fillMaxWidth().clickable { onVideoClick(video) }.padding(bottom = 16.dp)) {
+                    AsyncImage(model = video.safeThumb, contentDescription = null, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop)
+                    Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                        Text(video.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(video.uploaderName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
