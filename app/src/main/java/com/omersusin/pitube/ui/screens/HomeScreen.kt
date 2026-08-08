@@ -19,22 +19,24 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     val scope = rememberCoroutineScope()
     
     var videos by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
-    var recommendations by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     
     LaunchedEffect(Unit) {
         scope.launch {
             try {
+                FlowNeuroEngine.initialize(context)
                 val trending = PipedApiService.create().getTrending()
-                videos = trending
                 
-                val history = WatchHistoryRepository.getRecentWatches(context, 5)
-                if (history.isNotEmpty()) {
-                    val seed = history.first()
-                    recommendations = RecommendationEngine.getRecommendations(context, seed.videoId, 10)
-                }
+                // Use FlowNeuroEngine to rank videos based on user preferences
+                val ranked = FlowNeuroEngine.rank(context, trending)
+                videos = ranked
             } catch (e: Exception) {
                 e.printStackTrace()
+                try {
+                    videos = PipedApiService.create().getTrending()
+                } catch (e2: Exception) {
+                    e2.printStackTrace()
+                }
             } finally {
                 isLoading = false
             }
@@ -52,32 +54,9 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                 }
             }
         } else {
-            if (recommendations.isNotEmpty()) {
-                item {
-                    Text(
-                        "Recommended for You",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-                items(recommendations) { video ->
-                    VideoListItem(
-                        video = video,
-                        onClick = { onVideoClick(video) },
-                        onChannelClick = { onChannelClick(video.uploaderName) }
-                    )
-                }
-                
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-            
             item {
                 Text(
-                    "Trending",
+                    "For You",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(16.dp)
                 )
@@ -85,7 +64,20 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
             items(videos) { video ->
                 VideoListItem(
                     video = video,
-                    onClick = { onVideoClick(video) },
+                    onClick = { 
+                        onVideoClick(video)
+                        // Record interaction when video is clicked
+                        scope.launch {
+                            FlowNeuroEngine.recordInteraction(
+                                context = context,
+                                videoId = video.id,
+                                title = video.title,
+                                channelName = video.uploaderName,
+                                channelId = null,
+                                type = InteractionType.CLICK
+                            )
+                        }
+                    },
                     onChannelClick = { onChannelClick(video.uploaderName) }
                 )
             }
