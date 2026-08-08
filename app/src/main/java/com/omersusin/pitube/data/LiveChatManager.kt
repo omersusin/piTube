@@ -12,13 +12,13 @@ import java.util.concurrent.TimeUnit
 
 object LiveChatManager {
     private val client = OkHttpClient.Builder().readTimeout(15, TimeUnit.SECONDS).build()
-    private const val UA = "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip"
-    private const val KEY = "AIzaSyA8eiZmM1FaDVjRy-" + "df2KTyQ_vz_yYM39w"
+    private const val UA = "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L) gzip"
+    private const val KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
     private fun contextJson(): JSONObject = JSONObject().apply {
         put("context", JSONObject().apply {
             put("client", JSONObject().apply {
-                put("clientName", "ANDROID"); put("clientVersion", "19.09.37"); put("androidSdkVersion", 30)
+                put("clientName", "ANDROID_VR"); put("clientVersion", "1.65.10"); put("androidSdkVersion", 32)
             })
         })
     }

@@ -20,14 +20,16 @@ object VideoEngagement {
             val cookies = AuthManager.getRawCookies(context)
             if (cookies.isBlank() || channelId.isBlank()) return@withContext false
             val ep = if (subscribe) "subscription/subscribe" else "subscription/unsubscribe"
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20241201.00.00"}},"channelIds":["$channelId"]}"""
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20260114.08.00"}},"channelIds":["$channelId"]}"""
             val sapisidhash = KodaAuth.authHeader(cookies)
             val reqBuilder = Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/$ep?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
+                .url("https://www.youtube.com/youtubei/v1/$ep?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
                 .addHeader("X-YouTube-Client-Name", "1")
-                .addHeader("X-YouTube-Client-Version", "2.20241201.00.00")
+                .addHeader("X-YouTube-Client-Version", "2.20260114.08.00")
+                .addHeader("Origin", "https://www.youtube.com")
+                .addHeader("X-Goog-AuthUser", "0")
                 .post(body.toRequestBody("application/json".toMediaType()))
             if (sapisidhash != null) reqBuilder.addHeader("Authorization", sapisidhash)
             val req = reqBuilder.build()
@@ -45,14 +47,16 @@ object VideoEngagement {
                 like -> "LIKE"
                 else -> "INDIFFERENT"
             }
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20241201.00.00"}},"target":{"videoId":"$videoId"},"rating":"$rating"}"""
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20260114.08.00"}},"target":{"videoId":"$videoId"},"rating":"$rating"}"""
             val sapisidhash = KodaAuth.authHeader(cookies)
             val reqBuilder = Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/like/like?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
+                .url("https://www.youtube.com/youtubei/v1/like/like?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
                 .addHeader("X-YouTube-Client-Name", "1")
-                .addHeader("X-YouTube-Client-Version", "2.20241201.00.00")
+                .addHeader("X-YouTube-Client-Version", "2.20260114.08.00")
+                .addHeader("Origin", "https://www.youtube.com")
+                .addHeader("X-Goog-AuthUser", "0")
                 .post(body.toRequestBody("application/json".toMediaType()))
             if (sapisidhash != null) reqBuilder.addHeader("Authorization", sapisidhash)
             val req = reqBuilder.build()
@@ -66,14 +70,16 @@ object VideoEngagement {
         try {
             val cookies = AuthManager.getRawCookies(context)
             if (cookies.isBlank() || token.isBlank()) return@withContext false
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20241201.00.00"}},"feedbackTokens":["$token"]}"""
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20260114.08.00"}},"feedbackTokens":["$token"]}"""
             val sapisidhash = KodaAuth.authHeader(cookies)
             val reqBuilder = Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/feedback?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
+                .url("https://www.youtube.com/youtubei/v1/feedback?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", cookies)
                 .addHeader("X-YouTube-Client-Name", "1")
-                .addHeader("X-YouTube-Client-Version", "2.20241201.00.00")
+                .addHeader("X-YouTube-Client-Version", "2.20260114.08.00")
+                .addHeader("Origin", "https://www.youtube.com")
+                .addHeader("X-Goog-AuthUser", "0")
                 .post(body.toRequestBody("application/json".toMediaType()))
             if (sapisidhash != null) reqBuilder.addHeader("Authorization", sapisidhash)
             val req = reqBuilder.build()

@@ -53,28 +53,28 @@ object StreamResolver {
 
     private val ANDROID_VR_CLIENT = ClientConfig(
         clientName = "ANDROID_VR",
-        clientVersion = "1.60.19",
-        apiKey = "AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA",
+        clientVersion = "1.65.10",
+        apiKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
         deviceModel = "Quest 3",
-        userAgent = "com.google.android.apps.youtube.vr.oculus/1.60.19 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
+        userAgent = "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
         osName = "Android",
         osVersion = "12L"
     )
 
     private val IOS_CLIENT = ClientConfig(
         clientName = "IOS",
-        clientVersion = "19.45.4",
-        apiKey = "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
+        clientVersion = "21.02.3",
+        apiKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
         deviceModel = "iPhone16,2",
-        userAgent = "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)",
+        userAgent = "com.google.ios.youtube/21.02.3 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)",
         osName = "iOS",
         osVersion = "18.1.0"
     )
 
-    private val WEB_CREATOR_CLIENT = ClientConfig(
-        clientName = "WEB_CREATOR",
-        clientVersion = "1.20241205.01.00",
-        apiKey = "AIzaSyBUPetSUmoZL-OhlxA7wSac5XinrygCqMo",
+    private val WEB_CLIENT = ClientConfig(
+        clientName = "WEB",
+        clientVersion = "2.20260114.08.00",
+        apiKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
         userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         osName = "Windows",
         osVersion = "10.0.0"
@@ -98,9 +98,9 @@ object StreamResolver {
         val iosResult = tryClient(videoId, IOS_CLIENT, cookieString, authHeader, context)
         if (iosResult != null && iosResult.playUrl != null) return iosResult
 
-        // WEB_CREATOR fallback (requires auth)
-        Log.d(TAG, "Trying WEB_CREATOR for $videoId")
-        val webResult = tryClient(videoId, WEB_CREATOR_CLIENT, cookieString, authHeader, context)
+        // WEB fallback (requires auth)
+        Log.d(TAG, "Trying WEB for $videoId")
+        val webResult = tryClient(videoId, WEB_CLIENT, cookieString, authHeader, context)
         if (webResult != null && webResult.playUrl != null) return webResult
 
         Log.e(TAG, "All clients failed for $videoId")
@@ -136,7 +136,7 @@ object StreamResolver {
         val clientNumber = when (client.clientName) {
             "IOS" -> "5"
             "ANDROID_VR" -> "28"
-            "WEB_CREATOR" -> "62"
+            "WEB" -> "1"
             else -> "0"
         }
 

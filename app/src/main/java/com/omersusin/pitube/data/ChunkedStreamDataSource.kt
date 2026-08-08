@@ -38,9 +38,9 @@ class ChunkedStreamDataSource private constructor(
         }
 
         fun uaForPlaybackUri(uri: Uri): String = when (uri.getQueryParameter("c")) {
-            "ANDROID", "ANDROID_VR" -> "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip"
-            "IOS" -> "com.google.ios.youtube/19.28.1 (iPhone; CPU iOS 17_0 like Mac OS X)"
-            else -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+            "ANDROID", "ANDROID_VR" -> "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L) gzip"
+            "IOS" -> "com.google.ios.youtube/21.02.3 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X)"
+            else -> "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
         }
     }
 

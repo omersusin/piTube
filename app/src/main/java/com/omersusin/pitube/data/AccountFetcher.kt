@@ -45,12 +45,14 @@ object AccountFetcher {
 
             val authHeader = KodaAuth.authHeader(rawCookies)
 
-            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20250101.00.00","hl":"en","gl":"US"}}}"""
+            val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20260114.08.00","hl":"en","gl":"US"}}}"""
             val req = okhttp3.Request.Builder()
-                .url("https://www.youtube.com/youtubei/v1/account/account_menu?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
+                .url("https://www.youtube.com/youtubei/v1/account/account_menu?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")
                 .post(body.toRequestBody("application/json".toMediaType()))
                 .addHeader("Cookie", rawCookies)
                 .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+                .addHeader("Origin", "https://www.youtube.com")
+                .addHeader("X-Goog-AuthUser", "0")
                 .apply { if (authHeader != null) addHeader("Authorization", authHeader) }
                 .build()
             val resp = client.newCall(req).execute()
