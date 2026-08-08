@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -28,20 +29,48 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 
     var videos by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     var isGrid by remember { mutableStateOf(false) }
+    var nextPageToken by remember { mutableStateOf<String?>(null) }
+
+    val listState = rememberLazyListState()
+
+    val loadMore = {
+        if (!isLoadingMore && nextPageToken != null) {
+            scope.launch {
+                isLoadingMore = true
+                try {
+                    val api = PipedApiService.create()
+                    // Piped doesn't have pagination for trending, so we just shuffle for variety
+                    val moreVideos = api.getTrending()
+                    val newVideos = moreVideos.filter { new ->
+                        videos.none { it.videoId == new.videoId }
+                    }
+                    videos = videos + newVideos.shuffled()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    isLoadingMore = false
+                }
+            }
+        }
+    }
 
     val refresh = {
         scope.launch {
             isRefreshing = true
             try {
                 FlowNeuroEngine.initialize(context)
-                val trending = PipedApiService.create().getTrending()
+                val api = PipedApiService.create()
+                val trending = api.getTrending()
                 val ranked = FlowNeuroEngine.rank(context, trending)
                 videos = ranked
+                nextPageToken = "next" // Enable load more
             } catch (e: Exception) {
                 try {
                     videos = PipedApiService.create().getTrending()
+                    nextPageToken = "next"
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 }
@@ -53,6 +82,19 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     }
 
     LaunchedEffect(Unit) { refresh() }
+
+    // Infinite scroll trigger
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = listState.layoutInfo.totalItemsCount
+            lastVisibleItem >= totalItems - 5
+        }.collect { shouldLoadMore ->
+            if (shouldLoadMore && !isLoadingMore && !isRefreshing) {
+                loadMore()
+            }
+        }
+    }
 
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -92,9 +134,16 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                         }
                     )
                 }
+                if (isLoadingMore) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 items(videos) { video ->
                     VideoListItem(
                         video = video,
@@ -113,6 +162,13 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                         },
                         onChannelClick = { onChannelClick(video.uploaderName) }
                     )
+                }
+                if (isLoadingMore) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             }
         }

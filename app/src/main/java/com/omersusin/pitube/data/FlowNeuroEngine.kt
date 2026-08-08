@@ -82,11 +82,10 @@ object FlowNeuroEngine {
         )
 
         val newChannelScores = current.channelScores.toMutableMap()
-        if (channelId != null) {
-            val currentScore = newChannelScores[channelId] ?: 0.5
-            val outcome = if (learningRate > 0) 1.0 else 0.0
-            newChannelScores[channelId] = (currentScore * 0.95) + (outcome * 0.05)
-        }
+        val channelKey = channelName.lowercase()
+        val currentScore = newChannelScores[channelKey] ?: 0.5
+        val outcome = if (learningRate > 0) 1.0 else 0.0
+        newChannelScores[channelKey] = (currentScore * 0.9) + (outcome * 0.1)
 
         val newWatchHistory = current.watchHistory.toMutableMap()
         if (type == InteractionType.WATCHED && percentWatched > 0.15f) {
@@ -133,10 +132,13 @@ object FlowNeuroEngine {
         val current = brain ?: return@withContext candidates
 
         val boredomFactor = (current.consecutiveSkips / 20.0).coerceIn(0.0, 0.5)
-        val wPersonality = 0.4 - (boredomFactor * 0.5)
-        val wNovelty = 0.2 + boredomFactor
+        val wPersonality = 0.3 - (boredomFactor * 0.3)
+        val wNovelty = 0.3 + boredomFactor
 
-        candidates.map { video ->
+        // Count videos per channel to limit single channel dominance
+        val channelCounts = mutableMapOf<String, Int>()
+
+        candidates.shuffled().map { video ->
             val videoTopics = extractTopics(video.title, video.uploaderName)
             val videoVector = videoTopics.associateWith { 1.0 }
             val personalityScore = NeuroVectorMath.calculateCosineSimilarity(current.topicScores, videoVector)
@@ -145,10 +147,22 @@ object FlowNeuroEngine {
             
             var totalScore = (personalityScore * wPersonality) + (noveltyScore * wNovelty)
 
-            val channelKey = video.url.substringAfter("channel/").substringBefore("/")
-            if (current.channelScores.containsKey(channelKey)) {
-                val channelScore = current.channelScores[channelKey] ?: 0.5
-                totalScore += (channelScore - 0.5) * 0.15
+            // Use channel name as key (more reliable than URL parsing)
+            val channelName = video.uploaderName.lowercase()
+            val channelCount = channelCounts.getOrDefault(channelName, 0)
+            channelCounts[channelName] = channelCount + 1
+
+            // Small channel preference boost (capped to prevent single channel dominance)
+            if (current.channelScores.containsKey(channelName) && channelCount < 3) {
+                val channelScore = current.channelScores[channelName] ?: 0.5
+                totalScore += (channelScore - 0.5) * 0.05 // Reduced from 0.15
+            }
+
+            // Penalize if too many from same channel already in feed
+            if (channelCount >= 3) {
+                totalScore *= 0.1 // Heavy penalty for 4th+ video from same channel
+            } else if (channelCount >= 2) {
+                totalScore *= 0.5 // Moderate penalty for 3rd video
             }
 
             val watched = current.watchHistory[video.videoId] ?: 0f
@@ -166,10 +180,10 @@ object FlowNeuroEngine {
                 for (i in videoTopics.indices) {
                     for (j in i + 1 until videoTopics.size) {
                         val key = if (videoTopics[i] < videoTopics[j]) "${videoTopics[i]}|${videoTopics[j]}" else "${videoTopics[j]}|${videoTopics[i]}"
-                        affinityBoost += (current.topicAffinities[key] ?: 0.0) * 0.05
+                        affinityBoost += (current.topicAffinities[key] ?: 0.0) * 0.03
                     }
                 }
-                totalScore += affinityBoost.coerceAtMost(0.15)
+                totalScore += affinityBoost.coerceAtMost(0.1)
             }
 
             video to totalScore
