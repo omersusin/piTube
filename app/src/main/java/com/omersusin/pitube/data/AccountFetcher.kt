@@ -1,10 +1,7 @@
 package com.omersusin.pitube.data
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaType
 
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,7 +39,7 @@ object AccountFetcher {
             val body = """{"context":{"client":{"clientName":"WEB","clientVersion":"2.20240101.00.00"}}}"""
             val req = okhttp3.Request.Builder()
                 .url("https://www.youtube.com/youtubei/v1/account/account_menu?key=AIzaSyAO_FJ2SlqU8Q4DEHLAQ9D_042zB78vy3cA")
-                .post(okhttp3.RequestBody.Companion.create(okhttp3.MediaType.parse("application/json"), body))
+                .post(body.toRequestBody("application/json".toMediaType()))
                 .addHeader("Cookie", cookies.entries.joinToString("; ") { "${it.key}=${it.value}" })
                 .build()
             val resp = client.newCall(req).execute()

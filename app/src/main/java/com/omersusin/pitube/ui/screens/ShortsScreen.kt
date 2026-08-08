@@ -24,13 +24,18 @@ import kotlinx.coroutines.launch
 private object ShortsPrefetchCache {
     private val cache = mutableMapOf<String, StreamResolver.Resolved?>()
     private val inFlight = mutableSetOf<String>()
-    suspend fun prefetch(videoId: String, context: android.content.Context) { if (cache.containsKey(videoId) || !inFlight.add(videoId)) return; cache[videoId] = StreamResolver.resolve(videoId, context); inFlight.remove(videoId) }
+    suspend fun prefetch(videoId: String, context: android.content.Context) { 
+        if (cache.containsKey(videoId) || !inFlight.add(videoId)) return
+        cache[videoId] = StreamResolver.resolve(videoId, context)
+        inFlight.remove(videoId) 
+    }
     fun take(videoId: String): StreamResolver.Resolved? = cache.remove(videoId)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShortsScreen() {
+    val context = LocalContext.current
     var shorts by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
@@ -39,7 +44,10 @@ fun ShortsScreen() {
     else if (shorts.isEmpty()) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No shorts found") } }
     else {
         val pagerState = rememberPagerState(pageCount = { shorts.size })
-        LaunchedEffect(pagerState.currentPage) { val nextIndex = pagerState.currentPage + 1; if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId, context) }
+        LaunchedEffect(pagerState.currentPage) { 
+            val nextIndex = pagerState.currentPage + 1
+            if (nextIndex < shorts.size) ShortsPrefetchCache.prefetch(shorts[nextIndex].videoId, context) 
+        }
         VerticalPager(state = pagerState, modifier = Modifier.fillMaxSize(), pageSize = PageSize.Fill) { page -> ShortVideoPlayer(video = shorts[page], isActive = page == pagerState.currentPage) }
     }
 }
