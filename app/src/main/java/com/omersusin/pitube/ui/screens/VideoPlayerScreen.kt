@@ -114,7 +114,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
                 
                 // Auto-load chat if live (duration -1 or hls stream usually implies live)
-                if (info?.duration == -1 || info?.hls?.contains(".m3u8") == true) {
+                if (info?.hls?.contains(".m3u8") == true) {
                      try { 
                          chatMessages = LiveChatManager.fetchChat(video.url) 
                          if (chatMessages.isNotEmpty()) showChat = true
