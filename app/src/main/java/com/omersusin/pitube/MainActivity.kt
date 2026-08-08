@@ -36,6 +36,7 @@ import com.omersusin.pitube.data.AccountFetcher
 import com.omersusin.pitube.data.AuthManager
 import com.omersusin.pitube.data.NowPlaying
 import com.omersusin.pitube.data.PlayerHolder
+import com.omersusin.pitube.data.SessionResume
 import com.omersusin.pitube.data.VideoItem
 import com.omersusin.pitube.service.PlaybackService
 import com.omersusin.pitube.ui.screens.*
@@ -112,6 +113,9 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     var showSettings by remember { mutableStateOf(false) }
     var showDownloads by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
+    var showStats by remember { mutableStateOf(false) }
+    var showSubsMgmt by remember { mutableStateOf(false) }
+    var showNotInterested by remember { mutableStateOf(false) }
     var selectedVideo by remember { mutableStateOf<VideoItem?>(null) }
     var selectedChannel by remember { mutableStateOf<String?>(null) }
     var account by remember { mutableStateOf<AccountFetcher.AccountInfo?>(null) }
@@ -120,6 +124,15 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
         if (AuthManager.isLoggedIn(context)) {
             account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)?.also { AccountFetcher.cache(context, it) }
         } else account = null
+    }
+    
+    LaunchedEffect(Unit) {
+        SessionResume.load(context)?.let { snapshot ->
+            if (System.currentTimeMillis() - snapshot.ts < 24 * 3600_000) {
+                selectedVideo = snapshot.video
+                NowPlaying.current.value = snapshot.video
+            }
+        }
     }
 
     BackHandler {
@@ -130,6 +143,9 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
             showSettings -> showSettings = false
             showDownloads -> showDownloads = false
             showHistory -> showHistory = false
+            showStats -> showStats = false
+            showSubsMgmt -> showSubsMgmt = false
+            showNotInterested -> showNotInterested = false
             selectedTab == 4 -> selectedTab = 0
             else -> (context as? android.app.Activity)?.finish()
         }
@@ -137,7 +153,10 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
 
     if (showDownloads) { DownloadsScreen(onBack = { showDownloads = false }); return }
     if (showHistory) { HistoryScreen(onBack = { showHistory = false }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }); return }
-    if (showSettings) { SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { showSettings = false }, onOpenLogin = { showLogin = true }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, account = account); return }
+    if (showStats) { StatsScreen(onBack = { showStats = false }); return }
+    if (showSubsMgmt) { SubsManagementScreen(onBack = { showSubsMgmt = false }); return }
+    if (showNotInterested) { NotInterestedScreen(onBack = { showNotInterested = false }); return }
+    if (showSettings) { SettingsScreen(currentTheme = themeMode, onThemeChange = onThemeChange, onBack = { showSettings = false }, onOpenLogin = { showLogin = true }, onOpenDownloads = { showDownloads = true }, onOpenHistory = { showHistory = true }, onOpenStats = { showStats = true }, onOpenSubsMgmt = { showSubsMgmt = true }, onOpenNotInterested = { showNotInterested = true }, account = account); return }
     if (selectedChannel != null) { ChannelScreen(channelId = selectedChannel!!, onBack = { selectedChannel = null }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }); return }
     if (showLogin) { YouTubeLoginScreen(onBack = { showLogin = false }); return }
     if (selectedVideo != null) { VideoPlayerScreen(video = selectedVideo!!, onBack = { if (PlayerHolder.getPlayer(context).isPlaying) NowPlaying.showMini.value = true; selectedVideo = null }, onVideoClick = { selectedVideo = it; NowPlaying.current.value = it }, onChannelClick = { selectedChannel = it }); return }

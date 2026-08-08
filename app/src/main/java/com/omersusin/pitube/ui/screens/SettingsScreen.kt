@@ -14,12 +14,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.AccountFetcher
-import com.omersusin.pitube.data.AuthDebug
 import com.omersusin.pitube.data.AuthManager
-import com.omersusin.pitube.data.InnerTubeFeed
+import com.omersusin.pitube.data.KodaAuth
+import com.omersusin.pitube.data.NotInterested
 import com.omersusin.pitube.data.PrefsManager
 import com.omersusin.pitube.ui.theme.ThemeMode
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,10 +29,12 @@ fun SettingsScreen(
     onOpenLogin: () -> Unit,
     onOpenDownloads: () -> Unit,
     onOpenHistory: () -> Unit,
+    onOpenStats: () -> Unit,
+    onOpenSubsMgmt: () -> Unit,
+    onOpenNotInterested: () -> Unit,
     account: AccountFetcher.AccountInfo?
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var isLoggedIn by remember { mutableStateOf(AuthManager.isLoggedIn(context)) }
     var sponsorBlock by remember { mutableStateOf(PrefsManager.isSponsorBlockEnabled(context)) }
     var zenMode by remember { mutableStateOf(PrefsManager.isZenMode(context)) }
@@ -42,10 +43,9 @@ fun SettingsScreen(
     var hideComments by remember { mutableStateOf(PrefsManager.isHideComments(context)) }
     var autoExpand by remember { mutableStateOf(PrefsManager.isAutoExpandDesc(context)) }
     var hideLikes by remember { mutableStateOf(PrefsManager.isHideLikeButtons(context)) }
-    var debugAuth by remember { mutableStateOf(PrefsManager.isDebugAuth(context)) }
     var showCookieDialog by remember { mutableStateOf(false) }
     var cookieText by remember { mutableStateOf("") }
-    val debugSnippet by AuthDebug.snippet
+    var cookieError by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") }; Text("Settings", style = MaterialTheme.typography.headlineMedium) }
@@ -84,6 +84,9 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Row(modifier = Modifier.fillMaxWidth().clickable { onOpenDownloads() }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.Download, contentDescription = null); Spacer(modifier = Modifier.width(12.dp)); Text("Downloads", style = MaterialTheme.typography.bodyLarge) }
         Row(modifier = Modifier.fillMaxWidth().clickable { onOpenHistory() }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.History, contentDescription = null); Spacer(modifier = Modifier.width(12.dp)); Text("Watch History", style = MaterialTheme.typography.bodyLarge) }
+        Row(modifier = Modifier.fillMaxWidth().clickable { onOpenStats() }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.Analytics, contentDescription = null); Spacer(modifier = Modifier.width(12.dp)); Text("Statistics", style = MaterialTheme.typography.bodyLarge) }
+        Row(modifier = Modifier.fillMaxWidth().clickable { onOpenSubsMgmt() }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.People, contentDescription = null); Spacer(modifier = Modifier.width(12.dp)); Text("Manage Subscriptions", style = MaterialTheme.typography.bodyLarge) }
+        Row(modifier = Modifier.fillMaxWidth().clickable { onOpenNotInterested() }.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.VisibilityOff, contentDescription = null); Spacer(modifier = Modifier.width(12.dp)); Text("Not Interested", style = MaterialTheme.typography.bodyLarge) }
         Spacer(modifier = Modifier.height(24.dp))
 
         Text("Playback", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
@@ -105,16 +108,6 @@ fun SettingsScreen(
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text("Auto-expand description", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f)); Switch(checked = autoExpand, onCheckedChange = { autoExpand = it; PrefsManager.setAutoExpandDesc(context, it) }) }
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Debug", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { Text("Debug auth", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f)); Switch(checked = debugAuth, onCheckedChange = { debugAuth = it; PrefsManager.setDebugAuth(context, it) }) }
-        if (debugAuth) {
-            Button(onClick = { scope.launch { InnerTubeFeed.fetchFeed(context, "FEsubscriptions"); InnerTubeFeed.fetchAccount(context) } }) { Text("Run feed probe") }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(debugSnippet.ifBlank { "No probe yet. Tap Run feed probe, then send me this text." }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-
         Text("Appearance", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = currentTheme == ThemeMode.SYSTEM, onClick = { onThemeChange(ThemeMode.SYSTEM) }); Text("System", modifier = Modifier.clickable { onThemeChange(ThemeMode.SYSTEM) }) }
@@ -126,8 +119,17 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showCookieDialog = false },
             title = { Text("Paste YouTube cookies") },
-            text = { Column { Text("On your PC: open youtube.com → F12 → Network → copy the Cookie header value.", style = MaterialTheme.typography.bodySmall); Spacer(modifier = Modifier.height(8.dp)); OutlinedTextField(value = cookieText, onValueChange = { cookieText = it }, modifier = Modifier.fillMaxWidth(), minLines = 3) } },
-            confirmButton = { Button(onClick = { AuthManager.saveRawCookies(context, cookieText.trim()); isLoggedIn = true; AccountFetcher.clearCache(context); showCookieDialog = false }) { Text("Save") } },
+            text = { Column { Text("On your PC: open youtube.com → F12 → Network → copy the Cookie header value.", style = MaterialTheme.typography.bodySmall); Spacer(modifier = Modifier.height(8.dp)); OutlinedTextField(value = cookieText, onValueChange = { cookieText = it }, modifier = Modifier.fillMaxWidth(), minLines = 3); if (cookieError.isNotBlank()) { Spacer(modifier = Modifier.height(4.dp)); Text(cookieError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) } } },
+            confirmButton = { Button(onClick = {
+                val normalized = KodaAuth.normalize(cookieText)
+                val missing = KodaAuth.missingRequiredCookies(normalized)
+                if (missing.isNotEmpty()) { cookieError = "Missing required cookies: ${missing.joinToString(", ")}" } else {
+                    AuthManager.saveRawCookies(context, normalized)
+                    isLoggedIn = true
+                    AccountFetcher.clearCache(context)
+                    showCookieDialog = false
+                }
+            }) { Text("Save") } },
             dismissButton = { TextButton(onClick = { showCookieDialog = false }) { Text("Cancel") } }
         )
     }
