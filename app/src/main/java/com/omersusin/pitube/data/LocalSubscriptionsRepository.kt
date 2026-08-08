@@ -8,6 +8,20 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
+data class LocalSubscription(
+    val channelId: String,
+    val name: String,
+    val avatarUrl: String? = null,
+    val handle: String? = null,
+    val subscribedAt: Long = System.currentTimeMillis()
+)
+
+data class SubscriptionGroup(
+    val id: String,
+    val name: String,
+    val channelIds: List<String> = emptyList()
+)
+
 class LocalSubscriptionsRepository(context: Context) {
 
     private val appContext = context.applicationContext

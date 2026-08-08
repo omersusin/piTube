@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class ThemePreferences(context: Context) {
 
-    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+    private val prefs: SharedPreferences = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     private val _themeMode = MutableStateFlow(getThemeModePreference())
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
@@ -136,7 +137,7 @@ class ThemePreferences(context: Context) {
     }
 
     fun getDefaultVideoQuality(): String {
-        val cm = prefs.context.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+        val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
         val isMetered = cm?.isActiveNetworkMetered ?: false
         return if (isMetered) _videoQualityMobile.value else _videoQualityWifi.value
     }

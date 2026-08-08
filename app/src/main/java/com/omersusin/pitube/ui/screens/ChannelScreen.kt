@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Channel
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.*
@@ -55,7 +55,7 @@ fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoIte
         } else if (page == null) {
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.Channel, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Channel not found", style = MaterialTheme.typography.titleMedium)
                 }
@@ -99,7 +99,7 @@ fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoIte
                                 when (index) {
                                     0 -> Icon(Icons.Default.VideoLibrary, contentDescription = null)
                                     1 -> Icon(Icons.Default.PlaylistPlay, contentDescription = null)
-                                    2 -> Icon(Icons.Default.Channel, contentDescription = null)
+                                    2 -> Icon(Icons.Default.Info, contentDescription = null)
                                 }
                             }
                         )
