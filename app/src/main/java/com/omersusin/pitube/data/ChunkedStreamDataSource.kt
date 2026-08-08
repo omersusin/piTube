@@ -5,6 +5,7 @@ import androidx.media3.common.C
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.TransferListener
 
 class ChunkedStreamDataSource(private val delegate: DefaultHttpDataSource) : DataSource {
     private var currentSpec: DataSpec? = null
@@ -52,6 +53,10 @@ class ChunkedStreamDataSource(private val delegate: DefaultHttpDataSource) : Dat
         position += read
         chunkRemaining -= read
         return read
+    }
+
+    override fun addTransferListener(transferListener: TransferListener) {
+        delegate.addTransferListener(transferListener)
     }
 
     private fun effectiveEnd() = if (requestedEnd != UNSET) requestedEnd else if (totalLength != UNSET) totalLength else UNSET

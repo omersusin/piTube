@@ -16,7 +16,7 @@ object RichTextParser {
                 ?: nav?.optJSONObject("commandMetadata")?.optJSONObject("webCommandMetadata")?.optString("url")
             val ts = nav?.optJSONObject("watchEndpoint")?.optLong("startTimeSeconds", 0L)
             val hashtag = nav?.optJSONObject("commandMetadata")?.optJSONObject("webCommandMetadata")?.optString("url")?.startsWith("/hashtag/") == true
-            out.add(RichLink(text, url, if (ts != 0L) ts * 1000 else null, hashtag))
+            out.add(RichLink(text, url, if (ts != null if (ts != 0L) ts * 1000 else nullif (ts != 0L) ts * 1000 else null ts != 0L) ts * 1000 else null, hashtag))
         }
         return out
     }

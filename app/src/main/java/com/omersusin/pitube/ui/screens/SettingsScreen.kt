@@ -122,7 +122,7 @@ fun SettingsScreen(
             text = { Column { Text("On your PC: open youtube.com → F12 → Network → copy the Cookie header value.", style = MaterialTheme.typography.bodySmall); Spacer(modifier = Modifier.height(8.dp)); OutlinedTextField(value = cookieText, onValueChange = { cookieText = it }, modifier = Modifier.fillMaxWidth(), minLines = 3); if (cookieError.isNotBlank()) { Spacer(modifier = Modifier.height(4.dp)); Text(cookieError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) } } },
             confirmButton = { Button(onClick = {
                 val normalized = KodaAuth.normalize(cookieText)
-                val missing = KodaAuth.missingRequiredCookies(normalized)
+                val missing = KodaAuth.missingRequired(normalized)
                 if (missing.isNotEmpty()) { cookieError = "Missing required cookies: ${missing.joinToString(", ")}" } else {
                     AuthManager.saveRawCookies(context, normalized)
                     isLoggedIn = true

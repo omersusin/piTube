@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.omersusin.pitube.data.AuthDebug
 import com.omersusin.pitube.data.AuthManager
+import com.omersusin.pitube.data.NotInterested
 import com.omersusin.pitube.data.InnerTubeFeed
 import com.omersusin.pitube.data.VideoItem
 import kotlinx.coroutines.launch
