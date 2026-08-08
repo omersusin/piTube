@@ -1,27 +1,47 @@
 package com.omersusin.pitube
 
+import android.Manifest
 import android.app.PictureInPictureParams
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.omersusin.pitube.data.*
+import coil.compose.AsyncImage
+import com.omersusin.pitube.data.AccountFetcher
+import com.omersusin.pitube.data.AuthManager
+import com.omersusin.pitube.data.NowPlaying
+import com.omersusin.pitube.data.PlayerHolder
+import com.omersusin.pitube.data.VideoItem
 import com.omersusin.pitube.service.PlaybackService
 import com.omersusin.pitube.ui.screens.*
 import com.omersusin.pitube.ui.theme.PiTubeTheme
 import com.omersusin.pitube.ui.theme.ThemeMode
+import kotlinx.coroutines.delay
 
 object PipState { val inPip = mutableStateOf(false) }
 
@@ -29,6 +49,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         startService(Intent(this, PlaybackService::class.java))
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+        }
         setContent {
             var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
             PiTubeTheme(themeMode = themeMode) {
@@ -38,14 +61,46 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (PlayerHolder.getPlayer(this).isPlaying && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             runCatching { enterPictureInPictureMode(PictureInPictureParams.Builder().build()) }
         }
     }
-    override fun onPictureInPictureModeChanged(b: Boolean) { super.onPictureInPictureModeChanged(b); PipState.inPip.value = b }
-    override fun onDestroy() { super.onDestroy(); if (isFinishing) PlayerHolder.releasePlayer() }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode)
+        PipState.inPip.value = isInPictureInPictureMode
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing) PlayerHolder.releasePlayer()
+    }
+}
+
+@Composable
+fun MiniPlayerBar(onOpen: () -> Unit, onClose: () -> Unit) {
+    val context = LocalContext.current
+    val item = NowPlaying.current.value ?: return
+    var playing by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { while (true) { playing = PlayerHolder.getPlayer(context).isPlaying; delay(500) } }
+    Row(
+        modifier = Modifier.fillMaxWidth().height(56.dp).background(MaterialTheme.colorScheme.surfaceVariant).clickable(onClick = onOpen).padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(model = item.safeThumb, contentDescription = null, modifier = Modifier.width(88.dp).height(48.dp).clip(RoundedCornerShape(6.dp)), contentScale = ContentScale.Crop)
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(item.title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
+            Text(item.uploaderName, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        IconButton(onClick = { val p = PlayerHolder.getPlayer(context); if (p.isPlaying) p.pause() else p.play() }) {
+            Icon(if (playing) Icons.Default.Pause else Icons.Default.PlayArrow, contentDescription = "Play/Pause")
+        }
+        IconButton(onClick = onClose) { Icon(Icons.Default.Close, contentDescription = "Close") }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +109,6 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
     var showLogin by remember { mutableStateOf(false) }
-    var showSettings by remember { mutableStateOf(false) }
     var showDownloads by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showStats by remember { mutableStateOf(false) }
@@ -67,18 +121,6 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     LaunchedEffect(showLogin) {
         if (AuthManager.isLoggedIn(context)) account = AccountFetcher.getCached(context) ?: AccountFetcher.fetch(context)?.also { AccountFetcher.cache(context, it) }
         else account = null
-    }
-
-    // Resume last session (fresh within 12h)
-    LaunchedEffect(Unit) {
-        val r = SessionResume.load(context)
-        if (r != null && System.currentTimeMillis() - r.timestamp < 12 * 3600 * 1000L && selectedVideo == null) {
-            selectedVideo = VideoItem(
-                url = "https://www.youtube.com/watch?v=${r.videoId}", title = r.title,
-                thumbnailUrl = r.thumbnailUrl, uploaderName = r.channelName, uploaderAvatar = null,
-                duration = (r.durationMs / 1000).toInt(), views = 0L, uploadedDate = null, isShort = false
-            )
-        }
     }
 
     BackHandler {
@@ -141,7 +183,7 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                                 if (index == 3) {
                                     Surface(modifier = Modifier.size(24.dp), shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
                                         val url = account?.avatarUrl
-                                        if (url != null) coil.compose.AsyncImage(model = url, contentDescription = "You", modifier = Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Crop)
+                                        if (url != null) AsyncImage(model = url, contentDescription = "You", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
                                         else Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.Person, "You", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onPrimary) }
                                     }
                                 } else Icon(tab.icon, contentDescription = tab.label)
@@ -167,4 +209,4 @@ fun PiTubeApp(themeMode: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
     }
 }
 
-data class TabItem(val label: String, val icon: ImageVector)
+data class TabItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
