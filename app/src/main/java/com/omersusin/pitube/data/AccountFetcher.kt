@@ -21,7 +21,8 @@ object AccountFetcher {
         val name: String,
         val avatarUrl: String?,
         val handle: String?,
-        val channelId: String? = null
+        val channelId: String? = null,
+        val datasyncId: String? = null
     )
 
     private val client = OkHttpClient.Builder()
@@ -35,7 +36,8 @@ object AccountFetcher {
         val photo = prefs.getString("photo", null)
         val handle = prefs.getString("handle", null)
         val channelId = prefs.getString("channelId", null)
-        return AccountInfo(name, photo, handle, channelId)
+        val datasyncId = prefs.getString("datasyncId", null)
+        return AccountInfo(name, photo, handle, channelId, datasyncId)
     }
 
     fun cache(context: Context, info: AccountInfo?) {
@@ -46,6 +48,7 @@ object AccountFetcher {
             .putString("photo", info.avatarUrl ?: "")
             .putString("handle", info.handle ?: "")
             .putString("channelId", info.channelId ?: "")
+            .putString("datasyncId", info.datasyncId ?: "")
             .apply()
     }
 
@@ -87,6 +90,13 @@ object AccountFetcher {
                 var photo: String? = null
                 var handle: String? = null
                 var channelId: String? = null
+                var datasyncId: String? = null
+
+                // Extract datasyncId from responseContext (Koda pattern)
+                datasyncId = json.optJSONObject("responseContext")
+                    ?.optJSONObject("mainAppWebResponseContext")
+                    ?.optString("datasyncId", null)
+                if (datasyncId.isNullOrBlank()) datasyncId = null
 
                 // Try primary path: actions[0].openPopupAction.popup.multiPageMenuRenderer
                 val actions = json.optJSONArray("actions")
@@ -103,14 +113,9 @@ object AccountFetcher {
                         ?.optJSONObject("accountItem")
                     if (item != null) {
                         name = item.optString("accountName", null)
-                        photo = item.optString("accountPhoto", null)
-                        handle = item.optString("accountHandle", null)
-                        if (handle.isNullOrBlank()) handle = item.optString("channelHandle", null)
-                        channelId = item.optString("channelId", null)
-                        if (channelId.isNullOrBlank()) {
-                            val navEndpoint = item.optJSONObject("navigationEndpoint")
-                            channelId = navEndpoint?.optJSONObject("browseEndpoint")?.optString("browseId", null)
-                        }
+                        photo = extractAvatar(item)
+                        handle = extractHandle(item)
+                        channelId = extractChannelId(item)
                     }
                 }
 
@@ -123,10 +128,9 @@ object AccountFetcher {
                         ?.optJSONObject("accountItem")
                     if (header != null) {
                         name = header.optString("accountName", null)
-                        photo = header.optString("accountPhoto", null)
-                        handle = header.optString("accountHandle", null)
-                        if (handle.isNullOrBlank()) handle = header.optString("channelHandle", null)
-                        channelId = header.optString("channelId", null)
+                        photo = extractAvatar(header)
+                        handle = extractHandle(header)
+                        channelId = extractChannelId(header)
                     }
                 }
 
@@ -136,9 +140,14 @@ object AccountFetcher {
                     photo = json.optString("photoUrl", null)
                 }
 
-                // Fallback: scan for handle in profile
+                // Fallback: scan for handle
                 if (handle.isNullOrBlank()) {
                     handle = findHandleInJson(json)
+                }
+
+                // Fallback: scan for avatar
+                if (photo.isNullOrBlank()) {
+                    photo = findAvatarInJson(json)
                 }
 
                 if (name.isNullOrBlank()) {
@@ -146,8 +155,8 @@ object AccountFetcher {
                     return@withContext null
                 }
 
-                Log.d(TAG, "Fetched account: $name, handle=$handle, channelId=$channelId")
-                val info = AccountInfo(name, photo, handle, channelId)
+                Log.d(TAG, "Fetched account: name=$name, handle=$handle, channelId=$channelId, datasyncId=$datasyncId")
+                val info = AccountInfo(name, photo, handle, channelId, datasyncId)
                 cache(context, info)
                 info
             }
@@ -158,11 +167,61 @@ object AccountFetcher {
         }
     }
 
+    private fun extractAvatar(item: JSONObject): String? {
+        // Try multiple paths for avatar
+        val photo = item.optString("accountPhoto", null)
+        if (!photo.isNullOrBlank()) return photo
+        // Try avatar photo
+        val avatar = item.optJSONObject("avatar")
+        if (avatar != null) {
+            val photoUrl = avatar.optString("photo", null)
+            if (!photoUrl.isNullOrBlank()) return photoUrl
+        }
+        // Try thumbnail
+        val thumbnail = item.optJSONObject("thumbnail")
+        if (thumbnail != null) {
+            val thumbnails = thumbnail.optJSONArray("thumbnails")
+            if (thumbnails != null && thumbnails.length() > 0) {
+                return thumbnails.optJSONObject(0)?.optString("url", null)
+            }
+        }
+        return null
+    }
+
+    private fun extractHandle(item: JSONObject): String? {
+        // Try multiple paths for handle
+        val handle = item.optString("accountHandle", null)
+        if (!handle.isNullOrBlank()) return handle
+        val channelHandle = item.optString("channelHandle", null)
+        if (!channelHandle.isNullOrBlank()) return channelHandle
+        // Try handleText
+        val handleText = item.optString("handleText", null)
+        if (!handleText.isNullOrBlank()) return handleText
+        // Try accountHandleText
+        val accountHandleText = item.optString("accountHandleText", null)
+        if (!accountHandleText.isNullOrBlank()) return accountHandleText
+        return null
+    }
+
+    private fun extractChannelId(item: JSONObject): String? {
+        // Try direct channelId
+        val channelId = item.optString("channelId", null)
+        if (!channelId.isNullOrBlank()) return channelId
+        // Try navigationEndpoint.browseEndpoint.browseId
+        val navEndpoint = item.optJSONObject("navigationEndpoint")
+        if (navEndpoint != null) {
+            val browseId = navEndpoint.optJSONObject("browseEndpoint")?.optString("browseId", null)
+            if (!browseId.isNullOrBlank()) return browseId
+        }
+        return null
+    }
+
     private fun findHandleInJson(json: JSONObject): String? {
         // Search common locations for handle
         val paths = listOf(
             "header" to "accountChannelHandle",
             "header" to "handle",
+            "header" to "handleText",
         )
         for ((parent, field) in paths) {
             val value = json.optJSONObject(parent)?.optString(field, null)
@@ -181,6 +240,31 @@ object AccountFetcher {
                     if (!h.isNullOrBlank()) return h
                     val ch = accountItem.optString("channelHandle", null)
                     if (!ch.isNullOrBlank()) return ch
+                    val ht = accountItem.optString("handleText", null)
+                    if (!ht.isNullOrBlank()) return ht
+                }
+            }
+        }
+        return null
+    }
+
+    private fun findAvatarInJson(json: JSONObject): String? {
+        // Search common locations for avatar
+        val sections = json.optJSONObject("header")
+            ?.optJSONObject("accountSectionListRenderer")
+            ?.optJSONArray("contents")
+        if (sections != null) {
+            for (i in 0 until sections.length()) {
+                val section = sections.optJSONObject(i)
+                val accountItem = section?.optJSONObject("accountItem")
+                if (accountItem != null) {
+                    val photo = accountItem.optString("accountPhoto", null)
+                    if (!photo.isNullOrBlank()) return photo
+                    val avatar = accountItem.optJSONObject("avatar")
+                    if (avatar != null) {
+                        val photoUrl = avatar.optString("photo", null)
+                        if (!photoUrl.isNullOrBlank()) return photoUrl
+                    }
                 }
             }
         }
