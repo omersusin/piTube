@@ -83,6 +83,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var currentCaption by remember { mutableStateOf("") }
     var subscribed by remember { mutableStateOf(false) }
     var showHideDialog by remember { mutableStateOf(false) }
+    var isLiked by remember { mutableStateOf(LikedVideosRepository.isLiked(context, video.videoId)) }
     
     val zenMode = remember { PrefsManager.isZenMode(context) }
     val hideCounters = remember { PrefsManager.isHideCounters(context) }
@@ -116,7 +117,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                     if (resumePos > 0L) exoPlayer.seekTo(resumePos)
                     exoPlayer.prepare()
                     exoPlayer.playbackParameters = androidx.media3.common.PlaybackParameters(currentSpeed)
-                    exoPlayer.playWhenReady = true
+                    exoPlayer.playWhenReady = true; PlayerHolder.applyPrefs(context)
                 } else { error = (r?.let { "No playable stream: hls=${it.hlsUrl != null} prog=${it.playUrl != null} merge=${it.videoOnlyUrl != null && it.audioUrl != null}" } ?: "All sources failed (NewPipe+InnerTube+Piped)") }
                 try { if (PrefsManager.isSponsorBlockEnabled(context)) segments = SponsorBlockService.create().getSegments(video.videoId, """["sponsor","selfpromo","intro","outro","preview"]""") } catch (e: Exception) { segments = emptyList() }
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
@@ -169,7 +170,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     Column(modifier = Modifier.fillMaxSize()) {
         if (!inPip) TopAppBar(title = { }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }, actions = {
             if (chatMessages.isNotEmpty()) { IconButton(onClick = { showChat = !showChat }) { Icon(Icons.Default.Chat, contentDescription = "Chat", tint = if (showChat) MaterialTheme.colorScheme.primary else Color.Unspecified) } }
-            IconButton(onClick = { showHideDialog = true }) { Icon(Icons.Default.VisibilityOff, contentDescription = "Hide") }
+            IconButton(onClick = { isLiked = LikedVideosRepository.toggle(context, video) }) { Icon(if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Like", tint = if (isLiked) MaterialTheme.colorScheme.error else Color.Unspecified) }; IconButton(onClick = { showHideDialog = true }) { Icon(Icons.Default.VisibilityOff, contentDescription = "Hide") }
         }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background))
         if (inPip) { Box(modifier = Modifier.fillMaxSize().background(Color.Black)) { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize()) } }
         else if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }

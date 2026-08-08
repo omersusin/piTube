@@ -17,8 +17,10 @@ object PlayerHolder {
         return _player!!
     }
 
-    fun releasePlayer() {
-        _player?.release()
-        _player = null
+    fun applyPrefs(context: Context) {
+        val p = _player ?: return
+        p.volume = if (PrefsManager.isVolumeNormalizationEnabled(context)) 1.5f else 1.0f
     }
+
+    fun releasePlayer() { _player?.release(); _player = null }
 }
