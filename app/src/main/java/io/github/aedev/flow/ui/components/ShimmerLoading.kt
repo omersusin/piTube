@@ -450,10 +450,6 @@ fun ShimmerGridItem(
 }
 
 @Composable
-
-@Composable
-
-@Composable
 fun ShimmerSectionTitle(
     modifier: Modifier = Modifier
 ) {
@@ -503,8 +499,6 @@ fun ShimmerChipRow(
         }
     }
 }
-
-@Composable
 
 @Composable
 fun ShimmerChannelHeader(
@@ -643,8 +637,6 @@ fun ShimmerComment(
  *  - "Recently played" horizontal card row
  */
 @Composable
-
-@Composable
 fun HomeShimmerLoading(
     modifier: Modifier = Modifier
 ) {
@@ -699,8 +691,6 @@ fun SearchShimmerLoading(
         }
     }
 }
-
-@Composable
 
 @Composable
 fun PlayerRelatedShimmerLoading(
