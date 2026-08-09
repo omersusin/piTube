@@ -7,7 +7,7 @@ import org.junit.Test
 class NavigationDestinationsTest {
     @Test
     fun hiddenHomeFallsBackToFirstVisibleDestination() {
-        val visibility = NavigationVisibility(home = false, shorts = false, music = false)
+        val visibility = NavigationVisibility(home = false, shorts = false)
 
         val resolved = resolveDefaultNavTabIndex(
             preferredIndex = 0,
