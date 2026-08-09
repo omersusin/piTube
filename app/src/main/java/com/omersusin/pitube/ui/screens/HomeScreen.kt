@@ -60,11 +60,8 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                             videos = videos + newVideos
                         }
                     } else {
-                        // Load more trending
-                        val regions = listOf("US", "GB", "DE", "JP", "IN", "BR", "FR", "KR")
-                        val region = regions[feedPage % regions.size]
-                        feedPage++
-                        val moreVideos = PipedApiService.create().getTrending(region)
+                        // Load more from home feed (trending browseId is dead since 2025)
+                        val moreVideos = InnerTubeFeed.fetchTrending(context)
                         val currentIds = videos.map { it.videoId }.toSet()
                         val newVideos = moreVideos.filter { it.videoId !in currentIds }
                         if (newVideos.isNotEmpty()) {
@@ -91,20 +88,19 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
                     if (feedVideos.isNotEmpty()) {
                         videos = feedVideos
                     } else {
-                        // Fallback to trending if personalized feed is empty
-                        videos = PipedApiService.create().getTrending()
+                        // Fallback to home feed if personalized feed is empty
+                        videos = InnerTubeFeed.fetchTrending(context)
                     }
                 } else {
-                    // Not logged in - use trending
+                    // Not logged in - use home feed
                     FlowNeuroEngine.initialize(context)
-                    val api = PipedApiService.create()
-                    val trending = api.getTrending()
+                    val trending = InnerTubeFeed.fetchTrending(context)
                     val ranked = FlowNeuroEngine.rank(context, trending)
                     videos = ranked
                 }
             } catch (e: Exception) {
                 try {
-                    videos = PipedApiService.create().getTrending()
+                    videos = InnerTubeFeed.fetchTrending(context)
                 } catch (e2: Exception) {
                     e2.printStackTrace()
                 }

@@ -7,10 +7,9 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
-import com.omersusin.pitube.data.CookieDownloader.Companion.initWithCookies
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.schabi.newpipe.extractor.ServiceList
+import org.json.JSONObject
 
 @UnstableApi
 object StreamResolver {
@@ -29,46 +28,79 @@ object StreamResolver {
         val downloadUrl: String? get() = videoUrl
     }
 
+    private val formatSelector: (JSONObject) -> Format? = { fmt ->
+        val mime = fmt.optString("mimeType")
+        val itag = fmt.optInt("itag", -1)
+        val type = if (mime.startsWith("video/")) "video" else if (mime.startsWith("audio/")) "audio" else null
+        if (type == null || fmt.optString("url").isBlank()) null
+        else Format(
+            url = fmt.optString("url"),
+            mime = mime,
+            itag = itag,
+            bitrate = fmt.optInt("bitrate", 0),
+            width = fmt.optInt("width", 0),
+            height = fmt.optInt("height", 0),
+            contentLength = fmt.optLong("contentLength", 0L),
+            fps = fmt.optInt("fps", 0),
+            type = type
+        )
+    }
+
     suspend fun resolve(videoId: String, context: Context): Resolved? = withContext(Dispatchers.IO) {
         try {
-            initWithCookies(context)
-            val videoUrl = "https://www.youtube.com/watch?v=$videoId"
-            val extractor = ServiceList.YouTube.getStreamExtractor(videoUrl)
-            extractor.fetchPage()
+            val response = InnerTubeClient.player(context, videoId)
+            val streamingData = response.streamingData
+            if (streamingData == null) {
+                Log.e(TAG, "No streamingData for $videoId")
+                return@withContext null
+            }
+            val details = response.videoDetails
+            val title = details?.optString("title").orEmpty()
+            val uploader = details?.optString("author").orEmpty()
+            val channelId = details?.optString("channelId").orEmpty()
+            val desc = details?.optString("shortDescription").orEmpty()
 
-            val title = extractor.name ?: ""
-            val description = extractor.description?.content ?: extractor.description?.toString() ?: ""
-            val uploader = extractor.uploaderName ?: ""
-            val uploaderUrl = extractor.uploaderUrl ?: ""
-            val hlsUrl = extractor.hlsUrl
+            val formats = mutableListOf<Format>()
+            streamingData.optJSONArray("formats")?.let { arr ->
+                for (i in 0 until arr.length()) formatSelector(arr.optJSONObject(i))?.let { formats.add(it) }
+            }
+            streamingData.optJSONArray("adaptiveFormats")?.let { arr ->
+                for (i in 0 until arr.length()) formatSelector(arr.optJSONObject(i))?.let { formats.add(it) }
+            }
 
-            // Pick best video stream (highest quality <= 1080p)
-            val videoStreams = extractor.videoStreams ?: emptyList()
-            val bestVideo = videoStreams
-                .filter { it.isVideoOnly && !it.url.isNullOrBlank() }
-                .filter { it.quality.uppercase().let { q -> q.contains("1080") || q.contains("720") } }
-                .maxByOrNull { it.quality?.replace(Regex("[^0-9]"), "")?.toIntOrNull() ?: 0 }
-                ?: videoStreams
-                    .filter { it.isVideoOnly && !it.url.isNullOrBlank() }
-                    .maxByOrNull { it.quality?.replace(Regex("[^0-9]"), "")?.toIntOrNull() ?: 0 }
+            val videoFormats = formats.filter { it.type == "video" }
+            val audioFormats = formats.filter { it.type == "audio" }
 
-            // Pick best audio stream (highest bitrate)
-            val audioStreams = extractor.audioStreams ?: emptyList()
-            val bestAudio = audioStreams
-                .filter { !it.url.isNullOrBlank() }
+            // Prefer DASH video-only formats, then progressive (combined)
+            val dashVideo = videoFormats
+                .filter { it.mime.startsWith("video/mp4") }
+                .filter { it.height in 1..1080 }
+                .maxByOrNull { it.height }
+            val bestVideo = dashVideo
+                ?: videoFormats
+                    .filter { it.mime.startsWith("video/webm") }
+                    .filter { it.height in 1..1080 }
+                    .maxByOrNull { it.height }
+                ?: videoFormats.maxByOrNull { it.height }
+
+            val bestAudio = audioFormats
+                .filter { it.mime.startsWith("audio/mp4") }
                 .maxByOrNull { it.bitrate }
+                ?: audioFormats.maxByOrNull { it.bitrate }
+
+            val hlsUrl = streamingData.optString("hlsManifestUrl").takeIf { it.isNotBlank() }
 
             val resolved = Resolved(
                 title = title,
-                description = description,
+                description = desc,
                 uploader = uploader,
-                uploaderUrl = uploaderUrl,
+                uploaderUrl = channelId.let { "https://www.youtube.com/channel/$it" },
                 videoUrl = bestVideo?.url,
                 audioUrl = bestAudio?.url,
                 hlsUrl = hlsUrl
             )
 
-            Log.d(TAG, "Resolved $videoId: video=${resolved.videoUrl != null} audio=${resolved.audioUrl != null} hls=${resolved.hlsUrl != null}")
+            Log.d(TAG, "Resolved $videoId: video=${resolved.videoUrl != null}(${bestVideo?.height}p) audio=${resolved.audioUrl != null} hls=${resolved.hlsUrl != null}")
             resolved
         } catch (e: Exception) {
             Log.e(TAG, "Error resolving $videoId: ${e.message}")
@@ -114,4 +146,16 @@ object StreamResolver {
             null
         }
     }
+
+    private data class Format(
+        val url: String,
+        val mime: String,
+        val itag: Int,
+        val bitrate: Int,
+        val width: Int,
+        val height: Int,
+        val contentLength: Long,
+        val fps: Int,
+        val type: String
+    )
 }

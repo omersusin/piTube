@@ -42,12 +42,12 @@ import kotlinx.coroutines.launch
 fun formatCount(n: Long): String = when { n >= 1_000_000 -> String.format("%.1fM", n / 1_000_000.0); n >= 1_000 -> String.format("%.1fK", n / 1_000.0); else -> n.toString() }
 fun formatTimestamp(ms: Long): String = String.format("%d:%02d", ms / 60000, (ms / 1000) % 60)
 
-class CommentsPagingSource(private val api: PipedApiService, private val videoId: String) : PagingSource<String, Comment>() {
+class CommentsPagingSource(private val context: android.content.Context, private val videoId: String) : PagingSource<String, Comment>() {
     override fun getRefreshKey(state: PagingState<String, Comment>): String? = null
     override suspend fun load(params: LoadParams<String>): LoadResult<String, Comment> {
         return try {
             val token = params.key
-            val response = if (token == null) api.getComments(videoId) else api.getNextComments(videoId, token)
+            val response = if (token == null) InnerTubeClient.comments(context, videoId) else InnerTubeClient.comments(context, videoId, token)
             LoadResult.Page(data = response.comments, prevKey = null, nextKey = response.nextpage)
         } catch (e: Exception) { LoadResult.Error(e) }
     }
@@ -110,7 +110,7 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     val scope = rememberCoroutineScope()
     val exoPlayer = remember { PlayerHolder.getPlayer(context) }
 
-    val comments = remember(video.videoId) { Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(PipedApiService.create(), video.videoId) }.flow }.collectAsLazyPagingItems()
+    val comments = remember(video.videoId) { Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(context, video.videoId) }.flow }.collectAsLazyPagingItems()
 
     LaunchedEffect(video.videoId) {
         HistoryManager.addToHistory(context, video)
@@ -122,9 +122,8 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
             try {
                 val r = StreamResolver.resolve(video.videoId, context)
                 resolved = r
-                var piped: StreamInfo? = null
-                try { piped = PipedApiService.create().getStreams(video.videoId) } catch (e: Exception) { }
-                streamInfo = piped ?: r?.let { StreamInfo(title = it.title, description = it.description, uploader = it.uploader, uploaderUrl = it.uploaderUrl, hls = it.playUrl, dash = null) }
+                val related = InnerTubeClient.related(context, video.videoId)
+                streamInfo = r?.let { StreamInfo(title = it.title, description = it.description, uploader = it.uploader, uploaderUrl = it.uploaderUrl, hls = it.playUrl, dash = null, relatedStreams = related) }
                 val mediaSource = r?.let { StreamResolver.buildMediaSource(context, it) }
                 if (mediaSource != null) {
                     exoPlayer.setMediaSource(mediaSource)

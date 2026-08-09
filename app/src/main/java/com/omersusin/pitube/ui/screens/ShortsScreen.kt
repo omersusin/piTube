@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import com.omersusin.pitube.data.PipedApiService
+import com.omersusin.pitube.data.InnerTubeClient
 import com.omersusin.pitube.data.StreamResolver
 import com.omersusin.pitube.data.VideoItem
 import kotlinx.coroutines.launch
@@ -45,23 +45,17 @@ fun ShortsScreen() {
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                val api = PipedApiService.create()
-                // Try dedicated shorts endpoint
+                // Try dedicated shorts feed
                 try {
-                    val shortsList = api.getShorts()
-                    // Only keep actual shorts (vertical videos, typically < 60s)
-                    shorts = shortsList.filter { video ->
-                        video.url.contains("/shorts/") || 
-                        (video.duration in 1..180 && video.isShort)
-                    }
+                    val root = InnerTubeClient.browse(context, "FEshorts")
+                    val shortsList = InnerTubeClient.parseShortsShelf(root)
+                    shorts = shortsList
                 } catch (e: Exception) {
-                    // Fallback: get trending and filter strictly for shorts
+                    // Fallback: get home feed and filter strictly for shorts
                     try {
-                        val trending = api.getTrending()
-                        shorts = trending.filter { video ->
-                            video.url.contains("/shorts/") ||
-                            (video.isShort && video.duration in 1..180)
-                        }
+                        val root = InnerTubeClient.browse(context, "FEwhat_to_watch")
+                        val trending = InnerTubeClient.parseShortsShelf(root)
+                        shorts = trending
                     } catch (e2: Exception) {
                         error = "Failed to load shorts"
                     }
@@ -94,9 +88,8 @@ fun ShortsScreen() {
                         error = null
                         scope.launch {
                             try {
-                                val api = PipedApiService.create()
-                                val shortsList = api.getShorts()
-                                shorts = shortsList.filter { it.url.contains("/shorts/") || it.duration in 1..180 }
+                                val root = InnerTubeClient.browse(context, "FEshorts")
+                                shorts = InnerTubeClient.parseShortsShelf(root)
                             } catch (e: Exception) {
                                 error = e.message
                             } finally {

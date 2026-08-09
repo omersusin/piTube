@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -22,7 +23,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.omersusin.pitube.data.PipedApiService
+import com.omersusin.pitube.data.InnerTubeClient
 
 private data class CommentItem(
     val author: String,
@@ -35,11 +36,11 @@ private data class CommentItem(
     val isReply: Boolean = false
 )
 
-private class CommentsPagingSource(private val api: PipedApiService, private val videoId: String) : PagingSource<String, CommentItem>() {
+private class CommentsPagingSource(private val context: android.content.Context, private val videoId: String) : PagingSource<String, CommentItem>() {
     override fun getRefreshKey(state: PagingState<String, CommentItem>): String? = null
     override suspend fun load(params: LoadParams<String>): LoadResult<String, CommentItem> {
         return try {
-            val response = if (params.key == null) api.getComments(videoId) else api.getNextComments(videoId, params.key!!)
+            val response = if (params.key == null) InnerTubeClient.comments(context, videoId) else InnerTubeClient.comments(context, videoId, params.key!!)
             val items = response.comments.map { c ->
                 CommentItem(
                     author = c.author,
@@ -70,9 +71,9 @@ fun FlowCommentsBottomSheet(
     var sortMode by remember { mutableStateOf(CommentSortMode.TOP) }
     var showRepliesFor by remember { mutableStateOf<Int?>(null) }
 
-    val api = remember { PipedApiService.create() }
+    val context = LocalContext.current
     val comments = remember(videoId, sortMode) {
-        Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(api, videoId) }.flow
+        Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(context, videoId) }.flow
     }.collectAsLazyPagingItems()
 
     ModalBottomSheet(

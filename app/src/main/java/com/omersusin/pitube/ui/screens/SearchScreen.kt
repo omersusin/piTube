@@ -21,8 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.omersusin.pitube.data.PipedApiService
+import com.omersusin.pitube.data.InnerTubeClient
 import com.omersusin.pitube.data.SearchHistoryRepository
+import com.omersusin.pitube.data.StreamResolver
 import com.omersusin.pitube.data.VideoItem
 import com.omersusin.pitube.data.YouTubeLinkParser
 import com.omersusin.pitube.ui.components.VideoListItem
@@ -57,10 +58,10 @@ fun SearchScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> 
             val parsed = YouTubeLinkParser.parse(q)
             if (parsed?.videoId != null) {
                 try {
-                    val info = PipedApiService.create().getStreams(parsed.videoId)
+                    val r = StreamResolver.resolve(parsed.videoId, context)
                     results = listOf(VideoItem(
                         url = "https://www.youtube.com/watch?v=${parsed.videoId}",
-                        title = info.title, thumbnailUrl = null, uploaderName = info.uploader,
+                        title = r?.title ?: "Video", thumbnailUrl = null, uploaderName = r?.uploader ?: "YouTube",
                         uploaderAvatar = null, duration = 0, views = 0L, uploadedDate = null, isShort = false
                     ))
                 } catch (e: Exception) { results = emptyList() }
@@ -85,7 +86,7 @@ fun SearchScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> 
                         }
                     }
                 }
-                try { results = PipedApiService.create().search(searchQuery).items } catch (e: Exception) { results = emptyList() }
+                try { results = InnerTubeClient.searchVideos(context, searchQuery) } catch (e: Exception) { results = emptyList() }
             }
             isLoading = false
         }
