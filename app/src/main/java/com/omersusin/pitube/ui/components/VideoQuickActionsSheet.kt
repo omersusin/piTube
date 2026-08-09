@@ -285,5 +285,7 @@ data class FlowAction(
 data class FlowMenuItemData(
     val icon: (@Composable () -> Unit)? = null,
     val title: @Composable () -> Unit,
-    val onClick: (() -> Unit)? = null
+    val description: (@Composable () -> Unit)? = null,
+    val onClick: (() -> Unit)? = null,
+    val trailingContent: (@Composable () -> Unit)? = null
 )

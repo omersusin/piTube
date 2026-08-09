@@ -41,7 +41,8 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     val listState = rememberLazyListState()
     val gridState = rememberLazyGridState()
     val isLoggedIn = remember { AuthManager.isLoggedIn(context) }
-    val feedLayout = rememberFeedGridLayout(LocalContext.current.resources.displayMetrics.widthDp.dp)
+    val density = LocalContext.current.resources.displayMetrics.density
+    val feedLayout = rememberFeedGridLayout((LocalContext.current.resources.displayMetrics.widthPixels / density).dp)
 
     val loadMore = {
         if (!isLoadingMore) {

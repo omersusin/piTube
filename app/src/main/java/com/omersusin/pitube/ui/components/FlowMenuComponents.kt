@@ -28,14 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-data class FlowMenuItemData(
-    val icon: (@Composable () -> Unit)? = null,
-    val title: @Composable () -> Unit,
-    val description: (@Composable () -> Unit)? = null,
-    val onClick: (() -> Unit)? = null,
-    val trailingContent: (@Composable () -> Unit)? = null
-)
-
 @Composable
 fun FlowMenuGroup(
     items: List<FlowMenuItemData>,
@@ -136,5 +128,66 @@ fun FlowMenuContainer(
             .padding(bottom = 32.dp)
     ) {
         content()
+    }
+}
+
+@Composable
+fun FlowActionGrid(
+    actions: List<FlowAction>,
+    modifier: Modifier = Modifier,
+    columns: Int = 3
+) {
+    val rows = actions.chunked(columns)
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        rows.forEach { row ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                row.forEach { action ->
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable(enabled = action.enabled) { action.onClick() },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Box(
+                                modifier = Modifier.size(24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                action.icon()
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = action.text,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+                repeat(columns - row.size) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
     }
 }
