@@ -125,17 +125,19 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     val exoPlayer = remember { PlayerHolder.getPlayer(context) }
 
     val switchQuality: (Int?) -> Unit = { height ->
-        val r = resolved ?: return@switchQuality
-        val newR = r.withVideoQuality(height)
-        val source = StreamResolver.buildMediaSource(context, newR)
-        if (source != null) {
-            val pos = exoPlayer.currentPosition
-            exoPlayer.setMediaSource(source, false)
-            exoPlayer.prepare()
-            exoPlayer.seekTo(pos)
-            exoPlayer.playWhenReady = true
-            resolved = newR
-            selectedQuality = height
+        val r = resolved
+        if (r != null) {
+            val newR = r.withVideoQuality(height)
+            val source = StreamResolver.buildMediaSource(context, newR)
+            if (source != null) {
+                val pos = exoPlayer.currentPosition
+                exoPlayer.setMediaSource(source, false)
+                exoPlayer.prepare()
+                exoPlayer.seekTo(pos)
+                exoPlayer.playWhenReady = true
+                resolved = newR
+                selectedQuality = height
+            }
         }
     }
 
