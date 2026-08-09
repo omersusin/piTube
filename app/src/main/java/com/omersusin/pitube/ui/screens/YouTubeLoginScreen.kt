@@ -1,5 +1,6 @@
 package com.omersusin.pitube.ui.screens
 
+import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -13,15 +14,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.omersusin.pitube.data.AuthManager
+import com.omersusin.pitube.data.KodaAuth
 import com.omersusin.pitube.data.ProfileKind
 import com.omersusin.pitube.data.ProfileManager
+
+private const val TAG = "YouTubeLoginScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YouTubeLoginScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
-    var loginAttempted by remember { mutableStateOf(false) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     val profileManager = remember { ProfileManager(context) }
 
@@ -44,67 +47,57 @@ fun YouTubeLoginScreen(onBack: () -> Unit) {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
                         settings.setSupportMultipleWindows(false)
-                        settings.userAgentString = "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
                         webView = this
                         webViewClient = object : WebViewClient() {
+                            private var completed = false
+
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 super.onPageFinished(view, url)
                                 isLoading = false
+                                if (completed) return
 
-                                // Check for YouTube cookies on multiple possible domains
+                                Log.d(TAG, "onPageFinished url=$url")
+
+                                // Check cookies from music.youtube.com (Koda's approach)
                                 val cookieManager = CookieManager.getInstance()
-                                val domains = listOf(
-                                    "https://www.youtube.com",
-                                    "https://youtube.com",
-                                    "https://accounts.google.com",
-                                    url
-                                ).filterNotNull()
+                                val cookies = cookieManager.getCookie("https://music.youtube.com")
+                                    ?: cookieManager.getCookie("https://www.youtube.com")
 
-                                for (domain in domains) {
-                                    val raw = cookieManager.getCookie(domain)
-                                    if (raw != null && raw.contains("SID=") && raw.contains("__Secure-1PSID")) {
-                                        AuthManager.saveRawCookies(ctx, raw)
+                                if (cookies != null) {
+                                    val missing = KodaAuth.missingRequired(cookies)
+                                    Log.d(TAG, "Cookies found, missing=$missing")
+                                    if (missing.isEmpty()) {
+                                        completed = true
+                                        val normalized = KodaAuth.normalize(cookies)
+                                        Log.d(TAG, "Login success, saving cookies (${normalized.length} chars)")
+
+                                        // Save to AuthManager
+                                        AuthManager.saveRawCookies(ctx, normalized)
                                         val cookieMap = mutableMapOf<String, String>()
-                                        raw.split(";").forEach { cookie ->
+                                        normalized.split(";").forEach { cookie ->
                                             val parts = cookie.trim().split("=", limit = 2)
                                             if (parts.size == 2) cookieMap[parts[0].trim()] = parts[1].trim()
                                         }
                                         AuthManager.saveCookies(ctx, cookieMap)
-                                        val activeProfile = profileManager.active()
-                                        if (activeProfile.kind == ProfileKind.LOCAL) {
-                                            profileManager.addYouTubeProfile(cookies = raw)
-                                        } else {
-                                            profileManager.saveCookiesFor(activeProfile.id, raw)
-                                        }
-                                        onBack()
-                                        return
-                                    }
-                                }
 
-                                // Also check if we're on YouTube and have basic auth cookies
-                                if (url?.contains("youtube.com") == true && !loginAttempted) {
-                                    loginAttempted = true
-                                    val cookieString = cookieManager.getCookie("youtube.com") ?: ""
-                                    if (cookieString.contains("SID=")) {
-                                        AuthManager.saveRawCookies(ctx, cookieString)
-                                        val cookieMap = mutableMapOf<String, String>()
-                                        cookieString.split(";").forEach { cookie ->
-                                            val parts = cookie.trim().split("=", limit = 2)
-                                            if (parts.size == 2) cookieMap[parts[0].trim()] = parts[1].trim()
-                                        }
-                                        AuthManager.saveCookies(ctx, cookieMap)
+                                        // Save to ProfileManager
                                         val activeProfile = profileManager.active()
                                         if (activeProfile.kind == ProfileKind.LOCAL) {
-                                            profileManager.addYouTubeProfile(cookies = cookieString)
+                                            profileManager.addYouTubeProfile(cookies = normalized)
                                         } else {
-                                            profileManager.saveCookiesFor(activeProfile.id, cookieString)
+                                            profileManager.saveCookiesFor(activeProfile.id, normalized)
                                         }
+
+                                        // Flush WebView cookies
+                                        CookieManager.getInstance().flush()
+
                                         onBack()
                                     }
                                 }
                             }
                         }
-                        loadUrl("https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Ddesktop%26hl%3Den%26next%3D%252F&hl=en")
+                        // Use service=youtube like Koda does
+                        loadUrl("https://accounts.google.com/ServiceLogin?service=youtube&continue=https://www.youtube.com")
                     }
                 }
             )
