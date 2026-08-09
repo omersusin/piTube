@@ -112,7 +112,7 @@ object InnerTubeClient {
     suspend fun player(context: Context, videoId: String): PlayerResponse {
         val visitorData = VisitorDataManager.get()
         val first = playerCall(context, videoId, visitorData)
-        first.streamingData?.let { return it }
+        first.streamingData?.let { return first }
         if (!first.visitorDataSuspect) return first
         Log.w(TAG, "visitorData flagged, reminting for $videoId")
         val fresh = VisitorDataManager.remint(visitorData.takeIf { it.isNotBlank() }) ?: return first
@@ -479,9 +479,10 @@ object InnerTubeClient {
                 for (j in 0 until sectionContents.length()) {
                     sectionContents.optJSONObject(j)?.let { threadItems.add(it) }
                 }
-                val tokens = mutableListOf<String>()
-                findObjectsByKey(section, "continuationCommand", tokens)
-                nextToken = tokens.maxByOrNull { it.length } ?: nextToken
+                val commands = mutableListOf<JSONObject>()
+                findObjectsByKey(section, "continuationCommand", commands)
+                nextToken = commands.maxByOrNull { it.optString("token").length }
+                    ?.optString("token")?.takeIf { it.isNotBlank() } ?: nextToken
             }
 
             // Continuation pages: onResponseReceivedEndpoints -> appendContinuationItemsAction / reloadContinuationItemsCommand
@@ -512,9 +513,10 @@ object InnerTubeClient {
                 if (entity != null) {
                     parseEntityComment(entity, viewModel)?.let { comments.add(it) }
                 }
-                val tokens = mutableListOf<String>()
-                findObjectsByKey(item, "continuationCommand", tokens)
-                val token = tokens.maxByOrNull { it.length }
+                val commands = mutableListOf<JSONObject>()
+                findObjectsByKey(item, "continuationCommand", commands)
+                val token = commands.maxByOrNull { it.optString("token").length }
+                    ?.optString("token")?.takeIf { it.isNotBlank() }
                 if (token != null) nextToken = token
             }
             CommentsResponse(comments = comments, nextpage = nextToken)
