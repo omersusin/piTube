@@ -157,12 +157,14 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
     val preferredAudioLanguage by playerPreferences.preferredAudioLanguage.collectAsState(initial = "original")
     val defaultVideoCodec by playerPreferences.defaultVideoCodec.collectAsState(initial = VideoCodec.H264)
     val playDuringCalls by playerPreferences.playDuringCalls.collectAsState(initial = false)
+    val doubleTapSeekSeconds by playerPreferences.doubleTapSeekSeconds.collectAsState(initial = 10)
     val miniPlayerContinueWatchingEnabled by playerPreferences.miniPlayerContinueWatchingEnabled.collectAsState(initial = true)
     val videoLoopEnabled by playerPreferences.videoLoopEnabled.collectAsState(initial = false)
     val rememberPlaybackSpeed by playerPreferences.rememberPlaybackSpeed.collectAsState(initial = false)
 
     var showAudioLanguageDialog by remember { mutableStateOf(false) }
     var showVideoCodecDialog by remember { mutableStateOf(false) }
+    var showSeekDurationDialog by remember { mutableStateOf(false) }
     var showShortsPlaybackModeDialog by remember { mutableStateOf(false) }
     var showAutoplayCountdownDialog by remember { mutableStateOf(false) }
 
@@ -616,6 +618,9 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                 }
             }
 
+        }
+    }
+
     // Audio Language Selection Dialog
     if (showAudioLanguageDialog) {
         AlertDialog(
@@ -893,117 +898,6 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                     Text(stringResource(R.string.btn_close))
                 }
             },
-        )
-    }
-
-            }
-        }
-    }
-
-    // Seek Duration Selection Dialog
-    if (showSeekDurationDialog) {
-        val seekOptions = listOf(5, 10, 15, 20, 30)
-        AlertDialog(
-            onDismissRequest = { showSeekDurationDialog = false },
-            title = {
-                Text(
-                    stringResource(R.string.player_settings_double_tap_seek_dialog_title),
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            },
-            text = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        stringResource(R.string.player_settings_double_tap_seek_dialog_body),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 12.dp),
-                    )
-                    seekOptions.forEach { seconds ->
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        coroutineScope.launch {
-                                            playerPreferences.setDoubleTapSeekSeconds(seconds)
-                                        }
-                                        showSeekDurationDialog = false
-                                    }.padding(vertical = 10.dp, horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(
-                                selected = doubleTapSeekSeconds == seconds,
-                                onClick = null,
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = stringResource(R.string.player_settings_double_tap_seek_subtitle_template, seconds),
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showSeekDurationDialog = false }) {
-                    Text(stringResource(R.string.btn_close))
-                }
-            },
-        )
-    }
-}
-
-@Composable
-private fun SettingsClickItem(
-    icon: Any,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        when (icon) {
-            is ImageVector -> {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-
-            is Painter -> {
-                Icon(
-                    painter = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Icon(
-            imageVector = Icons.Outlined.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

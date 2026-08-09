@@ -449,6 +449,258 @@ fun ShimmerGridItem(
     }
 }
 
+@Composable
+
+@Composable
+
+@Composable
+fun ShimmerSectionTitle(
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ShimmerBone(
+            modifier = Modifier
+                .width(130.dp)
+                .height(18.dp),
+            shape = RoundedCornerShape(6.dp)
+        )
+
+        ShimmerBone(
+            modifier = Modifier
+                .width(50.dp)
+                .height(14.dp),
+            shape = RoundedCornerShape(4.dp),
+            delayMillis = 100
+        )
+    }
+}
+
+@Composable
+fun ShimmerChipRow(
+    modifier: Modifier = Modifier,
+    chipCount: Int = 5
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        repeat(chipCount) { index ->
+            ShimmerBone(
+                modifier = Modifier
+                    .width((60 + (index * 12) % 40).dp)
+                    .height(32.dp),
+                shape = RoundedCornerShape(16.dp),
+                delayMillis = index * 60
+            )
+        }
+    }
+}
+
+@Composable
+
+@Composable
+fun ShimmerChannelHeader(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Banner
+        ShimmerBone(
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp)
+                .fillMaxWidth()
+                .aspectRatio(CHANNEL_BANNER_ASPECT_RATIO),
+            shape = MaterialTheme.shapes.medium
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        // Avatar
+        ShimmerBone(
+            modifier = Modifier.size(72.dp),
+            shape = CircleShape,
+            delayMillis = 80
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        // Channel name
+        ShimmerBone(
+            modifier = Modifier
+                .width(160.dp)
+                .height(18.dp),
+            delayMillis = 140
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        // Subscriber count + video count
+        ShimmerBone(
+            modifier = Modifier
+                .width(200.dp)
+                .height(12.dp),
+            shape = RoundedCornerShape(4.dp),
+            delayMillis = 200
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        // Subscribe button
+        ShimmerBone(
+            modifier = Modifier
+                .width(120.dp)
+                .height(36.dp),
+            shape = RoundedCornerShape(18.dp),
+            delayMillis = 260
+        )
+    }
+}
+
+@Composable
+fun ShimmerComment(
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        // User avatar
+        ShimmerBone(
+            modifier = Modifier.size(32.dp),
+            shape = CircleShape
+        )
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Username + timestamp
+            ShimmerBone(
+                modifier = Modifier
+                    .fillMaxWidth(0.35f)
+                    .height(11.dp),
+                shape = RoundedCornerShape(3.dp),
+                delayMillis = 60
+            )
+
+            // Comment text line 1
+            ShimmerBone(
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(12.dp),
+                delayMillis = 100
+            )
+
+            // Comment text line 2
+            ShimmerBone(
+                modifier = Modifier
+                    .fillMaxWidth(0.70f)
+                    .height(12.dp),
+                delayMillis = 140
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            // Like/reply buttons
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                ShimmerBone(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(10.dp),
+                    shape = RoundedCornerShape(3.dp),
+                    delayMillis = 180
+                )
+                ShimmerBone(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(10.dp),
+                    shape = RoundedCornerShape(3.dp),
+                    delayMillis = 220
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Shimmer that mirrors the exact Music screen layout:
+ *  - Filter chips row
+ *  - "Quick picks" two-column grid (left album art + text + right small album art)
+ *  - "Recommended" horizontal card row
+ *  - "Recently played" horizontal card row
+ */
+@Composable
+
+@Composable
+fun HomeShimmerLoading(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Filter chips
+        ShimmerChipRow()
+
+        Spacer(Modifier.height(8.dp))
+
+        // Section 1: Carousel
+        ShimmerSectionTitle()
+
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            repeat(3) { index ->
+                ShimmerVideoCard(
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        // Section 2: Full width videos
+        ShimmerSectionTitle()
+
+        repeat(3) { index ->
+            ShimmerVideoCardFullWidth()
+            if (index < 2) Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+fun SearchShimmerLoading(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        // Filter chips
+        ShimmerChipRow(chipCount = 4)
+
+        Spacer(Modifier.height(8.dp))
+
+        repeat(6) { index ->
+            ShimmerVideoCardHorizontal()
+        }
+    }
+}
+
+@Composable
 
 @Composable
 fun PlayerRelatedShimmerLoading(

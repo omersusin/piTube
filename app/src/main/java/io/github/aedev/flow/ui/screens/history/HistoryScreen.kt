@@ -520,7 +520,7 @@ private fun HistoryEntryRow(
     onVideoClick: (Video) -> Unit,
     onRemove: (String) -> Unit,
 ) {
-    val video = remember(entry) { entry.toVideo() }
+    val video = remember(entry) { entry.toShortVideo() }
     HistoryVideoCard(
         entry = entry,
         onClick = { onVideoClick(video) },

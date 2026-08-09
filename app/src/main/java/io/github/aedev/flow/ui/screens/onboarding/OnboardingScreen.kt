@@ -135,10 +135,6 @@ fun OnboardingScreen(onComplete: () -> Unit) {
         contract = ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { importViewModel.importMasterBackup(it) } }
 
-    val metrolistImportLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri -> uri?.let { importViewModel.importMetrolist(it) } }
-
     val newPipePlaylistImportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { importViewModel.importNewPipePlaylists(it) } }
@@ -315,9 +311,6 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                         )
                     },
                     onImportLibreTube = { libreTubeImportLauncher.launch(arrayOf("application/json")) },
-                    onImportMetrolist = {
-                        metrolistImportLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
-                    },
                     onImportNewPipePlaylists = {
                         newPipePlaylistImportLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
                     },
