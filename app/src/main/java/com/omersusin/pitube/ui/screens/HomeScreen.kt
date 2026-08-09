@@ -41,7 +41,7 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
     var isLoading by remember { mutableStateOf(true) }
     var isLoadingMore by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
-    var isGrid by remember { mutableStateOf(false) }
+    var isGrid by remember { mutableStateOf(true) }
     var feedPage by remember { mutableIntStateOf(0) }
 
     val listState = rememberLazyListState()
@@ -226,86 +226,87 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 @Composable
 private fun VideoGridItem(video: VideoItem, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
+    val channelId = video.channelId ?: video.uploaderUrl?.substringAfter("/channel/")?.substringBefore("/") ?: ""
+    val metadata = listOfNotNull(
+        video.uploaderName,
+        VideoItem.formatViewCount(video.views).takeIf { it.isNotBlank() },
+        video.uploadedDate
+    ).joinToString(" · ")
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(interactionSource)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
             )
-            .pressScale(interactionSource)
     ) {
         // Thumbnail with duration badge
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                .thumbnailGradientOverlay()
+        ) {
             AsyncImage(
                 model = video.highResThumbnailUrl ?: video.safeThumb,
                 contentDescription = video.title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .thumbnailGradientOverlay(),
+                modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
             if (video.duration > 0 || video.isLive) {
                 Surface(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(6.dp),
-                    shape = RoundedCornerShape(4.dp),
-                    color = if (video.isLive) MaterialTheme.colorScheme.error else Color.Black.copy(alpha = 0.8f)
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
+                    color = if (video.isLive) Color(0xFFCC0000).copy(alpha = 0.9f) else Color.Black.copy(alpha = 0.6f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.5.dp, Color.White.copy(alpha = 0.2f))
                 ) {
                     Text(
                         text = if (video.isLive) "LIVE" else video.formattedDuration,
-                        color = Color.White,
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
         }
 
-        // Info: avatar + title + channel + views
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Info row: avatar + title + metadata
         Row(
-            modifier = Modifier.padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             AsyncImage(
                 model = video.uploaderAvatar ?: video.channelIconUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape),
+                contentDescription = video.uploaderName,
+                modifier = Modifier.size(32.dp).clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     video.title,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    video.uploaderName,
-                    style = MaterialTheme.typography.bodySmall,
+                    text = metadata,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (video.views > 0 || !video.uploadedDate.isNullOrBlank()) {
-                    Text(
-                        text = listOfNotNull(
-                            VideoItem.formatViewCount(video.views).takeIf { it.isNotBlank() },
-                            video.uploadedDate
-                        ).joinToString(" • "),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
             }
         }
     }

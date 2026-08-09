@@ -15,6 +15,16 @@ import org.json.JSONObject
 object StreamResolver {
     private const val TAG = "StreamResolver"
 
+    data class VideoFormat(
+        val height: Int,
+        val label: String,
+        val url: String,
+        val mime: String,
+        val fps: Int = 0,
+        val contentLength: Long = 0L,
+        val isProgressive: Boolean = false
+    )
+
     data class Resolved(
         val title: String,
         val description: String,
@@ -22,10 +32,22 @@ object StreamResolver {
         val uploaderUrl: String,
         val videoUrl: String?,
         val audioUrl: String?,
-        val hlsUrl: String?
+        val hlsUrl: String?,
+        val videoFormats: List<VideoFormat> = emptyList()
     ) {
         val playUrl: String? get() = videoUrl ?: hlsUrl
         val downloadUrl: String? get() = videoUrl
+        val bestQualityLabel: String get() = videoFormats.firstOrNull()?.label ?: "Auto"
+
+        /**
+         * Returns a copy whose videoUrl is the format matching [height] (or the
+         * best format when null). Falls back to this instance if no match.
+         */
+        fun withVideoQuality(height: Int?): Resolved {
+            if (height == null) return this
+            val format = videoFormats.firstOrNull { it.height == height } ?: return this
+            return copy(videoUrl = format.url)
+        }
     }
 
     private val formatSelector: (JSONObject) -> Format? = { fmt ->
@@ -88,6 +110,24 @@ object StreamResolver {
                 .maxByOrNull { it.bitrate }
                 ?: audioFormats.maxByOrNull { it.bitrate }
 
+            // Quality list: DASH mp4 first, then progressive (combined), dedup by height
+            val sortedVideo = videoFormats
+                .sortedByDescending { it.height }
+                .sortedWith(compareByDescending<Format> { it.mime.startsWith("video/mp4") }.thenByDescending { it.height })
+            val seenHeights = mutableSetOf<Int>()
+            val qualityList = sortedVideo.mapNotNull { f ->
+                if (f.height <= 0 || !seenHeights.add(f.height)) null
+                else VideoFormat(
+                    height = f.height,
+                    label = "${f.height}p",
+                    url = f.url,
+                    mime = f.mime,
+                    fps = f.fps,
+                    contentLength = f.contentLength,
+                    isProgressive = f.mime.contains("video/mp4") && f.bitrate > 0 && f.height in 1..1080
+                )
+            }
+
             val hlsUrl = streamingData.optString("hlsManifestUrl").takeIf { it.isNotBlank() }
 
             val resolved = Resolved(
@@ -97,7 +137,8 @@ object StreamResolver {
                 uploaderUrl = channelId.let { "https://www.youtube.com/channel/$it" },
                 videoUrl = bestVideo?.url,
                 audioUrl = bestAudio?.url,
-                hlsUrl = hlsUrl
+                hlsUrl = hlsUrl,
+                videoFormats = qualityList
             )
 
             Log.d(TAG, "Resolved $videoId: video=${resolved.videoUrl != null}(${bestVideo?.height}p) audio=${resolved.audioUrl != null} hls=${resolved.hlsUrl != null}")

@@ -43,6 +43,8 @@ import kotlinx.coroutines.launch
 fun formatCount(n: Long): String = when { n >= 1_000_000 -> String.format("%.1fM", n / 1_000_000.0); n >= 1_000 -> String.format("%.1fK", n / 1_000.0); else -> n.toString() }
 fun formatTimestamp(ms: Long): String = String.format("%d:%02d", ms / 60000, (ms / 1000) % 60)
 
+enum class QualityMode { PLAY, DOWNLOAD }
+
 class CommentsPagingSource(private val context: android.content.Context, private val videoId: String) : PagingSource<String, Comment>() {
     override fun getRefreshKey(state: PagingState<String, Comment>): String? = null
     override suspend fun load(params: LoadParams<String>): LoadResult<String, Comment> {
@@ -107,6 +109,10 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var isPlaying by remember { mutableStateOf(false) }
     var isFullscreen by remember { mutableStateOf(false) }
 
+    // Quality selection
+    var selectedQuality by remember { mutableStateOf<Int?>(null) }
+    var qualityMode by remember { mutableStateOf<QualityMode?>(null) }
+
     val zenMode = remember { PrefsManager.isZenMode(context) }
     val hideCounters = remember { PrefsManager.isHideCounters(context) }
     val hideComments = remember { PrefsManager.isHideComments(context) }
@@ -117,6 +123,30 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
 
     val scope = rememberCoroutineScope()
     val exoPlayer = remember { PlayerHolder.getPlayer(context) }
+
+    val switchQuality: (Int?) -> Unit = { height ->
+        val r = resolved ?: return@switchQuality
+        val newR = r.withVideoQuality(height)
+        val source = StreamResolver.buildMediaSource(context, newR)
+        if (source != null) {
+            val pos = exoPlayer.currentPosition
+            exoPlayer.setMediaSource(source, false)
+            exoPlayer.prepare()
+            exoPlayer.seekTo(pos)
+            exoPlayer.playWhenReady = true
+            resolved = newR
+            selectedQuality = height
+        }
+    }
+
+    val startDownload: (StreamResolver.Resolved?) -> Unit = { r ->
+        if (!downloadStarted) {
+            downloadStarted = true
+            val title = streamInfo?.title?.ifBlank { video.title } ?: video.title
+            val item = DownloadTracker.start(video.videoId + "_" + System.currentTimeMillis(), title)
+            DownloadManager.downloadVideo(context, title, r?.downloadUrl, r?.audioUrl, r?.playUrl, item)
+        }
+    }
 
     val comments = remember(video.videoId) { Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(context, video.videoId) }.flow }.collectAsLazyPagingItems()
 
@@ -275,7 +305,9 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 currentPosMs = currentPosMs,
                 isPlaying = isPlaying,
                 onPlayPause = { if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play() },
-                currentCaption = currentCaption
+                currentCaption = currentCaption,
+                qualityLabel = selectedQuality?.let { "${it}p" } ?: resolved?.bestQualityLabel ?: "Auto",
+                onQualityClick = { qualityMode = QualityMode.PLAY }
             )
         }
         else {
@@ -320,7 +352,9 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                             currentPosMs = currentPosMs,
                             isPlaying = isPlaying,
                             onPlayPause = { if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play() },
-                            currentCaption = currentCaption
+                            currentCaption = currentCaption,
+                            qualityLabel = selectedQuality?.let { "${it}p" } ?: resolved?.bestQualityLabel ?: "Auto",
+                            onQualityClick = { qualityMode = QualityMode.PLAY }
                         )
                     }
                 }
@@ -364,11 +398,12 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                                 },
                                 onDownloadClick = {
                                     if (!downloadStarted) {
-                                        downloadStarted = true
                                         val r = resolved
-                                        val title = info.title.ifBlank { video.title }
-                                        val item = DownloadTracker.start(video.videoId + "_" + System.currentTimeMillis(), title)
-                                        DownloadManager.downloadVideo(context, title, r?.downloadUrl, r?.audioUrl, r?.playUrl, item)
+                                        if (r?.videoFormats?.isNotEmpty() == true) {
+                                            qualityMode = QualityMode.DOWNLOAD
+                                        } else {
+                                            startDownload(r)
+                                        }
                                     }
                                 },
                                 onSaveClick = { /* TODO: save */ },
@@ -566,6 +601,69 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
             onDismiss = { showFlowComments = false }
         )
     }
+
+    // Quality picker (playback or download)
+    if (qualityMode != null) {
+        val r = resolved
+        val formats = r?.videoFormats ?: emptyList()
+        ModalBottomSheet(onDismissRequest = { qualityMode = null }) {
+            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
+                Text(
+                    text = if (qualityMode == QualityMode.DOWNLOAD) "Download quality" else "Playback quality",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                )
+                if (qualityMode == QualityMode.PLAY) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                switchQuality(null)
+                                qualityMode = null
+                            }
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Auto (best)", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        if (selectedQuality == null) {
+                            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                startDownload(r)
+                                qualityMode = null
+                            }
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Best", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    }
+                }
+                formats.forEach { f ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (qualityMode == QualityMode.DOWNLOAD) startDownload(r?.withVideoQuality(f.height))
+                                else switchQuality(f.height)
+                                qualityMode = null
+                            }
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(f.label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        if (qualityMode == QualityMode.PLAY && selectedQuality == f.height) {
+                            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -595,7 +693,9 @@ private fun PlayerBox(
     currentPosMs: Long,
     isPlaying: Boolean,
     onPlayPause: () -> Unit,
-    currentCaption: String
+    currentCaption: String,
+    qualityLabel: String,
+    onQualityClick: () -> Unit
 ) {
     var draggingSeek by remember { mutableStateOf(false) }
     var sliderValue by remember { mutableFloatStateOf(currentPosMs.toFloat()) }
@@ -709,6 +809,16 @@ private fun PlayerBox(
                         color = Color.White,
                         style = MaterialTheme.typography.bodyMedium
                     )
+                    TextButton(
+                        onClick = onQualityClick,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    ) {
+                        Text(
+                            text = qualityLabel,
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
                 }
             }
         }
