@@ -121,25 +121,44 @@ object AccountFetcher {
 
                 val actions = json.optJSONArray("actions")
                 if (actions != null) {
-                    Log.d(TAG, "Trying primary path: actions[0]...")
-                    val item = actions.optJSONObject(0)
+                    val popup = actions.optJSONObject(0)
                         ?.optJSONObject("openPopupAction")
                         ?.optJSONObject("popup")
                         ?.optJSONObject("multiPageMenuRenderer")
-                        ?.optJSONArray("sections")
-                        ?.optJSONObject(0)
-                        ?.optJSONObject("accountSectionListRenderer")
-                        ?.optJSONArray("contents")
-                        ?.optJSONObject(0)
-                        ?.optJSONObject("accountItem")
-                    if (item != null) {
-                        Log.d(TAG, "Found accountItem in actions path")
-                        name = item.optString("accountName", null)
-                        photo = extractAvatar(item)
-                        handle = extractHandle(item)
-                        channelId = extractChannelId(item)
+
+                    Log.d(TAG, "Trying primary path: header.activeAccountHeaderRenderer...")
+                    val activeHeader = popup?.optJSONObject("header")
+                        ?.optJSONObject("activeAccountHeaderRenderer")
+                    if (activeHeader != null) {
+                        val accountName = activeHeader.optJSONObject("accountName")
+                        name = accountName?.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
+                            ?: accountName?.optString("simpleText")
+                            ?: accountName?.optString("content")
+                        photo = activeHeader.optJSONObject("avatar")
+                            ?.optJSONArray("thumbnails")
+                            ?.let { thumbs -> thumbs.optJSONObject(thumbs.length() - 1)?.optString("url") }
+                        Log.d(TAG, "Found activeAccountHeaderRenderer: name=$name, avatar=${photo?.take(80)}")
                     } else {
-                        Log.d(TAG, "accountItem not found in actions path")
+                        Log.d(TAG, "activeAccountHeaderRenderer not found, trying accountItem path...")
+                    }
+
+                    if (name == null) {
+                        val item = popup
+                            ?.optJSONArray("sections")
+                            ?.optJSONObject(0)
+                            ?.optJSONObject("accountSectionListRenderer")
+                            ?.optJSONArray("contents")
+                            ?.optJSONObject(0)
+                            ?.optJSONObject("accountItem")
+                        if (item != null) {
+                            Log.d(TAG, "Found accountItem in actions path")
+                            name = item.optString("accountName", null)
+                            photo = extractAvatar(item)
+                            handle = extractHandle(item)
+                            channelId = extractChannelId(item)
+                        } else {
+                            Log.d(TAG, "accountItem not found in actions path")
+                        }
                     }
                 }
 

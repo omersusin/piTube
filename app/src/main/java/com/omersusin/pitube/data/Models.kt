@@ -95,6 +95,25 @@ data class DismissalTokens(
     val blockChannelUndo: String? = null
 )
 
+enum class LikeStatus { LIKE, DISLIKE, INDIFFERENT }
+
+data class VideoEngagementInfo(
+    val likeCount: Long?,
+    val likeStatus: LikeStatus,
+    val channelId: String?,
+    val isSubscribed: Boolean,
+    val subscriberCountText: String?
+)
+
+data class ChannelProfileInfo(
+    val channelId: String,
+    val name: String,
+    val avatarUrl: String?,
+    val handle: String?,
+    val subscriberCountText: String?,
+    val bannerUrl: String? = null
+)
+
 data class VideoQuality(
     val resolution: String,
     val url: String,

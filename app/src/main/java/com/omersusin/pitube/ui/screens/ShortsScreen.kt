@@ -42,24 +42,29 @@ fun ShortsScreen() {
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
+    suspend fun loadShorts(): List<VideoItem> {
+        val strategies = listOf(
+            { InnerTubeClient.parseShortsShelf(InnerTubeClient.browse(context, "FEshorts")) },
+            { InnerTubeClient.parseShortsShelf(InnerTubeClient.browse(context, "FEwhat_to_watch")) },
+            { InnerTubeClient.parseShortsShelf(InnerTubeClient.browse(context, "FEexplore")) },
+            { InnerTubeClient.searchVideos(context, "shorts").mapNotNull { if (it.videoId.isNotBlank()) it.copy(isShort = true) else null } },
+            { InnerTubeClient.searchVideos(context, "viral shorts").mapNotNull { if (it.videoId.isNotBlank()) it.copy(isShort = true) else null } }
+        )
+        for (strategy in strategies) {
+            try {
+                val result = strategy()
+                if (result.isNotEmpty()) return result
+            } catch (e: Exception) {
+                // Try next strategy
+            }
+        }
+        return emptyList()
+    }
+
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                // Try dedicated shorts feed
-                try {
-                    val root = InnerTubeClient.browse(context, "FEshorts")
-                    val shortsList = InnerTubeClient.parseShortsShelf(root)
-                    shorts = shortsList
-                } catch (e: Exception) {
-                    // Fallback: get home feed and filter strictly for shorts
-                    try {
-                        val root = InnerTubeClient.browse(context, "FEwhat_to_watch")
-                        val trending = InnerTubeClient.parseShortsShelf(root)
-                        shorts = trending
-                    } catch (e2: Exception) {
-                        error = "Failed to load shorts"
-                    }
-                }
+                shorts = loadShorts()
             } catch (e: Exception) {
                 error = e.message
             } finally {
@@ -88,8 +93,7 @@ fun ShortsScreen() {
                         error = null
                         scope.launch {
                             try {
-                                val root = InnerTubeClient.browse(context, "FEshorts")
-                                shorts = InnerTubeClient.parseShortsShelf(root)
+                                shorts = loadShorts()
                             } catch (e: Exception) {
                                 error = e.message
                             } finally {

@@ -2,6 +2,7 @@ package com.omersusin.pitube.ui.screens
 
 import android.app.Activity
 import android.media.AudioManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -83,6 +84,10 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var captions by remember { mutableStateOf<List<Captions.Cue>>(emptyList()) }
     var currentCaption by remember { mutableStateOf("") }
     var subscribed by remember { mutableStateOf(false) }
+    var likeStatus by remember { mutableStateOf(LikeStatus.INDIFFERENT) }
+    var likeCount by remember { mutableStateOf<Long?>(null) }
+    var engagementChannelId by remember { mutableStateOf<String?>(null) }
+    var commentsParams by remember { mutableStateOf<String?>(null) }
     var showHideDialog by remember { mutableStateOf(false) }
     var showQuickActions by remember { mutableStateOf(false) }
     var showChapters by remember { mutableStateOf(false) }
@@ -98,6 +103,11 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     var volumeLevel by remember { mutableFloatStateOf(1.0f) }
     var showBrightnessOverlay by remember { mutableStateOf(false) }
     var showVolumeOverlay by remember { mutableStateOf(false) }
+
+    // Player UI state
+    var currentPosMs by remember { mutableLongStateOf(0L) }
+    var isPlaying by remember { mutableStateOf(false) }
+    var isFullscreen by remember { mutableStateOf(false) }
 
     val zenMode = remember { PrefsManager.isZenMode(context) }
     val hideCounters = remember { PrefsManager.isHideCounters(context) }
@@ -137,6 +147,20 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
                 try { votes = RydService.create().getVotes(video.videoId) } catch (e: Exception) { }
                 try { deArrowTitle = DeArrowService.create().getBranding(video.videoId).titles.maxByOrNull { it.votes }?.title } catch (e: Exception) { }
                 try { captionTracks = Captions.tracks(context, video.videoId) } catch (e: Exception) { }
+                try {
+                    val eng = InnerTubeClient.engagement(context, video.videoId)
+                    eng?.let {
+                        likeStatus = it.likeStatus
+                        likeCount = it.likeCount
+                        subscribed = it.isSubscribed
+                        engagementChannelId = it.channelId
+                    }
+                } catch (e: Exception) { }
+                try {
+                    if (AuthManager.isLoggedIn(context)) {
+                        commentsParams = InnerTubeClient.comments(context, video.videoId).createCommentParams
+                    }
+                } catch (e: Exception) { }
             } catch (e: Exception) { error = e.message } finally { isLoading = false }
         }
         scope.launch {
@@ -177,200 +201,159 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
         }
     }
 
+    // Position/playback poller
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentPosMs = exoPlayer.currentPosition
+            isPlaying = exoPlayer.isPlaying
+            delay(250)
+        }
+    }
+
+    // Fullscreen: hide system bars
+    val window = activity?.window
+    val fullscreenController = if (window != null) {
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView)
+    } else null
+    DisposableEffect(isFullscreen) {
+        if (fullscreenController != null) {
+            if (isFullscreen) {
+                fullscreenController.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                fullscreenController.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            } else {
+                fullscreenController.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            }
+        }
+        onDispose {
+            if (isFullscreen && fullscreenController != null) {
+                fullscreenController.show(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            }
+        }
+    }
+
+    BackHandler(enabled = isFullscreen) { isFullscreen = false }
+
     val inPip = PipState.inPip.value
     Column(modifier = Modifier.fillMaxSize()) {
-        if (!inPip) TopAppBar(title = { }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }, actions = { if (chatMessages.isNotEmpty()) { IconButton(onClick = { showChat = !showChat }) { Icon(Icons.Default.Chat, contentDescription = "Chat", tint = if (showChat) MaterialTheme.colorScheme.primary else Color.Unspecified) } } ; IconButton(onClick = { showQuickActions = true }) { Icon(Icons.Default.MoreVert, contentDescription = "More") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background))
+        if (!inPip && !isFullscreen) TopAppBar(title = { }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") } }, actions = { if (chatMessages.isNotEmpty()) { IconButton(onClick = { showChat = !showChat }) { Icon(Icons.Default.Chat, contentDescription = "Chat", tint = if (showChat) MaterialTheme.colorScheme.primary else Color.Unspecified) } } ; IconButton(onClick = { showQuickActions = true }) { Icon(Icons.Default.MoreVert, contentDescription = "More") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background))
         if (inPip) { Box(modifier = Modifier.fillMaxSize().background(Color.Black)) { AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize()) } }
         else if (isLoading) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
         else if (error != null) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Error: $error", color = MaterialTheme.colorScheme.error) } }
+        else if (isFullscreen) {
+            PlayerBox(
+                exoPlayer = exoPlayer,
+                isFullscreen = true,
+                onFullscreenChange = { isFullscreen = it },
+                showControls = showControls,
+                onShowControlsChange = { showControls = it },
+                onSeekForward = { seconds ->
+                    isSeekForwardActive = true
+                    seekAccumulatedSeconds = seconds
+                    val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtMost(exoPlayer.duration)
+                    exoPlayer.seekTo(target)
+                    scope.launch { delay(500); isSeekForwardActive = false }
+                },
+                onSeekBack = { seconds ->
+                    isSeekBackActive = true
+                    seekAccumulatedSeconds = seconds
+                    val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtLeast(0)
+                    exoPlayer.seekTo(target)
+                    scope.launch { delay(500); isSeekBackActive = false }
+                },
+                onBack = onBack,
+                onBrightnessChange = { brightnessLevel = it },
+                onShowBrightnessChange = { showBrightnessOverlay = it },
+                onVolumeChange = { volumeLevel = it },
+                onShowVolumeChange = { showVolumeOverlay = it },
+                brightnessLevel = brightnessLevel,
+                volumeLevel = volumeLevel,
+                maxVolume = maxVolume,
+                audioManager = audioManager,
+                activity = activity,
+                isSeekForwardActive = isSeekForwardActive,
+                isSeekBackActive = isSeekBackActive,
+                seekAccumulatedSeconds = seekAccumulatedSeconds,
+                currentPosMs = currentPosMs,
+                isPlaying = isPlaying,
+                onPlayPause = { if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play() },
+                currentCaption = currentCaption
+            )
+        }
         else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(16f / 9f)
-                            .background(Color.Black)
-                            .videoPlayerControls(
-                                showControls = showControls,
-                                onShowControlsChange = { showControls = it },
-                                onSeekForward = { seconds ->
-                                    isSeekForwardActive = true
-                                    seekAccumulatedSeconds = seconds
-                                    val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtMost(exoPlayer.duration)
-                                    exoPlayer.seekTo(target)
-                                    scope.launch { delay(500); isSeekForwardActive = false }
-                                },
-                                onSeekBack = { seconds ->
-                                    isSeekBackActive = true
-                                    seekAccumulatedSeconds = seconds
-                                    val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtLeast(0)
-                                    exoPlayer.seekTo(target)
-                                    scope.launch { delay(500); isSeekBackActive = false }
-                                },
-                                currentPosition = { exoPlayer.currentPosition },
-                                duration = exoPlayer.duration,
-                                isFullscreen = false,
-                                onBrightnessChange = { brightnessLevel = it },
-                                onShowBrightnessChange = { showBrightnessOverlay = it },
-                                onVolumeChange = { volumeLevel = it },
-                                onShowVolumeChange = { showVolumeOverlay = it },
-                                onBack = onBack,
-                                brightnessLevel = brightnessLevel,
-                                volumeLevel = volumeLevel,
-                                maxVolume = maxVolume,
-                                audioManager = audioManager,
-                                activity = activity,
-                                onPlayPause = {
-                                    if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
-                                },
-                                doubleTapSeekMs = 10_000L
-                            )
-                    ) {
-                        AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize())
-                        
-                        // Overlay controls
-                        if (showControls) {
-                            // Top gradient
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(80.dp)
-                                    .align(Alignment.TopCenter)
-                                    .background(Brush.verticalGradient(
-                                        colors = listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent)
-                                    ))
-                            )
-                            
-                            // Bottom controls
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .align(Alignment.BottomCenter)
-                                    .background(Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
-                                    ))
-                                    .padding(16.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = formatTimestamp(exoPlayer.currentPosition),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                    Text(
-                                        text = formatTimestamp(exoPlayer.duration),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                                LinearProgressIndicator(
-                                    progress = { 
-                                        if (exoPlayer.duration > 0) exoPlayer.currentPosition.toFloat() / exoPlayer.duration 
-                                        else 0f 
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    trackColor = Color.White.copy(alpha = 0.3f)
-                                )
-                            }
-                        }
-                        
-                        // Seek overlay
-                        if (isSeekForwardActive || isSeekBackActive) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black.copy(alpha = 0.3f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(
-                                        if (isSeekForwardActive) Icons.Default.FastForward else Icons.Default.FastRewind,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(48.dp)
-                                    )
-                                    Text(
-                                        text = "${seekAccumulatedSeconds}s",
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.headlineMedium
-                                    )
-                                }
-                            }
-                        }
-                        
-                        // Brightness overlay
-                        if (showBrightnessOverlay) {
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.CenterStart)
-                                    .padding(start = 16.dp)
-                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                                    .padding(12.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(Icons.Default.Brightness6, contentDescription = null, tint = Color.White)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text("${(brightnessLevel * 100).toInt()}%", color = Color.White, style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
-                        
-                        // Volume overlay
-                        if (showVolumeOverlay) {
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .padding(end = 16.dp)
-                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                                    .padding(12.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(
-                                        if (volumeLevel == 0f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                                        contentDescription = null,
-                                        tint = Color.White
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text("${(volumeLevel * 100).toInt()}%", color = Color.White, style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
-                        
-                        // Caption
-                        if (currentCaption.isNotBlank()) {
-                            Surface(
-                                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp),
-                                color = Color.Black.copy(alpha = 0.7f),
-                                shape = RoundedCornerShape(4.dp)
-                            ) {
-                                Text(
-                                    currentCaption,
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        }
+                    Box(modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)) {
+                        PlayerBox(
+                            exoPlayer = exoPlayer,
+                            isFullscreen = false,
+                            onFullscreenChange = { isFullscreen = it },
+                            showControls = showControls,
+                            onShowControlsChange = { showControls = it },
+                            onSeekForward = { seconds ->
+                                isSeekForwardActive = true
+                                seekAccumulatedSeconds = seconds
+                                val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtMost(exoPlayer.duration)
+                                exoPlayer.seekTo(target)
+                                scope.launch { delay(500); isSeekForwardActive = false }
+                            },
+                            onSeekBack = { seconds ->
+                                isSeekBackActive = true
+                                seekAccumulatedSeconds = seconds
+                                val target = (exoPlayer.currentPosition + seconds * 1000L).coerceAtLeast(0)
+                                exoPlayer.seekTo(target)
+                                scope.launch { delay(500); isSeekBackActive = false }
+                            },
+                            onBack = onBack,
+                            onBrightnessChange = { brightnessLevel = it },
+                            onShowBrightnessChange = { showBrightnessOverlay = it },
+                            onVolumeChange = { volumeLevel = it },
+                            onShowVolumeChange = { showVolumeOverlay = it },
+                            brightnessLevel = brightnessLevel,
+                            volumeLevel = volumeLevel,
+                            maxVolume = maxVolume,
+                            audioManager = audioManager,
+                            activity = activity,
+                            isSeekForwardActive = isSeekForwardActive,
+                            isSeekBackActive = isSeekBackActive,
+                            seekAccumulatedSeconds = seekAccumulatedSeconds,
+                            currentPosMs = currentPosMs,
+                            isPlaying = isPlaying,
+                            onPlayPause = { if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play() },
+                            currentCaption = currentCaption
+                        )
                     }
                 }
                 streamInfo?.let { info ->
-                    item { Column(modifier = Modifier.padding(16.dp)) { Text(text = if (!showOriginal && deArrowTitle != null) deArrowTitle!! else info.title.ifBlank { video.title }, style = MaterialTheme.typography.titleLarge); if (deArrowTitle != null && deArrowTitle != info.title) { TextButton(onClick = { showOriginal = !showOriginal }) { Text(if (showOriginal) "Show honest title" else "Show original title", style = MaterialTheme.typography.bodySmall) } }; Spacer(modifier = Modifier.height(4.dp)); Row(modifier = Modifier.clickable { onChannelClick(info.uploaderUrl.substringAfter("/channel/")) }, verticalAlignment = Alignment.CenterVertically) { AsyncImage(model = video.uploaderAvatar, contentDescription = null, modifier = Modifier.size(40.dp).clip(CircleShape), contentScale = ContentScale.Crop); Spacer(modifier = Modifier.width(8.dp)); Text(info.uploader, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f)); Button(onClick = { scope.launch { if (VideoEngagement.subscribe(context, info.uploaderUrl.substringAfter("/channel/"), !subscribed)) subscribed = !subscribed } }, colors = ButtonDefaults.buttonColors(containerColor = if (subscribed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.error)) { Text(if (subscribed) "Subscribed" else "Subscribe") } } } }
+                    item { Column(modifier = Modifier.padding(16.dp)) { Text(text = if (!showOriginal && deArrowTitle != null) deArrowTitle!! else info.title.ifBlank { video.title }, style = MaterialTheme.typography.titleLarge); if (deArrowTitle != null && deArrowTitle != info.title) { TextButton(onClick = { showOriginal = !showOriginal }) { Text(if (showOriginal) "Show honest title" else "Show original title", style = MaterialTheme.typography.bodySmall) } }; Spacer(modifier = Modifier.height(4.dp)); Row(modifier = Modifier.clickable { onChannelClick(engagementChannelId ?: info.uploaderUrl.substringAfter("/channel/")) }, verticalAlignment = Alignment.CenterVertically) { AsyncImage(model = video.uploaderAvatar, contentDescription = null, modifier = Modifier.size(40.dp).clip(CircleShape), contentScale = ContentScale.Crop); Spacer(modifier = Modifier.width(8.dp)); Text(info.uploader, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f)); Button(onClick = { scope.launch { val cid = engagementChannelId ?: info.uploaderUrl.substringAfter("/channel/"); val ok = if (AuthManager.isLoggedIn(context)) InnerTubeClient.setSubscribed(context, cid, !subscribed) else true; if (ok) { val repo = LocalSubscriptionsRepository(context); if (subscribed) repo.unsubscribe(cid) else repo.subscribe(LocalSubscription(cid, info.uploader, video.uploaderAvatar ?: "")); subscribed = !subscribed } } }, colors = ButtonDefaults.buttonColors(containerColor = if (subscribed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.error)) { Text(if (subscribed) "Subscribed" else "Subscribe") } } } }
                     if (!hideLikes && !hideCounters) {
                         item {
                             VideoActionRow(
-                                likeState = if (votes?.likes != null && votes!!.likes > 0) "LIKED" else "NONE",
-                                likeCount = votes?.likes?.toLong(),
+                                likeState = when (likeStatus) {
+                                    LikeStatus.LIKE -> "LIKED"
+                                    LikeStatus.DISLIKE -> "DISLIKED"
+                                    else -> "NONE"
+                                },
+                                likeCount = likeCount,
                                 dislikeCount = votes?.dislikes?.toLong(),
-                                onLikeClick = { scope.launch { VideoEngagement.like(context, video.videoId, true) } },
-                                onDislikeClick = { scope.launch { VideoEngagement.like(context, video.videoId, false) } },
+                                onLikeClick = { scope.launch {
+                                    val prev = likeStatus
+                                    val new = if (prev == LikeStatus.LIKE) LikeStatus.INDIFFERENT else LikeStatus.LIKE
+                                    if (InnerTubeClient.rateVideo(context, video.videoId, new)) {
+                                        likeStatus = new
+                                        val lc = likeCount
+                                        if (lc != null) {
+                                            likeCount = when {
+                                                prev == LikeStatus.LIKE && new == LikeStatus.INDIFFERENT -> lc - 1
+                                                prev != LikeStatus.LIKE && new == LikeStatus.LIKE -> lc + 1
+                                                else -> lc
+                                            }
+                                        }
+                                    }
+                                } },
+                                onDislikeClick = { scope.launch {
+                                    val new = if (likeStatus == LikeStatus.DISLIKE) LikeStatus.INDIFFERENT else LikeStatus.DISLIKE
+                                    if (InnerTubeClient.rateVideo(context, video.videoId, new)) likeStatus = new
+                                } },
                                 onShareClick = {
                                     val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
                                         type = "text/plain"
@@ -579,7 +562,233 @@ fun VideoPlayerScreen(video: VideoItem, onBack: () -> Unit, onVideoClick: (Video
     if (showFlowComments) {
         FlowCommentsBottomSheet(
             videoId = video.videoId,
+            createCommentParams = commentsParams,
             onDismiss = { showFlowComments = false }
         )
+    }
+}
+
+@Composable
+private fun PlayerBox(
+    exoPlayer: ExoPlayer,
+    isFullscreen: Boolean,
+    onFullscreenChange: (Boolean) -> Unit,
+    showControls: Boolean,
+    onShowControlsChange: (Boolean) -> Unit,
+    onSeekForward: (Int) -> Unit,
+    onSeekBack: (Int) -> Unit,
+    onBack: () -> Unit,
+    onBrightnessChange: (Float) -> Unit,
+    onShowBrightnessChange: (Boolean) -> Unit,
+    onVolumeChange: (Float) -> Unit,
+    onShowVolumeChange: (Boolean) -> Unit,
+    brightnessLevel: Float,
+    volumeLevel: Float,
+    maxVolume: Int,
+    audioManager: AudioManager?,
+    activity: Activity?,
+    isSeekForwardActive: Boolean,
+    isSeekBackActive: Boolean,
+    seekAccumulatedSeconds: Int,
+    currentPosMs: Long,
+    isPlaying: Boolean,
+    onPlayPause: () -> Unit,
+    currentCaption: String
+) {
+    var draggingSeek by remember { mutableStateOf(false) }
+    var sliderValue by remember { mutableFloatStateOf(currentPosMs.toFloat()) }
+    LaunchedEffect(currentPosMs, draggingSeek) {
+        if (!draggingSeek) sliderValue = currentPosMs.toFloat()
+    }
+    val seekMax = exoPlayer.duration.toFloat().coerceAtLeast(1f)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .videoPlayerControls(
+                showControls = showControls,
+                onShowControlsChange = onShowControlsChange,
+                onSeekForward = onSeekForward,
+                onSeekBack = onSeekBack,
+                currentPosition = { exoPlayer.currentPosition },
+                duration = exoPlayer.duration,
+                isFullscreen = isFullscreen,
+                onBrightnessChange = onBrightnessChange,
+                onShowBrightnessChange = onShowBrightnessChange,
+                onVolumeChange = onVolumeChange,
+                onShowVolumeChange = onShowVolumeChange,
+                onBack = onBack,
+                brightnessLevel = brightnessLevel,
+                volumeLevel = volumeLevel,
+                maxVolume = maxVolume,
+                audioManager = audioManager,
+                activity = activity,
+                onPlayPause = onPlayPause,
+                doubleTapSeekMs = 10_000L,
+                onExitFullscreen = { onFullscreenChange(false) }
+            )
+    ) {
+        AndroidView(factory = { PlayerView(it).apply { player = exoPlayer; useController = false } }, modifier = Modifier.fillMaxSize())
+
+        // Overlay controls
+        if (showControls) {
+            // Top gradient
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .align(Alignment.TopCenter)
+                    .background(Brush.verticalGradient(
+                        colors = listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent)
+                    ))
+            )
+
+            // Fullscreen toggle (top right)
+            IconButton(
+                onClick = { onFullscreenChange(!isFullscreen) },
+                modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)
+            ) {
+                Icon(
+                    if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+                    contentDescription = if (isFullscreen) "Exit fullscreen" else "Fullscreen",
+                    tint = Color.White
+                )
+            }
+
+            // Bottom controls: play/pause + seekbar + times
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .background(Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
+                    ))
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onPlayPause) {
+                        Icon(
+                            if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            tint = Color.White,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
+                    Text(
+                        text = formatTimestamp(currentPosMs),
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Slider(
+                        value = sliderValue.coerceIn(0f, seekMax),
+                        onValueChange = {
+                            draggingSeek = true
+                            sliderValue = it
+                            exoPlayer.seekTo(it.toLong())
+                        },
+                        onValueChangeFinished = {
+                            draggingSeek = false
+                            sliderValue = exoPlayer.currentPosition.toFloat()
+                        },
+                        valueRange = 0f..seekMax,
+                        modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                            inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                        )
+                    )
+                    Text(
+                        text = formatTimestamp(exoPlayer.duration),
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+
+        // Seek overlay
+        if (isSeekForwardActive || isSeekBackActive) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        if (isSeekForwardActive) Icons.Default.FastForward else Icons.Default.FastRewind,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text(
+                        text = "${seekAccumulatedSeconds}s",
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                }
+            }
+        }
+
+        // Brightness overlay
+        if (showBrightnessOverlay) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
+                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                    .padding(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.Brightness6, contentDescription = null, tint = Color.White)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("${(brightnessLevel * 100).toInt()}%", color = Color.White, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        // Volume overlay
+        if (showVolumeOverlay) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                    .padding(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        if (volumeLevel == 0f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("${(volumeLevel * 100).toInt()}%", color = Color.White, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        // Caption
+        if (currentCaption.isNotBlank()) {
+            Surface(
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp),
+                color = Color.Black.copy(alpha = 0.7f),
+                shape = RoundedCornerShape(4.dp)
+            ) {
+                Text(
+                    currentCaption,
+                    color = Color.White,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
     }
 }

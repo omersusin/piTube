@@ -17,5 +17,5 @@ data class StreamInfo(
 
 data class ChannelInfo(val id: String, val name: String, val avatarUrl: String, val relatedStreams: List<VideoItem> = emptyList())
 data class Comment(val author: String, val commentText: String, val likes: Long, val commentedTime: String, val authorThumbnail: String)
-data class CommentsResponse(val comments: List<Comment>, val nextpage: String? = null)
+data class CommentsResponse(val comments: List<Comment>, val nextpage: String? = null, val createCommentParams: String? = null)
 

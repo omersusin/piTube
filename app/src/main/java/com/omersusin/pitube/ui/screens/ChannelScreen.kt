@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.AsyncImage
@@ -29,16 +30,19 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoItem) -> Unit) {
+    val context = LocalContext.current
     BackHandler { onBack() }
     var page by remember { mutableStateOf<com.omersusin.pitube.data.ChannelPage?>(null) }
     var loading by remember { mutableStateOf(true) }
     var selectedTab by remember { mutableIntStateOf(0) }
+    var subscribed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val tabs = listOf("Videos", "Playlists", "About")
+    val tabs = listOf("Videos", "About")
 
     LaunchedEffect(channelId) {
         scope.launch {
-            page = ChannelResolver.resolve(channelId)
+            page = ChannelResolver.resolve(context, channelId)
+            subscribed = com.omersusin.pitube.data.LocalSubscriptionsRepository(context).isSubscribed(page?.videos?.firstOrNull()?.channelId ?: channelId)
             loading = false
         }
     }
@@ -85,11 +89,33 @@ fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoIte
                             contentScale = ContentScale.Crop
                         )
                         Spacer(modifier = Modifier.width(16.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(page?.name ?: "", style = MaterialTheme.typography.headlineSmall)
-                            if (page?.videos?.isNotEmpty() == true) {
-                                Text("${page?.videos?.size} videos", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (!page?.handle.isNullOrBlank()) {
+                                Text(page?.handle ?: "", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
+                            if (!page?.subscriberCountText.isNullOrBlank()) {
+                                Text(page?.subscriberCountText ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    val repo = com.omersusin.pitube.data.LocalSubscriptionsRepository(context)
+                                    val cid = page?.videos?.firstOrNull()?.channelId ?: channelId
+                                    val ok = if (com.omersusin.pitube.data.AuthManager.isLoggedIn(context)) {
+                                        com.omersusin.pitube.data.VideoEngagement.subscribe(context, cid, !subscribed)
+                                    } else true
+                                    if (ok) {
+                                        if (subscribed) repo.unsubscribe(cid)
+                                        else repo.subscribe(com.omersusin.pitube.data.LocalSubscription(cid, page?.name ?: "", page?.avatarUrl ?: ""))
+                                        subscribed = !subscribed
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = if (subscribed) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.error)
+                        ) {
+                            Text(if (subscribed) "Subscribed" else "Subscribe")
                         }
                     }
                 }
@@ -104,8 +130,7 @@ fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoIte
                             icon = {
                                 when (index) {
                                     0 -> Icon(Icons.Default.VideoLibrary, contentDescription = null)
-                                    1 -> Icon(Icons.Default.PlaylistPlay, contentDescription = null)
-                                    2 -> Icon(Icons.Default.Info, contentDescription = null)
+                                    1 -> Icon(Icons.Default.Info, contentDescription = null)
                                 }
                             }
                         )
@@ -135,16 +160,16 @@ fun ChannelScreen(channelId: String, onBack: () -> Unit, onVideoClick: (VideoIte
                             }
                         }
                     }
-                    1 -> { // Playlists
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Playlists coming soon", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    2 -> { // About
+                    1 -> { // About
                         Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.TopStart) {
                             Column {
                                 Text("Channel ID", style = MaterialTheme.typography.titleMedium)
                                 Text(channelId, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                if (!page?.subscriberCountText.isNullOrBlank()) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text("Subscribers", style = MaterialTheme.typography.titleMedium)
+                                    Text(page?.subscriberCountText ?: "", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
                             }
                         }
                     }

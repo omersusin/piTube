@@ -367,6 +367,222 @@ object InnerTubeClient {
         )
     }
 
+    // ============================================================
+    // Engagement: like/dislike, subscribe, comments (WEB, signed in)
+    // ============================================================
+
+    private suspend fun postWatchApi(
+        context: Context,
+        endpoint: String,
+        body: JSONObject
+    ): JSONObject? = requestJson(
+        context = context,
+        url = "https://www.youtube.com/youtubei/v1/$endpoint?key=$API_KEY&prettyPrint=false",
+        body = body,
+        userAgent = BROWSER_UA,
+        clientNameId = "1",
+        clientVersion = WEB_VERSION,
+        visitorData = VisitorDataManager.get().takeIf { it.isNotBlank() },
+        withAuth = true,
+        origin = "https://www.youtube.com"
+    )
+
+    suspend fun rateVideo(context: Context, videoId: String, status: LikeStatus): Boolean {
+        if (!AuthManager.isLoggedIn(context)) return false
+        val endpoint = when (status) {
+            LikeStatus.LIKE -> "like/like"
+            LikeStatus.DISLIKE -> "like/dislike"
+            LikeStatus.INDIFFERENT -> "like/removelike"
+        }
+        val body = JSONObject().apply {
+            put("context", webContext())
+            put("target", JSONObject().put("videoId", videoId))
+        }
+        return postWatchApi(context, endpoint, body) != null
+    }
+
+    suspend fun setSubscribed(context: Context, channelId: String, subscribe: Boolean): Boolean {
+        if (!AuthManager.isLoggedIn(context)) return false
+        val endpoint = if (subscribe) "subscription/subscribe" else "subscription/unsubscribe"
+        val body = JSONObject().apply {
+            put("context", webContext())
+            put("channelIds", JSONArray().put(channelId))
+        }
+        return postWatchApi(context, endpoint, body) != null
+    }
+
+    suspend fun createComment(context: Context, createCommentParams: String, text: String): Boolean {
+        if (!AuthManager.isLoggedIn(context)) return false
+        val body = JSONObject().apply {
+            put("context", webContext())
+            put("commentText", text)
+            put("createCommentParams", createCommentParams)
+        }
+        return postWatchApi(context, "comment/create_comment", body) != null
+    }
+
+    /**
+     * Like count, the signed-in user's like state and subscription state for a
+     * video, parsed from the watch-next response (likeCountEntity /
+     * likeStatusEntity frameworkUpdates and the subscribe button).
+     */
+    suspend fun engagement(context: Context, videoId: String): VideoEngagementInfo? {
+        val root = watchNext(context, videoId) ?: return null
+        return parseEngagement(root)
+    }
+
+    private fun parseEngagement(root: JSONObject): VideoEngagementInfo? {
+        return try {
+            val likeCountEntities = mutableListOf<JSONObject>()
+            findObjectsByKey(root, "likeCountEntity", likeCountEntities)
+            var likeCount = likeCountEntities.firstOrNull()
+                ?.optJSONObject("likeCountIfIndifferent")
+                ?.optString("content")
+                ?.takeIf { it.isNotBlank() }
+                ?.let { parseCount(it) }
+            if (likeCount == null) {
+                val likeButtons = mutableListOf<JSONObject>()
+                findObjectsByKey(root, "segmentedLikeDislikeButtonViewModel", likeButtons)
+                val title = likeButtons.firstOrNull()
+                    ?.optJSONObject("likeButtonViewModel")?.optJSONObject("likeButtonViewModel")
+                    ?.optJSONObject("toggleButtonViewModel")?.optJSONObject("toggleButtonViewModel")
+                    ?.optJSONObject("defaultButtonViewModel")?.optJSONObject("buttonViewModel")
+                    ?.optString("title")
+                likeCount = title?.takeIf { it.isNotBlank() && it.any { c -> c.isDigit() } }?.let { parseCount(it) }
+            }
+
+            val likeStatusEntities = mutableListOf<JSONObject>()
+            findObjectsByKey(root, "likeStatusEntity", likeStatusEntities)
+            val likeStatus = when (likeStatusEntities.firstOrNull()?.optString("likeStatus")) {
+                "LIKE" -> LikeStatus.LIKE
+                "DISLIKE" -> LikeStatus.DISLIKE
+                else -> LikeStatus.INDIFFERENT
+            }
+
+            val subButtons = mutableListOf<JSONObject>()
+            findObjectsByKey(root, "subscribeButtonRenderer", subButtons)
+            val subButton = subButtons.firstOrNull()
+            val isSubscribed = subButton?.optBoolean("subscribed", false) ?: false
+
+            val owners = mutableListOf<JSONObject>()
+            findObjectsByKey(root, "videoOwnerRenderer", owners)
+            val owner = owners.firstOrNull()
+            val channelId = subButton?.optString("channelId")?.takeIf { it.isNotBlank() }
+                ?: owner?.optJSONObject("navigationEndpoint")
+                    ?.optJSONObject("browseEndpoint")?.optString("browseId")
+                    ?.takeIf { it.isNotBlank() }
+            val subscriberCountText = owner?.optJSONObject("subscriberCountText")
+                ?.let { textObj ->
+                    textObj.optJSONArray("runs")?.optJSONObject(0)?.optString("text")
+                        ?: textObj.optString("simpleText")
+                }
+
+            VideoEngagementInfo(
+                likeCount = likeCount,
+                likeStatus = likeStatus,
+                channelId = channelId,
+                isSubscribed = isSubscribed,
+                subscriberCountText = subscriberCountText
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "parseEngagement: ${e.message}")
+            null
+        }
+    }
+
+    // ============================================================
+    // Channel browse: profile (channelMetadataRenderer) + Videos tab
+    // ============================================================
+
+    private const val CHANNEL_VIDEOS_TAB_PARAMS = "EgZ2aWRlb3PyBgQKAjoA"
+
+    suspend fun resolveChannelId(context: Context, urlOrHandle: String): String? {
+        val raw = urlOrHandle.trim()
+        if (raw.isBlank()) return null
+        if (raw.startsWith("UC") && raw.length >= 24) return raw
+        val url = when {
+            raw.startsWith("http://") || raw.startsWith("https://") -> raw
+            raw.startsWith("@") -> "https://www.youtube.com/$raw"
+            else -> "https://www.youtube.com/${raw.trimStart('/')}"
+        }
+        val body = JSONObject().apply {
+            put("context", webContext())
+            put("url", url)
+        }
+        return try {
+            postWatchApi(context, "navigation/resolve_url", body)
+                ?.optJSONObject("endpoint")
+                ?.optJSONObject("browseEndpoint")
+                ?.optString("browseId")
+                ?.takeIf { it.startsWith("UC") }
+        } catch (e: Exception) {
+            Log.w(TAG, "resolveChannelId failed for $url: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun channelProfile(context: Context, channelId: String): ChannelProfileInfo? {
+        val root = browse(context, channelId) ?: return null
+        return try {
+            val metadata = root.optJSONObject("metadata")?.optJSONObject("channelMetadataRenderer")
+            val id = metadata?.optString("externalId")?.takeIf { it.isNotBlank() } ?: channelId
+            val name = metadata?.optString("title")?.takeIf { it.isNotBlank() } ?: return null
+            val thumbs = metadata.optJSONObject("avatar")?.optJSONArray("thumbnails")
+            val avatarUrl = thumbs?.optJSONObject((thumbs.length() - 1).coerceAtLeast(0))
+                ?.optString("url")?.takeIf { it.isNotBlank() }
+                ?.let { if (it.startsWith("//")) "https:$it" else it }
+            val handle = metadata.optString("vanityChannelUrl")
+                .substringAfterLast('/')
+                .takeIf { it.startsWith("@") }
+
+            val bannerThumbs = metadata.optJSONObject("banner")?.optJSONArray("thumbnails")
+            val bannerUrl = bannerThumbs?.optJSONObject((bannerThumbs.length() - 1).coerceAtLeast(0))
+                ?.optString("url")?.takeIf { it.isNotBlank() }
+                ?.let { if (it.startsWith("//")) "https:$it" else it }
+
+            val subscriberCountText = runCatching {
+                val header = root.optJSONObject("header") ?: return@runCatching null
+                val texts = mutableListOf<JSONObject>()
+                findObjectsByKey(header, "text", texts)
+                texts.mapNotNull { it.optString("content").takeIf { c -> c.isNotBlank() } }
+                    .firstOrNull { it.contains("subscriber", ignoreCase = true) }
+            }.getOrNull()
+
+            ChannelProfileInfo(id, name, avatarUrl, handle, subscriberCountText, bannerUrl)
+        } catch (e: Exception) {
+            Log.w(TAG, "channelProfile failed for $channelId: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Latest uploads of a channel (Videos tab). Channel-page lockups omit the
+     * channel row, so the channel identity is stitched in from [profile].
+     */
+    suspend fun channelVideos(context: Context, profile: ChannelProfileInfo): List<VideoItem> {
+        val root = browse(context, profile.channelId, params = CHANNEL_VIDEOS_TAB_PARAMS) ?: return emptyList()
+        return try {
+            val richItems = mutableListOf<JSONObject>()
+            findObjectsByKey(root, "richItemRenderer", richItems)
+            richItems.mapNotNull { item ->
+                val content = item.optJSONObject("content") ?: return@mapNotNull null
+                val parsed = parseLockupViewModel(content.optJSONObject("lockupViewModel"))
+                    ?: parseVideoRenderer(content.optJSONObject("videoRenderer"))
+                    ?: return@mapNotNull null
+                parsed.copy(
+                    uploaderName = profile.name,
+                    uploaderUrl = "https://www.youtube.com/channel/${profile.channelId}",
+                    uploaderAvatar = profile.avatarUrl,
+                    channelId = profile.channelId,
+                    channelIconUrl = profile.avatarUrl ?: parsed.channelIconUrl
+                )
+            }.distinctBy { it.videoId }
+        } catch (e: Exception) {
+            Log.e(TAG, "channelVideos failed: ${e.message}")
+            emptyList()
+        }
+    }
+
     private fun webContext(): JSONObject = JSONObject().put(
         "client",
         JSONObject().apply {
@@ -470,6 +686,12 @@ object InnerTubeClient {
             var nextToken: String? = null
             val threadItems = mutableListOf<JSONObject>()
 
+            // Params for posting a new top-level comment (present on first pages only)
+            val createEndpoints = mutableListOf<JSONObject>()
+            findObjectsByKey(root, "createCommentEndpoint", createEndpoints)
+            val createCommentParams = createEndpoints.firstOrNull()
+                ?.optString("createCommentParams")?.takeIf { it.isNotBlank() }
+
             // First page: comments live in itemSectionRenderer(comment-item-section).contents
             val sections = mutableListOf<JSONObject>()
             findObjectsByKey(root, "itemSectionRenderer", sections)
@@ -519,7 +741,7 @@ object InnerTubeClient {
                     ?.optString("token")?.takeIf { it.isNotBlank() }
                 if (token != null) nextToken = token
             }
-            CommentsResponse(comments = comments, nextpage = nextToken)
+            CommentsResponse(comments = comments, nextpage = nextToken, createCommentParams = createCommentParams)
         } catch (e: Exception) {
             Log.e(TAG, "parseComments: ${e.message}")
             CommentsResponse(emptyList())

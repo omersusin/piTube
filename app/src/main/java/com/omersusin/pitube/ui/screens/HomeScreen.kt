@@ -1,5 +1,6 @@
 package com.omersusin.pitube.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,13 +8,18 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -220,37 +226,86 @@ fun HomeScreen(onVideoClick: (VideoItem) -> Unit, onChannelClick: (String) -> Un
 @Composable
 private fun VideoGridItem(video: VideoItem, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .pressScale(interactionSource),
-        interactionSource = interactionSource,
-        onClick = onClick
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .pressScale(interactionSource)
     ) {
-        Column {
+        // Thumbnail with duration badge
+        Box {
             AsyncImage(
-                model = video.safeThumb,
+                model = video.highResThumbnailUrl ?: video.safeThumb,
                 contentDescription = video.title,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(12.dp))
                     .thumbnailGradientOverlay(),
                 contentScale = ContentScale.Crop
             )
-            Column(modifier = Modifier.padding(8.dp)) {
+            if (video.duration > 0 || video.isLive) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(6.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    color = if (video.isLive) MaterialTheme.colorScheme.error else Color.Black.copy(alpha = 0.8f)
+                ) {
+                    Text(
+                        text = if (video.isLive) "LIVE" else video.formattedDuration,
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                    )
+                }
+            }
+        }
+
+        // Info: avatar + title + channel + views
+        Row(
+            modifier = Modifier.padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AsyncImage(
+                model = video.uploaderAvatar ?: video.channelIconUrl,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     video.title,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     video.uploaderName,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+                if (video.views > 0 || !video.uploadedDate.isNullOrBlank()) {
+                    Text(
+                        text = listOfNotNull(
+                            VideoItem.formatViewCount(video.views).takeIf { it.isNotBlank() },
+                            video.uploadedDate
+                        ).joinToString(" • "),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }

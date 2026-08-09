@@ -23,7 +23,9 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
+import com.omersusin.pitube.data.AuthManager
 import com.omersusin.pitube.data.InnerTubeClient
+import kotlinx.coroutines.launch
 
 private data class CommentItem(
     val author: String,
@@ -65,6 +67,7 @@ enum class CommentSortMode(val label: String) {
 @Composable
 fun FlowCommentsBottomSheet(
     videoId: String,
+    createCommentParams: String?,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -72,6 +75,11 @@ fun FlowCommentsBottomSheet(
     var showRepliesFor by remember { mutableStateOf<Int?>(null) }
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var commentText by remember { mutableStateOf("") }
+    var posting by remember { mutableStateOf(false) }
+    var postStatus by remember { mutableStateOf<String?>(null) }
+
     val comments = remember(videoId, sortMode) {
         Pager(PagingConfig(pageSize = 20)) { CommentsPagingSource(context, videoId) }.flow
     }.collectAsLazyPagingItems()
@@ -113,6 +121,59 @@ fun FlowCommentsBottomSheet(
                         selected = sortMode == mode,
                         onClick = { sortMode = mode },
                         label = { Text(mode.label) }
+                    )
+                }
+            }
+
+            // Comment box (signed in only)
+            if (createCommentParams != null && AuthManager.isLoggedIn(context)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = commentText,
+                        onValueChange = { commentText = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Add a comment...") },
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            if (commentText.isNotBlank() && !posting) {
+                                scope.launch {
+                                    posting = true
+                                    postStatus = null
+                                    val ok = InnerTubeClient.createComment(context, createCommentParams, commentText.trim())
+                                    posting = false
+                                    if (ok) {
+                                        commentText = ""
+                                        postStatus = "Posted"
+                                        comments.refresh()
+                                    } else {
+                                        postStatus = "Failed to post"
+                                    }
+                                }
+                            }
+                        },
+                        enabled = commentText.isNotBlank() && !posting
+                    ) {
+                        if (posting) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text("Post")
+                        }
+                    }
+                }
+                if (postStatus != null) {
+                    Text(
+                        text = postStatus!!,
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (postStatus == "Posted") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
                 }
             }
