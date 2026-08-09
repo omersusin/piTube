@@ -1,0 +1,700 @@
+package io.github.aedev.flow.ui.screens.library
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.VideoLibrary
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import io.github.aedev.flow.R
+import io.github.aedev.flow.data.local.entity.DownloadItemStatus
+import io.github.aedev.flow.data.local.entity.DownloadWithItems
+import io.github.aedev.flow.data.video.DownloadedVideo
+import io.github.aedev.flow.utils.formatDuration
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DownloadsScreen(
+    onBackClick: () -> Unit,
+    onVideoClick: (videos: List<DownloadedVideo>, startIndex: Int) -> Unit,
+    onHomeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: DownloadsViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    var showRemoveIncompleteDialog by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
+
+    val context = LocalContext.current
+
+    val permissionsToRequest =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO)
+        } else {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions(),
+        ) { results ->
+            if (results.values.any { it }) viewModel.rescan()
+        }
+
+    LaunchedEffect(Unit) {
+        val anyMissing =
+            permissionsToRequest.any { perm ->
+                ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED
+            }
+        if (anyMissing) {
+            permissionLauncher.launch(permissionsToRequest)
+        } else {
+            viewModel.rescan()
+        }
+    }
+
+    fun requestDelete(id: String) {
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        viewModel.deleteVideoDownload(id)
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0.dp),
+        topBar = {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.background,
+            ) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.close),
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.downloads_title),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (uiState.incompleteDownloadCount > 0) {
+                        IconButton(onClick = { showRemoveIncompleteDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = stringResource(R.string.remove_incomplete_downloads),
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { padding ->
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+        ) {
+            VideosDownloadsList(
+                videos = uiState.downloadedVideos,
+                incompleteDownloads = uiState.incompleteVideoDownloads,
+                progressMap = uiState.downloadProgressMap,
+                mergingVideoIds = uiState.mergingVideoIds,
+                isRefreshing = uiState.isScanning,
+                onRefresh = { viewModel.rescan() },
+                onVideoClick = { videos, index -> onVideoClick(videos, index) },
+                onDeleteClick = { id -> requestDelete(id) },
+                onPauseClick = { id -> viewModel.pauseVideoDownload(id) },
+                onResumeClick = { id -> viewModel.resumeVideoDownload(id) },
+                onHomeClick = onHomeClick,
+            )
+        }
+    }
+
+    if (showRemoveIncompleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showRemoveIncompleteDialog = false },
+            title = { Text(stringResource(R.string.remove_incomplete_downloads)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.remove_incomplete_downloads_message,
+                        uiState.incompleteDownloadCount,
+                    ),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRemoveIncompleteDialog = false
+                        viewModel.removeIncompleteDownloads()
+                    },
+                ) {
+                    Text(stringResource(R.string.remove))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRemoveIncompleteDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// VIDEO DOWNLOADS LIST
+// ═══════════════════════════════════════════════════════
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VideosDownloadsList(
+    videos: List<DownloadedVideo>,
+    incompleteDownloads: List<DownloadWithItems>,
+    progressMap: Map<String, Float>,
+    mergingVideoIds: Set<String>,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    onVideoClick: (List<DownloadedVideo>, Int) -> Unit,
+    onDeleteClick: (String) -> Unit,
+    onPauseClick: (String) -> Unit,
+    onResumeClick: (String) -> Unit,
+    onHomeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (videos.isEmpty() && incompleteDownloads.isEmpty()) {
+        val pullState = rememberPullToRefreshState()
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            state = pullState,
+            modifier = modifier.fillMaxSize(),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+            ) {
+                EmptyDownloadsState(
+                    type = stringResource(R.string.tab_videos),
+                    icon = Icons.Outlined.VideoLibrary,
+                    onHomeClick = onHomeClick,
+                )
+            }
+        }
+    } else {
+        val pullState = rememberPullToRefreshState()
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            state = pullState,
+            modifier = modifier.fillMaxSize(),
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                if (incompleteDownloads.isNotEmpty()) {
+                    item(key = "section_active") {
+                        Text(
+                            text = stringResource(R.string.section_incomplete_downloads),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier =
+                                Modifier.padding(
+                                    horizontal = 16.dp,
+                                    vertical = 6.dp,
+                                ),
+                        )
+                    }
+                    items(
+                        items = incompleteDownloads,
+                        key = { "active_${it.download.videoId}" },
+                    ) { dl ->
+                        ActiveVideoDownloadCard(
+                            download = dl,
+                            progressMap = progressMap,
+                            isMerging = dl.download.videoId in mergingVideoIds,
+                            onPauseClick = { onPauseClick(dl.download.videoId) },
+                            onResumeClick = { onResumeClick(dl.download.videoId) },
+                            onDeleteClick = { onDeleteClick(dl.download.videoId) },
+                            modifier =
+                                Modifier.animateItem(
+                                    fadeInSpec = tween(300, easing = EaseOutCubic),
+                                    fadeOutSpec = tween(200, easing = EaseInCubic),
+                                    placementSpec =
+                                        spring(
+                                            dampingRatio = 0.8f,
+                                            stiffness = Spring.StiffnessLow,
+                                        ),
+                                ),
+                        )
+                    }
+                    if (videos.isNotEmpty()) {
+                        item(key = "section_completed") {
+                            Text(
+                                text = stringResource(R.string.section_completed),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier =
+                                    Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 6.dp,
+                                    ),
+                            )
+                        }
+                    }
+                }
+                itemsIndexed(
+                    items = videos,
+                    key = { _, video -> video.video.id },
+                ) { index, video ->
+                    VideoDownloadCard(
+                        video = video,
+                        onClick = { onVideoClick(videos, index) },
+                        onDeleteClick = { onDeleteClick(video.video.id) },
+                        modifier =
+                            Modifier.animateItem(
+                                fadeInSpec = tween(300, easing = EaseOutCubic),
+                                fadeOutSpec = tween(200, easing = EaseInCubic),
+                                placementSpec =
+                                    spring(
+                                        dampingRatio = 0.8f,
+                                        stiffness = Spring.StiffnessLow,
+                                    ),
+                            ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// VIDEO CARD
+// ═══════════════════════════════════════════════════════
+
+@Composable
+private fun VideoDownloadCard(
+    video: DownloadedVideo,
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val deleteDesc =
+        stringResource(
+            R.string.cd_delete_download,
+            video.video.title,
+        )
+
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick, role = Role.Button)
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .width(152.dp)
+                    .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+        ) {
+            AsyncImage(
+                model = video.video.thumbnailUrl,
+                contentDescription =
+                    stringResource(
+                        R.string.cd_video_thumbnail,
+                        video.video.title,
+                    ),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+
+            Surface(
+                color =
+                    MaterialTheme.colorScheme.inverseSurface
+                        .copy(alpha = 0.85f),
+                shape = RoundedCornerShape(4.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(6.dp),
+            ) {
+                Text(
+                    text = formatDuration(video.video.duration),
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Medium,
+                    modifier =
+                        Modifier.padding(
+                            horizontal = 4.dp,
+                            vertical = 2.dp,
+                        ),
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(14.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = video.video.title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 20.sp,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = video.video.channelName,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        IconButton(
+            onClick = onDeleteClick,
+            modifier =
+                Modifier.semantics {
+                    contentDescription = deleteDesc
+                },
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = null,
+                tint =
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                        .copy(alpha = 0.6f),
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// ACTIVE DOWNLOAD CARD (in-progress)
+// ═══════════════════════════════════════════════════════
+
+@Composable
+private fun ActiveVideoDownloadCard(
+    download: DownloadWithItems,
+    progressMap: Map<String, Float>,
+    isMerging: Boolean,
+    onPauseClick: () -> Unit,
+    onResumeClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val progress = (progressMap[download.download.videoId] ?: download.progress).coerceIn(0f, 1f)
+    val pct = (progress * 100).toInt()
+    val deleteDesc =
+        stringResource(
+            R.string.cd_delete_download,
+            download.download.title,
+        )
+
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .width(152.dp)
+                    .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+        ) {
+            AsyncImage(
+                model = download.download.thumbnailUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+            // Dimming overlay
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.50f)),
+            )
+            // Red progress fill from left
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(progress)
+                        .background(Color(0xFFCD2027).copy(alpha = 0.35f)),
+            )
+            // Percentage label centered
+            Text(
+                text = "$pct%",
+                color = Color.White,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center),
+            )
+            // Thin progress bar at the bottom edge
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .align(Alignment.BottomCenter),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = Color.White.copy(alpha = 0.25f),
+            )
+        }
+
+        Spacer(modifier = Modifier.width(14.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = download.download.title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 20.sp,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = download.download.uploader,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            val statusText =
+                when {
+                    isMerging -> {
+                        "Merging audio & video…"
+                    }
+
+                    else -> {
+                        when (download.overallStatus) {
+                            DownloadItemStatus.PENDING -> stringResource(R.string.download_status_queued)
+                            DownloadItemStatus.PAUSED -> "$pct% \u00b7 ${stringResource(R.string.download_status_paused)}"
+                            DownloadItemStatus.FAILED -> stringResource(R.string.download_status_failed)
+                            DownloadItemStatus.CANCELLED -> stringResource(R.string.download_status_cancelled)
+                            else -> "$pct%"
+                        }
+                    }
+                }
+            Text(
+                text = statusText,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+
+        if (!isMerging && download.overallStatus != DownloadItemStatus.FAILED && download.overallStatus != DownloadItemStatus.CANCELLED) {
+            val isPaused = download.overallStatus == DownloadItemStatus.PAUSED
+            IconButton(
+                onClick = if (isPaused) onResumeClick else onPauseClick,
+            ) {
+                Icon(
+                    imageVector = if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                    contentDescription =
+                        if (isPaused) {
+                            stringResource(R.string.resume)
+                        } else {
+                            stringResource(R.string.pause)
+                        },
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        IconButton(
+            onClick = onDeleteClick,
+            modifier =
+                Modifier.semantics {
+                    contentDescription = deleteDesc
+                },
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// EMPTY STATE
+// ═══════════════════════════════════════════════════════
+
+@Composable
+private fun EmptyDownloadsState(
+    type: String,
+    icon: ImageVector,
+    onHomeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(tween(400, easing = EaseOutCubic)),
+        modifier = modifier,
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Surface(
+                modifier = Modifier.size(100.dp),
+                shape = CircleShape,
+                color =
+                    MaterialTheme.colorScheme.surfaceContainerHighest
+                        .copy(alpha = 0.6f),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint =
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                                .copy(alpha = 0.4f),
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            Text(
+                text =
+                    stringResource(
+                        R.string.empty_offline_title,
+                        type,
+                    ),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text =
+                    stringResource(
+                        R.string.empty_offline_body,
+                        type,
+                    ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                lineHeight = 22.sp,
+            )
+
+            Spacer(modifier = Modifier.height(36.dp))
+
+            FilledTonalButton(
+                onClick = onHomeClick,
+                shape = RoundedCornerShape(12.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.55f)
+                        .height(48.dp),
+                colors =
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor =
+                            MaterialTheme.colorScheme
+                                .primary,
+                        contentColor =
+                            MaterialTheme.colorScheme
+                                .onPrimary,
+                    ),
+            ) {
+                Text(
+                    text = stringResource(R.string.action_go_to_home),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+    }
+}

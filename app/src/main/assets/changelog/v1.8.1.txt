@@ -1,0 +1,36 @@
+FLOW CHANGE LOG
+VERSION: 1.8.1
+DATE: 2026-03-04
+
+NEW FEATURES
+- LibreTube Import: Import your subscriptions directly from a LibreTube backup file (JSON). Avatars already embedded in the backup are reused; only channels with missing thumbnails trigger a network fetch, keeping the import fast.
+- Metrolist Import: Import your music playlists from a Metrolist backup file (.zip). All playlists and their tracks are imported into the Music Library with full thumbnail and duration data. Local-file-only playlists and tracks are skipped automatically.
+- Video playlists Downloads: Download full playlists with one click. Capped to 720p for the best error free mp4 download formats.
+- Playlist Page Redesign: Music playlists now display a large centered artwork (220dp) with an ambient blurred background matching the music player screen. Title, artist, track count, duration, and description are shown below the artwork. The top bar transitions from transparent over the ambient zone to a solid surface color on scroll.
+- Add Songs to Playlist: User playlists now show an inline pill-shaped search bar (styled to match the Music Search screen). Typing triggers live debounced search automatically — no need to press the IME search action. Results appear inline below the bar; tap the + icon on any result to add it to the playlist instantly with a toast confirmation.
+- Mini Player Click-to-Expand: Tapping anywhere on the collapsed mini video player now expands it to full screen. Only the close and play/pause buttons retain their original actions; all other areas of the mini player act as an expand tap target.
+
+IMPORTS AND ONBOARDING
+- Background Import System: Import operations are now managed by an activity-scoped ViewModel so they survive screen navigation. Starting an import and then leaving the Import screen no longer cancels the operation.
+- Import Progress Notifications: A persistent notification shows live import progress (channels fetched / total) while an import runs in the background. A completion notification is posted when the import finishes.
+- Live Progress Banner: An animated progress banner is shown inside the Import screen and the onboarding Import step whenever an import is running, displaying the current label and a progress indicator.
+- NewPipe Handle URLs: Fixed subscriptions imported from NewPipe exports that use @handle-style channel URLs (e.g. youtube.com/@Channel) being silently skipped. The URL parser now correctly extracts the handle and resolves the channel avatar via the YouTube extractor.
+- YouTube Takeout BOM Fix: Fixed YouTube Takeout CSV files beginning with a UTF-8 BOM (\uFEFF) causing the first channel ID to be parsed incorrectly. The BOM is now stripped before processing. Quoted channel names (present in some regional Takeout exports) are also unquoted correctly.
+- Channel Avatar Resolution: Fixed avatar fetching for channels whose ID is a @handle rather than a UC-prefixed ID. The YouTube API URL is now constructed as youtube.com/@handle instead of youtube.com/channel/@handle, which previously returned no avatar.
+
+FIXES AND STABILITY
+- Mini Player Snap-to-Collapsed Regression: Fixed a regression introduced in v1.8.0 where the mini video player would randomly snap to the collapsed state instead of staying expanded. The root cause was that maxOffset, which drives the drag anchor of DraggablePlayerLayout, was recalculated whenever the bottom navigation bar visibility changed. Because maxOffset is a key in rememberSaveable and a LaunchedEffect dependency inside the draggable state, any change triggered a full state reset and an immediate snap animation. The fix holds maxOffset constant throughout the session by always using the full navigation bar height, independent of whether the bar is currently visible.
+- Mini Player Fling Direction: Fixed the mini player ignoring upward fling gestures. The drag-stop handler previously only checked for positive velocity (downward fling to collapse) and fell through to a threshold check for all other gestures. Negative velocity (upward fling to expand) is now an explicit case in the when block, matching the intended symmetric gesture handling.
+- Live Stream Segments: Fixed 30s live stream issue and added a new Live specific progress bar.
+- Playlist Shuffle: Fixed the shuffle button in the playlist header being wired as a no-op. It now shuffles the track list and starts playback from the first shuffled track.
+- Playlist Search Keyboard Overlap: Fixed the inline search bar being hidden behind the soft keyboard when opened. The list now applies IME padding and scrolls to the search bar automatically when it receives focus.
+- Playlist Search Trigger: Fixed search results not appearing until the IME search action or the + button was tapped. Results are now fetched automatically 350ms after each keystroke, and opening the search panel by tapping the pill directly now also activates the results view.
+
+PERFORMANCE
+- Instant Music Playback: Music tracks now begin buffering and playing immediately when tapped instead of waiting for the stream URL to resolve first. ExoPlayer kicks off its audio pipeline right away using a resolving data source; stream URL resolution, play history writes, and related-track discovery all happen in the background concurrently. Tracks with a recently cached URL (from a previous play or pre-fetch) are now served instantly from cache — the result TTL is now derived from the server-reported URL expiry (up to 10 minutes) rather than a fixed 30-second window. The duplicate history write that was running on every track tap has also been removed.
+
+VIDEO PLAYER FIXES
+- YouTube Session Expiry (Data Changed): Fixed the "YouTube data changed" playback error where videos would fail with a generic network error instead of recovering. HTTP 403 and 410 responses from the stream URL are now detected as expired URLs and automatically trigger a silent re-fetch of fresh stream info from the extractor, resuming playback without any user action.
+- Screen Off/On Refocus Glitch: Fixed the player showing 0:00 / 0:00 duration and position after turning the screen off and back on while a video is playing. The refocus effect now detects when ExoPlayer remains stuck (no valid duration after ~2.5 seconds of polling) and calls dedicated recovery handlers for the three stuck sub-states: IDLE (re-prepares), ghost-READY (re-fetches stream), and false-ENDED at the start of the track (seeks to 0 and resumes).
+- Copy Logs Button: Added a "Copy Logs" button to the video player error overlay. Tapping it copies a full diagnostic report — including device info, Android version, ExoPlayer state, and a timestamped log of recent player events — to the clipboard, so users can share it directly without needing ADB or developer tools.
+- Expanded Error Coverage: The video player error handler now covers every PlaybackException error code in Media3 1.4.x, including decoder format errors, DRM failures, audio track errors, cleartext-not-permitted, and read-position-out-of-range. All errors are forwarded to the new in-memory diagnostic buffer so they appear in the copied log report.

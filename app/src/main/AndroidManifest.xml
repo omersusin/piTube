@@ -1,32 +1,405 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Fallback popup player for devices whose ROM does not expose native Android PiP. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+    <!-- Required for writing to external Downloads/Movies on API < 29 -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- Required for reading local video files on Android 13+ -->
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO"
+        android:minSdkVersion="33" />
+    <!-- Required for reading local audio/music files on Android 13+ -->
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_AUDIO"
+        android:minSdkVersion="33" />
+    <!-- Optional: allows saving downloads to public Movies/Music folders (survives app uninstall) -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <!-- Required for DLNA/UPnP SSDP device discovery (FOSS casting, no Google services) -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!--
+        Request battery optimization exemption so Android Doze mode does not throttle
+        network access or kill the background playback service.  The app will show a
+        system dialog asking the user to approve the exemption; this is the same approach
+        used by most open-source media players to survive aggressive OEM battery managers.
+        (Referenced in-app via PowerManager.isIgnoringBatteryOptimizations check.)
+    -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- Microphone capture for music recognition (Shazam) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
+    <!-- Device Sync (FLOW-SYNC/1): resolve the host LAN IP for the QR code. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- Device Sync: scan the peer's QR code to receive the session key out-of-band. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 
     <application
-        android:name=".PiTubeApplication"
+        android:name=".FlowApplication"
         android:allowBackup="true"
-        android:label="piTube"
+        android:banner="@drawable/tv_banner"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.piTube">
-        <service
-            android:name=".service.PlaybackService"
-            android:foregroundServiceType="mediaPlayback"
-            android:exported="false" />
+        android:theme="@style/Theme.Flow"
+        android:usesCleartextTraffic="true"
+        android:resizeableActivity="true"
+        android:enableOnBackInvokedCallback="true">
+
+        <!--
+            Samsung keep-alive hints (same as NewPipe).
+            Prevents Samsung’s DeX and screen-off battery manager from killing the
+            background playback service on OneUI devices.
+        -->
+        <!-- Tells OEMs (Xiaomi HyperOS, Samsung OneUI) not to force letterboxing on large screens -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
+            android:value="true" />
+        <property
+            android:name="android.window.PROPERTY_COMPAT_IGNORE_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
+            android:value="true" />
+
+        <meta-data
+            android:name="com.samsung.android.keepalive.density"
+            android:value="true" />
+        <meta-data
+            android:name="com.samsung.android.multidisplay.keep_process_alive"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+
+        <activity
+            android:name=".TvActivity"
+            android:banner="@drawable/tv_banner"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Flow.Starting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|uiMode"
             android:launchMode="singleTop"
+            android:resizeableActivity="true"
             android:supportsPictureInPicture="true"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden"
-            android:theme="@style/Theme.piTube">
+            android:theme="@style/Theme.Flow.Starting"
+            android:windowSoftInputMode="adjustResize"
+            android:windowLayoutInDisplayCutoutMode="shortEdges">
+
+            <!-- Deep Links for YouTube URLs -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="www.youtube.com" />
+                <data android:host="youtube.com" />
+                <data android:host="m.youtube.com" />
+                <data android:host="music.youtube.com" />
+                <data android:host="m.music.youtube.com" />
+                <data android:pathPrefix="/watch" />
+                <data android:pathPrefix="/v" />
+                <data android:pathPrefix="/channel" />
+                <data android:pathPrefix="/c" />
+                <data android:pathPrefix="/user" />
+                <data android:pathPrefix="/results" />
+                <data android:pathPrefix="/shorts" />
+            </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="youtu.be" />
+            </intent-filter>
+
+            <!-- Piped frontend links (same video IDs as YouTube) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="piped.video" />
+                <data android:host="www.piped.video" />
+                <data android:pathPrefix="/watch" />
+                <data android:pathPrefix="/playlist" />
+                <data android:pathPrefix="/shorts" />
+            </intent-filter>
+
+            <!-- Share Intent for text/plain -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Media3 Music Service -->
+        <service
+            android:name=".service.Media3MusicService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaLibraryService"/>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
+        
+        <!-- Video Playback Service (Media3 MediaSessionService) for background playback and media controls -->
+        <service
+            android:name=".service.VideoPlayerService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService"/>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
+        <!-- Flow Parallel Download Service -->
+        <service
+            android:name=".data.video.downloader.FlowDownloadService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync">
+        </service>
+
+        <!-- ExoPlayer Download Service -->
+        <service
+            android:name=".service.ExoDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync">
+            <intent-filter>
+                <action android:name="androidx.media3.exoplayer.downloadService.action.INIT"/>
+            </intent-filter>
+        </service>
+
+        <!-- Device Sync (FLOW-SYNC/1) foreground service: keeps the LAN WebSocket
+             transfer alive while the screen is off / app is backgrounded. -->
+        <service
+            android:name=".sync.transport.SyncForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync">
+        </service>
+        
+        <!-- Notification action receiver for downloads and other actions -->
+        <receiver 
+            android:name=".notification.NotificationActionReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="io.github.aedev.flow.action.CANCEL_DOWNLOAD" />
+                <action android:name="io.github.aedev.flow.action.RETRY_DOWNLOAD" />
+                <action android:name="io.github.aedev.flow.action.PAUSE_DOWNLOAD" />
+                <action android:name="io.github.aedev.flow.action.RESUME_DOWNLOAD" />
+                <action android:name="io.github.aedev.flow.action.DISMISS_NOTIFICATION" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Time Management Reminder Receiver -->
+        <receiver
+            android:name=".notification.ReminderReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Home-screen widgets (Jetpack Glance) -->
+        <receiver
+            android:name=".widget.quickactions.QuickActionsWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_quick_actions_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_actions_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.recent.RecentlyPlayedWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_recently_played_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_recently_played_info" />
+        </receiver>
+        <receiver
+            android:name=".widget.downloads.DownloadsWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_downloads_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_downloads_info" />
+        </receiver>
+
+        <!-- App Icon Variants (via activity-alias)                          -->
+        <!-- Default: Flow Red -->
+        <activity-alias
+            android:name=".IconFlowRed"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <!-- Flow Light -->
+        <activity-alias
+            android:name=".IconFlowLight"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_flow_light"
+            android:roundIcon="@mipmap/ic_launcher_flow_light_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Flow Play (white background, red video frame + play mark) -->
+        <activity-alias
+            android:name=".IconFlowPlay"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_flow_play"
+            android:roundIcon="@mipmap/ic_launcher_flow_play_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- AMOLED Dark -->
+        <activity-alias
+            android:name=".IconAmoled"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_amoled"
+            android:roundIcon="@mipmap/ic_launcher_amoled_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Monochrome (white background, dark F letter; Material You compatible) -->
+        <activity-alias
+            android:name=".IconMonochrome"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_monochrome"
+            android:roundIcon="@mipmap/ic_launcher_monochrome_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Ghost / Outline (dark background, white squircle border + white F) -->
+        <activity-alias
+            android:name=".IconGhost"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_ghost"
+            android:roundIcon="@mipmap/ic_launcher_ghost_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Dynamic / Material You (neutral bg + monochrome layer; system tints on Android 13+) -->
+        <activity-alias
+            android:name=".IconDynamic"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_dynamic"
+            android:roundIcon="@mipmap/ic_launcher_dynamic_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Material Sky -->
+        <activity-alias
+            android:name=".IconMaterialSky"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_material_sky"
+            android:roundIcon="@mipmap/ic_launcher_material_sky_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Material Mint -->
+        <activity-alias
+            android:name=".IconMaterialMint"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_material_mint"
+            android:roundIcon="@mipmap/ic_launcher_material_mint_round"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
     </application>
+
 </manifest>
+

@@ -1,0 +1,111 @@
+FLOW CHANGE LOG
+VERSION: 2.1.0
+DATE: 2026-04-26
+
+LIBRARIES
+- Bump NewpipeExtractor to latest version (v0.26.1)
+
+FEATURES
+- Add new save state for subscriptions feed display settings #221
+- Add new remember playback speed toggle #229
+- Russian localization #230 provided by @vazinoc
+- subscriptions worker check customizations
+- New playback speed options up to 4x #235
+- New gesture: Swipe down to exit full screen mode
+- New playback speed preset customizations #236
+- New pinch and double tap gestures to resize mini player 
+- Add new Diagnostic screen to capture error and crash logs globaly in the app
+- Add new playback speed slider toggle option 
+- Add shorts player disable toggle #258
+- Add watched videos filtering toggle in feed #245
+- Add global crash reporter and crash screen 
+- Add player cache limit options #243
+- Add new region selector in the explore screen #249
+- Add new merge playlists feature #263
+- Add new video title lines customizer #283
+- Add new action button to video card
+- Add new SponsorBlock segments download with videos #278
+- Add new shorts playback behavior toggle
+- Add new Themes : Monochrome and Custom themes #293
+- Add new automated Backup and master backup features #290
+- Add new Deep Flow (Incognito mode) #282
+- Add new subscription groups #288
+- Add new DeArrow indicator toggle #291
+- Add new in-channel video search #313
+- Add channel avatar expanded preview #318
+- Add new copy video and channel urls in video quick actions #325
+- Add new mark as watched quick access button #340
+- Add new Subscriptions export for newpipe #317
+
+IMPROVEMENTS
+- New miniplayer secondary action buttons layout #225
+- Splash screen color #233
+- Add aggressive codec fetching for AV1/AV01 #226
+- Improve clickable links in video comments and description #244
+- Add pinned comment support #255
+- Improve volume and brightness gestures handling
+- Improve video player support for bluetooth media control buttton #254
+- Improve pip mode handling #241
+- Add cipher and PoToken generation for better music streaming handling Based and ported from MetroList's implementation (https://github.com/MetrolistGroup/Metrolist)
+- Add Horizontal pager for horizontal swiping between channel tabs #248
+- Smoother video to audio swithing (uses a shared cache) #243
+- Add Download progress card in download screen #266
+- Improve notifications container #257
+- Improve muxer for faster merging 
+- Expand content backups #280
+- Improved video gesture handling #284
+- Improve Shorts filtring #285
+- Engine calibration, improved watch signal for new topics and feed balancing #281
+- Improve Engine performace
+- Add togglable Flow logo icon to top bar
+- Improve mini player handling and smoother animation
+- Improve video watch progress tracking #300
+- Add new permission section in download settings #279
+- Improve watched videos hiding logic #305
+- Improve media playback notification handling #304 #310
+- Improve Personality screen performance
+- Improved Pause/Resume download and add better partial block handling #306
+- Add close button to video playback notification #310
+- Add new Monero (XMR) donation option and improve donation screen UI
+- Improve SponsorBlock segment auto fill and Unify SponsorBlock and DeArrow #308
+- Show Video download status
+- Improve Home feed and Subscription screen subs recency #311 
+- Improve comments UI features #318
+- Improve video player UI and handling #321 #324
+- Improve sticky tabs in channels #322
+- Remove seek preview feature #334
+- Improve mini player scaling #330
+- Improve Splash screen colors
+
+FIXES AND STABILITY
+- Fix video player playback speed issue #232
+- Fix video title formats #222
+- Add nullable music search result checks #223
+- Fix music search results #223
+- Fix music playback #242
+- Fix forced layout on tablets #228
+- Fix comments sorting to newest #240
+- Fix RTL mini player handling #187
+- Fix Video progress not displayed in channel screen #237
+- Fix Channel avatar display issue in home feed #251
+- Fix Playing a song automatically switches to last played video #243
+- Fix Black screen when audio only download #274
+- Fix Subtitle crash #271
+- Fix Icon mismatch with splash screen #252
+- Fix Missing channel avatars in categories and shorts #276
+- Fix Playback issues after pip #264
+- Fix Double-Tap seek handling #286
+- Fix Shorts UI and bugs #287
+- Fix Search bar related issues #272
+- Fix Go-To-Channel in categories screen #294
+- Fix Song Artwork resolution in notification shader #296
+- Fix DLNA casting resolution #299
+- Fix Permissions #279
+- Fix Music player UI colors #303
+- Fix Depricated DeArrow endpoint #320
+- Fix Video playback issues #324
+- Fix Pul-to-refresh in music screen #335 by @Amruth-hiremath
+- Fix Status bar colors #333
+- Fix Blurry app icon #336
+- Fix AV1 4K download #342
+- Fix Video crash #345

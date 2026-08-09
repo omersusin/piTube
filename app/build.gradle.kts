@@ -1,51 +1,325 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    alias(libs.plugins.room)
 }
+
 android {
-    namespace = "com.omersusin.pitube"
-    compileSdk = 34
+    namespace = "io.github.aedev.flow"
+    compileSdk = 37
+
     defaultConfig {
         applicationId = "com.omersusin.pitube"
-        minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = 26
+        targetSdk = 36
+        versionCode = 17
+        versionName = "2.2.0"
+
+        testInstrumentationRunner = "io.github.aedev.flow.HiltTestRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+
+        // Support all architectures for maximum device compatibility
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+        }
     }
-    buildTypes { release { isMinifyEnabled = true; isShrinkResources = true; proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro") } }
+
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles (for Google Play)
+        includeInBundle = false
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            isUniversalApk = true
+        }
+    }
+
+    flavorDimensions += "version"
+    productFlavors {
+        create("github") {
+            dimension = "version"
+            isDefault = true
+            buildConfigField("Boolean", "UPDATER_ENABLED", "true")
+            buildConfigField("String", "DISCORD_APPLICATION_ID", "\"1526515771021328514\"")
+        }
+        create("foss") {
+            dimension = "version"
+            buildConfigField("Boolean", "UPDATER_ENABLED", "false")
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+        compose = true
+    }
+
+    signingConfigs {
+        create("release") {
+            val localProperties = Properties()
+            val localPropertiesFile = rootDir.resolve("local.properties")
+            if (localPropertiesFile.exists()) {
+                localPropertiesFile.inputStream().use { localProperties.load(it) }
+            }
+
+            storeFile = rootDir.resolve("release.keystore")
+            storePassword = (project.findProperty("storePassword") as? String)
+                ?: localProperties.getProperty("storePassword")
+                ?: System.getenv("STORE_PASSWORD")
+                ?: ""
+            keyAlias = (project.findProperty("keyAlias") as? String)
+                ?: localProperties.getProperty("keyAlias")
+                ?: System.getenv("KEY_ALIAS")
+                ?: ""
+            keyPassword = (project.findProperty("keyPassword") as? String)
+                ?: localProperties.getProperty("keyPassword")
+                ?: System.getenv("KEY_PASSWORD")
+                ?: ""
+        }
+    }
+
+    buildTypes {
+        debug {
+            isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        // Nightly: release-level performance + debug signing so it's easy to
+        // sideload. Fixes the laggy-nightly issue reported in #66.
+        create("nightly") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".nightly"
+            versionNameSuffix = "-nightly"
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        release {
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            // Use release signing if configured, otherwise fallback to debug
+            val releaseKeystore =
+                try {
+                    signingConfigs.getByName("release").storeFile
+                } catch (e: Exception) {
+                    null
+                }
+            if (releaseKeystore?.exists() == true) {
+                signingConfig = signingConfigs.getByName("release")
+                println("Using RELEASE signing config with keystore: ${releaseKeystore.absolutePath}")
+            } else {
+                signingConfig = null // Let Gradle build an unsigned APK for IzzyOnDroid/F-Droid
+                println("WARNING: Release keystore not found. Building UNSIGNED release APK.")
+            }
+        }
+    }
+
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true // Enable desugaring
     }
-    kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
-    composeOptions { kotlinCompilerExtensionVersion = "1.5.8" }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
+    }
 }
+
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
+}
+
+composeCompiler {
+    if (project.findProperty("composeCompilerReports") == "true") {
+        val reportsDir = layout.buildDirectory.dir("compose_compiler")
+        reportsDestination = reportsDir
+        metricsDestination = reportsDir
+    }
+}
+
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2024.09.00")
-    implementation(composeBom)
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.webkit:webkit:1.10.0")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.navigation:navigation-compose:2.7.6")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation("androidx.media3:media3-exoplayer:1.3.1")
-    implementation("androidx.media3:media3-exoplayer-hls:1.3.1")
-    implementation("androidx.media3:media3-ui:1.3.1")
-    implementation("androidx.media3:media3-common:1.3.1")
-    implementation("androidx.media3:media3-session:1.3.1")
-    implementation("androidx.paging:paging-runtime:3.2.1")
-    implementation("androidx.paging:paging-compose:3.2.1")
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
-    implementation("com.github.TeamNewPipe:NewPipeExtractor:v0.26.3")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    // --- Core Android ---
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.activity.compose)
+
+    // --- Compose (Using BOM is best practice) ---
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+
+    // --- Navigation ---
+    implementation(libs.androidx.navigation.compose)
+
+    // --- Lifecycle & Architecture ---
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // --- Layouts ---
+    implementation(libs.androidx.constraintlayout.compose)
+
+    // --- Image Loading ---
+    implementation(libs.coil.compose)
+    implementation(libs.coil.video)
+    implementation(libs.coil.network.okhttp)
+    implementation("androidx.palette:palette-ktx:1.0.0")
+
+    // --- Dependency Injection ---
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation.compose)
+
+    // --- Data & Network ---
+    implementation(libs.newpipe.extractor)
+
+    // Networking
+    implementation(libs.okhttp)
+
+    // Ktor (Managed in libs.versions.toml)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.encoding)
+
+    // --- Device Sync (FLOW-SYNC/1) ---
+    implementation(libs.ktor.server.core) {
+        exclude(group = "org.fusesource.jansi", module = "jansi")
+    }
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.websockets)
+    implementation(libs.zxing.core)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    // Serialization & JSON
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.gson)
+
+    // conscrypt for OkHttp TLS support on older Android versions
+    implementation(libs.conscrypt.android)
+
+    // --- Media Playback ---
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.exoplayer.hls)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.datasource)
+    implementation(libs.androidx.media3.datasource.okhttp)
+    implementation(libs.androidx.media)
+
+    // --- Database & Storage ---
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.datastore.preferences)
+    // implementation(libs.androidx.datastore) // In TOML if needed
+
+    // --- Home-screen widgets (Jetpack Glance) ---
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.graphics.shapes)
+
+    // --- Async & Utils ---
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.androidx.paging.compose)
+
+    implementation(libs.androidx.work.runtime.ktx)
+    "githubImplementation"(libs.apkupdater)
+
+    implementation(libs.brotli)
+    implementation(libs.re2j)
+
+    // --- Baseline profiles ---
+    implementation(libs.androidx.profileinstaller)
+
+    // Desugaring for older Android versions
+    coreLibraryDesugaring(libs.desugar.jdk.libs.nio)
+
+    // --- Testing ---
+    testImplementation(libs.junit)
+    testImplementation(libs.kxml2)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.truth)
+    testImplementation(libs.turbine)
+    testImplementation(libs.hilt.android.testing)
+    kspTest(libs.hilt.android.compiler)
+
+    // Room migration tests (device-sync schema 20→23)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.android.compiler)
+
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+// Allow references to generated code
+ksp {
+    arg("dagger.fastInit", "enabled")
+}
+
+hilt {
+    enableAggregatingTask = true
 }

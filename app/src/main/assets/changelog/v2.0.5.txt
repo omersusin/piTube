@@ -1,0 +1,70 @@
+FLOW CHANGE LOG
+VERSION: 2.0.5
+DATE: 2026-04-2
+
+FEATURES
+- New Audio focus toggle to continue playing videos while on a call #175 #177
+- Add new copy video link at time stamps button #178
+- Add new direct video link copy button #178
+- Pinch-to-zoom gesture #184
+- Swipe up to enter fullscreen in the video player #183
+- Add new disable home feed toggle #195
+- Add new related video card style toggle #191
+- Add new voice search for videos #203
+- Add new toggle to enable search icon from bottom nav #201
+- Add new custom app icon picker #169
+- Add new country search for trending country settings picker #208
+- Add new save public playlist to library for music and videos
+- Add new manual sponsor skip button #215
+- Add voice stabilizer toggle to player settings menu #217
+- Add new category screen toggle #218
+
+IMPROVEMENTS
+- FlowNeuroEngine modularization
+- Smarter Discovery Query Generation
+- Improved content tokenization - Domain based
+- Tuned engine learning rates
+- Engine and content stability
+- Add new learning from tags contexts
+- Improved filtering on marked content #173
+- Hide related video when marked in the video player screen #172
+- Add shorts deduplication in the subs screen shorts shelf #138 #162
+- Optimized shorts loading speeds
+- Video quick actions menu
+- Remove warmup connections and increase subs check to 6 hrs instead of 30 min #185
+- Menu options redesign
+- Add video card press and hold to open quick actions
+- Increase video title to 2 lines #197
+- Move SponsorBlock contribution setttings to player settings screen #193
+- Add load more feature for comments #204
+- Add channel screen position caching #196
+- Search screen filters and layout improvements #206
+- Add 144p and 240p to default download settings #209
+- Update custom download path selection to use SAF folder picker #210
+- Add video tags to description
+- Add upcoming badge for videos that are about to premier #216
+- Improve music player scroll and drag handling
+- Add notifications customization to video player and subscription screens #219
+- Notifications screen UI improvements
+- Download settings screen UI improvements
+- Improve video player error message display
+
+FIXES AND STABILITY
+- Keyboard Focus and pop up
+- Fix shorts quality preferences #170
+- Fix missing audio tracks #171
+- Fix orientation when re-entering video player #179
+- Fix continue watching mini-player #167
+- Fix seek to preview box shape #179
+- Fix video timestamps #192
+- Fix video delete issues #95
+- Fix share button issues #176
+- Fix video and gestures for RTL #187 #188
+- Fix comment sheet collapsing when scrolling #189
+- Fix Download settings to properly use chosen download path preferences #211
+- Fix shorts metadata and download sizes
+- Fix crash on radio button click in music search screen
+
+FLAVORS
+- Github flavor 
+- FOSS flavor (for IzzyOnDroid)

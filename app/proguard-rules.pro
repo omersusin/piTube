@@ -1,54 +1,140 @@
-# ProGuard rules for piTube
+# SPDX-FileCopyrightText: 2025 Flow
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Based on NewPipe's ProGuard configuration
 
-# Keep NewPipe Extractor
--keep class org.schabi.newpipe.** { *; }
--dontwarn org.schabi.newpipe.**
+# https://developer.android.com/build/shrink-code
 
-# Keep Media3/ExoPlayer
+## Helps debug release versions - keeps class/method names readable
+-dontobfuscate
+-ignorewarnings
+
+## Rules for NewPipeExtractor
+-keep class org.schabi.newpipe.extractor.timeago.patterns.** { *; }
+-keep class org.schabi.newpipe.extractor.** { *; }
+
+## Rules for Rhino and Rhino Engine (JavaScript engine used by NewPipe)
+-keep class org.mozilla.javascript.* { *; }
+-keep class org.mozilla.javascript.** { *; }
+-keep class org.mozilla.javascript.engine.** { *; }
+-keep class org.mozilla.classfile.ClassFileWriter
+-dontwarn org.mozilla.javascript.JavaToJSONConverters
+-dontwarn org.mozilla.javascript.tools.**
+-keep class javax.script.** { *; }
+-dontwarn javax.script.**
+-keep class jdk.dynalink.** { *; }
+-dontwarn jdk.dynalink.**
+
+## Rules for ExoPlayer / Media3
+-keep class com.google.android.exoplayer2.** { *; }
 -keep class androidx.media3.** { *; }
+-dontwarn com.google.android.exoplayer2.**
 -dontwarn androidx.media3.**
 
-# Keep Retrofit
--keepattributes Signature
--keepattributes *Annotation*
--keep class retrofit2.** { *; }
--keepclasseswithmembers class * {
-    @retrofit2.http.* <methods>;
-}
--dontwarn retrofit2.**
+## Keep application classes
+-keep class io.github.aedev.flow.** { *; }
+-keep class io.github.aedev.flow.FlowApplication { *; }
 
-# Keep OkHttp
--dontwarn okhttp3.**
--dontwarn okio.**
--keep class okhttp3.** { *; }
+## Rules for Jetpack Compose
+-dontwarn androidx.compose.**
 
-# Keep Gson
+## Rules for Gson serialization
 -keepattributes Signature
 -keepattributes *Annotation*
 -keep class com.google.gson.** { *; }
--keep class * extends com.google.gson.TypeAdapter
+-keep class * implements com.google.gson.TypeAdapter
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer
 
-# Keep data models for Gson
--keep class com.omersusin.pitube.data.** { *; }
+## Keep data model classes
+-keep class io.github.aedev.flow.**.models.** { *; }
+-keep class io.github.aedev.flow.**.data.** { *; }
 
-# Keep Compose
--dontwarn androidx.compose.**
+## Rules for Kotlin
+-keep class kotlin.Metadata { *; }
+-keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
+-keep class kotlinx.coroutines.** { *; }
+-dontwarn kotlinx.coroutines.**
 
-# Keep Coil
--keep class coil.** { *; }
--dontwarn coil.**
+## Rules for DataStore
+-keep class androidx.datastore.** { *; }
+-dontwarn androidx.datastore.**
 
-# Keep Security Crypto
--keep class androidx.security.crypto.** { *; }
--dontwarn androidx.security.crypto.**
+## Rules for Coil image loading
+-keep class coil3.** { *; }
+-dontwarn coil3.**
 
-# Keep Paging
--keep class androidx.paging.** { *; }
--dontwarn androidx.paging.**
+## Rules for Navigation
+-keep class androidx.navigation.** { *; }
+-dontwarn androidx.navigation.**
 
-# General Android
--keepattributes SourceFile,LineNumberTable
--renamesourcefileattribute SourceFile
+## Standard Android rules
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+    **[] $VALUES;
+    public *;
+}
+
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+## Rules for OkHttp (used internally by NewPipe)
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+
+## Rules for SLF4J
+-dontwarn org.slf4j.**
+
+## Rules for Ktor
+-dontwarn io.ktor.**
+-keep class io.ktor.** { *; }
+
+## Shazam recognition models + kotlinx serializers
+-keepclasseswithmembers class io.github.aedev.flow.data.recognition.shazam.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-keepclassmembers class io.github.aedev.flow.data.recognition.shazam.** {
+    *** Companion;
+}
+
+## Rules for Brotli
+-dontwarn org.brotli.**
+-keep class org.brotli.** { *; }
+-dontwarn org.conscrypt.**
+
+## Java Beans (not available on Android)
+-dontwarn java.beans.**
+
+
+
+## Additional rules for NewPipeExtractor stability
+-keep class com.grack.nanojson.** { *; }
+-keep class org.schabi.newpipe.extractor.services.** { *; }
+-keep class org.schabi.newpipe.extractor.services.youtube.** { *; }
+-keep class org.schabi.newpipe.extractor.services.soundcloud.** { *; }
+-keep class * extends org.schabi.newpipe.extractor.Extractor { *; }
+-keep class * implements org.schabi.newpipe.extractor.Service { *; }
+-keepattributes Exceptions, InnerClasses
+
+## Rules for re2j (Required by Jsoup/NewPipeExtractor)
+-dontwarn com.google.re2j.**
+-keep class com.google.re2j.** { *; }
+-dontwarn org.jsoup.helper.Re2jRegex
+-dontwarn org.jsoup.helper.Re2jRegex$Re2jMatcher
