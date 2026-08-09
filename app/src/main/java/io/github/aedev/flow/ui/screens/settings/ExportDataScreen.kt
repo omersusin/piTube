@@ -15,6 +15,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -235,6 +239,81 @@ fun ExportDataScreen(
             }
 
             item { Spacer(modifier = Modifier.height(32.dp)) }
+        }
+    }
+}
+
+@Composable
+internal fun ImportOptionCard(
+    title: String,
+    description: String,
+    icon: ImageVector? = null,
+    painter: Painter? = null,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .graphicsLayer(alpha = if (enabled) 1.0f else 0.5f),
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
+        border =
+            androidx.compose.foundation.BorderStroke(
+                1.dp,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+            ),
+    ) {
+        Row(
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = containerColor.copy(alpha = 0.15f),
+                modifier = Modifier.size(48.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    if (icon != null) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    } else if (painter != null) {
+                        Icon(
+                            painter = painter,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                            tint = Color.Unspecified,
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 16.sp,
+                )
+            }
         }
     }
 }
