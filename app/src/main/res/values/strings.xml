@@ -2442,4 +2442,11 @@
     <string name="remove_from_queue">Remove from queue</string>
     <string name="remove_from_queue_confirmation">Are you sure you want to remove this video from the queue?</string>
     <string name="reorder_queue_item">Reorder queue item</string>
+    <string name="login_title">Sign in to YouTube</string>
+    <string name="login_subtitle">Sign in to access your subscriptions, history and playlists.</string>
+    <string name="login_button">Sign in</string>
+    <string name="login_signed_in">Signed in</string>
+    <string name="logout_button">Sign out</string>
+    <string name="login_failed_invalid_session">Sign-in failed: the session cookie is incomplete. Please try again.</string>
+    <string name="account_menu_title">Account</string>
 </resources>

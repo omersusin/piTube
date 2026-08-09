@@ -8,6 +8,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import dagger.hilt.android.HiltAndroidApp
+import io.github.aedev.flow.data.auth.AuthManager
 import io.github.aedev.flow.data.local.PlayerPreferences
 import io.github.aedev.flow.data.local.SubscriptionRepository
 import io.github.aedev.flow.data.repository.NewPipeDownloader
@@ -173,6 +174,15 @@ class FlowApplication :
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "visitorData init error: ${e.message}")
+            }
+            try {
+                val storedCookies = AuthManager.getRawCookies(this@FlowApplication)
+                if (storedCookies.isNotBlank()) {
+                    YouTube.cookie = storedCookies
+                    Log.d(TAG, "YouTube session restored from encrypted storage")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "session restore error: ${e.message}")
             }
             try {
                 io.github.aedev.flow.utils.potoken.WebPoTokenSession

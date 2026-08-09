@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
@@ -28,7 +29,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.shape.CircleShape
+import coil3.compose.AsyncImage
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -96,6 +99,7 @@ fun HomeScreen(
     onChannelClick: (String) -> Unit = {},
     onNavigateToHistory: () -> Unit = {},
     onOpenShortsFeed: () -> Unit = {},
+    onAccountClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
     notificationViewModel: NotificationViewModel = hiltViewModel()
@@ -103,6 +107,8 @@ fun HomeScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val unreadNotifications by notificationViewModel.unreadCount.collectAsStateWithLifecycle()
+    var accountInfo by remember { mutableStateOf(io.github.aedev.flow.data.auth.AccountFetcher.getCached(context)) }
+    var accountLoggedIn by remember { mutableStateOf(io.github.aedev.flow.data.auth.AuthManager.isLoggedIn(context)) }
     val preferences = remember { io.github.aedev.flow.data.local.PlayerPreferences(context) }
     val homeViewMode by preferences.homeViewMode.collectAsStateWithLifecycle(
         initialValue = io.github.aedev.flow.data.local.HomeViewMode.GRID
@@ -124,6 +130,13 @@ fun HomeScreen(
             viewModel.onHomeVisible()
         } else {
             viewModel.onHomeHidden()
+        }
+        accountLoggedIn = io.github.aedev.flow.data.auth.AuthManager.isLoggedIn(context)
+        if (accountLoggedIn) {
+            val cached = io.github.aedev.flow.data.auth.AccountFetcher.getCached(context)
+            if (cached != null) accountInfo = cached
+        } else {
+            accountInfo = null
         }
         onStopOrDispose { viewModel.onHomeHidden() }
     }
@@ -206,6 +219,27 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(0.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        IconButton(
+                            onClick = onAccountClick,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            if (accountLoggedIn && accountInfo?.avatarUrl != null) {
+                                AsyncImage(
+                                    model = accountInfo?.avatarUrl,
+                                    contentDescription = stringResource(R.string.login_button),
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Outlined.AccountCircle,
+                                    contentDescription = stringResource(R.string.login_button),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
                         IconButton(
                             onClick = onSearchClick,
                             modifier = Modifier.size(40.dp)

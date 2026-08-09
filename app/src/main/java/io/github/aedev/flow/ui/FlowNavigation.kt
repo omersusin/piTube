@@ -35,6 +35,7 @@ import io.github.aedev.flow.ui.screens.notifications.NotificationScreen
 import io.github.aedev.flow.ui.screens.player.VideoPlayerViewModel
 import io.github.aedev.flow.ui.screens.player.VideoPlayerUiState
 import io.github.aedev.flow.ui.screens.search.SearchScreen
+import io.github.aedev.flow.ui.screens.account.YouTubeLoginScreen
 import io.github.aedev.flow.ui.screens.settings.SettingsScreen
 import io.github.aedev.flow.ui.screens.personality.FlowPersonalityScreen
 import io.github.aedev.flow.ui.screens.shorts.ShortsScreen
@@ -145,7 +146,20 @@ fun NavGraphBuilder.flowAppGraph(
             onOpenShortsFeed = {
                 navController.navigate("shorts")
             },
+            onAccountClick = {
+                navController.navigate("account")
+            },
             viewModel = homeViewModel
+        )
+    }
+
+    // Account (YouTube sign-in) Screen
+    composable("account") {
+        currentRoute.value = "account"
+        showBottomNav.value = false
+        YouTubeLoginScreen(
+            onLoginComplete = { navController.popBackStack() },
+            onNavigateBack = { navController.popBackStack() }
         )
     }
 
