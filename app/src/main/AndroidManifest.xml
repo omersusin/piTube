@@ -167,17 +167,6 @@
             </intent-filter>
         </activity>
         
-        <!-- Media3 Music Service -->
-        <service
-            android:name=".service.Media3MusicService"
-            android:foregroundServiceType="mediaPlayback"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaLibraryService"/>
-                <action android:name="android.media.browse.MediaBrowserService"/>
-            </intent-filter>
-        </service>
-        
         <!-- Video Playback Service (Media3 MediaSessionService) for background playback and media controls -->
         <service
             android:name=".service.VideoPlayerService"

@@ -36,7 +36,6 @@ import io.github.aedev.flow.ui.screens.player.VideoPlayerViewModel
 import io.github.aedev.flow.ui.screens.player.VideoPlayerUiState
 import io.github.aedev.flow.ui.screens.search.SearchScreen
 import io.github.aedev.flow.ui.screens.settings.SettingsScreen
-import io.github.aedev.flow.ui.screens.settings.ImportDataScreen
 import io.github.aedev.flow.ui.screens.personality.FlowPersonalityScreen
 import io.github.aedev.flow.ui.screens.shorts.ShortsScreen
 import io.github.aedev.flow.ui.screens.subscriptions.SubscriptionsScreen
@@ -320,7 +319,6 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToPersonality = { navController.navigate("personality") },
             onNavigateToDownloads = { navController.navigate("settings/downloads") },
             onNavigateToTimeManagement = { navController.navigate("settings/time_management") },
-            onNavigateToImport = { navController.navigate("settings/import") },
             onNavigateToPlayerSettings = { navController.navigate("settings/player") },
             onNavigateToProxySettings = { navController.navigate("settings/proxy") },
             onNavigateToVideoQuality = { navController.navigate("settings/video_quality") },
@@ -454,13 +452,6 @@ fun NavGraphBuilder.flowAppGraph(
         )
     }
     
-    composable("settings/import") {
-        currentRoute.value = "settings/import"
-        ImportDataScreen(
-            onNavigateBack = { navController.popBackStack() }
-        )
-    }
-
     composable("settings/time_management") {
         currentRoute.value = "settings/time_management"
         showBottomNav.value = false

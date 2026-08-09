@@ -5,8 +5,7 @@ internal const val STAGGER_DELAY_MS = 50L
 
 internal enum class OnboardingStep(val index: Int, val label: String) {
     INTERESTS(0, "Interests"),
-    CHANNELS(1, "Channels"),
-    IMPORT(2, "Import")
+    CHANNELS(1, "Channels")
 }
 
 data class ChannelSearchResult(

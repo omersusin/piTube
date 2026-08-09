@@ -78,7 +78,6 @@ fun SettingsScreen(
     onNavigateToPersonality: () -> Unit,
     onNavigateToDownloads: () -> Unit,
     onNavigateToTimeManagement: () -> Unit,
-    onNavigateToImport: () -> Unit,
     onNavigateToPlayerSettings: () -> Unit,
     onNavigateToProxySettings: () -> Unit,
     onNavigateToVideoQuality: () -> Unit,
@@ -416,13 +415,6 @@ fun SettingsScreen(
                 stringResource(R.string.settings_item_export_data_subtitle),
                 secDataManagement,
                 onNavigateToExport,
-            ),
-            SettingSearchEntry(
-                Icons.Outlined.FileDownload,
-                stringResource(R.string.settings_item_import_data),
-                stringResource(R.string.settings_item_import_data_subtitle),
-                secDataManagement,
-                onNavigateToImport,
             ),
             SettingSearchEntry(
                 Icons.Outlined.Schedule,
@@ -1188,16 +1180,6 @@ fun SettingsScreen(
                             title = stringResource(R.string.settings_item_export_data),
                             subtitle = stringResource(R.string.settings_item_export_data_subtitle),
                             onClick = onNavigateToExport,
-                        )
-                        HorizontalDivider(
-                            Modifier.padding(start = 56.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
-                        SettingsItem(
-                            icon = Icons.Outlined.FileDownload,
-                            title = stringResource(R.string.settings_item_import_data),
-                            subtitle = stringResource(R.string.settings_item_import_data_subtitle),
-                            onClick = onNavigateToImport,
                         )
                         HorizontalDivider(
                             Modifier.padding(start = 56.dp),
