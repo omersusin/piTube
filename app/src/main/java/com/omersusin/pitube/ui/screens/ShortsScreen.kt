@@ -43,7 +43,7 @@ fun ShortsScreen() {
     val scope = rememberCoroutineScope()
 
     suspend fun loadShorts(): List<VideoItem> {
-        val strategies = listOf(
+        val strategies: List<suspend () -> List<VideoItem>> = listOf(
             { InnerTubeClient.parseShortsShelf(InnerTubeClient.browse(context, "FEshorts")) },
             { InnerTubeClient.parseShortsShelf(InnerTubeClient.browse(context, "FEwhat_to_watch")) },
             { InnerTubeClient.parseShortsShelf(InnerTubeClient.browse(context, "FEexplore")) },
