@@ -20,20 +20,10 @@ class DiscordPresenceMapper(
         val hasTimestamps = !snapshot.isLive && durationMs > 0L
 
         return DiscordPresencePayload(
-            type = when (snapshot.kind) {
-                PlaybackKind.MUSIC -> DiscordActivityType.LISTENING
-                PlaybackKind.VIDEO,
-                PlaybackKind.SHORT,
-                PlaybackKind.LIVE,
-                -> DiscordActivityType.WATCHING
-            },
+            type = DiscordActivityType.WATCHING,
             mediaId = snapshot.mediaId,
             details = details,
-            state = if (snapshot.kind == PlaybackKind.MUSIC) {
-                subtitle
-            } else {
-                normalize(creatorLabel(subtitle), fallback = appName)
-            },
+            state = normalize(creatorLabel(subtitle), fallback = appName),
             largeImage = snapshot.artworkUrl
                 .trim()
                 .takeIf { it.startsWith("https://") }

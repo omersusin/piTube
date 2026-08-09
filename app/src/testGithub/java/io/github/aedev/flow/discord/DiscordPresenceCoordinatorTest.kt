@@ -82,7 +82,7 @@ class DiscordPresenceCoordinatorTest {
     fun `repeated snapshots are deduplicated`() = runTest {
         var elapsed = 1_000L
         val snapshot = PlaybackSnapshot(
-            kind = PlaybackKind.MUSIC,
+            kind = PlaybackKind.VIDEO,
             mediaId = "song-1",
             title = "A useful song",
             subtitle = "Flow Artist",

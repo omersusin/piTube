@@ -11,10 +11,10 @@ class DiscordPresenceMapperTest {
     )
 
     @Test
-    fun musicMapsToListeningWithArtistAndCountdown() {
+    fun videoMapsToWatchingWithCreatorAndCountdown() {
         val result = mapper.map(
             snapshot = PlaybackSnapshot(
-                kind = PlaybackKind.MUSIC,
+                kind = PlaybackKind.VIDEO,
                 mediaId = "song-1",
                 title = "Night Drive",
                 subtitle = "Example Artist",
@@ -29,10 +29,10 @@ class DiscordPresenceMapperTest {
 
         assertThat(result).isEqualTo(
             DiscordPresencePayload(
-                type = DiscordActivityType.LISTENING,
+                type = DiscordActivityType.WATCHING,
                 mediaId = "song-1",
                 details = "Night Drive",
-                state = "Example Artist",
+                state = "by Example Artist",
                 largeImage = "https://i.ytimg.com/vi/song-1/maxresdefault.jpg",
                 largeImageText = "Night Drive",
                 startTimestampSeconds = 970L,
@@ -133,7 +133,7 @@ class DiscordPresenceMapperTest {
     fun fieldsAreTrimmedAndLimitedToDiscordMaximum() {
         val result = mapper.map(
             snapshot = PlaybackSnapshot(
-                kind = PlaybackKind.MUSIC,
+                kind = PlaybackKind.VIDEO,
                 mediaId = "song-2",
                 title = "x".repeat(200),
                 subtitle = "  Artist  ",
@@ -147,6 +147,6 @@ class DiscordPresenceMapperTest {
         )
 
         assertThat(result?.details).hasLength(128)
-        assertThat(result?.state).isEqualTo("Artist")
+        assertThat(result?.state).isEqualTo("by Artist")
     }
 }

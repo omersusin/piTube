@@ -45,7 +45,7 @@ internal object KizzyGatewayProtocol {
                 add(
                     buildJsonObject {
                         put("name", activityName)
-                        put("type", if (payload.type == DiscordActivityType.LISTENING) 2 else 3)
+                        put("type", 3)
                         put("details", payload.details)
                         put("state", payload.state)
                         put("application_id", applicationId)

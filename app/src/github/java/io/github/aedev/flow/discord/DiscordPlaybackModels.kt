@@ -4,12 +4,10 @@ enum class PlaybackKind {
     VIDEO,
     SHORT,
     LIVE,
-    MUSIC,
 }
 
 enum class DiscordActivityType {
     WATCHING,
-    LISTENING,
 }
 
 data class PlaybackSnapshot(

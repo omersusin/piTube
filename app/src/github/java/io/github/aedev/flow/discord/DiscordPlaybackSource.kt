@@ -2,7 +2,6 @@ package io.github.aedev.flow.discord
 
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
-import io.github.aedev.flow.player.EnhancedMusicPlayerManager
 import io.github.aedev.flow.player.EnhancedPlayerManager
 import io.github.aedev.flow.player.GlobalPlayerState
 import io.github.aedev.flow.player.shorts.ShortsPlayerPool
@@ -28,8 +27,6 @@ class DiscordPlaybackSource(
         signals = merge(
             GlobalPlayerState.currentVideo.map { Unit },
             videoManager.playerState.map { Unit },
-            EnhancedMusicPlayerManager.currentTrack.map { Unit },
-            EnhancedMusicPlayerManager.playerState.map { Unit },
             shortsPool.currentVideo.map { Unit },
             ticker(),
         ),
@@ -38,7 +35,6 @@ class DiscordPlaybackSource(
             selector.select(
                 short = shortSnapshot(),
                 video = videoSnapshot(),
-                music = musicSnapshot(),
             )
         },
     )
@@ -78,22 +74,6 @@ class DiscordPlaybackSource(
             durationMs = if (isLive) 0L else videoManager.getDuration().coerceAtLeast(0L),
             isPlaying = state.isPlaying,
             isLive = isLive,
-        )
-    }
-
-    private fun musicSnapshot(): PlaybackSnapshot? {
-        val track = EnhancedMusicPlayerManager.currentTrack.value ?: return null
-        val state = EnhancedMusicPlayerManager.playerState.value
-        return PlaybackSnapshot(
-            kind = PlaybackKind.MUSIC,
-            mediaId = track.videoId,
-            title = track.title,
-            subtitle = track.artist,
-            artworkUrl = track.highResThumbnailUrl,
-            positionMs = EnhancedMusicPlayerManager.getCurrentPosition(),
-            durationMs = EnhancedMusicPlayerManager.getDuration().coerceAtLeast(0L),
-            isPlaying = state.isPlaying,
-            isLive = false,
         )
     }
 

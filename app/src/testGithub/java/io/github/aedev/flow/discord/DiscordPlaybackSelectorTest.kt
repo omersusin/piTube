@@ -7,41 +7,38 @@ class DiscordPlaybackSelectorTest {
     private val selector = DiscordPlaybackSelector()
 
     @Test
-    fun `shorts take priority over regular video and music`() {
+    fun `shorts take priority over regular video`() {
         val selected = selector.select(
             short = snapshot(PlaybackKind.SHORT, "short"),
             video = snapshot(PlaybackKind.VIDEO, "video"),
-            music = snapshot(PlaybackKind.MUSIC, "music"),
         )
 
         assertThat(selected?.mediaId).isEqualTo("short")
     }
 
     @Test
-    fun `regular video takes priority over music`() {
+    fun `regular video selected when shorts paused`() {
         val selected = selector.select(
             short = null,
             video = snapshot(PlaybackKind.LIVE, "live"),
-            music = snapshot(PlaybackKind.MUSIC, "music"),
         )
 
         assertThat(selected?.mediaId).isEqualTo("live")
     }
 
     @Test
-    fun `paused higher priority player does not hide playing music`() {
+    fun `paused higher priority player does not hide playing video`() {
         val selected = selector.select(
             short = snapshot(PlaybackKind.SHORT, "short", isPlaying = false),
-            video = snapshot(PlaybackKind.VIDEO, "video", isPlaying = false),
-            music = snapshot(PlaybackKind.MUSIC, "music"),
+            video = snapshot(PlaybackKind.VIDEO, "video"),
         )
 
-        assertThat(selected?.mediaId).isEqualTo("music")
+        assertThat(selected?.mediaId).isEqualTo("video")
     }
 
     @Test
     fun `no active player clears selection`() {
-        assertThat(selector.select(null, null, null)).isNull()
+        assertThat(selector.select(null, null)).isNull()
     }
 
     private fun snapshot(
