@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.AppUiModePreferences
 import com.omersusin.pitube.platform.AppUiMode
 import com.omersusin.pitube.ui.tv.components.TvSelectionRow
