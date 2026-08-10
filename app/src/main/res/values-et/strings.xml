@@ -114,7 +114,7 @@
     <string name="chapters">Peatükid</string>
     <string name="artist">Esitaja</string>
     <string name="playlist">Esitusloend</string>
-    <string name="app_name_uppercase">FLOW</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="liked_music">Meeldivaks märgitud muusika</string>
     <string name="liked_videos">Meeldivaks märgitud videod</string>
@@ -198,7 +198,7 @@
     <string name="tap_to_close">Sulgemiseks klõpsa</string>
     <string name="new_update_available">Saadaval on rakenduse uuendus</string>
     <string name="update_available_template">%1$s on nüüd saadaval</string>
-    <string name="update_flow">Uuenda rakendust Flow</string>
+    <string name="update_flow">Uuenda rakendust piTube</string>
     <string name="maybe_later">Võib-olla hiljem</string>
     <string name="select_artist">Vali esitaja</string>
     <string name="copy_description">Kopeeri kirjeldus</string>
@@ -308,10 +308,10 @@
     <string name="settings_item_diagnostics">Diagnostika</string>
     <string name="no_groups_yet">Gruppe veel pole. Oma sisuvoo filtreerimiseks loo mõni.</string>
     <string name="settings_title">Seadistused</string>
-    <string name="settings_flow_engine_header">Flow sisumootor</string>
+    <string name="settings_flow_engine_header">piTube sisumootor</string>
     <string name="settings_active_learning">AKTIIVÕPE</string>
-    <string name="settings_reset_brain_title">Kas lähtestad Flow isiksuse?</string>
-    <string name="settings_reset_brain_body">Järgnevaga kustutad täielikult su „Flow Brain“ huvide profiili.\n\n• Kõik õpitud teemad ununevad.\n• Isiksuseomadused taastuvad neutraalsele tasemele.\n• Soovitused taastuvad vaikimisi valikuteks.\n\nSeda toimingut ei saa tagasi võtta.</string>
+    <string name="settings_reset_brain_title">Kas lähtestad piTube isiksuse?</string>
+    <string name="settings_reset_brain_body">Järgnevaga kustutad täielikult su „piTube Brain“ huvide profiili.\n\n• Kõik õpitud teemad ununevad.\n• Isiksuseomadused taastuvad neutraalsele tasemele.\n• Soovitused taastuvad vaikimisi valikuteks.\n\nSeda toimingut ei saa tagasi võtta.</string>
     <string name="settings_reset_everything">Lähtesta kõik</string>
     <string name="settings_analyzing_interactions">Analüüsin sinu suhestumisi…</string>
     <string name="settings_view_analytics">Vaata analüüsi tulemusi</string>
@@ -321,7 +321,7 @@
     <string name="settings_header_about">Rakenduse teave</string>
     <string name="settings_header_notifications">Teavitused</string>
     <string name="settings_item_notifications">Teavituste eelistused</string>
-    <string name="settings_item_notifications_subtitle">Halda Flow saadetavaid teavitusi</string>
+    <string name="settings_item_notifications_subtitle">Halda piTube saadetavaid teavitusi</string>
     <string name="notif_settings_title">Teavituste eelistused</string>
     <string name="notif_type_new_videos">Uued videod</string>
     <string name="notif_type_new_videos_subtitle">Teavita, kui tellitud kanalitesse laaditakse üles uusi videoid</string>

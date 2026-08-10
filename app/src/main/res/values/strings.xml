@@ -423,29 +423,6 @@
     <string name="settings_analyzing_interactions">Analyzing your interactions...</string>
     <string name="settings_view_analytics">View Analytics</string>
     <!-- Deep Flow Mode -->
-    <string name="deep_flow_mode_title">Deep piTube Mode</string>
-    <string name="deep_flow_mode_subtitle">Pause learning — browse without influencing your profile</string>
-    <string name="deep_flow_learning_paused">LEARNING PAUSED</string>
-    <string name="deep_flow_expires_in">Expires in %s</string>
-    <string name="deep_flow_expire_duration_title">Auto-disable after</string>
-    <string name="deep_flow_expire_duration_subtitle">Learning resumes automatically after %s</string>
-    <string name="deep_flow_save_history_title">Save to watch history</string>
-    <string name="deep_flow_save_history_subtitle">Keep watched videos in history (with progress). The engine still won\'t learn from them. Off = nothing is saved.</string>
-    <string name="deep_flow_dialog_title">Pause Duration</string>
-    <string name="deep_flow_dialog_body">How long should learning stay paused?</string>
-    <string name="deep_flow_enabled_message">Deep piTube enabled</string>
-    <string name="deep_flow_disabled_message">Deep piTube disabled</string>
-    <string name="deep_flow_expired_message">Deep piTube timer ended</string>
-    <string name="deep_flow_active_until_disabled">Deep piTube stays active until you turn it off</string>
-    <string name="deep_flow_duration_never">Never</string>
-    <string name="deep_flow_duration_1h">1 hour</string>
-    <string name="deep_flow_duration_2h">2 hours</string>
-    <string name="deep_flow_duration_4h">4 hours</string>
-    <string name="deep_flow_duration_6h">6 hours</string>
-    <string name="deep_flow_duration_8h">8 hours</string>
-    <string name="deep_flow_duration_12h">12 hours</string>
-    <string name="deep_flow_duration_24h">24 hours</string>
-    <string name="deep_flow_duration_hours">%1$d hours</string>
     <string name="settings_header_appearance">Appearance</string>
     <string name="settings_header_content_playback">Content &amp; Playback</string>
     <string name="settings_header_data_management">Data Management</string>
@@ -1076,7 +1053,6 @@
     <string name="topics_count_template">%1$d topics</string>
     <string name="hidden_count_template">%1$d hidden</string>
     <string name="your_interests_title">Your Interests</string>
-    <string name="your_interests_desc">Topics you\'ve selected help piTube recommend better content. Tap topics below to add or remove them.</string>
     <string name="currently_following">Currently Following</string>
     <string name="tap_to_remove">Tap to remove</string>
     <string name="add_topics">Add Topics</string>
@@ -2345,4 +2321,12 @@
     <string name="settings_google_login_title">Sign in to Google</string>
     <string name="settings_google_login_failed">Sign-in failed. Google could not verify this session. Please try again.</string>
     <string name="settings_google_login_retry">Retry</string>
+    <string name="settings_header_account">Account</string>
+    <string name="settings_google_sign_in">Sign in with Google</string>
+    <string name="settings_google_sign_in_subtitle">Access your subscriptions and feed</string>
+    <string name="settings_google_sign_out">Sign out</string>
+    <string name="settings_google_account_signed_in">Signed in</string>
+    <string name="settings_google_sync_subtitle">Sync your real subscriptions and feed</string>
+    <string name="settings_google_sync_now">Sync now</string>
+    <string name="settings_google_sync_result">Synced: %1$d liked videos, %2$d playlists, %3$d channels</string>
 </resources>

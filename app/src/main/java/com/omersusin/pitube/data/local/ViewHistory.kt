@@ -76,9 +76,6 @@ class ViewHistory private constructor(private val context: Context) {
         isShort: Boolean = false,
         isLocal: Boolean = false
     ) {
-        val prefs = PlayerPreferences(context)
-        if (prefs.isDeepFlowCurrentlyActive() && !prefs.isDeepFlowSaveToHistoryEnabled()) return
-
         val thumbnail = if (isLocal) thumbnailUrl else ThumbnailUrlResolver.normalizeVideoThumbnail(videoId, thumbnailUrl)
         dao.upsert(
             WatchHistoryEntity(
@@ -113,9 +110,6 @@ class ViewHistory private constructor(private val context: Context) {
         duration: Long = 0L,
         isShort: Boolean = false
     ) {
-        val prefs = PlayerPreferences(context)
-        if (prefs.isDeepFlowCurrentlyActive() && !prefs.isDeepFlowSaveToHistoryEnabled()) return
-
         val thumbnail = ThumbnailUrlResolver.normalizeVideoThumbnail(videoId, thumbnailUrl)
         val existingPosition = dao.getPosition(videoId) ?: 0L  // preserve saved progress
         dao.upsert(

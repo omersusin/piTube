@@ -22,7 +22,6 @@ enum class TvSettingsCategory(
     QUALITY(R.string.quality, Icons.Outlined.Tune),
     CONTENT(R.string.settings_header_content_playback, Icons.Outlined.Shield),
     APPEARANCE(R.string.tv_settings_appearance, Icons.Outlined.Palette),
-    PRIVACY(R.string.discord_presence_privacy_title, Icons.Outlined.Shield),
     INTERFACE(R.string.interface_mode_title, Icons.Outlined.Tv),
     REMOTE_GUIDE(R.string.tv_remote_guide_title, Icons.Outlined.SettingsRemote),
     SYNC(R.string.tv_settings_sync, Icons.Outlined.Devices),

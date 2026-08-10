@@ -33,7 +33,6 @@ import com.omersusin.pitube.ui.tv.components.TvScreenScaffold
 import com.omersusin.pitube.ui.tv.screens.settings.TvAboutSettingsPane
 import com.omersusin.pitube.ui.tv.screens.settings.TvAppearanceSettingsPane
 import com.omersusin.pitube.ui.tv.screens.settings.TvContentSettingsPane
-import com.omersusin.pitube.ui.tv.screens.settings.TvFlowEngineSettingsPane
 import com.omersusin.pitube.ui.tv.screens.settings.TvInterfaceSettingsPane
 import com.omersusin.pitube.ui.tv.screens.settings.TvPlaybackSettingsPane
 import com.omersusin.pitube.ui.tv.screens.settings.TvQualitySettingsPane
@@ -103,7 +102,6 @@ fun TvSettingsScreen(
                     TvSettingsCategory.QUALITY -> TvQualitySettingsPane(playerPreferences)
                     TvSettingsCategory.CONTENT -> TvContentSettingsPane(playerPreferences)
                     TvSettingsCategory.APPEARANCE -> TvAppearanceSettingsPane(localDataManager)
-                    TvSettingsCategory.PRIVACY -> TvFlowEngineSettingsPane(playerPreferences)
                     TvSettingsCategory.INTERFACE -> TvInterfaceSettingsPane(modePreferences)
                     TvSettingsCategory.ABOUT -> TvAboutSettingsPane()
                     TvSettingsCategory.REMOTE_GUIDE,

@@ -22,7 +22,6 @@ internal fun resolveMigratedHideWatchedPreference(
 
 private val Context.playerPreferencesDataStore: DataStore<Preferences> by safePreferencesDataStore(name = "player_preferences")
 
-const val DEEP_FLOW_NEVER_EXPIRES_HOURS = 0
 const val DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP = 16
 const val MAX_PORTRAIT_SEEKBAR_PADDING_DP = 64
 const val DEFAULT_FULLSCREEN_SEEKBAR_PADDING_DP = 48
@@ -311,12 +310,6 @@ class PlayerPreferences(context: Context) {
         // Newest-first, newline-delimited so the list can be trimmed to a bounded size.
         val UNPLAYABLE_VIDEO_IDS = stringPreferencesKey("unplayable_video_ids")
         val HIDE_UNPLAYABLE_SUBSCRIPTIONS = booleanPreferencesKey("hide_unplayable_subscriptions")
-
-        // Deep Flow (Incognito / No-Engine) mode
-        val DEEP_FLOW_ACTIVE = booleanPreferencesKey("deep_flow_active")
-        val DEEP_FLOW_ACTIVATED_AT = longPreferencesKey("deep_flow_activated_at")
-        val DEEP_FLOW_EXPIRE_HOURS = intPreferencesKey("deep_flow_expire_hours")
-        val DEEP_FLOW_SAVE_HISTORY = booleanPreferencesKey("deep_flow_save_history")
 
         // Home subscription feed rotation cursor
         val HOME_SUBS_ROTATION_CURSOR = intPreferencesKey("home_subs_rotation_cursor")
@@ -2369,46 +2362,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    // DEEP FLOW (INCOGNITO / NO-ENGINE) MODE
-
-    val deepFlowActive: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.DEEP_FLOW_ACTIVE] ?: false }
-
-    val deepFlowActivatedAt: Flow<Long> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.DEEP_FLOW_ACTIVATED_AT] ?: 0L }
-
-    val deepFlowExpireHours: Flow<Int> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.DEEP_FLOW_EXPIRE_HOURS] ?: 4 }
-
-    val deepFlowSaveToHistory: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.DEEP_FLOW_SAVE_HISTORY] ?: false }
-
-    suspend fun setDeepFlowSaveToHistory(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.DEEP_FLOW_SAVE_HISTORY] = enabled
-        }
-    }
-
-    suspend fun isDeepFlowSaveToHistoryEnabled(): Boolean =
-        context.playerPreferencesDataStore.data.first()[Keys.DEEP_FLOW_SAVE_HISTORY] ?: false
-
-    suspend fun setDeepFlowActive(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.DEEP_FLOW_ACTIVE] = enabled
-            if (enabled) {
-                preferences[Keys.DEEP_FLOW_ACTIVATED_AT] = System.currentTimeMillis()
-            } else {
-                preferences[Keys.DEEP_FLOW_ACTIVATED_AT] = 0L
-            }
-        }
-    }
-
-    suspend fun setDeepFlowExpireHours(hours: Int) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.DEEP_FLOW_EXPIRE_HOURS] = hours
-        }
-    }
-
     // AUTO-BACKUP SETTINGS
     val autoBackupFrequency: Flow<LocalDataManager.AutoBackupFrequency> = context.playerPreferencesDataStore.data
         .map { preferences ->
@@ -2448,22 +2401,6 @@ class PlayerPreferences(context: Context) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.AUTO_BACKUP_TYPE] = type.name
         }
-    }
-
-    
-    suspend fun isDeepFlowCurrentlyActive(): Boolean {
-        val prefs = context.playerPreferencesDataStore.data.first()
-        val active = prefs[Keys.DEEP_FLOW_ACTIVE] ?: false
-        if (!active) return false
-        val activatedAt = prefs[Keys.DEEP_FLOW_ACTIVATED_AT] ?: 0L
-        val expireHours = prefs[Keys.DEEP_FLOW_EXPIRE_HOURS] ?: 4
-        if (expireHours == DEEP_FLOW_NEVER_EXPIRES_HOURS) return true
-        val elapsedHours = (System.currentTimeMillis() - activatedAt) / 3_600_000.0
-        val stillActive = elapsedHours < expireHours
-        if (!stillActive) {
-            setDeepFlowActive(false)
-        }
-        return stillActive
     }
 
     suspend fun getExportData(): SettingsBackup {

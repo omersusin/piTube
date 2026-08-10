@@ -34,7 +34,6 @@ import androidx.navigation.compose.rememberNavController
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.data.subscriptions.refreshSubscriptionsAtStartup
-import com.omersusin.pitube.player.DeepFlowManager
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import com.omersusin.pitube.player.GlobalPlayerState
 import com.omersusin.pitube.player.SleepTimerManager
@@ -125,7 +124,6 @@ fun FlowApp(
     var needsOnboarding by remember { mutableStateOf<Boolean?>(null) }
 
     LaunchedEffect(Unit) {
-        DeepFlowManager.initialize(context)
         needsOnboarding = !preferences.onboardingComplete.first()
     }
 
@@ -136,16 +134,6 @@ fun FlowApp(
     LaunchedEffect(subscriptionRefreshOnStartup) {
         if (subscriptionRefreshOnStartup) {
             refreshSubscriptionsAtStartup(context.applicationContext)
-        }
-    }
-
-    LaunchedEffect(snackbarHostState) {
-        DeepFlowManager.messages.collectLatest { message ->
-            snackbarHostState.currentSnackbarData?.dismiss()
-            snackbarHostState.showSnackbar(
-                message = message,
-                duration = androidx.compose.material3.SnackbarDuration.Short,
-            )
         }
     }
 

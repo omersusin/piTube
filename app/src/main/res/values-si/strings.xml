@@ -19,7 +19,7 @@
     <string name="copy_logs">ලොග් පිටපත් කරන්න</string>
     <string name="logs_copied">ලොග් පිටපත් කරගන්නා ලදී</string>
     <string name="logs_copy_failed">ලොග් පිටපත් කරගැනීමට නොහැකි විය</string>
-    <string name="channel_error_log_clip_label">Flow නාලිකා දෝෂ ලොගය</string>
+    <string name="channel_error_log_clip_label">piTube නාලිකා දෝෂ ලොගය</string>
     <string name="shorts">ශෝට්ස්</string>
     <string name="failed_to_load_channel">නාලිකාව ලෝඩ් කිරීමට අසමත් විය</string>
     <string name="subscribers">දායකයන්</string>
@@ -45,7 +45,7 @@
     <string name="local_media_empty_title">ක්%1$sහමුවිය</string>
     <string name="local_media_empty_body">මෙම උපාංගයේ ගබඩා කර ඇති වීඩියෝ සහ සංගීතය මෙහි දිස්වනු ඇත.</string>
     <string name="local_media_permission_title">අවසරය අවශ්‍යයි</string>
-    <string name="local_media_permission_body">ඔබේ මාධ්‍ය වෙත ප්‍රවේශ වීමට ඉඩ දෙන්න එවිට Flow හට දේශීය වීඩියෝ සහ සංගීතය සොයා ගැනීමට සහ වාදනය කිරීමට හැකිය.</string>
+    <string name="local_media_permission_body">ඔබේ මාධ්‍ය වෙත ප්‍රවේශ වීමට ඉඩ දෙන්න එවිට piTube හට දේශීය වීඩියෝ සහ සංගීතය සොයා ගැනීමට සහ වාදනය කිරීමට හැකිය.</string>
     <string name="local_media_grant">ප්‍රවේශය ලබා දෙන්න</string>
     <string name="library_settings_data_header"><![CDATA[සැකසුම් සහ දත්ත]]></string>
     <string name="library_manage_data_label">දත්ත කළමනාකරණය කරන්න</string>

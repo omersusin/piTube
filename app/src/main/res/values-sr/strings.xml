@@ -18,7 +18,7 @@
     <string name="copy_logs">Копирај логове</string>
     <string name="logs_copied">Логови копирани</string>
     <string name="logs_copy_failed">Копирање логова није успело</string>
-    <string name="channel_error_log_clip_label">Flow лог грешке канала</string>
+    <string name="channel_error_log_clip_label">piTube лог грешке канала</string>
     <string name="shorts">Shorts</string>
     <string name="failed_to_load_channel">Није успело учитавање канала</string>
     <string name="subscribers">Претплатници</string>
@@ -44,7 +44,7 @@
     <string name="local_media_empty_title">Ниједан %1$s нађен</string>
     <string name="local_media_empty_body">Видеи и музика преузети на овај уређај ће се овде појавити.</string>
     <string name="local_media_permission_title">Потребна је дозвола.</string>
-    <string name="local_media_permission_body">Дозволите приступ вашим медијима како би Flow могао да пушта преузете снимке и музику.</string>
+    <string name="local_media_permission_body">Дозволите приступ вашим медијима како би piTube могао да пушта преузете снимке и музику.</string>
     <string name="local_media_grant">Одобрите приступ</string>
     <string name="library_settings_data_header"><![CDATA[Подешавања и подаци]]></string>
     <string name="library_manage_data_label">Управљајте подацима</string>

@@ -199,7 +199,7 @@
     <string name="chapters">अध्याय</string>
     <string name="artist">कलाकार</string>
     <string name="playlist">प्लेलिस्ट</string>
-    <string name="app_name_uppercase">FLOW</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">आपकी व्यक्तिगत फ़ीड</string>
     <string name="videos_curated_template">आपके लिए %1$d वीडियो चुने गए</string>
@@ -788,8 +788,8 @@
     <string name="location_dialog_subtitle">चुनें कि डाउनलोड की गई फ़ाइलें आपके डिवाइस पर कहाँ सहेजी जाएँ।</string>
     <string name="location_preset_header">पूर्वनिर्धारित स्थान</string>
     <string name="location_custom_header">कस्टम स्थान</string>
-    <string name="location_downloads_label">डाउनलोड / Flow</string>
-    <string name="location_movies_label">मूवीज़ / Flow</string>
+    <string name="location_downloads_label">डाउनलोड / piTube</string>
+    <string name="location_movies_label">मूवीज़ / piTube</string>
     <string name="location_internal_app_label">आंतरिक ऐप संग्रहण</string>
     <string name="location_internal_app_desc">ऐप की निजी फ़ाइलें — यदि आप ऐप अनइंस्टॉल करते हैं तो फ़ाइलें हट सकती हैं</string>
     <string name="location_custom_saf_label">ब्राउज़ करें…</string>
@@ -1061,13 +1061,13 @@
     <string name="check_for_updates">अपडेट्स के लिए जाँचें</string>
     <string name="check_for_updates_subtitle">नया वर्शन चेक करने के लिए टैप करें</string>
     <string name="checking_for_updates">अपडेट की जाँच की जा रही है…</string>
-    <string name="flow_is_up_to_date">Flow अपडेटेड है!</string>
+    <string name="flow_is_up_to_date">piTube अपडेटेड है!</string>
     <string name="update_check_failed">अपडेट की जाँच नहीं की जा सकी। अपना कनेक्शन जाँचें।</string>
     <string name="export_engine_data">इंजन प्रोफ़ाइल निर्यात करें</string>
     <string name="export_engine_data_subtitle">अपने AI व्यक्तित्व और सीखने के डेटा का बैकअप लें</string>
     <string name="export_engine_success">इंजन प्रोफ़ाइल सफलतापूर्वक निर्यात की गई</string>
     <string name="export_engine_failed">इंजन प्रोफ़ाइल निर्यात करने में विफल</string>
-    <string name="import_engine_data">Flow इंजन डेटा आयात करें</string>
+    <string name="import_engine_data">piTube इंजन डेटा आयात करें</string>
     <string name="import_engine_data_desc">बैकअप फ़ाइल से अपनी AI व्यक्तित्व प्रोफ़ाइल पुनर्स्थापित करें</string>
     <string name="import_engine_success">इंजन प्रोफ़ाइल सफलतापूर्वक पुनर्स्थापित की गई</string>
     <string name="import_engine_failed">इंजन प्रोफ़ाइल आयात करने में विफल</string>
@@ -1088,7 +1088,7 @@
     <string name="error_not_available">वीडियो उपलब्ध नहीं</string>
     <string name="error_not_available_hint">हो सकता है कि यह वीडियो डिलीट हो गया है, प्राइवेट कर दिया गया है, या YouTube ने इसे हटा दिया है।</string>
     <string name="error_not_supported">कंटेंट टाइप समर्थित नहीं</string>
-    <string name="error_not_supported_hint">इस फ़ॉर्मेट या कंटेंट टाइप को Flow में नहीं चलाया जा सकता।</string>
+    <string name="error_not_supported_hint">इस फ़ॉर्मेट या कंटेंट टाइप को piTube में नहीं चलाया जा सकता।</string>
     <string name="error_no_internet">कोई इंटरनेट कनेक्शन नहीं है</string>
     <string name="error_no_internet_hint">अपना वाई-फ़ाई या मोबाइल डेटा जांचें और फिर से कोशिश करें।</string>
     <string name="error_timeout">कनेक्शन का समय समाप्त</string>
@@ -1106,7 +1106,7 @@
     <string name="error_playback_failed">प्लेबैक विफल रहा</string>
     <string name="error_playback_failed_hint">एक अनपेक्षित प्लेयर त्रुटि हुई है। कृपया फिर से कोशिश करें।</string>
     <string name="error_extraction_failed">वीडियो डेटा पार्स करने में विफल</string>
-    <string name="error_extraction_failed_hint">YouTube ने अपना प्रारूप अपडेट किया होगा। Flow को जल्द ही अपडेट किया जाएगा —कृपया बाद में फिर से कोशिश करें।</string>
+    <string name="error_extraction_failed_hint">YouTube ने अपना प्रारूप अपडेट किया होगा। piTube को जल्द ही अपडेट किया जाएगा —कृपया बाद में फिर से कोशिश करें।</string>
     <string name="error_generic">वीडियो लोड करने में विफल</string>
     <string name="error_generic_hint">एक अज्ञात त्रुटि हुई। कृपया पुनः प्रयास करें।</string>
     <string name="player_settings_overlay_controls">ओवरले कंट्रोल्स</string>
@@ -1164,7 +1164,7 @@
     <string name="local_media_scanning">आपके डिवाइस को स्कैन किया जा रहा है…</string>
     <string name="local_media_empty_body">इस डिवाइस पर स्टोर किए गए वीडियो और संगीत यहाँ दिखाई देंगे।</string>
     <string name="local_media_permission_title">अनुमति आवश्यक है</string>
-    <string name="local_media_permission_body">Flow को स्थानीय वीडियो और संगीत खोजने और चलाने की अनुमति देने के लिए अपने मीडिया तक पहुँच दें।</string>
+    <string name="local_media_permission_body">piTube को स्थानीय वीडियो और संगीत खोजने और चलाने की अनुमति देने के लिए अपने मीडिया तक पहुँच दें।</string>
     <string name="local_media_grant">पहुँच दें</string>
     <string name="search_watch_history">देखने का इतिहास खोजें</string>
     <string name="history_filter_all_years">सभी वर्ष</string>

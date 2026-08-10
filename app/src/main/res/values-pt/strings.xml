@@ -244,7 +244,7 @@
     <string name="settings_header_about">Sobre</string>
     <string name="settings_header_notifications">Notificações</string>
     <string name="settings_item_notifications">Preferências de notificação</string>
-    <string name="settings_item_notifications_subtitle">Controlo quais notificações o Flow pode enviar</string>
+    <string name="settings_item_notifications_subtitle">Controlo quais notificações o piTube pode enviar</string>
     <string name="notif_settings_title">Preferências de notificação</string>
     <string name="notif_type_new_videos">Novos vídeos</string>
     <string name="notif_type_new_videos_subtitle">Receba notificações quando os canais inscritos publicarem novos vídeos</string>
@@ -252,7 +252,7 @@
     <string name="notif_type_downloads_subtitle">Alertas de progresso, conclusão e falha</string>
     <string name="notif_type_reminders">Lembretes de tempo de ecrã</string>
     <string name="notif_type_updates">Atualizações da App</string>
-    <string name="notif_type_updates_subtitle">Receba notificações quando uma nova versão do Flow estiver disponível</string>
+    <string name="notif_type_updates_subtitle">Receba notificações quando uma nova versão do piTube estiver disponível</string>
     <string name="notif_type_general">Notificações gerais</string>
     <string name="notif_type_general_subtitle">Alertas e anúncios diversos da app</string>
     <string name="notif_system_settings">Configurações de notificação do sistema</string>
@@ -260,7 +260,7 @@
     <string name="notif_check_interval">Novo intervalo de verificação por vídeo</string>
     <string name="notif_check_interval_subtitle_template">Verifique cada %s</string>
     <string name="notif_check_interval_dialog_title">Intervalo de verificação</string>
-    <string name="notif_check_interval_dialog_body">Com que frequência o Flow verifica se há novos vídeos nos canais em que está inscrito.</string>
+    <string name="notif_check_interval_dialog_body">Com que frequência o piTube verifica se há novos vídeos nos canais em que está inscrito.</string>
     <string name="notif_interval_15m">15 minutos</string>
     <string name="notif_interval_30m">30 minutos</string>
     <string name="notif_interval_1h">1 hora</string>
@@ -290,7 +290,7 @@
     <string name="local_media_empty_title">Nenhum %1$s encontrado</string>
     <string name="local_media_empty_body">Vídeos e músicas armazenados neste dispositivos aparecerão aqui.</string>
     <string name="local_media_permission_title">Permissão necessária</string>
-    <string name="local_media_permission_body">Permita acesso às suas mídias para que Flow possa encontrar e repoduzir vídeos e músicas locais.</string>
+    <string name="local_media_permission_body">Permita acesso às suas mídias para que piTube possa encontrar e repoduzir vídeos e músicas locais.</string>
     <string name="local_media_grant">Garantir acesso</string>
     <string name="search_watch_history">Pesquisar histórico de exibição</string>
     <string name="history_filter_all_years">Todos os anos</string>

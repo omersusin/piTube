@@ -162,7 +162,7 @@
     <string name="new_update_available">Mise à jour disponible</string>
     <string name="update_available_template">%1$s est maintenant disponible</string>
     <string name="release_notes">NOTES DE VERSION</string>
-    <string name="update_flow">Mettre à jour Flow</string>
+    <string name="update_flow">Mettre à jour piTube</string>
     <string name="maybe_later">Peut-être plus tard</string>
     <!-- Navigation -->
     <string name="nav_home">Accueil</string>
@@ -193,7 +193,7 @@
     <string name="chapters">Chapitres</string>
     <string name="artist">Artiste</string>
     <string name="playlist">Playlist</string>
-    <string name="app_name_uppercase">FLOW</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Votre fil personnalisé</string>
     <string name="videos_curated_template">%1$d vidéos sélectionnées rien que pour vous</string>
@@ -270,10 +270,10 @@
     <string name="notifications_empty_body">Vous êtes à jour ! Les nouvelles mises à jour de vos abonnements apparaîtront ici.</string>
     <!-- Écran des Paramètres -->
     <string name="settings_title">Paramètres</string>
-    <string name="settings_flow_engine_header">Moteur Flow</string>
+    <string name="settings_flow_engine_header">Moteur piTube</string>
     <string name="settings_active_learning">APPRENTISSAGE ACTIF</string>
     <string name="settings_reset_brain_title">Réinitialiser la personnalité ?</string>
-    <string name="settings_reset_brain_body">Cela effacera complètement votre profil d\'intérêt \'Flow Brain\'.\n\n• Tous les sujets appris seront oubliés.\n• Les traits de personnalité reviendront à neutre.\n• Les recommandations reviendront aux valeurs par défaut.\n\nCette action ne peut pas être annulée.</string>
+    <string name="settings_reset_brain_body">Cela effacera complètement votre profil d\'intérêt \'piTube Brain\'.\n\n• Tous les sujets appris seront oubliés.\n• Les traits de personnalité reviendront à neutre.\n• Les recommandations reviendront aux valeurs par défaut.\n\nCette action ne peut pas être annulée.</string>
     <string name="settings_reset_everything">Tout Réinitialiser</string>
     <string name="settings_analyzing_interactions">Analyse de vos interactions...</string>
     <string name="settings_view_analytics">Voir les Analytics</string>
@@ -303,10 +303,10 @@
     <string name="settings_item_export_data_subtitle">Sauvegardez vos données</string>
     <string name="settings_item_import_data">Importer des données</string>
     <string name="settings_item_import_data_subtitle">Restaurer depuis une sauvegarde ou importer depuis d\'autres applications</string>
-    <string name="settings_item_about_flow">À propos de Flow</string>
+    <string name="settings_item_about_flow">À propos de piTube</string>
     <string name="settings_item_about_flow_subtitle">Version, Licence, Contributeurs</string>
     <string name="settings_item_support">Soutien et dons</string>
-    <string name="settings_item_support_subtitle">Aidez à soutenir le développement de Flow</string>
+    <string name="settings_item_support_subtitle">Aidez à soutenir le développement de piTube</string>
     <string name="settings_region_dialog_title">Sélectionner la région</string>
     <string name="settings_export_success">Données exportées avec succès</string>
     <string name="settings_export_failed">Échec de l\'exportation : %1$s</string>
@@ -351,7 +351,7 @@
     <string name="theme_name_cream_paper">Papier crème</string>
     <string name="theme_desc_cream_paper">Chaleureux et douillet</string>
     <string name="theme_name_classic_dark">Classique</string>
-    <string name="theme_desc_classic_dark">La palette originale de Flow</string>
+    <string name="theme_desc_classic_dark">La palette originale de piTube</string>
     <string name="theme_name_true_black">Noir intense</string>
     <string name="theme_desc_true_black">OLED pur</string>
     <string name="theme_name_midnight">Minuit</string>
@@ -489,7 +489,7 @@
     <string name="topics_count_template">%1$d sujets</string>
     <string name="hidden_count_template">%1$d masqués</string>
     <string name="your_interests_title">Vos Intérêts</string>
-    <string name="your_interests_desc">Les thèmes que vous avez sélectionnés aident Flow à vous recommander des contenus plus pertinents. Appuyez sur les thèmes ci-dessous pour en ajouter ou en supprimer.</string>
+    <string name="your_interests_desc">Les thèmes que vous avez sélectionnés aident piTube à vous recommander des contenus plus pertinents. Appuyez sur les thèmes ci-dessous pour en ajouter ou en supprimer.</string>
     <string name="currently_following">Actuellement Suivis</string>
     <string name="tap_to_remove">Appuyez pour supprimer</string>
     <string name="add_topics">Ajouter des sujets</string>
@@ -551,14 +551,14 @@
     <string name="days_count_template">%1$d jours</string>
     <!-- Écran d'Importation de Données -->
     <string name="import_data_title">Importer des données</string>
-    <string name="import_flow_backup_success">Sauvegarde Flow importée avec succès</string>
-    <string name="import_flow_backup_failed_template">Échec de l\'importation de la sauvegarde Flow : %1$s</string>
+    <string name="import_flow_backup_success">Sauvegarde piTube importée avec succès</string>
+    <string name="import_flow_backup_failed_template">Échec de l\'importation de la sauvegarde piTube : %1$s</string>
     <string name="import_newpipe_success_template">%1$d abonnements importés depuis NewPipe</string>
     <string name="import_newpipe_failed_template">Échec de l\'importation de la sauvegarde NewPipe : %1$s</string>
     <string name="import_youtube_success_template">%1$d abonnements importés depuis YouTube</string>
     <string name="import_youtube_failed_template">Échec de l\'importation de la sauvegarde YouTube : %1$s</string>
-    <string name="import_flow_backup_item_title">Importer une sauvegarde Flow</string>
-    <string name="import_flow_backup_desc">Restaurez votre historique, vos paramètres et vos abonnements depuis un fichier de sauvegarde Flow.</string>
+    <string name="import_flow_backup_item_title">Importer une sauvegarde piTube</string>
+    <string name="import_flow_backup_desc">Restaurez votre historique, vos paramètres et vos abonnements depuis un fichier de sauvegarde piTube.</string>
     <string name="import_from_newpipe">Importer depuis NewPipe</string>
     <string name="import_from_newpipe_desc">Importer les abonnements depuis un fichier d\'exportation NewPipe (JSON).</string>
     <string name="import_from_libretube">Importer depuis LibreTube</string>
@@ -586,8 +586,8 @@
     <string name="location_dialog_subtitle">Choisissez où les fichiers téléchargés sont enregistrés sur votre appareil.</string>
     <string name="location_preset_header">Emplacements prédéfinis</string>
     <string name="location_custom_header">Emplacement personnalisé</string>
-    <string name="location_downloads_label">Téléchargements / Flow</string>
-    <string name="location_movies_label">Vidéos / Flow</string>
+    <string name="location_downloads_label">Téléchargements / piTube</string>
+    <string name="location_movies_label">Vidéos / piTube</string>
     <string name="location_internal_app_label">Stockage interne de l\'application</string>
     <string name="location_internal_app_desc">Privé à l\'application — les fichiers peuvent être supprimés si vous désinstallez</string>
     <string name="location_custom_saf_label">Parcourir…</string>
@@ -603,8 +603,8 @@
     <string name="threads_count_label">%1$d threads</string>
     <!-- Écran des Dons -->
     <string name="support_donations_title">Soutien et dons</string>
-    <string name="support_flow_dev_title">Soutenir le développement de Flow</string>
-    <string name="support_flow_dev_desc">Si vous trouvez Flow utile et souhaitez soutenir son développement, vous pouvez le faire sur Patreon ou faire un don via les adresses de cryptomonnaie ci-dessous. Votre soutien contribue à la pérennité du projet !</string>
+    <string name="support_flow_dev_title">Soutenir le développement de piTube</string>
+    <string name="support_flow_dev_desc">Si vous trouvez piTube utile et souhaitez soutenir son développement, vous pouvez le faire sur Patreon ou faire un don via les adresses de cryptomonnaie ci-dessous. Votre soutien contribue à la pérennité du projet !</string>
     <string name="thank_you_support_message">Merci pour votre soutien ! ❤️</string>
     <string name="address_copied_toast">Adresse copiée dans le presse-papiers</string>
     <string name="donation_address_clip_label">Adresse de Don</string>
@@ -616,7 +616,7 @@
     <string name="newpipe_extractor_subtitle">Bibliothèque d\'extraction principale</string>
     <string name="about_license">Licence</string>
     <string name="about_changelog">Journal des modifications</string>
-    <string name="whats_new_in_flow">Quoi de neuf dans Flow</string>
+    <string name="whats_new_in_flow">Quoi de neuf dans piTube</string>
     <string name="about_device_info">Informations sur l\'appareil</string>
     <string name="gnu_license_full_title">Licence Publique Générale GNU</string>
     <string name="loading_ellipsis">Chargement...</string>
@@ -656,7 +656,7 @@
     <string name="playlist_metadata_private_template">Playlist • Privée • %1$d vidéos</string>
     <string name="playlist_metadata_public_template">Playlist • Publique • %1$d vidéos</string>
     <!-- Accueil -->
-    <string name="welcome_to_flow">Bienvenue dans Flow</string>
+    <string name="welcome_to_flow">Bienvenue dans piTube</string>
     <string name="onboarding_subtitle">Dites-nous ce qui vous intéresse</string>
     <string name="onboarding_instructions">Sélectionnez au moins 3 sujets pour personnaliser votre expérience</string>
     <string name="selected_with_more_needed_template">%1$d sélectionnés (%2$d de plus nécessaires)</string>
@@ -676,7 +676,7 @@
     <string name="category_science_nature">Sciences &amp; Nature</string>
     <string name="category_news_current_events">Actualités &amp; Événements</string>
     <!-- Écran de Contrôle de Flow -->
-    <string name="flow_control_center">Centre de contrôle de Flow</string>
+    <string name="flow_control_center">Centre de contrôle de piTube</string>
     <string name="action_refresh">Rafraîchir</string>
     <string name="loading_neural_matrix">Chargement de la matrice neurale...</string>
     <string name="neural_interest_map_subtitle">Votre carte d\'intérêt neurale</string>
@@ -700,7 +700,7 @@
     <string name="empty_bubble_cloud_message">Regardez quelques vidéos pour remplir votre nébuleuse d\'intérêts !</string>
     <string name="interactions_level_template">%1$d interactions • Niveau %2$d</string>
     <string name="export_profile_data">Exporter les données de profil</string>
-    <string name="flow_neural_profile_export_subject">Exportation du Profil Neural de Flow</string>
+    <string name="flow_neural_profile_export_subject">Exportation du Profil Neural de piTube</string>
     <!-- Écran des Playlists Musicales -->
     <string name="screen_title_music_library">Bibliothèque Musicale</string>
     <string name="header_your_collection">Votre Collection</string>
@@ -864,7 +864,7 @@
     <string name="search_hint">Recherche</string>
     <string name="settings_header_notifications">Notifications</string>
     <string name="settings_item_notifications">Préférences de notification</string>
-    <string name="settings_item_notifications_subtitle">Gérer les notifications que Flow peut envoyer</string>
+    <string name="settings_item_notifications_subtitle">Gérer les notifications que piTube peut envoyer</string>
     <string name="notif_settings_title">Préférences de notification</string>
     <string name="notif_type_new_videos">Nouvelles Vidéos</string>
     <string name="notif_type_new_videos_subtitle">M\'avertir lorsque les chaînes auxquelles je suis abonné publient de nouvelles vidéos</string>
@@ -893,24 +893,9 @@
     <string name="channel_search_open">Rechercher dans la chaîne</string>
     <string name="channel_search_close">Fermer la recherche</string>
     <string name="channel_search_no_results">Aucun résultat trouvé pour %1$s</string>
-    <string name="deep_flow_mode_title">Mode Deep Flow</string>
-    <string name="deep_flow_mode_subtitle">Mettre l\'apprentissage en pause — naviguer sans influencer votre profil</string>
-    <string name="deep_flow_learning_paused">APPRENTISSAGE EN PAUSE</string>
-    <string name="deep_flow_expires_in">Se désactive dans %s</string>
-    <string name="deep_flow_expire_duration_title">Délai avant désactivation automatique</string>
-    <string name="deep_flow_expire_duration_subtitle">L\'apprentissage reprend automatiquement après %s</string>
-    <string name="deep_flow_dialog_title">Durée de la pause</string>
-    <string name="deep_flow_dialog_body">Combien de temps l\'apprentissage devrait-il rester en pause ?</string>
-    <string name="deep_flow_duration_1h">1 heure</string>
-    <string name="deep_flow_duration_2h">2 heures</string>
-    <string name="deep_flow_duration_4h">4 heures</string>
-    <string name="deep_flow_duration_6h">6 heures</string>
-    <string name="deep_flow_duration_8h">8 heures</string>
-    <string name="deep_flow_duration_12h">12 heures</string>
-    <string name="deep_flow_duration_24h">24 heures</string>
     <string name="notif_type_reminders_subtitle">Rappels pour l\'heure du coucher et les pauses, par Time Management</string>
     <string name="notif_type_updates">Mises à jour de l’application</string>
-    <string name="notif_type_updates_subtitle">Recevez une notification lorsqu\'une nouvelle version de Flow est disponible</string>
+    <string name="notif_type_updates_subtitle">Recevez une notification lorsqu\'une nouvelle version de piTube est disponible</string>
     <string name="notif_type_general">Notifications Générales</string>
     <string name="notif_type_general_subtitle">Alertes et annonces diverses concernant l\'application</string>
     <string name="notif_system_settings">Paramètres de Notification du Système</string>
@@ -919,7 +904,7 @@
     <string name="notif_check_interval">Intervalle de Vérification de Nouvelles Vidéos</string>
     <string name="notif_check_interval_subtitle_template">Vérification toutes les %s</string>
     <string name="notif_check_interval_dialog_title">Intervalle de Vérification</string>
-    <string name="notif_check_interval_dialog_body">À quelle fréquence Flow vérifie s\'il y a de nouvelles vidéos sur les chaînes auxquelles vous êtes abonné.</string>
+    <string name="notif_check_interval_dialog_body">À quelle fréquence piTube vérifie s\'il y a de nouvelles vidéos sur les chaînes auxquelles vous êtes abonné.</string>
     <string name="notif_interval_15m">15 minutes</string>
     <string name="notif_interval_30m">30 minutes</string>
     <string name="notif_interval_1h">1 heure</string>
@@ -939,11 +924,6 @@
     <string name="appearance_customizer_save">Enregistrer le thème</string>
     <string name="appearance_role_primary">Primaire</string>
     <string name="appearance_role_on_primary">Aux primaires</string>
-    <string name="deep_flow_enabled_message">Deep Flow activé</string>
-    <string name="deep_flow_disabled_message">Deep Flow désactivé</string>
-    <string name="deep_flow_expired_message">Le minuteur Deep Flow s\'est arrêté</string>
-    <string name="deep_flow_active_until_disabled">Deep Flow reste actif jusqu\'à ce que vous le désactiviez</string>
-    <string name="deep_flow_duration_never">Jamais</string>
     <string name="appearance_role_secondary">Secondaire</string>
     <string name="appearance_role_tertiary">Tertiaire</string>
     <string name="app_icon_picker_subtitle">Choisissez un style d\'icône pour le lanceur. La modification prend effet immédiatement et le lanceur s\'actualise brièvement.</string>
@@ -981,7 +961,7 @@
     <string name="content_settings_video_card_mark_watched_title">Bouton « Marquer comme vu » de la carte graphique</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Afficher un bouton en forme d\'œil sur les fiches vidéo « complète » et « compacte » pour marquer rapidement les vidéos comme déjà visionnées</string>
     <string name="content_settings_show_app_logo_title">Afficher l\'icône du logo de l\'application</string>
-    <string name="content_settings_show_app_logo_subtitle">Afficher l\'icône du logo Flow à côté du nom de l\'application dans la barre supérieure de l\'écran d\'accueil</string>
+    <string name="content_settings_show_app_logo_subtitle">Afficher l\'icône du logo piTube à côté du nom de l\'application dans la barre supérieure de l\'écran d\'accueil</string>
     <string name="content_settings_header_content_components">Éléments de contenu</string>
     <string name="content_settings_hide_watched_title">Masquer les vidéos visionnées</string>
     <string name="content_settings_hide_watched_subtitle">Filtrez les vidéos que vous avez déjà visionnées dans votre fil d\'actualité et vos abonnements</string>
@@ -1083,7 +1063,7 @@
     <string name="settings_language_dialog_title">Sélectionner la langue de l\'application</string>
     <string name="settings_language_system_default">Paramètres par défaut du système</string>
     <string name="app_icon_apply_toast">L\'icône a été mise à jour – votre lanceur va s\'actualiser</string>
-    <string name="icon_name_flow_red">Flow Rouge</string>
+    <string name="icon_name_flow_red">piTube Rouge</string>
     <string name="icon_name_monochrome">Monochrome</string>
     <string name="icon_name_ghost">Fantôme</string>
     <string name="icon_name_dynamic">Material You</string>
@@ -1126,8 +1106,8 @@
     <string name="sb_action_show_toast">Notification uniquement</string>
     <string name="sb_action_ignore">Ignorer</string>
     <string name="select_text">Sélectionner le texte</string>
-    <string name="flow_is_up_to_date">Flow est à jour !</string>
-    <string name="error_not_supported_hint">Ce format ou ce type de contenu ne peut pas être lu dans Flow.</string>
+    <string name="flow_is_up_to_date">piTube est à jour !</string>
+    <string name="error_not_supported_hint">Ce format ou ce type de contenu ne peut pas être lu dans piTube.</string>
     <string name="proxy_settings_invalid_port">Entrez un port proxy valide compris entre 1 et 65535.</string>
     <string name="proxy_settings_saved">Paramètres de proxy enregistrés</string>
     <string name="sb_category_intro">Introduction / Entracte</string>
@@ -1188,7 +1168,7 @@
     <string name="audio_access_title">Accès à la musique &amp; à l\'audio</string>
     <string name="audio_access_granted_subtitle">Autorisé</string>
     <string name="audio_access_denied_subtitle">Non autorisé — appuyez pour activer</string>
-    <string name="support_flow_patreon">Soutenez Flow sur Patreon</string>
+    <string name="support_flow_patreon">Soutenez piTube sur Patreon</string>
     <string name="section_app">Application</string>
     <string name="section_contact">Contact</string>
     <string name="section_legal">Légal</string>
@@ -1224,7 +1204,7 @@
     <string name="error_playback_failed">Échec de la lecture</string>
     <string name="error_playback_failed_hint">Une erreur inattendue s\'est produite. Veuillez réessayer.</string>
     <string name="error_extraction_failed">Échec de l\'analyse des données vidéo</string>
-    <string name="error_extraction_failed_hint">YouTube a peut-être mis à jour son format. Flow sera bientôt mis à jour — veuillez réessayer plus tard.</string>
+    <string name="error_extraction_failed_hint">YouTube a peut-être mis à jour son format. piTube sera bientôt mis à jour — veuillez réessayer plus tard.</string>
     <string name="error_generic">Impossible de charger la vidéo</string>
     <string name="error_generic_hint">Une erreur inconnue s\'est produite. Veuillez réessayer.</string>
     <string name="player_settings_overlay_controls">Commandes de superposition</string>
@@ -1329,10 +1309,10 @@
     <string name="import_newpipe_history">Importer l\'historique de NewPipe</string>
     <string name="play_next_video">Lecture suivante</string>
     <string name="play_next_toast">Va passer à la vidéo suivante</string>
-    <string name="export_engine_data">Exporter les données de Flow Engine</string>
-    <string name="import_engine_data">Importer les données de Flow Engine</string>
-    <string name="import_engine_success">Le profil de Flow Engine a été restauré avec succès</string>
-    <string name="import_engine_failed">Échec de l\'importation du profil de Flow Engine</string>
+    <string name="export_engine_data">Exporter les données de piTube Engine</string>
+    <string name="import_engine_data">Importer les données de piTube Engine</string>
+    <string name="import_engine_success">Le profil de piTube Engine a été restauré avec succès</string>
+    <string name="import_engine_failed">Échec de l\'importation du profil de piTube Engine</string>
     <string name="master_backup_title">Sauvegarde principale</string>
     <string name="master_backup_subtitle">Exportez l\'algorithme et les données de l\'application dans un seul fichier</string>
     <string name="master_backup_export_success">Sauvegarde principale enregistrée avec succès</string>
@@ -1503,7 +1483,7 @@
     <string name="taste_chart_profile">Profil</string>
     <string name="taste_chart_now">Maintenant</string>
     <string name="notif_master_toggle">Activer les notifications</string>
-    <string name="notif_master_toggle_subtitle">Autoriser Flow à s\'activer en arrière-plan pour vérifier les notifications et les alertes</string>
+    <string name="notif_master_toggle_subtitle">Autoriser piTube à s\'activer en arrière-plan pour vérifier les notifications et les alertes</string>
     <string name="notif_check_interval_disabled">Les vérifications de notification en arrière-plan sont désactivées</string>
     <string name="player_settings_rytd_title">Réintroduire le bouton « Je n\'aime pas » sur YouTube</string>
     <string name="player_settings_rytd_subtitle">Récupérer le nombre de « J\'aime pas » à l\'aide du service « Return YouTube Dislike »</string>
@@ -1529,7 +1509,7 @@
     <string name="appearance_system_defaults_subtitle">Choisissez le thème à utiliser lorsque votre appareil passe du mode clair au mode sombre.</string>
     <string name="appearance_system_light_theme">Thème en mode clair</string>
     <string name="appearance_system_dark_theme">Thème en mode sombre</string>
-    <string name="icon_name_flow_light">Flow clair</string>
+    <string name="icon_name_flow_light">piTube clair</string>
     <string name="icon_name_material_sky">Material Sky</string>
     <string name="icon_name_material_mint">Material Mint</string>
     <string name="theme_name_material_you">Material You</string>
@@ -1662,7 +1642,7 @@
     <string name="shorts_playback_speed">Vitesse de lecture</string>
     <string name="speed_normal">Normal</string>
     <string name="export_watch_history_title">Historique des visionnages</string>
-    <string name="export_watch_history_desc">Exporter l\'historique YouTube au format JSON (compatible avec LibreTube et Flow)</string>
+    <string name="export_watch_history_desc">Exporter l\'historique YouTube au format JSON (compatible avec LibreTube et piTube)</string>
     <string name="history_export_failed">Échec de l\'exportation de l\'historique de visionnage</string>
     <string name="history_delete_shorts">Supprimer les Shorts de l\'historique</string>
     <string name="history_delete_shorts_title">Supprimer les Shorts ?</string>
@@ -1694,8 +1674,8 @@
     <string name="live_chat_jump_to_latest">Aller au dernier message du chat</string>
     <string name="content_settings_subs_show_checked_count_title">Nombre de vidéos vérifiées</string>
     <string name="content_settings_subs_show_checked_count_subtitle">Indiquer le nombre de vidéos visionnées à côté de la date de la dernière mise à jour</string>
-    <string name="donation_prompt_title">Vous appréciez Flow ?</string>
-    <string name="donation_prompt_message">Flow est une application gratuite et open source, conçue sans publicité ni traqueurs. Si elle a trouvé sa place sur votre appareil, pensez à soutenir son développement : cela contribue réellement à assurer la pérennité du projet.</string>
+    <string name="donation_prompt_title">Vous appréciez piTube ?</string>
+    <string name="donation_prompt_message">piTube est une application gratuite et open source, conçue sans publicité ni traqueurs. Si elle a trouvé sa place sur votre appareil, pensez à soutenir son développement : cela contribue réellement à assurer la pérennité du projet.</string>
     <string name="donation_prompt_methods">Patreon · Bitcoin · Ethereum · Solana · USDT · Monero</string>
     <string name="donation_prompt_support">Soutenir le développement</string>
     <string name="donation_prompt_later">Peut-être plus tard</string>
@@ -1708,16 +1688,14 @@
     <string name="local_media_empty_title">Aucun %1$s trouvé</string>
     <string name="local_media_empty_body">Les vidéos et la musique enregistrées sur cet appareil s\'afficheront ici.</string>
     <string name="local_media_permission_title">Autorisation requise</string>
-    <string name="local_media_permission_body">Autorisez l\'accès à vos fichiers multimédias afin que Flow puisse trouver et lire vos vidéos et votre musique stockées localement.</string>
+    <string name="local_media_permission_body">Autorisez l\'accès à vos fichiers multimédias afin que piTube puisse trouver et lire vos vidéos et votre musique stockées localement.</string>
     <string name="local_media_grant">Accorder l\'accès</string>
     <string name="history_tab_local_videos">Vidéos locales</string>
     <string name="history_tab_local_music">Musique locale</string>
-    <string name="deep_flow_save_history_title">Ajouter à l\'historique</string>
-    <string name="deep_flow_save_history_subtitle">Conserver les vidéos visionnées dans l\'historique (avec la progression). Le moteur ne s\'en servira toutefois pas pour s\'améliorer. Désactivé = rien n\'est enregistré.</string>
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
     <string name="content_settings_share_without_text_title">Partager des liens sans texte</string>
     <string name="content_settings_share_without_text_subtitle">Partagez uniquement le lien vers la vidéo, sans le message « Regardez cette vidéo »</string>
-    <string name="icon_name_flow_play">Flow Lecture</string>
+    <string name="icon_name_flow_play">piTube Lecture</string>
     <string name="player_appearance_controls_while_loading_title">Commandes pendant le chargement</string>
     <string name="player_appearance_controls_while_loading_subtitle">Affichez les commandes de lecture avant la fin du chargement de la vidéo afin de pouvoir régler le volume immédiatement</string>
     <string name="player_settings_autoplay_countdown_title">Délai de lecture automatique</string>
@@ -1747,7 +1725,7 @@
     <string name="no_match_found">Aucun résultat trouvé</string>
     <string name="recognition_error">Échec de la reconnaissance</string>
     <string name="try_again">Réessayez</string>
-    <string name="search_in_flow">Rechercher dans Flow</string>
+    <string name="search_in_flow">Rechercher dans piTube</string>
     <string name="recognition_search_history">Rechercher des morceaux reconnus</string>
     <string name="recognition_history_empty">Les morceaux identifiés s\'afficheront ici</string>
     <string name="recognition_clear_history">Effacer l\'historique ?</string>
@@ -1783,7 +1761,7 @@
     <string name="sync_qr_scan_on_target_receiving">Scannez ce code-barres sur l\'appareil à partir duquel vous recevez le message</string>
     <string name="sync_confirmation_code">Code de confirmation : %1$s</string>
     <string name="sync_expires_in">Expire dans %1$ds</string>
-    <string name="sync_qr_network_note">Les deux appareils doivent être connectés au même réseau Wi-Fi (ou au point d\'accès d\'un des deux appareils). Vous devrez peut-être autoriser l\'accès à Flow via un pare-feu.</string>
+    <string name="sync_qr_network_note">Les deux appareils doivent être connectés au même réseau Wi-Fi (ou au point d\'accès d\'un des deux appareils). Vous devrez peut-être autoriser l\'accès à piTube via un pare-feu.</string>
     <string name="sync_sas_title">Les codes correspondent-ils ?</string>
     <string name="sync_sas_body">Vérifiez que ce code à 6 chiffres est identique sur les deux appareils avant de continuer.</string>
     <string name="sync_sas_differ">Ils diffèrent</string>
@@ -1805,7 +1783,7 @@
     <string name="sync_error_peer_also_receive">L\'autre appareil est également réglé sur « Réception ». Réglez-le sur « Émission », puis relancez la recherche.</string>
     <string name="sync_error_qr_expired">Ce QR code a expiré. Demandez à l\'autre appareil d\'en afficher un nouveau.</string>
     <string name="sync_error_qr_wrong_version">Version de l\'application incompatible sur l\'autre appareil.</string>
-    <string name="sync_error_qr_not_flow">Ça ne ressemble pas à un code de synchronisation Flow.</string>
+    <string name="sync_error_qr_not_flow">Ça ne ressemble pas à un code de synchronisation piTube.</string>
     <string name="sync_error_qr_bad_address">Il manque une adresse réseau valide dans le code de synchronisation.</string>
     <string name="sync_collection_subscriptions">Abonnements</string>
     <string name="sync_collection_settings">Paramètres</string>
@@ -1864,7 +1842,7 @@
     <string name="persona_initiate_title">L\'Initié</string>
     <string name="persona_initiate_description">Vous venez de commencer. Votre profil est encore en cours de création.</string>
     <string name="persona_audiophile_title">L\'Audiophile</string>
-    <string name="persona_audiophile_description">Vous utilisez Flow surtout pour écouter de la musique. L\'ambiance, c\'est ce qui compte le plus.</string>
+    <string name="persona_audiophile_description">Vous utilisez piTube surtout pour écouter de la musique. L\'ambiance, c\'est ce qui compte le plus.</string>
     <string name="persona_livewire_title">Le Livewire</string>
     <string name="persona_livewire_description">Vous adorez l\'énergie brute des livestreams et des avant-premières.</string>
     <string name="persona_night_owl_title">La Chouette Nocturne</string>
@@ -1935,7 +1913,7 @@
     <string name="copy_logs">Copier les journaux</string>
     <string name="logs_copied">Journaux copiés</string>
     <string name="logs_copy_failed">Impossible de copier les journaux</string>
-    <string name="channel_error_log_clip_label">Journal des erreurs du canal de Flow</string>
+    <string name="channel_error_log_clip_label">Journal des erreurs du canal de piTube</string>
     <string name="search_filter_all">Tout</string>
     <string name="search_toggle_view_mode">Basculer l\'affichage des résultats de recherche</string>
     <string name="channel_sort_latest">Les plus récentes</string>
@@ -1972,9 +1950,9 @@
     <string name="content_settings_hide_watched_subscriptions_title">Masquer les vidéos visionnées dans les abonnements</string>
     <string name="content_settings_hide_watched_subscriptions_subtitle">Filtrer les vidéos que vous avez déjà visionnées parmi vos abonnements</string>
     <string name="widget_now_playing_label">En cours de lecture</string>
-    <string name="widget_now_playing_description">Contrôler la musique en cours de lecture dans Flow</string>
+    <string name="widget_now_playing_description">Contrôler la musique en cours de lecture dans piTube</string>
     <string name="widget_quick_actions_label">Actions rapides</string>
-    <string name="widget_quick_actions_description">Rechercher dans « Flow » et accéder aux téléchargements, à l\'historique ou à la reconnaissance</string>
+    <string name="widget_quick_actions_description">Rechercher dans « piTube » et accéder aux téléchargements, à l\'historique ou à la reconnaissance</string>
     <string name="widget_recognize_label">Reconnaître un morceau de musique</string>
     <string name="widget_recognize_description">Identifiez la chanson qui passe autour de vous d\'un simple clic</string>
     <string name="widget_turntable_label">Platine vinyle</string>
@@ -2014,7 +1992,7 @@
     <string name="ui_navigate">Naviguer</string>
     <string name="ui_options">Options</string>
     <string name="ui_selected">Sélectionné</string>
-    <string name="ui_flow_logo">Logo Flow</string>
+    <string name="ui_flow_logo">Logo piTube</string>
     <string name="ui_list_view">Affichage sous forme de liste</string>
     <string name="ui_grid_view">Affichage en grille</string>
     <string name="ui_back">Retour</string>
@@ -2039,7 +2017,7 @@
     <string name="ui_no_crash_logs">Aucun journal d\'erreurs</string>
     <string name="ui_copy_log">Journal des copies</string>
     <string name="ui_clear_and_continue">Effacer et continuer</string>
-    <string name="ui_crashed_last_session">Flow a planté lors de la dernière session</string>
+    <string name="ui_crashed_last_session">piTube a planté lors de la dernière session</string>
     <string name="ui_copy_log_description">Copiez le journal ci-dessous et collez-le dans un ticket GitHub afin que le problème puisse être résolu.</string>
     <string name="ui_search_settings">Paramètres de recherche…</string>
     <string name="ui_custom_interest_title">Ajouter un centre d\'intérêt personnalisé</string>
@@ -2047,7 +2025,7 @@
     <string name="ui_custom_interest_hint">Centres d\'intérêt personnels (par exemple : le jazz, l\'astrophysique)</string>
     <string name="ui_add_interest">Ajouter de l\'intérêt</string>
     <string name="ui_version">Version %1$s</string>
-    <string name="update_download_prompt">Une nouvelle version de Flow est disponible (%1$s). Voulez-vous télécharger la dernière version de l\'APK ?</string>
+    <string name="update_download_prompt">Une nouvelle version de piTube est disponible (%1$s). Voulez-vous télécharger la dernière version de l\'APK ?</string>
     <string name="ui_instrumental">I N S T R U M E N T A L</string>
     <string name="ui_playlist_empty">La playlist est vide</string>
     <string name="equalizer">Égaliseur</string>
@@ -2221,20 +2199,20 @@
     <string name="download_muxing_failed_retry">Le multiplexage a échoué — essayez de télécharger à nouveau.</string>
     <string name="download_url_expired">URL expirée (403). Une nouvelle requête est nécessaire.</string>
     <string name="download_sabr_failed">Échec du téléchargement SABR</string>
-    <string name="discord_presence_description">Affichez ce à quoi vous jouez dans Flow en tant que profil enrichi Discord.</string>
+    <string name="discord_presence_description">Affichez ce à quoi vous jouez dans piTube en tant que profil enrichi Discord.</string>
     <string name="discord_presence_connection_section">Connexion</string>
     <string name="discord_presence_account">Compte Discord</string>
     <string name="discord_presence_privacy_section">Confidentialité et risques liés au compte</string>
     <string name="discord_presence_privacy_title">Confidentialité</string>
-    <string name="discord_presence_privacy_body">Lorsqu\'elle est activée, l\'application Flow partage avec Discord le titre de la vidéo, du « Short », du live ou du morceau en cours de lecture, ainsi que le nom du créateur ou de l\'artiste, la pochette et la durée de lecture. Ce paramètre est désactivé par défaut. Votre jeton de session Discord est chiffré à l\'aide du Keystore Android et n\'est jamais ajouté aux journaux de l\'application.</string>
-    <string name="discord_presence_gateway_warning">Flow utilise une connexion non officielle de type « self-bot » via le jeton de votre compte Discord, et non via OAuth. Cela constitue une violation des Conditions d\'utilisation de Discord et peut entraîner la suspension ou la résiliation de votre compte. Les clients non pris en charge peuvent également déclencher des alertes de fuite de jeton, des réinitialisations de mot de passe, des CAPTCHA ou des verrouillages nécessitant une vérification par téléphone.</string>
+    <string name="discord_presence_privacy_body">Lorsqu\'elle est activée, l\'application piTube partage avec Discord le titre de la vidéo, du « Short », du live ou du morceau en cours de lecture, ainsi que le nom du créateur ou de l\'artiste, la pochette et la durée de lecture. Ce paramètre est désactivé par défaut. Votre jeton de session Discord est chiffré à l\'aide du Keystore Android et n\'est jamais ajouté aux journaux de l\'application.</string>
+    <string name="discord_presence_gateway_warning">piTube utilise une connexion non officielle de type « self-bot » via le jeton de votre compte Discord, et non via OAuth. Cela constitue une violation des Conditions d\'utilisation de Discord et peut entraîner la suspension ou la résiliation de votre compte. Les clients non pris en charge peuvent également déclencher des alertes de fuite de jeton, des réinitialisations de mot de passe, des CAPTCHA ou des verrouillages nécessitant une vérification par téléphone.</string>
     <string name="discord_presence_risk_dialog_title">Accepter les risques liés au compte Discord ?</string>
-    <string name="discord_presence_risk_dialog_body">En vous connectant via Discord, vous fournissez à Flow le jeton de votre compte Discord. Flow le stocke en le chiffrant à l\'aide du Keystore Android et ne l\'envoie qu\'à Discord, mais cette méthode non officielle d\'utilisation d\'un bot personnel enfreint les Conditions d\'utilisation de Discord. Discord peut suspendre ou résilier votre compte, vous obliger à réinitialiser votre mot de passe, vous demander de saisir des CAPTCHA ou verrouiller votre compte en exigeant une vérification par téléphone.</string>
+    <string name="discord_presence_risk_dialog_body">En vous connectant via Discord, vous fournissez à piTube le jeton de votre compte Discord. piTube le stocke en le chiffrant à l\'aide du Keystore Android et ne l\'envoie qu\'à Discord, mais cette méthode non officielle d\'utilisation d\'un bot personnel enfreint les Conditions d\'utilisation de Discord. Discord peut suspendre ou résilier votre compte, vous obliger à réinitialiser votre mot de passe, vous demander de saisir des CAPTCHA ou verrouiller votre compte en exigeant une vérification par téléphone.</string>
     <string name="discord_presence_risk_accept">Je comprends, me connecter</string>
     <string name="discord_error_not_initialized">La fonctionnalité « Rich Presence » de Discord ne s\'est pas initialisée.</string>
     <string name="discord_error_enable_before_connect">Activez la fonctionnalité « Rich Presence » de Discord avant de connecter un compte.</string>
     <string name="discord_error_unavailable">La fonctionnalité « Rich Presence » de Discord n\'est pas disponible dans cette version.</string>
-    <string name="discord_error_open_flow">Lancez Flow avant de vous connecter à Discord.</string>
+    <string name="discord_error_open_flow">Lancez piTube avant de vous connecter à Discord.</string>
     <string name="discord_error_connection_in_progress">Une connexion à Discord est déjà en cours.</string>
     <string name="tv_library_liked">Vidéos aimées</string>
     <string name="tv_library_playlists">Playlists</string>
@@ -2255,18 +2233,18 @@
     <string name="download_failed_audio_length">Impossible d\'obtenir la durée du contenu audio</string>
     <string name="download_workers_failed">Un ou plusieurs travailleurs ont échoué</string>
     <string name="download_block_failed">Échec du bloc %1$s : %2$s</string>
-    <string name="import_migrate_description">Transférez en toute simplicité vos abonnements et votre historique depuis d\'autres plateformes vers Flow.</string>
+    <string name="import_migrate_description">Transférez en toute simplicité vos abonnements et votre historique depuis d\'autres plateformes vers piTube.</string>
     <string name="import_backup_restore">Sauvegarde &amp; Restauration</string>
-    <string name="import_manage_backups">Gérer vos sauvegardes Flow</string>
+    <string name="import_manage_backups">Gérer vos sauvegardes piTube</string>
     <string name="import_external_services">Services externes</string>
     <string name="import_other_youtube_clients">Importer depuis d\'autres clients YouTube</string>
     <string name="imported_count">%1$d %2$s importé</string>
     <string name="fallback_your_saved_shorts">Vos shorts enregistrés</string>
-    <string name="discord_presence_playing_fallback">Joué dans Flow</string>
+    <string name="discord_presence_playing_fallback">Joué dans piTube</string>
     <string name="about_creator_name">A-EDev</string>
     <string name="about_website_address">flow.aedev.me</string>
     <string name="about_reddit">Reddit</string>
-    <string name="about_reddit_subtitle">r/Flow_Official</string>
+    <string name="about_reddit_subtitle">r/piTube_Official</string>
     <string name="about_license_name">GNU GPL v3</string>
     <string name="tv_music_empty">Aucune musique à recommander pour le moment</string>
     <string name="tv_music_charts">Classement musical</string>
@@ -2298,11 +2276,11 @@
     <string name="tv_music_no_lyrics">Aucune parole trouvée</string>
     <string name="tv_music_radio">Radio</string>
     <string name="tv_settings_appearance">Apparence</string>
-    <string name="tv_settings_flow_engine">Moteur Flow</string>
+    <string name="tv_settings_flow_engine">Moteur piTube</string>
     <string name="tv_settings_sync">Synchroniser les appareils</string>
     <string name="tv_sync_qr_session_active">Ce code reste actif tant que cet écran est ouvert.</string>
     <string name="tv_remote_guide_title">Guide d\'utilisation de la télécommande et du clavier</string>
-    <string name="tv_remote_guide_subtitle">Un guide pratique pour utiliser Flow depuis son canapé</string>
+    <string name="tv_remote_guide_subtitle">Un guide pratique pour utiliser piTube depuis son canapé</string>
     <string name="tv_remote_guide_back">Retour aux paramètres</string>
     <string name="tv_guide_navigation_title">Navigation</string>
     <string name="tv_guide_search_title">Rechercher et parcourir</string>
@@ -2349,7 +2327,7 @@
     <string name="remove_from_queue">Retirer de la file d\'attente</string>
     <string name="remove_from_queue_confirmation">Êtes-vous sûr de vouloir supprimer cette vidéo de la file d\'attente ?</string>
     <string name="reorder_queue_item">Réorganiser un élément de la file d\'attente</string>
-    <string name="notif_background_restricted_subtitle">Android empêche Flow de vérifier la présence de nouvelles vidéos lorsque l\'application est fermée ; les notifications ne s\'affichent donc que lorsque vous ouvrez l\'application. Appuyez ici pour autoriser l\'activité en arrière-plan sans restriction.</string>
+    <string name="notif_background_restricted_subtitle">Android empêche piTube de vérifier la présence de nouvelles vidéos lorsque l\'application est fermée ; les notifications ne s\'affichent donc que lorsque vous ouvrez l\'application. Appuyez ici pour autoriser l\'activité en arrière-plan sans restriction.</string>
     <string name="notif_background_restricted_title">Les vérifications d\'antécédents sont soumises à des restrictions</string>
     <plurals name="subscriptions_failed_channels_title">
         <item quantity="one">Impossible de charger la chaîne %d</item>
@@ -2360,7 +2338,6 @@
     <string name="subscriptions_failed_channels_more">%1$s et %2$d de plus</string>
     <string name="comment_edited">modifié</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
-    <string name="deep_flow_duration_hours">%1$d heures</string>
     <string name="audio_track_original">Original</string>
     <string name="audio_track_dubbed">Surnommé</string>
     <string name="duration_hours_minutes">%1$d h %2$d min</string>

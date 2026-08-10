@@ -48,12 +48,10 @@ import com.omersusin.pitube.innertube.pages.ChartsPage
 import com.omersusin.pitube.innertube.pages.BrowseResult
 import com.omersusin.pitube.innertube.pages.CommunityCommentsPage
 import com.omersusin.pitube.innertube.pages.CommunityPostsPage
-import com.omersusin.pitube.innertube.pages.ExplorePage
 import com.omersusin.pitube.innertube.pages.HistoryPage
 import com.omersusin.pitube.innertube.pages.HomePage
 import com.omersusin.pitube.innertube.pages.LibraryContinuationPage
 import com.omersusin.pitube.innertube.pages.LibraryPage
-import com.omersusin.pitube.innertube.pages.MoodAndGenres
 import com.omersusin.pitube.innertube.pages.NewReleaseAlbumPage
 import com.omersusin.pitube.innertube.pages.NextPage
 import com.omersusin.pitube.innertube.pages.NextResult
@@ -1387,37 +1385,6 @@ object YouTube {
                 HomePage.Section.fromMusicCarouselShelfRenderer(it)
             }.orEmpty(), continuation
         )
-    }
-
-    suspend fun explore(): Result<ExplorePage> = runCatching {
-        val response = innerTube.browse(WEB_REMIX, browseId = "FEmusic_explore").body<BrowseResponse>()
-        ExplorePage(
-            newReleaseAlbums = response.contents?.singleColumnBrowseResultsRenderer?.tabs?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer?.contents?.find {
-                it.musicCarouselShelfRenderer?.header?.musicCarouselShelfBasicHeaderRenderer?.moreContentButton?.buttonRenderer?.navigationEndpoint?.browseEndpoint?.browseId == "FEmusic_new_releases_albums"
-            }?.musicCarouselShelfRenderer?.contents
-                ?.mapNotNull { it.musicTwoRowItemRenderer }
-                ?.mapNotNull(NewReleaseAlbumPage::fromMusicTwoRowItemRenderer).orEmpty(),
-            moodAndGenres = response.contents?.singleColumnBrowseResultsRenderer?.tabs?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer?.contents?.find {
-                it.musicCarouselShelfRenderer?.header?.musicCarouselShelfBasicHeaderRenderer?.moreContentButton?.buttonRenderer?.navigationEndpoint?.browseEndpoint?.browseId == "FEmusic_moods_and_genres"
-            }?.musicCarouselShelfRenderer?.contents
-                ?.mapNotNull { it.musicNavigationButtonRenderer }
-                ?.mapNotNull(MoodAndGenres.Companion::fromMusicNavigationButtonRenderer)
-                .orEmpty()
-        )
-    }
-
-    suspend fun newReleaseAlbums(): Result<List<AlbumItem>> = runCatching {
-        val response = innerTube.browse(WEB_REMIX, browseId = "FEmusic_new_releases_albums").body<BrowseResponse>()
-        response.contents?.singleColumnBrowseResultsRenderer?.tabs?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer?.contents?.firstOrNull()?.gridRenderer?.items
-            ?.mapNotNull { it.musicTwoRowItemRenderer }
-            ?.mapNotNull(NewReleaseAlbumPage::fromMusicTwoRowItemRenderer)
-            .orEmpty()
-    }
-
-    suspend fun moodAndGenres(): Result<List<MoodAndGenres>> = runCatching {
-        val response = innerTube.browse(WEB_REMIX, browseId = "FEmusic_moods_and_genres").body<BrowseResponse>()
-        response.contents?.singleColumnBrowseResultsRenderer?.tabs?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer?.contents!!
-            .mapNotNull(MoodAndGenres.Companion::fromSectionListRendererContent)
     }
 
     suspend fun browse(browseId: String, params: String?): Result<BrowseResult> = runCatching {

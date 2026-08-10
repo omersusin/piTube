@@ -206,8 +206,6 @@ class LocalDataManager @Inject constructor(@ApplicationContext private val conte
     }
 
     suspend fun addToWatchHistory(video: Video) {
-        if (PlayerPreferences(context).isDeepFlowCurrentlyActive()) return
-
         context.dataStore.edit { prefs ->
             val current: List<Video> = gson.fromJson(
                 prefs[WATCH_HISTORY] ?: "[]",

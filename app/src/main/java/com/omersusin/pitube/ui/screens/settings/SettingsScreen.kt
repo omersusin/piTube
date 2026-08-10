@@ -50,16 +50,15 @@ import com.google.gson.JsonParser
 import com.omersusin.pitube.BuildConfig
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.AppUiModePreferences
-import com.omersusin.pitube.data.local.DEEP_FLOW_NEVER_EXPIRES_HOURS
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.discord.DiscordPresenceRuntime
 import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.platform.AppUiMode
-import com.omersusin.pitube.player.DeepFlowManager
 import com.omersusin.pitube.ui.theme.ThemeMode
 import com.omersusin.pitube.ui.theme.extendedColors
 import com.omersusin.pitube.utils.AppLanguageManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -92,6 +91,7 @@ fun SettingsScreen(
     onNavigateToExport: () -> Unit,
     onNavigateToSponsorBlockSettings: () -> Unit,
     onNavigateToDiscordSettings: () -> Unit,
+    onNavigateToGoogleLogin: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -109,6 +109,15 @@ fun SettingsScreen(
     // Dialog state
     var showRegionDialog by remember { mutableStateOf(false) }
     var showAppLanguageDialog by remember { mutableStateOf(false) }
+
+    // Google account state
+    val youtubeAccountName by playerPreferences.youtubeAccountName.collectAsStateWithLifecycle(initialValue = null)
+    val youtubeAccountEmail by playerPreferences.youtubeAccountEmail.collectAsStateWithLifecycle(initialValue = null)
+    val isGoogleSignedIn by playerPreferences.youtubeCookie
+        .map { !it.isNullOrEmpty() }
+        .collectAsStateWithLifecycle(initialValue = false)
+    var isSyncingLibrary by remember { mutableStateOf(false) }
+    var librarySyncResultText by remember { mutableStateOf<String?>(null) }
     // Update checker state (github flavor only)
     var isCheckingUpdate by remember { mutableStateOf(false) }
     // null = no dialog; non-null = tag string of the available update
@@ -129,23 +138,6 @@ fun SettingsScreen(
             onDismiss = { showInterfaceModeDialog = false },
         )
     }
-
-    // Deep Flow state
-    val deepFlowActive by playerPreferences.deepFlowActive.collectAsState(initial = false)
-    val deepFlowActivatedAt by playerPreferences.deepFlowActivatedAt.collectAsState(initial = 0L)
-    val deepFlowExpireHours by playerPreferences.deepFlowExpireHours.collectAsState(initial = 4)
-    val deepFlowSaveHistory by playerPreferences.deepFlowSaveToHistory.collectAsState(initial = false)
-    var showDeepFlowDurationDialog by remember { mutableStateOf(false) }
-
-    val deepFlowRemainingLabel: String? =
-        remember(deepFlowActive, deepFlowActivatedAt, deepFlowExpireHours) {
-            if (!deepFlowActive || deepFlowActivatedAt == 0L || deepFlowExpireHours == DEEP_FLOW_NEVER_EXPIRES_HOURS) return@remember null
-            val expiresAt = deepFlowActivatedAt + deepFlowExpireHours * 3_600_000L
-            val remainingMs = expiresAt - System.currentTimeMillis()
-            if (remainingMs <= 0) return@remember null
-            val remainingMins = remainingMs / 60_000
-            if (remainingMins < 60) "${remainingMins}m" else "${remainingMins / 60}h ${remainingMins % 60}m"
-        }
 
     // Optimize Region Dialog: compute list only once
     val regionList = remember { REGION_NAMES.toList() }
@@ -567,182 +559,102 @@ fun SettingsScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                // DEEP FLOW MODE
+                // =================================================
+                // GOOGLE ACCOUNT
+                // =================================================
+                item { SectionHeader(text = stringResource(R.string.settings_header_account)) }
                 item {
-                    Spacer(Modifier.height(12.dp))
                     SettingsGroup {
-                        Row(
-                            modifier =
-                                Modifier
+                        if (isGoogleSignedIn) {
+                            Row(
+                                modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable {
-                                        coroutineScope.launch {
-                                            DeepFlowManager.toggle(context)
-                                        }
-                                    }.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.VisibilityOff,
-                                contentDescription = null,
-                                tint =
-                                    if (deepFlowActive) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.AccountCircle,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = stringResource(R.string.deep_flow_mode_title),
-                                        style = MaterialTheme.typography.bodyLarge,
+                                        text = youtubeAccountName?.takeIf { it.isNotBlank() }
+                                            ?: stringResource(R.string.settings_google_account_signed_in),
+                                        style = MaterialTheme.typography.bodyLarge
                                     )
-                                    if (deepFlowActive && deepFlowRemainingLabel != null) {
-                                        Spacer(Modifier.width(8.dp))
-                                        Surface(
-                                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                            shape = RoundedCornerShape(6.dp),
-                                        ) {
-                                            Text(
-                                                text =
-                                                    stringResource(
-                                                        R.string.deep_flow_learning_paused,
-                                                    ),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.primary,
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                                            )
-                                        }
+                                    val email = youtubeAccountEmail
+                                    if (!email.isNullOrBlank()) {
+                                        Text(
+                                            text = email,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
                                 }
-                                Text(
-                                    text =
-                                        when {
-                                            deepFlowActive && deepFlowRemainingLabel != null -> {
-                                                stringResource(
-                                                    R.string.deep_flow_expires_in,
-                                                    deepFlowRemainingLabel,
-                                                )
-                                            }
-
-                                            deepFlowActive && deepFlowExpireHours == DEEP_FLOW_NEVER_EXPIRES_HOURS -> {
-                                                stringResource(
-                                                    R.string.deep_flow_active_until_disabled,
-                                                )
-                                            }
-
-                                            else -> {
-                                                stringResource(R.string.deep_flow_mode_subtitle)
-                                            }
-                                        },
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            Switch(
-                                checked = deepFlowActive,
-                                onCheckedChange = { enabled ->
+                                TextButton(onClick = {
                                     coroutineScope.launch {
-                                        DeepFlowManager.setEnabled(context, enabled)
+                                        playerPreferences.clearYoutubeAccount()
+                                        com.omersusin.pitube.innertube.YouTube.cookie = null
+                                        com.omersusin.pitube.innertube.YouTube.useLoginForBrowse = false
+                                        librarySyncResultText = null
+                                        runCatching {
+                                            com.omersusin.pitube.data.local.HomeFeedCacheRepository(context).clearAll()
+                                        }
                                     }
-                                },
-                            )
-                        }
-
-                        HorizontalDivider(
-                            Modifier.padding(start = 56.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable { showDeepFlowDurationDialog = true }
-                                    .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Timer,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.deep_flow_expire_duration_title),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                                Text(
-                                    text =
-                                        stringResource(
-                                            R.string.deep_flow_expire_duration_subtitle,
-                                            deepFlowExpireHours.let { hours ->
-                                                when (hours) {
-                                                    DEEP_FLOW_NEVER_EXPIRES_HOURS -> context.getString(R.string.deep_flow_duration_never)
-                                                    1 -> context.getString(R.string.deep_flow_duration_1h)
-                                                    2 -> context.getString(R.string.deep_flow_duration_2h)
-                                                    4 -> context.getString(R.string.deep_flow_duration_4h)
-                                                    6 -> context.getString(R.string.deep_flow_duration_6h)
-                                                    8 -> context.getString(R.string.deep_flow_duration_8h)
-                                                    12 -> context.getString(R.string.deep_flow_duration_12h)
-                                                    24 -> context.getString(R.string.deep_flow_duration_24h)
-                                                    else -> context.getString(R.string.deep_flow_duration_hours, hours)
-                                                }
-                                            },
-                                        ),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                }) {
+                                    Text(stringResource(R.string.settings_google_sign_out))
+                                }
                             }
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-
-                        HorizontalDivider(
-                            Modifier.padding(start = 56.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
-                        Row(
-                            modifier =
-                                Modifier
+                            HorizontalDivider()
+                            Row(
+                                modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.History,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.deep_flow_save_history_title),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                                Text(
-                                    text = stringResource(R.string.deep_flow_save_history_subtitle),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            Switch(
-                                checked = deepFlowSaveHistory,
-                                onCheckedChange = { enabled ->
-                                    coroutineScope.launch {
-                                        playerPreferences.setDeepFlowSaveToHistory(enabled)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = librarySyncResultText
+                                            ?: stringResource(R.string.settings_google_sync_subtitle),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                if (isSyncingLibrary) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    TextButton(onClick = {
+                                        coroutineScope.launch {
+                                            isSyncingLibrary = true
+                                            librarySyncResultText = null
+                                            val result = com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
+                                            isSyncingLibrary = false
+                                            librarySyncResultText = context.getString(
+                                                R.string.settings_google_sync_result,
+                                                result.likedVideos,
+                                                result.playlists,
+                                                result.subscribedChannels
+                                            )
+                                        }
+                                    }) {
+                                        Text(stringResource(R.string.settings_google_sync_now))
                                     }
-                                },
+                                }
+                            }
+                        } else {
+                            SettingsItem(
+                                icon = Icons.Outlined.AccountCircle,
+                                title = stringResource(R.string.settings_google_sign_in),
+                                subtitle = stringResource(R.string.settings_google_sign_in_subtitle),
+                                onClick = onNavigateToGoogleLogin,
                             )
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
                 }
 
                 // =================================================
@@ -1045,66 +957,6 @@ fun SettingsScreen(
                 }
             }
         }
-    }
-
-    if (showDeepFlowDurationDialog) {
-        val durationOptions =
-            listOf(
-                DEEP_FLOW_NEVER_EXPIRES_HOURS to stringResource(R.string.deep_flow_duration_never),
-                1 to stringResource(R.string.deep_flow_duration_1h),
-                2 to stringResource(R.string.deep_flow_duration_2h),
-                4 to stringResource(R.string.deep_flow_duration_4h),
-                6 to stringResource(R.string.deep_flow_duration_6h),
-                8 to stringResource(R.string.deep_flow_duration_8h),
-                12 to stringResource(R.string.deep_flow_duration_12h),
-                24 to stringResource(R.string.deep_flow_duration_24h),
-            )
-        AlertDialog(
-            onDismissRequest = { showDeepFlowDurationDialog = false },
-            icon = { Icon(Icons.Outlined.Timer, null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text(stringResource(R.string.deep_flow_dialog_title)) },
-            text = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.deep_flow_dialog_body),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 12.dp),
-                    )
-                    durationOptions.forEach { (hours, label) ->
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        coroutineScope.launch {
-                                            playerPreferences.setDeepFlowExpireHours(hours)
-                                        }
-                                        showDeepFlowDurationDialog = false
-                                    }.padding(vertical = 10.dp, horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(
-                                selected = deepFlowExpireHours == hours,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        playerPreferences.setDeepFlowExpireHours(hours)
-                                    }
-                                    showDeepFlowDurationDialog = false
-                                },
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(text = label, style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
-                }
-            },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { showDeepFlowDurationDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            },
-        )
     }
 
     // Update Available Dialog (github flavor only)
