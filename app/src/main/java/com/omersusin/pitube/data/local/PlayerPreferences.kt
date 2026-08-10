@@ -1615,7 +1615,7 @@ class PlayerPreferences(context: Context) {
     // PiP Preferences
     val autoPipEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
         .map { preferences ->
-            preferences[Keys.AUTO_PIP_ENABLED] ?: false
+            preferences[Keys.AUTO_PIP_ENABLED] ?: true
         }
 
     suspend fun setAutoPipEnabled(enabled: Boolean) {
