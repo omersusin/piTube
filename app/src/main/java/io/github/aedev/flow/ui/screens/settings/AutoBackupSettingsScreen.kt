@@ -192,7 +192,6 @@ fun AutoBackupSettingsScreen(
                 SettingsGroup {
                     val types = listOf(
                         LocalDataManager.AutoBackupType.APP_DATA to stringResource(R.string.auto_backup_type_app_data),
-                        LocalDataManager.AutoBackupType.BRAIN to stringResource(R.string.auto_backup_type_brain),
                         LocalDataManager.AutoBackupType.MASTER to stringResource(R.string.auto_backup_type_master),
                     )
                     Column(modifier = Modifier.selectableGroup()) {
@@ -279,8 +278,6 @@ fun AutoBackupSettingsScreen(
                                     val result = when (backupType) {
                                         LocalDataManager.AutoBackupType.APP_DATA ->
                                             backupRepo.exportDataToFolder(folderUri)
-                                        LocalDataManager.AutoBackupType.BRAIN ->
-                                            backupRepo.exportBrainToFolder(folderUri)
                                         LocalDataManager.AutoBackupType.MASTER ->
                                             backupRepo.exportMasterToFolder(folderUri)
                                     }

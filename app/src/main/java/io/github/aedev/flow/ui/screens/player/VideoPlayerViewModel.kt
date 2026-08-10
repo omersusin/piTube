@@ -10,9 +10,7 @@ import io.github.aedev.flow.data.model.Comment
 import io.github.aedev.flow.data.model.distinctByNonBlankKey
 import io.github.aedev.flow.data.model.mergeDistinctByNonBlankKey
 import io.github.aedev.flow.data.local.entity.WatchHistoryEntity
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
 import io.github.aedev.flow.ui.components.FeedInvalidationBus
-import io.github.aedev.flow.data.recommendation.InteractionType
 import io.github.aedev.flow.data.repository.YouTubeRepository
 import io.github.aedev.flow.player.BackgroundPlaybackPolicy
 import io.github.aedev.flow.player.EnhancedPlayerManager
@@ -1405,28 +1403,6 @@ class VideoPlayerViewModel @Inject constructor(
                     }
 
                     if (streamInfo != null) {
-                        // Record interaction for Flow Neuro Engine — off the startup path: it takes
-                        // the brain mutex and updates vectors, none of which first frame needs.
-                        viewModelScope.launch(PerformanceDispatcher.diskIO) {
-                            try {
-                                val video = Video(
-                                    id = videoId,
-                                    title = streamInfo.name ?: "",
-                                    channelName = streamInfo.uploaderName ?: "",
-                                    channelId = streamInfo.uploaderUrl?.split("/")?.last() ?: "",
-                                    thumbnailUrl = streamInfo.thumbnails?.maxByOrNull { it.height }?.url ?: "",
-                                    duration = streamInfo.duration.toInt(),
-                                    viewCount = streamInfo.viewCount,
-                                    uploadDate = "",
-                                    description = streamInfo.description?.content ?: "",
-                                    tags = streamInfo.tags ?: emptyList()
-                                )
-                                FlowNeuroEngine.onVideoInteraction(context, video, InteractionType.CLICK)
-                            } catch (e: Exception) {
-                                Log.e("VideoPlayerViewModel", "Failed to record interaction", e)
-                            }
-                        }
-
                         val realTitle = streamInfo.name?.takeIf { it.isNotBlank() }
                         val realChannel = streamInfo.uploaderName?.takeIf { it.isNotBlank() }
                         val realThumbnail = streamInfo.thumbnails?.maxByOrNull { it.height }?.url?.takeIf { it.isNotBlank() }
@@ -2768,21 +2744,6 @@ class VideoPlayerViewModel @Inject constructor(
         if (watchFraction < 0.20) return
 
         lastReportedVideoId = video.id
-
-        val interactionType = when {
-            watchFraction >= 0.85 -> InteractionType.WATCHED
-            watchFraction >= 0.40 -> InteractionType.WATCHED
-            else -> InteractionType.SKIPPED
-        }
-
-        viewModelScope.launch {
-            FlowNeuroEngine.onVideoInteraction(
-                context,
-                video,
-                interactionType,
-                percentWatched = watchFraction.toFloat()
-            )
-        }
     }
 
     fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {
@@ -2843,19 +2804,6 @@ class VideoPlayerViewModel @Inject constructor(
                 )
             )
             _uiState.value = _uiState.value.copy(likeState = "LIKED")
-            try {
-                val video = resolveRichVideo(videoId) ?: Video(
-                    id = videoId,
-                    title = title,
-                    channelName = channelName,
-                    channelId = channelId,
-                    thumbnailUrl = thumbnail,
-                    duration = 0,
-                    viewCount = 0,
-                    uploadDate = ""
-                )
-                FlowNeuroEngine.onVideoInteraction(context, video, InteractionType.LIKED)
-            } catch (e: Exception) { }
         }
     }
 
@@ -2863,14 +2811,6 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             likedVideosRepository.dislikeVideo(videoId)
             _uiState.value = _uiState.value.copy(likeState = "DISLIKED")
-            try {
-                val video = resolveRichVideo(videoId)
-                if (video != null) {
-                    FlowNeuroEngine.onVideoInteraction(context, video, InteractionType.DISLIKED)
-                }
-            } catch (e: Exception) {
-                Log.w("VideoPlayerViewModel", "Failed to record dislike", e)
-            }
         }
     }
     

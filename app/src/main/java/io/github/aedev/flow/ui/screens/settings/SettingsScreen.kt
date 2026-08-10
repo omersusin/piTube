@@ -52,8 +52,6 @@ import io.github.aedev.flow.R
 import io.github.aedev.flow.data.local.AppUiModePreferences
 import io.github.aedev.flow.data.local.DEEP_FLOW_NEVER_EXPIRES_HOURS
 import io.github.aedev.flow.data.local.PlayerPreferences
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
-import io.github.aedev.flow.data.recommendation.UserBrain
 import io.github.aedev.flow.discord.DiscordPresenceRuntime
 import io.github.aedev.flow.network.AppProxyManager
 import io.github.aedev.flow.platform.AppUiMode
@@ -75,7 +73,6 @@ fun SettingsScreen(
     onNavigateToAppearance: () -> Unit,
     onNavigateToPlayerAppearance: () -> Unit,
     onNavigateToDonations: () -> Unit,
-    onNavigateToPersonality: () -> Unit,
     onNavigateToDownloads: () -> Unit,
     onNavigateToTimeManagement: () -> Unit,
     onNavigateToPlayerSettings: () -> Unit,
@@ -87,7 +84,6 @@ fun SettingsScreen(
     onNavigateToBufferSettings: () -> Unit,
     onNavigateToSearchHistory: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    onNavigateToUserPreferences: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToAppIconPicker: () -> Unit,
     onNavigateToDiagnostics: () -> Unit,
@@ -110,17 +106,9 @@ fun SettingsScreen(
                 .BackupRepository(context)
         }
 
-    // Brain State
-    var userBrain by remember { mutableStateOf<UserBrain?>(null) }
-    var refreshBrainTrigger by remember { mutableStateOf(0) }
-
-    LaunchedEffect(refreshBrainTrigger) {
-        userBrain = FlowNeuroEngine.getBrainSnapshot()
-    }
-
+    // Dialog state
     var showRegionDialog by remember { mutableStateOf(false) }
     var showAppLanguageDialog by remember { mutableStateOf(false) }
-    var showResetBrainDialog by remember { mutableStateOf(false) }
     // Update checker state (github flavor only)
     var isCheckingUpdate by remember { mutableStateOf(false) }
     // null = no dialog; non-null = tag string of the available update
@@ -256,7 +244,6 @@ fun SettingsScreen(
     }
 
     // Section label strings for the search index
-    val secFlowEngine = stringResource(R.string.settings_flow_engine_header)
     val secAppearance = stringResource(R.string.settings_header_appearance)
     val secContentPlayback = stringResource(R.string.settings_header_content_playback)
     val secNotifications = stringResource(R.string.settings_header_notifications)
@@ -265,13 +252,6 @@ fun SettingsScreen(
 
     val allSettingsEntries =
         listOf(
-            SettingSearchEntry(
-                Icons.Outlined.Psychology,
-                stringResource(R.string.flow_control_center),
-                stringResource(R.string.neural_interest_map_subtitle),
-                secFlowEngine,
-                onNavigateToPersonality,
-            ),
             SettingSearchEntry(
                 Icons.Outlined.Palette,
                 stringResource(R.string.settings_item_theme),
@@ -318,13 +298,6 @@ fun SettingsScreen(
                 stringResource(R.string.settings_item_datetime_subtitle),
                 secAppearance,
                 onNavigateToDateTimeSettings,
-            ),
-            SettingSearchEntry(
-                Icons.Outlined.FilterAlt,
-                stringResource(R.string.settings_item_content_prefs),
-                stringResource(R.string.settings_item_content_prefs_subtitle),
-                secContentPlayback,
-                onNavigateToUserPreferences,
             ),
             SettingSearchEntry(
                 Icons.Outlined.PlayCircle,
@@ -594,181 +567,6 @@ fun SettingsScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                // =================================================
-// 🧠 MY FLOW PERSONALITY (FLOW EXCLUSIVE FEATURE)
-// =================================================
-                item {
-                    Text(
-                        text = stringResource(R.string.settings_flow_engine_header),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 16.dp, bottom = 8.dp, top = 16.dp),
-                    )
-                }
-
-                item {
-                    val persona = if (userBrain != null) FlowNeuroEngine.getPersona(userBrain!!) else null
-
-                    Card(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .clickable(onClick = onNavigateToPersonality),
-                        shape = RoundedCornerShape(24.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    ) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(min = 180.dp),
-                        ) {
-                            // 1. Background Layer (Gradient)
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .matchParentSize()
-                                        .background(
-                                            brush =
-                                                Brush.linearGradient(
-                                                    colors =
-                                                        listOf(
-                                                            MaterialTheme.colorScheme.primary,
-                                                            MaterialTheme.colorScheme.primaryContainer,
-                                                        ),
-                                                ),
-                                        ),
-                            )
-                            // 2. Background Decor (Abstract Shapes)
-                            Canvas(modifier = Modifier.matchParentSize()) {
-                                // Top Right Circle
-                                drawCircle(
-                                    color = Color.White.copy(alpha = 0.1f),
-                                    radius = size.width * 0.5f,
-                                    center = Offset(size.width, 0f),
-                                )
-                                // Bottom Left Blob
-                                drawCircle(
-                                    color = Color.Black.copy(alpha = 0.05f),
-                                    radius = size.width * 0.3f,
-                                    center = Offset(0f, size.height),
-                                )
-                            }
-
-                            // 2. Huge Emoji Icon (Watermark style)
-                            if (persona != null) {
-                                Text(
-                                    text = persona.icon, // e.g., 🤿 or 🧭
-                                    fontSize = 120.sp,
-                                    modifier =
-                                        Modifier
-                                            .align(Alignment.BottomEnd)
-                                            .offset(x = 20.dp, y = 20.dp)
-                                            .alpha(0.15f),
-                                )
-                            }
-
-                            // 4. Main Content
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(20.dp),
-                                verticalArrangement = Arrangement.SpaceBetween,
-                            ) {
-                                // Header Row
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.Top,
-                                ) {
-                                    // Badge
-                                    Surface(
-                                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f),
-                                        shape = RoundedCornerShape(8.dp),
-                                    ) {
-                                        Text(
-                                            text = stringResource(R.string.settings_active_learning),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                        )
-                                    }
-
-                                    // Reset Button (Subtle)
-                                    IconButton(
-                                        onClick = { showResetBrainDialog = true },
-                                        modifier =
-                                            Modifier
-                                                .size(32.dp)
-                                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), CircleShape),
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Refresh,
-                                            contentDescription = stringResource(R.string.settings_reset_everything),
-                                            tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(16.dp),
-                                        )
-                                    }
-                                }
-
-                                // Persona Info
-                                if (persona != null) {
-                                    Column {
-                                        Text(
-                                            text = stringResource(persona.titleRes),
-                                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                        )
-                                        Spacer(Modifier.height(4.dp))
-                                        Text(
-                                            text = stringResource(persona.descriptionRes),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
-                                    }
-                                } else {
-                                    // Loading State
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        CircularProgressIndicator(
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(24.dp),
-                                            strokeWidth = 2.dp,
-                                        )
-                                        Spacer(Modifier.width(12.dp))
-                                        Text(
-                                            text = stringResource(R.string.settings_analyzing_interactions),
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                        )
-                                    }
-                                }
-
-                                // Bottom CTA
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.settings_view_analytics),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.onPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Spacer(Modifier.width(4.dp))
-                                    Icon(
-                                        Icons.Default.ArrowForward,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(16.dp),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
                 // DEEP FLOW MODE
                 item {
                     Spacer(Modifier.height(12.dp))
@@ -1029,16 +827,6 @@ fun SettingsScreen(
 
                 item {
                     SettingsGroup {
-                        SettingsItem(
-                            icon = Icons.Outlined.FilterAlt,
-                            title = stringResource(R.string.settings_item_content_prefs),
-                            subtitle = stringResource(R.string.settings_item_content_prefs_subtitle),
-                            onClick = onNavigateToUserPreferences,
-                        )
-                        HorizontalDivider(
-                            Modifier.padding(start = 56.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
                         SettingsItem(
                             icon = Icons.Outlined.PlayCircle,
                             title = stringResource(R.string.settings_item_player),
@@ -1319,35 +1107,6 @@ fun SettingsScreen(
         )
     }
 
-    if (showResetBrainDialog) {
-        AlertDialog(
-            onDismissRequest = { showResetBrainDialog = false },
-            icon = { Icon(Icons.Default.Warning, null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text(stringResource(R.string.settings_reset_brain_title)) },
-            text = {
-                Text(
-                    stringResource(R.string.settings_reset_brain_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            FlowNeuroEngine.resetBrain(context)
-                            refreshBrainTrigger++
-                            showResetBrainDialog = false
-                        }
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                ) { Text(stringResource(R.string.settings_reset_everything)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showResetBrainDialog = false }) { Text(stringResource(R.string.cancel)) }
-            },
-        )
-    }
-
     // Update Available Dialog (github flavor only)
     if (BuildConfig.UPDATER_ENABLED) {
         val tag = updateAvailableTag
@@ -1536,32 +1295,6 @@ fun SettingsScreen(
             confirmButton = {},
             dismissButton = { TextButton(onClick = { showRegionDialog = false }) { Text(stringResource(R.string.cancel)) } },
         )
-    }
-}
-
-@Composable
-fun BrainTraitRow(
-    label: String,
-    value: Double,
-    leftLabel: String,
-    rightLabel: String,
-) {
-    Column {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            Text("${(value * 100).toInt()}%", style = MaterialTheme.typography.labelMedium)
-        }
-        Spacer(Modifier.height(4.dp))
-        LinearProgressIndicator(
-            progress = value.toFloat(), // Fixed: No lambda
-            modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
-            color = MaterialTheme.colorScheme.secondary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(leftLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(rightLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
     }
 }
 

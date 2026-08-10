@@ -1,6 +1,7 @@
 package io.github.aedev.flow.data.repository
 
 import android.content.Context
+import io.github.aedev.flow.innertube.YouTube
 import io.github.aedev.flow.network.AppProxyManager
 import okhttp3.OkHttpClient
 import org.schabi.newpipe.extractor.downloader.Downloader
@@ -64,6 +65,11 @@ class NewPipeDownloader private constructor(context: Context) : Downloader() {
         val builder = okhttp3.Request.Builder()
             .url(url)
             .header("User-Agent", USER_AGENT)
+
+        // Add cookies from the signed-in YouTube session for authenticated requests
+        YouTube.cookie?.takeIf { it.isNotBlank() }?.let { cookies ->
+            builder.header("Cookie", cookies)
+        }
 
         // Add headers
         for ((key, list) in headers) {

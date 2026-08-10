@@ -31,6 +31,16 @@ val DEFAULT_NAV_TAB_ORDER = listOf(0, 1, 3, 4, 5, 6)
 
 private const val MAX_UNPLAYABLE_VIDEO_IDS = 300
 
+// Preference keys holding credentials/session data. These must never be written into
+// settings export/import backups (same reasoning as the pre-existing proxy_password exclusion).
+private val BACKUP_EXCLUDED_KEY_NAMES = setOf(
+    "proxy_password",
+    "youtube_cookie",
+    "youtube_account_name",
+    "youtube_account_email",
+    "youtube_account_thumbnail",
+)
+
 private fun String?.decodeUnplayableIds(): Set<String> =
     if (isNullOrBlank()) emptySet() else splitToSequence('\n').filter { it.isNotBlank() }.toCollection(LinkedHashSet())
 
@@ -38,6 +48,11 @@ class PlayerPreferences(context: Context) {
     private val context: Context = context.applicationContext
     
     private object Keys {
+        val YOUTUBE_COOKIE = stringPreferencesKey("youtube_cookie")
+        val YOUTUBE_ACCOUNT_NAME = stringPreferencesKey("youtube_account_name")
+        val YOUTUBE_ACCOUNT_EMAIL = stringPreferencesKey("youtube_account_email")
+        val YOUTUBE_ACCOUNT_THUMBNAIL = stringPreferencesKey("youtube_account_thumbnail")
+        val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val DEFAULT_QUALITY_WIFI = stringPreferencesKey("default_quality_wifi")
         val DEFAULT_QUALITY_CELLULAR = stringPreferencesKey("default_quality_cellular")
         val DEFAULT_VIDEO_CODEC = stringPreferencesKey("default_video_codec")
@@ -2460,7 +2475,7 @@ class PlayerPreferences(context: Context) {
         val longs = mutableMapOf<String, Long>()
 
         prefs.asMap().forEach { (key, value) ->
-            if (key.name == "proxy_password") return@forEach
+            if (key.name in BACKUP_EXCLUDED_KEY_NAMES) return@forEach
             when (value) {
                 is String -> strings[key.name] = value
                 is Boolean -> booleans[key.name] = value
@@ -2475,7 +2490,7 @@ class PlayerPreferences(context: Context) {
     suspend fun restoreData(backup: SettingsBackup) {
         context.playerPreferencesDataStore.edit { prefs ->
             backup.strings.forEach { (k, v) ->
-                if (k != "proxy_password") {
+                if (k !in BACKUP_EXCLUDED_KEY_NAMES) {
                     prefs[stringPreferencesKey(k)] = v
                 }
             }
@@ -2483,6 +2498,53 @@ class PlayerPreferences(context: Context) {
             backup.ints.forEach { (k, v) -> prefs[intPreferencesKey(k)] = v }
             backup.floats.forEach { (k, v) -> prefs[floatPreferencesKey(k)] = v }
             backup.longs.forEach { (k, v) -> prefs[longPreferencesKey(k)] = v }
+        }
+    }
+
+    /** Raw `name=value; name2=value2` cookie string for the signed-in YouTube/Google session, or null if signed out. */
+    val youtubeCookie: Flow<String?> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.YOUTUBE_COOKIE] }
+
+    val onboardingComplete: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.ONBOARDING_COMPLETE] ?: false }
+
+    suspend fun setOnboardingComplete() {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.ONBOARDING_COMPLETE] = true
+        }
+    }
+
+    val youtubeAccountName: Flow<String?> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.YOUTUBE_ACCOUNT_NAME] }
+
+    val youtubeAccountEmail: Flow<String?> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.YOUTUBE_ACCOUNT_EMAIL] }
+
+    val youtubeAccountThumbnail: Flow<String?> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.YOUTUBE_ACCOUNT_THUMBNAIL] }
+
+    /** Persists a successful Google sign-in: the session cookie plus display info shown in Settings. */
+    suspend fun setYoutubeAccount(
+        cookie: String,
+        name: String?,
+        email: String?,
+        thumbnailUrl: String?
+    ) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.YOUTUBE_COOKIE] = cookie
+            if (name != null) preferences[Keys.YOUTUBE_ACCOUNT_NAME] = name else preferences.remove(Keys.YOUTUBE_ACCOUNT_NAME)
+            if (email != null) preferences[Keys.YOUTUBE_ACCOUNT_EMAIL] = email else preferences.remove(Keys.YOUTUBE_ACCOUNT_EMAIL)
+            if (thumbnailUrl != null) preferences[Keys.YOUTUBE_ACCOUNT_THUMBNAIL] = thumbnailUrl else preferences.remove(Keys.YOUTUBE_ACCOUNT_THUMBNAIL)
+        }
+    }
+
+    /** Signs out: clears the stored cookie and cached account display info. */
+    suspend fun clearYoutubeAccount() {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences.remove(Keys.YOUTUBE_COOKIE)
+            preferences.remove(Keys.YOUTUBE_ACCOUNT_NAME)
+            preferences.remove(Keys.YOUTUBE_ACCOUNT_EMAIL)
+            preferences.remove(Keys.YOUTUBE_ACCOUNT_THUMBNAIL)
         }
     }
 }

@@ -10,8 +10,6 @@ import android.content.Context
 import android.util.Log
 import io.github.aedev.flow.data.local.SubscriptionRepository
 import io.github.aedev.flow.data.model.Video
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
-import io.github.aedev.flow.data.recommendation.FlowPersona
 import io.github.aedev.flow.data.repository.YouTubeRepository
 import io.github.aedev.flow.utils.distinctBestImageUrls
 import kotlinx.coroutines.Dispatchers
@@ -35,17 +33,16 @@ import org.schabi.newpipe.extractor.stream.StreamInfoItem
  *     These get the full subscription boost in rank(). High priority.
  *
  *   Phase 2 — TOPIC DISCOVERY SHORTS:
- *     Uses FlowNeuroEngine.generateDiscoveryQueries() to search for Shorts on
- *     topics the user genuinely cares about. Niche-specific query variants
- *     (#shorts suffix, tips/clip/highlights suffixes) broaden the pool.
+ *     Uses static discovery queries to search for Shorts on broad topics.
+ *     Niche-specific query variants (#shorts suffix, tips/clip/highlights
+ *     suffixes) broaden the pool.
  *
  *   Phase 3 — TRENDING FALLBACK:
  *     Only appended when phases 1+2 produce fewer than MIN_POOL_SIZE candidates.
  *     Acts as floor, not primary source.
  *
  * The result: instead of 100 videos from random trending Shorts, the pool
- * contains 60–120 videos that are already thematically pre-filtered before
- * rank() orders them. FlowNeuroEngine.rank() then fine-tunes the order.
+ * contains 60–120 videos that are already thematically pre-filtered.
  */
 class ShortsDiscoveryEngine private constructor(private val appContext: Context) {
 
@@ -58,8 +55,14 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
         /** Max subscription channels to hit per refresh cycle */
         private const val MAX_SUB_CHANNELS = 8
 
-        /** Max discovery search queries to run per refresh (3 = exactly one Semaphore(3) round) */
+        /** Min discovery search queries to run per refresh */
         private const val MAX_DISCOVERY_QUERIES = 3
+
+        /** Broad topics used for Shorts discovery searches */
+        private val DEFAULT_DISCOVERY_TOPICS = listOf(
+            "gaming", "tech", "food", "travel", "sports", "music",
+            "comedy", "science", "fitness", "art", "nature", "history",
+        )
 
         /** Max results to take from each discovery search */
         private const val SHORTS_PER_SEARCH = 15
@@ -114,9 +117,9 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
 
     /**
      * Builds a high-quality Shorts candidate pool from subscriptions + topic
-     * discovery, then ranks the merged pool with FlowNeuroEngine.rank().
+     * discovery.
      *
-     * @param userSubs  Set of subscribed channel IDs for the rank() sub-boost.
+     * @param userSubs  Set of subscribed channel IDs (used for dedup diversity).
      * @param trending  Pre-fetched trending Shorts from InnerTube (used as
      *                  fallback/floor only — not the primary source).
      * @return          Ranked list ready to hand to ShortsRepository.
@@ -126,14 +129,7 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
         trending: List<Video> = emptyList()
     ): List<Video> = withContext(Dispatchers.IO) {
 
-        val recentlySeen = try {
-            FlowNeuroEngine.getRecentlySeenShorts()
-        } catch (e: Exception) {
-            emptySet()
-        }
-
         val seenIds = mutableSetOf<String>()
-        seenIds.addAll(recentlySeen)
         val allCandidates = mutableListOf<Video>()
 
         fun addUnique(videos: List<Video>) {
@@ -177,14 +173,13 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
             return@withContext trending
         }
 
-        // Rank everything through the engine
+        // Keep candidate order (no engine re-ranking)
         val ranked = diversifySubscriptions(
-            items = FlowNeuroEngine.rank(allCandidates, userSubs),
+            items = allCandidates,
             isSubscribed = { it.channelId in userSubs },
         )
 
-        Log.i(TAG, "Discovery complete: ${ranked.size} ranked from ${allCandidates.size} candidates "
-            + "(${recentlySeen.size} excluded as seen)")
+        Log.i(TAG, "Discovery complete: ${ranked.size} from ${allCandidates.size} candidates")
         ranked
     }
 
@@ -309,7 +304,7 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
     }
 
     /**
-     * Builds Shorts-specific discovery queries from the engine's learned interests.
+     * Builds Shorts-specific discovery queries.
      *
      * 8 diversification strategies to maximise niche coverage and freshness:
      *  1. Top 2 topics with "#shorts"
@@ -323,14 +318,9 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
      */
     private suspend fun buildDiscoveryQueries(): List<String> {
         val queries = mutableListOf<String>()
-        val brain = FlowNeuroEngine.getBrainSnapshot()
+        val baseTopics = DEFAULT_DISCOVERY_TOPICS
 
-        val topTopics = brain.globalVector.topics.entries
-            .sortedByDescending { it.value }
-            .take(8)
-            .map { it.key }
-
-        val primaryTopics = topTopics
+        val primaryTopics = baseTopics
 
         // Strategy 1: Top 2 topics with #shorts
         primaryTopics.take(2).forEach { topic -> queries += "$topic #shorts" }
@@ -353,38 +343,6 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
         if (primaryTopics.size >= 2) queries += "${primaryTopics[0]} ${primaryTopics[1]} shorts"
         if (primaryTopics.size >= 4) queries += "${primaryTopics[2]} ${primaryTopics[3]} shorts"
 
-        // Strategy 5: Topic-affinity bigrams
-        brain.topicAffinities.entries
-            .sortedByDescending { it.value }
-            .take(2)
-            .forEach { (key, _) ->
-                val parts = key.split("|")
-                if (parts.size == 2) queries += "${parts[0]} ${parts[1]} #shorts"
-            }
-
-        // Strategy 6: Topics unexplored in Shorts
-        val baseQueries = try {
-            FlowNeuroEngine.generateDiscoveryQueries()
-        } catch (e: Exception) { emptyList() }
-        baseQueries.take(2).forEach { q -> queries += "$q shorts" }
-
-        // Strategy 7: Persona-aware query suffix
-        val persona = try {
-            FlowNeuroEngine.getPersona(brain)
-        } catch (e: Exception) { null }
-        val personaSuffix = when (persona) {
-            FlowPersona.AUDIOPHILE -> "music edit"
-            FlowPersona.SCHOLAR -> "explained quick"
-            FlowPersona.DEEP_DIVER -> "documentary clip"
-            FlowPersona.SKIMMER -> "satisfying"
-            FlowPersona.BINGER -> "series part"
-            FlowPersona.SPECIALIST -> "deep dive"
-            else -> null
-        }
-        if (personaSuffix != null && primaryTopics.isNotEmpty()) {
-            queries += "${primaryTopics[0]} $personaSuffix #shorts"
-        }
-
         // Strategy 8: Time-rotated queries (guard against empty topic list for new users)
         if (primaryTopics.isNotEmpty()) {
             val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
@@ -394,10 +352,8 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
             queries += "$rotatedTopic ${timeSuffixes[timeRotation]} shorts"
         }
 
-        val blocked = brain.blockedTopics
         return queries
             .distinct()
-            .filter { q -> blocked.none { b -> q.lowercase().contains(b.lowercase()) } }
             .shuffled()
             .take(MAX_DISCOVERY_QUERIES)
     }

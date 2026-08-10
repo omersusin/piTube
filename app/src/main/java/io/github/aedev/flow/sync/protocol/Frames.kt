@@ -35,13 +35,11 @@ object SyncCollection {
     const val PLAYLISTS = "playlists"
     const val LIKES = "likes"
     const val SETTINGS = "settings"
-    const val FLOW_NEURO_BRAIN = "flow_neuro_brain"
-    const val MUSIC_BRAIN = "music_brain"
     const val SUBSCRIPTIONS = "subscriptions"
 
-    /** Collections Android can exchange in v1 (music_brain excluded — Android has no consumer). */
+    /** Collections Android can exchange. */
     val ANDROID_SYNCABLE = listOf(
-        WATCH_HISTORY, PLAYLISTS, LIKES, SETTINGS, FLOW_NEURO_BRAIN, SUBSCRIPTIONS,
+        WATCH_HISTORY, PLAYLISTS, LIKES, SETTINGS, SUBSCRIPTIONS,
     )
 }
 

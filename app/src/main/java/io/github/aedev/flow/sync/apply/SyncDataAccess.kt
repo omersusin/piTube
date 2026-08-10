@@ -7,35 +7,26 @@ import io.github.aedev.flow.data.local.dao.PlaylistDao
 import io.github.aedev.flow.data.local.dao.SubscriptionGroupDao
 import io.github.aedev.flow.data.local.dao.VideoDao
 import io.github.aedev.flow.data.local.dao.WatchHistoryDao
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
-import io.github.aedev.flow.sync.canonical.CanonicalBrain
 import io.github.aedev.flow.sync.canonical.CanonicalLike
 import io.github.aedev.flow.sync.canonical.CanonicalPlaylist
 import io.github.aedev.flow.sync.canonical.CanonicalSetting
 import io.github.aedev.flow.sync.canonical.CanonicalSubscriptionGroup
 import io.github.aedev.flow.sync.canonical.CanonicalWatchHistory
-import io.github.aedev.flow.sync.mapping.BrainMapper
 import io.github.aedev.flow.sync.mapping.LikesMapper
 import io.github.aedev.flow.sync.mapping.PlaylistMapper
 import io.github.aedev.flow.sync.mapping.SettingsMapper
 import io.github.aedev.flow.sync.mapping.SubscriptionsMapper
 import io.github.aedev.flow.sync.mapping.WatchHistoryMapper
-import io.github.aedev.flow.sync.merge.BrainCrdtState
-import io.github.aedev.flow.sync.merge.BrainCrdtStore
-import io.github.aedev.flow.sync.merge.BrainMerger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * The bridge between platform-neutral canonical records and the app's real stores (Room DAOs,
- * DataStore singletons, the FlowNeuro brain). Provides `read*` (local → canonical, for the send
- * side) and `write*` (merged canonical → store, for the apply side). The brain is stateful (its
- * G-Counter sidecar), so it exposes a combined read + merge-and-write.
+ * DataStore singletons). Provides `read*` (local → canonical, for the send side) and `write*`
+ * (merged canonical → store, for the apply side).
  */
 @Singleton
 class SyncDataAccess @Inject constructor(
@@ -44,11 +35,9 @@ class SyncDataAccess @Inject constructor(
     private val playlistDao: PlaylistDao,
     private val videoDao: VideoDao,
     private val subscriptionGroupDao: SubscriptionGroupDao,
-    private val brainCrdtStore: BrainCrdtStore,
 ) {
     private val likedVideos: LikedVideosRepository by lazy { LikedVideosRepository.getInstance(context) }
     private val playerPrefs: PlayerPreferences by lazy { PlayerPreferences(context) }
-    private val neuroEngine: FlowNeuroEngine by lazy { FlowNeuroEngine.getInstance(context) }
 
     // --- watch history ---
 
@@ -158,42 +147,4 @@ class SyncDataAccess @Inject constructor(
         cp.origin == CanonicalPlaylist.ORIGIN_YOUTUBE && cp.youtubeId != null -> cp.youtubeId
         else -> "sync_${UUID.randomUUID()}"
     }
-
-    // --- brain (stateful: G-Counter sidecar) ---
-
-    suspend fun readBrain(myDevice: String, hlc: String): CanonicalBrain {
-        val local = exportLocalBrain()
-        var sidecar = attributeLocalGrowth(brainCrdtStore.load(), myDevice, local)
-        brainCrdtStore.save(sidecar)
-        return BrainMapper.toCanonical(local, myDevice, hlc, sidecar.idfDocs, sidecar.interactions, sidecar.idfWords)
-    }
-
-    /** Read local brain, merge the incoming brain into it (CRDT), and persist + reload the engine. */
-    suspend fun mergeAndWriteBrain(remote: CanonicalBrain, myDevice: String, hlc: String) {
-        val local = exportLocalBrain()
-        var sidecar = attributeLocalGrowth(brainCrdtStore.load(), myDevice, local)
-        val localCanonical = BrainMapper.toCanonical(local, myDevice, hlc, sidecar.idfDocs, sidecar.interactions, sidecar.idfWords)
-        val merged = BrainMerger.merge(localCanonical, remote)
-        val mergedBrain = BrainMapper.writeBack(merged, local)
-        neuroEngine.importBrainFromStream(ByteArrayInputStream(BrainMapper.serialize(mergedBrain)))
-        sidecar = BrainCrdtState.afterMerge(sidecar, merged)
-        brainCrdtStore.save(sidecar)
-    }
-
-    private suspend fun exportLocalBrain(): BrainMapper.SBrain {
-        val bytes = ByteArrayOutputStream().use { bos ->
-            neuroEngine.exportBrainToStream(bos)
-            bos.toByteArray()
-        }
-        return runCatching { BrainMapper.parse(bytes) }.getOrDefault(BrainMapper.SBrain())
-    }
-
-    private fun attributeLocalGrowth(state: BrainCrdtState, myDevice: String, brain: BrainMapper.SBrain) =
-        BrainCrdtState.attributeLocal(
-            state = state,
-            myDevice = myDevice,
-            idfDocsScalar = brain.idfTotalDocuments.toLong(),
-            interactionsScalar = brain.interactions.toLong(),
-            idfWordCounts = brain.idfWordFrequency.mapValues { it.value.toLong() },
-        )
 }

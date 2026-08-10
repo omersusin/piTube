@@ -37,7 +37,6 @@ import io.github.aedev.flow.ui.screens.player.VideoPlayerUiState
 import io.github.aedev.flow.ui.screens.search.SearchScreen
 import io.github.aedev.flow.ui.screens.account.YouTubeLoginScreen
 import io.github.aedev.flow.ui.screens.settings.SettingsScreen
-import io.github.aedev.flow.ui.screens.personality.FlowPersonalityScreen
 import io.github.aedev.flow.ui.screens.shorts.ShortsScreen
 import io.github.aedev.flow.ui.screens.subscriptions.SubscriptionsScreen
 import io.github.aedev.flow.ui.screens.channel.ChannelScreen
@@ -330,7 +329,6 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToAppearance = { navController.navigate("settings/appearance") },
             onNavigateToPlayerAppearance = { navController.navigate("settings/player_appearance") },
             onNavigateToDonations = { navController.navigate("donations") },
-            onNavigateToPersonality = { navController.navigate("personality") },
             onNavigateToDownloads = { navController.navigate("settings/downloads") },
             onNavigateToTimeManagement = { navController.navigate("settings/time_management") },
             onNavigateToPlayerSettings = { navController.navigate("settings/player") },
@@ -342,7 +340,6 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToBufferSettings = { navController.navigate("settings/buffer") },
             onNavigateToSearchHistory = { navController.navigate("settings/search_history") },
             onNavigateToAbout = { navController.navigate("settings/about") },
-            onNavigateToUserPreferences = { navController.navigate("settings/user_preferences") },
             onNavigateToNotifications = { navController.navigate("settings/notifications") },
             onNavigateToAppIconPicker = { navController.navigate("settings/app_icon") },
             onNavigateToDiagnostics = { navController.navigate("settings/diagnostics") },
@@ -382,14 +379,6 @@ fun NavGraphBuilder.flowAppGraph(
         currentRoute.value = "settings/export"
         showBottomNav.value = false
         io.github.aedev.flow.ui.screens.settings.ExportDataScreen(
-            onNavigateBack = { navController.popBackStack() }
-        )
-    }
-
-    composable("settings/user_preferences") {
-        currentRoute.value = "settings/user_preferences"
-        showBottomNav.value = false
-        io.github.aedev.flow.ui.screens.settings.UserPreferencesScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }
@@ -551,14 +540,6 @@ fun NavGraphBuilder.flowAppGraph(
         )
     }
 
-    composable("personality") {
-        currentRoute.value = "personality"
-        showBottomNav.value = false
-        FlowPersonalityScreen(
-            onNavigateBack = { navController.popBackStack() }
-        )
-    }
-    
     composable(
         route = "channel?url={channelUrl}",
         arguments = listOf(navArgument("channelUrl") { type = NavType.StringType })

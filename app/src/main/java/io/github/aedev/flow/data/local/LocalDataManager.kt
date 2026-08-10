@@ -58,7 +58,7 @@ class LocalDataManager @Inject constructor(@ApplicationContext private val conte
     }
 
     enum class AutoBackupFrequency { NONE, DAILY, WEEKLY, MONTHLY }
-    enum class AutoBackupType { APP_DATA, BRAIN, MASTER }
+    enum class AutoBackupType { APP_DATA, MASTER }
 
     // Update Settings
     val lastUpdateCheck: Flow<Long> = context.dataStore.data.map { prefs ->

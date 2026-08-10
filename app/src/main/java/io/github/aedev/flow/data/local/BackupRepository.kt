@@ -23,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -42,7 +41,6 @@ import kotlin.math.roundToLong
 import java.util.concurrent.atomic.AtomicInteger
 import java.time.Instant
 import java.time.OffsetDateTime
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
 import io.github.aedev.flow.data.model.Video
 import io.github.aedev.flow.utils.ThumbnailUrlResolver
 
@@ -52,12 +50,6 @@ data class SettingsBackup(
     val ints: Map<String, Int> = emptyMap(),
     val floats: Map<String, Float> = emptyMap(),
     val longs: Map<String, Long> = emptyMap()
-)
-
-data class ContentPreferencesBackup(
-    val preferredTopics: Set<String> = emptySet(),
-    val blockedTopics: Set<String> = emptySet(),
-    val blockedChannels: Set<String> = emptySet()
 )
 
 data class BackupData(
@@ -71,7 +63,6 @@ data class BackupData(
     val videos: List<VideoEntity>? = emptyList(),
     val subscriptionGroups: List<SubscriptionGroupEntity>? = emptyList(),
     val likedVideos: List<LikedVideoInfo>? = emptyList(),
-    val contentPreferences: ContentPreferencesBackup? = null,
     val settings: SettingsBackup? = null
 )
 
@@ -152,17 +143,6 @@ class BackupRepository(private val context: Context) {
     private val likedVideosRepo = LikedVideosRepository.getInstance(context)
     private val database = AppDatabase.getDatabase(context)
 
-    private suspend fun getContentPreferencesBackup(): ContentPreferencesBackup {
-        val engine = FlowNeuroEngine.getInstance(context)
-        engine.initialize()
-        val brain = engine.getBrainSnapshot()
-        return ContentPreferencesBackup(
-            preferredTopics = brain.preferredTopics,
-            blockedTopics = brain.blockedTopics,
-            blockedChannels = brain.blockedChannels
-        )
-    }
-
     private suspend fun getMergedSettingsBackup(): SettingsBackup {
         val playerSettings = playerPreferences.getExportData()
         val localSettings = localDataManager.getExportData()
@@ -183,53 +163,6 @@ class BackupRepository(private val context: Context) {
             floats = playerSettings.floats + localSettings.floats + searchSettings.floats,
             longs = playerSettings.longs + localSettings.longs + searchSettings.longs
         )
-    }
-
-    private suspend fun exportBrainBytes(): ByteArray {
-        val engine = FlowNeuroEngine.getInstance(context)
-        engine.initialize()
-        return ByteArrayOutputStream().also { bos ->
-            engine.exportBrainToStream(bos)
-        }.toByteArray()
-    }
-
-    private fun rememberNeuroBootstrapCandidate(
-        candidates: LinkedHashMap<String, VideoHistoryEntry>,
-        entry: VideoHistoryEntry,
-        limit: Int = 800
-    ) {
-        if (candidates.size >= limit) return
-        if (entry.videoId.isBlank() || entry.title.isBlank()) return
-        candidates.putIfAbsent(entry.videoId, entry)
-    }
-
-    private suspend fun bootstrapNeuroFromImportedHistory(
-        entries: Collection<VideoHistoryEntry>
-    ) {
-        val videos = entries
-            .asSequence()
-            .filter { !it.isMusic && it.videoId.isNotBlank() && it.title.isNotBlank() }
-            .distinctBy { it.videoId }
-            .sortedByDescending { it.timestamp }
-            .map { entry ->
-                Video(
-                    id = entry.videoId,
-                    title = entry.title,
-                    channelName = entry.channelName,
-                    channelId = entry.channelId,
-                    thumbnailUrl = entry.thumbnailUrl,
-                    duration = if (entry.duration > 0) (entry.duration / 1000).toInt() else 0,
-                    viewCount = 0L,
-                    uploadDate = "",
-                    timestamp = entry.timestamp
-                )
-            }
-            .take(500)
-            .toList()
-
-        if (videos.isNotEmpty()) {
-            FlowNeuroEngine.bootstrapFromWatchHistory(context, videos)
-        }
     }
 
     /** Detect which launcher icon alias is currently enabled via PackageManager. */
@@ -254,7 +187,6 @@ class BackupRepository(private val context: Context) {
                 videos = database.videoDao().getAllVideos(),
                 subscriptionGroups = database.subscriptionGroupDao().getAllGroupsOnce(),
                 likedVideos = likedVideosRepo.getAllLikedVideos().first(),
-                contentPreferences = getContentPreferencesBackup(),
                 settings = getMergedSettingsBackup()
             )
 
@@ -424,15 +356,6 @@ class BackupRepository(private val context: Context) {
             subscriptionRepo.subscribeAll(subscriptionsWithAvatars)
             importedCount = subscriptionsWithAvatars.size
 
-            // V9.2: Seed recommendation engine from imported subscriptions
-            val channelNames = subscriptionsWithAvatars.map { it.channelName }.filter { it.isNotEmpty() }
-            if (channelNames.isNotEmpty()) {
-                try {
-                    FlowNeuroEngine.bootstrapFromSubscriptions(context, channelNames)
-                } catch (e: Exception) {
-                }
-            }
-
             Result.success(importedCount)
         } catch (e: Exception) {
             Result.failure(e)
@@ -500,15 +423,6 @@ class BackupRepository(private val context: Context) {
             
             subscriptionRepo.subscribeAll(subscriptionsWithAvatars)
             importedCount = subscriptionsWithAvatars.size
-
-            // V9.2: Seed recommendation engine from imported subscriptions
-            val ytChannelNames = subscriptionsWithAvatars.map { it.channelName }.filter { it.isNotEmpty() }
-            if (ytChannelNames.isNotEmpty()) {
-                try {
-                    FlowNeuroEngine.bootstrapFromSubscriptions(context, ytChannelNames)
-                } catch (e: Exception) {
-                }
-            }
             
             Result.success(importedCount)
         } catch (e: Exception) {
@@ -548,7 +462,6 @@ class BackupRepository(private val context: Context) {
             )
 
             val entries = mutableListOf<VideoHistoryEntry>()
-            val neuroBootstrapCandidates = LinkedHashMap<String, VideoHistoryEntry>()
 
             db.rawQuery(
                 """
@@ -589,7 +502,6 @@ class BackupRepository(private val context: Context) {
                         isMusic = false
                     )
                     entries.add(historyEntry)
-                    rememberNeuroBootstrapCandidate(neuroBootstrapCandidates, historyEntry)
                 }
             }
             db.close()
@@ -599,11 +511,6 @@ class BackupRepository(private val context: Context) {
             }
 
             viewHistory.bulkSaveHistoryEntries(entries)
-
-            try {
-                bootstrapNeuroFromImportedHistory(neuroBootstrapCandidates.values)
-            } catch (_: Exception) {
-            }
 
             Result.success(entries.size)
         } catch (e: Exception) {
@@ -647,7 +554,6 @@ class BackupRepository(private val context: Context) {
 
         var importedCount = 0
         val batch = mutableListOf<VideoHistoryEntry>()
-        val neuroBootstrapCandidates = LinkedHashMap<String, VideoHistoryEntry>()
 
         context.contentResolver.openInputStream(uri)
             ?.bufferedReader(Charsets.UTF_8)
@@ -701,7 +607,6 @@ class BackupRepository(private val context: Context) {
                             isMusic = false
                         )
                         batch.add(historyEntry)
-                        rememberNeuroBootstrapCandidate(neuroBootstrapCandidates, historyEntry)
                         importedCount++
                     }
 
@@ -729,11 +634,6 @@ class BackupRepository(private val context: Context) {
             return Result.failure(Exception("no_entries"))
         }
 
-        try {
-            bootstrapNeuroFromImportedHistory(neuroBootstrapCandidates.values)
-        } catch (_: Exception) {
-        }
-
         return Result.success(importedCount)
     }
 
@@ -749,11 +649,6 @@ class BackupRepository(private val context: Context) {
         }
 
         viewHistory.bulkSaveHistoryEntries(entries)
-
-        try {
-            bootstrapNeuroFromImportedHistory(entries)
-        } catch (_: Exception) {
-        }
 
         return Result.success(entries.size)
     }
@@ -1067,15 +962,6 @@ class BackupRepository(private val context: Context) {
 
             subscriptionRepo.subscribeAll(finalSubs)
 
-            // V9.2: Seed recommendation engine from imported subscriptions
-            val ltChannelNames = finalSubs.map { it.channelName }.filter { it.isNotEmpty() }
-            if (ltChannelNames.isNotEmpty()) {
-                try {
-                    FlowNeuroEngine.bootstrapFromSubscriptions(context, ltChannelNames)
-                } catch (e: Exception) {
-                }
-            }
-
             Result.success(finalSubs.size)
         } catch (e: Exception) {
             Result.failure(e)
@@ -1098,7 +984,6 @@ class BackupRepository(private val context: Context) {
             val videoCsvData = mutableMapOf<String, List<String>>()
             data class SubRow(val channelId: String, val channelName: String)
             val subRows = mutableListOf<SubRow>()
-            val neuroBootstrapCandidates = LinkedHashMap<String, VideoHistoryEntry>()
 
             val OVERLAP    = 2_048
             val READ_SIZE  = 65_536
@@ -1172,7 +1057,6 @@ class BackupRepository(private val context: Context) {
                                             channelName  = chName, channelId = chId, isMusic = false
                                         )
                                         historyBatch.add(historyEntry)
-                                        rememberNeuroBootstrapCandidate(neuroBootstrapCandidates, historyEntry)
                                         historyImported++
                                         if (historyBatch.size >= BATCH_SIZE) {
                                             viewHistory.bulkSaveHistoryEntries(historyBatch)
@@ -1263,10 +1147,6 @@ class BackupRepository(private val context: Context) {
                 }
                 subscriptionRepo.subscribeAll(importedSubscriptions)
                 subscriptionsImported += importedSubscriptions.size
-                val channelNames = subRows.map { it.channelName }.filter { it.isNotEmpty() }
-                if (channelNames.isNotEmpty()) {
-                    try { FlowNeuroEngine.bootstrapFromSubscriptions(context, channelNames) } catch (_: Exception) {}
-                }
             }
 
             videoCsvData.forEach { (filename, videoIds) ->
@@ -1312,13 +1192,6 @@ class BackupRepository(private val context: Context) {
 
             if (subscriptionsImported == 0 && historyImported == 0 && playlistsImported == 0) {
                 return@withContext Result.failure(Exception("no_content"))
-            }
-
-            if (historyImported > 0) {
-                try {
-                    bootstrapNeuroFromImportedHistory(neuroBootstrapCandidates.values)
-                } catch (_: Exception) {
-                }
             }
 
             val parts = buildList {
@@ -1667,7 +1540,7 @@ class BackupRepository(private val context: Context) {
         }
     }
 
-    // ── Master Backup (app data + engine brain in one ZIP) ──
+    // ── Master Backup (app data in one ZIP) ──
 
     suspend fun exportMasterBackup(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
         try {
@@ -1680,21 +1553,14 @@ class BackupRepository(private val context: Context) {
                 videos = database.videoDao().getAllVideos(),
                 subscriptionGroups = database.subscriptionGroupDao().getAllGroupsOnce(),
                 likedVideos = likedVideosRepo.getAllLikedVideos().first(),
-                contentPreferences = getContentPreferencesBackup(),
                 settings = getMergedSettingsBackup()
             )
             val appDataJson = gson.toJson(backupData)
-
-            val brainBytes = exportBrainBytes()
 
             context.contentResolver.openOutputStream(uri, "wt")?.use { out ->
                 ZipOutputStream(out).use { zip ->
                     zip.putNextEntry(ZipEntry("app_data.json"))
                     zip.write(appDataJson.toByteArray(Charsets.UTF_8))
-                    zip.closeEntry()
-
-                    zip.putNextEntry(ZipEntry("engine_brain.json"))
-                    zip.write(brainBytes)
                     zip.closeEntry()
                 }
             } ?: return@withContext Result.failure(Exception("Could not open output stream"))
@@ -1708,8 +1574,6 @@ class BackupRepository(private val context: Context) {
     suspend fun importMasterBackup(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             var appDataJson: String? = null
-            var brainBytes: ByteArray? = null
-            var contentPreferences: ContentPreferencesBackup? = null
 
             context.contentResolver.openInputStream(uri)?.use { raw ->
                 ZipInputStream(raw).use { zip ->
@@ -1717,7 +1581,6 @@ class BackupRepository(private val context: Context) {
                     while (entry != null) {
                         when (entry.name) {
                             "app_data.json" -> appDataJson = zip.readBytes().toString(Charsets.UTF_8)
-                            "engine_brain.json" -> brainBytes = zip.readBytes()
                         }
                         zip.closeEntry()
                         entry = zip.nextEntry
@@ -1725,29 +1588,13 @@ class BackupRepository(private val context: Context) {
                 }
             } ?: return@withContext Result.failure(Exception("Could not read file"))
 
-            if (appDataJson == null && brainBytes == null) {
+            if (appDataJson == null) {
                 return@withContext Result.failure(Exception("Invalid master backup file"))
             }
 
-            appDataJson?.let { json ->
-                val backupData = parseBackupJson(json)
-                    ?: return@withContext Result.failure(Exception("Invalid app data in backup"))
-                contentPreferences = backupData.contentPreferences
-                importBackupData(backupData, restoreContentPreferences = false)
-            }
-
-            brainBytes?.let { bytes ->
-                FlowNeuroEngine.importBrainFromStream(context, bytes.inputStream())
-            }
-
-            contentPreferences?.let { preferences ->
-                FlowNeuroEngine.restoreContentPreferences(
-                    context = context,
-                    preferredTopics = preferences.preferredTopics,
-                    blockedTopics = preferences.blockedTopics,
-                    blockedChannels = preferences.blockedChannels
-                )
-            }
+            val backupData = parseBackupJson(appDataJson)
+                ?: return@withContext Result.failure(Exception("Invalid app data in backup"))
+            importBackupData(backupData)
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -1755,10 +1602,7 @@ class BackupRepository(private val context: Context) {
         }
     }
 
-    private suspend fun importBackupData(
-        backupData: BackupData,
-        restoreContentPreferences: Boolean = true
-    ) {
+    private suspend fun importBackupData(backupData: BackupData) {
         backupData.viewHistory?.let { entries ->
             if (entries.isNotEmpty()) viewHistory.bulkSaveHistoryEntries(entries)
         }
@@ -1766,10 +1610,6 @@ class BackupRepository(private val context: Context) {
         backupData.searchHistory?.let { searchHistoryRepo.replaceSearchHistory(it) }
         backupData.subscriptions?.let { subs ->
             subscriptionRepo.subscribeAll(subs)
-            val channelNames = subs.map { it.channelName }.filter { it.isNotEmpty() }
-            if (channelNames.isNotEmpty()) {
-                try { FlowNeuroEngine.bootstrapFromSubscriptions(context, channelNames) } catch (_: Exception) {}
-            }
         }
         database.withTransaction {
             backupData.videos?.forEach { database.videoDao().insertVideoOrIgnore(it) }
@@ -1779,16 +1619,6 @@ class BackupRepository(private val context: Context) {
                 if (groups.isNotEmpty()) {
                     database.subscriptionGroupDao().insertAll(groups)
                 }
-            }
-        }
-        if (restoreContentPreferences) {
-            backupData.contentPreferences?.let { preferences ->
-                FlowNeuroEngine.restoreContentPreferences(
-                    context = context,
-                    preferredTopics = preferences.preferredTopics,
-                    blockedTopics = preferences.blockedTopics,
-                    blockedChannels = preferences.blockedChannels
-                )
             }
         }
         backupData.settings?.let { settings ->
@@ -1889,23 +1719,11 @@ class BackupRepository(private val context: Context) {
                 videos = database.videoDao().getAllVideos(),
                 subscriptionGroups = database.subscriptionGroupDao().getAllGroupsOnce(),
                 likedVideos = likedVideosRepo.getAllLikedVideos().first(),
-                contentPreferences = getContentPreferencesBackup(),
                 settings = getMergedSettingsBackup()
             )
             val json = gson.toJson(backupData)
             writeToFolder(folderUri, "flow_backup.json", "application/json") { out ->
                 out.write(json.toByteArray(Charsets.UTF_8))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun exportBrainToFolder(folderUri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val brainBytes = exportBrainBytes()
-            writeToFolder(folderUri, "flow_engine.json", "application/json") { out ->
-                out.write(brainBytes)
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -1923,19 +1741,14 @@ class BackupRepository(private val context: Context) {
                 videos = database.videoDao().getAllVideos(),
                 subscriptionGroups = database.subscriptionGroupDao().getAllGroupsOnce(),
                 likedVideos = likedVideosRepo.getAllLikedVideos().first(),
-                contentPreferences = getContentPreferencesBackup(),
                 settings = getMergedSettingsBackup()
             )
             val appDataJson = gson.toJson(backupData)
-            val brainBytes = exportBrainBytes()
 
             writeToFolder(folderUri, "flow_master_backup.zip", "application/zip") { out ->
                 ZipOutputStream(out).use { zip ->
                     zip.putNextEntry(ZipEntry("app_data.json"))
                     zip.write(appDataJson.toByteArray(Charsets.UTF_8))
-                    zip.closeEntry()
-                    zip.putNextEntry(ZipEntry("engine_brain.json"))
-                    zip.write(brainBytes)
                     zip.closeEntry()
                 }
             }

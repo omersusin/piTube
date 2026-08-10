@@ -9,7 +9,7 @@ import kotlinx.serialization.json.JsonElement
  * Conventions: epoch **milliseconds** for all times; `progress` is a 0..1 fraction;
  * `durationSeconds` is integer seconds; deletions are **tombstones** (`deleted=true`), never
  * omissions; every mergeable record carries an `hlc` string. Android maps its
- * Room/DataStore/brain values to/from these in `sync/mapping`.
+ * Room/DataStore values to/from these in `sync/mapping`.
  *
  * These types are the unit the merge engine operates on, so they are deliberately decoupled
  * from both DB schemas. Keep field names in sync with the desktop `canonical.rs`.
@@ -114,98 +114,4 @@ data class CanonicalSubscriptionGroup(
     val sortOrder: Int = 0,
     val hlc: String = "",
     val deleted: Boolean = false,
-)
-
-// --- Brain ---
-
-@Serializable
-data class CanonicalVector(
-    val topics: Map<String, Double> = emptyMap(),
-    val duration: Double = 0.5,
-    val pacing: Double = 0.5,
-    val complexity: Double = 0.5,
-    val isLive: Double = 0.0,
-)
-
-@Serializable
-data class CanonicalRejectionSignal(
-    val count: Int = 0,
-    val lastRejectedAt: Long = 0,
-)
-
-@Serializable
-data class CanonicalFeedEntry(
-    val lastShown: Long = 0,
-    val showCount: Int = 0,
-)
-
-@Serializable
-data class CanonicalTopicEvidence(
-    val positiveSignals: Int = 0,
-    val watchSignals: Int = 0,
-    val explicitSignals: Int = 0,
-    val positiveScore: Double = 0.0,
-    val videoIds: Set<String> = emptySet(),
-    val channelIds: Set<String> = emptySet(),
-    val firstSeenAt: Long = 0,
-    val lastSeenAt: Long = 0,
-)
-
-/** The blendable, experience-weighted learned vectors */
-@Serializable
-data class CanonicalBrainVectors(
-    val globalVector: CanonicalVector = CanonicalVector(),
-    val timeVectors: Map<String, CanonicalVector> = emptyMap(),
-    val shortsVector: CanonicalVector = CanonicalVector(),
-    val topicAffinities: Map<String, Double> = emptyMap(),
-    val channelScores: Map<String, Double> = emptyMap(),
-    val channelTopicProfiles: Map<String, Map<String, Double>> = emptyMap(),
-)
-
-/** G-Counter: per-device sub-counts; value = sum; merge = per-device max */
-@Serializable
-data class GCounter(
-    val perDevice: Map<String, Long> = emptyMap(),
-) {
-    fun sum(): Long = perDevice.values.sum()
-
-    fun merge(other: GCounter): GCounter {
-        if (other.perDevice.isEmpty()) return this
-        if (perDevice.isEmpty()) return other
-        val out = HashMap(perDevice)
-        for ((d, c) in other.perDevice) {
-            out[d] = maxOf(out[d] ?: Long.MIN_VALUE, c)
-        }
-        return GCounter(out)
-    }
-
-    fun withDevice(deviceId: String, subCount: Long): GCounter =
-        GCounter(perDevice + (deviceId to subCount))
-}
-
-/**
- * The canonical brain. Counters are G-Counters (per-device). [vectors] is shipped as this
- * device's contribution snapshot; the receiver stores it per-peer and recomputes the effective
- * blend. Sets are OR-Sets (union in v1); timestamp maps are Max-Registers.
- */
-@Serializable
-data class CanonicalBrain(
-    val schema: Int = 13,
-    val deviceId: String = "",
-    val hlc: String = "",
-    val vectors: CanonicalBrainVectors = CanonicalBrainVectors(),
-    val idfTotalDocuments: GCounter = GCounter(),
-    val totalInteractions: GCounter = GCounter(),
-    val idfWordFrequency: Map<String, GCounter> = emptyMap(),
-    val watchHistoryMap: Map<String, Float> = emptyMap(),
-    val seenShortsHistory: Map<String, Long> = emptyMap(),
-    val suppressedVideoIds: Map<String, Long> = emptyMap(),
-    val suppressedChannels: Map<String, Long> = emptyMap(),
-    val rejectionPatterns: Map<String, CanonicalRejectionSignal> = emptyMap(),
-    val feedHistory: Map<String, CanonicalFeedEntry> = emptyMap(),
-    val topicEvidence: Map<String, CanonicalTopicEvidence> = emptyMap(),
-    val blockedTopics: Set<String> = emptySet(),
-    val blockedChannels: Set<String> = emptySet(),
-    val preferredTopics: Set<String> = emptySet(),
-    val hasCompletedOnboarding: Boolean = false,
 )

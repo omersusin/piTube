@@ -38,8 +38,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
-import io.github.aedev.flow.data.recommendation.InteractionType
 import io.github.aedev.flow.ui.components.FeedInvalidationBus
 
 /**
@@ -475,17 +473,6 @@ class ShortsViewModel @Inject constructor(
                 isMusic = false,
                 isShort = true
             )
-
-            runCatching {
-                FlowNeuroEngine.onVideoInteraction(
-                    video.copy(isShort = true),
-                    signal.interaction,
-                    percentWatched = signal.percent
-                )
-                FlowNeuroEngine.recordSeenShorts(listOf(video.id))
-            }.onFailure { e ->
-                Log.w(TAG, "Failed to record watched short in FlowNeuro", e)
-            }
         }
     }
     
@@ -533,11 +520,6 @@ class ShortsViewModel @Inject constructor(
     fun wantMoreLikeThis(short: ShortVideo) {
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
-                val video = short.toVideo()
-                FlowNeuroEngine.onVideoInteraction(
-                    video,
-                    InteractionType.LIKED
-                )
                 _snackbarMessage.value = "We'll show more like this"
                 Log.d(TAG, "Want more like this: ${short.title}")
             } catch (e: Exception) {
@@ -550,7 +532,6 @@ class ShortsViewModel @Inject constructor(
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
                 val video = short.toVideo()
-                FlowNeuroEngine.markNotInterested(video)
                 FeedInvalidationBus.emit(FeedInvalidationBus.Event.NotInterested(video.id, video.channelId))
 
                 val currentShorts = _uiState.value.shorts

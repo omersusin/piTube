@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.aedev.flow.R
 import io.github.aedev.flow.data.local.BackupRepository
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,25 +85,6 @@ fun ExportDataScreen(
                     context.getString(
                         if (result.isSuccess) R.string.settings_export_success
                         else R.string.history_export_failed
-                    ),
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    val exportEngineLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("application/json")
-    ) { uri ->
-        uri?.let {
-            scope.launch {
-                val success = context.contentResolver.openOutputStream(it)?.use { out ->
-                    FlowNeuroEngine.exportBrainToStream(out)
-                } ?: false
-                android.widget.Toast.makeText(
-                    context,
-                    context.getString(
-                        if (success) R.string.export_engine_success else R.string.export_engine_failed
                     ),
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
@@ -211,18 +191,6 @@ fun ExportDataScreen(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     onClick = {
                         exportWatchHistoryLauncher.launch("flow-watch-history.json")
-                    }
-                )
-            }
-
-            item {
-                ImportOptionCard(
-                    title = stringResource(R.string.export_engine_data),
-                    description = stringResource(R.string.export_engine_data_subtitle),
-                    icon = Icons.Outlined.Psychology,
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    onClick = {
-                        exportEngineLauncher.launch("flow_engine_${System.currentTimeMillis()}.json")
                     }
                 )
             }

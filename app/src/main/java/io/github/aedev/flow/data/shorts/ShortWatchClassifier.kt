@@ -6,14 +6,11 @@
 
 package io.github.aedev.flow.data.shorts
 
-import io.github.aedev.flow.data.recommendation.InteractionType
-
 /** Classified watch outcome for a Short. */
 data class ShortWatchSignal(
     val position: Long,
     val safeDuration: Long,
     val percent: Float,
-    val interaction: InteractionType
 )
 
 /** Pure watch-signal classification for Shorts, extracted from the ViewModel for testability. */
@@ -29,11 +26,6 @@ object ShortWatchClassifier {
         }
         val position = positionMs.coerceIn(0L, safeDuration)
         val percent = (position.toFloat() / safeDuration.toFloat()).coerceIn(0f, 1f)
-        val interaction = if (position < MIN_SHORT_WATCH_MS) {
-            InteractionType.SKIPPED
-        } else {
-            InteractionType.WATCHED
-        }
-        return ShortWatchSignal(position, safeDuration, percent, interaction)
+        return ShortWatchSignal(position, safeDuration, percent)
     }
 }

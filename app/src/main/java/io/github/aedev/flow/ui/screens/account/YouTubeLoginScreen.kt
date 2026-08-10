@@ -1,9 +1,8 @@
 package io.github.aedev.flow.ui.screens.account
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.webkit.CookieManager
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
@@ -21,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -32,7 +30,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,33 +49,76 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import io.github.aedev.flow.R
-import io.github.aedev.flow.data.auth.AccountFetcher
-import io.github.aedev.flow.data.auth.AuthManager
-import io.github.aedev.flow.data.auth.AuthUtils
+import io.github.aedev.flow.data.local.HomeFeedCacheRepository
+import io.github.aedev.flow.data.local.PlayerPreferences
+import io.github.aedev.flow.data.local.YouTubeLibrarySync
 import io.github.aedev.flow.innertube.YouTube
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+// Plain ServiceLogin + continue param, matching the current working implementation in
+// MetrolistGroup/Metrolist's LoginScreen.kt (verified against their live source). No
+// user-agent spoofing: presenting as a real WebView with no extra params on the login
+// URL is what currently gets past Google's embedded-browser check. Spoofing a desktop
+// Chrome UA (an earlier version of this file did that) creates a mismatch with other
+// signals Google's server can see, which is more likely to trigger the "this browser or
+// app may not be secure" block than to avoid it.
+private const val GOOGLE_LOGIN_URL =
+    "https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fmusic.youtube.com"
+
+/**
+ * Signs the user into their real Google account via an embedded WebView pointed at Google's
+ * own login page, then captures the resulting YouTube session cookie for use with InnerTube
+ * and NewPipe (the same approach Metrolist/InnerTune/OuterTune use). No credentials ever pass
+ * through app code; Google's page handles the login itself.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun YouTubeLoginScreen(
     onLoginComplete: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var isLoading by remember { mutableStateOf(true) }
-    var loginDone by remember { mutableStateOf(false) }
-    var signedOut by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val playerPreferences = remember { PlayerPreferences(context) }
 
-    if (!signedOut && AuthManager.isLoggedIn(context)) {
-        val accountInfo = remember { AccountFetcher.getCached(context) }
+    var signedOut by remember { mutableStateOf(false) }
+    var accountName by remember { mutableStateOf<String?>(null) }
+    var accountAvatar by remember { mutableStateOf<String?>(null) }
+    var loggedIn by remember { mutableStateOf(false) }
+    var checkDone by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val cookie = playerPreferences.youtubeCookie.first()
+        loggedIn = !cookie.isNullOrEmpty()
+        if (loggedIn) {
+            accountName = playerPreferences.youtubeAccountName.first()
+            accountAvatar = playerPreferences.youtubeAccountThumbnail.first()
+        }
+        checkDone = true
+    }
+
+    if (!checkDone) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    if (loggedIn && !signedOut) {
         AccountPanel(
-            name = accountInfo?.name,
-            avatarUrl = accountInfo?.avatarUrl,
+            name = accountName,
+            avatarUrl = accountAvatar,
             onSignOut = {
-                AuthManager.logout(context)
-                AccountFetcher.clearCache(context)
-                YouTube.cookie = null
+                coroutineScope.launch {
+                    playerPreferences.clearYoutubeAccount()
+                    YouTube.cookie = null
+                    YouTube.useLoginForBrowse = false
+                }
                 signedOut = true
             },
             onNavigateBack = onNavigateBack,
@@ -83,18 +126,40 @@ fun YouTubeLoginScreen(
         return
     }
 
-    fun onSessionCaptured(rawCookies: String) {
-        if (loginDone) return
-        val normalized = AuthUtils.normalize(rawCookies)
-        if (AuthUtils.missingRequired(normalized).isNotEmpty()) return
-        loginDone = true
-        AuthManager.saveRawCookies(context, normalized)
-        AuthManager.saveCookies(context, AuthManager.getCookies(context))
-        YouTube.cookie = normalized
-        scope.launch {
-            AccountFetcher.fetch(context)?.let { AccountFetcher.cache(context, it) }
+    var isLoading by remember { mutableStateOf(true) }
+    var isFinishing by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
+
+    fun handleCookiesCaptured(cookies: String) {
+        if (isFinishing) return
+        isFinishing = true
+        errorMessage = null
+        YouTube.cookie = cookies
+        YouTube.useLoginForBrowse = true
+        coroutineScope.launch {
+            YouTube.accountInfo()
+                .onSuccess { account ->
+                    playerPreferences.setYoutubeAccount(
+                        cookie = cookies,
+                        name = account.name,
+                        email = account.email,
+                        thumbnailUrl = account.thumbnailUrl
+                    )
+                    val appContext = context.applicationContext
+                    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                        runCatching { HomeFeedCacheRepository(appContext).clearAll() }
+                        runCatching { YouTubeLibrarySync.sync(appContext) }
+                    }
+                    onLoginComplete()
+                }
+                .onFailure {
+                    YouTube.cookie = null
+                    YouTube.useLoginForBrowse = false
+                    errorMessage = context.getString(R.string.settings_google_login_failed)
+                    isFinishing = false
+                }
         }
-        onLoginComplete()
     }
 
     Scaffold(
@@ -120,57 +185,83 @@ fun YouTubeLoginScreen(
                 }
             }
         }
-    ) { padding ->
-        Column(
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(paddingValues)
         ) {
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
+                    val cookieManager = CookieManager.getInstance()
+                    cookieManager.setAcceptCookie(true)
                     WebView(ctx).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
+                        settings.setSupportZoom(true)
+                        settings.builtInZoomControls = true
+                        settings.displayZoomControls = false
+                        cookieManager.setAcceptThirdPartyCookies(this, true)
                         webViewClient = object : WebViewClient() {
-                            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                            override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                                 super.onPageStarted(view, url, favicon)
                                 isLoading = true
                             }
 
-                            override fun onPageFinished(view: WebView?, url: String?) {
+                            override fun onPageFinished(view: WebView, url: String?) {
                                 super.onPageFinished(view, url)
                                 isLoading = false
-                                if (url?.contains("youtube.com") == true) {
-                                    val cookieManager = CookieManager.getInstance()
-                                    val raw = cookieManager.getCookie("https://www.youtube.com")
-                                        ?: cookieManager.getCookie(url)
-                                    if (raw != null && raw.contains("SID=")) {
-                                        onSessionCaptured(raw)
+                                val currentUrl = url.orEmpty()
+                                if (currentUrl.startsWith("https://music.youtube.com") ||
+                                    currentUrl.startsWith("https://www.youtube.com")
+                                ) {
+                                    val cookies = cookieManager.getCookie(currentUrl)
+                                    if (!cookies.isNullOrEmpty() && cookies.contains("SAPISID")) {
+                                        handleCookiesCaptured(cookies)
                                     }
                                 }
                             }
-
-                            override fun onReceivedError(
-                                view: WebView?,
-                                request: WebResourceRequest?,
-                                error: WebResourceError?
-                            ) {
-                                super.onReceivedError(view, request, error)
-                                isLoading = false
-                            }
                         }
-                        loadUrl(
-                            "https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Faction_handle_signin%3Dtrue%26app%3Ddesktop%26hl%3Den%26next%3D%252F&hl=en"
-                        )
+                        webViewRef = this
+                        loadUrl(GOOGLE_LOGIN_URL)
                     }
+                },
+                onRelease = { view ->
+                    view.stopLoading()
+                    view.webViewClient = WebViewClient()
+                    view.destroy()
                 }
             )
+
+            if (isLoading || isFinishing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            errorMessage?.let { message ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .background(MaterialTheme.colorScheme.errorContainer)
+                        .padding(16.dp)
+                ) {
+                    Text(text = message, color = MaterialTheme.colorScheme.onErrorContainer)
+                    TextButton(onClick = {
+                        errorMessage = null
+                        webViewRef?.reload()
+                    }) {
+                        Text(stringResource(R.string.settings_google_login_retry))
+                    }
+                }
+            }
         }
     }
 }

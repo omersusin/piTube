@@ -33,7 +33,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import io.github.aedev.flow.data.local.PlayerPreferences
 import io.github.aedev.flow.data.model.Video
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
 import io.github.aedev.flow.data.subscriptions.refreshSubscriptionsAtStartup
 import io.github.aedev.flow.player.DeepFlowManager
 import io.github.aedev.flow.player.EnhancedPlayerManager
@@ -126,9 +125,8 @@ fun FlowApp(
     var needsOnboarding by remember { mutableStateOf<Boolean?>(null) }
 
     LaunchedEffect(Unit) {
-        FlowNeuroEngine.initialize(context)
         DeepFlowManager.initialize(context)
-        needsOnboarding = FlowNeuroEngine.needsOnboarding()
+        needsOnboarding = !preferences.onboardingComplete.first()
     }
 
     LaunchedEffect(sleepTimerCloseAppOnExpiry) {

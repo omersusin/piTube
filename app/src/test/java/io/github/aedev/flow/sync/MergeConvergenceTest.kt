@@ -1,17 +1,12 @@
 package io.github.aedev.flow.sync
 
-import io.github.aedev.flow.sync.canonical.CanonicalBrain
-import io.github.aedev.flow.sync.canonical.CanonicalBrainVectors
 import io.github.aedev.flow.sync.canonical.CanonicalLike
 import io.github.aedev.flow.sync.canonical.CanonicalPlaylist
 import io.github.aedev.flow.sync.canonical.CanonicalPlaylistItem
 import io.github.aedev.flow.sync.canonical.CanonicalSetting
 import io.github.aedev.flow.sync.canonical.CanonicalSubscriptionGroup
-import io.github.aedev.flow.sync.canonical.CanonicalVector
 import io.github.aedev.flow.sync.canonical.CanonicalWatchHistory
-import io.github.aedev.flow.sync.canonical.GCounter
 import io.github.aedev.flow.sync.identity.Hlc
-import io.github.aedev.flow.sync.merge.BrainMerger
 import io.github.aedev.flow.sync.merge.LikesMerger
 import io.github.aedev.flow.sync.merge.PlaylistMerger
 import io.github.aedev.flow.sync.merge.SettingsMerger
@@ -112,29 +107,5 @@ class MergeConvergenceTest {
         assertEquals(setOf("v1", "v2", "v3"), p1.items.map { it.videoId }.toSet())
     }
 
-    @Test
-    fun brain_converges() {
-        fun brain(node: String, topics: Map<String, Double>, idf: Long, blocked: Set<String>) = CanonicalBrain(
-            deviceId = node,
-            hlc = hlc(idf, 0, node),
-            vectors = CanonicalBrainVectors(globalVector = CanonicalVector(topics = topics)),
-            idfTotalDocuments = GCounter(mapOf(node to idf)),
-            blockedTopics = blocked,
-        )
-        val a = brain("a", mapOf("kotlin" to 0.8, "rust" to 0.3), 1000, setOf("politics"))
-        val b = brain("b", mapOf("kotlin" to 0.5, "go" to 0.6), 500, setOf("spam"))
-        val c = brain("c", mapOf("rust" to 0.9), 200, setOf("politics"))
-
-        assertEquals(BrainMerger.merge(a, b), BrainMerger.merge(b, a).copy(deviceId = "a"))
-        val abc1 = BrainMerger.merge(BrainMerger.merge(a, b), c)
-        val abc2 = BrainMerger.merge(a, BrainMerger.merge(b, c))
-        assertEquals(abc1, abc2)
-        val ab = BrainMerger.merge(a, b)
-        assertEquals(ab, BrainMerger.merge(ab, ab))
-
-        // G-Counter sums experience; vectors keep the stronger signal; blocklists union.
-        assertEquals(1500L, ab.idfTotalDocuments.sum())
-        assertEquals(0.8, ab.vectors.globalVector.topics["kotlin"]!!, 0.0)
-        assertEquals(setOf("politics", "spam"), ab.blockedTopics)
-    }
+}
 }

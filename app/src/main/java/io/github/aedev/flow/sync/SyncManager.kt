@@ -264,9 +264,7 @@ class SyncManager @Inject constructor(
             SyncCollection.PLAYLISTS to Capability(1, produce = true, consume = true),
             SyncCollection.LIKES to Capability(1, produce = true, consume = true),
             SyncCollection.SETTINGS to Capability(1, produce = true, consume = true),
-            SyncCollection.FLOW_NEURO_BRAIN to Capability(13, produce = true, consume = true),
             SyncCollection.SUBSCRIPTIONS to Capability(1, produce = true, consume = true),
-            SyncCollection.MUSIC_BRAIN to Capability(0, produce = false, consume = false),
         )
     )
 

@@ -32,7 +32,7 @@ data class PeerInfo(val deviceId: String, val deviceName: String, val platform: 
 /**
  *  Sender side: [exportPayload]. Receiver side:
  * [applyPayload] — takes a mandatory pre-merge backup, merges each collection with its local
- * state (CRDT), applies Room collections in a single `withTransaction`, applies DataStore/brain
+ * state (CRDT), applies Room collections in a single `withTransaction`, applies DataStore
  * collections (individually atomic), records the `sync_log` idempotency ledger + known peer, and
  * restores the backup on any failure.
  */
@@ -56,7 +56,6 @@ class SyncApplier @Inject constructor(
                 SyncCollection.LIKES -> SyncSerialization.encodeLikes(dataAccess.readLikes(node))
                 SyncCollection.SETTINGS -> SyncSerialization.encodeSettings(dataAccess.readSettings(hlc))
                 SyncCollection.SUBSCRIPTIONS -> SyncSerialization.encodeSubscriptions(dataAccess.readSubscriptions(hlc))
-                SyncCollection.FLOW_NEURO_BRAIN -> SyncSerialization.encodeBrain(dataAccess.readBrain(node, hlc))
                 else -> null
             }
             if (wire != null) out[c] = wire
@@ -72,7 +71,6 @@ class SyncApplier @Inject constructor(
         hlc: String,
     ): Map<String, ApplyStats> {
         val node = deviceIdentity.hlcNode()
-        val myDeviceId = deviceIdentity.deviceId()
         val stats = LinkedHashMap<String, ApplyStats>()
 
         // Idempotency: drop collections whose exact payload we've already applied from this peer.
@@ -136,15 +134,6 @@ class SyncApplier @Inject constructor(
                 val merged = SettingsMerger.merge(local, remote)
                 dataAccess.writeSettings(merged)
                 stats[SyncCollection.SETTINGS] = ApplyStats(updated = remote.size)
-            }
-
-            // Brain: stateful CRDT merge + engine reload.
-            fresh[SyncCollection.FLOW_NEURO_BRAIN]?.let { rc ->
-                failedCollection = SyncCollection.FLOW_NEURO_BRAIN
-                SyncSerialization.decodeBrain(rc.lines)?.let { remote ->
-                    dataAccess.mergeAndWriteBrain(remote, myDeviceId, hlc)
-                    stats[SyncCollection.FLOW_NEURO_BRAIN] = ApplyStats(updated = 1)
-                }
             }
             failedCollection = null
 

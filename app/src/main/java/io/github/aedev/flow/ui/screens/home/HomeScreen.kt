@@ -55,6 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.Dp
 import io.github.aedev.flow.ui.TabScrollEventBus
@@ -107,8 +108,6 @@ fun HomeScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val unreadNotifications by notificationViewModel.unreadCount.collectAsStateWithLifecycle()
-    var accountInfo by remember { mutableStateOf(io.github.aedev.flow.data.auth.AccountFetcher.getCached(context)) }
-    var accountLoggedIn by remember { mutableStateOf(io.github.aedev.flow.data.auth.AuthManager.isLoggedIn(context)) }
     val preferences = remember { io.github.aedev.flow.data.local.PlayerPreferences(context) }
     val homeViewMode by preferences.homeViewMode.collectAsStateWithLifecycle(
         initialValue = io.github.aedev.flow.data.local.HomeViewMode.GRID
@@ -117,6 +116,10 @@ fun HomeScreen(
     val refreshHomeOnReselect by preferences.refreshHomeOnReselect.collectAsStateWithLifecycle(initialValue = true)
     val showAppLogoIcon by preferences.showAppLogoIcon.collectAsStateWithLifecycle(initialValue = true)
     val deepFlowActive by preferences.deepFlowActive.collectAsStateWithLifecycle(initialValue = false)
+    val accountThumbnail by preferences.youtubeAccountThumbnail.collectAsStateWithLifecycle(initialValue = null)
+    val accountLoggedIn by preferences.youtubeCookie
+        .map { !it.isNullOrEmpty() }
+        .collectAsStateWithLifecycle(initialValue = false)
 
     val gridState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
@@ -130,13 +133,6 @@ fun HomeScreen(
             viewModel.onHomeVisible()
         } else {
             viewModel.onHomeHidden()
-        }
-        accountLoggedIn = io.github.aedev.flow.data.auth.AuthManager.isLoggedIn(context)
-        if (accountLoggedIn) {
-            val cached = io.github.aedev.flow.data.auth.AccountFetcher.getCached(context)
-            if (cached != null) accountInfo = cached
-        } else {
-            accountInfo = null
         }
         onStopOrDispose { viewModel.onHomeHidden() }
     }
@@ -223,9 +219,9 @@ fun HomeScreen(
                             onClick = onAccountClick,
                             modifier = Modifier.size(40.dp)
                         ) {
-                            if (accountLoggedIn && accountInfo?.avatarUrl != null) {
+                            if (accountLoggedIn && accountThumbnail != null) {
                                 AsyncImage(
-                                    model = accountInfo?.avatarUrl,
+                                    model = accountThumbnail,
                                     contentDescription = stringResource(R.string.login_button),
                                     modifier = Modifier
                                         .size(28.dp)

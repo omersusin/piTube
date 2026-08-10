@@ -1,6 +1,5 @@
 package io.github.aedev.flow.sync.protocol
 
-import io.github.aedev.flow.sync.canonical.CanonicalBrain
 import io.github.aedev.flow.sync.canonical.CanonicalLike
 import io.github.aedev.flow.sync.canonical.CanonicalPlaylist
 import io.github.aedev.flow.sync.canonical.CanonicalSetting
@@ -107,13 +106,4 @@ object SyncSerialization {
 
     fun decodeSubscriptions(lines: List<String>): List<CanonicalSubscriptionGroup> =
         lines.filter { it.isNotBlank() }.map { json.decodeFromString(CanonicalSubscriptionGroup.serializer(), it) }
-
-    // --- brain (single record) ---
-    fun encodeBrain(brain: CanonicalBrain): CollectionWire {
-        val line = enc(CanonicalBrain.serializer(), brain)
-        return CollectionWire(listOf(line), 1, sha256Hex(line))
-    }
-
-    fun decodeBrain(lines: List<String>): CanonicalBrain? =
-        lines.firstOrNull { it.isNotBlank() }?.let { json.decodeFromString(CanonicalBrain.serializer(), it) }
 }

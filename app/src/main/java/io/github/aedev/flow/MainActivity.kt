@@ -27,7 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.aedev.flow.BuildConfig
 import io.github.aedev.flow.data.local.AppUiModePreferences
 import io.github.aedev.flow.data.local.LocalDataManager
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
 import io.github.aedev.flow.discord.DiscordPresenceRuntime
 import io.github.aedev.flow.network.AppProxyManager
 import io.github.aedev.flow.platform.AppUiMode
@@ -173,11 +172,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Initialize Neuro Engine (Recommendation System)
-        lifecycleScope.launch(Dispatchers.IO) {
-            FlowNeuroEngine.initialize(applicationContext)
-        }
-
         val dataManager = LocalDataManager(applicationContext)
 
         lifecycleScope.launch {
@@ -296,12 +290,6 @@ class MainActivity : ComponentActivity() {
                 dataManager.systemDarkThemeVariant.collect { variant ->
                     systemDarkThemeVariant = variant
                 }
-            }
-
-            // Initialize Flow Neuro Engine
-            LaunchedEffect(Unit) {
-                io.github.aedev.flow.data.recommendation.FlowNeuroEngine
-                    .initialize(applicationContext)
             }
 
             FlowTheme(

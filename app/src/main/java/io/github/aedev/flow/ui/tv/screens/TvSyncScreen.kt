@@ -46,7 +46,6 @@ private val COLLECTION_KEYS = listOf(
     SyncCollection.LIKES,
     SyncCollection.SUBSCRIPTIONS,
     SyncCollection.SETTINGS,
-    SyncCollection.FLOW_NEURO_BRAIN,
 )
 
 @Composable
@@ -56,7 +55,6 @@ private fun collectionLabel(key: String): String = when (key) {
     SyncCollection.LIKES -> stringResource(R.string.sync_collection_likes)
     SyncCollection.SUBSCRIPTIONS -> stringResource(R.string.sync_collection_subscriptions)
     SyncCollection.SETTINGS -> stringResource(R.string.sync_collection_settings)
-    SyncCollection.FLOW_NEURO_BRAIN -> stringResource(R.string.sync_collection_recommendation_profile)
     else -> key
 }
 

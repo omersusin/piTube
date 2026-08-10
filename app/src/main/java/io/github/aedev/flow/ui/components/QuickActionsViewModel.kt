@@ -8,8 +8,6 @@ import io.github.aedev.flow.data.local.ChannelSubscription
 import io.github.aedev.flow.data.local.PlaylistRepository
 import io.github.aedev.flow.data.local.SubscriptionRepository
 import io.github.aedev.flow.data.model.Video
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
-import io.github.aedev.flow.data.recommendation.InteractionType
 import io.github.aedev.flow.data.repository.YouTubeRepository
 import io.github.aedev.flow.player.quality.QualityManager
 import io.github.aedev.flow.player.stream.AudioStreamSelector
@@ -164,8 +162,6 @@ class QuickActionsViewModel @Inject constructor(
 
     /**
      * Block the channel of a video — the channel will never appear in the feed again.
-     * Uses FlowNeuroEngine.blockChannel to persist the block and scrub any existing
-     * channel score, mirroring the "Blocked Channels" UI in User Preferences.
      */
     fun blockChannel(video: Video) {
         viewModelScope.launch {
@@ -179,7 +175,6 @@ class QuickActionsViewModel @Inject constructor(
                 check(channelId.isNotBlank()) {
                     context.getString(io.github.aedev.flow.R.string.channel_metadata_unavailable)
                 }
-                FlowNeuroEngine.blockChannel(context, channelId)
                 FeedInvalidationBus.emit(
                     FeedInvalidationBus.Event.ChannelBlocked(channelId, video.id)
                 )
@@ -202,13 +197,12 @@ class QuickActionsViewModel @Inject constructor(
     }
 
     /**
-     * Mark a video as "Not Interested" - this strongly penalizes the video's topics
-     * and channel in the FlowNeuroEngine, making similar content much less likely to appear.
+     * Mark a video as "Not Interested" - removes it from the feed and keeps similar
+     * content out of future refreshes.
      */
     fun markNotInterested(video: Video) {
         viewModelScope.launch {
             try {
-                FlowNeuroEngine.markNotInterested(context, video)
                 FeedInvalidationBus.emit(
                     FeedInvalidationBus.Event.NotInterested(video.id, video.channelId)
                 )
@@ -228,20 +222,12 @@ class QuickActionsViewModel @Inject constructor(
     }
 
     /**
-     * Mark a video as "Watched" - signals a positive WATCHED interaction to FlowNeuroEngine,
-     * boosting the video's topics and channel in recommendations. Useful for quick-starting
-     * the algorithm without replaying the whole video.
+     * Mark a video as "Watched" - records it in watch history so it leaves the feed.
+     * Useful for clearing videos without replaying the whole video.
      */
     fun markAsWatched(video: Video) {
         viewModelScope.launch {
             try {
-                FlowNeuroEngine.onVideoInteraction(
-                    context,
-                    video,
-                    InteractionType.WATCHED,
-                    percentWatched = 1.0f
-                )
-                
                 val durationMs = if (video.duration > 0) video.duration * 1000L else 1000L
                 val thumbnailUrl = video.thumbnailUrl.takeIf { it.isNotEmpty() }
                     ?: "https://i.ytimg.com/vi/${video.id}/hq720.jpg"
@@ -275,19 +261,11 @@ class QuickActionsViewModel @Inject constructor(
     }
 
     /**
-     * Mark a video as "I like this" - signals a positive LIKED interaction to FlowNeuroEngine,
-     * boosting the video's topics and channel. Helps users seed the algorithm with content
-     * they enjoy without watching the full video in Flow.
+     * Mark a video as "I like this" - saves it to the liked videos list.
      */
     fun markAsInteresting(video: Video) {
         viewModelScope.launch {
             try {
-                FlowNeuroEngine.onVideoInteraction(
-                    context,
-                    video,
-                    InteractionType.LIKED,
-                    percentWatched = 0f
-                )
                 Toast.makeText(
                     context,
                     context.getString(io.github.aedev.flow.R.string.i_like_this_toast),

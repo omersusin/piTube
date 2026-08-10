@@ -103,7 +103,7 @@ fun TvSettingsScreen(
                     TvSettingsCategory.QUALITY -> TvQualitySettingsPane(playerPreferences)
                     TvSettingsCategory.CONTENT -> TvContentSettingsPane(playerPreferences)
                     TvSettingsCategory.APPEARANCE -> TvAppearanceSettingsPane(localDataManager)
-                    TvSettingsCategory.FLOW_ENGINE -> TvFlowEngineSettingsPane(playerPreferences)
+                    TvSettingsCategory.PRIVACY -> TvFlowEngineSettingsPane(playerPreferences)
                     TvSettingsCategory.INTERFACE -> TvInterfaceSettingsPane(modePreferences)
                     TvSettingsCategory.ABOUT -> TvAboutSettingsPane()
                     TvSettingsCategory.REMOTE_GUIDE,

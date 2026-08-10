@@ -10,7 +10,6 @@ import io.github.aedev.flow.data.model.ShortVideo
 import io.github.aedev.flow.data.model.ShortsSequenceResult
 import io.github.aedev.flow.data.model.toShortVideo
 import io.github.aedev.flow.data.model.toVideo
-import io.github.aedev.flow.data.recommendation.FlowNeuroEngine
 import io.github.aedev.flow.data.repository.YouTubeRepository
 import io.github.aedev.flow.innertube.YouTube
 import io.github.aedev.flow.innertube.models.YouTubeClient
@@ -44,7 +43,7 @@ import org.schabi.newpipe.extractor.stream.StreamInfo
  * 1. PRIMARY (seedVideoId == null):
  *    ShortsDiscoveryEngine builds a topic-aware candidate pool from:
  *      a) Subscribed channel recent uploads filtered to ≤60s
- *      b) Topic-driven searches using FlowNeuroEngine's learned interests
+ *      b) Topic-driven discovery searches
  *    This ensures the candidate pool is already ~80% relevant before ranking.
  *
  * 2. SEED (seedVideoId != null):
@@ -239,7 +238,7 @@ class ShortsRepository private constructor(private val context: Context) {
                 null
             }
             if (newPipeResult != null && newPipeResult.shorts.isNotEmpty()) {
-                val reRanked = orderShortsNewestFirst(reRankWithFlowNeuro(newPipeResult.shorts, userSubs))
+                val reRanked = orderShortsNewestFirst(keepOriginalOrder(newPipeResult.shorts, userSubs))
                 val result = newPipeResult.copy(shorts = reRanked)
                 result.shorts.forEach { shortsCache.put(it.id, it) }
                 markAsShown(result.shorts.map { it.id })
@@ -320,16 +319,7 @@ class ShortsRepository private constructor(private val context: Context) {
         if (result != null && result.shorts.isNotEmpty()) {
             Log.d(TAG, "✓ Loaded ${result.shorts.size} more shorts (pre-enrichment)")
 
-            val recentlySeen = try {
-                FlowNeuroEngine.getRecentlySeenShorts()
-            } catch (e: Exception) { emptySet() }
-
-            val freshShorts = result.shorts.filter { it.id !in recentlySeen }
-
-            if (freshShorts.size < 3 && result.shorts.size > 3) {
-                Log.i(TAG, "loadMore: ${result.shorts.size - freshShorts.size} seen Shorts filtered, triggering discovery refresh")
-                return@withContext forceRefresh()
-            }
+            val freshShorts = result.shorts
 
             // Enrich metadata OUTSIDE the InnerTube timeout
             val metadataEnriched = try {
@@ -350,16 +340,10 @@ class ShortsRepository private constructor(private val context: Context) {
                 null
             } ?: metadataEnriched
 
-            val reRanked = orderShortsNewestFirst(reRankWithFlowNeuro(enriched, userSubs))
+            val reRanked = orderShortsNewestFirst(keepOriginalOrder(enriched, userSubs))
             val enrichedResult = result.copy(shorts = reRanked)
             enrichedResult.shorts.forEach { shortsCache.put(it.id, it) }
             markAsShown(enrichedResult.shorts.map { it.id })
-
-            try {
-                FlowNeuroEngine.recordSeenShorts(reRanked.map { it.id })
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to record seen Shorts in loadMore", e)
-            }
 
             return@withContext enrichedResult
         }
@@ -371,7 +355,7 @@ class ShortsRepository private constructor(private val context: Context) {
                 fetchFromNewPipe()
             }
             if (fallback != null) {
-                val reRanked = orderShortsNewestFirst(reRankWithFlowNeuro(fallback.shorts, userSubs))
+                val reRanked = orderShortsNewestFirst(keepOriginalOrder(fallback.shorts, userSubs))
                 val rankedFallback = fallback.copy(shorts = reRanked)
                 rankedFallback.shorts.forEach { shortsCache.put(it.id, it) }
                 markAsShown(rankedFallback.shorts.map { it.id })
@@ -433,39 +417,12 @@ class ShortsRepository private constructor(private val context: Context) {
     private fun orderShortsNewestFirst(shorts: List<ShortVideo>): List<ShortVideo> =
         shorts.sortedByDescending { it.timestamp }
 
-    // FLOWNEURO RE-RANKING — YouTube algo primary, FlowNeuro personalization    
-    /**
-     * Re-rank shorts using FlowNeuroEngine.
-     * 
-     * Strategy: YouTube's algorithm provides the candidate pool (already high-quality),
-     * FlowNeuro re-orders based on user's interest profile, watch history vectors,
-     * time-of-day context, and curiosity gap scoring.
-     * 
-     * The first item is pinned (YouTube chose it for a reason), rest are re-ranked.
-     */
-    private suspend fun reRankWithFlowNeuro(
+    // YouTube order is kept as-is (no personalization re-ranking).
+    private suspend fun keepOriginalOrder(
         shorts: List<ShortVideo>,
         userSubs: Set<String> = emptySet()
     ): List<ShortVideo> {
-        if (shorts.size <= 2) return shorts
-        return try {
-            FlowNeuroEngine.initialize(context)
-            val pinned = shorts.first()
-            val candidates = shorts.drop(1)
-            val videosCandidates = candidates.map { it.toVideo() }
-            val ranked = FlowNeuroEngine.rank(
-                candidates = videosCandidates,
-                userSubs = userSubs
-            )
-            val rankedIds = ranked.map { it.id }
-            val shortById = candidates.associateBy { it.id }
-            val reRanked = rankedIds.mapNotNull { shortById[it] }
-            Log.d(TAG, "✓ FlowNeuro re-ranked ${reRanked.size} shorts")
-            listOf(pinned) + reRanked
-        } catch (e: Exception) {
-            Log.w(TAG, "FlowNeuro re-ranking failed, using original order: ${e.message}")
-            orderShortsNewestFirst(shorts)
-        }
+        return shorts
     }
     
     // STREAM RESOLUTION — For Player Setup
@@ -956,20 +913,13 @@ class ShortsRepository private constructor(private val context: Context) {
         val watchedIds = runCatching {
             viewHistory.getWatchedShortIdsAboveThreshold(threshold.minPercent, threshold.maxRemainingMs)
         }.getOrDefault(emptySet())
-        val recentlySeenIds = runCatching {
-            FlowNeuroEngine.initialize(context)
-            FlowNeuroEngine.getRecentlySeenShorts()
-        }.getOrDefault(emptySet())
-        if (watchedIds.isEmpty() && recentlySeenIds.isEmpty()) return shorts
-        return shorts.filter { it.id !in watchedIds && it.id !in recentlySeenIds }
+        if (watchedIds.isEmpty()) return shorts
+        return shorts.filter { it.id !in watchedIds }
     }
 
     suspend fun recordShown(videoId: String) {
         if (videoId.isBlank()) return
-        runCatching {
-            FlowNeuroEngine.initialize(context)
-            FlowNeuroEngine.recordSeenShorts(listOf(videoId))
-        }.onFailure { Log.w(TAG, "Failed to record shown Short $videoId", it) }
+        markAsShown(listOf(videoId))
     }
     
     // INTERNAL — Recently Shown Tracking

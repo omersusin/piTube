@@ -68,7 +68,6 @@ class AutoBackupWorker(
 
         val result = when (type) {
             LocalDataManager.AutoBackupType.APP_DATA -> backupRepo.exportDataToFolder(folderUri)
-            LocalDataManager.AutoBackupType.BRAIN -> backupRepo.exportBrainToFolder(folderUri)
             LocalDataManager.AutoBackupType.MASTER -> backupRepo.exportMasterToFolder(folderUri)
         }
 
