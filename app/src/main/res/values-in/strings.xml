@@ -262,6 +262,11 @@
     <string name="copied_to_clipboard">%1$s disalin</string>
     <string name="unknown">Tidak diketahui</string>
     <string name="comments">Komentar</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">Teratas</string>
     <string name="filter_newest">Terbaru</string>
     <string name="filter_oldest">Terlama</string>

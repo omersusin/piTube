@@ -67,7 +67,14 @@ data class Comment(
     val repliesPage: Page? = null,
     val isPinned: Boolean = false,
     val continuationToken: String? = null,
-    val authorChannelId: String = ""
+    val authorChannelId: String = "",
+    val isLiked: Boolean = false,
+    val isHearted: Boolean = false,
+    val isCreator: Boolean = false,
+    val likeParams: String? = null,
+    val unlikeParams: String? = null,
+    val deleteParams: String? = null,
+    val replyParams: String? = null
 )
 
 data class SearchResult(

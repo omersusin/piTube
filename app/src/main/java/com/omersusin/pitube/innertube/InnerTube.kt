@@ -30,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -442,6 +443,24 @@ class InnerTube {
                     continuation = continuation,
                 ),
             )
+        }
+    }
+
+    /**
+     * Signed JSON POST to an arbitrary InnerTube endpoint on www.youtube.com.
+     * Same auth as [signedWebBrowse] (cookie + SAPISIDHASH for the
+     * www.youtube.com origin) — used for comment writes, which reject the
+     * unsigned variant. Returns the raw [HttpResponse] so callers can decide
+     * how to interpret the body (status, frameworkUpdates, …).
+     */
+    suspend fun signedJsonPost(
+        client: YouTubeClient,
+        endpoint: String,
+        jsonBody: JsonObject,
+    ) = withRetry {
+        httpClient.post("https://www.youtube.com/youtubei/v1/$endpoint") {
+            ytClient(client, setLogin = true, apiUrl = YouTubeClient.API_URL_YOUTUBE)
+            setBody(jsonBody)
         }
     }
 

@@ -105,6 +105,14 @@ class VideoPlayerViewModel @Inject constructor(
 
     private val _isLoadingMoreComments = MutableStateFlow(false)
     val isLoadingMoreComments: StateFlow<Boolean> = _isLoadingMoreComments.asStateFlow()
+
+    // Signed-in comment flow (Koda port): continuation token + params for
+    // posting top-level comments come from the first signed comments page.
+    private var signedCommentsContinuation: String? = null
+    private var createCommentParams: String? = null
+
+    private val _isPostingComment = MutableStateFlow(false)
+    val isPostingComment: StateFlow<Boolean> = _isPostingComment.asStateFlow()
     
     private val navigationHistory = mutableListOf<String>()
     private var currentHistoryIndex = -1
@@ -2897,6 +2905,8 @@ class VideoPlayerViewModel @Inject constructor(
             _isLoadingComments.value = true
             _commentsState.value = emptyList()
             commentsNextPage = null
+            signedCommentsContinuation = null
+            createCommentParams = null
             _hasMoreComments.value = false
             try {
                 withTimeoutOrNull(SECONDARY_CONTENT_STARTUP_TIMEOUT_MS) {
@@ -2909,6 +2919,16 @@ class VideoPlayerViewModel @Inject constructor(
                     }
                 }
                 if (_uiState.value.cachedVideo?.id != videoId) return@launch
+                // Signed-in flow first (Koda port): carries the toolbar params
+                // needed for posting/liking. Falls back to NewPipe otherwise.
+                val signedPage = repository.getSignedComments(videoId)
+                if (signedPage != null) {
+                    _commentsState.value = signedPage.comments.distinctByNonBlankKey(Comment::id)
+                    signedCommentsContinuation = signedPage.continuation
+                    createCommentParams = signedPage.createCommentParams
+                    _hasMoreComments.value = signedPage.continuation != null
+                    return@launch
+                }
                 val (comments, nextPage) = repository.getComments(videoId)
                 if (_uiState.value.cachedVideo?.id != videoId) return@launch
                 _commentsState.value = comments.distinctByNonBlankKey(Comment::id)
@@ -2923,6 +2943,27 @@ class VideoPlayerViewModel @Inject constructor(
     }
 
     fun loadMoreComments(videoId: String) {
+        val signedToken = signedCommentsContinuation
+        if (signedToken != null) {
+            if (_isLoadingMoreComments.value) return
+            viewModelScope.launch {
+                _isLoadingMoreComments.value = true
+                try {
+                    val page = repository.getSignedCommentsPage(signedToken) ?: return@launch
+                    _commentsState.value = _commentsState.value.mergeDistinctByNonBlankKey(
+                        page.comments,
+                        Comment::id
+                    )
+                    signedCommentsContinuation = page.continuation
+                    _hasMoreComments.value = page.continuation != null
+                } catch (e: Exception) {
+                    Log.e("VideoPlayerViewModel", "Error loading more comments", e)
+                } finally {
+                    _isLoadingMoreComments.value = false
+                }
+            }
+            return
+        }
         val nextPage = commentsNextPage ?: return
         if (_isLoadingMoreComments.value) return
         viewModelScope.launch {
@@ -2944,11 +2985,29 @@ class VideoPlayerViewModel @Inject constructor(
     }
 
     fun loadCommentReplies(comment: com.omersusin.pitube.data.model.Comment) {
-        val videoId = _uiState.value.streamInfo?.id ?: return
-        val repliesPage = comment.repliesPage ?: return
-        
         viewModelScope.launch {
             try {
+                // Signed path first: the replies continuation token comes from
+                // the InnerTube parser; its next token lands back in
+                // continuationToken so follow-up loads keep working.
+                val repliesToken = comment.continuationToken
+                if (repliesToken != null) {
+                    val page = repository.getSignedCommentsPage(repliesToken)
+                    if (page != null) {
+                        _commentsState.value = _commentsState.value.map { c ->
+                            if (c.id == comment.id) {
+                                c.copy(
+                                    replies = page.comments.distinctByNonBlankKey(Comment::id),
+                                    continuationToken = page.continuation
+                                )
+                            } else c
+                        }
+                        return@launch
+                    }
+                }
+                val videoId = _uiState.value.streamInfo?.id ?: return@launch
+                val repliesPage = comment.repliesPage ?: return@launch
+        
                 val url = "https://www.youtube.com/watch?v=$videoId"
                 val (replies, nextPage) = repository.getCommentReplies(url, repliesPage)
                 
@@ -2968,11 +3027,29 @@ class VideoPlayerViewModel @Inject constructor(
     }
 
     fun loadMoreCommentReplies(comment: com.omersusin.pitube.data.model.Comment) {
-        val videoId = _uiState.value.streamInfo?.id ?: return
-        val repliesPage = comment.repliesPage ?: return
-
         viewModelScope.launch {
             try {
+                val repliesToken = comment.continuationToken
+                if (repliesToken != null) {
+                    val page = repository.getSignedCommentsPage(repliesToken)
+                    if (page != null) {
+                        _commentsState.value = _commentsState.value.map { c ->
+                            if (c.id == comment.id) {
+                                c.copy(
+                                    replies = c.replies.mergeDistinctByNonBlankKey(
+                                        page.comments,
+                                        Comment::id
+                                    ),
+                                    continuationToken = page.continuation
+                                )
+                            } else c
+                        }
+                        return@launch
+                    }
+                }
+                val videoId = _uiState.value.streamInfo?.id ?: return@launch
+                val repliesPage = comment.repliesPage ?: return@launch
+
                 val url = "https://www.youtube.com/watch?v=$videoId"
                 val (replies, nextPage) = repository.getCommentReplies(url, repliesPage)
 
@@ -2990,6 +3067,98 @@ class VideoPlayerViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("VideoPlayerViewModel", "Error loading more replies", e)
             }
+        }
+    }
+
+    /** Post a top-level comment; the created comment is prepended to the list. */
+    fun postComment(text: String) {
+        val params = createCommentParams ?: return
+        if (text.isBlank() || _isPostingComment.value) return
+        viewModelScope.launch {
+            _isPostingComment.value = true
+            try {
+                val created = repository.postComment(params, text)
+                if (created != null) {
+                    _commentsState.value = listOf(created) + _commentsState.value
+                }
+            } catch (e: Exception) {
+                Log.e("VideoPlayerViewModel", "Error posting comment", e)
+            } finally {
+                _isPostingComment.value = false
+            }
+        }
+    }
+
+    /** Post a reply to [comment]; the created reply is appended to its replies. */
+    fun postCommentReply(comment: com.omersusin.pitube.data.model.Comment, text: String) {
+        val replyParams = comment.replyParams ?: return
+        if (text.isBlank() || _isPostingComment.value) return
+        viewModelScope.launch {
+            _isPostingComment.value = true
+            try {
+                val created = repository.postCommentReply(replyParams, text)
+                if (created != null) {
+                    // Replying to a reply: locate the top-level parent that
+                    // owns the comment and append to its replies list.
+                    _commentsState.value = _commentsState.value.map { c ->
+                        if (c.id == comment.id || c.replies.any { it.id == comment.id }) {
+                            c.copy(replies = c.replies + created)
+                        } else c
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("VideoPlayerViewModel", "Error posting reply", e)
+            } finally {
+                _isPostingComment.value = false
+            }
+        }
+    }
+
+    /** Toggle like on a comment (optimistic, reverted on failure). */
+    fun toggleCommentLike(comment: com.omersusin.pitube.data.model.Comment) {
+        if (comment.likeParams == null || comment.unlikeParams == null) return
+        val wasLiked = comment.isLiked
+        val delta = if (wasLiked) -1 else 1
+        updateComment(comment.id) {
+            it.copy(
+                isLiked = !wasLiked,
+                likeCount = (it.likeCount + delta).coerceAtLeast(0),
+            )
+        }
+        viewModelScope.launch {
+            val ok = repository.setCommentLiked(comment, !wasLiked)
+            if (!ok) {
+                updateComment(comment.id) {
+                    it.copy(
+                        isLiked = wasLiked,
+                        likeCount = (it.likeCount - delta).coerceAtLeast(0),
+                    )
+                }
+            }
+        }
+    }
+
+    /** Delete an own comment; removed from the list on success. */
+    fun deleteComment(comment: com.omersusin.pitube.data.model.Comment) {
+        if (comment.deleteParams == null) return
+        viewModelScope.launch {
+            val ok = repository.deleteComment(comment)
+            if (ok) {
+                _commentsState.value = _commentsState.value
+                    .map { c ->
+                        if (c.id == comment.id) null else c.copy(replies = c.replies.filterNot { it.id == comment.id })
+                    }
+                    .filterNotNull()
+            }
+        }
+    }
+
+    private fun updateComment(
+        commentId: String,
+        transform: (com.omersusin.pitube.data.model.Comment) -> com.omersusin.pitube.data.model.Comment,
+    ) {
+        _commentsState.value = _commentsState.value.map { c ->
+            if (c.id == commentId) transform(c) else c
         }
     }
 

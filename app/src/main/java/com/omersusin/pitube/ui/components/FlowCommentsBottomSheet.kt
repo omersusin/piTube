@@ -37,13 +37,16 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,8 +55,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -162,6 +167,12 @@ fun FlowCommentsBottomSheet(
     hasMore: Boolean = false,
     onAuthorClick: (String) -> Unit = {},
     onAvatarClick: (String) -> Unit = {},
+    isSignedIn: Boolean = false,
+    isPostingComment: Boolean = false,
+    onPostComment: (String) -> Unit = {},
+    onPostReply: (Comment, String) -> Unit = {},
+    onToggleLike: (Comment) -> Unit = {},
+    onDeleteComment: (Comment) -> Unit = {},
     expandedHeight: Dp? = null,
     collapsedHeight: Dp = 0.dp,
     onSheetProgressChange: (Float) -> Unit = {},
@@ -330,6 +341,15 @@ fun FlowCommentsBottomSheet(
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
 
+                if (isSignedIn) {
+                    CommentComposer(
+                        hint = stringResource(R.string.comment_hint),
+                        isPosting = isPostingComment,
+                        onSend = onPostComment,
+                    )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                }
+
                 FlowCommentsList(
                     comments = comments,
                     isLoading = isLoading,
@@ -343,10 +363,60 @@ fun FlowCommentsBottomSheet(
                     isLoadingMore = isLoadingMore,
                     onLoadMore = onLoadMore,
                     hasMore = hasMore,
+                    isSignedIn = isSignedIn,
+                    isPostingComment = isPostingComment,
+                    onPostReply = onPostReply,
+                    onToggleLike = onToggleLike,
+                    onDeleteComment = onDeleteComment,
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .weight(1f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CommentComposer(
+    hint: String,
+    isPosting: Boolean,
+    onSend: (String) -> Unit,
+) {
+    var text by remember { mutableStateOf("") }
+    val canSend = text.isNotBlank() && !isPosting
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = { Text(hint) },
+            singleLine = true,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = {
+                if (canSend) {
+                    onSend(text.trim())
+                    text = ""
+                }
+            },
+            enabled = canSend,
+        ) {
+            if (isPosting) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            } else {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(R.string.send),
+                    tint = if (canSend) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -395,6 +465,11 @@ fun FlowCommentsList(
     isLoadingMore: Boolean,
     onLoadMore: () -> Unit,
     hasMore: Boolean,
+    isSignedIn: Boolean = false,
+    isPostingComment: Boolean = false,
+    onPostReply: (Comment, String) -> Unit = {},
+    onToggleLike: (Comment) -> Unit = {},
+    onDeleteComment: (Comment) -> Unit = {},
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(bottom = 32.dp),
 ) {
@@ -441,6 +516,11 @@ fun FlowCommentsList(
                     onLoadMoreReplies = onLoadMoreReplies,
                     onAuthorClick = onAuthorClick,
                     onAvatarClick = onAvatarClick,
+                    isSignedIn = isSignedIn,
+                    isPostingComment = isPostingComment,
+                    onPostReply = onPostReply,
+                    onToggleLike = onToggleLike,
+                    onDeleteComment = onDeleteComment,
                 )
             }
             if (hasMore) {
@@ -473,6 +553,11 @@ fun FlowCommentItem(
     onLoadMoreReplies: (Comment) -> Unit,
     onAuthorClick: (String) -> Unit = {},
     onAvatarClick: (String) -> Unit = {},
+    isSignedIn: Boolean = false,
+    isPostingComment: Boolean = false,
+    onPostReply: (Comment, String) -> Unit = {},
+    onToggleLike: (Comment) -> Unit = {},
+    onDeleteComment: (Comment) -> Unit = {},
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var isRepliesVisible by remember { mutableStateOf(false) }
@@ -480,6 +565,8 @@ fun FlowCommentItem(
     var isLoadingReplies by remember { mutableStateOf(false) }
     var commentTextLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
     var showFullSizeImage by remember { mutableStateOf(false) }
+    var isReplying by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     val uriHandler = LocalUriHandler.current
 
@@ -504,6 +591,30 @@ fun FlowCommentItem(
         FullSizeImageDialog(
             imageUrl = toHighQualityAvatarUrl(comment.authorThumbnail),
             onDismiss = { showFullSizeImage = false },
+        )
+    }
+
+    // Delete confirmation for own comments
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.delete_comment)) },
+            text = { Text(stringResource(R.string.delete_comment_confirm)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onDeleteComment(comment)
+                    },
+                ) {
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
         )
     }
 
@@ -648,10 +759,25 @@ fun FlowCommentItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Like
                 Icon(
-                    imageVector = Icons.Outlined.ThumbUp,
+                    imageVector =
+                        if (comment.isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
                     contentDescription = stringResource(R.string.like),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(14.dp),
+                    tint =
+                        if (comment.isLiked) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                    modifier =
+                        if (isSignedIn && comment.likeParams != null) {
+                            Modifier
+                                .size(14.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { onToggleLike(comment) }
+                                .padding(4.dp)
+                        } else {
+                            Modifier.size(14.dp)
+                        },
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 if (comment.likeCount > 0) {
@@ -664,22 +790,59 @@ fun FlowCommentItem(
 
                 Spacer(modifier = Modifier.width(24.dp))
 
-                // Dislike (Visual only usually)
-                Icon(
-                    imageVector = Icons.Outlined.ThumbDown,
-                    contentDescription = stringResource(R.string.dislikes),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(14.dp),
-                )
+                // Reply
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier =
+                        if (isSignedIn) {
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { isReplying = !isReplying }
+                                .padding(4.dp)
+                        } else {
+                            Modifier
+                        },
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ChatBubbleOutline,
+                        contentDescription = stringResource(R.string.reply),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    if (isSignedIn) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.reply),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
 
-                Spacer(modifier = Modifier.width(24.dp))
+                if (isSignedIn && comment.deleteParams != null) {
+                    Spacer(modifier = Modifier.width(24.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.delete_comment),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier =
+                            Modifier
+                                .size(14.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { showDeleteConfirm = true }
+                                .padding(4.dp),
+                    )
+                }
+            }
 
-                // Replies
-                Icon(
-                    imageVector = Icons.Outlined.ChatBubbleOutline,
-                    contentDescription = stringResource(R.string.reply),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(14.dp),
+            if (isReplying && isSignedIn) {
+                CommentComposer(
+                    hint = stringResource(R.string.reply_placeholder),
+                    isPosting = isPostingComment,
+                    onSend = { text ->
+                        isReplying = false
+                        onPostReply(comment, text)
+                    },
                 )
             }
 
@@ -744,6 +907,11 @@ fun FlowCommentItem(
                             onTimestampClick = onTimestampClick,
                             onAuthorClick = onAuthorClick,
                             onAvatarClick = onAvatarClick,
+                            isSignedIn = isSignedIn,
+                            isPostingComment = isPostingComment,
+                            onPostReply = onPostReply,
+                            onToggleLike = onToggleLike,
+                            onDeleteComment = onDeleteComment,
                         )
                     }
 
@@ -774,6 +942,11 @@ fun FlowReplyItem(
     onTimestampClick: (String) -> Unit,
     onAuthorClick: (String) -> Unit = {},
     onAvatarClick: (String) -> Unit = {},
+    isSignedIn: Boolean = false,
+    isPostingComment: Boolean = false,
+    onPostReply: (Comment, String) -> Unit = {},
+    onToggleLike: (Comment) -> Unit = {},
+    onDeleteComment: (Comment) -> Unit = {},
 ) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val onSurface = MaterialTheme.colorScheme.onSurface
@@ -788,11 +961,36 @@ fun FlowReplyItem(
         }
     var replyTextLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
     var showFullSizeImage by remember { mutableStateOf(false) }
+    var isReplying by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     if (showFullSizeImage) {
         FullSizeImageDialog(
             imageUrl = toHighQualityAvatarUrl(reply.authorThumbnail),
             onDismiss = { showFullSizeImage = false },
+        )
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.delete_comment)) },
+            text = { Text(stringResource(R.string.delete_comment_confirm)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onDeleteComment(reply)
+                    },
+                ) {
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
         )
     }
 
@@ -892,10 +1090,25 @@ fun FlowReplyItem(
             // Action Bar (Minimal for replies)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Outlined.ThumbUp,
+                    imageVector =
+                        if (reply.isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
                     contentDescription = stringResource(R.string.like),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(12.dp),
+                    tint =
+                        if (reply.isLiked) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    modifier =
+                        if (isSignedIn && reply.likeParams != null) {
+                            Modifier
+                                .size(12.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { onToggleLike(reply) }
+                                .padding(4.dp)
+                        } else {
+                            Modifier.size(12.dp)
+                        },
                 )
                 if (reply.likeCount > 0) {
                     Spacer(modifier = Modifier.width(4.dp))
@@ -905,6 +1118,57 @@ fun FlowReplyItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
+                if (isSignedIn) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier =
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { isReplying = !isReplying }
+                                .padding(4.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ChatBubbleOutline,
+                            contentDescription = stringResource(R.string.reply),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = stringResource(R.string.reply),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+
+                if (isSignedIn && reply.deleteParams != null) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.delete_comment),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier =
+                            Modifier
+                                .size(12.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { showDeleteConfirm = true }
+                                .padding(4.dp),
+                    )
+                }
+            }
+
+            if (isReplying && isSignedIn) {
+                CommentComposer(
+                    hint = stringResource(R.string.reply_placeholder),
+                    isPosting = isPostingComment,
+                    onSend = { text ->
+                        isReplying = false
+                        onPostReply(reply, text)
+                    },
+                )
             }
         }
     }

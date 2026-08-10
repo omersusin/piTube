@@ -104,6 +104,8 @@ fun ShortsScreen(
     var commentSortFilter by remember { mutableStateOf(CommentSortFilter.TOP) }
     val comments by viewModel.commentsState.collectAsState()
     val isLoadingComments by viewModel.isLoadingComments.collectAsState()
+    val isPostingComment by viewModel.isPostingComment.collectAsState()
+    val isGoogleSignedIn by audioLangPref.youtubeCookie.collectAsState(initial = null)
 
     fun relativeTimeToSeconds(timeStr: String): Long {
         val lower = timeStr.lowercase().trim()
@@ -356,6 +358,12 @@ fun ShortsScreen(
                 selectedFilter = commentSortFilter,
                 onFilterChanged = { commentSortFilter = it },
                 onLoadReplies = { viewModel.loadCommentReplies(it) },
+                isSignedIn = !isGoogleSignedIn.isNullOrBlank(),
+                isPostingComment = isPostingComment,
+                onPostComment = { text -> viewModel.postComment(text) },
+                onPostReply = { comment, text -> viewModel.postCommentReply(comment, text) },
+                onToggleLike = { comment -> viewModel.toggleCommentLike(comment) },
+                onDeleteComment = { comment -> viewModel.deleteComment(comment) },
                 onAuthorClick = { authorChannelRef ->
                     showCommentsSheet = false
                     onChannelClick(authorChannelRef)

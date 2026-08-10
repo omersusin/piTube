@@ -154,11 +154,13 @@ fun GlobalPlayerOverlay(
     val completeVideo = rememberCompleteVideo(video, playerUiState)
     val canGoPrevious by playerViewModel.canGoPrevious.collectAsStateWithLifecycle()
     val comments by playerViewModel.commentsState.collectAsStateWithLifecycle()
+    val isPostingComment by playerViewModel.isPostingComment.collectAsStateWithLifecycle()
     val isLoadingComments by playerViewModel.isLoadingComments.collectAsStateWithLifecycle()
     val hasMoreComments by playerViewModel.hasMoreComments.collectAsStateWithLifecycle()
     val isLoadingMoreComments by playerViewModel.isLoadingMoreComments.collectAsStateWithLifecycle()
 
     val playerPreferences = remember { PlayerPreferences(context) }
+    val isGoogleSignedIn by playerPreferences.youtubeCookie.collectAsState(initial = null)
     val brightnessSwipeGesturesEnabled by playerPreferences.brightnessSwipeGesturesEnabled.collectAsState(initial = true)
     val rememberBrightnessEnabled by playerPreferences.rememberBrightnessEnabled.collectAsState(initial = false)
     val rememberedBrightnessLevel by playerPreferences.rememberedBrightnessLevel.collectAsState(initial = -1f)
@@ -341,8 +343,7 @@ fun GlobalPlayerOverlay(
         screenState.dismissMediaSheets()
     }
 
-    LaunchedEffect(screenState.zoomIndicatorSequence) {
-        if (screenState.showZoomIndicator) {
+    LaunchedEffect(screenState.zoomIndicatorSequence) {        if (screenState.showZoomIndicator) {
             delay(if (screenState.zoomScale > 1.02f) 900 else 600)
             screenState.showZoomIndicator = false
         }
@@ -1605,6 +1606,17 @@ fun GlobalPlayerOverlay(
                             isLoadingMore = isLoadingMoreComments,
                             onLoadMore = { playerViewModel.loadMoreComments(video.id) },
                             hasMore = hasMoreComments,
+                            isSignedIn = !isGoogleSignedIn.isNullOrBlank(),
+                            isPostingComment = isPostingComment,
+                            onPostReply = { comment, text ->
+                                playerViewModel.postCommentReply(comment, text)
+                            },
+                            onToggleLike = { comment ->
+                                playerViewModel.toggleCommentLike(comment)
+                            },
+                            onDeleteComment = { comment ->
+                                playerViewModel.deleteComment(comment)
+                            },
                             modifier = Modifier.fillMaxWidth().weight(1f),
                         )
                     }
@@ -1697,6 +1709,12 @@ fun GlobalPlayerOverlay(
             onLoadMoreReplies = { comment ->
                 playerViewModel.loadMoreCommentReplies(comment)
             },
+            isSignedIn = !isGoogleSignedIn.isNullOrBlank(),
+            isPostingComment = isPostingComment,
+            onPostComment = { text -> playerViewModel.postComment(text) },
+            onPostReply = { comment, text -> playerViewModel.postCommentReply(comment, text) },
+            onToggleLike = { comment -> playerViewModel.toggleCommentLike(comment) },
+            onDeleteComment = { comment -> playerViewModel.deleteComment(comment) },
             onNavigateToChannel = { channelId ->
                 onNavigateToChannel(channelId)
             },

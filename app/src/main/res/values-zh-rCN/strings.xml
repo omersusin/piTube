@@ -231,6 +231,11 @@
     <string name="live_chat_hide">隐藏聊天</string>
     <string name="live_chat_jump_to_latest">跳转到最新聊天消息</string>
     <string name="comments">评论</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">热门</string>
     <string name="filter_newest">最新</string>
     <string name="filter_oldest">最早</string>

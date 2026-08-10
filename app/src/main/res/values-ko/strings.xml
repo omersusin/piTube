@@ -230,6 +230,11 @@
     <string name="live_chat_hide">채팅 숨기기</string>
     <string name="live_chat_jump_to_latest">최신 채팅 메시지로 이동</string>
     <string name="comments">댓글</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">인기순</string>
     <string name="filter_newest">최신순</string>
     <string name="filter_oldest">오래된순</string>

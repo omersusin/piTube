@@ -1073,6 +1073,11 @@
     <string name="copied_to_clipboard">تم نسخ %1$s</string>
     <string name="unknown">غير معروف</string>
     <string name="comments">التعليقات</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">الأفضل</string>
     <string name="filter_newest">الأحدث</string>
     <string name="no_comments_yet">لا تعليقات بعد</string>

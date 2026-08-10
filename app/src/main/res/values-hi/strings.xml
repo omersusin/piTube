@@ -155,6 +155,11 @@
     <string name="copied_to_clipboard">%1$s कॉपी किया गया</string>
     <string name="unknown">अज्ञात</string>
     <string name="comments">टिप्पणियाँ</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">शीर्ष</string>
     <string name="filter_newest">नवीनतम</string>
     <string name="no_comments_yet">अभी तक कोई टिप्पणी नहीं</string>

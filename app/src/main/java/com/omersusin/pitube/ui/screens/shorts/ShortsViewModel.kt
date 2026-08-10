@@ -72,6 +72,13 @@ class ShortsViewModel @Inject constructor(
     private val _isLoadingComments = MutableStateFlow(false)
     val isLoadingComments: StateFlow<Boolean> = _isLoadingComments.asStateFlow()
 
+    // Signed-in comment flow (Koda port): params for posting top-level
+    // comments come from the first signed comments page.
+    private var createCommentParams: String? = null
+
+    private val _isPostingComment = MutableStateFlow(false)
+    val isPostingComment: StateFlow<Boolean> = _isPostingComment.asStateFlow()
+
     private val _savedShortIds = MutableStateFlow<Set<String>>(emptySet())
 
     private val _snackbarMessage = MutableStateFlow<String?>(null)
@@ -481,7 +488,16 @@ class ShortsViewModel @Inject constructor(
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             _isLoadingComments.value = true
             _commentsState.value = emptyList()
+            createCommentParams = null
             try {
+                // Signed-in flow first (Koda port): carries the toolbar params
+                // needed for posting/liking. Falls back to NewPipe otherwise.
+                val signedPage = repository.getSignedComments(videoId)
+                if (signedPage != null) {
+                    _commentsState.value = signedPage.comments
+                    createCommentParams = signedPage.createCommentParams
+                    return@launch
+                }
                 val result = withTimeoutOrNull(10_000L) {
                     repository.getComments(videoId)
                 }
@@ -496,10 +512,28 @@ class ShortsViewModel @Inject constructor(
 
     fun loadCommentReplies(comment: com.omersusin.pitube.data.model.Comment) {
         val currentShort = _uiState.value.shorts.getOrNull(_uiState.value.currentIndex) ?: return
-        val repliesPage = comment.repliesPage ?: return
         
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
+                // Signed path first: the replies continuation token comes from
+                // the InnerTube parser; its next token lands back in
+                // continuationToken so follow-up loads keep working.
+                val repliesToken = comment.continuationToken
+                if (repliesToken != null) {
+                    val page = repository.getSignedCommentsPage(repliesToken)
+                    if (page != null) {
+                        _commentsState.value = _commentsState.value.map { c ->
+                            if (c.id == comment.id) {
+                                c.copy(
+                                    replies = page.comments,
+                                    continuationToken = page.continuation
+                                )
+                            } else c
+                        }
+                        return@launch
+                    }
+                }
+                val repliesPage = comment.repliesPage ?: return@launch
                 val url = "https://www.youtube.com/watch?v=${currentShort.id}"
                 val (replies, nextPage) = repository.getCommentReplies(url, repliesPage)
                 
@@ -514,6 +548,98 @@ class ShortsViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading replies", e)
             }
+        }
+    }
+
+    /** Post a top-level comment; the created comment is prepended to the list. */
+    fun postComment(text: String) {
+        val params = createCommentParams ?: return
+        if (text.isBlank() || _isPostingComment.value) return
+        viewModelScope.launch(PerformanceDispatcher.networkIO) {
+            _isPostingComment.value = true
+            try {
+                val created = repository.postComment(params, text)
+                if (created != null) {
+                    _commentsState.value = listOf(created) + _commentsState.value
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error posting comment", e)
+            } finally {
+                _isPostingComment.value = false
+            }
+        }
+    }
+
+    /** Post a reply to [comment]; the created reply is appended to its replies. */
+    fun postCommentReply(comment: com.omersusin.pitube.data.model.Comment, text: String) {
+        val replyParams = comment.replyParams ?: return
+        if (text.isBlank() || _isPostingComment.value) return
+        viewModelScope.launch(PerformanceDispatcher.networkIO) {
+            _isPostingComment.value = true
+            try {
+                val created = repository.postCommentReply(replyParams, text)
+                if (created != null) {
+                    // Replying to a reply: locate the top-level parent that
+                    // owns the comment and append to its replies list.
+                    _commentsState.value = _commentsState.value.map { c ->
+                        if (c.id == comment.id || c.replies.any { it.id == comment.id }) {
+                            c.copy(replies = c.replies + created)
+                        } else c
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error posting reply", e)
+            } finally {
+                _isPostingComment.value = false
+            }
+        }
+    }
+
+    /** Toggle like on a comment (optimistic, reverted on failure). */
+    fun toggleCommentLike(comment: com.omersusin.pitube.data.model.Comment) {
+        if (comment.likeParams == null || comment.unlikeParams == null) return
+        val wasLiked = comment.isLiked
+        val delta = if (wasLiked) -1 else 1
+        updateComment(comment.id) {
+            it.copy(
+                isLiked = !wasLiked,
+                likeCount = (it.likeCount + delta).coerceAtLeast(0),
+            )
+        }
+        viewModelScope.launch(PerformanceDispatcher.networkIO) {
+            val ok = repository.setCommentLiked(comment, !wasLiked)
+            if (!ok) {
+                updateComment(comment.id) {
+                    it.copy(
+                        isLiked = wasLiked,
+                        likeCount = (it.likeCount - delta).coerceAtLeast(0),
+                    )
+                }
+            }
+        }
+    }
+
+    /** Delete an own comment; removed from the list on success. */
+    fun deleteComment(comment: com.omersusin.pitube.data.model.Comment) {
+        if (comment.deleteParams == null) return
+        viewModelScope.launch(PerformanceDispatcher.networkIO) {
+            val ok = repository.deleteComment(comment)
+            if (ok) {
+                _commentsState.value = _commentsState.value
+                    .map { c ->
+                        if (c.id == comment.id) null else c.copy(replies = c.replies.filterNot { it.id == comment.id })
+                    }
+                    .filterNotNull()
+            }
+        }
+    }
+
+    private fun updateComment(
+        commentId: String,
+        transform: (com.omersusin.pitube.data.model.Comment) -> com.omersusin.pitube.data.model.Comment,
+    ) {
+        _commentsState.value = _commentsState.value.map { c ->
+            if (c.id == commentId) transform(c) else c
         }
     }
 

@@ -207,6 +207,11 @@
     <string name="app_logo_desc">Icono de la App</string>
     <string name="artist">Artista</string>
     <string name="comments">Comentarios</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_workout">Ejercicio</string>
     <string name="app_name">piTube</string>
     <string name="download_all">Descargar todo</string>

@@ -94,6 +94,11 @@
     <string name="duration">Kestus</string>
     <string name="unknown">Tundmatu</string>
     <string name="comments">Kommentaarid</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">Populaarsed</string>
     <string name="filter_newest">Uusimad</string>
     <string name="reply">Vasta</string>

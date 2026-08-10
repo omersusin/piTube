@@ -151,6 +151,11 @@
     <string name="unknown">Inconnu</string>
     <!-- Commentaires -->
     <string name="comments">Commentaires</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">Meilleurs</string>
     <string name="filter_newest">Les plus récents</string>
     <string name="no_comments_yet">Aucun commentaire pour l\'instant</string>

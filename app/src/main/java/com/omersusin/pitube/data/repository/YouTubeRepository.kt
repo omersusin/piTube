@@ -1085,6 +1085,75 @@ class YouTubeRepository
                 }
             }
 
+        data class SignedCommentsPage(
+            val comments: List<Comment>,
+            val continuation: String?,
+            val createCommentParams: String? = null,
+        )
+
+        private val isSignedIn: Boolean
+            get() = !YouTube.cookie.isNullOrBlank()
+
+        /**
+         * First page of a video's comments through the signed InnerTube flow
+         * (Koda port). Only usable with a stored session cookie; returns null
+         * otherwise so callers can fall back to the NewPipe extractor.
+         */
+        suspend fun getSignedComments(videoId: String): SignedCommentsPage? =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext null
+                val token = YouTube.videoCommentsToken(videoId).getOrNull() ?: return@withContext null
+                if (token.isNullOrBlank()) return@withContext null
+                val page = YouTube.videoCommentsPage(token).getOrNull() ?: return@withContext null
+                SignedCommentsPage(
+                    comments = page.comments,
+                    continuation = page.continuation,
+                    createCommentParams = page.createCommentParams,
+                )
+            }
+
+        /** Next page of top-level comments (or a replies page) from a continuation token. */
+        suspend fun getSignedCommentsPage(continuation: String): SignedCommentsPage? =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext null
+                val page = YouTube.videoCommentsPage(continuation).getOrNull() ?: return@withContext null
+                SignedCommentsPage(
+                    comments = page.comments,
+                    continuation = page.continuation,
+                )
+            }
+
+        /** Post a top-level comment; returns the created comment or null on failure. */
+        suspend fun postComment(createCommentParams: String, text: String): Comment? =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext null
+                YouTube.createComment(createCommentParams, text).getOrNull()
+            }
+
+        /** Post a reply to a comment; returns the created comment or null on failure. */
+        suspend fun postCommentReply(replyParams: String, text: String): Comment? =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext null
+                YouTube.createCommentReply(replyParams, text).getOrNull()
+            }
+
+        /** Like/unlike a comment via its toolbar action params. Returns true on success. */
+        suspend fun setCommentLiked(comment: Comment, liked: Boolean): Boolean =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext false
+                val action = if (liked) comment.likeParams else comment.unlikeParams
+                    ?: return@withContext false
+                YouTube.performCommentAction(action).getOrDefault(false)
+            }
+
+        /** Delete a comment (own comments only) via its menu action params. */
+        suspend fun deleteComment(comment: Comment): Boolean =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext false
+                val action = comment.deleteParams ?: return@withContext false
+                YouTube.performCommentAction(action).getOrDefault(false)
+            }
+
         /**
          * Fetch playlist details
          */

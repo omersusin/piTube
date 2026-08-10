@@ -71,6 +71,12 @@ import com.omersusin.pitube.innertube.pages.toSearchVideosPage
 import com.omersusin.pitube.innertube.pages.toCommunityCommentsPage
 import com.omersusin.pitube.innertube.pages.toCommunityPostsPage
 import com.omersusin.pitube.innertube.pages.toShortsPage
+import com.omersusin.pitube.innertube.pages.VideoCommentsPage
+import com.omersusin.pitube.innertube.pages.hasSucceededActionResult
+import com.omersusin.pitube.innertube.pages.toCreatedVideoComment
+import com.omersusin.pitube.innertube.pages.toVideoCommentsPage
+import com.omersusin.pitube.innertube.pages.toVideoCommentsToken
+import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 import android.util.Log
@@ -85,9 +91,11 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.jsonArrayOf
 import java.net.Proxy
 import java.util.Locale
 import kotlin.random.Random
@@ -689,6 +697,114 @@ object YouTube {
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
         return parseChannelVideosResponse(response, "", "", "", false)
     }
+
+    // ============================================================
+    // Comments (signed-in, Koda port). Reads and writes go through
+    // signed POSTs on www.youtube.com so the session cookie and a
+    // matching SAPISIDHASH are attached; the minimal webContext pins
+    // hl=en so the "Delete" menu label match stays stable.
+    // ============================================================
+
+    /**
+     * Initial comments continuation token for a video's comment section.
+     * Extracted from the signed `next` response's comment-item-section.
+     */
+    suspend fun videoCommentsToken(videoId: String): Result<String?> = runCatching {
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = "next",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("videoId", videoId)
+            },
+        )
+        Json.parseToJsonElement(httpResponse.bodyAsText()).toVideoCommentsToken()
+    }
+
+    /** One page of comments (top-level or replies) from a continuation token. */
+    suspend fun videoCommentsPage(token: String): Result<VideoCommentsPage> = runCatching {
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = "next",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("continuation", token)
+            },
+        )
+        Json.parseToJsonElement(httpResponse.bodyAsText()).toVideoCommentsPage()
+    }
+
+    /**
+     * Post a new top-level comment. [createCommentParams] comes from the first
+     * comments page (VideoCommentsPage.createCommentParams). Returns the
+     * created comment parsed from the response, or null on failure.
+     */
+    suspend fun createComment(
+        createCommentParams: String,
+        text: String,
+    ): Result<Comment?> = runCatching {
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = "comment/create_comment",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("commentText", text)
+                put("createCommentParams", createCommentParams)
+            },
+        )
+        Json.parseToJsonElement(httpResponse.bodyAsText()).toCreatedVideoComment()
+    }
+
+    /** Post a reply to a comment. [replyParams] comes from the parent comment. */
+    suspend fun createCommentReply(
+        replyParams: String,
+        text: String,
+    ): Result<Comment?> = runCatching {
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = "comment/create_comment_reply",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("commentText", text)
+                put("createReplyParams", replyParams)
+            },
+        )
+        Json.parseToJsonElement(httpResponse.bodyAsText()).toCreatedVideoComment()
+    }
+
+    /**
+     * Execute a comment toolbar action (like/unlike/delete). The action param
+     * comes from the comment's toolbar surface. Requires login.
+     */
+    suspend fun performCommentAction(action: String): Result<Boolean> = runCatching {
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = "comment/perform_comment_action",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("actions", jsonArrayOf(action))
+            },
+        )
+        Json.parseToJsonElement(httpResponse.bodyAsText()).hasSucceededActionResult()
+    }
+
+    private fun commentWebContext(client: YouTubeClient): JsonObject =
+        buildJsonObject {
+            put(
+                "client",
+                buildJsonObject {
+                    put("clientName", "WEB")
+                    put("clientVersion", client.clientVersion)
+                    put("hl", "en")
+                    put("gl", "US")
+                },
+            )
+        }
 
     suspend fun communityPostCommentsContinuation(
         continuation: String,

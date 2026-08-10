@@ -182,6 +182,11 @@
     <string name="subscriptions_music_badge_cd">Subskrybcje muzyki</string>
     <string name="no_subscriptions_found">Nie znaleziono subskrypcji</string>
     <string name="comments">Komentarze</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_newest">Najnowsze</string>
     <string name="filter_oldest">Najstarsze</string>
     <string name="no_comments_yet">Brak komentarzy</string>

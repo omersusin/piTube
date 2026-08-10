@@ -179,6 +179,11 @@
     <string name="subscriptions_music_badge_cd">Müzik aboneliği</string>
     <string name="no_subscriptions_found">Abonelikler bulunamadı</string>
     <string name="comments">Yorumlar</string>
+    <string name="comment_hint">Add a comment...</string>
+    <string name="reply_placeholder">Add a reply...</string>
+    <string name="delete_comment">Delete comment</string>
+    <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
+    <string name="send">Send</string>
     <string name="filter_top">En popüler</string>
     <string name="filter_newest">En yeni</string>
     <string name="filter_oldest">En eski</string>
