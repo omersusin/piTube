@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Flow</string>
+    <string name="app_name">piTube</string>
     <string name="subscriptions_search_placeholder">සබ්ක්‍රිප්ශන්ස් හොයන්න...</string>
     <string name="subscriptions_sort_label">නාලිකා වර්ග කරන්න</string>
     <string name="subscriptions_sort_default">පෙරනිමිය</string>

@@ -212,11 +212,11 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="io.github.aedev.flow.action.CANCEL_DOWNLOAD" />
-                <action android:name="io.github.aedev.flow.action.RETRY_DOWNLOAD" />
-                <action android:name="io.github.aedev.flow.action.PAUSE_DOWNLOAD" />
-                <action android:name="io.github.aedev.flow.action.RESUME_DOWNLOAD" />
-                <action android:name="io.github.aedev.flow.action.DISMISS_NOTIFICATION" />
+                <action android:name="com.omersusin.pitube.action.CANCEL_DOWNLOAD" />
+                <action android:name="com.omersusin.pitube.action.RETRY_DOWNLOAD" />
+                <action android:name="com.omersusin.pitube.action.PAUSE_DOWNLOAD" />
+                <action android:name="com.omersusin.pitube.action.RESUME_DOWNLOAD" />
+                <action android:name="com.omersusin.pitube.action.DISMISS_NOTIFICATION" />
             </intent-filter>
         </receiver>
 

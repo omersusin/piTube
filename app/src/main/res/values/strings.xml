@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Flow</string>
+    <string name="app_name">piTube</string>
     <string name="subscriptions_search_placeholder">Search subscriptions...</string>
     <string name="subscriptions_sort_label">Sort channels</string>
     <string name="subscriptions_sort_default">Default</string>
@@ -25,7 +25,7 @@
     <string name="copy_logs">Copy logs</string>
     <string name="logs_copied">Logs copied</string>
     <string name="logs_copy_failed">Couldn\'t copy logs</string>
-    <string name="channel_error_log_clip_label">Flow channel error log</string>
+    <string name="channel_error_log_clip_label">piTube channel error log</string>
     <string name="shorts">Shorts</string>
     <string name="failed_to_load_channel">Failed to load channel</string>
     <string name="subscribers">Subscribers</string>
@@ -51,7 +51,7 @@
     <string name="local_media_empty_title">No %1$s found</string>
     <string name="local_media_empty_body">Videos and music stored on this device will appear here.</string>
     <string name="local_media_permission_title">Permission needed</string>
-    <string name="local_media_permission_body">Allow access to your media so Flow can find and play local videos and music.</string>
+    <string name="local_media_permission_body">Allow access to your media so piTube can find and play local videos and music.</string>
     <string name="local_media_grant">Grant access</string>
     <string name="library_settings_data_header"><![CDATA[Settings & Data]]></string>
     <string name="library_manage_data_label">Manage Data</string>
@@ -264,7 +264,7 @@
     <string name="new_update_available">New Update Available</string>
     <string name="update_available_template">%1$s is now available</string>
     <string name="release_notes">RELEASE NOTES</string>
-    <string name="update_flow">Update Flow</string>
+    <string name="update_flow">Update piTube</string>
     <string name="maybe_later">Maybe later</string>
     <!-- Navigation -->
     <string name="nav_home">Home</string>
@@ -311,7 +311,7 @@
     <string name="artist">Artist</string>
     <string name="playlist">Playlist</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
-    <string name="app_name_uppercase">FLOW</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Your personalized feed</string>
     <string name="videos_curated_template">%1$d videos curated just for you</string>
@@ -423,7 +423,7 @@
     <string name="settings_analyzing_interactions">Analyzing your interactions...</string>
     <string name="settings_view_analytics">View Analytics</string>
     <!-- Deep Flow Mode -->
-    <string name="deep_flow_mode_title">Deep Flow Mode</string>
+    <string name="deep_flow_mode_title">Deep piTube Mode</string>
     <string name="deep_flow_mode_subtitle">Pause learning — browse without influencing your profile</string>
     <string name="deep_flow_learning_paused">LEARNING PAUSED</string>
     <string name="deep_flow_expires_in">Expires in %s</string>
@@ -433,10 +433,10 @@
     <string name="deep_flow_save_history_subtitle">Keep watched videos in history (with progress). The engine still won\'t learn from them. Off = nothing is saved.</string>
     <string name="deep_flow_dialog_title">Pause Duration</string>
     <string name="deep_flow_dialog_body">How long should learning stay paused?</string>
-    <string name="deep_flow_enabled_message">Deep Flow enabled</string>
-    <string name="deep_flow_disabled_message">Deep Flow disabled</string>
-    <string name="deep_flow_expired_message">Deep Flow timer ended</string>
-    <string name="deep_flow_active_until_disabled">Deep Flow stays active until you turn it off</string>
+    <string name="deep_flow_enabled_message">Deep piTube enabled</string>
+    <string name="deep_flow_disabled_message">Deep piTube disabled</string>
+    <string name="deep_flow_expired_message">Deep piTube timer ended</string>
+    <string name="deep_flow_active_until_disabled">Deep piTube stays active until you turn it off</string>
     <string name="deep_flow_duration_never">Never</string>
     <string name="deep_flow_duration_1h">1 hour</string>
     <string name="deep_flow_duration_2h">2 hours</string>
@@ -452,7 +452,7 @@
     <string name="settings_header_about">About</string>
     <string name="settings_header_notifications">Notifications</string>
     <string name="settings_item_notifications">Notification Preferences</string>
-    <string name="settings_item_notifications_subtitle">Control which notifications Flow can send</string>
+    <string name="settings_item_notifications_subtitle">Control which notifications piTube can send</string>
     <string name="notif_settings_title">Notification Preferences</string>
     <string name="notif_type_new_videos">New Videos</string>
     <string name="notif_type_new_videos_subtitle">Notify when subscribed channels upload new videos</string>
@@ -461,21 +461,21 @@
     <string name="notif_type_reminders">Screen Time Reminders</string>
     <string name="notif_type_reminders_subtitle">Bedtime and break reminders from Time Management</string>
     <string name="notif_type_updates">App Updates</string>
-    <string name="notif_type_updates_subtitle">Get notified when a new version of Flow is available</string>
+    <string name="notif_type_updates_subtitle">Get notified when a new version of piTube is available</string>
     <string name="notif_type_general">General Notifications</string>
     <string name="notif_type_general_subtitle">Miscellaneous app alerts and announcements</string>
     <string name="notif_system_settings">System Notification Settings</string>
     <string name="notif_system_settings_subtitle">Open Android settings to manage per-channel permissions</string>
     <string name="notif_check_interval_section_header">Feed Check Schedule</string>
     <string name="notif_master_toggle">Enable notifications</string>
-    <string name="notif_master_toggle_subtitle">Allow Flow to wake up in the background for notification checks and alerts</string>
+    <string name="notif_master_toggle_subtitle">Allow piTube to wake up in the background for notification checks and alerts</string>
     <string name="notif_background_restricted_title">Background checks are restricted</string>
-    <string name="notif_background_restricted_subtitle">Android is blocking Flow from checking for new videos while it is closed, so alerts only arrive when you open the app. Tap to allow unrestricted background activity.</string>
+    <string name="notif_background_restricted_subtitle">Android is blocking piTube from checking for new videos while it is closed, so alerts only arrive when you open the app. Tap to allow unrestricted background activity.</string>
     <string name="notif_check_interval">New Video Check Interval</string>
     <string name="notif_check_interval_subtitle_template">Check every %s</string>
     <string name="notif_check_interval_disabled">Background notification checks are disabled</string>
     <string name="notif_check_interval_dialog_title">Check Interval</string>
-    <string name="notif_check_interval_dialog_body">How often Flow checks for new videos from your subscribed channels.</string>
+    <string name="notif_check_interval_dialog_body">How often piTube checks for new videos from your subscribed channels.</string>
     <string name="notif_interval_15m">15 minutes</string>
     <string name="notif_interval_30m">30 minutes</string>
     <string name="notif_interval_1h">1 hour</string>
@@ -510,10 +510,10 @@
     <string name="settings_item_export_data_subtitle">Backup your data</string>
     <string name="settings_item_import_data">Import Data</string>
     <string name="settings_item_import_data_subtitle">Restore from backup or import from other apps</string>
-    <string name="settings_item_about_flow">About Flow</string>
+    <string name="settings_item_about_flow">About piTube</string>
     <string name="settings_item_about_flow_subtitle">Version, License, Contributors</string>
     <string name="settings_item_support">Support &amp; Donations</string>
-    <string name="settings_item_support_subtitle">Help support the development of Flow</string>
+    <string name="settings_item_support_subtitle">Help support the development of piTube</string>
     <string name="settings_region_dialog_title">Select Region</string>
     <string name="settings_language_dialog_title">Select App Language</string>
     <string name="settings_language_system_default">System default</string>
@@ -521,7 +521,7 @@
     <string name="settings_export_failed">Export failed: %1$s</string>
     <!-- Appearance Screen -->
     <string name="appearance_title">Appearance</string>
-    <string name="appearance_subtitle">Personalize your Flow experience</string>
+    <string name="appearance_subtitle">Personalize your piTube experience</string>
     <string name="appearance_current_theme">CURRENT THEME</string>
     <string name="appearance_category_all">All</string>
     <string name="appearance_category_light">Light</string>
@@ -593,9 +593,9 @@
     <string name="app_icon_picker_subtitle">Choose a launcher icon style. The change takes effect immediately and the launcher will briefly refresh.</string>
     <string name="app_icon_picker_warning">Heads up: switching icons uses an Android system mechanism that may briefly remove the app shortcut from your home screen. Long-press the launcher to add it back if needed.</string>
     <string name="app_icon_apply_toast">Icon updated - your launcher will refresh</string>
-    <string name="icon_name_flow_red">Flow Red</string>
-    <string name="icon_name_flow_light">Flow Light</string>
-    <string name="icon_name_flow_play">Flow Play</string>
+    <string name="icon_name_flow_red">piTube Red</string>
+    <string name="icon_name_flow_light">piTube Light</string>
+    <string name="icon_name_flow_play">piTube Play</string>
     <string name="icon_name_amoled">AMOLED Dark</string>
     <string name="icon_name_monochrome">Monochrome</string>
     <string name="icon_name_ghost">Ghost</string>
@@ -689,7 +689,7 @@
     <string name="theme_name_cream_paper">Cream Paper</string>
     <string name="theme_desc_cream_paper">Warm &amp; cozy</string>
     <string name="theme_name_classic_dark">Classic</string>
-    <string name="theme_desc_classic_dark">Flow’s original palette</string>
+    <string name="theme_desc_classic_dark">piTube’s original palette</string>
     <string name="theme_name_true_black">True Black</string>
     <string name="theme_desc_true_black">Pure OLED</string>
     <string name="theme_name_monochrome">Monochrome</string>
@@ -778,7 +778,7 @@
     <string name="content_settings_video_card_mark_watched_title">Video card mark as watched button</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Show an eye button on full and compact video cards to quickly mark videos as watched</string>
     <string name="content_settings_show_app_logo_title">Show app logo icon</string>
-    <string name="content_settings_show_app_logo_subtitle">Display the Flow logo icon next to the app name in the home screen top bar</string>
+    <string name="content_settings_show_app_logo_subtitle">Display the piTube logo icon next to the app name in the home screen top bar</string>
     <string name="content_settings_header_content_components">Content Components</string>
     <string name="content_settings_restored_music_mini_player_title">Show restored music mini player</string>
     <string name="content_settings_restored_music_mini_player_subtitle">Automatically show your last music session after it is restored</string>
@@ -1076,7 +1076,7 @@
     <string name="topics_count_template">%1$d topics</string>
     <string name="hidden_count_template">%1$d hidden</string>
     <string name="your_interests_title">Your Interests</string>
-    <string name="your_interests_desc">Topics you\'ve selected help Flow recommend better content. Tap topics below to add or remove them.</string>
+    <string name="your_interests_desc">Topics you\'ve selected help piTube recommend better content. Tap topics below to add or remove them.</string>
     <string name="currently_following">Currently Following</string>
     <string name="tap_to_remove">Tap to remove</string>
     <string name="add_topics">Add Topics</string>
@@ -1176,14 +1176,14 @@
     <string name="days_count_template">%1$d days</string>
     <!-- Import Data Screen -->
     <string name="import_data_title">Import Data</string>
-    <string name="import_flow_backup_success">Flow backup imported successfully</string>
-    <string name="import_flow_backup_failed_template">Failed to import Flow backup: %1$s</string>
+    <string name="import_flow_backup_success">piTube backup imported successfully</string>
+    <string name="import_flow_backup_failed_template">Failed to import piTube backup: %1$s</string>
     <string name="import_newpipe_success_template">Imported %1$d subscriptions from NewPipe</string>
     <string name="import_newpipe_failed_template">Failed to import NewPipe backup: %1$s</string>
     <string name="import_youtube_success_template">Imported %1$d subscriptions from YouTube</string>
     <string name="import_youtube_failed_template">Failed to import YouTube backup: %1$s</string>
-    <string name="import_flow_backup_item_title">Import Flow Backup</string>
-    <string name="import_flow_backup_desc">Restore your history, settings, and subscriptions from a Flow backup file.</string>
+    <string name="import_flow_backup_item_title">Import piTube Backup</string>
+    <string name="import_flow_backup_desc">Restore your history, settings, and subscriptions from a piTube backup file.</string>
     <string name="import_from_newpipe">Import from NewPipe</string>
     <string name="import_from_newpipe_desc">Import subscriptions from a NewPipe export file (JSON).</string>
     <string name="import_from_libretube">Import from LibreTube</string>
@@ -1259,8 +1259,8 @@
     <string name="location_dialog_subtitle">Choose where downloaded files are saved on your device.</string>
     <string name="location_preset_header">Preset Locations</string>
     <string name="location_custom_header">Custom Location</string>
-    <string name="location_downloads_label">Downloads / Flow</string>
-    <string name="location_movies_label">Movies / Flow</string>
+    <string name="location_downloads_label">Downloads / piTube</string>
+    <string name="location_movies_label">Movies / piTube</string>
     <string name="location_internal_app_label">Internal App Storage</string>
     <string name="location_internal_app_desc">Private to the app — files may be deleted if you uninstall</string>
     <string name="location_custom_saf_label">Browse…</string>
@@ -1276,15 +1276,15 @@
     <string name="threads_count_label">%1$d threads</string>
     <!-- Donations Screen -->
     <string name="support_donations_title">Support &amp; Donations</string>
-    <string name="support_flow_dev_title">Support Flow Development</string>
-    <string name="support_flow_dev_desc">If you find Flow useful and would like to support its development, you can support it on Patreon or donate via the crypto addresses below. Your support helps keep the project alive!</string>
-    <string name="support_flow_patreon">Support Flow on Patreon</string>
+    <string name="support_flow_dev_title">Support piTube Development</string>
+    <string name="support_flow_dev_desc">If you find piTube useful and would like to support its development, you can support it on Patreon or donate via the crypto addresses below. Your support helps keep the project alive!</string>
+    <string name="support_flow_patreon">Support piTube on Patreon</string>
     <string name="thank_you_support_message">Thank you for your support! ❤️</string>
     <string name="address_copied_toast">Address copied to clipboard</string>
     <string name="donation_address_clip_label">Donation Address</string>
     <!-- One-time support prompt -->
-    <string name="donation_prompt_title">Enjoying Flow?</string>
-    <string name="donation_prompt_message">Flow is free, open-source, and built without ads or trackers. If it has earned a place on your device, please consider supporting its development — it genuinely helps keep the project alive.</string>
+    <string name="donation_prompt_title">Enjoying piTube?</string>
+    <string name="donation_prompt_message">piTube is free, open-source, and built without ads or trackers. If it has earned a place on your device, please consider supporting its development — it genuinely helps keep the project alive.</string>
     <string name="donation_prompt_methods">Patreon · Bitcoin · Ethereum · Solana · USDT · Monero</string>
     <string name="donation_prompt_support">Support development</string>
     <string name="donation_prompt_later">Maybe later</string>
@@ -1295,14 +1295,14 @@
     <string name="about_website">Website</string>
     <string name="about_website_address">flow.aedev.me</string>
     <string name="about_reddit">Reddit</string>
-    <string name="about_reddit_subtitle">r/Flow_Official</string>
+    <string name="about_reddit_subtitle">r/piTube_Official</string>
     <string name="github_subtitle">Source code &amp; Issues</string>
     <string name="newpipe_extractor_title">NewPipe Extractor</string>
     <string name="newpipe_extractor_subtitle">Core extraction library</string>
     <string name="about_license">License</string>
     <string name="about_license_name">GNU GPL v3</string>
     <string name="about_changelog">Changelog</string>
-    <string name="whats_new_in_flow">What\'s new in Flow</string>
+    <string name="whats_new_in_flow">What\'s new in piTube</string>
     <string name="about_device_info">Device Info</string>
     <string name="gnu_license_full_title">GNU General Public License</string>
     <string name="loading_ellipsis">Loading...</string>
@@ -1357,7 +1357,7 @@
     <string name="remove_selected_playlist_text">They will be removed from this playlist.</string>
     <string name="remove_selected_watch_later_text">They will be removed from Watch later.</string>
     <!-- Onboarding -->
-    <string name="welcome_to_flow">Welcome to Flow</string>
+    <string name="welcome_to_flow">Welcome to piTube</string>
     <string name="onboarding_welcome_subtitle">Watch, subscribe and enjoy — your feed is ready.</string>
     <string name="onboarding_btn_skip">Skip</string>
     <string name="onboarding_btn_finish">Finish</string>
@@ -1610,7 +1610,7 @@
     <string name="check_for_updates">Check for Updates</string>
     <string name="check_for_updates_subtitle">Tap to check for the latest version</string>
     <string name="checking_for_updates">Checking for updates…</string>
-    <string name="flow_is_up_to_date">Flow is up to date!</string>
+    <string name="flow_is_up_to_date">piTube is up to date!</string>
     <string name="update_check_failed">Couldn\'t check for updates. Check your connection.</string>
     <!-- Export / Import Flow Engine data (Settings + ImportDataScreen) -->
     <!-- Master Backup -->
@@ -1655,7 +1655,7 @@
     <string name="sync_qr_scan_on_target_receiving">Scan this on the device you\'re receiving from</string>
     <string name="sync_confirmation_code">Confirmation code: %1$s</string>
     <string name="sync_expires_in">Expires in %1$ds</string>
-    <string name="sync_qr_network_note">Both devices must be on the same Wi-Fi (or one device\'s hotspot). You may need to allow Flow through a firewall.</string>
+    <string name="sync_qr_network_note">Both devices must be on the same Wi-Fi (or one device\'s hotspot). You may need to allow piTube through a firewall.</string>
     <string name="sync_sas_title">Do the codes match?</string>
     <string name="sync_sas_body">Confirm this 6-digit code is identical on both devices before continuing.</string>
     <string name="sync_sas_differ">They differ</string>
@@ -1679,7 +1679,7 @@
     <string name="sync_error_peer_also_receive">The other device is also set to Receive. Set it to Send, then scan again.</string>
     <string name="sync_error_qr_expired">This QR code has expired. Ask the other device to show a fresh one.</string>
     <string name="sync_error_qr_wrong_version">Incompatible app version on the other device.</string>
-    <string name="sync_error_qr_not_flow">That doesn\'t look like a Flow sync code.</string>
+    <string name="sync_error_qr_not_flow">That doesn\'t look like a piTube sync code.</string>
     <string name="sync_error_qr_bad_address">The sync code is missing a valid network address.</string>
     <!-- Automated Backups -->
     <string name="auto_backup_title">Automated Backups</string>
@@ -1733,7 +1733,7 @@
     <string name="error_not_available">Video not available</string>
     <string name="error_not_available_hint">This video may have been deleted, made private, or removed by YouTube.</string>
     <string name="error_not_supported">Content type not supported</string>
-    <string name="error_not_supported_hint">This format or content type cannot be played in Flow.</string>
+    <string name="error_not_supported_hint">This format or content type cannot be played in piTube.</string>
     <string name="error_no_internet">No internet connection</string>
     <string name="error_no_internet_hint">Check your Wi-Fi or mobile data and try again.</string>
     <string name="error_timeout">Connection timed out</string>
@@ -1751,7 +1751,7 @@
     <string name="error_playback_failed">Playback failed</string>
     <string name="error_playback_failed_hint">An unexpected player error occurred. Please try again.</string>
     <string name="error_extraction_failed">Failed to parse video data</string>
-    <string name="error_extraction_failed_hint">YouTube may have updated its format. Flow will be updated soon — please try again later.</string>
+    <string name="error_extraction_failed_hint">YouTube may have updated its format. piTube will be updated soon — please try again later.</string>
     <string name="error_generic">Failed to load video</string>
     <string name="error_generic_hint">An unknown error occurred. Please try again.</string>
     <string name="music_playback_warning_forbidden">Music stream access was denied. YouTube may be limiting this IP; try reloading or switching network/VPN.</string>
@@ -1925,7 +1925,7 @@
     <string name="speed_normal">Normal</string>
     <!-- Export / delete watch history (#507) -->
     <string name="export_watch_history_title">Watch history</string>
-    <string name="export_watch_history_desc">Export as YouTube-history JSON (imports into LibreTube and Flow)</string>
+    <string name="export_watch_history_desc">Export as YouTube-history JSON (imports into LibreTube and piTube)</string>
     <string name="history_export_failed">Failed to export watch history</string>
     <string name="history_delete_shorts">Delete Shorts from history</string>
     <string name="history_delete_shorts_title">Delete Shorts?</string>
@@ -1939,7 +1939,7 @@
     <string name="no_match_found">No match found</string>
     <string name="recognition_error">Recognition failed</string>
     <string name="try_again">Try again</string>
-    <string name="search_in_flow">Search in Flow</string>
+    <string name="search_in_flow">Search in piTube</string>
     <string name="recognition_search_history">Search recognized songs</string>
     <string name="recognition_history_empty">Recognized songs will appear here</string>
     <string name="recognition_clear_history">Clear history?</string>
@@ -1966,20 +1966,20 @@
     <string name="discord_presence_disconnect">Disconnect and unlink</string>
     <string name="discord_presence_unlink_action">Unlink</string>
     <string name="discord_presence_retry">Retry connection</string>
-    <string name="discord_presence_description">Show what you are playing in Flow as your Discord Rich Presence.</string>
+    <string name="discord_presence_description">Show what you are playing in piTube as your Discord Rich Presence.</string>
     <string name="discord_presence_connection_section">Connection</string>
     <string name="discord_presence_account">Discord account</string>
     <string name="discord_presence_privacy_section">Privacy and account risk</string>
     <string name="discord_presence_privacy_title">Privacy</string>
-    <string name="discord_presence_privacy_body">When enabled, Flow shares the playing video, Short, live stream, or song title, creator or artist, artwork, and playback timing with Discord. The setting is off by default. Your Discord session token is encrypted with Android Keystore and never added to app logs.</string>
-    <string name="discord_presence_gateway_warning">Flow uses an unofficial self-bot connection with your Discord account token, not OAuth. This violates Discord\'s Terms of Service and can lead to account suspension or termination. Unsupported clients may also trigger token-leak alerts, password resets, CAPTCHAs, or phone-verification locks.</string>
+    <string name="discord_presence_privacy_body">When enabled, piTube shares the playing video, Short, live stream, or song title, creator or artist, artwork, and playback timing with Discord. The setting is off by default. Your Discord session token is encrypted with Android Keystore and never added to app logs.</string>
+    <string name="discord_presence_gateway_warning">piTube uses an unofficial self-bot connection with your Discord account token, not OAuth. This violates Discord\'s Terms of Service and can lead to account suspension or termination. Unsupported clients may also trigger token-leak alerts, password resets, CAPTCHAs, or phone-verification locks.</string>
     <string name="discord_presence_risk_dialog_title">Accept Discord account risk?</string>
-    <string name="discord_presence_risk_dialog_body">Connecting signs in through Discord and gives Flow your Discord account token. Flow stores it with Android Keystore encryption and sends it only to Discord, but this unofficial self-bot method violates Discord\'s Terms of Service. Discord may suspend or terminate your account, require a password reset, show CAPTCHAs, or lock the account behind phone verification.</string>
+    <string name="discord_presence_risk_dialog_body">Connecting signs in through Discord and gives piTube your Discord account token. piTube stores it with Android Keystore encryption and sends it only to Discord, but this unofficial self-bot method violates Discord\'s Terms of Service. Discord may suspend or terminate your account, require a password reset, show CAPTCHAs, or lock the account behind phone verification.</string>
     <string name="discord_presence_risk_accept">I understand, connect</string>
     <string name="discord_error_not_initialized">Discord Rich Presence has not initialized.</string>
     <string name="discord_error_enable_before_connect">Enable Discord Rich Presence before connecting an account.</string>
     <string name="discord_error_unavailable">Discord Rich Presence is unavailable in this build.</string>
-    <string name="discord_error_open_flow">Open Flow before connecting Discord.</string>
+    <string name="discord_error_open_flow">Open piTube before connecting Discord.</string>
     <string name="discord_error_connection_in_progress">A Discord connection is already in progress.</string>
     <string name="discord_error_login_timeout">Discord sign-in timed out.</string>
     <string name="discord_error_login_cancelled">Discord connection was cancelled.</string>
@@ -1993,7 +1993,7 @@
     <string name="discord_error_heartbeat_unacknowledged">Discord Gateway heartbeat was not acknowledged.</string>
     <string name="discord_error_heartbeat_failed">Discord Gateway heartbeat failed.</string>
     <string name="discord_account_fallback">Discord user</string>
-    <string name="discord_presence_playing_fallback">Playing in Flow</string>
+    <string name="discord_presence_playing_fallback">Playing in piTube</string>
     <string name="discord_presence_by_creator">by %1$s</string>
 
     <!-- Android TV -->
@@ -2060,7 +2060,7 @@
     <string name="tv_settings_sync">Sync devices</string>
     <string name="tv_sync_qr_session_active">This code stays active while this screen is open.</string>
     <string name="tv_remote_guide_title">Remote &amp; keypad guide</string>
-    <string name="tv_remote_guide_subtitle">A quick reference for navigating Flow from the couch</string>
+    <string name="tv_remote_guide_subtitle">A quick reference for navigating piTube from the couch</string>
     <string name="tv_remote_guide_back">Back to settings</string>
     <string name="tv_guide_navigation_title">Navigation</string>
     <string name="tv_guide_search_title">Search &amp; browse</string>
@@ -2107,9 +2107,9 @@
 
     <!-- Home-screen widgets -->
     <string name="widget_now_playing_label">Now Playing</string>
-    <string name="widget_now_playing_description">Control the music that\'s playing in Flow</string>
+    <string name="widget_now_playing_description">Control the music that\'s playing in piTube</string>
     <string name="widget_quick_actions_label">Quick actions</string>
-    <string name="widget_quick_actions_description">Search Flow and jump to downloads, history, or recognition</string>
+    <string name="widget_quick_actions_description">Search piTube and jump to downloads, history, or recognition</string>
     <string name="widget_recognize_label">Recognize music</string>
     <string name="widget_recognize_description">Identify the song playing around you with one tap</string>
     <string name="widget_turntable_label">Turntable</string>
@@ -2144,7 +2144,7 @@
     <string name="ui_navigate">Navigate</string>
     <string name="ui_options">Options</string>
     <string name="ui_selected">Selected</string>
-    <string name="ui_flow_logo">Flow logo</string>
+    <string name="ui_flow_logo">piTube logo</string>
     <string name="ui_list_view">List view</string>
     <string name="ui_grid_view">Grid view</string>
     <string name="ui_back">Back</string>
@@ -2167,7 +2167,7 @@
     <string name="ui_no_crash_logs">No crash logs</string>
     <string name="ui_copy_log">Copy Log</string>
     <string name="ui_clear_and_continue">Clear &amp; Continue</string>
-    <string name="ui_crashed_last_session">Flow crashed last session</string>
+    <string name="ui_crashed_last_session">piTube crashed last session</string>
     <string name="ui_copy_log_description">Copy the log below and paste it into a GitHub issue so it can be fixed.</string>
     <string name="ui_search_settings">Search settings…</string>
     <string name="ui_custom_interest_title">Add Custom Interest</string>
@@ -2175,7 +2175,7 @@
     <string name="ui_custom_interest_hint">Custom interest (e.g. Jazz, Astrophysics)</string>
     <string name="ui_add_interest">Add interest</string>
     <string name="ui_version">Version %1$s</string>
-    <string name="update_download_prompt">A new version of Flow is available (%1$s). Download the latest APK?</string>
+    <string name="update_download_prompt">A new version of piTube is available (%1$s). Download the latest APK?</string>
     <string name="ui_instrumental">I N S T R U M E N T A L</string>
     <string name="ui_playlist_empty">Playlist is empty</string>
     <string name="ui_downloading_videos">Downloading %1$d videos…</string>
@@ -2294,9 +2294,9 @@
     <string name="download_failed_audio_length">Failed to get audio content length</string>
     <string name="download_workers_failed">One or more workers failed</string>
     <string name="download_block_failed">Block %1$s failed: %2$s</string>
-    <string name="import_migrate_description">Migrate your subscriptions and history from other platforms to Flow seamlessly.</string>
+    <string name="import_migrate_description">Migrate your subscriptions and history from other platforms to piTube seamlessly.</string>
     <string name="import_backup_restore">Backup &amp; Restore</string>
-    <string name="import_manage_backups">Manage your Flow backups</string>
+    <string name="import_manage_backups">Manage your piTube backups</string>
     <string name="import_external_services">External Services</string>
     <string name="import_other_youtube_clients">Import from other YouTube clients</string>
     <string name="imported_count">Imported %1$d %2$s</string>

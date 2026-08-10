@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.aedev.flow"
+    namespace = "com.omersusin.pitube"
     compileSdk = 37
 
     defaultConfig {
@@ -21,7 +21,7 @@ android {
         versionCode = 17
         versionName = "2.2.0"
 
-        testInstrumentationRunner = "io.github.aedev.flow.HiltTestRunner"
+        testInstrumentationRunner = "com.omersusin.pitube.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }

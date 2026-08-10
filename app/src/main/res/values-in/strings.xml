@@ -140,7 +140,7 @@
     <string name="lyrics_provider_lrclib">LrcLib</string>
     <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
     <string name="lyrics_provider_simpmusic">SimpMusic</string>
-    <string name="app_name">Flow</string>
+    <string name="app_name">piTube</string>
     <string name="subscriptions_search_placeholder">Cari langganan...</string>
     <string name="top_bar_subscriptions_title">Langganan</string>
     <string name="view_all_button_label">Semua</string>

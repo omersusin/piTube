@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Flow</string>
+    <string name="app_name">piTube</string>
     <string name="subscriptions_sort_label">Seřadit kanály</string>
     <string name="subscriptions_sort_default">Výchozí</string>
     <string name="subscriptions_sort_name">Jméno (A-Z)</string>

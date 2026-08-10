@@ -1,0 +1,178 @@
+package com.omersusin.pitube.ui.screens.player.effects
+
+import android.app.Activity
+import android.content.Context
+import android.os.Build
+import android.util.Log
+import androidx.compose.runtime.*
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import com.omersusin.pitube.data.local.PlayerPreferences
+import com.omersusin.pitube.player.BackgroundPlaybackPolicy
+import com.omersusin.pitube.player.EnhancedPlayerManager
+import com.omersusin.pitube.player.GlobalPlayerState
+import com.omersusin.pitube.player.PictureInPictureHelper
+
+private const val TAG = "PipModeHandler"
+
+/**
+ * Effect to detect PiP mode state changes
+ */
+@Composable
+fun PipModeDetectionEffect(
+    lifecycleOwner: LifecycleOwner,
+    activity: Activity?,
+    onPipModeChanged: (Boolean) -> Unit
+) {
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, _ ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null) {
+                onPipModeChanged(activity.isInPictureInPictureMode)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+}
+
+/**
+ * Effect to register PiP broadcast receiver for play/pause controls
+ */
+@Composable
+fun PipBroadcastReceiverEffect(context: Context) {
+    DisposableEffect(Unit) {
+        val receiver = PictureInPictureHelper.createPipActionReceiver(
+            onPlay = { EnhancedPlayerManager.getInstance().play() },
+            onPause = { EnhancedPlayerManager.getInstance().pause() },
+            onClose = {
+                GlobalPlayerState.requestDismiss()
+                EnhancedPlayerManager.getInstance().stop()
+                EnhancedPlayerManager.getInstance().stopBackgroundService()
+            }
+        )
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.registerReceiver(
+                context,
+                receiver,
+                PictureInPictureHelper.getPipIntentFilter(),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        } else {
+            context.registerReceiver(receiver, PictureInPictureHelper.getPipIntentFilter())
+        }
+        
+        onDispose {
+            try {
+                context.unregisterReceiver(receiver)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to unregister PiP receiver", e)
+            }
+        }
+    }
+}
+
+/**
+ * Effect to update PiP params when playback state changes
+ */
+@Composable
+fun PipParamsUpdateEffect(
+    isPlaying: Boolean,
+    autoPipEnabled: Boolean,
+    isBackgroundPlaybackMode: Boolean,
+    videoAspectRatio: Float,
+    activity: Activity?
+) {
+    LaunchedEffect(isPlaying, autoPipEnabled, isBackgroundPlaybackMode, videoAspectRatio) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null) {
+            val autoEnterEnabled = BackgroundPlaybackPolicy.shouldEnterAutoPip(
+                autoPipEnabled = autoPipEnabled,
+                isVideoPlaying = isPlaying,
+                explicitBackgroundPlaybackActive = isBackgroundPlaybackMode
+            )
+            PictureInPictureHelper.updatePipParams(
+                activity = activity,
+                aspectRatio = videoAspectRatio,
+                isPlaying = isPlaying,
+                autoEnterEnabled = autoEnterEnabled
+            )
+        }
+    }
+
+    DisposableEffect(activity) {
+        onDispose {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && activity != null) {
+                PictureInPictureHelper.updatePipParams(
+                    activity = activity,
+                    aspectRatio = videoAspectRatio,
+                    isPlaying = false,
+                    autoEnterEnabled = false
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Collects PiP preferences from DataStore
+ */
+@Composable
+fun rememberPipPreferences(context: Context): PipPreferences {
+    val autoPipEnabled by remember(context) { 
+        PlayerPreferences(context).autoPipEnabled 
+    }.collectAsState(initial = false)
+    
+    val manualPipButtonEnabled by remember(context) { 
+        PlayerPreferences(context).manualPipButtonEnabled 
+    }.collectAsState(initial = true)
+    
+    return PipPreferences(
+        autoPipEnabled = autoPipEnabled,
+        manualPipButtonEnabled = manualPipButtonEnabled
+    )
+}
+
+/**
+ * Data class holding PiP preferences
+ */
+data class PipPreferences(
+    val autoPipEnabled: Boolean,
+    val manualPipButtonEnabled: Boolean
+)
+
+/**
+ * All-in-one composable that sets up all PiP-related effects
+ */
+@Composable
+fun SetupPipEffects(
+    context: Context,
+    activity: Activity?,
+    lifecycleOwner: LifecycleOwner,
+    isPlaying: Boolean,
+    isBackgroundPlaybackMode: Boolean,
+    videoAspectRatio: Float,
+    pipPreferences: PipPreferences,
+    onPipModeChanged: (Boolean) -> Unit
+) {
+    // Detect PiP state changes
+    PipModeDetectionEffect(
+        lifecycleOwner = lifecycleOwner,
+        activity = activity,
+        onPipModeChanged = onPipModeChanged
+    )
+    
+    // Register broadcast receiver
+    PipBroadcastReceiverEffect(context)
+    
+    // Update PiP params
+    PipParamsUpdateEffect(
+        isPlaying = isPlaying,
+        autoPipEnabled = pipPreferences.autoPipEnabled,
+        isBackgroundPlaybackMode = isBackgroundPlaybackMode,
+        videoAspectRatio = videoAspectRatio,
+        activity = activity
+    )
+}

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <activity
-            android:name="io.github.aedev.flow.discord.DiscordLoginActivity"
+            android:name="com.omersusin.pitube.discord.DiscordLoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Flow" />
     </application>

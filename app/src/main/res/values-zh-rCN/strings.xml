@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Flow</string>
+    <string name="app_name">piTube</string>
     <string name="subscriptions_search_placeholder">搜索订阅...</string>
     <string name="subscriptions_sort_label">频道排序</string>
     <string name="subscriptions_sort_default">默认</string>

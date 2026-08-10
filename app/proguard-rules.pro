@@ -31,8 +31,8 @@
 -dontwarn androidx.media3.**
 
 ## Keep application classes
--keep class io.github.aedev.flow.** { *; }
--keep class io.github.aedev.flow.FlowApplication { *; }
+-keep class com.omersusin.pitube.** { *; }
+-keep class com.omersusin.pitube.FlowApplication { *; }
 
 ## Rules for Jetpack Compose
 -dontwarn androidx.compose.**
@@ -47,8 +47,8 @@
 -keep class * implements com.google.gson.JsonDeserializer
 
 ## Keep data model classes
--keep class io.github.aedev.flow.**.models.** { *; }
--keep class io.github.aedev.flow.**.data.** { *; }
+-keep class com.omersusin.pitube.**.models.** { *; }
+-keep class com.omersusin.pitube.**.data.** { *; }
 
 ## Rules for Kotlin
 -keep class kotlin.Metadata { *; }
@@ -107,10 +107,10 @@
 -keep class io.ktor.** { *; }
 
 ## Shazam recognition models + kotlinx serializers
--keepclasseswithmembers class io.github.aedev.flow.data.recognition.shazam.** {
+-keepclasseswithmembers class com.omersusin.pitube.data.recognition.shazam.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
--keepclassmembers class io.github.aedev.flow.data.recognition.shazam.** {
+-keepclassmembers class com.omersusin.pitube.data.recognition.shazam.** {
     *** Companion;
 }
 

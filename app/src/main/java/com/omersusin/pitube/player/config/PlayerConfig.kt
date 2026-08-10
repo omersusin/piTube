@@ -1,0 +1,170 @@
+package com.omersusin.pitube.player.config
+
+import com.omersusin.pitube.player.stream.VideoCodecUtils
+
+object PlayerConfig {
+    
+    const val TAG = "EnhancedPlayerManager"
+
+    val PREFERRED_VIDEO_MIME_TYPES = VideoCodecUtils.preferredVideoMimeTypes()
+    
+    // ===== Cache Configuration =====
+    /** Maximum cache size in bytes (500 MB — default) */
+    const val CACHE_SIZE_BYTES = 500L * 1024L * 1024L
+
+    /** Cache size options (MB) shown in Settings. 0 = unlimited. */
+    val CACHE_SIZE_OPTIONS_MB = intArrayOf(100, 200, 500, 0)
+
+    /** Convert a cache size MB setting to bytes. 0 MB means unlimited (NoOpCacheEvictor). */
+    fun cacheSizeMbToBytes(mb: Int): Long = if (mb <= 0) 0L else mb * 1024L * 1024L
+
+    /** Cache directory name */
+    const val CACHE_DIR_NAME = "exoplayer"
+    
+    // ===== Buffer Configuration =====
+    /** Allocator buffer size (64 KB optimal for DASH segments) */
+    const val ALLOCATOR_BUFFER_SIZE = 64 * 1024
+    
+    /** Back buffer duration in milliseconds (10 seconds for instant rewind) */
+    const val BACK_BUFFER_DURATION_MS = 10_000
+
+    /** Back buffer duration for low-memory devices. */
+    const val LOW_MEMORY_BACK_BUFFER_DURATION_MS = 0
+
+    /** Hard runtime cap for main-player max buffer */
+    const val MAX_SAFE_MAIN_BUFFER_MS = 45_000
+
+    /** Hard runtime cap for main-player min buffer so low-RAM devices do not over-retain media. */
+    const val MAX_SAFE_MAIN_MIN_BUFFER_MS = 20_000
+
+    /** Runtime caps used when Android reports a small app heap. */
+    const val LOW_MEMORY_MAX_SAFE_MAIN_BUFFER_MS = 18_000
+    const val LOW_MEMORY_MAX_SAFE_MAIN_MIN_BUFFER_MS = 8_000
+
+
+    const val MAIN_TARGET_BUFFER_BYTES = 32 * 1024 * 1024
+
+    /** Smaller target buffer budgets for devices with 256-384 MB app heaps. */
+    const val LOW_MEMORY_MAIN_TARGET_BUFFER_BYTES = 4 * 1024 * 1024
+    const val MID_MEMORY_MAIN_TARGET_BUFFER_BYTES = 12 * 1024 * 1024
+
+    /** Explicit target buffer budget per shorts player in the pooled shorts stack. */
+    const val SHORTS_TARGET_BUFFER_BYTES = 4 * 1024 * 1024
+
+    /** Preferred delay from the true live edge. Keeps YouTube live playback stable. */
+    const val LIVE_EDGE_GAP_MS = 10_000L
+
+    /** Maximum DVR window requested for live streams where the manifest supports it. */
+    const val LIVE_DVR_MAX_OFFSET_MS = 2 * 60 * 60 * 1000L
+    
+    // ===== Bandwidth Thresholds =====
+    /** Initial bandwidth estimate in bits per second (5 Mbps) */
+    const val INITIAL_BANDWIDTH_ESTIMATE = 5_000_000L
+    
+    /** Bandwidth threshold for 4K quality (15 Mbps) */
+    const val BANDWIDTH_4K = 25_000_000L
+    
+    /** Bandwidth threshold for 1440p quality (10 Mbps) */
+    const val BANDWIDTH_1440P = 15_000_000L
+    
+    /** Bandwidth threshold for 1080p quality (6 Mbps) */
+    const val BANDWIDTH_1080P = 8_000_000L
+    
+    /** Bandwidth threshold for 720p quality (3 Mbps) */
+    const val BANDWIDTH_720P = 4_000_000L
+    
+    /** Bandwidth threshold for 480p quality (1.5 Mbps) */
+    const val BANDWIDTH_480P = 2_000_000L
+    
+    /** Bandwidth threshold for 360p quality (800 Kbps) */
+    const val BANDWIDTH_360P = 800_000L
+    
+    // ===== Quality Adaptation =====
+    /** Interval for bandwidth checks during playback (5 seconds) */
+    const val BANDWIDTH_CHECK_INTERVAL_MS = 5000L
+    
+    /** Upgrade threshold - need 30% more bandwidth to upgrade */
+    const val QUALITY_UPGRADE_THRESHOLD = 1.3f
+    
+    /** Downgrade threshold - downgrade if bandwidth drops to 70% */
+    const val QUALITY_DOWNGRADE_THRESHOLD = 0.7f
+    
+    /** Maximum stream errors before quality downgrade */
+    const val MAX_STREAM_ERRORS = 2
+    
+    /** Buffering count threshold before quality downgrade */
+    const val BUFFERING_COUNT_THRESHOLD = 3
+    
+    // ===== Network Configuration =====
+    /** Maximum concurrent requests per host for adaptive streaming */
+    const val MAX_REQUESTS_PER_HOST = 20
+    
+    /** Maximum total concurrent requests */
+    const val MAX_REQUESTS = 40
+    
+    /** Connection pool size */
+    const val CONNECTION_POOL_SIZE = 15
+    
+    /** Connection pool keep-alive duration in minutes */
+    const val CONNECTION_POOL_KEEP_ALIVE_MINUTES = 5L
+    
+    /** Connect timeout in seconds */
+    const val CONNECT_TIMEOUT_SECONDS = 15L
+    
+    /** Read timeout in seconds */
+    const val READ_TIMEOUT_SECONDS = 30L
+    
+    /** Write timeout in seconds */
+    const val WRITE_TIMEOUT_SECONDS = 15L
+    
+    // ===== Position Tracking =====
+    /** Position tracker polling interval in milliseconds */
+    const val POSITION_TRACKER_INTERVAL_MS = 1_000L
+    
+    /** Auto-save interval in milliseconds (30 seconds) */
+    const val AUTO_SAVE_INTERVAL_MS = 30_000L
+    
+    /** Stuck detection threshold (number of checks with no position change) */
+    const val STUCK_DETECTION_THRESHOLD = 2
+    
+    // ===== Surface Configuration =====
+    /** Default surface ready timeout in milliseconds */
+    const val DEFAULT_SURFACE_TIMEOUT_MS = 500L
+    
+    // ===== Error Recovery =====
+    /** Delay before retry after error in milliseconds */
+    const val ERROR_RETRY_DELAY_MS = 1000L
+    
+    // ===== Video Size Constraints =====
+    const val MAX_VIDEO_WIDTH = 3840
+    
+    const val MAX_VIDEO_HEIGHT = 2160
+    
+    /**
+     * Calculate target quality height based on bandwidth in bits per second.
+     */
+    fun calculateTargetQualityForBandwidth(bandwidthBps: Long): Int {
+        return when {
+            bandwidthBps > BANDWIDTH_4K -> 2160
+            bandwidthBps > BANDWIDTH_1440P -> 1440
+            bandwidthBps > BANDWIDTH_1080P -> 1080
+            bandwidthBps > BANDWIDTH_720P -> 720
+            bandwidthBps > BANDWIDTH_480P -> 480
+            bandwidthBps > BANDWIDTH_360P -> 360
+            else -> 240
+        }
+    }
+    
+    /**
+     * Calculate initial quality target based on estimated bandwidth.
+     */
+    fun calculateInitialQualityTarget(estimatedBandwidth: Long): Int {
+        return when {
+            estimatedBandwidth > 20_000_000 -> 1080 // Need very high bandwidth for default 1080p
+            estimatedBandwidth > 10_000_000 -> 720  
+            estimatedBandwidth > 3_000_000 -> 480   
+            estimatedBandwidth > 1_500_000 -> 360   
+            else -> 240                              // Low bandwidth = 240p
+        }
+    }
+}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Flow</string>
+    <string name="app_name">piTube</string>
     <string name="subscriptions_search_placeholder">구독 검색...</string>
     <string name="subscriptions_sort_label">채널 정렬</string>
     <string name="subscriptions_sort_default">기본순</string>
