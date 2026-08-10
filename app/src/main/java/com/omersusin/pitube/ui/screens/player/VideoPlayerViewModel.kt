@@ -2752,6 +2752,19 @@ class VideoPlayerViewModel @Inject constructor(
         if (watchFraction < 0.20) return
 
         lastReportedVideoId = video.id
+
+        // Signed-in accounts get the watch registered in their real YouTube
+        // history (Koda port): /player ping + videostatsPlaybackUrl.
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val reported = repository.reportVideoPlayback(video.id)
+                if (reported) {
+                    Log.d("VideoPlayerViewModel", "YouTube history sync SUCCESS for ${video.id}")
+                }
+            } catch (e: Exception) {
+                Log.w("VideoPlayerViewModel", "YouTube history sync failed for ${video.id}", e)
+            }
+        }
     }
 
     fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {

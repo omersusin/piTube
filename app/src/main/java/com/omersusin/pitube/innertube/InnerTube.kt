@@ -464,6 +464,38 @@ class InnerTube {
         }
     }
 
+    /**
+     * Signed GET with the same session auth as [signedJsonPost] — used for
+     * YouTube's playback-tracking URLs (watch-history reporting), which are
+     * plain GETs on www.youtube.com and expect cookies plus a SAPISIDHASH for
+     * the youtube origin.
+     */
+    suspend fun signedJsonGet(
+        client: YouTubeClient,
+        url: String,
+        referer: String? = null,
+    ) = withRetry {
+        httpClient.get(url) {
+            headers {
+                append("X-Goog-Api-Format-Version", "1")
+                append("X-Origin", YouTubeClient.ORIGIN_YOUTUBE)
+                append("Origin", YouTubeClient.ORIGIN_YOUTUBE)
+                referer?.let { append("Referer", it) }
+                userAgent(client.userAgent)
+                cookie?.let { cookie ->
+                    append("cookie", cookie)
+                    if ("SAPISID" in cookieMap) {
+                        val currentTime = System.currentTimeMillis() / 1000
+                        val sapisidHash =
+                            sha1("$currentTime ${cookieMap["SAPISID"]} ${YouTubeClient.ORIGIN_YOUTUBE}")
+                        append("Authorization", "SAPISIDHASH ${currentTime}_$sapisidHash")
+                        append("X-Goog-AuthUser", "0")
+                    }
+                }
+            }
+        }
+    }
+
     private suspend fun <T> withVisitorDataFallback(
         includeVisitorData: Boolean = true,
         block: suspend (String?) -> T,

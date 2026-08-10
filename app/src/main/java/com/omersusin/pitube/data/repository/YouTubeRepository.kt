@@ -1156,6 +1156,16 @@ class YouTubeRepository
             }
 
         /**
+         * Report a video playback into the signed-in account's YouTube watch
+         * history (Koda port). Returns true when the tracking ping succeeded.
+         */
+        suspend fun reportVideoPlayback(videoId: String): Boolean =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext false
+                YouTube.reportVideoPlayback(videoId).getOrDefault(false)
+            }
+
+        /**
          * Fetch playlist details
          */
         suspend fun getPlaylistDetails(playlistId: String): com.omersusin.pitube.data.model.Playlist? =

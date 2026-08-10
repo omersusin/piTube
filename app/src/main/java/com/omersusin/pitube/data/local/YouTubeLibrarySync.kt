@@ -4,10 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.innertube.YouTube
-import com.omersusin.pitube.innertube.models.ArtistItem
-import com.omersusin.pitube.innertube.models.PlaylistItem
-import com.omersusin.pitube.innertube.models.SongItem
-import com.omersusin.pitube.innertube.models.YTItem
+import com.omersusin.pitube.innertube.pages.RemotePlaylistVideo
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -26,8 +23,11 @@ data class LibrarySyncResult(
 /**
  * Pulls the signed-in Google account's real YouTube library into Flow's existing local
  * repositories (the same ones the Liked Videos, Playlists and Subscriptions screens already
- * read from), using `YouTube.library()` — an InnerTube call that already existed in this
- * codebase but was never invoked from any screen.
+ * read from).
+ *
+ * All reads go through signed www.youtube.com WEB-client calls ([YouTube.webSubscribedChannels],
+ * [YouTube.webUserPlaylists], [YouTube.webPlaylistVideos]) — the music-host `YouTube.library()`
+ * feeds stay empty for video-only accounts and were the reason sync used to report zeroes.
  *
  * This is strictly read/import: it only copies data from the account into Flow's local
  * database. It never writes back to the real YouTube account (no like/subscribe calls
@@ -38,7 +38,6 @@ object YouTubeLibrarySync {
     private const val TAG = "YouTubeLibrarySync"
 
     // Safety caps so a very large account can't turn a "refresh" into an unbounded crawl.
-    private const val MAX_CONTINUATION_PAGES = 15
     private const val PLAYLIST_FETCH_CONCURRENCY = 4
 
     suspend fun sync(context: Context): LibrarySyncResult {
@@ -68,32 +67,17 @@ object YouTubeLibrarySync {
         return LibrarySyncResult(likedVideos, playlists, channels)
     }
 
-    /** Walks every continuation page for a library tab and returns the combined item list. */
-    private suspend fun fetchAllLibraryItems(browseId: String): List<YTItem> {
-        val first = YouTube.library(browseId).getOrNull() ?: return emptyList()
-        val items = first.items.toMutableList()
-        var continuation = first.continuation
-        var page = 0
-        while (continuation != null && page < MAX_CONTINUATION_PAGES) {
-            val next = YouTube.libraryContinuation(continuation).getOrNull() ?: break
-            items += next.items
-            continuation = next.continuation
-            page++
-        }
-        return items
-    }
-
     private suspend fun syncLikedVideos(context: Context): Int {
         val repository = LikedVideosRepository.getInstance(context)
-        val videos = fetchAllLibraryItems("FElikedvideos").filterIsInstance<SongItem>()
-        videos.forEach { song ->
+        val videos = YouTube.webPlaylistVideos("LL").getOrNull().orEmpty()
+        videos.forEach { video ->
             runCatching {
                 repository.likeVideo(
                     LikedVideoInfo(
-                        videoId = song.id,
-                        title = song.title,
-                        thumbnail = song.thumbnail,
-                        channelName = song.artists.joinToString(", ") { it.name },
+                        videoId = video.id,
+                        title = video.title,
+                        thumbnail = video.thumbnail,
+                        channelName = video.channelName,
                         isMusic = false
                     )
                 )
@@ -104,7 +88,7 @@ object YouTubeLibrarySync {
 
     private suspend fun syncPlaylists(context: Context): Int {
         val playlistRepository = PlaylistRepository(context)
-        val remotePlaylists = fetchAllLibraryItems("FEplaylist_aggregation").filterIsInstance<PlaylistItem>()
+        val remotePlaylists = YouTube.webUserPlaylists().getOrNull().orEmpty()
         val semaphore = Semaphore(PLAYLIST_FETCH_CONCURRENCY)
 
         coroutineScope {
@@ -116,11 +100,11 @@ object YouTubeLibrarySync {
                                 id = playlist.id,
                                 name = playlist.title,
                                 description = "",
-                                thumbnailUrl = playlist.thumbnail.orEmpty()
+                                thumbnailUrl = playlist.thumbnail
                             )
-                            val songs = YouTube.playlist(playlist.id).getOrNull()?.songs.orEmpty()
-                            if (songs.isNotEmpty()) {
-                                playlistRepository.syncSavedPlaylistVideos(playlist.id, songs.map { it.toSyncVideo() })
+                            val videos = YouTube.webPlaylistVideos(playlist.id).getOrNull().orEmpty()
+                            if (videos.isNotEmpty()) {
+                                playlistRepository.syncSavedPlaylistVideos(playlist.id, videos.map { it.toSyncVideo() })
                             }
                         }.onFailure { Log.w(TAG, "Failed syncing playlist ${playlist.id}", it) }
                     }
@@ -133,14 +117,14 @@ object YouTubeLibrarySync {
 
     private suspend fun syncSubscriptions(context: Context): Int {
         val repository = SubscriptionRepository.getInstance(context)
-        val channels = fetchAllLibraryItems("FEsubscriptions").filterIsInstance<ArtistItem>()
-        channels.forEach { artist ->
+        val channels = YouTube.webSubscribedChannels().getOrNull().orEmpty()
+        channels.forEach { channel ->
             runCatching {
                 repository.subscribe(
                     ChannelSubscription(
-                        channelId = artist.id,
-                        channelName = artist.title,
-                        channelThumbnail = artist.thumbnail.orEmpty(),
+                        channelId = channel.id,
+                        channelName = channel.name,
+                        channelThumbnail = channel.thumbnail,
                         isMusic = false
                     )
                 )
@@ -149,15 +133,14 @@ object YouTubeLibrarySync {
         return channels.size
     }
 
-    private fun SongItem.toSyncVideo(): Video {
-        val artistNames = artists.joinToString(", ") { it.name }
+    private fun RemotePlaylistVideo.toSyncVideo(): Video {
         return Video(
             id = id,
             title = title,
-            channelName = artistNames,
-            channelId = artists.firstOrNull()?.id ?: "",
+            channelName = channelName,
+            channelId = channelId,
             thumbnailUrl = thumbnail,
-            duration = duration ?: 0,
+            duration = 0,
             viewCount = 0,
             uploadDate = "",
             isMusic = false

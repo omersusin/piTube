@@ -72,8 +72,15 @@ import com.omersusin.pitube.innertube.pages.toCommunityCommentsPage
 import com.omersusin.pitube.innertube.pages.toCommunityPostsPage
 import com.omersusin.pitube.innertube.pages.toShortsPage
 import com.omersusin.pitube.innertube.pages.VideoCommentsPage
+import com.omersusin.pitube.innertube.pages.RemoteChannel
+import com.omersusin.pitube.innertube.pages.RemotePlaylist
+import com.omersusin.pitube.innertube.pages.RemotePlaylistVideo
+import com.omersusin.pitube.innertube.pages.browseContinuation
 import com.omersusin.pitube.innertube.pages.hasSucceededActionResult
 import com.omersusin.pitube.innertube.pages.toCreatedVideoComment
+import com.omersusin.pitube.innertube.pages.toRemoteChannels
+import com.omersusin.pitube.innertube.pages.toRemotePlaylists
+import com.omersusin.pitube.innertube.pages.toRemotePlaylistVideos
 import com.omersusin.pitube.innertube.pages.toVideoCommentsPage
 import com.omersusin.pitube.innertube.pages.toVideoCommentsToken
 import com.omersusin.pitube.data.model.Comment
@@ -94,7 +101,9 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import io.ktor.http.isSuccess
 import kotlinx.serialization.json.buildJsonArray
 import java.net.Proxy
 import java.util.Locale
@@ -805,6 +814,104 @@ object YouTube {
                 },
             )
         }
+
+    // ============================================================
+    // Watch-history reporting (Koda port). Reports the playback to
+    // YouTube so the video shows up in the account's watch history:
+    // fetch the /player response for the video, then ping the
+    // videostatsPlaybackUrl with cookies + SAPISIDHASH. The WEB_REMIX
+    // reporter does not register plain videos, hence the WEB flow.
+    // ============================================================
+
+    /**
+     * Report a video playback into the signed-in account's YouTube watch
+     * history. Returns true when the tracking ping succeeded. Requires login.
+     */
+    suspend fun reportVideoPlayback(videoId: String): Result<Boolean> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching false
+        val client = currentWebClient()
+        val cpn = generateCpn()
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = "player",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("videoId", JsonPrimitive(videoId))
+                put("cpn", JsonPrimitive(cpn))
+            },
+        )
+        val root = Json.parseToJsonElement(httpResponse.bodyAsText())
+        val baseUrl = root.jsonObject["playbackTracking"]?.jsonObject
+            ?.get("videostatsPlaybackUrl")?.jsonObject
+            ?.get("baseUrl")?.jsonPrimitive
+            ?.contentOrNull
+        if (baseUrl.isNullOrEmpty()) return@runCatching false
+        val trackingUrl =
+            buildString {
+                append(baseUrl)
+                if (!baseUrl.contains("cpn=")) {
+                    append(if (baseUrl.contains("?")) "&" else "?")
+                    append("cpn=$cpn")
+                }
+                append("&ver=2&c=WEB")
+            }
+        val trackingResponse = innerTube.signedJsonGet(
+            client = client,
+            url = trackingUrl,
+            referer = "https://www.youtube.com/watch?v=$videoId",
+        )
+        trackingResponse.status.isSuccess()
+    }
+
+    private fun generateCpn(): String {
+        val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
+        return (1..16).map { chars.random() }.joinToString("")
+    }
+
+    // ============================================================
+    // Account library on the WEB client (Koda port). The music-host
+    // browse feeds stay empty for video-only accounts, so these signed
+    // www.youtube.com /browse calls are what actually enumerate the
+    // account's subscriptions, playlists and liked videos.
+    // ============================================================
+
+    /** All channels the user is subscribed to (FEchannels), following continuations. */
+    suspend fun webSubscribedChannels(): Result<List<RemoteChannel>> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching emptyList()
+        val client = currentWebClient()
+        val channels = mutableListOf<RemoteChannel>()
+        var continuation: String? = null
+        var pages = 0
+        do {
+            val response = innerTube.signedWebBrowse(
+                client = client,
+                browseId = if (continuation == null) "FEchannels" else null,
+                continuation = continuation,
+            )
+            val root = Json.parseToJsonElement(response.bodyAsText())
+            channels += root.toRemoteChannels()
+            continuation = root.browseContinuation()
+            pages++
+        } while (continuation != null && pages < 10)
+        channels.distinctBy { it.id }
+    }
+
+    /** The user's playlists from FEplaylist_aggregation (Watch Later / Liked pinned elsewhere). */
+    suspend fun webUserPlaylists(): Result<List<RemotePlaylist>> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching emptyList()
+        val client = currentWebClient()
+        val response = innerTube.signedWebBrowse(client = client, browseId = "FEplaylist_aggregation")
+        Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylists()
+    }
+
+    /** Videos of one playlist from a signed VL<playlistId> browse (liked videos = "LL"). */
+    suspend fun webPlaylistVideos(playlistId: String): Result<List<RemotePlaylistVideo>> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching emptyList()
+        val client = currentWebClient()
+        val browseId = if (playlistId.startsWith("VL")) playlistId else "VL$playlistId"
+        val response = innerTube.signedWebBrowse(client = client, browseId = browseId)
+        Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylistVideos()
+    }
 
     suspend fun communityPostCommentsContinuation(
         continuation: String,
