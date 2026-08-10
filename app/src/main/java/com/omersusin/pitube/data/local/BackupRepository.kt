@@ -1588,11 +1588,9 @@ class BackupRepository(private val context: Context) {
                 }
             } ?: return@withContext Result.failure(Exception("Could not read file"))
 
-            if (appDataJson == null) {
-                return@withContext Result.failure(Exception("Invalid master backup file"))
-            }
+            val appData = appDataJson ?: return@withContext Result.failure(Exception("Invalid master backup file"))
 
-            val backupData = parseBackupJson(appDataJson)
+            val backupData = parseBackupJson(appData)
                 ?: return@withContext Result.failure(Exception("Invalid app data in backup"))
             importBackupData(backupData)
 
