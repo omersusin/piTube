@@ -4,123 +4,163 @@ import android.content.Context
 import android.util.Log
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.innertube.YouTube
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.schabi.newpipe.extractor.ServiceList
-import org.schabi.newpipe.extractor.subscription.SubscriptionItem
+import com.omersusin.pitube.innertube.models.ArtistItem
+import com.omersusin.pitube.innertube.models.PlaylistItem
+import com.omersusin.pitube.innertube.models.SongItem
+import com.omersusin.pitube.innertube.models.YTItem
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 /** Counts of what a sync pass actually pulled in, shown to the user after a manual refresh. */
 data class LibrarySyncResult(
+    val likedVideos: Int = 0,
+    val playlists: Int = 0,
     val subscribedChannels: Int = 0,
-    val feedVideos: Int = 0,
     val notLoggedIn: Boolean = false,
 )
 
 /**
- * Pulls the signed-in Google account's real YouTube subscription feed into Flow's existing
- * local repositories (the same ones the Subscriptions and Home screens already read from),
- * using NewPipe's `/feed/subscriptions` extractor with the session cookie injected via
- * [com.omersusin.pitube.data.repository.NewPipeDownloader].
+ * Pulls the signed-in Google account's real YouTube library into Flow's existing local
+ * repositories (the same ones the Liked Videos, Playlists and Subscriptions screens already
+ * read from), using `YouTube.library()` — an InnerTube call that already existed in this
+ * codebase but was never invoked from any screen.
  *
  * This is strictly read/import: it only copies data from the account into Flow's local
- * storage. It never writes back to the real YouTube account, so re-running it is always safe.
+ * database. It never writes back to the real YouTube account (no like/subscribe calls
+ * are sent to Google), so re-running it is always safe.
  */
 object YouTubeLibrarySync {
 
     private const val TAG = "YouTubeLibrarySync"
 
-    suspend fun sync(context: Context): LibrarySyncResult = withContext(Dispatchers.IO) {
+    // Safety caps so a very large account can't turn a "refresh" into an unbounded crawl.
+    private const val MAX_CONTINUATION_PAGES = 15
+    private const val PLAYLIST_FETCH_CONCURRENCY = 4
+
+    suspend fun sync(context: Context): LibrarySyncResult {
         if (YouTube.cookie.isNullOrEmpty()) {
-            return@withContext LibrarySyncResult(notLoggedIn = true)
+            return LibrarySyncResult(notLoggedIn = true)
         }
 
+        var likedVideos = 0
+        var playlists = 0
         var channels = 0
-        var videos = 0
 
-        runCatching {
-            val extractor = ServiceList.YouTube
-                .getFeedExtractor("https://www.youtube.com/feed/subscriptions")
-            extractor.fetchPage()
-            val items = extractor.initialPage.items
+        coroutineScope {
+            launch {
+                runCatching { likedVideos = syncLikedVideos(context) }
+                    .onFailure { Log.w(TAG, "Liked videos sync failed", it) }
+            }
+            launch {
+                runCatching { playlists = syncPlaylists(context) }
+                    .onFailure { Log.w(TAG, "Playlist sync failed", it) }
+            }
+            launch {
+                runCatching { channels = syncSubscriptions(context) }
+                    .onFailure { Log.w(TAG, "Subscription sync failed", it) }
+            }
+        }
 
-            val subscribed = items.filterIsInstance<SubscriptionItem>()
-            if (subscribed.isNotEmpty()) {
-                runCatching {
-                    SubscriptionRepository.getInstance(context).subscribeAll(
-                        subscribed.mapNotNull { item -> item.toSubscription() }
+        return LibrarySyncResult(likedVideos, playlists, channels)
+    }
+
+    /** Walks every continuation page for a library tab and returns the combined item list. */
+    private suspend fun fetchAllLibraryItems(browseId: String): List<YTItem> {
+        val first = YouTube.library(browseId).getOrNull() ?: return emptyList()
+        val items = first.items.toMutableList()
+        var continuation = first.continuation
+        var page = 0
+        while (continuation != null && page < MAX_CONTINUATION_PAGES) {
+            val next = YouTube.libraryContinuation(continuation).getOrNull() ?: break
+            items += next.items
+            continuation = next.continuation
+            page++
+        }
+        return items
+    }
+
+    private suspend fun syncLikedVideos(context: Context): Int {
+        val repository = LikedVideosRepository.getInstance(context)
+        val videos = fetchAllLibraryItems("FElikedvideos").filterIsInstance<SongItem>()
+        videos.forEach { song ->
+            runCatching {
+                repository.likeVideo(
+                    LikedVideoInfo(
+                        videoId = song.id,
+                        title = song.title,
+                        thumbnail = song.thumbnail,
+                        channelName = song.artists.joinToString(", ") { it.name },
+                        isMusic = false
                     )
-                }.onFailure { Log.w(TAG, "Subscription sync failed", it) }
-                channels = subscribed.size
+                )
             }
-
-            val feedVideos = items
-                .filterIsInstance<org.schabi.newpipe.extractor.stream.StreamInfoItem>()
-                .mapNotNull { it.toVideo() }
-            if (feedVideos.isNotEmpty()) {
-                runCatching {
-                    HomeFeedCacheRepository(context).saveLastFeed(feedVideos)
-                }.onFailure { Log.w(TAG, "Feed cache save failed", it) }
-                videos = feedVideos.size
-            }
-        }.onFailure { Log.w(TAG, "Subscriptions feed fetch failed", it) }
-
-        LibrarySyncResult(channels, videos)
+        }
+        return videos.size
     }
 
-    private fun SubscriptionItem.toSubscription(): ChannelSubscription? {
-        val channelId = runCatching {
-            url?.takeIf { it.isNotBlank() }?.let { raw ->
-                when {
-                    raw.contains("/channel/") -> raw.substringAfter("/channel/").substringBefore("/")
-                    raw.contains("/@") -> {
-                        // Resolve @handle later via channel page fetch; keep handle as id stub
-                        raw.substringAfterLast("/")
+    private suspend fun syncPlaylists(context: Context): Int {
+        val playlistRepository = PlaylistRepository(context)
+        val remotePlaylists = fetchAllLibraryItems("FEplaylist_aggregation").filterIsInstance<PlaylistItem>()
+        val semaphore = Semaphore(PLAYLIST_FETCH_CONCURRENCY)
+
+        coroutineScope {
+            remotePlaylists.map { playlist ->
+                async {
+                    semaphore.withPermit {
+                        runCatching {
+                            playlistRepository.saveExternalMusicPlaylist(
+                                id = playlist.id,
+                                name = playlist.title,
+                                description = "",
+                                thumbnailUrl = playlist.thumbnail.orEmpty()
+                            )
+                            val songs = YouTube.playlist(playlist.id).getOrNull()?.songs.orEmpty()
+                            if (songs.isNotEmpty()) {
+                                playlistRepository.syncSavedPlaylistVideos(playlist.id, songs.map { it.toSyncVideo() })
+                            }
+                        }.onFailure { Log.w(TAG, "Failed syncing playlist ${playlist.id}", it) }
                     }
-                    else -> raw.substringAfterLast("/")
                 }
-            }
-        }.getOrNull()?.takeIf { it.startsWith("UC") || it.startsWith("@") } ?: return null
-        return ChannelSubscription(
-            channelId = channelId,
-            channelName = name ?: return null,
-            channelThumbnail = ""
-        )
+            }.awaitAll()
+        }
+
+        return remotePlaylists.size
     }
 
-    private fun org.schabi.newpipe.extractor.stream.StreamInfoItem.toVideo(): Video? {
-        val rawUrl = url ?: return null
-        val videoId = when {
-            rawUrl.contains("watch?v=") -> rawUrl.substringAfter("watch?v=").substringBefore("&")
-            rawUrl.contains("/shorts/") -> rawUrl.substringAfter("/shorts/").substringBefore("?")
-            rawUrl.contains("youtu.be/") -> rawUrl.substringAfter("youtu.be/").substringBefore("?")
-            else -> rawUrl.substringAfterLast("/")
+    private suspend fun syncSubscriptions(context: Context): Int {
+        val repository = SubscriptionRepository.getInstance(context)
+        val channels = fetchAllLibraryItems("FEsubscriptions").filterIsInstance<ArtistItem>()
+        channels.forEach { artist ->
+            runCatching {
+                repository.subscribe(
+                    ChannelSubscription(
+                        channelId = artist.id,
+                        channelName = artist.title,
+                        channelThumbnail = artist.thumbnail.orEmpty(),
+                        isMusic = false
+                    )
+                )
+            }
         }
-        if (videoId.isBlank() || videoId.length < 8) return null
+        return channels.size
+    }
 
-        val durationSec = when {
-            streamType == org.schabi.newpipe.extractor.stream.StreamType.LIVE_STREAM -> 0
-            duration > 0 -> duration.toInt()
-            else -> 0
-        }
+    private fun SongItem.toSyncVideo(): Video {
+        val artistNames = artists.joinToString(", ") { it.name }
         return Video(
-            id = videoId,
-            title = name ?: return null,
-            channelName = uploaderName ?: "",
-            channelId = uploaderUrl?.takeIf { it.isNotBlank() }
-                ?.let { raw -> raw.substringAfterLast("/channel/").substringBefore("/") }
-                ?.takeIf { it.startsWith("UC") } ?: "",
-            thumbnailUrl = thumbnails
-                ?.sortedByDescending { it.height }
-                ?.firstOrNull()
-                ?.url
-                ?: "",
-            duration = durationSec,
+            id = id,
+            title = title,
+            channelName = artistNames,
+            channelId = artists.firstOrNull()?.id ?: "",
+            thumbnailUrl = thumbnail,
+            duration = duration ?: 0,
             viewCount = 0,
-            uploadDate = textualUploadDate ?: "",
-            isMusic = false,
-            isLive = streamType == org.schabi.newpipe.extractor.stream.StreamType.LIVE_STREAM,
-            isShort = rawUrl.contains("/shorts/"),
-            timestamp = System.currentTimeMillis()
+            uploadDate = "",
+            isMusic = false
         )
     }
 }

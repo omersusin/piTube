@@ -145,9 +145,6 @@ fun NavGraphBuilder.flowAppGraph(
             onOpenShortsFeed = {
                 navController.navigate("shorts")
             },
-            onAccountClick = {
-                navController.navigate("account")
-            },
             viewModel = homeViewModel
         )
     }
@@ -347,7 +344,8 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToSyncDevices = { navController.navigate("settings/sync_devices") },
             onNavigateToExport = { navController.navigate("settings/export") },
             onNavigateToSponsorBlockSettings = { navController.navigate("settings/sponsorblock") },
-            onNavigateToDiscordSettings = { navController.navigate("settings/discord") }
+            onNavigateToDiscordSettings = { navController.navigate("settings/discord") },
+            onNavigateToGoogleLogin = { navController.navigate("account") }
         )
     }
 
