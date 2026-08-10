@@ -139,6 +139,11 @@ object YouTube {
         set(value) {
             innerTube.useLoginForBrowse = value
         }
+    var onCookieRotated: ((String) -> Unit)?
+        get() = innerTube.cookieRefreshListener
+        set(value) {
+            innerTube.cookieRefreshListener = value
+        }
 
     suspend fun searchSuggestions(query: String): Result<SearchSuggestions> = runCatching {
         val response = innerTube.getSearchSuggestions(WEB_REMIX, query).body<GetSearchSuggestionsResponse>()
@@ -648,6 +653,43 @@ object YouTube {
         }
     }
 
+    // ── Signed-in personalized home feed (YouTube.com WEB) ─────────────────────
+
+    /**
+     * The signed-in account's own home feed ("What to watch").
+     *
+     * Mirrors Koda's approach: a signed /browse on the FEwhat_to_watch browseId
+     * through the WEB client, so YouTube returns the same personalized
+     * recommendations the account sees on the real site. Requires a stored
+     * session cookie; callers should fall back to their discovery feed when
+     * this returns empty or fails.
+     */
+    suspend fun personalizedFeed(): Result<ChannelVideoSearchResult> = runCatching {
+        personalizedFeedPage(browseId = "FEwhat_to_watch")
+    }
+
+    suspend fun personalizedFeedContinuation(
+        continuation: String,
+    ): Result<ChannelVideoSearchResult> = runCatching {
+        personalizedFeedPage(continuation = continuation)
+    }
+
+    private suspend fun personalizedFeedPage(
+        browseId: String? = null,
+        continuation: String? = null,
+    ): ChannelVideoSearchResult {
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedWebBrowse(
+            client = client,
+            browseId = browseId,
+            continuation = continuation,
+        )
+        val rawBody = httpResponse.bodyAsText()
+        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
+        return parseChannelVideosResponse(response, "", "", "", false)
+    }
+
     suspend fun communityPostCommentsContinuation(
         continuation: String,
     ): Result<CommunityCommentsPage> = runCatching {
@@ -769,6 +811,7 @@ object YouTube {
         isLive: Boolean,
     ): com.omersusin.pitube.data.model.Video? {
         val videoId = lockup.contentId ?: return null
+        if (videoId.length != 11) return null
         val metadata = lockup.metadata?.lockupMetadataViewModel
         val title = metadata?.title?.content?.takeIf { it.isNotBlank() } ?: return null
         val thumbnail = lockup.contentImage?.thumbnailViewModel?.image?.sources
@@ -781,11 +824,29 @@ object YouTube {
                     ?.badges
                     ?.firstNotNullOfOrNull { it.thumbnailBadgeViewModel?.text }
             }
-        val parts = metadata?.metadata?.contentMetadataViewModel?.metadataRows
-            ?.firstOrNull()
-            ?.metadataParts
-            ?.mapNotNull { it.text?.content?.takeIf(String::isNotBlank) }
-            .orEmpty()
+        val metadataRows = metadata?.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
+        val channelPart = metadataRows.firstOrNull()?.metadataParts?.firstOrNull()
+        val resolvedChannelId = channelPart?.runs
+            ?.firstNotNullOfOrNull { it.navigationEndpoint?.browseEndpoint?.browseId }
+            ?: channelId
+        val resolvedChannelName =
+            if (resolvedChannelId != channelId) {
+                channelPart?.text?.content?.takeIf { it.isNotBlank() } ?: channelName
+            } else {
+                channelName
+            }
+        val resolvedThumbnail = metadata?.image
+            ?.decoratedAvatarViewModel?.avatar?.avatarViewModel?.image?.sources
+            ?.maxByOrNull { it.width ?: 0 }
+            ?.url
+            ?: channelThumbnailUrl
+        val parts = mutableListOf<String>()
+        metadataRows.forEachIndexed { rowIndex, row ->
+            row.metadataParts?.forEachIndexed { partIndex, part ->
+                if (rowIndex == 0 && partIndex == 0 && resolvedChannelId != channelId) return@forEachIndexed
+                part.text?.content?.takeIf(String::isNotBlank)?.let { parts += it }
+            }
+        }
         val viewsText = parts.firstOrNull { it.contains("view", ignoreCase = true) || it.contains("watching", ignoreCase = true) }
             ?: parts.firstOrNull()
         val uploadText = parts.firstOrNull {
@@ -795,14 +856,14 @@ object YouTube {
         return com.omersusin.pitube.data.model.Video(
             id = videoId,
             title = title,
-            channelName = channelName,
-            channelId = channelId,
+            channelName = resolvedChannelName,
+            channelId = resolvedChannelId,
             thumbnailUrl = thumbnail,
             duration = parseLengthText(durationText),
             viewCount = parseViewCountText(viewsText),
             uploadDate = uploadText,
             timestamp = parseRelativeUploadDate(uploadText) ?: 0L,
-            channelThumbnailUrl = channelThumbnailUrl,
+            channelThumbnailUrl = resolvedThumbnail,
             isLive = isLive || viewsText?.contains("watching", ignoreCase = true) == true,
         )
     }
@@ -820,11 +881,12 @@ object YouTube {
             ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
         val uploadText = r.publishedTimeText?.textValue().orEmpty()
         val viewsText = r.viewCountText?.textValue()
+        val resolvedChannelName = r.ownerText?.textValue()?.takeIf { it.isNotBlank() } ?: channelName
         val avatarUrls = r.channelAvatarUrls(channelThumbnailUrl)
         return com.omersusin.pitube.data.model.Video(
             id = videoId,
             title = title,
-            channelName = channelName,
+            channelName = resolvedChannelName,
             channelId = channelId,
             thumbnailUrl = thumbnail,
             duration = parseLengthText(r.lengthText?.textValue()),

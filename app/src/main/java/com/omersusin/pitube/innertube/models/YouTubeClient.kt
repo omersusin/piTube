@@ -71,6 +71,7 @@ data class YouTubeClient(
             originalUrl = ORIGIN_YOUTUBE,
             platform = "DESKTOP",
             utcOffsetMinutes = 0,
+            loginSupported = true,
         )
 
         val ANDROID = YouTubeClient(

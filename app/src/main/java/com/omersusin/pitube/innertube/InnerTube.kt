@@ -84,6 +84,9 @@ class InnerTube {
 
     var useLoginForBrowse: Boolean = false
 
+    /** Invoked whenever a response rotated the session cookie to a new value. */
+    var cookieRefreshListener: ((String) -> Unit)? = null
+
     private fun sanitizeLocale(value: YouTubeLocale): YouTubeLocale =
         YouTubeLocale(
             gl = sanitizeCountryCode(value.gl),
@@ -130,6 +133,30 @@ class InnerTube {
             // PERFORMANCE OPTIMIZED: Enhanced network configuration
             engine {
                 config {
+                    // Keep the stored session fresh as Google rotates cookies
+                    // mid-session (SIDTS pairs etc.); only ever merges, never clears.
+                    addInterceptor { chain ->
+                        val response = chain.proceed(chain.request())
+                        val setCookies = response.headers("Set-Cookie")
+                        if (!setCookies.isEmpty()) {
+                            val host = response.request.url.host
+                            if (host.endsWith("youtube.com") || host.endsWith("google.com")) {
+                                val currentCookie = cookie
+                                if (!currentCookie.isNullOrBlank()) {
+                                    val merged = com.omersusin.pitube.data.local.CookieRotation.mergeCookies(
+                                        currentCookie,
+                                        setCookies,
+                                    )
+                                    if (merged != currentCookie) {
+                                        cookie = merged
+                                        cookieRefreshListener?.invoke(merged)
+                                    }
+                                }
+                            }
+                        }
+                        response
+                    }
+
                     // Aggressive connection pool for faster connection reuse
                     connectionPool(
                         okhttp3.ConnectionPool(
@@ -384,6 +411,38 @@ class InnerTube {
             params = if (continuation == null) params else null,
             continuation = continuation,
         )
+    }
+
+    /**
+     * Signed /browse against the YouTube.com WEB endpoint, used for account
+     * personalized surfaces (the home feed's FEwhat_to_watch and its rich-grid
+     * continuation pages).
+     *
+     * Unlike [webBrowse] this goes through [HttpRequestBuilder.ytClient] with
+     * [setLogin], so the stored session cookie and the matching SAPISIDHASH
+     * (signed for the www.youtube.com origin) are attached to every request.
+     */
+    suspend fun signedWebBrowse(
+        client: YouTubeClient,
+        browseId: String? = null,
+        continuation: String? = null,
+    ) = withRetry {
+        httpClient.post("https://www.youtube.com/youtubei/v1/browse") {
+            ytClient(client, setLogin = true, apiUrl = YouTubeClient.API_URL_YOUTUBE)
+            setBody(
+                BrowseBody(
+                    context =
+                        client.toContext(
+                            locale,
+                            visitorData,
+                            dataSyncId,
+                        ),
+                    browseId = if (continuation == null) browseId else null,
+                    params = null,
+                    continuation = continuation,
+                ),
+            )
+        }
     }
 
     private suspend fun <T> withVisitorDataFallback(

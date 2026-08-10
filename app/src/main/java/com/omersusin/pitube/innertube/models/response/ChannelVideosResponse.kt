@@ -124,6 +124,8 @@ data class ChannelVideosResponse(
         val channelThumbnailSupportedRenderers: ChannelThumbnailSupportedRenderers? = null,
         @SerialName("avatarStackViewModel")
         val avatarStackViewModel: AvatarStackViewModel? = null,
+        @SerialName("ownerText")
+        val ownerText: SimpleText? = null,
     ) {
         @Serializable
         data class ChannelThumbnailSupportedRenderers(
@@ -203,6 +205,32 @@ data class ChannelVideosResponse(
             val title: TextContent? = null,
             @SerialName("metadata")
             val metadata: ContentMetadata? = null,
+            @SerialName("image")
+            val image: LockupImage? = null,
+        )
+
+        @Serializable
+        data class LockupImage(
+            @SerialName("decoratedAvatarViewModel")
+            val decoratedAvatarViewModel: DecoratedAvatarViewModel? = null,
+        )
+
+        @Serializable
+        data class DecoratedAvatarViewModel(
+            @SerialName("avatar")
+            val avatar: Avatar? = null,
+        )
+
+        @Serializable
+        data class Avatar(
+            @SerialName("avatarViewModel")
+            val avatarViewModel: AvatarViewModel? = null,
+        )
+
+        @Serializable
+        data class AvatarViewModel(
+            @SerialName("image")
+            val image: Image? = null,
         )
 
         @Serializable
@@ -235,6 +263,28 @@ data class ChannelVideosResponse(
             val text: TextContent? = null,
             @SerialName("accessibilityLabel")
             val accessibilityLabel: String? = null,
+            @SerialName("runs")
+            val runs: List<TextRun>? = null,
+        )
+
+        @Serializable
+        data class TextRun(
+            @SerialName("text")
+            val text: String? = null,
+            @SerialName("navigationEndpoint")
+            val navigationEndpoint: RunEndpoint? = null,
+        )
+
+        @Serializable
+        data class RunEndpoint(
+            @SerialName("browseEndpoint")
+            val browseEndpoint: RunBrowseEndpoint? = null,
+        )
+
+        @Serializable
+        data class RunBrowseEndpoint(
+            @SerialName("browseId")
+            val browseId: String? = null,
         )
 
         @Serializable

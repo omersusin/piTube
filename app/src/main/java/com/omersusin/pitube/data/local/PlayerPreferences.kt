@@ -2475,6 +2475,13 @@ class PlayerPreferences(context: Context) {
         }
     }
 
+    /** Updates only the stored session cookie after YouTube rotated it mid-session. */
+    suspend fun refreshYoutubeCookie(cookie: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.YOUTUBE_COOKIE] = cookie
+        }
+    }
+
     /** Signs out: clears the stored cookie and cached account display info. */
     suspend fun clearYoutubeAccount() {
         context.playerPreferencesDataStore.edit { preferences ->

@@ -588,6 +588,42 @@ class HomeViewModel @Inject constructor(
         
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
+                val signedIn = !com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()
+
+                // ── Signed-in lane: the account's own "What to watch" feed ──
+                if (signedIn) {
+                    val personal = withTimeoutOrNull(12_000L) {
+                        runCatching {
+                            com.omersusin.pitube.innertube.YouTube.personalizedFeed().getOrNull()
+                        }.getOrNull()
+                    } ?: null
+                    if (personal != null && personal.videos.isNotEmpty()) {
+                        val now = System.currentTimeMillis()
+                        val visible = personal.videos.filterValid().filterWatched(watchedVideoIds.value)
+                        if (visible.isNotEmpty()) {
+                            _uiState.update { state ->
+                                state.copy(
+                                    videos = visible,
+                                    isLoading = false,
+                                    isRefreshing = false,
+                                    hasMorePages = personal.continuation != null,
+                                    isFlowFeed = true,
+                                    feedContinuation = personal.continuation,
+                                    lastRefreshTime = now
+                                )
+                            }
+                            HomeFeedCache.update(visible, _uiState.value.shorts)
+                            persistentHomeFeedCache.saveLastFeed(visible)
+                            Log.d(
+                                TAG,
+                                "Personalized feed: ${visible.size} videos, continuation=${personal.continuation != null}"
+                            )
+                            return@launch
+                        }
+                    }
+                    Log.w(TAG, "Personalized feed empty or failed; falling back to discovery blend")
+                }
+
                 discoveryQueries.clear()
                 discoveryQueries.addAll(DISCOVERY_QUERIES)
                 currentQueryIndex = 0
@@ -772,6 +808,7 @@ class HomeViewModel @Inject constructor(
                         isRefreshing = false,
                         hasMorePages = true,
                         isFlowFeed = true,
+                        feedContinuation = null,
                         lastRefreshTime = now
                     )
                 }
@@ -847,8 +884,30 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadNextPrefetchPage(generation: Int): Boolean {
         try {
                 val now = System.currentTimeMillis()
-                val userSubs = subscriptionRepository.getAllSubscriptionIds()
                 val currentIds = _uiState.value.videos.map { it.id }.toHashSet()
+
+                // ── Signed-in lane: next page of the personalized feed ──
+                val continuation = _uiState.value.feedContinuation
+                if (continuation != null) {
+                    val next = runCatching {
+                        com.omersusin.pitube.innertube.YouTube.personalizedFeedContinuation(continuation).getOrNull()
+                    }.getOrNull()
+                    if (next != null && next.videos.isNotEmpty()) {
+                        _uiState.update { state ->
+                            state.copy(
+                                feedContinuation = next.continuation,
+                                hasMorePages = next.continuation != null
+                            )
+                        }
+                        val appended = appendLoadMorePage(next.videos, generation)
+                        appended?.let { persistentHomeFeedCache.saveLastFeed(it) }
+                        return appended != null
+                    }
+                    _uiState.update { state -> state.copy(hasMorePages = false) }
+                    return false
+                }
+
+                val userSubs = subscriptionRepository.getAllSubscriptionIds()
                 val page = mutableListOf<Video>()
                 val channelCounts = HashMap<String, Int>()
                 val pageIds = HashSet<String>(currentIds)
@@ -1263,5 +1322,6 @@ data class HomeUiState(
     val hasMorePages: Boolean = true,
     val error: String? = null,
     val isFlowFeed: Boolean = false,
-    val lastRefreshTime: Long = 0L
+    val lastRefreshTime: Long = 0L,
+    val feedContinuation: String? = null
 )

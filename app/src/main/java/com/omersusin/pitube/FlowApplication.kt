@@ -183,6 +183,11 @@ class FlowApplication :
             } catch (e: Exception) {
                 Log.w(TAG, "session restore error: ${e.message}")
             }
+            YouTube.onCookieRotated = { merged ->
+                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                    runCatching { playerPreferences.refreshYoutubeCookie(merged) }
+                }
+            }
             try {
                 com.omersusin.pitube.utils.potoken.WebPoTokenSession
                     .prewarm()
