@@ -1141,8 +1141,9 @@ class YouTubeRepository
         suspend fun setCommentLiked(comment: Comment, liked: Boolean): Boolean =
             withContext(Dispatchers.IO) {
                 if (!isSignedIn) return@withContext false
-                val action = if (liked) comment.likeParams else comment.unlikeParams
-                    ?: return@withContext false
+                val action =
+                    (if (liked) comment.likeParams else comment.unlikeParams)
+                        ?: return@withContext false
                 YouTube.performCommentAction(action).getOrDefault(false)
             }
 

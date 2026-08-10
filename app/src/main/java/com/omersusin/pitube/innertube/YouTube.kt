@@ -95,7 +95,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.jsonArrayOf
+import kotlinx.serialization.json.buildJsonArray
 import java.net.Proxy
 import java.util.Locale
 import kotlin.random.Random
@@ -716,7 +716,7 @@ object YouTube {
             endpoint = "next",
             jsonBody = buildJsonObject {
                 put("context", commentWebContext(client))
-                put("videoId", videoId)
+                put("videoId", JsonPrimitive(videoId))
             },
         )
         Json.parseToJsonElement(httpResponse.bodyAsText()).toVideoCommentsToken()
@@ -730,7 +730,7 @@ object YouTube {
             endpoint = "next",
             jsonBody = buildJsonObject {
                 put("context", commentWebContext(client))
-                put("continuation", token)
+                put("continuation", JsonPrimitive(token))
             },
         )
         Json.parseToJsonElement(httpResponse.bodyAsText()).toVideoCommentsPage()
@@ -751,8 +751,8 @@ object YouTube {
             endpoint = "comment/create_comment",
             jsonBody = buildJsonObject {
                 put("context", commentWebContext(client))
-                put("commentText", text)
-                put("createCommentParams", createCommentParams)
+                put("commentText", JsonPrimitive(text))
+                put("createCommentParams", JsonPrimitive(createCommentParams))
             },
         )
         Json.parseToJsonElement(httpResponse.bodyAsText()).toCreatedVideoComment()
@@ -769,8 +769,8 @@ object YouTube {
             endpoint = "comment/create_comment_reply",
             jsonBody = buildJsonObject {
                 put("context", commentWebContext(client))
-                put("commentText", text)
-                put("createReplyParams", replyParams)
+                put("commentText", JsonPrimitive(text))
+                put("createReplyParams", JsonPrimitive(replyParams))
             },
         )
         Json.parseToJsonElement(httpResponse.bodyAsText()).toCreatedVideoComment()
@@ -787,7 +787,7 @@ object YouTube {
             endpoint = "comment/perform_comment_action",
             jsonBody = buildJsonObject {
                 put("context", commentWebContext(client))
-                put("actions", jsonArrayOf(action))
+                put("actions", buildJsonArray { add(JsonPrimitive(action)) })
             },
         )
         Json.parseToJsonElement(httpResponse.bodyAsText()).hasSucceededActionResult()
@@ -798,10 +798,10 @@ object YouTube {
             put(
                 "client",
                 buildJsonObject {
-                    put("clientName", "WEB")
-                    put("clientVersion", client.clientVersion)
-                    put("hl", "en")
-                    put("gl", "US")
+                    put("clientName", JsonPrimitive("WEB"))
+                    put("clientVersion", JsonPrimitive(client.clientVersion))
+                    put("hl", JsonPrimitive("en"))
+                    put("gl", JsonPrimitive("US"))
                 },
             )
         }

@@ -42,12 +42,14 @@ internal fun JsonElement.toVideoCommentsToken(): String? {
  * toolbar surface entities carry the like/unlike/reply/delete action params.
  */
 internal fun JsonElement.toVideoCommentsPage(): VideoCommentsPage {
+    val root = this as? JsonObject
+        ?: return VideoCommentsPage(comments = emptyList(), continuation = null, createCommentParams = null)
     val entities = mutableMapOf<String, JsonObject>()
     val toolbarStates = mutableMapOf<String, JsonObject>()
     val toolbarSurfaces = mutableMapOf<String, JsonObject>()
     val replyParamsList = mutableListOf<String>()
 
-    val mutations = this["frameworkUpdates"].objectOrNull()
+    val mutations = root["frameworkUpdates"].objectOrNull()
         ?.get("entityBatchUpdate").objectOrNull()
         ?.get("mutations").arrayOrNull()
     if (mutations != null) {
@@ -93,7 +95,7 @@ internal fun JsonElement.toVideoCommentsPage(): VideoCommentsPage {
     // Walk continuationItems in order to keep YouTube's comment ordering
     val comments = mutableListOf<Comment>()
     var nextToken: String? = null
-    val endpoints = this["onResponseReceivedEndpoints"].arrayOrNull() ?: JsonArray(emptyList())
+    val endpoints = root["onResponseReceivedEndpoints"].arrayOrNull() ?: JsonArray(emptyList())
     for (endpoint in endpoints) {
         val endpointObject = endpoint.objectOrNull() ?: continue
         val items = (endpointObject["reloadContinuationItemsCommand"].objectOrNull()
@@ -125,7 +127,7 @@ internal fun JsonElement.toVideoCommentsPage(): VideoCommentsPage {
                     replyParams = replyParamsByCommentId[id],
                     toolbarSurfaces = toolbarSurfaces,
                 )?.let(comments::add)
-            } else if (itemObject.has("continuationItemRenderer")) {
+            } else if (itemObject.containsKey("continuationItemRenderer")) {
                 val tokens = mutableListOf<String>()
                 findContinuationTokens(itemObject["continuationItemRenderer"], tokens)
                 if (nextToken == null) nextToken = tokens.firstOrNull()
@@ -247,7 +249,7 @@ private fun parseVideoCommentEntity(
         likeCount = parseCount(toolbar?.get("likeCountNotliked")),
         publishedTime = properties?.get("publishedTime").stringOrNull().orEmpty(),
         replyCount = parseCount(toolbar?.get("replyCount")),
-        isPinned = viewModel.has("pinnedText"),
+        isPinned = viewModel.containsKey("pinnedText"),
         continuationToken = repliesToken,
         authorChannelId = author?.get("channelId").stringOrNull()
             ?: author?.get("navigationEndpoint").objectOrNull()

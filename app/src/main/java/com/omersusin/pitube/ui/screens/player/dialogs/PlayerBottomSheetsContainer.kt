@@ -61,7 +61,7 @@ fun PlayerBottomSheetsContainer(
     isSignedIn: Boolean = false,
     isPostingComment: Boolean = false,
     onPostComment: (String) -> Unit = {},
-    onPostReply: (Comment, String) -> Unit = {},
+    onPostReply: (Comment, String) -> Unit = { _, _ -> },
     onToggleLike: (Comment) -> Unit = {},
     onDeleteComment: (Comment) -> Unit = {},
     onNavigateToChannel: ((String) -> Unit)? = null,
