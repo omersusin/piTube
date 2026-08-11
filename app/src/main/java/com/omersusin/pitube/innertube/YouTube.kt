@@ -1284,10 +1284,10 @@ object YouTube {
             ?.getOrNull(1)
             ?: return 0L
         val separatorCount = match.count { it == '.' || it == ',' }
-        val value =
+        val value: Double =
             if (separatorCount >= 2) {
                 // Thousands separators ("1,234,567 views" / Turkish "1.234.567")
-                match.replace(".", "").replace(",", "").toLongOrNull() ?: return 0L
+                (match.replace(".", "").replace(",", "").toLongOrNull() ?: return 0L).toDouble()
             } else {
                 // Decimal ("1.2M views" / Turkish "1,2 Mn görüntüleme")
                 match.replace(',', '.').toDoubleOrNull() ?: return 0L
