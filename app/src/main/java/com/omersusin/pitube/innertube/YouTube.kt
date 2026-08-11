@@ -1070,11 +1070,17 @@ object YouTube {
                 part.text?.content?.takeIf(String::isNotBlank)?.let { parts += it }
             }
         }
-        val viewsText = parts.firstOrNull { it.contains("view", ignoreCase = true) || it.contains("watching", ignoreCase = true) }
-            ?: parts.firstOrNull()
-        val uploadText = parts.firstOrNull {
-            !it.contains("view", ignoreCase = true) && !it.contains("watching", ignoreCase = true)
-        }.orEmpty()
+        val segments = parts
+            .flatMap { it.split("•").map(String::trim).filter(String::isNotBlank) }
+        // View counts and upload dates are localized (e.g. Turkish "görüntüleme"
+        // / "önce"), so classify by shape instead of English keywords: the views
+        // segment contains a number but no relative-time unit, the date segment
+        // contains a relative-time unit. This also stops the channel name from
+        // leaking into the "views"/"date" slots when no segment matches.
+        val viewsText = segments.firstOrNull { segment ->
+            segment.any(Char::isDigit) && !looksLikeRelativeDate(segment)
+        }
+        val uploadText = segments.firstOrNull { looksLikeRelativeDate(it) }.orEmpty()
 
         return com.omersusin.pitube.data.model.Video(
             id = videoId,
@@ -1087,7 +1093,8 @@ object YouTube {
             uploadDate = uploadText,
             timestamp = parseRelativeUploadDate(uploadText) ?: 0L,
             channelThumbnailUrl = resolvedThumbnail,
-            isLive = isLive || viewsText?.contains("watching", ignoreCase = true) == true,
+            isLive = isLive || viewsText?.contains("watching", ignoreCase = true) == true
+                || viewsText?.contains("izliyor", ignoreCase = true) == true,
         )
     }
 
@@ -1267,24 +1274,51 @@ object YouTube {
     private fun parseViewCountText(text: String?): Long {
         if (text.isNullOrBlank()) return 0L
         val normalized = text.lowercase(Locale.US)
-            .replace(",", "")
             .replace("views", "")
             .replace("view", "")
             .replace("watching", "")
+            .replace("izliyor", "")
             .trim()
-        val number = Regex("""(\d+(?:\.\d+)?)""").find(normalized)
+        val match = Regex("""(\d[\d.,]*\d|\d)""").find(normalized)
             ?.groupValues
             ?.getOrNull(1)
-            ?.toDoubleOrNull()
             ?: return 0L
+        val separatorCount = match.count { it == '.' || it == ',' }
+        val value =
+            if (separatorCount >= 2) {
+                // Thousands separators ("1,234,567 views" / Turkish "1.234.567")
+                match.replace(".", "").replace(",", "").toLongOrNull() ?: return 0L
+            } else {
+                // Decimal ("1.2M views" / Turkish "1,2 Mn görüntüleme")
+                match.replace(',', '.').toDoubleOrNull() ?: return 0L
+            }
+        val hasTurkishDecimal = match.contains(',')
+        val suffix = normalized.substring(match.lastIndex + 1).trim()
         val multiplier = when {
-            normalized.contains("b") -> 1_000_000_000.0
-            normalized.contains("m") -> 1_000_000.0
-            normalized.contains("k") -> 1_000.0
+            suffix.startsWith("milyar") || suffix.startsWith("million") ||
+                suffix.startsWith("milliard") || suffix.startsWith("bn") ||
+                suffix.startsWith("mr") -> 1_000_000_000.0
+            suffix.startsWith("milyon") || suffix.startsWith("million") ||
+                suffix.startsWith("mn") || suffix.startsWith("m") -> 1_000_000.0
+            suffix.startsWith("bin") || suffix.startsWith("thousand") ||
+                suffix.startsWith("k") -> 1_000.0
+            // Bare "b": English billion ("1.2B views") vs Turkish bin
+            // ("1,2 B görüntüleme" / "123 B görüntüleme")
+            suffix.startsWith("b") && (hasTurkishDecimal || suffix.length > 2) -> 1_000.0
+            suffix.startsWith("b") -> 1_000_000_000.0
             else -> 1.0
         }
-        return (number * multiplier).toLong()
+        return (value * multiplier).toLong()
     }
+
+    /** Relative-time units in English and Turkish (suffix "ago"/"önce" optional). */
+    private val relativeTimeRegex = Regex(
+        """(\d+)\s*(saniye|dakika|saat|gün|hafta|ay|yıl|second|minute|hour|day|week|month|year|sec|min|hr)s?\b""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    private fun looksLikeRelativeDate(text: String): Boolean =
+        relativeTimeRegex.containsMatchIn(text)
 
     private fun parseRelativeUploadDate(text: String?): Long? {
         val normalized = text?.lowercase(Locale.US)
@@ -1292,23 +1326,43 @@ object YouTube {
             ?.replace("premiered", "")
             ?.replace("live", "")
             ?.replace("ago", "")
+            ?.replace("önce", "")
+            ?.replace("sonra", "")
             ?.trim()
             ?: return null
 
         if (normalized.isBlank()) return null
-        if (normalized.contains("just now") || normalized.contains("today")) return System.currentTimeMillis()
-        if (normalized.contains("yesterday")) return System.currentTimeMillis() - 24L * 60L * 60L * 1000L
+        if (normalized.contains("just now") || normalized.contains("today") ||
+            normalized.contains("az önce") || normalized.contains("şimdi")
+        ) return System.currentTimeMillis()
+        if (normalized.contains("yesterday") || normalized.contains("dün")) {
+            return System.currentTimeMillis() - 24L * 60L * 60L * 1000L
+        }
 
-        val value = Regex("""(\d+)""").find(normalized)?.groupValues?.getOrNull(1)?.toLongOrNull()
-            ?: return null
-        val unitMillis = when {
-            normalized.contains("second") || normalized.endsWith("s") -> 1_000L
-            normalized.contains("minute") || normalized.endsWith("m") -> 60_000L
-            normalized.contains("hour") || normalized.endsWith("h") -> 3_600_000L
-            normalized.contains("day") || normalized.endsWith("d") -> 86_400_000L
-            normalized.contains("week") || normalized.endsWith("w") -> 7L * 86_400_000L
-            normalized.contains("month") || normalized.endsWith("mo") -> 30L * 86_400_000L
-            normalized.contains("year") || normalized.endsWith("y") -> 365L * 86_400_000L
+        val match = relativeTimeRegex.find(normalized) ?: run {
+            // Short forms ("2d", "3h", "5m", "1y"…)
+            val short = Regex("""(\d+)\s*(s|m|h|d|w|mo|y)\b""", RegexOption.IGNORE_CASE)
+                .find(normalized) ?: return null
+            val shortValue = short.groupValues.getOrNull(1)?.toLongOrNull() ?: return null
+            return System.currentTimeMillis() - shortValue * when (short.groupValues[2].lowercase(Locale.US)) {
+                "s" -> 1_000L
+                "m" -> 60_000L
+                "h" -> 3_600_000L
+                "d" -> 86_400_000L
+                "w" -> 7L * 86_400_000L
+                "mo" -> 30L * 86_400_000L
+                else -> 365L * 86_400_000L
+            }
+        }
+        val value = match.groupValues.getOrNull(1)?.toLongOrNull() ?: return null
+        val unitMillis = when (match.groupValues.getOrNull(2)?.lowercase(Locale.US)) {
+            "saniye", "second", "sec" -> 1_000L
+            "dakika", "minute", "min" -> 60_000L
+            "saat", "hour", "hr" -> 3_600_000L
+            "gün", "day" -> 86_400_000L
+            "hafta", "week" -> 7L * 86_400_000L
+            "ay", "month" -> 30L * 86_400_000L
+            "yıl", "year" -> 365L * 86_400_000L
             else -> return null
         }
 
