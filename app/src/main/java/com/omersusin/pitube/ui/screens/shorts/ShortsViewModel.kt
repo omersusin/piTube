@@ -490,9 +490,12 @@ class ShortsViewModel @Inject constructor(
             _commentsState.value = emptyList()
             createCommentParams = null
             try {
+                fun stillOnVideo(): Boolean =
+                    _uiState.value.shorts.getOrNull(_uiState.value.currentIndex)?.id == videoId
                 // Signed-in flow first (Koda port): carries the toolbar params
                 // needed for posting/liking. Falls back to NewPipe otherwise.
                 val signedPage = repository.getSignedComments(videoId)
+                if (!stillOnVideo()) return@launch
                 if (signedPage != null) {
                     _commentsState.value = signedPage.comments
                     createCommentParams = signedPage.createCommentParams
@@ -501,6 +504,7 @@ class ShortsViewModel @Inject constructor(
                 val result = withTimeoutOrNull(10_000L) {
                     repository.getComments(videoId)
                 }
+                if (!stillOnVideo()) return@launch
                 _commentsState.value = result?.first ?: emptyList()
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading comments", e)
@@ -639,7 +643,15 @@ class ShortsViewModel @Inject constructor(
         transform: (com.omersusin.pitube.data.model.Comment) -> com.omersusin.pitube.data.model.Comment,
     ) {
         _commentsState.value = _commentsState.value.map { c ->
-            if (c.id == commentId) transform(c) else c
+            if (c.id == commentId) {
+                transform(c)
+            } else {
+                c.copy(
+                    replies = c.replies.map { r ->
+                        if (r.id == commentId) transform(r) else r
+                    }
+                )
+            }
         }
     }
 

@@ -5,6 +5,8 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.omersusin.pitube.data.local.ChannelSubscription
+import com.omersusin.pitube.data.local.LikedVideoInfo
+import com.omersusin.pitube.data.local.LikedVideosRepository
 import com.omersusin.pitube.data.local.PlaylistRepository
 import com.omersusin.pitube.data.local.SubscriptionRepository
 import com.omersusin.pitube.data.model.Video
@@ -261,22 +263,41 @@ class QuickActionsViewModel @Inject constructor(
     }
 
     /**
-     * Mark a video as "I like this" - saves it to the liked videos list.
+     * Mark a video as "I like this" — likes it on the signed-in YouTube
+     * account (when logged in) and saves it to the local Liked Videos list.
      */
     fun markAsInteresting(video: Video) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                Toast.makeText(
-                    context,
-                    context.getString(com.omersusin.pitube.R.string.i_like_this_toast),
-                    Toast.LENGTH_SHORT
-                ).show()
+                val liked = runCatching {
+                    YouTube.setVideoLiked(video.id, liked = true).getOrNull() == true
+                }.getOrDefault(false)
+                if (liked) {
+                    LikedVideosRepository.getInstance(context).likeVideo(
+                        LikedVideoInfo(
+                            videoId = video.id,
+                            title = video.title,
+                            thumbnail = video.thumbnailUrl,
+                            channelName = video.channelName,
+                            isMusic = video.isMusic
+                        )
+                    )
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.i_like_this_toast),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } catch (e: Exception) {
-                Toast.makeText(
-                    context,
-                    context.getString(com.omersusin.pitube.R.string.quick_actions_error_template, e.message),
-                    Toast.LENGTH_SHORT
-                ).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.quick_actions_error_template, e.message),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

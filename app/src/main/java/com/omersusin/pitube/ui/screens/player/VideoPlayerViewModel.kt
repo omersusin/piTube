@@ -2747,6 +2747,9 @@ class VideoPlayerViewModel @Inject constructor(
         if (duration <= 0) return
         if (isLocalMediaId(video.id)) return
         val watchFraction = position.toDouble() / duration
+        // A fresh start (seek to the beginning / rewatch) resets the per-view
+        // guard so the video can be reported to YouTube history again.
+        if (position < 3_000L) lastReportedVideoId = null
         // One terminal signal per video view; ignore repeat dispose fires.
         if (video.id == lastReportedVideoId) return
         if (watchFraction < 0.20) return
@@ -2935,6 +2938,7 @@ class VideoPlayerViewModel @Inject constructor(
                 // Signed-in flow first (Koda port): carries the toolbar params
                 // needed for posting/liking. Falls back to NewPipe otherwise.
                 val signedPage = repository.getSignedComments(videoId)
+                if (_uiState.value.cachedVideo?.id != videoId) return@launch
                 if (signedPage != null) {
                     _commentsState.value = signedPage.comments.distinctByNonBlankKey(Comment::id)
                     signedCommentsContinuation = signedPage.continuation
@@ -3171,7 +3175,15 @@ class VideoPlayerViewModel @Inject constructor(
         transform: (com.omersusin.pitube.data.model.Comment) -> com.omersusin.pitube.data.model.Comment,
     ) {
         _commentsState.value = _commentsState.value.map { c ->
-            if (c.id == commentId) transform(c) else c
+            if (c.id == commentId) {
+                transform(c)
+            } else {
+                c.copy(
+                    replies = c.replies.map { r ->
+                        if (r.id == commentId) transform(r) else r
+                    }
+                )
+            }
         }
     }
 

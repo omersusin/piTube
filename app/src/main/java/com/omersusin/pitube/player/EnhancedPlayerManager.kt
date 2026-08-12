@@ -1274,7 +1274,10 @@ class EnhancedPlayerManager private constructor() {
         updateQueueState()
 
         if (videos.isNotEmpty()) {
-            val video = videos[currentQueueIndex]
+            // currentQueueIndex refers to the (possibly shuffled) playback queue,
+            // not the original list — reading from `videos` would seed the wrong
+            // video whenever shuffle is enabled.
+            val video = playbackQueue[currentQueueIndex]
             startPlaybackFromQueue(video, loadStreamsInPlayer = false)
             requestPreloadNext("queue-set")
         }

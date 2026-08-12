@@ -868,6 +868,25 @@ object YouTube {
         return (1..16).map { chars.random() }.joinToString("")
     }
 
+    /**
+     * Like/unlike a video on the signed-in account (signed WEB like/like, the
+     * same surface the comments use — the music-host like does not apply to
+     * regular videos). Requires login; false when not signed in.
+     */
+    suspend fun setVideoLiked(videoId: String, liked: Boolean): Result<Boolean> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching false
+        val client = currentWebClient()
+        val response = innerTube.signedJsonPost(
+            client = client,
+            endpoint = if (liked) "like/like" else "like/removelike",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("target", buildJsonObject { put("videoId", JsonPrimitive(videoId)) })
+            },
+        )
+        response.status.isSuccess()
+    }
+
     // ============================================================
     // Account library on the WEB client (Koda port). The music-host
     // browse feeds stay empty for video-only accounts, so these signed
