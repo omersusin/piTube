@@ -154,7 +154,6 @@
     <string name="related_videos">Related Videos</string>
     <string name="quality_auto">Auto</string>
     <string name="quality_auto_template">Auto (%1$dp)</string>
-    <string name="video_marked_not_interested">Video marked as not interested</string>
     <string name="play_mode_suggestion_title">Play Mode Suggestion</string>
     <string name="play_mode_suggestion_body">This video is less than 2 minutes long. Would you like to switch to a specialized player?</string>
     <string name="shorts_player">Shorts Player</string>
@@ -187,14 +186,10 @@
     <string name="create">Create</string>
     <!-- Video Quick Actions -->
     <string name="save_to_playlist">Save to playlist</string>
-    <string name="not_interested">Not interested</string>
-    <string name="not_interested_toast">Got it! You\'ll see less content like this.</string>
     <string name="quick_actions_error_template">Error: %1$s</string>
     <string name="details_metadata">Details &amp; Metadata</string>
     <string name="mark_as_watched">Mark as watched</string>
     <string name="mark_as_watched_toast">Marked as watched — your recommendations will improve!</string>
-    <string name="i_like_this">I want more like this</string>
-    <string name="i_like_this_toast">Got it! You\'ll see more content like this.</string>
     <string name="go_to_channel">Go to channel</string>
     <!-- Media Info Dialog -->
     <string name="track_info">Track Information</string>
@@ -951,7 +946,6 @@
     <string name="sb_submit_error">Failed to submit segment. Please try again.</string>
     <!-- Bottom sheet section labels -->
     <string name="section_channel">Channel</string>
-    <string name="section_algorithm">Algorithm</string>
     <string name="section_options">Options</string>
     <!-- Channel blocking -->
     <string name="dont_show_channel">Don’t show this channel</string>
@@ -1767,8 +1761,6 @@
     <string name="link_with_timestamp_copied">Link with timestamp copied</string>
     <string name="player_live_label">LIVE</string>
     <string name="player_action_dislike">Dislike</string>
-    <string name="action_want_more">Want more like this</string>
-    <string name="action_not_interested">Not interested</string>
     <!-- Diagnostics screen -->
     <string name="settings_item_diagnostics">Diagnostics</string>
     <string name="settings_item_diagnostics_subtitle">View error logs and crash reports</string>

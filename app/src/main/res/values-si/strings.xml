@@ -148,7 +148,6 @@
     <string name="related_videos">ගැලපෙන වීඩියෝ</string>
     <string name="quality_auto">ඔටෝ</string>
     <string name="quality_auto_template">ඔටෝ(%1$d)</string>
-    <string name="video_marked_not_interested">වීඩියෝව උනන්දුවක් නොදක්වන ලෙස සලකුණු කරන ලදී</string>
     <string name="play_mode_suggestion_title">ධාවන ප්‍රකාර යෝජනාව</string>
     <string name="play_mode_suggestion_body">මෙම වීඩියෝව මිනිත්තු 2කට වඩා අඩුය. විශේෂිත වාදකයකට මාරු වීමට ඔබ කැමතිද?</string>
     <string name="shorts_player">ශෝට්ස් ධාවකය</string>

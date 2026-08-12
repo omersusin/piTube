@@ -66,7 +66,6 @@
     <string name="action_undo">تراجع</string>
     <string name="create">إنشاء</string>
     <string name="save_to_playlist">حفظ في قائمة تشغيل</string>
-    <string name="not_interested">غير مهتم</string>
     <string name="dislikes">عدم الإعجاب</string>
     <string name="quality">الدقة</string>
     <string name="duration">المدة</string>
@@ -451,7 +450,6 @@
     <string name="sb_submit_category">الفئات</string>
     <string name="sb_submit_swap">تبديل الطوابع الزمنية</string>
     <string name="section_channel">القناة</string>
-    <string name="section_algorithm">خوارزمية</string>
     <string name="section_options">الخيارات</string>
     <string name="dont_show_channel">لا تعرض هذه القناة</string>
     <string name="dont_show_channel_desc">إزالة من توصياتك</string>
@@ -773,8 +771,6 @@
     <string name="temporal_patterns_subtitle">كيف تتغير إهتماماتك بإختلاف أوقات اليوم</string>
     <string name="channel_memory">ذاكرة القناة</string>
     <string name="channel_memory_subtitle">التعليقات الضمنية من سجل المشاهدة الخاص بك</string>
-    <string name="algorithm_insights">رؤى حول الخوارزميات</string>
-    <string name="algorithm_insights_subtitle">تحت الغطاء</string>
     <string name="filters_title">المرشحات</string>
     <string name="blocked_topics_channels_subtitle">المواضيع و القنوات المحظورة</string>
     <string name="reset_neural_profile_title">إعادة ضبط الملف العصبي؟</string>
@@ -1005,8 +1001,6 @@
     <string name="link_with_timestamp_copied">تم نسخ الرابط مع الطابع الزمني</string>
     <string name="player_live_label">مباشر</string>
     <string name="player_action_dislike">عدم الإعجاب</string>
-    <string name="action_want_more">أريد المزيد من ذلك</string>
-    <string name="action_not_interested">غير مهتم</string>
     <string name="settings_item_diagnostics">التشخيصات</string>
     <string name="settings_item_diagnostics_subtitle">عرض سجلات الأخطاء وتقارير الأعطال</string>
     <string name="diagnostics_title">التشخيصات</string>
@@ -1043,7 +1037,6 @@
     <string name="sample_rate_label">معدل العينة</string>
     <string name="bitrate_label">معدل البت</string>
     <string name="check_out_video_template">تحقق من هذا الفيديو: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
-    <string name="video_marked_not_interested">تم وضع علامة \"غير مهتم\" على الفيديو</string>
     <string name="play_mode_suggestion_title">إقتراح وضع التشغيل</string>
     <string name="empty_offline_title">%1$s المحلية</string>
     <string name="empty_offline_body">ملفات %1$s المحملة ستظهر هنا.\nاستمتع بمحتواك حتى بدون اتصال بالإنترنت.</string>
@@ -1052,8 +1045,6 @@
     <string name="watch_later_unsave">إلغاء حفظ المشاهدة لاحقًا</string>
     <string name="details_metadata">التفاصيل والبيانات الوصفية</string>
     <string name="mark_as_watched_toast">تمت تحديده كمشاهد — ستتحسن توصياتك!</string>
-    <string name="i_like_this">أريد المزيد من هذا</string>
-    <string name="i_like_this_toast">فهمتك! سترى المزيد من المحتوى المشابه.</string>
     <string name="go_to_channel">اذهب إلى القناة</string>
     <string name="track_info">معلومات المحتوي</string>
     <string name="track_info_subtitle">مقاييس فنية واجتماعية مفصلة</string>
@@ -1806,7 +1797,6 @@
     <string name="persona_explorer_title">المستكشف</string>
     <string name="persona_explorer_description">فوضوي و جميل. فيه شئ من كل شيء.</string>
     <string name="subscriptions_sort_recent">الأحدث</string>
-    <string name="not_interested_toast">فهمتك! ستشاهد محتوى أقل من هذا النوع.</string>
     <string name="quick_actions_error_template">خطأ: %1$s</string>
     <string name="upcoming_label">قادم قريباً</string>
     <string name="onboarding_channels_subscribers">%1$s مشترك</string>

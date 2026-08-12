@@ -87,7 +87,6 @@
     <string name="related_videos">Vídeos Relacionados</string>
     <string name="quality_auto">Automático</string>
     <string name="quality_auto_template">Automático (%1$dp)</string>
-    <string name="video_marked_not_interested">Vídeo marcado como não interessado</string>
     <string name="play_mode_suggestion_title">Sugestão de modo de Play</string>
     <string name="play_mode_suggestion_body">Este vídeo tem menos que 2 minutos de duração. Gostaria de mudar para um player especializado?</string>
     <string name="music_player">Player de Músicas</string>
@@ -110,12 +109,9 @@
     <string name="playlist_description_optional">Descrição (opcional)</string>
     <string name="create">Criar</string>
     <string name="save_to_playlist">Gravar na Playlist</string>
-    <string name="not_interested">Não estou interessado</string>
     <string name="details_metadata">Pormenores &amp; Metadados</string>
     <string name="mark_as_watched">Marcar como assistido</string>
     <string name="mark_as_watched_toast">Marcado como assistido — as suas recomendações irão melhorar!</string>
-    <string name="i_like_this">Quero mais assim</string>
-    <string name="i_like_this_toast">Percebi! Verá mais conteúdos como este.</string>
     <string name="go_to_channel">Ir para o canal</string>
     <string name="track_info">Informações de rastreamento</string>
     <string name="track_info_subtitle">Métricas técnicas e sociais detalhadas</string>

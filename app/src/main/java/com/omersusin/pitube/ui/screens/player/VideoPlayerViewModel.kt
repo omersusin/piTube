@@ -464,13 +464,6 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             FeedInvalidationBus.events.collect { event ->
                 when (event) {
-                    is FeedInvalidationBus.Event.NotInterested -> {
-                        _uiState.update { state ->
-                            state.copy(
-                                relatedVideos = state.relatedVideos.filter { it.id != event.videoId }
-                            )
-                        }
-                    }
                     is FeedInvalidationBus.Event.ChannelBlocked -> {
                         _uiState.update { state ->
                             state.copy(

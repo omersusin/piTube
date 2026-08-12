@@ -82,7 +82,6 @@
     <string name="related_videos">Слични снимци</string>
     <string name="quality_auto">Аутоматски</string>
     <string name="quality_auto_template">Аутоматски (%1$dp)</string>
-    <string name="video_marked_not_interested">Снимак означен као неинтересантан</string>
     <string name="play_mode_suggestion_title">Сугестија мода за пуштање</string>
     <string name="play_mode_suggestion_body">Овај снимак је краћи од 2 минута. Желите ли да се пребаците у посебан плејер видеа?</string>
     <string name="shorts_player">Shorts плејер</string>
@@ -113,14 +112,10 @@
     <string name="playlist_description_optional">Опис (опционо)</string>
     <string name="create">Прави</string>
     <string name="save_to_playlist">Сачувај у плејлисту</string>
-    <string name="not_interested">Не интересује ме</string>
-    <string name="not_interested_toast">У реду. Видећете мање оваквог садржаја.</string>
     <string name="quick_actions_error_template">Грешка: %1$s</string>
     <string name="details_metadata">Детаљи и метаподаци</string>
     <string name="mark_as_watched">Означи као погледано</string>
     <string name="mark_as_watched_toast">Означено као погледано — побољшаће се Ваше препоруке!</string>
-    <string name="i_like_this">Желим више оваквог</string>
-    <string name="i_like_this_toast">У реду! Видећете више оваквог садржаја.</string>
     <string name="go_to_channel">Иди на канал</string>
     <string name="track_info">Прати информације</string>
     <string name="track_info_subtitle">Детаљне техничке и друштвене метрике</string>

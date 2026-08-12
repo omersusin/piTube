@@ -144,7 +144,6 @@
     <string name="check_out_video_template">Vaata seda videot: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
     <string name="related_videos">Seotud videod</string>
     <string name="quality_auto_template">Automaatne (%1$dp)</string>
-    <string name="video_marked_not_interested">Video on märgitud mittehuvitavaks</string>
     <string name="play_mode_suggestion_title">Esitusrežiimi soovitus</string>
     <string name="play_mode_suggestion_body">Selle video kestus jääb alla 2 minuti. Kas tahaksid kasutada asjakohast esitusvaadet?</string>
     <string name="shorts_player">Lühivideote esitaja</string>
@@ -177,12 +176,9 @@
     <string name="create_new_playlist">Koosta uus esitusloend</string>
     <string name="playlist_description_optional">Kirjeldus (kui tahad lisada)</string>
     <string name="save_to_playlist">Salvesta esitusloendisse</string>
-    <string name="not_interested">Pole huvitatud</string>
     <string name="details_metadata">Üksikasjad ja metateave</string>
     <string name="mark_as_watched">Märgi vaadatuks</string>
     <string name="mark_as_watched_toast">Märkisid vaadatuks ja sinu soovitused ainult paranevad!</string>
-    <string name="i_like_this">Tahaks veel selliseid</string>
-    <string name="i_like_this_toast">Selge lugu! Näed veel sarnast sisu.</string>
     <string name="go_to_channel">Vaata kanalit</string>
     <string name="track_info">Loo teave</string>
     <string name="channel_id">Kanali tunnus</string>
@@ -308,8 +304,6 @@
     <string name="link_with_timestamp_copied">Ajamärkega link on kopeeritud</string>
     <string name="player_live_label">OTSESAADE</string>
     <string name="player_action_dislike">Märgi mittemeeldivaks</string>
-    <string name="action_want_more">Tahaks veel selliseid</string>
-    <string name="action_not_interested">Pole huvitatud</string>
     <string name="settings_item_diagnostics">Diagnostika</string>
     <string name="no_groups_yet">Gruppe veel pole. Oma sisuvoo filtreerimiseks loo mõni.</string>
     <string name="settings_title">Seadistused</string>

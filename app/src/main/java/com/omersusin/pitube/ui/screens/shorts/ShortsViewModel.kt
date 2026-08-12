@@ -655,41 +655,6 @@ class ShortsViewModel @Inject constructor(
         }
     }
 
-    fun wantMoreLikeThis(short: ShortVideo) {
-        viewModelScope.launch(PerformanceDispatcher.networkIO) {
-            try {
-                _snackbarMessage.value = "We'll show more like this"
-                Log.d(TAG, "Want more like this: ${short.title}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error signaling want more", e)
-            }
-        }
-    }
-
-    fun notInterested(short: ShortVideo) {
-        viewModelScope.launch(PerformanceDispatcher.networkIO) {
-            try {
-                val video = short.toVideo()
-                FeedInvalidationBus.emit(FeedInvalidationBus.Event.NotInterested(video.id, video.channelId))
-
-                val currentShorts = _uiState.value.shorts
-                val updatedShorts = currentShorts.filter { it.id != short.id }
-
-                _uiState.value = _uiState.value.copy(
-                    shorts = updatedShorts,
-                    currentIndex = _uiState.value.currentIndex.coerceAtMost(
-                        (updatedShorts.size - 1).coerceAtLeast(0)
-                    )
-                )
-
-                _snackbarMessage.value = "Got it, showing less of this"
-                Log.d(TAG, "Not interested: ${short.title}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error marking not interested", e)
-            }
-        }
-    }
-    
     /**
      * Fetch stream sizes in bytes for all video formats of a Short.
      * Uses InnerTube MOBILE player endpoint — same approach as VideoPlayerViewModel.

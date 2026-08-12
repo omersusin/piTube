@@ -109,7 +109,6 @@
     <string name="share_video">Sdílet video</string>
     <string name="content_settings_share_without_text_title">Sdílet odkaz bez textu</string>
     <string name="related_videos">Navrhnout Videa</string>
-    <string name="video_marked_not_interested">Video označeno jako nezajímá</string>
     <string name="subscriptions_last_refreshed_time_only_template">Naposledy aktualizováno %1$s</string>
     <string name="channel_error_log_clip_label">Záznam chyb průtokového kanálu</string>
     <string name="channel_and_more_template">A další</string>

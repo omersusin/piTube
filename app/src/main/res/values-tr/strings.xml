@@ -86,7 +86,6 @@
     <string name="related_videos">İlgili Videolar</string>
     <string name="quality_auto">Otomatik</string>
     <string name="quality_auto_template">Otomatik (%1$dp)</string>
-    <string name="video_marked_not_interested">Video \'İlgilenmiyorum\' olarak işaretlendi</string>
     <string name="shorts_player">Shorts Oynatıcı</string>
     <string name="music_player">Müzik Oynatıcı</string>
     <plurals name="channels_count">
@@ -150,12 +149,9 @@
     <string name="playlist_name">İsim</string>
     <string name="playlist_description_optional">Açıklama (isteğe bağlı)</string>
     <string name="save_to_playlist">Oynatma listesine kaydet</string>
-    <string name="not_interested">İlgilenmiyorum</string>
-    <string name="i_like_this">İlgimi çekti</string>
     <string name="empty_offline_body">İndirdiğin %1$s burada görünecek.\nİnternetin olmasa bile içeriğinin keyfini çıkar.</string>
     <string name="watch_later_unsave">Daha Sonra İzle\'den Kaldır</string>
     <string name="mark_as_watched_toast">İzlendi olarak işaretlendi — önerilerin gelişecek!</string>
-    <string name="i_like_this_toast">Anlaşıldı! Buna benzer daha fazla içerik göreceksin.</string>
     <string name="go_to_channel">Kanala git</string>
     <string name="track_info">Parça Bilgisi</string>
     <string name="track_info_subtitle">Detaylı teknik ve sosyal metrikler</string>
@@ -943,7 +939,6 @@
     <string name="sb_submit_success">✓ Bölüm başarıyla gönderildi</string>
     <string name="sb_submit_error">Bölüm gönderilemedi. Lütfen tekrar dene.</string>
     <string name="section_channel">Kanal</string>
-    <string name="section_algorithm">Algoritma</string>
     <string name="section_options">Seçenekler</string>
     <string name="dont_show_channel">Bu kanalı gösterme</string>
     <string name="dont_show_channel_desc">Önerilerinden kaldır</string>
@@ -1161,8 +1156,6 @@
     <string name="channel_memory">Kanal Hafızası</string>
     <string name="channel_memory_subtitle">İzleme geçmişinden elde edilen dolaylı geri bildirim</string>
     <string name="channel_memory_empty">Hafızada kanal yok.</string>
-    <string name="algorithm_insights">Algoritma Detayları</string>
-    <string name="algorithm_insights_subtitle">Arka planda olanlar</string>
     <string name="filters_title">Filtreler</string>
     <string name="blocked_topics_channels_subtitle">Engellenen konular ve kanallar</string>
     <string name="reset_neural_profile_title">Sinir Profilini Sıfırla?</string>
@@ -1477,8 +1470,6 @@
     <string name="link_with_timestamp_copied">Zaman damgalı bağlantı kopyalandı</string>
     <string name="player_live_label">CANLI</string>
     <string name="player_action_dislike">Beğenmedim</string>
-    <string name="action_want_more">Buna benzer daha fazla</string>
-    <string name="action_not_interested">İlgilenmiyorum</string>
     <string name="settings_item_diagnostics">Tanılama</string>
     <string name="settings_item_diagnostics_subtitle">Hata günlüklerini ve çökme raporlarını görüntüle</string>
     <string name="diagnostics_title">Tanılama</string>
@@ -1660,7 +1651,6 @@
     <string name="subscriptions_sort_recent">Son zamanlarda güncellendi</string>
     <string name="content_settings_share_without_text_title">Metin içermeyen bağlantıları paylaşın</string>
     <string name="content_settings_share_without_text_subtitle">“Bu videoyu izleyin” mesajı olmadan, sadece video bağlantısını paylaşın</string>
-    <string name="not_interested_toast">Tamamdır! Bundan sonra bu tür içerikleri daha az göreceksin.</string>
     <string name="quick_actions_error_template">Hata:%1$s</string>
     <string name="upcoming_label">Yakında</string>
     <string name="upcoming_waiting_count">Bekleniyor%1$s</string>

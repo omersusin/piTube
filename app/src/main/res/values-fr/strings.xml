@@ -95,7 +95,6 @@
     <string name="related_videos">Vidéos similaires</string>
     <string name="quality_auto">Auto</string>
     <string name="quality_auto_template">Auto (%1$dp)</string>
-    <string name="video_marked_not_interested">Marquée comme « Pas intéressé »</string>
     <string name="play_mode_suggestion_title">Suggestion de mode de lecture</string>
     <string name="play_mode_suggestion_body">Cette vidéo dure moins de 2 minutes. Souhaitez-vous passer à un lecteur spécialisé ?</string>
     <string name="shorts_player">Lecteur Shorts</string>
@@ -129,7 +128,6 @@
     <string name="create">Créer</string>
     <!-- Actions Rapides Vidéo -->
     <string name="save_to_playlist">Enregistrer dans une playlist</string>
-    <string name="not_interested">Non intéressé</string>
     <string name="dont_show_channel">Ne plus afficher cette chaîne</string>
     <string name="dont_show_channel_desc">Retirer de vos recommandations</string>
     <string name="channel_blocked_toast">%1$s n’apparaîtra plus dans votre fil</string>
@@ -693,8 +691,6 @@
     <string name="temporal_patterns_subtitle">Comment vos centres d\'intérêt évoluent au fil de la journée</string>
     <string name="channel_memory">Mémoire des chaînes</string>
     <string name="channel_memory_subtitle">Retour implicite de votre historique de visionnage</string>
-    <string name="algorithm_insights">Insights de l\'Algorithme</string>
-    <string name="algorithm_insights_subtitle">Sous le capot</string>
     <string name="filters_title">Filtres</string>
     <string name="blocked_topics_channels_subtitle">Sujets et chaînes bloqués</string>
     <string name="reset_neural_profile_title">Réinitialiser le profil neural ?</string>
@@ -857,8 +853,6 @@
     <string name="unsubscribe">Se désabonner</string>
     <string name="mark_as_watched">Marquer comme vu</string>
     <string name="mark_as_watched_toast">Ajouté à la liste des vidéos visionnées — vos recommandations s\'amélioreront !</string>
-    <string name="i_like_this">Je veux plus de ça</string>
-    <string name="i_like_this_toast">D\'accord ! Vous verrez davantage de contenu de ce genre.</string>
     <string name="go_to_channel">Aller sur la chaîne</string>
     <string name="status_live">EN DIRECT</string>
     <string name="copy_description">Copier la description</string>
@@ -1229,8 +1223,6 @@
     <string name="player_action_copy_link_at_time">Copie à ce moment-là</string>
     <string name="link_with_timestamp_copied">Lien avec horodatage copié</string>
     <string name="player_live_label">EN DIRECT</string>
-    <string name="action_not_interested">Ça ne m\'intéresse pas</string>
-    <string name="action_want_more">En voir plus comme ça</string>
     <string name="settings_item_diagnostics">Diagnostiques</string>
     <string name="settings_item_diagnostics_subtitle">Consulter les journaux d\'erreurs et les rapports d\'incident</string>
     <string name="diagnostics_title">Diagnostiques</string>
@@ -1268,7 +1260,6 @@
     <string name="sb_submit_success">✓ Le segment a été envoyé avec succès</string>
     <string name="sb_submit_error">Échec de l\'envoi du segment. Veuillez réessayer.</string>
     <string name="section_channel">Chaîne</string>
-    <string name="section_algorithm">Algorithme</string>
     <string name="section_options">Options</string>
     <string name="btn_save">Enregistrer</string>
     <string name="btn_cancel">Annuler</string>
@@ -1816,7 +1807,6 @@
     <string name="subscriptions_sort_default">Par défaut</string>
     <string name="subscriptions_sort_name">Nom (A–Z)</string>
     <string name="subscriptions_sort_recent">Mise à jour récente</string>
-    <string name="not_interested_toast">D\'accord ! Vous verrez moins de contenus de ce genre.</string>
     <string name="quick_actions_error_template">Erreur : %1$s</string>
     <string name="upcoming_label">À venir</string>
     <string name="upcoming_waiting_count">%1$s en attente</string>

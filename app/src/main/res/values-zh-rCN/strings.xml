@@ -148,7 +148,6 @@
     <string name="related_videos">相关视频</string>
     <string name="quality_auto">自动</string>
     <string name="quality_auto_template">自动 (%1$dp)</string>
-    <string name="video_marked_not_interested">视频标记为不感兴趣</string>
     <string name="play_mode_suggestion_title">播放模式建议</string>
     <string name="play_mode_suggestion_body">此视频不足 2 分钟。要切换到专用播放器吗？</string>
     <string name="shorts_player">Shorts 播放器</string>
@@ -179,14 +178,10 @@
     <string name="playlist_description_optional">说明（可选）</string>
     <string name="create">创建</string>
     <string name="save_to_playlist">保存到播放列表</string>
-    <string name="not_interested">不感兴趣</string>
-    <string name="not_interested_toast">明白了！你会看到更少这样的内容。</string>
     <string name="quick_actions_error_template">错误：%1$s</string>
     <string name="details_metadata">详细信息和元数据</string>
     <string name="mark_as_watched">标记为已观看</string>
     <string name="mark_as_watched_toast">标记为已观看 - 您的推荐将会改进！</string>
-    <string name="i_like_this">我想多看此类内容</string>
-    <string name="i_like_this_toast">知道了！您会看到更多此类内容。</string>
     <string name="go_to_channel">前往频道</string>
     <string name="track_info">曲目信息</string>
     <string name="track_info_subtitle">详细的技术信息和互动数据</string>
@@ -915,7 +910,6 @@
     <string name="sb_submit_success">✓ 分段提交成功</string>
     <string name="sb_submit_error">无法提交分段。请再试一次。</string>
     <string name="section_channel">频道</string>
-    <string name="section_algorithm">算法</string>
     <string name="section_options">选项</string>
     <string name="dont_show_channel">不显示该频道</string>
     <string name="dont_show_channel_desc">从您的推荐中删除</string>
@@ -1351,8 +1345,6 @@
     <string name="persona_explorer_title">探索者</string>
     <string name="persona_explorer_description">混乱而美丽。什么都有一点。</string>
     <string name="channel_memory_empty">内存中没有频道。</string>
-    <string name="algorithm_insights">算法见解</string>
-    <string name="algorithm_insights_subtitle">内部原理</string>
     <string name="filters_title">过滤器</string>
     <string name="blocked_topics_channels_subtitle">被阻止的主题和频道</string>
     <string name="reset_neural_profile_title">重置神经画像？</string>
@@ -1756,8 +1748,6 @@
     <string name="link_with_timestamp_copied">已复制时间戳的链接</string>
     <string name="player_live_label">直播</string>
     <string name="player_action_dislike">不喜欢</string>
-    <string name="action_want_more">想要更多这样的</string>
-    <string name="action_not_interested">不感兴趣</string>
     <string name="desc_more">...更多</string>
     <string name="settings_item_diagnostics">诊断</string>
     <string name="settings_item_diagnostics_subtitle">查看错误日志和崩溃报告</string>

@@ -24,8 +24,6 @@ internal data class ShortVideoPageActions(
     val onCommentsClick: () -> Unit,
     val onDescriptionClick: () -> Unit,
     val onShareClick: () -> Unit,
-    val onWantMore: () -> Unit = {},
-    val onNotInterested: () -> Unit = {},
     val onVideoEnded: () -> Unit = {}
 )
 

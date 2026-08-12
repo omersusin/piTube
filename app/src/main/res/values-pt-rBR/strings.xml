@@ -98,7 +98,6 @@
     <string name="unsubscribe">Cancelar inscrição</string>
     <string name="share_video">Compartilhar vídeo</string>
     <string name="check_out_video_template">Confira este vídeo: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
-    <string name="video_marked_not_interested">Vídeo marcado como não interessado</string>
     <string name="play_mode_suggestion_title">Sugestão de modo ao iniciar</string>
     <string name="play_mode_suggestion_body">Este vídeo tem menos de 2 minutos de duração. Você gostaria de mudar para um player especializado?</string>
     <string name="tab_videos">Vídeos</string>
@@ -121,12 +120,9 @@
     <string name="playlist_description_optional">Descrição (opcional)</string>
     <string name="create">Criar</string>
     <string name="save_to_playlist">Salvar na lista de reprodução</string>
-    <string name="not_interested">Não estou interessado</string>
     <string name="details_metadata">Detalhes &amp; Metadados</string>
     <string name="mark_as_watched">Marcar como assistido</string>
     <string name="mark_as_watched_toast">Marcado como assistido — suas recomendações irão melhorar!</string>
-    <string name="i_like_this">Quero mais coisas assim</string>
-    <string name="i_like_this_toast">Entendi! Você verá mais conteúdos como este.</string>
     <string name="go_to_channel">Ir para o canal</string>
     <string name="track_info">Informações de rastreamento</string>
     <string name="track_info_subtitle">Métricas técnicas e sociais detalhadas</string>
@@ -557,7 +553,6 @@
     <string name="sb_action_skip">Pular</string>
     <string name="sb_action_mute">Silenciar</string>
     <string name="sb_submit_category">Categoria</string>
-    <string name="section_algorithm">Algoritmo</string>
     <string name="section_options">Opções</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="player_settings_header_audio">Áudio</string>
@@ -639,7 +634,6 @@
     <string name="playlist_creation_menu_close">Fechar o menu de criação de playlists de reprodução</string>
     <string name="cd_track_artwork">Imagens de faixa para %1$s</string>
     <string name="watch_later_unsave">Cancelar marcação para ver mais tarde</string>
-    <string name="not_interested_toast">Entendi! Vai ver menos conteúdos como este.</string>
     <string name="quick_actions_error_template">Erro: %1$s</string>
     <string name="playlist_video_added_template">%1$s adicionado</string>
     <string name="upcoming_label">Próximos</string>
@@ -1387,8 +1381,6 @@
     <string name="persona_explorer_title">O Explorador</string>
     <string name="persona_explorer_description">Caótico e belo. Um pouco de tudo.</string>
     <string name="channel_memory_empty">Nenhum canal na memória.</string>
-    <string name="algorithm_insights">Análises Algorítmicas</string>
-    <string name="algorithm_insights_subtitle">Sob o capô</string>
     <string name="filters_title">Filtros</string>
     <string name="blocked_topics_channels_subtitle">Tópicos e canais bloqueados</string>
     <string name="reset_neural_profile_title">Redefinir perfil neural?</string>

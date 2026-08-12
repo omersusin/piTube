@@ -29,7 +29,6 @@
     <string name="tab_music">Musik</string>
     <string name="playlist_public">Publik</string>
     <string name="playlist_private">Pribadi</string>
-    <string name="not_interested">Tidak tertarik</string>
     <string name="quality">Kualitas</string>
     <string name="file_size">Ukuran Berkas</string>
     <string name="video_metadata_template">"%1$s -  %2$s -  %3$s"</string>
@@ -212,7 +211,6 @@
     <string name="share_video">Bagikan video</string>
     <string name="check_out_video_template">Lihat video ini: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
     <string name="related_videos">Video Terkait</string>
-    <string name="video_marked_not_interested">Video ditandai sebagai tidak diminati</string>
     <string name="play_mode_suggestion_title">Saran Mode Putar</string>
     <string name="play_mode_suggestion_body">Video ini berdurasi kurang dari 2 menit. Apakah Anda ingin beralih ke pemutar khusus?</string>
     <string name="shorts_player">Pemutar Shorts</string>
@@ -242,8 +240,6 @@
     <string name="details_metadata">Detail &amp; Metadata</string>
     <string name="mark_as_watched">Tandai sudah ditonton</string>
     <string name="mark_as_watched_toast">Ditandai sudah ditonton — rekomendasi Anda akan semakin baik!</string>
-    <string name="i_like_this">Saya ingin lebih banyak seperti ini</string>
-    <string name="i_like_this_toast">Oke! Anda akan melihat lebih banyak konten seperti ini.</string>
     <string name="go_to_channel">Buka saluran</string>
     <string name="track_info">Informasi Lagu</string>
     <string name="track_info_subtitle">Metrik teknis dan sosial terperinci</string>
@@ -690,7 +686,6 @@
     <string name="sb_submit_success">✓ Segmen berhasil dikirim</string>
     <string name="sb_submit_error">Gagal mengirim segmen. Silakan coba lagi.</string>
     <string name="section_channel">Saluran</string>
-    <string name="section_algorithm">Algoritma</string>
     <string name="section_options">Opsi</string>
     <string name="dont_show_channel">Jangan tampilkan saluran ini</string>
     <string name="dont_show_channel_desc">Hapus dari rekomendasi Anda</string>
@@ -1048,8 +1043,6 @@
     <string name="channel_memory">Memori Saluran</string>
     <string name="channel_memory_subtitle">Umpan balik implisit dari riwayat tontonan Anda</string>
     <string name="channel_memory_empty">Tidak ada saluran dalam memori.</string>
-    <string name="algorithm_insights">Wawasan Algoritma</string>
-    <string name="algorithm_insights_subtitle">Di balik layar</string>
     <string name="filters_title">Filter</string>
     <string name="blocked_topics_channels_subtitle">Topik dan saluran yang diblokir</string>
     <string name="reset_neural_profile_title">Atur Ulang Profil Neural?</string>
@@ -1335,8 +1328,6 @@
     <string name="link_with_timestamp_copied">Tautan dengan stempel waktu disalin</string>
     <string name="player_live_label">SIARAN LANGSUNG</string>
     <string name="player_action_dislike">Tidak Suka</string>
-    <string name="action_want_more">Ingin lebih banyak seperti ini</string>
-    <string name="action_not_interested">Tidak tertarik</string>
     <string name="settings_item_diagnostics">Diagnostik</string>
     <string name="settings_item_diagnostics_subtitle">Lihat log kesalahan dan laporan kerusakan</string>
     <string name="diagnostics_title">Diagnostik</string>
@@ -1765,7 +1756,6 @@
     <string name="subscriptions_sort_default">Default</string>
     <string name="subscriptions_sort_name">Nama (A–Z)</string>
     <string name="subscriptions_sort_recent">Baru diperbarui</string>
-    <string name="not_interested_toast">Mengerti! Anda akan melihat lebih sedikit konten seperti ini.</string>
     <string name="quick_actions_error_template">Error: %1$s</string>
     <string name="playlist_video_added_template">%1$s ditambahkan</string>
     <string name="upcoming_label">Akan datang</string>

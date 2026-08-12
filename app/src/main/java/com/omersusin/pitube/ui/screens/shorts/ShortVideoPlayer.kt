@@ -983,16 +983,6 @@ internal fun ShortVideoPage(
     if (pageState.showShortsOptionsSheet) {
         ShortsOptionsSheet(
             isLoadingStreams = pageState.isLoadingStreams,
-            onWantMore = {
-                pageState.showShortsOptionsSheet = false
-                actions.onWantMore()
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            },
-            onNotInterested = {
-                pageState.showShortsOptionsSheet = false
-                actions.onNotInterested()
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            },
             ambientModeEnabled = settings.ambientModeEnabled,
             onAmbientModeToggle = { enabled ->
                 scope.launch { playerPreferences.setVideoAmbientModeEnabled(enabled) }
@@ -1167,8 +1157,6 @@ internal fun ShortVideoPage(
 @Composable
 private fun ShortsOptionsSheet(
     isLoadingStreams: Boolean,
-    onWantMore: () -> Unit,
-    onNotInterested: () -> Unit,
     onDislikeClick: () -> Unit = {},
     ambientModeEnabled: Boolean,
     onAmbientModeToggle: (Boolean) -> Unit,
@@ -1224,57 +1212,6 @@ private fun ShortsOptionsSheet(
                 }
             }
             HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp))
-            Surface(
-                onClick = onWantMore,
-                color = Color.Transparent,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ThumbUp,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(R.string.action_want_more),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
-
-            Surface(
-                onClick = onNotInterested,
-                color = Color.Transparent,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.NotInterested,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(R.string.action_not_interested),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
 
             Surface(
                 onClick = {

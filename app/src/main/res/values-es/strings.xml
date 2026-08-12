@@ -74,7 +74,6 @@
     <string name="check_out_video_template">Mira este video: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
     <string name="related_videos">Videos relacionados</string>
     <string name="quality_auto">Automático</string>
-    <string name="video_marked_not_interested">Vídeo marcado como no interesante</string>
     <string name="play_mode_suggestion_title">Sugerencia del modo reproducir</string>
     <string name="play_mode_suggestion_body">Este video dura menos de 2 minutos. ¿Quieres cambiar a un reproductor especializado?</string>
     <string name="tab_music">Música</string>
@@ -85,7 +84,6 @@
     <string name="playlist_public">Público</string>
     <string name="playlist_description_optional">Descripción (opcional)</string>
     <string name="create">Crear</string>
-    <string name="not_interested">No me interesa</string>
     <string name="details_metadata">Detalles y metadatos</string>
     <string name="mark_as_watched">Marcar como visto</string>
     <string name="settings_header_content_playback">Contenido y reproducción</string>
@@ -134,8 +132,6 @@
     <string name="playlist_name">Nombre</string>
     <string name="save_to_playlist">Guardar en lista</string>
     <string name="mark_as_watched_toast">Marcado como visto — tus recomendaciones mejorarán!</string>
-    <string name="i_like_this">Quiero más como esto</string>
-    <string name="i_like_this_toast">¡Lo tengo! Verás más contenido como este.</string>
     <string name="go_to_channel">Ir al canal</string>
     <string name="track_info">Información de la pista</string>
     <string name="track_info_subtitle">Métricas técnicas y sociales detalladas</string>
@@ -735,7 +731,6 @@
     <string name="sb_submit_create">Crear segmento</string>
     <string name="section_options">Opciones</string>
     <string name="dont_show_channel">No mostrar este canal</string>
-    <string name="section_algorithm">Algoritmo</string>
     <string name="channel_blocked_toast">%1$s no aparecerá en tu feed</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="dont_show_channel_desc">Quitar de tus recomendaciones</string>
@@ -1034,9 +1029,7 @@
     <string name="temporal_patterns_subtitle">Cómo cambian tus intereses según la hora del día</string>
     <string name="topic_weights_subtitle">Transparencia total sobre lo que impulsa su feed</string>
     <string name="channel_memory">Memoria de canales</string>
-    <string name="algorithm_insights_subtitle">Debajo del capó</string>
     <string name="filters_title">Filtros</string>
-    <string name="algorithm_insights">Información sobre algoritmos</string>
     <string name="reset_neural_profile_title">¿Restablecer perfil neuronal?</string>
     <string name="reset_neural_profile_body">Esto borrará permanentemente:\n\n• Todas las preferencias aprendidas\n• Vector de personalidad a largo plazo\n• Patrones de contexto temporal\n• Puntuaciones de afinidad de canal\n\nSu feed volverá a un estado de inicio en frío.</string>
     <string name="erase_everything">borrar todo</string>
@@ -1258,8 +1251,6 @@
     <string name="player_action_dislike">Aversión</string>
     <string name="link_with_timestamp_copied">Enlace con marca de tiempo copiada</string>
     <string name="player_live_label">EN DIRECTO</string>
-    <string name="action_want_more">Ver más contenido como este</string>
-    <string name="action_not_interested">No interesado</string>
     <string name="diagnostics_tab_session">Registros de sesión</string>
     <string name="diagnostics_tab_crashes">Informes de fallos</string>
     <string name="diagnostics_clear_crashes">Borrar informes de fallos</string>
@@ -1676,7 +1667,6 @@
     <string name="local_media_permission_title">Permiso requerido</string>
     <string name="local_media_permission_body">Permite el acceso a tus archivos multimedia para que piTube pueda buscar y reproducir videos y música locales.</string>
     <string name="content_settings_share_without_text_subtitle">Compartir solo el enlace del video, sin el mensaje de introducción</string>
-    <string name="not_interested_toast">¡Entendido! Verás menos contenido como este.</string>
     <string name="quick_actions_error_template">Error: %1$s</string>
     <string name="playlist_video_added_template">%1$s agregado</string>
     <string name="upcoming_label">Próximos</string>

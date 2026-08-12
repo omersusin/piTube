@@ -96,7 +96,6 @@
     <string name="related_videos">Похожие видео</string>
     <string name="quality_auto">Авто</string>
     <string name="quality_auto_template">Авто (%1$dp)</string>
-    <string name="video_marked_not_interested">Видео отмечено как неинтересное</string>
     <string name="play_mode_suggestion_title">Предложение режима воспроизведения</string>
     <string name="play_mode_suggestion_body">Это видео длится менее 2 минут. Хотите переключиться на специализированный плеер?</string>
     <string name="shorts_player">Shorts-плеер</string>
@@ -129,12 +128,9 @@
     <string name="playlist_description_optional">Описание (опционально)</string>
     <string name="create">Создать</string>
     <string name="save_to_playlist">Сохранить в плейлист</string>
-    <string name="not_interested">Не интересует</string>
     <string name="details_metadata">Детали и метаданные</string>
     <string name="mark_as_watched">Отметить как просмотренное</string>
     <string name="mark_as_watched_toast">Отмечено как просмотренное – ваши рекомендации станут лучше!</string>
-    <string name="i_like_this">Я хочу больше такого контента</string>
-    <string name="i_like_this_toast">Принято! Вы будете видеть больше такого контента.</string>
     <string name="go_to_channel">Перейти на канал</string>
     <string name="track_info">Информация о медиа</string>
     <string name="track_info_subtitle">Подробные технические и социальные метрики</string>
@@ -560,7 +556,6 @@
     <string name="sb_submit_success">✓ Сегмент успешно отправлен</string>
     <string name="sb_submit_error">Не удалось отправить сегмент. Повторите попытку.</string>
     <string name="section_channel">Канал</string>
-    <string name="section_algorithm">Алгоритм</string>
     <string name="section_options">Параметры</string>
     <string name="dont_show_channel">Не рекомендовать этот канал</string>
     <string name="dont_show_channel_desc">Удалить из ваших рекомендаций</string>
@@ -882,7 +877,6 @@
     <string name="action_cancel">Отменить</string>
     <string name="action_listen_now">Слушать сейчас</string>
     <string name="action_play_all">Воспроизвести все</string>
-    <string name="action_not_interested">Не интересует</string>
     <string name="action_refresh">Обновить</string>
     <string name="loading_ellipsis">Загрузка...</string>
     <string name="error_generic">Не удалось загрузить видео</string>
@@ -972,8 +966,6 @@
     <string name="metric_interactions_detail">клики, просмотры, пропуски</string>
     <string name="player_settings">Настройки плеера</string>
     <string name="download_video">Скачать видео</string>
-    <string name="action_want_more">Хочу больше такого контента</string>
-    <string name="not_interested_toast">Принято! Вы будете видеть меньше такого контента.</string>
     <string name="select_quality">Выберите желаемое качество</string>
     <string name="on">Включить</string>
     <string name="off">Выключить</string>
@@ -1805,8 +1797,6 @@
     <string name="persona_explorer_title">Исследователь</string>
     <string name="persona_explorer_description">Прекрасный беспорядок. Всего понемногу.</string>
     <string name="channel_memory_empty">В памяти нет каналов.</string>
-    <string name="algorithm_insights">Аналитика алгоритма</string>
-    <string name="algorithm_insights_subtitle">Внутреннее устройство</string>
     <string name="label_featured">РЕКОМЕНДУЕМОЕ</string>
     <string name="profile_maturity_label">Зрелость профиля</string>
     <string name="profile_maturity_detail">Выше зрелость профиля – стабильнее рекомендации</string>

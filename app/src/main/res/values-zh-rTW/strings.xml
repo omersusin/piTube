@@ -122,7 +122,6 @@
     <string name="related_videos">相關影片</string>
     <string name="quality_auto">自動</string>
     <string name="quality_auto_template">自動（%1$dp）</string>
-    <string name="video_marked_not_interested">已標記為不感興趣</string>
     <string name="play_mode_suggestion_title">播放模式建議</string>
     <string name="play_mode_suggestion_body">此影片時長少於 2 分鐘。要轉換到專用播放器嗎？</string>
     <string name="shorts_player">Shorts 播放器</string>
@@ -152,12 +151,9 @@
     <string name="playlist_description_optional">描述（可選）</string>
     <string name="create">建立</string>
     <string name="save_to_playlist">儲存至播放清單</string>
-    <string name="not_interested">不感興趣</string>
     <string name="details_metadata">詳情與元數據</string>
     <string name="mark_as_watched">標記為已觀看</string>
     <string name="mark_as_watched_toast">標記完成——您的推薦會更準確！</string>
-    <string name="i_like_this">我想要更多類似的</string>
-    <string name="i_like_this_toast">收到！你會看到更多類似內容。</string>
     <string name="go_to_channel">前往頻道</string>
     <string name="track_info">曲目詳情</string>
     <string name="track_info_subtitle">詳細的技術和社交指標</string>

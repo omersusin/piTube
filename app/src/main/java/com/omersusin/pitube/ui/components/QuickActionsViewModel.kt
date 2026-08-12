@@ -5,8 +5,6 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.omersusin.pitube.data.local.ChannelSubscription
-import com.omersusin.pitube.data.local.LikedVideoInfo
-import com.omersusin.pitube.data.local.LikedVideosRepository
 import com.omersusin.pitube.data.local.PlaylistRepository
 import com.omersusin.pitube.data.local.SubscriptionRepository
 import com.omersusin.pitube.data.model.Video
@@ -47,7 +45,6 @@ import javax.inject.Inject
 object FeedInvalidationBus {
     sealed class Event {
         data class ChannelBlocked(val channelId: String, val videoId: String) : Event()
-        data class NotInterested(val videoId: String, val channelId: String) : Event()
         data class MarkedWatched(val videoId: String) : Event()
     }
 
@@ -199,31 +196,6 @@ class QuickActionsViewModel @Inject constructor(
     }
 
     /**
-     * Mark a video as "Not Interested" - removes it from the feed and keeps similar
-     * content out of future refreshes.
-     */
-    fun markNotInterested(video: Video) {
-        viewModelScope.launch {
-            try {
-                FeedInvalidationBus.emit(
-                    FeedInvalidationBus.Event.NotInterested(video.id, video.channelId)
-                )
-                Toast.makeText(
-                    context,
-                    context.getString(com.omersusin.pitube.R.string.not_interested_toast),
-                    Toast.LENGTH_SHORT
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(
-                    context,
-                    context.getString(com.omersusin.pitube.R.string.quick_actions_error_template, e.message),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    /**
      * Mark a video as "Watched" - records it in watch history so it leaves the feed.
      * Useful for clearing videos without replaying the whole video.
      */
@@ -258,46 +230,6 @@ class QuickActionsViewModel @Inject constructor(
                     context.getString(com.omersusin.pitube.R.string.quick_actions_error_template, e.message),
                     Toast.LENGTH_SHORT
                 ).show()
-            }
-        }
-    }
-
-    /**
-     * Mark a video as "I like this" — likes it on the signed-in YouTube
-     * account (when logged in) and saves it to the local Liked Videos list.
-     */
-    fun markAsInteresting(video: Video) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val liked = runCatching {
-                    YouTube.setVideoLiked(video.id, liked = true).getOrNull() == true
-                }.getOrDefault(false)
-                if (liked) {
-                    LikedVideosRepository.getInstance(context).likeVideo(
-                        LikedVideoInfo(
-                            videoId = video.id,
-                            title = video.title,
-                            thumbnail = video.thumbnailUrl,
-                            channelName = video.channelName,
-                            isMusic = video.isMusic
-                        )
-                    )
-                }
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.i_like_this_toast),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.quick_actions_error_template, e.message),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
             }
         }
     }

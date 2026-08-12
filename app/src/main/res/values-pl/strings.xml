@@ -114,7 +114,6 @@
     <string name="related_videos">Polecane Filmy</string>
     <string name="quality_auto">Automatyczna</string>
     <string name="quality_auto_template">Automatyczna (%1$dp)</string>
-    <string name="video_marked_not_interested">Film oznaczony jako nieinteresujący</string>
     <string name="play_mode_suggestion_body">Ten film jest krótszy niż 2 minuty. Czy chcesz przejść do trybu odtwarzania Shorts?</string>
     <string name="shorts_player">Odtwarzacz Shorts</string>
     <string name="music_player">Odtwarzacz Muzyki</string>
@@ -143,12 +142,9 @@
     <string name="playlist_description_optional">Opis (opcjonalny)</string>
     <string name="create">Utwórz</string>
     <string name="save_to_playlist">Dodaj do playlisty</string>
-    <string name="not_interested">Nie interesuje mnie to</string>
     <string name="details_metadata">Szczegóły i Metadane</string>
     <string name="mark_as_watched">Oznacz jako obejrzane</string>
     <string name="mark_as_watched_toast">Oznaczono jako obejrzane — twoje rekomendacje się ulepszą!</string>
-    <string name="i_like_this">Chciałbym więcej takich treści</string>
-    <string name="i_like_this_toast">Mamy to! Będziesz widzieć więcej podobnej zawartości.</string>
     <string name="go_to_channel">Przejdź do kanału</string>
     <string name="track_info">Szczegóły ścieżki</string>
     <string name="track_info_subtitle">Szczegółowe techniczne i socialne metryki</string>
@@ -1309,7 +1305,6 @@
     <string name="sync_receive_show_qr_hint">Skanuje nadawca. Użyj tej opcji, jeśli to urządzenie nie ma aparatu lub wolisz pokazać kod.</string>
     <string name="sync_show_qr_here">Wyświetl tutaj kod QR</string>
     <string name="quick_actions_error_template">Błąd: %1$s</string>
-    <string name="not_interested_toast">Rozumiem! Będziesz widzieć mniej tego typu treści.</string>
     <string name="download_menu_style_subtitle">Zmień wygląd i układ okna pobierania</string>
     <string name="content_settings_header_home_feed">Strona Główna</string>
     <string name="content_settings_home_feed_title">Włącz Stronę Główną</string>
@@ -1336,7 +1331,6 @@
     <string name="action_cancel">Anuluj</string>
     <string name="loading_shorts">Wczytywanie Shorts…</string>
     <string name="cd_more_options">Więcej Opcji</string>
-    <string name="action_want_more">Chce więcej takich treści</string>
     <string name="player_settings_dearrow">DeArrow</string>
     <string name="player_settings">Ustawienia Odtwarzacza</string>
     <string name="tv_player_settings">Ustawienia Odtwarzacza</string>
@@ -1377,7 +1371,6 @@
     <string name="player_settings_custom_speeds_add_hint">np. 1.35</string>
     <string name="player_settings_custom_speeds_input_error">Wpisz prędkość z zakresu od 0.1 do 10.0</string>
     <string name="download_video">Pobierz Film</string>
-    <string name="action_not_interested">Nie interesuje mnie to</string>
     <string name="shorts_quality">Jakość</string>
     <string name="player_settings_queue_autoplay">Automatyczne odtwarzanie kolejki</string>
     <string name="player_settings_autoplay_subtitle">Po zakończeniu kolejki automatycznie odtwarzaj kolejny sugerowany film</string>
@@ -1393,7 +1386,6 @@
     <string name="add_video_to_queue">Dodaj do Kolejki</string>
     <string name="add_video_to_queue_desc">Dodaj na koniec kolejki filmów</string>
     <string name="section_channel">Kanał</string>
-    <string name="section_algorithm">Algorytm</string>
     <string name="dont_show_channel">Nie pokazuj tego kanału</string>
     <string name="dont_show_channel_desc">Usuń z twoich rekomendacji</string>
     <string name="ui_options">Opcje</string>
@@ -1690,8 +1682,6 @@
     <string name="persona_specialist_title">Autysta</string>
     <string name="persona_specialist_description">Pełna koncentracja na kilku niszach. Doskonale wiesz, czego chcesz.</string>
     <string name="channel_memory_empty">Brak kanałów w pamięci.</string>
-    <string name="algorithm_insights">Wgląd w Algorytm</string>
-    <string name="algorithm_insights_subtitle">Pod maską</string>
     <string name="filters_title">Filtry</string>
     <string name="reset_neural_profile_title">Zresetować Profil Neuralny?</string>
     <string name="reset_neural_profile_body">Spowoduje to trwałe usunięcie:\n\n• Wszystkich zapamiętanych preferencji\n• Długoterminowego wektora osobowości\n• Wzorców związanych z kontekstem czasowym\n• Wyników zgodności z kanałami\n\nTwój strumień treści powróci do stanu początkowego.</string>

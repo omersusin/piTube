@@ -148,7 +148,6 @@
     <string name="related_videos">관련 동영상</string>
     <string name="quality_auto">자동</string>
     <string name="quality_auto_template">자동 (%1$dp)</string>
-    <string name="video_marked_not_interested">관심 없음으로 표시했습니다</string>
     <string name="play_mode_suggestion_title">재생 모드 추천</string>
     <string name="play_mode_suggestion_body">이 동영상은 2분 미만입니다. 전용 플레이어로 전환할까요?</string>
     <string name="shorts_player">Shorts 플레이어</string>
@@ -178,14 +177,10 @@
     <string name="playlist_description_optional">설명(선택사항)</string>
     <string name="create">만들기</string>
     <string name="save_to_playlist">재생목록에 저장</string>
-    <string name="not_interested">관심 없음</string>
-    <string name="not_interested_toast">알겠습니다! 이와 비슷한 콘텐츠가 덜 표시됩니다.</string>
     <string name="quick_actions_error_template">오류: %1$s</string>
     <string name="details_metadata">세부정보 및 메타데이터</string>
     <string name="mark_as_watched">시청한 것으로 표시</string>
     <string name="mark_as_watched_toast">시청한 것으로 표시했습니다. 추천 콘텐츠가 더 정확해집니다!</string>
-    <string name="i_like_this">이와 비슷한 콘텐츠 더 보기</string>
-    <string name="i_like_this_toast">알겠습니다! 이와 비슷한 콘텐츠가 더 많이 표시됩니다.</string>
     <string name="go_to_channel">채널로 이동</string>
     <string name="track_info">트랙 정보</string>
     <string name="track_info_subtitle">상세 기술 정보 및 소셜 지표</string>
@@ -914,7 +909,6 @@
     <string name="sb_submit_success">✓ 구간을 제출했습니다</string>
     <string name="sb_submit_error">구간을 제출하지 못했습니다. 다시 시도해 주세요.</string>
     <string name="section_channel">채널</string>
-    <string name="section_algorithm">알고리즘</string>
     <string name="section_options">옵션</string>
     <string name="dont_show_channel">이 채널 표시 안 함</string>
     <string name="dont_show_channel_desc">추천에서 삭제합니다</string>
@@ -1350,8 +1344,6 @@
     <string name="persona_explorer_title">탐험가</string>
     <string name="persona_explorer_description">혼란스럽지만 아름답습니다. 모든 것을 조금씩 즐깁니다.</string>
     <string name="channel_memory_empty">기억된 채널이 없습니다.</string>
-    <string name="algorithm_insights">알고리즘 인사이트</string>
-    <string name="algorithm_insights_subtitle">내부 작동 방식</string>
     <string name="filters_title">필터</string>
     <string name="blocked_topics_channels_subtitle">차단한 주제 및 채널</string>
     <string name="reset_neural_profile_title">신경 프로필을 초기화할까요?</string>
@@ -1755,8 +1747,6 @@
     <string name="link_with_timestamp_copied">시간 정보가 포함된 링크를 복사했습니다</string>
     <string name="player_live_label">실시간</string>
     <string name="player_action_dislike">싫어요</string>
-    <string name="action_want_more">이와 비슷한 콘텐츠 더 보기</string>
-    <string name="action_not_interested">관심 없음</string>
     <string name="desc_more">...더보기</string>
     <string name="settings_item_diagnostics">진단</string>
     <string name="settings_item_diagnostics_subtitle">오류 로그 및 비정상 종료 보고서를 확인합니다</string>

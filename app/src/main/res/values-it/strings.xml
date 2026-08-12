@@ -95,7 +95,6 @@
     <string name="related_videos">Video correlati</string>
     <string name="quality_auto">Automatica</string>
     <string name="quality_auto_template">Automatica (%1$dp)</string>
-    <string name="video_marked_not_interested">Video contrassegnato come non interessante</string>
     <string name="play_mode_suggestion_title">Suggerimento modalità di riproduzione</string>
     <string name="view_all_button_label">Tutti</string>
     <string name="play_mode_suggestion_body">Questo video dura meno di 2 minuti. Vuoi passare a un player specializzato?</string>
@@ -127,12 +126,9 @@
     <string name="playlist_description_optional">Descrizione (opzionale)</string>
     <string name="create">Crea</string>
     <string name="save_to_playlist">Salva in una playlist</string>
-    <string name="not_interested">Non interessato</string>
     <string name="details_metadata">Dettagli e metadati</string>
     <string name="mark_as_watched">Contrassegna come visto</string>
     <string name="mark_as_watched_toast">Contrassegnato come visto — i tuoi suggerimenti miglioreranno!</string>
-    <string name="i_like_this">Voglio altri contenuti simili</string>
-    <string name="i_like_this_toast">Ricevuto! Vedrai più contenuti simili a questo.</string>
     <string name="go_to_channel">Vai al canale</string>
     <string name="track_info">Informazioni sul brano</string>
     <string name="track_info_subtitle">Metriche tecniche e social dettagliate</string>
@@ -628,7 +624,6 @@
     <string name="sb_submit_success">✓ Segmento inviato correttamente</string>
     <string name="sb_submit_error">Impossibile inviare il segmento. Riprova.</string>
     <string name="section_channel">Canale</string>
-    <string name="section_algorithm">Algoritmo</string>
     <string name="section_options">Opzioni</string>
     <string name="dont_show_channel">Non mostrare questo canale</string>
     <string name="dont_show_channel_desc">Rimuovi dai tuoi suggerimenti</string>
@@ -970,8 +965,6 @@
     <string name="temporal_patterns_subtitle">Come i tuoi interessi cambiano in base all\'orario del giorno</string>
     <string name="channel_memory">Memoria canale</string>
     <string name="channel_memory_subtitle">Feedback implicito dalla tua cronologia delle visualizzazioni</string>
-    <string name="algorithm_insights">Informazioni sull\'algoritmo</string>
-    <string name="algorithm_insights_subtitle">Dietro le quinte</string>
     <string name="filters_title">Filtri</string>
     <string name="blocked_topics_channels_subtitle">Argomenti e canali bloccati</string>
     <string name="reset_neural_profile_title">Reimpostare il profilo neurale?</string>
@@ -1254,8 +1247,6 @@
     <string name="link_with_timestamp_copied">Link con timestamp copiato</string>
     <string name="player_live_label">LIVE</string>
     <string name="player_action_dislike">Non mi piace</string>
-    <string name="action_want_more">Voglio altri contenuti simili</string>
-    <string name="action_not_interested">Non imteressato</string>
     <string name="settings_item_diagnostics">Diagnostica</string>
     <string name="settings_item_diagnostics_subtitle">Visualizza i log degli errori e i report degli arresti anomali</string>
     <string name="diagnostics_title">Diagnostica</string>
@@ -1774,7 +1765,6 @@
     <string name="subscriptions_sort_default">Predefinito</string>
     <string name="subscriptions_sort_name">Nome (A–Z)</string>
     <string name="subscriptions_sort_recent">Aggiornati di recente</string>
-    <string name="not_interested_toast">Capito! Vedrai meno contenuti di questo tipo.</string>
     <string name="quick_actions_error_template">Errore: %1$s</string>
     <string name="playlist_video_added_template">%1$s aggiunto</string>
     <string name="upcoming_label">In arrivo</string>

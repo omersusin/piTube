@@ -142,7 +142,6 @@
     <string name="related_videos">Video liên quan</string>
     <string name="quality_auto">Tự động</string>
     <string name="quality_auto_template">Tự động (%1$dp)</string>
-    <string name="video_marked_not_interested">Đánh dấu không quan tâm</string>
     <string name="play_mode_suggestion_title">Gợi ý chế độ phát</string>
     <string name="play_mode_suggestion_body">Video này dài dưới 2 phút. Bạn có muốn chuyển sang trình phát chuyên biệt không?</string>
     <string name="shorts_player">Trình phát Shorts</string>
@@ -178,14 +177,10 @@
     <string name="playlist_description_optional">Mô tả (tùy chọn)</string>
     <string name="create">Tạo</string>
     <string name="save_to_playlist">Lưu vào danh sách phát</string>
-    <string name="not_interested">Không quan tâm</string>
-    <string name="not_interested_toast">Đã hiểu! Bạn sẽ ít thấy nội dung kiểu này hơn.</string>
     <string name="quick_actions_error_template">Lỗi: %1$s</string>
     <string name="details_metadata">Chi tiết &amp; siêu dữ liệu</string>
     <string name="mark_as_watched">Đánh dấu đã xem</string>
     <string name="mark_as_watched_toast">Đã đánh dấu – gợi ý sẽ cải thiện!</string>
-    <string name="i_like_this">Muốn xem thêm như này</string>
-    <string name="i_like_this_toast">Đã hiểu! Sẽ hiển thị nhiều nội dung tương tự hơn.</string>
     <string name="go_to_channel">Đến kênh</string>
     <string name="track_info">Thông tin bài hát</string>
     <string name="track_info_subtitle">Số liệu kỹ thuật và tương tác</string>
@@ -978,7 +973,6 @@
     <string name="sb_submit_success">✓ Gửi phân đoạn thành công</string>
     <string name="sb_submit_error">Gửi thất bại. Vui lòng thử lại.</string>
     <string name="section_channel">Kênh</string>
-    <string name="section_algorithm">Thuật toán</string>
     <string name="section_options">Tùy chọn</string>
     <string name="dont_show_channel">Không hiển thị kênh này</string>
     <string name="dont_show_channel_desc">Xóa khỏi gợi ý của bạn</string>
@@ -1357,8 +1351,6 @@
     <string name="persona_explorer_title">Người khám phá</string>
     <string name="persona_explorer_description">Hỗn hợp đẹp đẽ. Một chút mọi thứ.</string>
     <string name="channel_memory_empty">Chưa có kênh nào.</string>
-    <string name="algorithm_insights">Hiểu biết thuật toán</string>
-    <string name="algorithm_insights_subtitle">Bên trong cơ chế</string>
     <string name="filters_title">Bộ lọc</string>
     <string name="blocked_topics_channels_subtitle">Chủ đề và kênh bị chặn</string>
     <string name="reset_neural_profile_title">Đặt lại hồ sơ thần kinh?</string>
@@ -1765,8 +1757,6 @@
     <string name="link_with_timestamp_copied">Đã sao chép liên kết có mốc thời gian</string>
     <string name="player_live_label">TRỰC TIẾP</string>
     <string name="player_action_dislike">Không thích</string>
-    <string name="action_want_more">Muốn xem thêm</string>
-    <string name="action_not_interested">Không quan tâm</string>
     <string name="settings_item_diagnostics">Chẩn đoán</string>
     <string name="settings_item_diagnostics_subtitle">Xem nhật ký lỗi và báo cáo sự cố</string>
     <string name="diagnostics_title">Chẩn đoán</string>

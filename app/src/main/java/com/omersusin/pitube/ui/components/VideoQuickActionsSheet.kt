@@ -76,7 +76,6 @@ fun VideoQuickActionsBottomSheet(
     onWatchLater: (() -> Unit)? = null,
     onShare: (() -> Unit)? = null,
     onDownload: (() -> Unit)? = null,
-    onNotInterested: () -> Unit = {},
     onChannelClick: ((String) -> Unit)? = null,
     onRemoveFromCollection: (() -> Unit)? = null,
     removeFromCollectionLabel: String? = null,
@@ -401,80 +400,6 @@ fun VideoQuickActionsBottomSheet(
                 item { Spacer(modifier = Modifier.height(4.dp)) }
             }
 
-            // Algorithm Group — Mark as watched, I like this, Not interested
-            item {
-                Text(
-                    text = stringResource(R.string.section_algorithm),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
-                )
-                FlowMenuGroup(
-                    items =
-                        listOf(
-                            FlowMenuItemData(
-                                icon = {
-                                    Icon(
-                                        if (isWatched) Icons.Filled.CheckCircle else Icons.Outlined.Visibility,
-                                        null,
-                                        tint =
-                                            if (isWatched) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurfaceVariant
-                                            },
-                                    )
-                                },
-                                title = { Text(stringResource(R.string.mark_as_watched)) },
-                                onClick = {
-                                    viewModel.markAsWatched(video)
-                                },
-                            ),
-                            FlowMenuItemData(
-                                icon = { Icon(Icons.Outlined.ThumbUp, null) },
-                                title = { Text(stringResource(R.string.i_like_this)) },
-                                onClick = {
-                                    viewModel.markAsInteresting(video)
-                                    onDismiss()
-                                },
-                            ),
-                            FlowMenuItemData(
-                                icon = { Icon(Icons.Outlined.ThumbDown, null) },
-                                title = { Text(stringResource(R.string.not_interested)) },
-                                onClick = {
-                                    viewModel.markNotInterested(video)
-                                    onNotInterested()
-                                    onDismiss()
-                                },
-                            ),
-                            FlowMenuItemData(
-                                icon = {
-                                    Icon(
-                                        Icons.Outlined.Block,
-                                        null,
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
-                                },
-                                title = {
-                                    Text(
-                                        stringResource(R.string.dont_show_channel),
-                                        color = MaterialTheme.colorScheme.error,
-                                    )
-                                },
-                                description = { Text(stringResource(R.string.dont_show_channel_desc)) },
-                                onClick = {
-                                    viewModel.blockChannel(video)
-                                    onDismiss()
-                                },
-                            ),
-                        ),
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
-
-            item { Spacer(modifier = Modifier.height(4.dp)) }
-
             // Utility Group — Copy links, Download, Details
             item {
                 Text(
@@ -487,6 +412,48 @@ fun VideoQuickActionsBottomSheet(
                 FlowMenuGroup(
                     items =
                         buildList {
+                            add(
+                                FlowMenuItemData(
+                                    icon = {
+                                        Icon(
+                                            if (isWatched) Icons.Filled.CheckCircle else Icons.Outlined.Visibility,
+                                            null,
+                                            tint =
+                                                if (isWatched) {
+                                                    MaterialTheme.colorScheme.primary
+                                                } else {
+                                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                                },
+                                        )
+                                    },
+                                    title = { Text(stringResource(R.string.mark_as_watched)) },
+                                    onClick = {
+                                        viewModel.markAsWatched(video)
+                                    },
+                                ),
+                            )
+                            add(
+                                FlowMenuItemData(
+                                    icon = {
+                                        Icon(
+                                            Icons.Outlined.Block,
+                                            null,
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
+                                    },
+                                    title = {
+                                        Text(
+                                            stringResource(R.string.dont_show_channel),
+                                            color = MaterialTheme.colorScheme.error,
+                                        )
+                                    },
+                                    description = { Text(stringResource(R.string.dont_show_channel_desc)) },
+                                    onClick = {
+                                        viewModel.blockChannel(video)
+                                        onDismiss()
+                                    },
+                                ),
+                            )
                             add(
                                 FlowMenuItemData(
                                     icon = { Icon(Icons.Rounded.ContentCopy, null) },

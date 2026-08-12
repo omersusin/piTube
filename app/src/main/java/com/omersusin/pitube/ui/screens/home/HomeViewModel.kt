@@ -374,19 +374,6 @@ class HomeViewModel @Inject constructor(
                         }
                         shortsRepository.evictChannel(event.channelId)
                     }
-                    is FeedInvalidationBus.Event.NotInterested -> {
-                        HomeFeedCache.filterOut(videoId = event.videoId)
-                        viewModelScope.launch(PerformanceDispatcher.networkIO) {
-                            persistentHomeFeedCache.deleteVideo(event.videoId)
-                        }
-                        _uiState.update { state ->
-                            state.copy(
-                                videos = state.videos.filter { it.id != event.videoId },
-                                shorts = state.shorts.filter { it.id != event.videoId }
-                            )
-                        }
-                        shortsRepository.clearCaches()
-                    }
                     is FeedInvalidationBus.Event.MarkedWatched -> {
                         HomeFeedCache.filterOut(videoId = event.videoId)
                         viewModelScope.launch(PerformanceDispatcher.networkIO) {

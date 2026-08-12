@@ -100,7 +100,6 @@
     <string name="related_videos">संबंधित वीडियो</string>
     <string name="quality_auto">स्वचालित</string>
     <string name="quality_auto_template">स्वचालित (%1$dp)</string>
-    <string name="video_marked_not_interested">वीडियो को अरुचिकर चिह्नित किया गया</string>
     <string name="play_mode_suggestion_title">प्ले मोड सुझाव</string>
     <string name="play_mode_suggestion_body">यह वीडियो 2 मिनट से कम का है। क्या आप एक विशेष प्लेयर पर स्विच करना चाहेंगे?</string>
     <string name="shorts_player">शॉर्ट्स प्लेयर</string>
@@ -127,12 +126,9 @@
     <string name="playlist_description_optional">विवरण (वैकल्पिक)</string>
     <string name="create">बनाएँ</string>
     <string name="save_to_playlist">प्लेलिस्ट में सहेजें</string>
-    <string name="not_interested">अरुचिकर</string>
     <string name="details_metadata">विवरण और मेटाडेटा</string>
     <string name="mark_as_watched">देखा गया चिह्नित करें</string>
     <string name="mark_as_watched_toast">देखा गया चिह्नित किया गया — आपकी अनुशंसाएँ बेहतर होंगी!</string>
-    <string name="i_like_this">मुझे इस तरह की और सामग्री चाहिए</string>
-    <string name="i_like_this_toast">ठीक है! आपको इस तरह की और सामग्री दिखेगी।</string>
     <string name="go_to_channel">चैनल पर जाएँ</string>
     <string name="track_info">ट्रैक जानकारी</string>
     <string name="track_info_subtitle">विस्तृत तकनीकी और सामाजिक मेट्रिक्स</string>
@@ -568,7 +564,6 @@
     <string name="sb_submit_success">✓ सेगमेंट सफलतापूर्वक सबमिट किया गया</string>
     <string name="sb_submit_error">सेगमेंट सबमिट करने में विफल। कृपया पुनः प्रयास करें।</string>
     <string name="section_channel">चैनल</string>
-    <string name="section_algorithm">एल्गोरिदम</string>
     <string name="section_options">विकल्प</string>
     <string name="dont_show_channel">यह चैनल न दिखाएँ</string>
     <string name="dont_show_channel_desc">अपनी अनुशंसाओं से हटाएँ</string>
@@ -894,8 +889,6 @@
     <string name="temporal_patterns_subtitle">दिन के समय के अनुसार आपकी रुचियाँ कैसे बदलती हैं</string>
     <string name="channel_memory">चैनल स्मृति</string>
     <string name="channel_memory_subtitle">आपके देखने के इतिहास से अंतर्निहित प्रतिक्रिया</string>
-    <string name="algorithm_insights">एल्गोरिदम अंतर्दृष्टि</string>
-    <string name="algorithm_insights_subtitle">हुड के नीचे</string>
     <string name="filters_title">फ़िल्टर</string>
     <string name="blocked_topics_channels_subtitle">अवरुद्ध विषय और चैनल</string>
     <string name="reset_neural_profile_title">तंत्रिका प्रोफ़ाइल रीसेट करें?</string>
@@ -1131,8 +1124,6 @@
     <string name="link_with_timestamp_copied">टाइमस्टैम्प वाला लिंक कॉपी किया गया</string>
     <string name="player_live_label">लाइव</string>
     <string name="player_action_dislike">नापसंद करें</string>
-    <string name="action_want_more">ऐसे और विडिओ चाहिए</string>
-    <string name="action_not_interested">दिलचस्पी नहीं है</string>
     <string name="empty_liked_videos">कोई पसंदीदा वीडियो नहीं</string>
     <string name="empty_liked_music">कोई पसंदीदा संगीत नहीं</string>
     <string name="empty_liked_music_body">आपके पसंदीदा गीत यहां दिखाई देंगे</string>
@@ -1192,7 +1183,6 @@
     <string name="resume">फिर से शुरू करें</string>
     <string name="refresh_lyrics">लिरिक्स रिफ्रेश करें</string>
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="not_interested_toast">समझ गए! आपको इस तरह का कंटेंट कम दिखाई देगा।</string>
     <string name="quick_actions_error_template">एरर: %1$s</string>
     <string name="playlist_video_added_template">%1$s जोड़ा गया</string>
     <string name="upcoming_label">आगामी</string>

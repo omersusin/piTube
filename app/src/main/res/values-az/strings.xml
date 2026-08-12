@@ -148,7 +148,6 @@
     <string name="related_videos">Əlaqəli videolar</string>
     <string name="quality_auto">Avtomatik</string>
     <string name="quality_auto_template">Avtomatik (%1$dp)</string>
-    <string name="video_marked_not_interested">Video “Maraqlı deyil” kimi işarələndi</string>
     <string name="play_mode_suggestion_title">Oxutma rejimi təklifi</string>
     <string name="play_mode_suggestion_body">Bu video 2 dəqiqədən qısadır. Xüsusi pleyerə keçmək istəyirsiniz?</string>
     <string name="shorts_player">Shorts pleyeri</string>
@@ -179,14 +178,10 @@
     <string name="playlist_description_optional">Açıqlama (istəyə bağlı)</string>
     <string name="create">Yarat</string>
     <string name="save_to_playlist">Pleylistdə yadda saxla</string>
-    <string name="not_interested">Maraqlı deyil</string>
-    <string name="not_interested_toast">Başa düşdük! Belə məzmunu daha az görəcəksiniz.</string>
     <string name="quick_actions_error_template">Xəta: %1$s</string>
     <string name="details_metadata">Təfərrüatlar və metaməlumatlar</string>
     <string name="mark_as_watched">Baxılıb kimi işarələ</string>
     <string name="mark_as_watched_toast">Baxılıb kimi işarələndi — tövsiyələriniz yaxşılaşacaq!</string>
-    <string name="i_like_this">Buna bənzər daha çox məzmun istəyirəm</string>
-    <string name="i_like_this_toast">Başa düşdük! Buna bənzər daha çox məzmun görəcəksiniz.</string>
     <string name="go_to_channel">Kanala keç</string>
     <string name="track_info">Trek məlumatı</string>
     <string name="track_info_subtitle">Ətraflı texniki və sosial göstəricilər</string>
@@ -915,7 +910,6 @@
     <string name="sb_submit_success">✓ Seqment uğurla göndərildi</string>
     <string name="sb_submit_error">Seqment göndərilmədi. Yenidən sınayın.</string>
     <string name="section_channel">Kanal</string>
-    <string name="section_algorithm">Alqoritm</string>
     <string name="section_options">Seçimlər</string>
     <string name="dont_show_channel">Bu kanalı göstərmə</string>
     <string name="dont_show_channel_desc">Tövsiyələrinizdən silin</string>
@@ -1351,8 +1345,6 @@
     <string name="persona_explorer_title">Kəşfiyyatçı</string>
     <string name="persona_explorer_description">Xaotik və gözəl. Hər şeydən bir az.</string>
     <string name="channel_memory_empty">Yaddaşda kanal yoxdur.</string>
-    <string name="algorithm_insights">Alqoritm təhlilləri</string>
-    <string name="algorithm_insights_subtitle">Pərdə arxasında</string>
     <string name="filters_title">Filtrlər</string>
     <string name="blocked_topics_channels_subtitle">Bloklanmış mövzular və kanallar</string>
     <string name="reset_neural_profile_title">Neyron profili sıfırlansın?</string>
@@ -1756,8 +1748,6 @@
     <string name="link_with_timestamp_copied">Vaxt nişanlı keçid kopyalandı</string>
     <string name="player_live_label">CANLI</string>
     <string name="player_action_dislike">Bəyənmədim</string>
-    <string name="action_want_more">Buna bənzər daha çox göstər</string>
-    <string name="action_not_interested">Maraqlı deyil</string>
     <string name="desc_more">...davamı</string>
     <string name="settings_item_diagnostics">Diaqnostika</string>
     <string name="settings_item_diagnostics_subtitle">Xəta jurnallarına və çökmə hesabatlarına baxın</string>

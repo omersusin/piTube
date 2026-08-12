@@ -96,7 +96,6 @@
     <string name="related_videos">Srodni videi</string>
     <string name="quality_auto">Automatski</string>
     <string name="quality_auto_template">Automatski (%1$dp)</string>
-    <string name="video_marked_not_interested">Video označen kao nezanimljiv</string>
     <string name="play_mode_suggestion_title">Sugerirani mod sviranja</string>
     <string name="play_mode_suggestion_body">Ovaj videozapis traje manje od 2 minute. Želite li prebaciti na specijalizirani player?</string>
     <string name="shorts_player">Player za Shorts</string>
@@ -128,12 +127,9 @@
     <string name="playlist_description_optional">Opis (opcionalno)</string>
     <string name="create">Napravi</string>
     <string name="save_to_playlist">Sačuvaj u listu za reprodukciju</string>
-    <string name="not_interested">Nije mi zanimljivo</string>
     <string name="details_metadata">Detalji i metapodaci</string>
     <string name="mark_as_watched">Označi kao gledano</string>
     <string name="mark_as_watched_toast">Označeno kao gledano — vaše preporuke će se poboljšati!</string>
-    <string name="i_like_this">Želim više ovakvog sadržaja</string>
-    <string name="i_like_this_toast">Razumio! Videćete više sličnog sadržaja.</string>
     <string name="go_to_channel">Idi na kanal</string>
     <string name="track_info">Informacije o pjesmi</string>
     <string name="track_info_subtitle">Detaljne tehničke i društvene statistike</string>
