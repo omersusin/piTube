@@ -634,12 +634,19 @@ fun SettingsScreen(
                                             librarySyncResultText = null
                                             val result = com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
                                             isSyncingLibrary = false
-                                            librarySyncResultText = context.getString(
-                                                R.string.settings_google_sync_result,
-                                                result.likedVideos,
-                                                result.playlists,
-                                                result.subscribedChannels
-                                            )
+                                            librarySyncResultText = when {
+                                                result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
+                                                !result.error.isNullOrBlank() -> context.getString(
+                                                    R.string.settings_google_sync_error,
+                                                    result.error
+                                                )
+                                                else -> context.getString(
+                                                    R.string.settings_google_sync_result,
+                                                    result.likedVideos,
+                                                    result.playlists,
+                                                    result.subscribedChannels
+                                                )
+                                            }
                                         }
                                     }) {
                                         Text(stringResource(R.string.settings_google_sync_now))

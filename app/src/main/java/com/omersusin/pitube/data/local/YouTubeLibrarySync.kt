@@ -18,6 +18,7 @@ data class LibrarySyncResult(
     val playlists: Int = 0,
     val subscribedChannels: Int = 0,
     val notLoggedIn: Boolean = false,
+    val error: String? = null,
 )
 
 /**
@@ -49,22 +50,27 @@ object YouTubeLibrarySync {
         var playlists = 0
         var channels = 0
 
+        val firstError = java.util.concurrent.atomic.AtomicReference<String?>(null)
         coroutineScope {
             launch {
                 runCatching { likedVideos = syncLikedVideos(context) }
-                    .onFailure { Log.w(TAG, "Liked videos sync failed", it) }
+                    .onFailure { Log.w(TAG, "Liked videos sync failed", it); firstError.compareAndSet(null, it.message) }
             }
             launch {
                 runCatching { playlists = syncPlaylists(context) }
-                    .onFailure { Log.w(TAG, "Playlist sync failed", it) }
+                    .onFailure { Log.w(TAG, "Playlist sync failed", it); firstError.compareAndSet(null, it.message) }
             }
             launch {
                 runCatching { channels = syncSubscriptions(context) }
-                    .onFailure { Log.w(TAG, "Subscription sync failed", it) }
+                    .onFailure { Log.w(TAG, "Subscription sync failed", it); firstError.compareAndSet(null, it.message) }
             }
         }
 
-        return LibrarySyncResult(likedVideos, playlists, channels)
+        if (likedVideos == 0 && playlists == 0 && channels == 0 && !firstError.get().isNullOrBlank()) {
+            Log.w(TAG, "Account sync returned all-zero with error: ${firstError.get()}")
+        }
+
+        return LibrarySyncResult(likedVideos, playlists, channels, error = firstError.get())
     }
 
     private suspend fun syncLikedVideos(context: Context): Int {

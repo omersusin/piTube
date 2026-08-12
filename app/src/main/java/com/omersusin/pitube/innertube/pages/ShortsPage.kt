@@ -36,7 +36,7 @@ fun ReelWatchSequenceResponse.toShortsPage(): ShortsPage {
         
         val channelName = header?.channelTitleText?.text?.takeIf { it.isNotBlank() }
             ?: metadata?.channelTitle?.text?.takeIf { it.isNotBlank() }
-        
+
         val channelId = header?.channelNavigationEndpoint?.browseEndpoint?.browseId
             ?: metadata?.channelNavigationEndpoint?.browseEndpoint?.browseId
             ?: endpoint.navigationEndpoint?.browseEndpoint?.browseId
@@ -78,7 +78,7 @@ fun ReelWatchSequenceResponse.toShortsPage(): ShortsPage {
             id = videoId,
             title = title ?: "Short",
             thumbnail = thumbnail,
-            channelName = channelName ?: "Unknown",
+            channelName = channelName.orEmpty(),
             channelId = channelId,
             channelThumbnailUrl = channelThumbnail,
             viewCountText = viewCountText,

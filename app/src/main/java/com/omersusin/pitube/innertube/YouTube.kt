@@ -565,23 +565,6 @@ object YouTube {
     ): Result<ChannelVideoSearchResult> =
         channelVideosPage(channelId, channelName, channelThumbnailUrl, CHANNEL_VIDEOS_PARAMS, false)
 
-        channelId: String,
-        channelName: String,
-        channelThumbnailUrl: String,
-    ): Result<ChannelVideoSearchResult> =
-        channelVideosPage(channelId, channelName, channelThumbnailUrl, null, false, continuation)
-
-        channelName: String,
-        channelThumbnailUrl: String,
-    ): Result<ChannelVideoSearchResult> =
-        channelVideosPage(channelId, channelName, channelThumbnailUrl, CHANNEL_LIVE_PARAMS, true)
-
-        channelId: String,
-        channelName: String,
-        channelThumbnailUrl: String,
-    ): Result<ChannelVideoSearchResult> =
-        channelVideosPage(channelId, channelName, channelThumbnailUrl, null, true, continuation)
-
     suspend fun communityPosts(
         channelId: String,
         channelName: String,
@@ -748,7 +731,7 @@ object YouTube {
         Json.parseToJsonElement(httpResponse.bodyAsText()).hasSucceededActionResult()
     }
 
-    private fun commentWebContext(client: YouTubeClient): JsonObject =
+    private fun commentWebContext(client: YouTubeClient, visitor: String? = null): JsonObject =
         buildJsonObject {
             put(
                 "client",
@@ -757,6 +740,9 @@ object YouTube {
                     put("clientVersion", JsonPrimitive(client.clientVersion))
                     put("hl", JsonPrimitive("en"))
                     put("gl", JsonPrimitive("US"))
+                    if (!visitor.isNullOrBlank()) {
+                        put("visitorData", JsonPrimitive(visitor))
+                    }
                 },
             )
         }
@@ -777,13 +763,28 @@ object YouTube {
         if (cookie.isNullOrBlank()) return@runCatching false
         val client = currentWebClient()
         val cpn = generateCpn()
+        val visitor = visitorData?.takeIf { it.isNotBlank() } ?: ""
         val httpResponse = innerTube.signedJsonPost(
             client = client,
             endpoint = "player",
             jsonBody = buildJsonObject {
-                put("context", commentWebContext(client))
+                put("context", commentWebContext(client, visitor.takeIf { it.isNotBlank() }))
                 put("videoId", JsonPrimitive(videoId))
                 put("cpn", JsonPrimitive(cpn))
+                put(
+                    "playbackContext",
+                    buildJsonObject {
+                        put(
+                            "contentPlaybackContext",
+                            buildJsonObject {
+                                put(
+                                    "signatureTimestamp",
+                                    JsonPrimitive(System.currentTimeMillis() / 1000),
+                                )
+                            },
+                        )
+                    },
+                )
             },
         )
         val root = Json.parseToJsonElement(httpResponse.bodyAsText())
@@ -853,8 +854,16 @@ object YouTube {
                 browseId = if (continuation == null) "FEchannels" else null,
                 continuation = continuation,
             )
+            if (!response.status.isSuccess()) {
+                Log.w("YouTube", "webSubscribedChannels: HTTP ${response.status.value} on page $pages")
+                break
+            }
             val root = Json.parseToJsonElement(response.bodyAsText())
-            channels += root.toRemoteChannels()
+            val found = root.toRemoteChannels()
+            channels += found
+            if (found.isEmpty()) {
+                Log.w("YouTube", "webSubscribedChannels: parser returned 0 channels on page $pages (body len ${response.bodyAsText().length})")
+            }
             continuation = root.browseContinuation()
             pages++
         } while (continuation != null && pages < 10)
@@ -866,7 +875,13 @@ object YouTube {
         if (cookie.isNullOrBlank()) return@runCatching emptyList()
         val client = currentWebClient()
         val response = innerTube.signedWebBrowse(client = client, browseId = "FEplaylist_aggregation")
-        Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylists()
+        if (!response.status.isSuccess()) {
+            Log.w("YouTube", "webUserPlaylists: HTTP ${response.status.value}")
+            return@runCatching emptyList()
+        }
+        val playlists = Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylists()
+        if (playlists.isEmpty()) Log.w("YouTube", "webUserPlaylists: parser returned 0 playlists (body len ${response.bodyAsText().length})")
+        playlists
     }
 
     /** Videos of one playlist from a signed VL<playlistId> browse (liked videos = "LL"). */
@@ -875,7 +890,13 @@ object YouTube {
         val client = currentWebClient()
         val browseId = if (playlistId.startsWith("VL")) playlistId else "VL$playlistId"
         val response = innerTube.signedWebBrowse(client = client, browseId = browseId)
-        Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylistVideos()
+        if (!response.status.isSuccess()) {
+            Log.w("YouTube", "webPlaylistVideos($playlistId): HTTP ${response.status.value}")
+            return@runCatching emptyList()
+        }
+        val videos = Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylistVideos()
+        if (videos.isEmpty()) Log.w("YouTube", "webPlaylistVideos($playlistId): parser returned 0 videos (body len ${response.bodyAsText().length})")
+        videos
     }
 
     suspend fun communityPostCommentsContinuation(
@@ -1820,26 +1841,6 @@ object YouTube {
             .body<com.omersusin.pitube.innertube.models.response.WatchMetadataResponse>()
     }
 
-    suspend fun registerPlayback(playlistId: String? = null, playbackTracking: String) = runCatching {
-        val cpn = (1..16).map {
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[Random.Default.nextInt(
-                0,
-                64
-            )]
-        }.joinToString("")
-
-        val playbackUrl = playbackTracking.replace(
-            "https://s.youtube.com",
-            "https://music.youtube.com",
-        )
-
-        innerTube.registerPlayback(
-            url = playbackUrl,
-            playlistId = playlistId,
-            cpn = cpn
-        )
-    }
-
     suspend fun next(endpoint: WatchEndpoint, continuation: String? = null): Result<NextResult> = runCatching {
         val response = innerTube.next(
             WEB_REMIX,
@@ -1888,37 +1889,6 @@ object YouTube {
         )
     }
 
-    suspend fun lyrics(endpoint: BrowseEndpoint): Result<String?> = runCatching {
-        val response = innerTube.browse(WEB_REMIX, endpoint.browseId, endpoint.params).body<BrowseResponse>()
-        response.contents?.sectionListRenderer?.contents?.firstOrNull()?.musicDescriptionShelfRenderer?.description?.runs?.firstOrNull()?.text
-    }
-
-    suspend fun related(endpoint: BrowseEndpoint): Result<RelatedPage> = runCatching {
-        val response = innerTube.browse(WEB_REMIX, endpoint.browseId).body<BrowseResponse>()
-        val songs = mutableListOf<SongItem>()
-        val albums = mutableListOf<AlbumItem>()
-        val artists = mutableListOf<ArtistItem>()
-        val playlists = mutableListOf<PlaylistItem>()
-        response.contents?.sectionListRenderer?.contents?.forEach { sectionContent ->
-            sectionContent.musicCarouselShelfRenderer?.contents?.forEach { content ->
-                when (val item = content.musicResponsiveListItemRenderer?.let(RelatedPage.Companion::fromMusicResponsiveListItemRenderer)
-                    ?: content.musicTwoRowItemRenderer?.let(RelatedPage.Companion::fromMusicTwoRowItemRenderer)) {
-                    is SongItem -> if (content.musicResponsiveListItemRenderer?.overlay
-                            ?.musicItemThumbnailOverlayRenderer?.content
-                            ?.musicPlayButtonRenderer?.playNavigationEndpoint
-                            ?.watchEndpoint?.watchEndpointMusicSupportedConfigs
-                            ?.watchEndpointMusicConfig?.musicVideoType == MUSIC_VIDEO_TYPE_ATV
-                    ) songs.add(item)
-
-                    is AlbumItem -> albums.add(item)
-                    is ArtistItem -> artists.add(item)
-                    is PlaylistItem -> playlists.add(item)
-                    null -> {}
-                }
-            }
-        }
-        RelatedPage(songs, albums, artists, playlists)
-    }
 
     suspend fun queue(videoIds: List<String>? = null, playlistId: String? = null): Result<List<SongItem>> = runCatching {
         if (videoIds != null) {
@@ -2026,51 +1996,6 @@ object YouTube {
     
     fun getNewPipeStreamUrls(videoId: String): List<Pair<Int, String>> {
         return com.omersusin.pitube.innertube.pages.NewPipeExtractor.newPipePlayer(videoId)
-    }
-
-    suspend fun newPipePlayer(
-        videoId: String,
-        tempRes: PlayerResponse,
-    ): PlayerResponse? {
-        val streamsList = getNewPipeStreamUrls(videoId)
-        
-        if (streamsList.isEmpty()) return null
-        
-        val newFormats = streamsList.map { (itag, url) ->
-             PlayerResponse.StreamingData.Format(
-                 itag = itag,
-                 url = url,
-                 mimeType = if (itag == 140) "audio/mp4" else "audio/webm",
-                 bitrate = if (itag == 140) 128000 else 0,
-                 width = null,
-                 height = null,
-                 contentLength = null,
-                 quality = "medium",
-                 fps = null,
-                 qualityLabel = null,
-                 averageBitrate = null,
-                 audioQuality = "AUDIO_QUALITY_MEDIUM",
-                 approxDurationMs = null,
-                 audioSampleRate = 44100,
-                 audioChannels = 2,
-                 loudnessDb = null,
-                 lastModified = null,
-                 signatureCipher = null,
-                 cipher = null,
-                 audioTrack = null
-             )
-        }
-        
-        return tempRes.copy(
-            playabilityStatus = PlayerResponse.PlayabilityStatus(status = "OK", reason = null),
-            streamingData = tempRes.streamingData?.copy(
-                adaptiveFormats = (tempRes.streamingData.adaptiveFormats + newFormats).distinctBy { it.itag }
-            ) ?: PlayerResponse.StreamingData(
-                formats = emptyList(),
-                adaptiveFormats = newFormats,
-                expiresInSeconds = 21600
-            )
-        )
     }
 
     private val VISITOR_DATA_REGEX = Regex("^Cg[t|s]")

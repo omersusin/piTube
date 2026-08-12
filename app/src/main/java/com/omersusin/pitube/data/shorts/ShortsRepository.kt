@@ -815,19 +815,36 @@ class ShortsRepository private constructor(private val context: Context) {
             val batchResults = batch.map { short ->
                 async(Dispatchers.IO) {
                     try {
-                        withTimeoutOrNull(5_000L) {
-                            val playerResponse = YouTube.player(
-                                videoId = short.id,
-                                client = YouTubeClient.ANDROID
-                            ).getOrNull()
-                            
+                        withTimeoutOrNull(8_000L) {
+                            // WEB /next carries the channel name without needing a
+                            // PO token, so it resolves where the ANDROID /player
+                            // call is blocked. Fall back to the player response.
+                            val meta = YouTube.watchMetadata(short.id).getOrNull()
+                            val metaTitle = meta?.title()?.takeIf { it.isNotBlank() }
+                            val metaChannel = meta?.channelName()?.takeIf { it.isNotBlank() }
+                            val metaChannelId = meta?.channelId()?.takeIf { it.isNotBlank() }
+
+                            val playerResponse = (if (metaChannel.isNullOrBlank()) {
+                                YouTube.player(videoId = short.id, client = YouTubeClient.ANDROID).getOrNull()
+                            } else null)
                             val details = playerResponse?.videoDetails
-                            if (details != null) {
+
+                            val resolvedTitle = metaTitle
+                                ?: details?.title?.takeIf { it.isNotBlank() }
+                                ?: short.title
+                            val resolvedChannel = metaChannel
+                                ?: details?.author?.takeIf { it.isNotBlank() }
+                                ?: short.channelName
+                            val resolvedChannelId = metaChannelId
+                                ?: details?.channelId?.takeIf { it.isNotBlank() }
+                                ?: short.channelId
+
+                            if (resolvedTitle != short.title || resolvedChannel != short.channelName || resolvedChannelId != short.channelId) {
                                 short.copy(
-                                    title = details.title?.takeIf { it.isNotBlank() } ?: short.title,
-                                    channelName = details.author?.takeIf { it.isNotBlank() } ?: short.channelName,
-                                    channelId = details.channelId.takeIf { it.isNotBlank() } ?: short.channelId,
-                                    viewCountText = if (short.viewCountText.isBlank() && details.viewCount != null) {
+                                    title = resolvedTitle,
+                                    channelName = resolvedChannel,
+                                    channelId = resolvedChannelId,
+                                    viewCountText = if (short.viewCountText.isBlank() && details?.viewCount != null) {
                                         formatEnrichViewCount(details.viewCount.toLongOrNull() ?: 0L)
                                     } else short.viewCountText
                                 )
