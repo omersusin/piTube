@@ -12,9 +12,6 @@ class NotificationActionReceiver : BroadcastReceiver() {
     
     companion object {
         const val ACTION_CANCEL_DOWNLOAD = "com.omersusin.pitube.action.CANCEL_DOWNLOAD"
-        const val ACTION_RETRY_DOWNLOAD = "com.omersusin.pitube.action.RETRY_DOWNLOAD"
-        const val ACTION_PAUSE_DOWNLOAD = "com.omersusin.pitube.action.PAUSE_DOWNLOAD"
-        const val ACTION_RESUME_DOWNLOAD = "com.omersusin.pitube.action.RESUME_DOWNLOAD"
         const val ACTION_DISMISS_NOTIFICATION = "com.omersusin.pitube.action.DISMISS_NOTIFICATION"
         
         const val EXTRA_NOTIFICATION_ID = "notification_id"
@@ -28,9 +25,6 @@ class NotificationActionReceiver : BroadcastReceiver() {
         
         when (intent.action) {
             ACTION_CANCEL_DOWNLOAD -> handleCancelDownload(context, intent)
-            ACTION_RETRY_DOWNLOAD -> handleRetryDownload(context, intent)
-            ACTION_PAUSE_DOWNLOAD -> handlePauseDownload(context, intent)
-            ACTION_RESUME_DOWNLOAD -> handleResumeDownload(context, intent)
             ACTION_DISMISS_NOTIFICATION -> handleDismissNotification(context, intent)
         }
     }
@@ -50,29 +44,6 @@ class NotificationActionReceiver : BroadcastReceiver() {
             downloadManager.remove(downloadId)
             Log.d("NotificationAction", "Download cancelled in system DownloadManager: $downloadId")
         }
-    }
-    
-    private fun handleRetryDownload(context: Context, intent: Intent) {
-        val videoId = intent.getStringExtra(EXTRA_VIDEO_ID)
-        val videoTitle = intent.getStringExtra(EXTRA_VIDEO_TITLE)
-        
-        // TODO: Retry the download
-        // This would integrate with your download manager
-        Log.d("NotificationAction", "Retrying download for: $videoTitle (ID: $videoId)")
-    }
-    
-    private fun handlePauseDownload(context: Context, intent: Intent) {
-        val downloadId = intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1)
-        
-        // TODO: Pause the download
-        Log.d("NotificationAction", "Pausing download: $downloadId")
-    }
-    
-    private fun handleResumeDownload(context: Context, intent: Intent) {
-        val downloadId = intent.getLongExtra(EXTRA_DOWNLOAD_ID, -1)
-        
-        // TODO: Resume the download
-        Log.d("NotificationAction", "Resuming download: $downloadId")
     }
     
     private fun handleDismissNotification(context: Context, intent: Intent) {

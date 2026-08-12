@@ -403,20 +403,6 @@ object NotificationHelper {
         if (!hasNotificationPermission(context)) return
         if (!runBlocking { PlayerPreferences(context).notifDownloadsEnabled.first() }) return
 
-        // Intent to retry download
-        val retryIntent =
-            Intent(context, NotificationActionReceiver::class.java).apply {
-                action = NotificationActionReceiver.ACTION_RETRY_DOWNLOAD
-                putExtra(NotificationActionReceiver.EXTRA_VIDEO_TITLE, videoTitle)
-            }
-        val retryPendingIntent =
-            PendingIntent.getBroadcast(
-                context,
-                notificationId,
-                retryIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-
         val notification =
             NotificationCompat
                 .Builder(context, CHANNEL_DOWNLOADS)
@@ -427,10 +413,6 @@ object NotificationHelper {
                     NotificationCompat
                         .BigTextStyle()
                         .bigText("$videoTitle\n${errorMessage ?: context.getString(R.string.error_generic_hint)}"),
-                ).addAction(
-                    android.R.drawable.ic_menu_rotate,
-                    context.getString(R.string.retry),
-                    retryPendingIntent,
                 ).setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
