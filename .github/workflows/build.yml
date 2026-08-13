@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Decode signing keystore
         run: |
+          mkdir -p ./keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ./keystore/piTube-release.jks
           echo "Keystore decoded to ./keystore/piTube-release.jks"
           ls -l ./keystore/piTube-release.jks
