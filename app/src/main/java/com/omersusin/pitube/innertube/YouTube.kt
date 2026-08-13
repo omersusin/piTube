@@ -54,7 +54,6 @@ import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.potoken.WebPoTokenSession
-import android.net.Uri
 import android.util.Log
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
@@ -744,37 +743,64 @@ object YouTube {
     // ============================================================
 
     /**
-     * Report a video playback into the signed-in account's YouTube watch
+     * A playback session's minted beacon pair, obtained once per video/cpn and
+     * replayed on every ping of that session. Reusing a single pair (instead of
+     * re-fetching the player and minting a brand-new baseUrl per ping) is how
+     * yt-dlp/youthub/YouTube.js make partial pings accumulate into one history
+     * entry: the same `plid`/`rid`/session and a progressing `st`→`et` window.
+     */
+    class PlaybackTracking(
+        val playbackUrl: String,
+        val watchtimeUrl: String?,
+        val lengthSeconds: Float,
+    )
+
+    /**
+     * Mint (once) the beacon pair for a playback session. Callers should cache
+     * the result and pass it to every [reportVideoPlayback] for the same video
+     * instead of re-minting per ping. Returns null when not signed in or the
+     * tracking mint failed (bot-wall/stale cookie).
+     */
+    suspend fun getPlaybackTracking(videoId: String, cpn: String): PlaybackTracking? {
+        if (cookie.isNullOrBlank()) return null
+        return signedPlaybackTracking(videoId, cpn)
+    }
+
+    /**
+     * Report a playback position into the signed-in account's YouTube watch
      * history. Returns true when the tracking ping succeeded. Requires login.
      *
-     * Mirrors yt-dlp's `_mark_watched`: fetches the signed player response,
-     * then fires BOTH tracking URLs from `playbackTracking`:
+     * Mirrors yt-dlp's `_mark_watched` + youthub's watchstats: fires BOTH
+     * tracking URLs from `playbackTracking`:
      *  - `videostatsPlaybackUrl`  marks the video as watched,
      *  - `videostatsWatchtimeUrl` pushes actual watch time (`st`/`et`), which
      *    is what really registers in the account's history.
-     * Each ping carries `ver=2`, a fresh `cpn`, `cmt` (position or just
-     * before the end) and `el=detailpage`; existing query params are kept.
+     *
+     * [tracking] is the [PlaybackTracking] minted once per session (prefer
+     * passing it; when null one is fetched per call for simple call-sites).
+     * [previousPositionMs] is the position of the previous ping and becomes the
+     * `st` of this one, so partial progress chains into one in-progress entry.
+     * [final] marks the last ping (video ended or left) with `state=ended`, the
+     * signal that "fully watched"/commits the entry.
      *
      * [positionMs] is the watched-to position used for `cmt`/`et`. When 0 the
-     * video is marked as watched right before the end (yt-dlp behaviour), so a
-     * video is registered in history even if the app is killed mid-playback.
-     *
-     * One [cpn] covers one playback session; pass the same value on every ping
-     * of the same video so YouTube treats the pings as one continuous session
-     * (fresh cpns per ping look like repeated restarts in history).
+     * video is marked as watched right before the end (yt-dlp behaviour).
      */
     suspend fun reportVideoPlayback(
         videoId: String,
         positionMs: Long = 0L,
         cpn: String = generateCpn(),
+        tracking: PlaybackTracking? = null,
+        previousPositionMs: Long = 0L,
+        final: Boolean = false,
     ): Result<Boolean> = runCatching {
         if (cookie.isNullOrBlank()) return@runCatching false
-        val tracking = signedPlaybackTracking(videoId, cpn) ?: return@runCatching false
+        val tracking = tracking ?: signedPlaybackTracking(videoId, cpn) ?: return@runCatching false
 
-        val playbackUrl = tracking.first ?: return@runCatching false
-        val watchtimeUrl = tracking.second
+        val playbackUrl = tracking.playbackUrl
+        val watchtimeUrl = tracking.watchtimeUrl
 
-        val lengthSeconds = tracking.third
+        val lengthSeconds = tracking.lengthSeconds
         val videoLength = (lengthSeconds - 1f).coerceAtLeast(0f)
         // Integer seconds like every working client sends; a zero position
         // reports "started watching at 0:00" instead of marking the video as
@@ -785,20 +811,46 @@ object YouTube {
             positionMs <= 0L -> 0L
             else -> (positionMs / 1000L).coerceIn(0L, videoLength.toLong())
         }
+        val stSeconds = (previousPositionMs / 1000L).coerceAtLeast(0L)
         val referer = "https://www.youtube.com/watch?v=$videoId"
 
-        var reported = innerTube.videoStatsPing(
-            url = withVideoStatsParams(playbackUrl, cpn, cmt, watchtime = false),
-            referer = referer,
-        )
+        var reported = pingStats(playbackUrl, cpn, cmt, watchtime = false, stSeconds = stSeconds, final = final, referer = referer)
         if (watchtimeUrl != null) {
-            val watchtimeReported = innerTube.videoStatsPing(
-                url = withVideoStatsParams(watchtimeUrl, cpn, cmt, watchtime = true),
-                referer = referer,
-            )
+            val watchtimeReported = pingStats(watchtimeUrl, cpn, cmt, watchtime = true, stSeconds = stSeconds, final = final, referer = referer)
             reported = reported || watchtimeReported
         }
         reported
+    }
+
+    /** Fires one videostats beacon and interprets its HTTP status. */
+    private suspend fun pingStats(
+        url: String,
+        cpn: String,
+        cmtSeconds: Long,
+        watchtime: Boolean,
+        stSeconds: Long,
+        final: Boolean,
+        referer: String,
+    ): Boolean {
+        val status = innerTube.videoStatsPing(
+            url = withVideoStatsParams(url, cpn, cmtSeconds, watchtime = watchtime, stSeconds = stSeconds, final = final),
+            referer = referer,
+        )
+        return when {
+            status in 200..299 -> true
+            status == 401 || status == 403 -> {
+                Log.w("YouTube", "Watch-history beacon rejected ($status) — session cookie dead, request re-auth")
+                false
+            }
+            status == 429 -> {
+                Log.w("YouTube", "Watch-history beacon throttled (429) — backing off")
+                false
+            }
+            else -> {
+                Log.w("YouTube", "Watch-history beacon failed with HTTP $status")
+                false
+            }
+        }
     }
 
     /**
@@ -810,10 +862,10 @@ object YouTube {
     private suspend fun signedPlaybackTracking(
         videoId: String,
         cpn: String,
-    ): Triple<String?, String?, Float>? {
+    ): PlaybackTracking? {
         val client = currentWebClient()
 
-        suspend fun fetch(sts: Int?, poToken: String?, visitorData: String?): Triple<String?, String?, Float>? {
+        suspend fun fetch(sts: Int?, poToken: String?, visitorData: String?): PlaybackTracking? {
             val body = buildJsonObject {
                 put("context", commentWebContext(client, visitorData.takeIf { !it.isNullOrBlank() }))
                 put("videoId", JsonPrimitive(videoId))
@@ -858,7 +910,7 @@ object YouTube {
                     ?.get("lengthSeconds")?.jsonPrimitive?.contentOrNull
                     ?.toFloatOrNull()
                     ?: 0f
-            return Triple(playback, watchtime, length)
+            return PlaybackTracking(playback, watchtime, length)
         }
 
         // Attempt 1: signed WEB player request with signature timestamp and
@@ -891,36 +943,40 @@ object YouTube {
 
     /**
      * Rewrite a videostats tracking URL's query the way yt-dlp's
-     * `_mark_watched` does: keep every existing parameter and set
-     * `ver=2`, `cpn`, `cmt`, `c=WEB` and `el=detailpage`. The watchtime URL
-     * also gets `st=0` and `et=cmt` so the video registers actual watch time.
+     * `_mark_watched` does: keep every existing parameter byte-for-byte and
+     * append `ver=2`, `cpn`, `cmt`, `c=WEB` and `el=detailpage`. The watchtime
+     * URL also gets `st`/`et` (a progressing window from the previous ping to
+     * the current one) and the last ping of a session carries `state=ended`.
+     *
+     * The URL is rewritten with plain string concatenation on purpose: an
+     * Android `Uri` round-trip would form-decode `+`, dedupe repeated params
+     * and re-encode spaces as `%20`, all of which corrupt the signed (`s`,
+     * `ip`, `sprops`) query params and make YouTube reject the beacon.
      */
     private fun withVideoStatsParams(
         baseUrl: String,
         cpn: String,
         cmtSeconds: Long,
         watchtime: Boolean,
+        stSeconds: Long = 0L,
+        final: Boolean = false,
     ): String {
-        val uri = Uri.parse(baseUrl)
-        val params = LinkedHashMap<String, String>()
-        uri.queryParameterNames.forEach { name ->
-            params[name] = uri.getQueryParameter(name).orEmpty()
+        val suffix = buildString {
+            append(if ('?' in baseUrl) "&" else "?")
+            append("ver=2")
+            append("&cpn=$cpn")
+            append("&c=WEB")
+            append("&cmt=$cmtSeconds")
+            append("&el=detailpage")
+            if (watchtime) {
+                append("&st=$stSeconds")
+                append("&et=$cmtSeconds")
+            }
+            if (final) {
+                append("&state=ended")
+            }
         }
-        params["ver"] = "2"
-        params["cpn"] = cpn
-        params["c"] = "WEB"
-        params["cmt"] = cmtSeconds.toString()
-        params["el"] = "detailpage"
-        if (watchtime) {
-            params["st"] = "0"
-            params["et"] = cmtSeconds.toString()
-        }
-        val builder = Uri.Builder()
-            .scheme(uri.scheme)
-            .authority(uri.authority)
-            .path(uri.path)
-        params.forEach { (key, value) -> builder.appendQueryParameter(key, value) }
-        return builder.build().toString()
+        return baseUrl + suffix
     }
 
     /** Sixteen-char opaque ID tying every beacon of one playback session together. */

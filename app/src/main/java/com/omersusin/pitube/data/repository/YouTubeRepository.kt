@@ -1177,19 +1177,46 @@ class YouTubeRepository
             }
 
         /**
+         * Mint (once per session) the beacon pair for a video so partial pings
+         * accumulate into one history entry. Pass the result to every
+         * [reportVideoPlayback] for the same video/cpn. Returns null when not
+         * signed in or the mint failed.
+         */
+        suspend fun getPlaybackTracking(
+            videoId: String,
+            cpn: String,
+        ): com.omersusin.pitube.innertube.YouTube.PlaybackTracking? =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext null
+                YouTube.getPlaybackTracking(videoId, cpn)
+            }
+
+        /**
          * Report a video playback into the signed-in account's YouTube watch
          * history (yt-dlp mark-watched port). Returns true when any tracking
          * ping succeeded. When positionMs is 0 the video is marked as watched
-         * without pushing watch time.
+         * without pushing watch time. [tracking] is the minted pair from
+         * [getPlaybackTracking]; [previousPositionMs] chains the previous ping's
+         * position as `st`; [final] flags the last ping with `state=ended`.
          */
         suspend fun reportVideoPlayback(
             videoId: String,
             positionMs: Long = 0L,
             cpn: String = com.omersusin.pitube.innertube.YouTube.newCpn(),
+            tracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking? = null,
+            previousPositionMs: Long = 0L,
+            final: Boolean = false,
         ): Boolean =
             withContext(Dispatchers.IO) {
                 if (!isSignedIn) return@withContext false
-                YouTube.reportVideoPlayback(videoId, positionMs, cpn).getOrDefault(false)
+                YouTube.reportVideoPlayback(
+                    videoId,
+                    positionMs,
+                    cpn,
+                    tracking,
+                    previousPositionMs,
+                    final,
+                ).getOrDefault(false)
             }
 
         /**

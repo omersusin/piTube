@@ -2747,41 +2747,19 @@ class VideoPlayerViewModel @Inject constructor(
         val belongsToCurrentVideo = state.streamInfo?.id == videoId || state.cachedVideo?.id == videoId
         return if (belongsToCurrentVideo) state.relatedVideos else emptyList()
     }
-    
-    fun reportWatchProgress(video: com.omersusin.pitube.data.model.Video, position: Long, duration: Long) {
-        if (duration <= 0) return
-        if (isLocalMediaId(video.id)) return
-        if (video.id.isBlank()) return
-        // Report the real (partial) position so YouTube history shows it as
-        // in-progress rather than fully watched. Never reports 0.
-        val safePosition = position.coerceIn(0L, duration)
-        if (safePosition < 2_000L) return
-
-        // Signed-in accounts get the watch registered in their real YouTube
-        // history (yt-dlp mark-watched port): /player ping + both videostats
-        // beacons (playback URL + watchtime URL with real st/et = position).
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val reported = repository.reportVideoPlayback(video.id, safePosition)
-                if (reported) {
-                    Log.d("VideoPlayerViewModel", "YouTube history sync SUCCESS at ${safePosition}ms for ${video.id}")
-                }
-            } catch (e: Exception) {
-                Log.w("VideoPlayerViewModel", "YouTube history sync failed for ${video.id}", e)
-            }
-        }
-    }
 
     private var historyReportJob: kotlinx.coroutines.Job? = null
     private var historyVideoId: String? = null
     private var historyCpn: String? = null
+    private var historyTracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking? = null
 
     /**
      * Periodically reports the live playback position to the signed-in
      * account's real YouTube history (every ~20 s while playing). This is what
      * makes a partially-watched video appear in official YouTube history as
      * in-progress/"continue watching" — matching how YouTube's own clients and
-     * yt-dlp behave. A new video cancels the previous reporter.
+     * yt-dlp behave. A new video cancels the previous reporter and arms it for
+     * the new one (a queue that auto-advances keeps its own history entry).
      */
     fun startHistoryReport(video: com.omersusin.pitube.data.model.Video) {
         if (isLocalMediaId(video.id)) return
@@ -2792,6 +2770,10 @@ class VideoPlayerViewModel @Inject constructor(
         val cpn = com.omersusin.pitube.innertube.YouTube.newCpn()
         historyVideoId = video.id
         historyCpn = cpn
+        // The beacon pair is minted once per session (not per ping) so partial
+        // pings chain st->et into a single in-progress history entry, exactly
+        // like yt-dlp/youthub instead of looking like repeated restarts at 0:00.
+        historyTracking = null
         historyReportJob =
             viewModelScope.launch(Dispatchers.Main) {
                 var lastReportedMs = -1L
@@ -2801,21 +2783,38 @@ class VideoPlayerViewModel @Inject constructor(
                     // Media3 forbids touching the player off the main thread;
                     // isPlaying/hasEnded come from the thread-safe state flow.
                     val playerState = EnhancedPlayerManager.getInstance().playerState.value
+                    // A queue/auto-next moved to a different video: re-arm the
+                    // reporter so multi-video sessions each get their own entry.
+                    val currentVideo = com.omersusin.pitube.player.GlobalPlayerState.currentVideo.value
+                    if (currentVideo != null && currentVideo.id != video.id) {
+                        startHistoryReport(currentVideo)
+                        return@launch
+                    }
                     val position = EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
                     if (playerState.hasEnded) {
-                        // Video finished: mark it fully watched in the account
-                        // history (final beacon at the full duration).
+                        // Video finished: commit the entry as fully watched
+                        // (final beacon at the full duration with state=ended).
                         val finalMs =
                             EnhancedPlayerManager.getInstance().getPlayer()?.duration?.coerceAtLeast(0L) ?: 0L
                         if (finalMs > 0L) {
                             try {
-                                repository.reportVideoPlayback(video.id, finalMs, cpn)
+                                val tracking = historyTracking ?: repository.getPlaybackTracking(video.id, cpn)
+                                historyTracking = tracking
+                                repository.reportVideoPlayback(
+                                    video.id,
+                                    finalMs,
+                                    cpn,
+                                    tracking,
+                                    lastReportedMs.coerceAtLeast(0L),
+                                    final = true,
+                                )
                             } catch (e: Exception) {
                                 Log.w("VideoPlayerViewModel", "Final history report failed for ${video.id}", e)
                             }
                         }
                         historyVideoId = null
                         historyCpn = null
+                        historyTracking = null
                         break
                     }
                     // Report real (partial) positions. Throttle to ~20s of
@@ -2828,10 +2827,22 @@ class VideoPlayerViewModel @Inject constructor(
                         (position - lastReportedMs >= 20_000L || isTransitionToPause) &&
                         position != lastReportedMs
                     ) {
+                        val previousMs = lastReportedMs.coerceAtLeast(0L)
                         lastReportedMs = position
                         try {
-                            repository.reportVideoPlayback(video.id, position, cpn)
-                            Log.d("VideoPlayerViewModel", "YouTube history reported at ${position}ms for ${video.id}")
+                            val tracking = historyTracking ?: repository.getPlaybackTracking(video.id, cpn)
+                            historyTracking = tracking
+                            val reported =
+                                repository.reportVideoPlayback(
+                                    video.id,
+                                    position,
+                                    cpn,
+                                    tracking,
+                                    previousMs,
+                                )
+                            if (reported) {
+                                Log.d("VideoPlayerViewModel", "YouTube history reported at ${position}ms for ${video.id}")
+                            }
                         } catch (e: Exception) {
                             Log.w("VideoPlayerViewModel", "History report failed for ${video.id}", e)
                         }
@@ -2851,15 +2862,25 @@ class VideoPlayerViewModel @Inject constructor(
         // official YouTube history, not missing or fully watched.
         val videoId = historyVideoId
         val cpn = historyCpn
+        val tracking = historyTracking
         if (videoId != null && cpn != null) {
             historyVideoId = null
             historyCpn = null
+            historyTracking = null
             val finalMs =
                 EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
             if (finalMs > 5_000L) {
                 viewModelScope.launch {
                     try {
-                        repository.reportVideoPlayback(videoId, finalMs, cpn)
+                        val minted = tracking ?: repository.getPlaybackTracking(videoId, cpn)
+                        repository.reportVideoPlayback(
+                            videoId,
+                            finalMs,
+                            cpn,
+                            minted,
+                            finalMs.coerceAtLeast(0L),
+                            final = true,
+                        )
                     } catch (e: Exception) {
                         Log.w("VideoPlayerViewModel", "Final history report failed for $videoId", e)
                     }

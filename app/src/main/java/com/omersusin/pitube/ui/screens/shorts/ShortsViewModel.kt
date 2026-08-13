@@ -484,7 +484,7 @@ class ShortsViewModel @Inject constructor(
             if (positionMs >= 2_000L) {
                 runCatching {
                     withContext(Dispatchers.IO) {
-                        repository.reportVideoPlayback(video.id, positionMs)
+                        repository.reportVideoPlayback(video.id, positionMs, final = true)
                     }
                 }
             }

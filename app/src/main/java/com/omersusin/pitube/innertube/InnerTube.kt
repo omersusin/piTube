@@ -467,31 +467,41 @@ class InnerTube {
      * (watch-history reporting). Sent like a real browser playback signal:
      * the signed-in session cookie, a SAPISIDHASH Authorization (same shape
      * Koda/ViMusic use for their working history pings), full browser-ish
-     * headers and the watch page Referer. Returns true on a 2xx response.
+     * headers and the watch page Referer. Returns the HTTP status code, so the
+     * caller can tell a success (2xx) from a throttled (429), bot-walled or
+     * session-dead (401/403) response instead of swallowing it.
      */
     suspend fun videoStatsPing(
         url: String,
         referer: String? = null,
-    ): Boolean = withRetry {
-        httpClient.get(url) {
-            headers {
-                append("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                append("Accept-Language", "en-US,en;q=0.9")
-                append("Origin", YouTubeClient.ORIGIN_YOUTUBE)
-                referer?.let { append("Referer", it) }
-                userAgent(YouTubeClient.WEB.userAgent)
-                cookie?.let { cookie ->
-                    append("cookie", cookie)
-                    if ("SAPISID" in cookieMap) {
-                        val currentTime = System.currentTimeMillis() / 1000
-                        val sapisidHash =
-                            sha1("$currentTime ${cookieMap["SAPISID"]} ${YouTubeClient.ORIGIN_YOUTUBE}")
-                        append("Authorization", "SAPISIDHASH ${currentTime}_$sapisidHash")
-                        append("X-Goog-AuthUser", "0")
+    ): Int = withRetry {
+        try {
+            httpClient.get(url) {
+                headers {
+                    append("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                    append("Accept-Language", "en-US,en;q=0.9")
+                    append("Origin", YouTubeClient.ORIGIN_YOUTUBE)
+                    referer?.let { append("Referer", it) }
+                    userAgent(YouTubeClient.WEB.userAgent)
+                    cookie?.let { cookie ->
+                        append("cookie", cookie)
+                        if ("SAPISID" in cookieMap) {
+                            val currentTime = System.currentTimeMillis() / 1000
+                            val sapisidHash =
+                                sha1("$currentTime ${cookieMap["SAPISID"]} ${YouTubeClient.ORIGIN_YOUTUBE}")
+                            append("Authorization", "SAPISIDHASH ${currentTime}_$sapisidHash")
+                            append("X-Goog-AuthUser", "0")
+                        }
                     }
                 }
-            }
-        }.status.isSuccess()
+            }.status.value
+        } catch (error: ClientRequestException) {
+            // expectSuccess=true turns 4xx into an exception; surface its status
+            // so history callers can detect 401/403 (session dead) / 429 (back off).
+            error.response.status.value
+        } catch (_: ServerResponseException) {
+            HttpStatusCode.InternalServerError.value
+        }
     }
 
     private suspend fun <T> withVisitorDataFallback(
