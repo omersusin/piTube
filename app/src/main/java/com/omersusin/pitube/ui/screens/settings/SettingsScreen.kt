@@ -17,7 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Refresh
@@ -460,7 +460,7 @@ fun SettingsScreen(
                             isSearchActive = false
                             searchQuery = ""
                         }) {
-                            Icon(Icons.Default.ArrowBack, "Close search")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.ui_close_search))
                         }
                         OutlinedTextField(
                             value = searchQuery,
@@ -481,7 +481,7 @@ fun SettingsScreen(
                         )
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Outlined.Close, "Clear search")
+                                Icon(Icons.Outlined.Close, stringResource(R.string.ui_clear_search))
                             }
                         }
                     }
@@ -494,7 +494,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.Default.ArrowBack, stringResource(R.string.btn_back))
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.btn_back))
                         }
                         Text(
                             text = stringResource(R.string.settings_title),

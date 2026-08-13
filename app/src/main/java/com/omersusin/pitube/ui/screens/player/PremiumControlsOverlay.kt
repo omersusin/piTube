@@ -648,7 +648,7 @@ fun PremiumControlsOverlay(
                                     else -> Icons.Rounded.PlayArrow
                                 },
                                 contentDescription = when {
-                                    hasEnded -> "Replay"
+                                    hasEnded -> stringResource(R.string.ui_replay)
                                     isPlaying -> stringResource(R.string.pause)
                                     else -> stringResource(R.string.play)
                                 },

@@ -122,8 +122,6 @@ class PlayerPreferences(context: Context) {
         // UI preferences
         val GRID_ITEM_SIZE = stringPreferencesKey("grid_item_size")
         val SLIDER_STYLE = stringPreferencesKey("slider_style")
-        val MUSIC_PLAYER_BACKGROUND_STYLE = stringPreferencesKey("music_player_background_style")
-        val HIDE_MUSIC_PLAYER_ARTWORK = booleanPreferencesKey("hide_music_player_artwork")
         val SHORTS_PLAYER_UI_MODE = stringPreferencesKey("shorts_player_ui_mode")
         val GROUPED_QUALITY_SELECTOR_ENABLED = booleanPreferencesKey("grouped_quality_selector_enabled")
         val SQUIGGLY_SLIDER_ENABLED = booleanPreferencesKey("squiggly_slider_enabled")
@@ -211,7 +209,6 @@ class PlayerPreferences(context: Context) {
         val MINI_PLAYER_SHOW_SKIP_CONTROLS = booleanPreferencesKey("mini_player_show_skip_controls")
         val MINI_PLAYER_SHOW_NEXT_PREV_CONTROLS = booleanPreferencesKey("mini_player_show_next_prev_controls")
         val MINI_PLAYER_CONTINUE_WATCHING_ENABLED = booleanPreferencesKey("mini_player_continue_watching_enabled")
-        val SHOW_RESTORED_MUSIC_MINI_PLAYER = booleanPreferencesKey("show_restored_music_mini_player")
 
         // Audio focus during calls
         val PLAY_DURING_CALLS = booleanPreferencesKey("play_during_calls")
@@ -579,33 +576,6 @@ class PlayerPreferences(context: Context) {
     suspend fun setSliderStyle(style: SliderStyle) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.SLIDER_STYLE] = style.name
-        }
-    }
-
-    val musicPlayerBackgroundStyle: Flow<MusicPlayerBackgroundStyle> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            runCatching {
-                MusicPlayerBackgroundStyle.valueOf(
-                    preferences[Keys.MUSIC_PLAYER_BACKGROUND_STYLE]
-                        ?: MusicPlayerBackgroundStyle.BLUR_GRADIENT.name
-                )
-            }.getOrDefault(MusicPlayerBackgroundStyle.BLUR_GRADIENT)
-        }
-
-    suspend fun setMusicPlayerBackgroundStyle(style: MusicPlayerBackgroundStyle) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.MUSIC_PLAYER_BACKGROUND_STYLE] = style.name
-        }
-    }
-
-    val hideMusicPlayerArtwork: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            preferences[Keys.HIDE_MUSIC_PLAYER_ARTWORK] ?: false
-        }
-
-    suspend fun setHideMusicPlayerArtwork(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.HIDE_MUSIC_PLAYER_ARTWORK] = enabled
         }
     }
 
@@ -2312,17 +2282,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    val showRestoredMusicMiniPlayer: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            preferences[Keys.SHOW_RESTORED_MUSIC_MINI_PLAYER] ?: true
-        }
-
-    suspend fun setShowRestoredMusicMiniPlayer(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SHOW_RESTORED_MUSIC_MINI_PLAYER] = enabled
-        }
-    }
-
     val playDuringCalls: Flow<Boolean> = context.playerPreferencesDataStore.data
         .map { preferences ->
             preferences[Keys.PLAY_DURING_CALLS] ?: false
@@ -2580,13 +2539,6 @@ enum class SliderStyle {
 enum class DownloadDialogStyle {
     FULL,
     COMPACT
-}
-
-enum class MusicPlayerBackgroundStyle {
-    BLUR_GRADIENT,
-    BLUR,
-    GRADIENT,
-    DEFAULT
 }
 
 enum class ShortsPlayerUiMode {

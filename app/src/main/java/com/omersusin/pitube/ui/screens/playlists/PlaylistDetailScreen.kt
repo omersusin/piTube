@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CheckBox
@@ -494,7 +495,7 @@ private fun PlaylistDetailTopBar(
         ) {
             IconButton(onClick = if (inSelectionMode) onClearSelection else onNavigateBack) {
                 Icon(
-                    imageVector = if (inSelectionMode) Icons.Default.Close else Icons.Default.ArrowBack,
+                    imageVector = if (inSelectionMode) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription =
                         if (inSelectionMode) {
                             stringResource(R.string.cancel_selection)

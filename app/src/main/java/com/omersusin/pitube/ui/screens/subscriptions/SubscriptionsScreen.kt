@@ -37,7 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
@@ -291,7 +291,7 @@ fun SubscriptionsScreen(
                             isManagingSubs = false
                             searchQuery = ""
                         }) {
-                            Icon(Icons.Default.ArrowBack, stringResource(R.string.close))
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.close))
                         }
                     },
                     actions = {
@@ -512,44 +512,40 @@ fun SubscriptionsScreen(
                                                 onViewAllClick = { isManagingSubs = true },
                                             )
 
-                                            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
 
-                                            if (uiState.groups.isNotEmpty() || true) {
-                                                Row(
-                                                    modifier =
-                                                        Modifier
-                                                            .fillMaxWidth()
-                                                            .horizontalScroll(rememberScrollState())
-                                                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                ) {
-                                                    FilterChip(
-                                                        selected = uiState.selectedGroupName == null,
-                                                        onClick = { viewModel.selectGroup(null) },
-                                                        label = { Text(stringResource(R.string.group_all)) },
-                                                    )
-                                                    uiState.groups.forEach { group ->
-                                                        FilterChip(
-                                                            selected = uiState.selectedGroupName == group.name,
-                                                            onClick = { viewModel.selectGroup(group.name) },
-                                                            label = { Text(group.name) },
-                                                        )
-                                                    }
-                                                    IconButton(
-                                                        onClick = { showGroupsDialog = true },
-                                                        modifier = Modifier.size(32.dp),
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Default.Edit,
-                                                            contentDescription = stringResource(R.string.manage_groups),
-                                                            modifier = Modifier.size(18.dp),
-                                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        )
-                                                    }
-                                                }
+                                            Row(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .horizontalScroll(rememberScrollState())
+                                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                            FilterChip(
+                                                selected = uiState.selectedGroupName == null,
+                                                onClick = { viewModel.selectGroup(null) },
+                                                label = { Text(stringResource(R.string.group_all)) },
+                                            )
+                                            uiState.groups.forEach { group ->
+                                                FilterChip(
+                                                    selected = uiState.selectedGroupName == group.name,
+                                                    onClick = { viewModel.selectGroup(group.name) },
+                                                    label = { Text(group.name) },
+                                                )
                                             }
-
+                                            IconButton(
+                                                onClick = { showGroupsDialog = true },
+                                                modifier = Modifier.size(32.dp),
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.Edit,
+                                                    contentDescription = stringResource(R.string.manage_groups),
+                                                    modifier = Modifier.size(18.dp),
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                            }
                                             SubscriptionFeedErrorCard(
                                                 failedChannelNames = uiState.failedChannelNames,
                                                 onRetry = { viewModel.retryFailedChannels() },

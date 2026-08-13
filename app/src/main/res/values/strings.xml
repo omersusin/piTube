@@ -28,6 +28,7 @@
     <string name="channel_error_log_clip_label">piTube channel error log</string>
     <string name="shorts">Shorts</string>
     <string name="failed_to_load_channel">Failed to load channel</string>
+    <string name="load_failed">Load failed</string>
     <string name="subscribers">Subscribers</string>
     <string name="collaborators">Collaborators</string>
     <string name="collaborator">Collaborator</string>
@@ -37,8 +38,6 @@
     <string name="library_section_header">Your Content</string>
     <string name="library_history_label">History</string>
     <string name="library_playlists_label">Playlists</string>
-    <string name="library_music_playlists_label">Music Playlists</string>
-    <string name="library_music_playlists_subtitle">Your music collections</string>
     <string name="library_liked_videos_label">Likes</string>
     <string name="library_saved_shorts_label">Saved Shorts</string>
     <string name="library_watch_later_label">Watch Later</string>
@@ -74,16 +73,12 @@
     <string name="history_tab_videos">Videos</string>
     <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_local_videos">Local videos</string>
-    <string name="history_tab_local_music">Local music</string>
     <string name="liked">Liked</string>
-    <string name="liked_music">Liked Music</string>
     <string name="liked_videos">Likes</string>
     <string name="share_song">Share song</string>
     <string name="empty_liked">No Likes</string>
     <string name="empty_liked_body">Your liked content will appear here</string>
     <string name="empty_liked_videos">No liked videos</string>
-    <string name="empty_liked_music">No liked music</string>
-    <string name="empty_liked_music_body">Songs you like will appear here</string>
     <string name="song">Song</string>
     <string name="video">Video</string>
     <string name="share">Share</string>
@@ -157,13 +152,11 @@
     <string name="play_mode_suggestion_title">Play Mode Suggestion</string>
     <string name="play_mode_suggestion_body">This video is less than 2 minutes long. Would you like to switch to a specialized player?</string>
     <string name="shorts_player">Shorts Player</string>
-    <string name="music_player">Music Player</string>
     <plurals name="channels_count">
         <item quantity="one">%d channel</item>
         <item quantity="other">%d channels</item>
     </plurals>
     <string name="tab_videos">Videos</string>
-    <string name="tab_music">Music</string>
     <string name="empty_offline_title">Offline %1$s</string>
     <string name="empty_offline_body">Your downloaded %1$s will appear here.\nEnjoy your content even without internet.</string>
     <string name="action_go_to_home">Go to Home</string>
@@ -222,12 +215,8 @@
     <string name="copied_to_clipboard">Copied %1$s</string>
     <string name="unknown">Unknown</string>
     <string name="subscriptions_video_section_title">Video subscriptions</string>
-    <string name="subscriptions_music_section_title">Music subscriptions</string>
     <string name="subscriptions_quick_access_title">Quick access</string>
     <string name="subscriptions_compact_header">Jump into your latest subscribed channels.</string>
-    <string name="subscriptions_compact_header_with_music">Music channels are marked inline so the feed stays compact.</string>
-    <string name="subscriptions_music_chip_label">Music</string>
-    <string name="subscriptions_music_badge_cd">Music subscription</string>
     <string name="no_subscriptions_found">No subscriptions found</string>
     <!-- Live chat -->
     <string name="live_chat">Live chat</string>
@@ -269,7 +258,6 @@
     <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_shorts">Shorts</string>
-    <string name="nav_music">Music</string>
     <string name="nav_subs">Subs</string>
     <string name="nav_library">Library</string>
     <string name="notifications">Notifications</string>
@@ -405,7 +393,6 @@
     <string name="channel_search_close">Close search</string>
     <string name="channel_search_no_results">No results found for "%1$s"</string>
     <!-- History Screen -->
-    <string name="music_history">Music History</string>
     <string name="remove_from_history">Remove from history</string>
     <string name="share_song_chooser">Share song</string>
     <string name="time_today">Today</string>
@@ -589,8 +576,6 @@
     <string name="player_background_style_blur">Blurred Artwork</string>
     <string name="player_background_style_gradient">Palette Gradient</string>
     <string name="player_background_style_default">Default Surface</string>
-    <string name="player_appearance_hide_music_artwork_title">Hide music player artwork</string>
-    <string name="player_appearance_hide_music_artwork_subtitle">Show the app icon on the extracted artwork color instead</string>
     <string name="player_appearance_shorts_ui_title">Shorts player UI</string>
     <string name="player_appearance_shorts_ui_subtitle">Choose how much of the Shorts overlay stays visible</string>
     <string name="shorts_player_ui_default">Default</string>
@@ -748,8 +733,6 @@
     <string name="content_settings_show_app_logo_title">Show app logo icon</string>
     <string name="content_settings_show_app_logo_subtitle">Display the piTube logo icon next to the app name in the home screen top bar</string>
     <string name="content_settings_header_content_components">Content Components</string>
-    <string name="content_settings_restored_music_mini_player_title">Show restored music mini player</string>
-    <string name="content_settings_restored_music_mini_player_subtitle">Automatically show your last music session after it is restored</string>
     <string name="content_settings_hide_watched_home_title">Hide Watched Videos from Home</string>
     <string name="content_settings_hide_watched_home_subtitle">Filter videos you\'ve already watched from your home feed</string>
     <string name="content_settings_hide_watched_subscriptions_title">Hide Watched Videos from Subscriptions</string>
@@ -796,8 +779,6 @@
     <string name="settings_home_shorts_shelf_subtitle">Show the horizontal shorts shelf on the home screen.</string>
     <string name="settings_shorts_nav_tab_title">Shorts tab in navigation</string>
     <string name="settings_shorts_nav_tab_subtitle">Show the Shorts tab in the bottom navigation bar.</string>
-    <string name="settings_music_nav_tab_title">Music tab in navigation</string>
-    <string name="settings_music_nav_tab_subtitle">Show the Music tab in the bottom navigation bar.</string>
     <string name="settings_search_nav_tab_title">Search tab in navigation</string>
     <string name="settings_search_nav_tab_subtitle">Show a quick-access Search tab in the bottom navigation bar.</string>
     <string name="nav_search">Search</string>
@@ -979,11 +960,6 @@
     <string name="video_quality_warning">Higher quality uses more data</string>
     <string name="video_quality_wifi_header">Wi-Fi Quality</string>
     <string name="video_quality_cellular_header">Cellular Quality</string>
-    <string name="music_quality_header">Music Audio Quality</string>
-    <string name="music_quality_auto">Auto</string>
-    <string name="music_quality_high">High</string>
-    <string name="music_quality_medium">Medium</string>
-    <string name="music_quality_low">Low</string>
     <string name="quality_144p">144p</string>
     <string name="quality_240p">240p</string>
     <string name="quality_360p">360p</string>
@@ -1170,8 +1146,6 @@
     <string name="import_yt_takeout_all">Import from Google Takeout</string>
     <string name="import_yt_takeout_all_desc">Import your YouTube subscriptions, watch history, and playlists all at once from a Google Takeout ZIP file.</string>
     <!-- Music Apps Import -->
-    <string name="import_music_apps_section_title">Music Apps</string>
-    <string name="import_music_apps_section_subtitle">Import your music library from other players</string>
     <string name="import_from_metrolist">Import from Metrolist</string>
     <string name="import_from_metrolist_desc">Import music playlists from a Metrolist backup file (.zip). Playlists appear in your Music Library.</string>
     <string name="import_from_youtube">Import from YouTube</string>
@@ -1189,8 +1163,6 @@
     <string name="import_yt_watch_history_desc">Import your watch history from YouTube Takeout (watch-history.html).</string>
     <string name="import_yt_playlist">Import YouTube Playlist</string>
     <string name="import_yt_playlist_desc">Import a playlist from YouTube Takeout CSV (Playlist-&lt;name&gt;.csv).</string>
-    <string name="import_yt_music_playlist">Import YouTube Music Playlist</string>
-    <string name="import_yt_music_playlist_desc">Import a music playlist from YouTube Music Takeout CSV. Appears under Music Playlists.</string>
     <string name="import_yt_history_success_template">Imported %1$d entries from your YouTube watch history</string>
     <string name="import_yt_history_failed_template">Failed to import watch history: %1$s</string>
     <string name="import_yt_playlist_success_template">Imported playlist “%1$s” with %2$d videos</string>
@@ -1215,7 +1187,6 @@
     <string name="total_space_template">Total: %1$s</string>
     <string name="location_label">Location</string>
     <string name="video_download_location_label">Video download location</string>
-    <string name="music_download_location_label">Music download location</string>
     <string name="internal_app_storage_label">Internal App Storage</string>
     <string name="preferences_header">Preferences</string>
     <string name="default_video_quality_label">Default Video Quality</string>
@@ -1341,7 +1312,6 @@
     <string name="cd_expand_category">Expand</string>
     <!-- Categories -->
     <string name="category_gaming">Gaming</string>
-    <string name="category_music">Music</string>
     <string name="category_technology">Technology</string>
     <string name="category_entertainment">Entertainment</string>
     <string name="category_education">Education</string>
@@ -1352,11 +1322,8 @@
     <string name="category_news_current_events">News &amp; Current Events</string>
     <string name="action_refresh">Refresh</string>
     <!-- Music Playlists Screen -->
-    <string name="screen_title_music_library">Music Library</string>
     <string name="header_your_collection">Your Collection</string>
-    <string name="subtitle_liked_music">Your liked songs</string>
     <string name="subtitle_history">Songs you listened to</string>
-    <string name="empty_music_playlists">No music playlists yet</string>
     <string name="rename_playlist_title">Rename Playlist</string>
     <string name="action_rename">Rename</string>
     <string name="link_copied">Link copied</string>
@@ -1396,9 +1363,7 @@
     <string name="action_add_to_favorites">Add to Favorites</string>
     <string name="action_listen_now">Listen Now</string>
     <string name="action_play_all">Play all</string>
-    <string name="loading_music">Loading music...</string>
     <!-- Enhanced Music Screen -->
-    <string name="screen_title_music">MUSIC</string>
     <string name="section_listen_again">Listen again</string>
     <string name="section_daily_discover">Your Daily Discover</string>
     <string name="section_quick_picks">Quick picks</string>
@@ -1412,8 +1377,6 @@
     <string name="daily_discover_for_fans_of">For fans of %1$s</string>
     <string name="section_recommended">Recommended</string>
     <string name="section_recently_played">Recently played</string>
-    <string name="section_music_videos">Music videos</string>
-    <string name="section_music_videos_for_you">Music videos for you</string>
     <string name="section_live_performances">Live performances</string>
     <string name="section_new_releases">New releases</string>
     <string name="subtitle_single_template">Single · %1$s</string>
@@ -1455,7 +1418,6 @@
     <string name="now_playing">NOW PLAYING</string>
     <!-- Music Search Screen -->
     <string name="voice_search_prompt">Speak to search music</string>
-    <string name="search_music_placeholder">Search music</string>
     <string name="voice_search_cd">Voice Search</string>
     <string name="filter_albums">Albums</string>
     <string name="filter_songs">Songs</string>
@@ -1727,10 +1689,6 @@
     <string name="error_extraction_failed_hint">YouTube may have updated its format. piTube will be updated soon — please try again later.</string>
     <string name="error_generic">Failed to load video</string>
     <string name="error_generic_hint">An unknown error occurred. Please try again.</string>
-    <string name="music_playback_warning_forbidden">Music stream access was denied. YouTube may be limiting this IP; try reloading or switching network/VPN.</string>
-    <string name="music_playback_warning_network">Music stream failed because of a network issue. Check your connection or try another network.</string>
-    <string name="music_playback_warning_final">This song could not be loaded after several retries. Try another network or VPN if songs keep failing.</string>
-    <string name="music_playback_warning_generic">Music playback failed. Try again or switch networks if this keeps happening.</string>
     <string name="player_lock_controls">Lock controls</string>
     <string name="player_unlock_controls">Unlock controls</string>
     <!-- New Video Player Strings -->
@@ -1904,7 +1862,6 @@
     <string name="history_delete_shorts_title">Delete Shorts?</string>
     <string name="history_delete_shorts_body">This removes all Shorts from your watch history. Other videos are kept.</string>
     <!-- Music recognition (Shazam) -->
-    <string name="recognize_music">Recognize music</string>
     <string name="recognition_history">Recognition history</string>
     <string name="tap_to_recognize">Tap to recognize</string>
     <string name="listening">Listening…</string>
@@ -2001,8 +1958,6 @@
     <string name="tv_search_action">Search</string>
     <string name="tv_library_likes">Liked videos</string>
     <string name="tv_library_watch_later">Watch later</string>
-    <string name="tv_music_empty">No music recommendations yet</string>
-    <string name="tv_music_charts">Charts</string>
     <string name="tv_player_settings">Player settings</string>
     <string name="tv_player_queue">Queue</string>
     <string name="tv_player_play_now">Play now</string>
@@ -2025,10 +1980,6 @@
         <item quantity="one">%1$d video</item>
         <item quantity="other">%1$d videos</item>
     </plurals>
-    <string name="tv_music_lyrics">Lyrics</string>
-    <string name="tv_music_expand">Open full player</string>
-    <string name="tv_music_no_lyrics">No lyrics found</string>
-    <string name="tv_music_radio">Radio</string>
     <string name="tv_settings_appearance">Appearance</string>
     <string name="tv_settings_sync">Sync devices</string>
     <string name="tv_sync_qr_session_active">This code stays active while this screen is open.</string>
@@ -2123,6 +2074,7 @@
     <string name="ui_back">Back</string>
     <string name="ui_add_songs">Add songs</string>
     <string name="ui_close_search">Close search</string>
+    <string name="ui_clear_search">Clear search</string>
     <string name="ui_save_to_library">Save to library</string>
     <string name="ui_remove_from_library">Remove from library</string>
     <string name="ui_clear">Clear</string>
@@ -2185,7 +2137,6 @@
     <string name="toast_failed_to_add_track">Failed to add track</string>
     <string name="toast_removed_from_playlist">Removed from playlist</string>
     <string name="toast_failed_to_remove_track">Failed to remove track</string>
-    <string name="toast_saved_playlist_to_music_library">Playlist saved to your music library</string>
     <string name="toast_failed_to_save_playlist">Failed to save playlist</string>
     <string name="toast_removed_playlist_from_library">Playlist removed from library</string>
     <string name="toast_failed_to_merge_playlist">Failed to merge playlist</string>

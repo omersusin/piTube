@@ -86,7 +86,7 @@ fun UpdateDialog(
                     .fillMaxWidth()
                     .clickable(enabled = false) {}, 
                 shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                color = Color(0xFF1E1E22) 
+                color = MaterialTheme.colorScheme.surface
             ) {
                 Column(
                     modifier = Modifier

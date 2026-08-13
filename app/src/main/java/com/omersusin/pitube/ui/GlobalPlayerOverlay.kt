@@ -1089,7 +1089,7 @@ fun GlobalPlayerOverlay(
                                     Icon(
                                         imageVector = Icons.Rounded.ErrorOutline,
                                         contentDescription = stringResource(R.string.ui_playback_error),
-                                        tint = Color(0xFFFF6B6B),
+                                        tint = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.size(48.dp),
                                     )
                                     Text(

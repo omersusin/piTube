@@ -1251,7 +1251,7 @@ private fun PagingFooter(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    appendState.error.localizedMessage ?: "Load failed",
+                    appendState.error.localizedMessage ?: stringResource(R.string.load_failed),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                     maxLines = 2,

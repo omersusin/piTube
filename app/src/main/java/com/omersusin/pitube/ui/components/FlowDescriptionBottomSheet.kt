@@ -55,7 +55,7 @@ import com.omersusin.pitube.utils.formatViewCount
 import com.omersusin.pitube.utils.DateContext
 import kotlinx.coroutines.launch
 
-fun parseHtmlDescription(rawHtml: String): AnnotatedString {
+fun parseHtmlDescription(rawHtml: String, linkColor: Color = Color(0xFF3EA6FF)): AnnotatedString {
     // 1. Parse HTML into an Android Spanned object (Handles <br>, <a>, &amp;)
     val spanned = HtmlCompat.fromHtml(rawHtml, HtmlCompat.FROM_HTML_MODE_COMPACT)
     val text = spanned.toString()
@@ -77,7 +77,7 @@ fun parseHtmlDescription(rawHtml: String): AnnotatedString {
             val absoluteUrl = if (rawUrl.startsWith("/")) "https://www.youtube.com$rawUrl" else rawUrl
             addStyle(
                 style = SpanStyle(
-                    color = Color(0xFF3EA6FF),
+                    color = linkColor,
                     textDecoration = TextDecoration.Underline,
                     fontWeight = FontWeight.SemiBold
                 ),
@@ -97,7 +97,7 @@ fun parseHtmlDescription(rawHtml: String): AnnotatedString {
                 val end = matchResult.range.last + 1
                 addStyle(
                     style = SpanStyle(
-                        color = Color(0xFF3EA6FF),
+                        color = linkColor,
                         textDecoration = TextDecoration.Underline,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -114,7 +114,7 @@ fun parseHtmlDescription(rawHtml: String): AnnotatedString {
             val end = matchResult.range.last + 1
             addStyle(
                 style = SpanStyle(
-                    color = Color(0xFF3EA6FF),
+                    color = linkColor,
                     fontWeight = FontWeight.SemiBold
                 ),
                 start = start,
@@ -161,7 +161,7 @@ fun FlowDescriptionBottomSheet(
     val descriptionScrollState = rememberScrollState()
     
     val descriptionText = remember(video.description) {
-        parseHtmlDescription(video.description)
+        parseHtmlDescription(video.description, MaterialTheme.colorScheme.primary)
     }
     var descLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -372,9 +372,8 @@ fun FlowDescriptionBottomSheet(
                                 hashtags.forEach { tag ->
                                     Text(
                                         text = tag,
-                                        color = Color(0xFF3EA6FF),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        modifier = Modifier.clickable { /* Handle hashtag click */ }
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                 }
                             }
