@@ -134,18 +134,20 @@ fun SettingsScreen(
         }
     }
 
-    // Persisted last-sync counts so the result survives navigating away and
-    // back; falls back to the text already shown when the last pass errored.
-    val (lastLiked, lastPlaylists, lastChannels) by playerPreferences.youtubeLibrarySyncCounts
-        .collectAsStateWithLifecycle(initialValue = Triple(0, 0, 0))
-    val showPersistedSyncResult =
-        librarySyncResultText == null && isGoogleSignedIn && youtubeLibrarySyncedAt > 0L
-
     // Auto-sync: once per day (or right after login) the account library is
     // refreshed silently so liked videos / playlists / subscriptions stay in
     // sync with official YouTube without opening the screen and tapping.
     val youtubeLibrarySyncedAt by playerPreferences.youtubeLibrarySyncedAt
         .collectAsStateWithLifecycle(initialValue = 0L)
+
+    // Persisted last-sync counts so the result survives navigating away and
+    // back; falls back to the text already shown when the last pass errored.
+    val syncCounts by playerPreferences.youtubeLibrarySyncCounts
+        .collectAsStateWithLifecycle(initialValue = Triple(0, 0, 0))
+    val (lastLiked, lastPlaylists, lastChannels) = syncCounts
+    val showPersistedSyncResult =
+        librarySyncResultText == null && isGoogleSignedIn && youtubeLibrarySyncedAt > 0L
+
     LaunchedEffect(isGoogleSignedIn, youtubeLibrarySyncedAt, isSyncingLibrary) {
         if (isGoogleSignedIn && !isSyncingLibrary && librarySyncResultText == null &&
             System.currentTimeMillis() - youtubeLibrarySyncedAt > AUTO_SYNC_INTERVAL_MS
@@ -163,9 +165,11 @@ fun SettingsScreen(
             repeat(3) { attempt ->
                 val info = runCatching {
                     com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull()
-                }.getOrNull()
-                    ?: return@repeat
-                if (info.name.isNotBlank() || info.email.isNotBlank() || info.thumbnailUrl.isNotBlank()) {
+                }.getOrNull() ?: return@repeat
+                if (info.name.isNotBlank() ||
+                    !info.email.isNullOrBlank() ||
+                    !info.thumbnailUrl.isNullOrBlank()
+                ) {
                     playerPreferences.updateYoutubeAccountInfo(info.name, info.email, info.thumbnailUrl)
                     return@LaunchedEffect
                 }
@@ -173,6 +177,7 @@ fun SettingsScreen(
             }
         }
     }
+
     // Update checker state (github flavor only)
     var isCheckingUpdate by remember { mutableStateOf(false) }
     // null = no dialog; non-null = tag string of the available update
