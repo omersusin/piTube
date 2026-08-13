@@ -1815,6 +1815,7 @@ class PlayerPreferences(context: Context) {
         context.playerPreferencesDataStore.edit { preferences ->
             val current = preferences[Keys.CHANNEL_DEFAULT_TABS].orEmpty()
                 .filterNot { it.startsWith("$channelId|") }
+                .toSet()
             preferences[Keys.CHANNEL_DEFAULT_TABS] = current + "$channelId|$tabIndex"
         }
     }
