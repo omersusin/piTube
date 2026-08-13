@@ -771,12 +771,12 @@ fun FlowCommentItem(
                     modifier =
                         if (isSignedIn && comment.likeParams != null) {
                             Modifier
-                                .size(14.dp)
+                                .size(20.dp)
                                 .clip(RoundedCornerShape(4.dp))
                                 .clickable { onToggleLike(comment) }
-                                .padding(4.dp)
+                                .padding(2.dp)
                         } else {
-                            Modifier.size(14.dp)
+                            Modifier.size(20.dp)
                         },
                 )
                 Spacer(modifier = Modifier.width(6.dp))
@@ -1102,12 +1102,12 @@ fun FlowReplyItem(
                     modifier =
                         if (isSignedIn && reply.likeParams != null) {
                             Modifier
-                                .size(12.dp)
+                                .size(18.dp)
                                 .clip(RoundedCornerShape(4.dp))
                                 .clickable { onToggleLike(reply) }
-                                .padding(4.dp)
+                                .padding(2.dp)
                         } else {
-                            Modifier.size(12.dp)
+                            Modifier.size(18.dp)
                         },
                 )
                 if (reply.likeCount > 0) {

@@ -144,6 +144,18 @@ object YouTubeLibrarySync {
         return channels.size
     }
 
+    /** Incremental like-refresh used right after an in-app like/unlike. */
+    suspend fun syncLikedVideosOnly(context: Context) {
+        if (YouTube.cookie.isNullOrEmpty()) return
+        runCatching { syncLikedVideos(context) }
+    }
+
+    /** Incremental subscription-refresh used right after an in-app (un)subscribe. */
+    suspend fun syncSubscriptionsOnly(context: Context) {
+        if (YouTube.cookie.isNullOrEmpty()) return
+        runCatching { syncSubscriptions(context) }
+    }
+
     private fun RemotePlaylistVideo.toSyncVideo(): Video {
         return Video(
             id = id,

@@ -356,6 +356,7 @@ class ChannelViewModel
                 if (state.isSubscribed) {
                     // Unsubscribe
                     subscriptionRepository.unsubscribe(channelId)
+                    com.omersusin.pitube.data.local.AccountActions(appContext).setSubscribed(channelId, false)
                 } else {
                     // Subscribe
                     val subscription =
@@ -366,6 +367,7 @@ class ChannelViewModel
                             subscribedAt = System.currentTimeMillis(),
                         )
                     subscriptionRepository.subscribe(subscription)
+                    com.omersusin.pitube.data.local.AccountActions(appContext).setSubscribed(channelId, true)
                 }
             }
         }
@@ -375,6 +377,7 @@ class ChannelViewModel
                 val state = _uiState.value
                 val channelId = state.channelId ?: return@launch
                 subscriptionRepository.unsubscribe(channelId)
+                com.omersusin.pitube.data.local.AccountActions(appContext).setSubscribed(channelId, false)
             }
         }
 

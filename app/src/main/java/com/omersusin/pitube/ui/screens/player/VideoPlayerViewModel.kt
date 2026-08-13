@@ -93,6 +93,8 @@ class VideoPlayerViewModel @Inject constructor(
     
     private val _uiState = MutableStateFlow(VideoPlayerUiState())
     val uiState: StateFlow<VideoPlayerUiState> = _uiState.asStateFlow()
+
+    private val accountActions = com.omersusin.pitube.data.local.AccountActions(context)
     
     private val _commentsState = MutableStateFlow<List<com.omersusin.pitube.data.model.Comment>>(emptyList())
     val commentsState: StateFlow<List<com.omersusin.pitube.data.model.Comment>> = _commentsState.asStateFlow()
@@ -2786,8 +2788,12 @@ class VideoPlayerViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Main) {
                 var lastReportedMs = -1L
                 var lastWasPlaying = false
+                // First ping fires almost immediately (a second in) so the video
+                // shows up in official history right away instead of only after
+                // ~30-40s of playback; only subsequent pings are throttled.
+                var firstReportPending = true
                 while (isActive) {
-                    delay(10_000L)
+                    delay(if (firstReportPending) 1_000L else 15_000L)
                     // Media3 forbids touching the player off the main thread;
                     // isPlaying/hasEnded come from the thread-safe state flow.
                     val playerState = EnhancedPlayerManager.getInstance().playerState.value
@@ -2824,6 +2830,31 @@ class VideoPlayerViewModel @Inject constructor(
                         historyCpn = null
                         historyTracking = null
                         break
+                    }
+                    // First report: fire as soon as playback has started (position
+                    // past one second) with st=0, so the entry exists immediately.
+                    if (firstReportPending && position >= 1_000L) {
+                        firstReportPending = false
+                        lastReportedMs = position
+                        lastWasPlaying = playerState.isPlaying
+                        try {
+                            val tracking = historyTracking ?: repository.getPlaybackTracking(video.id, cpn)
+                            historyTracking = tracking
+                            val reported =
+                                repository.reportVideoPlayback(
+                                    video.id,
+                                    position,
+                                    cpn,
+                                    tracking,
+                                    previousPositionMs = 0L,
+                                )
+                            if (reported) {
+                                Log.d("VideoPlayerViewModel", "YouTube history started for ${video.id} at ${position}ms")
+                            }
+                        } catch (e: Exception) {
+                            Log.w("VideoPlayerViewModel", "Initial history report failed for ${video.id}", e)
+                        }
+                        continue
                     }
                     // Report real (partial) positions. Throttle to ~20s of
                     // progress while playing; also report immediately on a
@@ -2903,6 +2934,7 @@ class VideoPlayerViewModel @Inject constructor(
             if (isSubscribed) {
                 subscriptionRepository.unsubscribe(channelId)
                 _uiState.value = _uiState.value.copy(isSubscribed = false)
+                accountActions.setSubscribed(channelId, false)
             } else {
                 subscriptionRepository.subscribe(
                     ChannelSubscription(
@@ -2912,6 +2944,7 @@ class VideoPlayerViewModel @Inject constructor(
                     )
                 )
                 _uiState.value = _uiState.value.copy(isSubscribed = true)
+                accountActions.setSubscribed(channelId, true)
             }
         }
     }
@@ -2937,6 +2970,7 @@ class VideoPlayerViewModel @Inject constructor(
                 )
             )
             _uiState.value = _uiState.value.copy(likeState = "LIKED")
+            accountActions.setLikeStatus(videoId, "LIKE")
         }
     }
 
@@ -2944,6 +2978,7 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             likedVideosRepository.dislikeVideo(videoId)
             _uiState.value = _uiState.value.copy(likeState = "DISLIKED")
+            accountActions.setLikeStatus(videoId, "DISLIKE")
         }
     }
     
@@ -2951,6 +2986,7 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             likedVideosRepository.removeLikeState(videoId)
             _uiState.value = _uiState.value.copy(likeState = null)
+            accountActions.setLikeStatus(videoId, null)
         }
     }
     

@@ -38,10 +38,10 @@ data class RemotePlaylistVideo(
 /** Channels from the signed FEchannels /browse (channelRenderer items). */
 internal fun JsonElement.toRemoteChannels(): List<RemoteChannel> {
     val renderers = mutableListOf<JsonObject>()
-    findObjectsByKey(this, "channelRenderer", renderers)
+    findChannelRenderersInSubscriptionGrids(this, renderers)
     return renderers.mapNotNull { renderer ->
         val channelId = renderer["channelId"].stringOrNull()
-            ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            ?.takeIf { it.startsWith("UC") && it.length > 10 } ?: return@mapNotNull null
         val name = renderer["title"].youtubeText()
             ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
         val thumbs = renderer["thumbnail"].objectOrNull()
@@ -55,6 +55,59 @@ internal fun JsonElement.toRemoteChannels(): List<RemoteChannel> {
             thumbnail = avatarUrl.orEmpty(),
         )
     }.distinctBy { it.id }
+}
+
+/**
+ * Collects only the `channelRenderer` items that represent *your* subscription
+ * grid, skipping recommendation shelves. FEchannels can mix the subscribed
+ * channels grid with "channels you may like" shelves whose channelRenderers
+ * must never be imported as subscriptions — walking the whole tree (as
+ * [findObjectsByKey] does) wrote those back into the local library in earlier
+ * builds, which is how channels the user never subscribed to appeared as
+ * subscribed. Channel renderers are only accepted when they live inside a
+ * grid-ish container (`gridRenderer` / `channelListRowRenderer` / a direct
+ * `channelRenderer` item) rather than a shelf (`shelfRenderer`,
+ * `horizontalListRenderer`, `expandedShelfContentsRenderer`).
+ */
+private fun findChannelRenderersInSubscriptionGrids(node: JsonElement?, results: MutableList<JsonObject>) {
+    when (node) {
+        is JsonObject -> {
+            val inlineChannel = node["channelRenderer"].objectOrNull()
+            if (inlineChannel != null) {
+                results.add(inlineChannel)
+            }
+            val grid = node["gridRenderer"].objectOrNull()
+            if (grid != null) {
+                grid.findChannelRenderersInSubscriptionGrids(results)
+            }
+            val row = node["channelListRowRenderer"].objectOrNull()
+            if (row != null) {
+                row.findChannelRenderersInSubscriptionGrids(results)
+            }
+            // Skip any shelf container entirely: this is where YouTube hides
+            // "related / you might like" channels on the subscriptions page.
+            val hasShelf = listOf(
+                "shelfRenderer",
+                "horizontalListRenderer",
+                "expandedShelfContentsRenderer",
+                "richShelfRenderer",
+            ).any { node[it].objectOrNull() != null }
+            if (hasShelf) return
+            node.values.forEach { child ->
+                if (child is JsonObject || child is JsonArray) {
+                    child.findChannelRenderersInSubscriptionGrids(results)
+                }
+            }
+        }
+        is JsonArray -> node.forEach {
+            it.findChannelRenderersInSubscriptionGrids(results)
+        }
+        else -> Unit
+    }
+}
+
+private fun JsonObject.findChannelRenderersInSubscriptionGrids(results: MutableList<JsonObject>) {
+    findChannelRenderersInSubscriptionGrids(this, results)
 }
 
 /** First continuation token of a browse response (richGrid/continuation items). */

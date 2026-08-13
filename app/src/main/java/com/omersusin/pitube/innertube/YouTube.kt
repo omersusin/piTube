@@ -734,6 +734,54 @@ object YouTube {
         }
 
     // ============================================================
+    // Account write-back (Koda port): like/dislike and subscribe.
+    // These are the toolbar actions that make listen/subscribe taps
+    // take effect on the real Google account, not just the device.
+    // They are fire-and-forget best-effort: the caller already wrote
+    // the local/optimistic state, so a failed network write keeps the
+    // local library consistent rather than rolling both back. They
+    // require a non-blank session cookie (see [InnerTube.cookie]).
+    // ============================================================
+
+    /** Like a video on the signed-in account. [status] is `"LIKE"`, `"DISLIKE"` or null (clear). */
+    suspend fun setLikeStatus(videoId: String, status: String?): Result<Boolean> = runCatching {
+        val client = currentWebClient()
+        val endpoint =
+            when (status) {
+                "LIKE" -> "like/like"
+                "DISLIKE" -> "like/dislike"
+                else -> "like/removelike"
+            }
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = endpoint,
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("target", buildJsonObject { put("videoId", JsonPrimitive(videoId)) })
+            },
+        )
+        httpResponse.status.isSuccess()
+    }
+
+    /**
+     * Subscribe to / unsubscribe from a channel on the signed-in account.
+     * [channelId] must be a canonical `UC...` id.
+     */
+    suspend fun setSubscribed(channelId: String, subscribe: Boolean): Result<Boolean> = runCatching {
+        val client = currentWebClient()
+        val endpoint = if (subscribe) "subscription/subscribe" else "subscription/unsubscribe"
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = endpoint,
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("channelIds", buildJsonArray { add(JsonPrimitive(channelId)) })
+            },
+        )
+        httpResponse.status.isSuccess()
+    }
+
+    // ============================================================
     // Watch-history reporting (yt-dlp _mark_watched port). Reports the
     // playback to YouTube so the video shows up in the account's watch
     // history: fetch the signed /player response, then fire BOTH the

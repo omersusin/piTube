@@ -104,6 +104,7 @@ class QuickActionsViewModel @Inject constructor(
                     subscriptionRepository.unsubscribe(channelId)
                     _subscribedChannelIds.update { it - channelId }
                     Toast.makeText(context, context.getString(R.string.toast_unsubscribed_from, channelName), Toast.LENGTH_SHORT).show()
+                    com.omersusin.pitube.data.local.AccountActions(context).setSubscribed(channelId, false)
                 } else {
                     val resolvedThumbnail = channelThumbnail
                         .takeUnless { ThumbnailUrlResolver.isYoutubeVideoThumbnail(it) }
@@ -121,6 +122,7 @@ class QuickActionsViewModel @Inject constructor(
                     )
                     _subscribedChannelIds.update { it + channelId }
                     Toast.makeText(context, context.getString(R.string.toast_subscribed_to, channelName), Toast.LENGTH_SHORT).show()
+                    com.omersusin.pitube.data.local.AccountActions(context).setSubscribed(channelId, true)
                 }
             } catch (e: Exception) {
                 Toast.makeText(

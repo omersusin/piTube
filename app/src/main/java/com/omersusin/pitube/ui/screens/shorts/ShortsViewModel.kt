@@ -410,6 +410,8 @@ class ShortsViewModel @Inject constructor(
                 )
             )
         }
+        com.omersusin.pitube.data.local.AccountActions(context)
+            .setLikeStatus(video.id, if (isLiked) null else "LIKE")
     }
     
     suspend fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {
@@ -426,6 +428,8 @@ class ShortsViewModel @Inject constructor(
                 )
             )
         }
+        com.omersusin.pitube.data.local.AccountActions(context)
+            .setSubscribed(channelId, !isSubscribed)
     }
     
     fun toggleSaveShort(short: ShortVideo) {
