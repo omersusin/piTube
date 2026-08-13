@@ -176,8 +176,8 @@ class FlowApplication :
                 // Bring a pre-profiles install forward: someone already signed in
                 // has a cookie in the DataStore mirror but no encrypted profile
                 // yet, and that session must survive the upgrade.
-                val preferences = com.omersusin.pitube.data.local.PlayerPreferences(this)
-                val pm = com.omersusin.pitube.data.local.ProfileManager(this)
+                val preferences = com.omersusin.pitube.data.local.PlayerPreferences(this@FlowApplication)
+                val pm = com.omersusin.pitube.data.local.ProfileManager(this@FlowApplication)
                 val legacyCookie = preferences.youtubeCookie.first()
                 val legacyName = preferences.youtubeAccountName.first()
                 val legacyAvatar = preferences.youtubeAccountThumbnail.first()
@@ -187,7 +187,7 @@ class FlowApplication :
                 // Restore the active profile's session. The source of truth is
                 // the encrypted per-profile store (ProfileManager); the DataStore
                 // key is only a mirror so existing UI that reads it stays in step.
-                val cookie = com.omersusin.pitube.data.local.SessionManager(this).getCookies()
+                val cookie = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).getCookies()
                 YouTube.cookie = cookie
                 YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
                 // Re-align the DataStore mirror with the restored active profile
@@ -217,7 +217,7 @@ class FlowApplication :
             // Auto-sync the account library (liked videos / playlists /
             // subscriptions) once a day without opening Settings.
             try {
-                val loggedIn = com.omersusin.pitube.data.local.SessionManager(this)
+                val loggedIn = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication)
                     .getCookies()?.isNotBlank() == true
                 val syncedAt = playerPreferences.youtubeLibrarySyncedAt.first()
                 if (loggedIn &&

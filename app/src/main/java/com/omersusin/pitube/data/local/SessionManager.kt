@@ -1,6 +1,10 @@
 package com.omersusin.pitube.data.local
 
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * The active profile's YouTube session.
@@ -124,9 +128,7 @@ class SessionManager(private val context: Context) {
      * truth, and a pending mirror cannot be allowed to block a switch.
      */
     private fun runMirror(write: suspend (PlayerPreferences) -> Unit) {
-        kotlinx.coroutines.CoroutineScope(
-            kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO
-        ).launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             runCatching { write(playerPreferences) }
         }
     }
