@@ -98,7 +98,8 @@ fun TvSeekBar(
         marks?.segments?.map { segment ->
             segment to when (segment.category) {
                 "selfpromo" -> sponsorSegmentColors["selfpromo"] ?: selfPromoColor
-                "interaction", "poi_highlight" -> sponsorSegmentColors["interaction"] ?: interactionColor
+                "interaction", "poi_highlight" -> sponsorSegmentColors["poi_highlight"]
+                    ?: sponsorSegmentColors["interaction"] ?: interactionColor
                 else -> sponsorSegmentColors[segment.category] ?: sponsorColor
             }
         }.orEmpty()
