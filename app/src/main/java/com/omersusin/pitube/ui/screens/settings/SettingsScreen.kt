@@ -105,6 +105,7 @@ fun SettingsScreen(
     val isGoogleSignedIn by playerPreferences.youtubeCookie
         .map { !it.isNullOrEmpty() }
         .collectAsStateWithLifecycle(initialValue = false)
+    var showAccountSwitcher by remember { mutableStateOf(false) }
     var isSyncingLibrary by remember { mutableStateOf(false) }
     var librarySyncResultText by remember { mutableStateOf<String?>(null) }
 
@@ -590,6 +591,12 @@ fun SettingsScreen(
                 item { SectionHeader(text = stringResource(R.string.settings_header_account)) }
                 item {
                     SettingsGroup {
+                        SettingsItem(
+                            icon = Icons.Outlined.SwapVert,
+                            title = stringResource(R.string.account_switcher_switch_account),
+                            subtitle = stringResource(R.string.account_switcher_switch_account_subtitle),
+                            onClick = { showAccountSwitcher = true },
+                        )
                         if (isGoogleSignedIn) {
                             Row(
                                 modifier = Modifier
@@ -1145,6 +1152,13 @@ fun SettingsScreen(
             },
             confirmButton = {},
             dismissButton = { TextButton(onClick = { showRegionDialog = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
+
+    if (showAccountSwitcher) {
+        com.omersusin.pitube.ui.screens.account.AccountSwitcherSheet(
+            onDismiss = { showAccountSwitcher = false },
+            onAddYouTubeAccount = onNavigateToGoogleLogin,
         )
     }
 }

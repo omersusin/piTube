@@ -1944,4 +1944,27 @@
     <string name="merge_playlist_dialog_title">Add all songs to…</string>
 <string name="merge_playlist_no_playlists">No playlists yet. Create one first!</string>
 <string name="songs_count_template">%1$d songs</string>
+<string name="account_switcher_title">Profiles</string>
+<string name="account_switcher_subtitle">Subscriptions and hidden recommendations are kept per profile. Playlists, liked songs and downloads are shared.</string>
+<string name="account_switcher_active">Active profile</string>
+<string name="account_switcher_local_subtitle">On this device</string>
+<string name="account_switcher_remove">Remove %1$s</string>
+<string name="account_switcher_add_youtube_title">Add YouTube account</string>
+<string name="account_switcher_add_youtube_subtitle">Sign in to another Google account</string>
+<string name="account_switcher_add_local_title">Add profile on this device</string>
+<string name="account_switcher_add_local_subtitle">Separate subscriptions, no account needed</string>
+<string name="account_switcher_new_local_title">New profile on this device</string>
+<string name="account_switcher_new_local_body">It gets its own subscriptions and hidden recommendations, with no Google account involved.</string>
+<string name="account_switcher_name">Name</string>
+<string name="account_switcher_create">Create</string>
+<string name="account_switcher_cancel">Cancel</string>
+<string name="account_switcher_remove_title">Remove %1$s?</string>
+<string name="account_switcher_sign_out_title">Sign out of %1$s?</string>
+<string name="account_switcher_sign_out_last_body">The account is disconnected from this device. Your subscriptions and hidden recommendations stay, and nothing changes on YouTube.</string>
+<string name="account_switcher_remove_local_body">Its subscriptions and hidden recommendations are deleted. Playlists, liked songs and downloads are shared and stay.</string>
+<string name="account_switcher_remove_youtube_body">Signs this account out on this device and deletes its subscriptions and hidden recommendations. Nothing changes on YouTube itself.</string>
+<string name="account_switcher_sign_out">Sign out</string>
+<string name="account_switcher_remove_confirm">Remove</string>
+<string name="account_switcher_switch_account">Switch account</string>
+<string name="account_switcher_switch_account_subtitle">Manage multiple Google accounts</string>
 </resources>
