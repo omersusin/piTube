@@ -16,6 +16,7 @@ data class PlayerResponse(
     val streamingData: StreamingData?,
     val videoDetails: VideoDetails?,
     val captions: Captions? = null,
+    val storyboards: Storyboards? = null,
     @SerialName("playbackTracking")
     val playbackTracking: PlaybackTracking?,
 ) {
@@ -104,6 +105,16 @@ data class PlayerResponse(
                 val videoPlaybackUstreamerConfig: String? = null,
             )
         }
+    }
+
+    @Serializable
+    data class Storyboards(
+        val playerStoryboardSpecRenderer: PlayerStoryboardSpecRenderer? = null,
+    ) {
+        @Serializable
+        data class PlayerStoryboardSpecRenderer(
+            val spec: String? = null,
+        )
     }
 
     @Serializable

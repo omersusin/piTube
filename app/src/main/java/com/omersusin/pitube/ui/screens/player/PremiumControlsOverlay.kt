@@ -197,6 +197,7 @@ fun PremiumControlsOverlay(
     }
     
     val sponsorSegments by EnhancedPlayerManager.getInstance().sponsorSegments.collectAsState()
+    val storyboardFramesets by EnhancedPlayerManager.getInstance().storyboardFramesets.collectAsState()
 
     val context = LocalContext.current
     val playerPreferences = remember { PlayerPreferences(context) }
@@ -894,6 +895,7 @@ fun PremiumControlsOverlay(
                         duration = seekDuration,
                         bufferedValue = bufferedPercentage,
                         edgeAligned = !isFullscreen,
+                        storyboardFrameset = storyboardFramesets.firstOrNull(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .zIndex(2f)

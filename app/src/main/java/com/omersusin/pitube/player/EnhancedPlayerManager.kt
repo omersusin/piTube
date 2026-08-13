@@ -33,6 +33,7 @@ import com.omersusin.pitube.data.local.VideoQuality
 import com.omersusin.pitube.data.model.SponsorBlockSegment
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.innertube.YouTube
+import com.omersusin.pitube.innertube.models.StoryboardFrameset
 import com.omersusin.pitube.innertube.models.YouTubeClient
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
 import com.omersusin.pitube.player.analytics.PlaybackAnalyticsLogger
@@ -77,6 +78,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -120,6 +122,11 @@ class EnhancedPlayerManager private constructor() {
     private val _playerState = MutableStateFlow(EnhancedPlayerState())
     val playerState: StateFlow<EnhancedPlayerState> = _playerState.asStateFlow()
     val hasQueue: Flow<Boolean> = playerState.queuePresence()
+
+    // Storyboard (scrubber preview frames) for the current video
+    private val _storyboardFramesets = MutableStateFlow<List<StoryboardFrameset>>(emptyList())
+    val storyboardFramesets: StateFlow<List<StoryboardFrameset>> = _storyboardFramesets.asStateFlow()
+    private var storyboardLoadJob: Job? = null
 
     // Stream data
     private var currentVideoId: String? = null
@@ -1013,6 +1020,21 @@ class EnhancedPlayerManager private constructor() {
         }
     }
 
+    private fun refreshStoryboardsFor(videoId: String) {
+        storyboardLoadJob?.cancel()
+        storyboardLoadJob = null
+        _storyboardFramesets.value = emptyList()
+        if (videoId.isBlank() || videoId.startsWith("local_")) return
+        storyboardLoadJob = scope.launch(Dispatchers.IO) {
+            val result = YouTube.getStoryboards(videoId)
+            if (!isActive) return@launch
+            val framesets = result.getOrDefault(emptyList())
+            if (currentVideoId == videoId) {
+                _storyboardFramesets.value = framesets
+            }
+        }
+    }
+
     private fun resetPlaybackStateForNewVideo(videoId: String) {
         clearAutoplayCountdownInternal()
         currentVideoId = videoId
@@ -1038,6 +1060,7 @@ class EnhancedPlayerManager private constructor() {
         pendingLiveDisplaySeekPositionMs = null
         pendingLiveDisplaySeekAtMs = 0L
         pendingInitialLiveEdgeSeek = false
+        refreshStoryboardsFor(videoId)
 
         player?.stop()
 
@@ -3457,6 +3480,9 @@ class EnhancedPlayerManager private constructor() {
         appContext = null
         cacheManager?.release()
         cacheManager = null
+        storyboardLoadJob?.cancel()
+        storyboardLoadJob = null
+        _storyboardFramesets.value = emptyList()
         _playerState.value = EnhancedPlayerState()
         Log.d(TAG, "Player released")
     }

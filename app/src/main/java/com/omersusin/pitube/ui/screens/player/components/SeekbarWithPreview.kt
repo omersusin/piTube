@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -33,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
@@ -40,13 +43,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntOffset
 import com.omersusin.pitube.data.model.SponsorBlockSegment
+import com.omersusin.pitube.innertube.models.StoryboardFrameset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import org.schabi.newpipe.extractor.stream.StreamSegment
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -99,7 +107,8 @@ fun SeekbarWithPreview(
     sponsorSegmentColors: Map<String, Color> = emptyMap(),
     duration: Long = 0L,
     bufferedValue: Float = 0f,
-    edgeAligned: Boolean = false
+    edgeAligned: Boolean = false,
+    storyboardFrameset: StoryboardFrameset? = null
 ) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.32f)
@@ -125,6 +134,27 @@ fun SeekbarWithPreview(
         }
     }
 
+    // Storyboard preview bubble geometry
+    var seekbarWidth by remember { mutableFloatStateOf(0f) }
+    val storyboardPreview: StoryboardPreviewData? = if (
+        !edgeAligned &&
+        isInteracting &&
+        storyboardFrameset != null &&
+        duration > 0 &&
+        seekbarWidth > 0f
+    ) {
+        val positionMs = (internalValue.coerceIn(0f, 1f) * duration).toLong()
+        val frame = storyboardFrameset.frameBoundsAt(positionMs)
+        val sheetUrl = frame?.let { storyboardFrameset.urls.getOrNull(it.urlIndex) }
+        if (frame != null && sheetUrl != null) {
+            StoryboardPreviewData(storyboardFrameset, frame, sheetUrl)
+        } else {
+            null
+        }
+    } else {
+        null
+    }
+
     val trackHeight by animateDpAsState(
         targetValue = if (isInteracting) 10.dp else 5.dp,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -139,7 +169,8 @@ fun SeekbarWithPreview(
 
     Box(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .onSizeChanged { seekbarWidth = it.width.toFloat() },
         contentAlignment = if (edgeAligned) Alignment.BottomCenter else Alignment.TopStart
     ) {
 
@@ -429,6 +460,69 @@ fun SeekbarWithPreview(
                     }
             )
         }
+
+        storyboardPreview?.let { preview ->
+            StoryboardPreviewBubble(
+                sheetUrl = preview.sheetUrl,
+                frameset = preview.frameset,
+                frame = preview.frame,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset {
+                        val bubbleWidthPx = StoryboardPreviewWidth.toPx()
+                        val bubbleHeightPx = bubbleWidthPx *
+                            (preview.frameset.frameHeight.toFloat() / preview.frameset.frameWidth.toFloat())
+                        val thumbX = seekbarWidth * internalValue.coerceIn(0f, 1f)
+                        val bubbleX = (thumbX - bubbleWidthPx / 2f)
+                            .coerceIn(0f, (seekbarWidth - bubbleWidthPx).coerceAtLeast(0f))
+                        IntOffset(bubbleX.roundToInt(), (-bubbleHeightPx - 12.dp.toPx()).roundToInt())
+                    }
+            )
+        }
         }
     }
 }
+
+private data class StoryboardPreviewData(
+    val frameset: StoryboardFrameset,
+    val frame: StoryboardFrameset.FrameBounds,
+    val sheetUrl: String,
+)
+
+@Composable
+private fun StoryboardPreviewBubble(
+    sheetUrl: String,
+    frameset: StoryboardFrameset,
+    frame: StoryboardFrameset.FrameBounds,
+    modifier: Modifier = Modifier
+) {
+    val cellScale = StoryboardPreviewWidth / frameset.frameWidth
+    val bubbleWidth = StoryboardPreviewWidth
+    val bubbleHeight = frameset.frameHeight * cellScale
+    val sheetWidth = frameset.framesPerPageX * frameset.frameWidth * cellScale
+    val sheetHeight = frameset.framesPerPageY * frameset.frameHeight * cellScale
+
+    Box(
+        modifier = modifier
+            .size(bubbleWidth, bubbleHeight)
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color.Black.copy(alpha = 0.85f))
+            .border(1.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
+    ) {
+        AsyncImage(
+            model = sheetUrl,
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .offset {
+                    IntOffset(
+                        x = -(frame.left * cellScale).roundToPx(),
+                        y = -(frame.top * cellScale).roundToPx()
+                    )
+                }
+                .size(sheetWidth, sheetHeight)
+        )
+    }
+}
+
+private val StoryboardPreviewWidth = 168.dp

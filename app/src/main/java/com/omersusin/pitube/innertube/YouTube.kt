@@ -8,6 +8,7 @@ import com.omersusin.pitube.innertube.models.ArtistItem
 import com.omersusin.pitube.innertube.models.BrowseEndpoint
 import com.omersusin.pitube.innertube.models.GridRenderer
 import com.omersusin.pitube.innertube.models.MediaInfo
+import com.omersusin.pitube.innertube.models.StoryboardFrameset
 import com.omersusin.pitube.innertube.models.MusicResponsiveListItemRenderer
 import com.omersusin.pitube.innertube.models.MusicTwoRowItemRenderer
 import com.omersusin.pitube.innertube.models.MusicCarouselShelfRenderer
@@ -1903,6 +1904,23 @@ object YouTube {
 
     suspend fun getMediaInfo(videoId: String): Result<MediaInfo> = runCatching {
         return innerTube.getMediaInfo(videoId)
+    }
+
+    /**
+     * Fetches the video storyboard (scrubber preview frames). Uses the ANDROID
+     * player response, which is the most reliable surface for storyboards.
+     * Returns an empty list when YouTube does not serve a storyboard spec.
+     */
+    suspend fun getStoryboards(videoId: String): Result<List<StoryboardFrameset>> = runCatching {
+        val response =
+            innerTube.player(
+                client = YouTubeClient.ANDROID,
+                videoId = videoId,
+                playlistId = null,
+                signatureTimestamp = null,
+            ).body<PlayerResponse>()
+        val spec = response.storyboards?.playerStoryboardSpecRenderer?.spec ?: return@runCatching emptyList()
+        StoryboardFrameset.parseSpec(spec)
     }
 
     @JvmInline
