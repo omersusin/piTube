@@ -83,6 +83,7 @@ import com.omersusin.pitube.innertube.pages.toRemotePlaylists
 import com.omersusin.pitube.innertube.pages.toRemotePlaylistVideos
 import com.omersusin.pitube.innertube.pages.toVideoCommentsPage
 import com.omersusin.pitube.innertube.pages.toVideoCommentsToken
+import com.omersusin.pitube.innertube.pages.NewPipeExtractor
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.utils.avatarImageIdentityKey
@@ -110,7 +111,6 @@ import kotlinx.serialization.json.buildJsonArray
 import java.net.Proxy
 import java.util.Locale
 import kotlin.random.Random
-import org.schabi.newpipe.extractor.NewPipeExtractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper
 
 /**
