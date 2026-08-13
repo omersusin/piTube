@@ -1,1 +1,9 @@
 apk-download/
+.gradle/
+.cache/
+build/
+*.md
+session-*.md
+NewPipe/
+Piped/
+invidious/
