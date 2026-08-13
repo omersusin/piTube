@@ -485,6 +485,7 @@ private fun PlayerSettingsQualityPage(
                 .takeIf { it.isNotBlank() }
                 ?.let(VideoCodecUtils::codecLabelFromKey)
                 .orEmpty(),
+            supportingText = quality.bitrateLabel(),
             streamKey = quality.streamKey,
             selected = quality.isSelected(currentQuality, currentQualityKey)
         )
@@ -592,7 +593,14 @@ private fun <T> PlayerSettingsQualityCodecRow(
                 FilterChip(
                     selected = option.selected,
                     onClick = { onOptionSelected(option.item) },
-                    label = { Text(option.codecLabel.ifBlank { option.label }) },
+                    label = {
+                        val baseLabel = option.codecLabel.ifBlank { option.label }
+                        val bitrate = option.supportingText
+                        Text(
+                            text = if (bitrate != null && bitrate.isNotBlank()) "$baseLabel · $bitrate" else baseLabel,
+                            maxLines = 1
+                        )
+                    },
                     leadingIcon = if (option.selected) {
                         {
                             Icon(
@@ -610,6 +618,18 @@ private fun <T> PlayerSettingsQualityCodecRow(
 
 private fun QualityOption.displayLabel(): String {
     return label.takeIf { it.isNotBlank() } ?: "${height}p"
+}
+
+private fun QualityOption.bitrateLabel(): String? {
+    return if (bitrate > 0) {
+        if (bitrate >= 1_000_000) {
+            "%.1f Mbps".format(bitrate / 1_000_000f)
+        } else {
+            "${bitrate / 1000}kbps"
+        }
+    } else {
+        null
+    }
 }
 
 private fun PlayerQualitySelectorOption<*>.resolutionLabel(): String {
