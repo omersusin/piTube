@@ -57,6 +57,7 @@ class FlowApplication :
         private const val VISITOR_DATA_KEY = "visitor_data"
         private const val VISITOR_DATA_FETCHED_AT_KEY = "visitor_data_fetched_at"
         private const val VISITOR_DATA_MAX_AGE_MS = 7L * 24L * 60L * 60L * 1_000L
+        private const val AUTO_LIBRARY_SYNC_INTERVAL_MS = 24L * 60L * 60L * 1_000L
         lateinit var appContext: Context
             private set
     }
@@ -182,6 +183,21 @@ class FlowApplication :
                     .prewarm()
             } catch (e: Exception) {
                 Log.w(TAG, "WebPoTokenSession prewarm failed: ${e.message}")
+            }
+            // Auto-sync the account library (liked videos / playlists /
+            // subscriptions) once a day without opening Settings.
+            try {
+                val cookie = playerPreferences.youtubeCookie.first()
+                val syncedAt = playerPreferences.youtubeLibrarySyncedAt.first()
+                if (!cookie.isNullOrBlank() &&
+                    System.currentTimeMillis() - syncedAt > AUTO_LIBRARY_SYNC_INTERVAL_MS
+                ) {
+                    Log.i(TAG, "Auto-syncing account library (last sync stale)")
+                    com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(this@FlowApplication)
+                    Log.i(TAG, "Auto library sync done")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Auto library sync failed: ${e.message}")
             }
         }
 
