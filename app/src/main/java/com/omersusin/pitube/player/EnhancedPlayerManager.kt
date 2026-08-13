@@ -404,6 +404,12 @@ class EnhancedPlayerManager private constructor() {
     private val _queueVideos = MutableStateFlow<List<Video>>(emptyList())
     val queueVideos: StateFlow<List<Video>> = _queueVideos.asStateFlow()
 
+    // Monotonic tick bumped whenever a queue is created or mutated by the user's
+    // own action (Play Next / Add to queue). The player overlay collects this to
+    // auto-open the queue sheet so the action is always visible.
+    private val _queueDisplayRequested = MutableStateFlow(0L)
+    val queueDisplayRequested: StateFlow<Long> = _queueDisplayRequested.asStateFlow()
+
     private val currentQueueIndexFlow = MutableStateFlow<Int>(-1)
     val currentQueueIndexState: StateFlow<Int> = currentQueueIndexFlow.asStateFlow()
 
@@ -1390,8 +1396,10 @@ class EnhancedPlayerManager private constructor() {
                 currentQueueIndexFlow.value = 0
                 updateQueueState()
                 requestPreloadNext("queue-created-play-next")
+                _queueDisplayRequested.value = System.currentTimeMillis()
             } else {
                 setQueue(listOf(video), 0)
+                _queueDisplayRequested.value = System.currentTimeMillis()
             }
             return
         }
@@ -1413,6 +1421,7 @@ class EnhancedPlayerManager private constructor() {
         _queueVideos.value = mutableQueue
         updateQueueState()
         requestPreloadNext("queue-play-next")
+        _queueDisplayRequested.value = System.currentTimeMillis()
     }
 
     /**
@@ -1438,8 +1447,10 @@ class EnhancedPlayerManager private constructor() {
                 currentQueueIndexFlow.value = 0
                 updateQueueState()
                 requestPreloadNext("queue-created-add")
+                _queueDisplayRequested.value = System.currentTimeMillis()
             } else {
                 setQueue(listOf(video), 0)
+                _queueDisplayRequested.value = System.currentTimeMillis()
             }
             return
         }
@@ -1450,6 +1461,7 @@ class EnhancedPlayerManager private constructor() {
         _queueVideos.value = mutableQueue
         updateQueueState()
         requestPreloadNext("queue-add")
+        _queueDisplayRequested.value = System.currentTimeMillis()
     }
 
     fun playVideoAtIndex(

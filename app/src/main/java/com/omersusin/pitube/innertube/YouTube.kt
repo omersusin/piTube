@@ -1689,11 +1689,45 @@ object YouTube {
     }
 
     suspend fun accountInfo(): Result<AccountInfo> = runCatching {
-        innerTube.accountMenu(WEB_REMIX).body<AccountMenuResponse>()
-            .actions.firstOrNull()?.openPopupAction?.popup?.multiPageMenuRenderer
-            ?.header?.activeAccountHeaderRenderer
-            ?.toAccountInfo()
-            ?: AccountInfo(name = "", email = null, channelHandle = null, thumbnailUrl = null)
+        val response = innerTube.accountMenu(WEB_REMIX)
+        val body = response.bodyAsText()
+        val parsed =
+            try {
+                Json.parseToJsonElement(body).jsonObject
+                    .toAccountMenuResponseOrNull()
+            } catch (e: Exception) {
+                null
+            }
+        val fromModel =
+            parsed?.actions?.firstOrNull()?.openPopupAction?.popup?.multiPageMenuRenderer
+                ?.header?.activeAccountHeaderRenderer
+                ?.toAccountInfo()
+        if (fromModel?.thumbnailUrl?.isNotBlank() == true) {
+            fromModel
+        } else {
+            // Fallback: some accounts / client shapes return the avatar under a
+            // different key or outside thumbnails. Regex-scan the raw body for a
+            // Google avatar host (yt3.ggpht.com / lh*.googleusercontent.com) like
+            // Koda does, upgrade to a high-res size and merge with the model data.
+            val name = fromModel?.name.orEmpty().ifBlank { AccountMenuResponse.parseNameFromRaw(body) }
+            val email = fromModel?.email
+            val handle = fromModel?.channelHandle
+            val regex =
+                "\"url\"\\s*:\\s*\"(https?://(?:yt3\\.ggpht\\.com|[a-z0-9-]+\\.(?:googleusercontent\\.com|ggpht\\.com))/[^\"]+?=s\\d+[^\"]*)\""
+                    .toRegex()
+            var avatar = regex.find(body)?.groupValues?.get(1)
+            if (avatar == null) {
+                avatar =
+                    Regex("\"url\"\\s*:\\s*\"(https?://(?:yt3\\.ggpht\\.com|[a-z0-9-]+\\.(?:googleusercontent\\.com|ggpht\\.com))/[^\"]+)\"")
+                        .find(body)?.groupValues?.get(1)
+            }
+            AccountInfo(
+                name = name,
+                email = email,
+                channelHandle = handle,
+                thumbnailUrl = avatar?.replace(Regex("=s\\d+"), "=s512"),
+            )
+        }
     }
 
     /**

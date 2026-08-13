@@ -877,6 +877,7 @@ class VideoPlayerViewModel @Inject constructor(
         nextPlaybackLoadToken()
         cancelActivePlaybackLoad()
         playbackAbandonedVideoId = null
+        stopHistoryReport()
         EnhancedPlayerManager.getInstance().stop()
         EnhancedPlayerManager.getInstance().stopBackgroundService()
         EnhancedPlayerManager.getInstance().clearAll()
@@ -2772,6 +2773,8 @@ class VideoPlayerViewModel @Inject constructor(
     }
 
     private var historyReportJob: kotlinx.coroutines.Job? = null
+    private var historyVideoId: String? = null
+    private var historyCpn: String? = null
 
     /**
      * Periodically reports the live playback position to the signed-in
@@ -2787,14 +2790,18 @@ class VideoPlayerViewModel @Inject constructor(
         // One cpn per playback session: YouTube treats every ping with the
         // same cpn as one continuous watch of the video.
         val cpn = com.omersusin.pitube.innertube.YouTube.newCpn()
+        historyVideoId = video.id
+        historyCpn = cpn
         historyReportJob =
             viewModelScope.launch(Dispatchers.Main) {
                 var lastReportedMs = -1L
+                var lastWasPlaying = false
                 while (isActive) {
                     delay(10_000L)
                     // Media3 forbids touching the player off the main thread;
                     // isPlaying/hasEnded come from the thread-safe state flow.
                     val playerState = EnhancedPlayerManager.getInstance().playerState.value
+                    val position = EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
                     if (playerState.hasEnded) {
                         // Video finished: mark it fully watched in the account
                         // history (final beacon at the full duration).
@@ -2807,25 +2814,58 @@ class VideoPlayerViewModel @Inject constructor(
                                 Log.w("VideoPlayerViewModel", "Final history report failed for ${video.id}", e)
                             }
                         }
+                        historyVideoId = null
+                        historyCpn = null
                         break
                     }
-                    if (!playerState.isPlaying) continue
-                    val position = EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
-                    if (position < 5_000L) continue
-                    if (position - lastReportedMs < 20_000L) continue
-                    lastReportedMs = position
-                    try {
-                        repository.reportVideoPlayback(video.id, position, cpn)
-                    } catch (e: Exception) {
-                        Log.w("VideoPlayerViewModel", "Periodic YouTube history report failed for ${video.id}", e)
+                    // Report real (partial) positions. Throttle to ~20s of
+                    // progress while playing; also report immediately on a
+                    // play → pause transition so a video paused or left before
+                    // the end shows up as in-progress in official YouTube
+                    // history (not missing, not fully watched).
+                    val isTransitionToPause = lastWasPlaying && !playerState.isPlaying
+                    if (position > 5_000L &&
+                        (position - lastReportedMs >= 20_000L || isTransitionToPause) &&
+                        position != lastReportedMs
+                    ) {
+                        lastReportedMs = position
+                        try {
+                            repository.reportVideoPlayback(video.id, position, cpn)
+                            Log.d("VideoPlayerViewModel", "YouTube history reported at ${position}ms for ${video.id}")
+                        } catch (e: Exception) {
+                            Log.w("VideoPlayerViewModel", "History report failed for ${video.id}", e)
+                        }
+                    } else if (position < 5_000L) {
+                        lastReportedMs = position
                     }
+                    lastWasPlaying = playerState.isPlaying
                 }
             }
     }
 
-        fun stopHistoryReport() {
+    fun stopHistoryReport() {
         historyReportJob?.cancel()
         historyReportJob = null
+        // Best-effort final beacon: a video abandoned before the end (left the
+        // player / switched away) should still appear as in-progress in the
+        // official YouTube history, not missing or fully watched.
+        val videoId = historyVideoId
+        val cpn = historyCpn
+        if (videoId != null && cpn != null) {
+            historyVideoId = null
+            historyCpn = null
+            val finalMs =
+                EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
+            if (finalMs > 5_000L) {
+                viewModelScope.launch {
+                    try {
+                        repository.reportVideoPlayback(videoId, finalMs, cpn)
+                    } catch (e: Exception) {
+                        Log.w("VideoPlayerViewModel", "Final history report failed for $videoId", e)
+                    }
+                }
+            }
+        }
     }
 
     fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {

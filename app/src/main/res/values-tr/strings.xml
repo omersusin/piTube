@@ -1290,6 +1290,8 @@
     <string name="error_playback_failed_hint">Beklenmeyen bir oynatıcı hatası oluştu. Lütfen tekrar dene.</string>
     <string name="error_extraction_failed">Video verileri ayrıştırılamadı</string>
     <string name="error_extraction_failed_hint">YouTube formatını güncellemiş olabilir. piTube yakında güncellenecektir — lütfen daha sonra tekrar dene.</string>
+    <string name="error_bot_wall">YouTube doğrulama istiyor</string>
+    <string name="error_bot_wall_hint">YouTube, bot olmadığınızı doğrulamak için giriş yapmanızı istiyor. Oturum açtıysanız bir süre bekleyip tekrar deneyin — veya ağı/VPN değiştirip tekrar deneyin.</string>
     <string name="error_generic">Video yüklenemedi</string>
     <string name="error_generic_hint">Bilinmeyen bir hata oluştu. Lütfen tekrar dene.</string>
     

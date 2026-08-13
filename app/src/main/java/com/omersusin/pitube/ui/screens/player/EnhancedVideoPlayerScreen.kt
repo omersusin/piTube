@@ -208,7 +208,7 @@ fun EnhancedVideoPlayerScreen(
             val queueVideos by EnhancedPlayerManager.getInstance().queueVideos.collectAsStateWithLifecycle(initialValue = emptyList())
             val currentQueueIndex by EnhancedPlayerManager.getInstance().currentQueueIndexState.collectAsStateWithLifecycle(initialValue = -1)
 
-            if ((playerState.queueTitle != null && queueVideos.isNotEmpty()) || (playerState.queueTitle == null && queueVideos.size > 1)) {
+            if (queueVideos.isNotEmpty()) {
                 val nextVideoTitle = when {
                     currentQueueIndex < queueVideos.lastIndex -> queueVideos[currentQueueIndex + 1].title
                     playerState.isQueueLooping -> queueVideos.firstOrNull()?.title

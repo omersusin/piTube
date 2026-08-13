@@ -1545,6 +1545,8 @@
     <string name="error_playback_failed_hint">An unexpected player error occurred. Please try again.</string>
     <string name="error_extraction_failed">Failed to parse video data</string>
     <string name="error_extraction_failed_hint">YouTube may have updated its format. piTube will be updated soon — please try again later.</string>
+    <string name="error_bot_wall">YouTube is asking for verification</string>
+    <string name="error_bot_wall_hint">YouTube requires sign-in to confirm you are not a bot. If you are signed in, wait a while and retry — or change network/VPN and try again.</string>
     <string name="error_generic">Failed to load video</string>
     <string name="error_generic_hint">An unknown error occurred. Please try again.</string>
     <string name="player_lock_controls">Lock controls</string>

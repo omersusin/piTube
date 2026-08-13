@@ -47,7 +47,20 @@ class NewPipeDownloaderImpl(
                 .Builder()
                 .method(httpMethod, dataToSend?.toRequestBody())
                 .url(url)
-                .addHeader("User-Agent", YouTubeClient.USER_AGENT_WEB)
+
+        // Only fall back to the WEB user agent when the extractor request does
+        // not already carry a client-specific one. NewPipe resolves the
+        // ANDROID/IOS/WEB UA itself per-request; naively forcing USER_AGENT_WEB
+        // on top mismatches the client body and raises bot-detection walls.
+        var hasExplicitUserAgent = false
+        headers.forEach { (headerName, headerValueList) ->
+            if (headerName.equals("User-Agent", ignoreCase = true) && headerValueList.isNotEmpty()) {
+                hasExplicitUserAgent = true
+            }
+        }
+        if (!hasExplicitUserAgent) {
+            requestBuilder.header("User-Agent", YouTubeClient.USER_AGENT_WEB)
+        }
 
         headers.forEach { (headerName, headerValueList) ->
             if (headerValueList.size > 1) {

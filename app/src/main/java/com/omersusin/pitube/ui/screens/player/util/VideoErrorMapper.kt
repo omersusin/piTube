@@ -12,6 +12,7 @@ import org.schabi.newpipe.extractor.exceptions.GeographicRestrictionException
 import org.schabi.newpipe.extractor.exceptions.PaidContentException
 import org.schabi.newpipe.extractor.exceptions.PrivateContentException
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException
+import org.schabi.newpipe.extractor.exceptions.SignInConfirmNotBotException
 import org.schabi.newpipe.extractor.exceptions.UnsupportedContentInCountryException
 import org.schabi.newpipe.extractor.exceptions.YoutubeMusicPremiumContentException
 import java.net.SocketTimeoutException
@@ -116,6 +117,17 @@ object VideoErrorMapper {
                 VideoError(
                     message = context.getString(R.string.error_captcha),
                     hint = context.getString(R.string.error_captcha_hint),
+                    isRetryable = true,
+                    isUserActionable = true
+                )
+
+            // YouTube's "Sign in to confirm you're not a bot" wall. This is NOT a
+            // format-change: the client (per-IP/per-video) is being rate-limited.
+            // Subclass of ParsingException, must be matched before ExtractionException.
+            throwable is SignInConfirmNotBotException ->
+                VideoError(
+                    message = context.getString(R.string.error_bot_wall),
+                    hint = context.getString(R.string.error_bot_wall_hint),
                     isRetryable = true,
                     isUserActionable = true
                 )
