@@ -9,7 +9,6 @@ import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.data.model.needsCollaboratorResolution
 import com.omersusin.pitube.innertube.YouTube
 import com.omersusin.pitube.innertube.models.SongItem
-import com.omersusin.pitube.innertube.models.WatchEndpoint
 import com.omersusin.pitube.innertube.pages.TranscriptLine
 import com.omersusin.pitube.innertube.models.response.WatchMetadataResponse
 import com.omersusin.pitube.utils.PerformanceDispatcher
@@ -984,7 +983,7 @@ class YouTubeRepository
         suspend fun getLyrics(videoId: String): LyricsResult {
             val transcriptLines = YouTube.transcript(videoId).getOrNull().orEmpty()
             if (transcriptLines.isNotEmpty()) return LyricsResult.Synced(transcriptLines)
-            val lyricsEndpoint = YouTube.next(WatchEndpoint(videoId = videoId)).getOrNull()?.lyricsEndpoint
+            val lyricsEndpoint = YouTube.lyricsEndpoint(videoId).getOrNull()
                 ?: return LyricsResult.Unavailable
             val text = YouTube.lyrics(lyricsEndpoint).getOrNull().orEmpty()
             return if (text.isBlank()) LyricsResult.Unavailable else LyricsResult.Plain(text)
