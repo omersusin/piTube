@@ -32,6 +32,7 @@ import com.omersusin.pitube.ui.screens.player.components.LockModeTouchShield
 import com.omersusin.pitube.ui.screens.player.components.PlayerTimePill
 import com.omersusin.pitube.ui.screens.player.components.PortraitFullscreenEdgeScrims
 import com.omersusin.pitube.ui.screens.player.components.SeekbarWithPreview
+import com.omersusin.pitube.ui.screens.player.components.rememberSponsorSegmentColors
 import com.omersusin.pitube.ui.screens.player.util.VideoPlayerUtils
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import kotlinx.coroutines.delay
@@ -199,6 +200,7 @@ fun PremiumControlsOverlay(
 
     val context = LocalContext.current
     val playerPreferences = remember { PlayerPreferences(context) }
+    val sponsorSegmentColors = rememberSponsorSegmentColors(playerPreferences)
     val overlayCastEnabled by playerPreferences.overlayCastEnabled.collectAsState(initial = false)
     val overlayCcEnabled by playerPreferences.overlayCcEnabled.collectAsState(initial = false)
     val overlayPipEnabled by playerPreferences.overlayPipEnabled.collectAsState(initial = false)
@@ -340,6 +342,7 @@ fun PremiumControlsOverlay(
                             bufferedPercentage = bufferedPercentage,
                             chapters = chapters,
                             sponsorSegments = sponsorSegments,
+                            sponsorSegmentColors = sponsorSegmentColors,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -887,6 +890,7 @@ fun PremiumControlsOverlay(
                         },
                         chapters = chapters,
                         sponsorSegments = sponsorSegments,
+                        sponsorSegmentColors = sponsorSegmentColors,
                         duration = seekDuration,
                         bufferedValue = bufferedPercentage,
                         edgeAligned = !isFullscreen,
@@ -977,6 +981,7 @@ fun PremiumControlsOverlay(
                         },
                         chapters = chapters,
                         sponsorSegments = sponsorSegments,
+                        sponsorSegmentColors = sponsorSegmentColors,
                         duration = seekDuration,
                         bufferedValue = bufferedPercentage,
                         edgeAligned = true,
@@ -1010,6 +1015,7 @@ private fun LockedSeekbar(
     bufferedPercentage: Float,
     chapters: List<StreamSegment>,
     sponsorSegments: List<SponsorBlockSegment>,
+    sponsorSegmentColors: Map<String, Color> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     val seekDuration = if (isLive) {
@@ -1040,6 +1046,7 @@ private fun LockedSeekbar(
         enabled = false,
         chapters = chapters,
         sponsorSegments = sponsorSegments,
+        sponsorSegmentColors = sponsorSegmentColors,
         duration = seekDuration,
         bufferedValue = bufferedPercentage,
         edgeAligned = !isFullscreen,

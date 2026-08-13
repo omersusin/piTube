@@ -365,6 +365,7 @@ fun TvPlayerScreen(
                 focusRequester = seekBarFocusRequester,
                 onFocusChanged = { seekBarFocused = it },
                 marks = seekBarMarks,
+                sponsorSegmentColors = com.omersusin.pitube.ui.screens.player.components.rememberSponsorSegmentColors(playerPreferences),
             )
             TvTransportRow(
                 isPlaying = playerState.isPlaying,

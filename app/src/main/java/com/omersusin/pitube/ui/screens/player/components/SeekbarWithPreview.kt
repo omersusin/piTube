@@ -25,6 +25,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +53,33 @@ import kotlin.math.roundToInt
 
 // Custom seekbar drawing buffer, SponsorBlock segments and chapter gaps over the progress track.
 @Composable
+fun rememberSponsorSegmentColors(
+    playerPreferences: com.omersusin.pitube.data.local.PlayerPreferences,
+): Map<String, Color> {
+    val sponsor by playerPreferences.sbColorForCategory("sponsor").collectAsState(initial = null)
+    val intro by playerPreferences.sbColorForCategory("intro").collectAsState(initial = null)
+    val outro by playerPreferences.sbColorForCategory("outro").collectAsState(initial = null)
+    val selfpromo by playerPreferences.sbColorForCategory("selfpromo").collectAsState(initial = null)
+    val interaction by playerPreferences.sbColorForCategory("interaction").collectAsState(initial = null)
+    val musicOfftopic by playerPreferences.sbColorForCategory("music_offtopic").collectAsState(initial = null)
+    val filler by playerPreferences.sbColorForCategory("filler").collectAsState(initial = null)
+    val preview by playerPreferences.sbColorForCategory("preview").collectAsState(initial = null)
+    val exclusiveAccess by playerPreferences.sbColorForCategory("exclusive_access").collectAsState(initial = null)
+
+    return buildMap {
+        sponsor?.let { put("sponsor", Color(it)) }
+        intro?.let { put("intro", Color(it)) }
+        outro?.let { put("outro", Color(it)) }
+        selfpromo?.let { put("selfpromo", Color(it)) }
+        interaction?.let { put("interaction", Color(it)) }
+        musicOfftopic?.let { put("music_offtopic", Color(it)) }
+        filler?.let { put("filler", Color(it)) }
+        preview?.let { put("preview", Color(it)) }
+        exclusiveAccess?.let { put("exclusive_access", Color(it)) }
+    }
+}
+
+@Composable
 fun SeekbarWithPreview(
     /**
      * Progress provider rather than a value: the playhead is written several times a second, and
@@ -68,6 +96,7 @@ fun SeekbarWithPreview(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     chapters: List<StreamSegment> = emptyList(),
     sponsorSegments: List<SponsorBlockSegment> = emptyList(),
+    sponsorSegmentColors: Map<String, Color> = emptyMap(),
     duration: Long = 0L,
     bufferedValue: Float = 0f,
     edgeAligned: Boolean = false
@@ -208,7 +237,7 @@ fun SeekbarWithPreview(
                             val startX = startRatio * width
                             val segWidth = (endRatio * width) - startX
 
-                            val segmentColor = when (segment.category) {
+                            var segmentColor = when (segment.category) {
                                 "sponsor" -> Color(0xFF00D100) // Green
                                 "selfpromo" -> Color(0xFFFFFF00) // Yellow
                                 "interaction" -> Color(0xFFFF00FF) // Magenta
@@ -216,10 +245,10 @@ fun SeekbarWithPreview(
                                 "outro" -> Color(0xFF00FFFF) // Cyan
                                 "music_offtopic" -> Color(0xFFFF8000) // Orange
                                 else -> Color(0xFF00D100)
-                            }.copy(alpha = 0.78f)
-
+                            }
+                            sponsorSegmentColors[segment.category]?.let { segmentColor = it }
                             drawRect(
-                                color = segmentColor,
+                                color = segmentColor.copy(alpha = 0.78f),
                                 topLeft = Offset(startX, trackTop),
                                 size = Size(segWidth, trackHeightPx)
                             )

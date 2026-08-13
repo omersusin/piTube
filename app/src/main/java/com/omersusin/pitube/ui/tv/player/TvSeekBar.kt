@@ -55,6 +55,7 @@ fun TvSeekBar(
     onFocusChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     marks: TvSeekBarMarks? = null,
+    sponsorSegmentColors: Map<String, Color> = emptyMap(),
 ) {
     var focused by remember { mutableStateOf(false) }
     val frameTick = remember { mutableLongStateOf(0L) }
@@ -93,12 +94,12 @@ fun TvSeekBar(
     val selfPromoColor = MaterialTheme.colorScheme.secondary
     val interactionColor = MaterialTheme.colorScheme.error
     // Precomputed once per marks change: nothing allocates in the draw loop.
-    val segmentColors = remember(marks, sponsorColor, selfPromoColor, interactionColor) {
+    val segmentColors = remember(marks, sponsorColor, selfPromoColor, interactionColor, sponsorSegmentColors) {
         marks?.segments?.map { segment ->
             segment to when (segment.category) {
-                "selfpromo" -> selfPromoColor
-                "interaction", "poi_highlight" -> interactionColor
-                else -> sponsorColor
+                "selfpromo" -> sponsorSegmentColors["selfpromo"] ?: selfPromoColor
+                "interaction", "poi_highlight" -> sponsorSegmentColors["interaction"] ?: interactionColor
+                else -> sponsorSegmentColors[segment.category] ?: sponsorColor
             }
         }.orEmpty()
     }
