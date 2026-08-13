@@ -152,14 +152,10 @@ fun GlobalPlayerOverlay(
     val audioSystemInfo = rememberAudioSystemInfo(context)
     val pipPreferences = rememberPipPreferences(context)
     val completeVideo = rememberCompleteVideo(video, playerUiState)
-    // Auto-open the queue sheet whenever the user adds a video to the queue or
-    // hits "Play Next" — otherwise the action has no visible feedback.
-    val queueDisplayRequested by EnhancedPlayerManager.getInstance().queueDisplayRequested.collectAsStateWithLifecycle()
-    LaunchedEffect(queueDisplayRequested) {
-        if (queueDisplayRequested > 0L) {
-            screenState.showPlaylistQueueSheet = true
-        }
-    }
+    // Auto-open of the queue sheet is handled by the global queue host in
+    // FlowApp (works even before any player/mini-player is composed), so there
+    // is no duplicate auto-open here — only the dock button and quick actions
+    // drive `showPlaylistQueueSheet` within the overlay.
     val canGoPrevious by playerViewModel.canGoPrevious.collectAsStateWithLifecycle()
     val comments by playerViewModel.commentsState.collectAsStateWithLifecycle()
     val isPostingComment by playerViewModel.isPostingComment.collectAsStateWithLifecycle()

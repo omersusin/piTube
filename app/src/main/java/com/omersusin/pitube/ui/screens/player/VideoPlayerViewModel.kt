@@ -773,9 +773,17 @@ class VideoPlayerViewModel @Inject constructor(
         streamExpiryVideoId = null
         streamExpiryCount = 0
 
-        // Stop current playback and clear everything (including any active queue)
+        // Stop current playback and clear everything, but keep the queue the user
+        // built (Play Next / Add to queue) so it isn't silently wiped.
+        val playerManagerForQueueSaving = playerManager
+        val savedQueue = playerManagerForQueueSaving.queueVideos.value
         playerManager.pause()
         playerManager.clearAll()
+        if (savedQueue.isNotEmpty()) {
+            // The freshly opened video becomes the current item, the rest of the
+            // user's queue survives after it.
+            playerManagerForQueueSaving.rebaseQueueOnCurrentVideo(savedQueue, video)
+        }
 
         // Cache video metadata for immediate UI display
         _uiState.value = _uiState.value.copy(

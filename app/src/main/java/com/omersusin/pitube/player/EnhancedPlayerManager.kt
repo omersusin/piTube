@@ -405,10 +405,16 @@ class EnhancedPlayerManager private constructor() {
     val queueVideos: StateFlow<List<Video>> = _queueVideos.asStateFlow()
 
     // Monotonic tick bumped whenever a queue is created or mutated by the user's
-    // own action (Play Next / Add to queue). The player overlay collects this to
-    // auto-open the queue sheet so the action is always visible.
+    // own action (Play Next / Add to queue). The global queue host collects this to
+    // auto-open the queue sheet so the action is always visible — even when no
+    // player/mini-player is on screen yet.
     private val _queueDisplayRequested = MutableStateFlow(0L)
     val queueDisplayRequested: StateFlow<Long> = _queueDisplayRequested.asStateFlow()
+
+    /** Acknowledge-and-reset the auto-open trigger once the sheet has been shown. */
+    fun consumeQueueDisplayRequest() {
+        _queueDisplayRequested.value = 0L
+    }
 
     private val currentQueueIndexFlow = MutableStateFlow<Int>(-1)
     val currentQueueIndexState: StateFlow<Int> = currentQueueIndexFlow.asStateFlow()
@@ -3440,6 +3446,35 @@ class EnhancedPlayerManager private constructor() {
     }
 
     fun isQueueActive(): Boolean = playbackQueue.isNotEmpty()
+
+    /**
+     * Re-point the queue state at a newly opened video without clearing the
+     * list the user built (Play Next / Add to queue). Called by the player
+     * view-model right after [clearAll] when it opened a fresh video from the
+     * feed: the new video becomes the current queue item and the user's list
+     * survives, so a queue built while browsing isn't silently wiped.
+     */
+    fun rebaseQueueOnCurrentVideo(
+        queueVideos: List<Video>,
+        newCurrent: Video,
+    ) {
+        if (queueVideos.isEmpty() || newCurrent.id.isBlank()) return
+        // Keep the user's queue, put the freshly opened video first so it is
+        // the current item; dedupe by id keeping the first occurrence.
+        val deduped =
+            buildList {
+                add(newCurrent)
+                for (v in queueVideos) {
+                    if (v.id != newCurrent.id && none { it.id == v.id }) add(v)
+                }
+            }
+        originalPlaybackQueue = deduped
+        playbackQueue = deduped
+        currentQueueIndex = 0
+        _queueVideos.value = deduped
+        currentQueueIndexFlow.value = 0
+        updateQueueState()
+    }
 
     private fun updateLiveEdgeState(player: ExoPlayer) {
         if (!currentIsLiveStream && !player.isCurrentMediaItemLive) return

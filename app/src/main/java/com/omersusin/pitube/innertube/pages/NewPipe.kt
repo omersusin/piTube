@@ -165,7 +165,7 @@ object NewPipeExtractor {
         newPipeUtils = null
         isInitialized = false
         lastProxySignature = null
-        nsigThrewThisSession = false
+        nsigSuppressedUntil = 0L
     }
 
     fun getSignatureTimestamp(videoId: String): Result<Int> {
@@ -174,18 +174,30 @@ object NewPipeExtractor {
             ?: Result.failure(Exception("NewPipeUtils not initialized"))
     }
 
+    /**
+     * NewPipe's throttling (`n` parameter) deobfuscation is the strongest
+     * decoder we have, but it used to be permanently disabled for the whole
+     * app session after a single failure. One transient failure (bad player JS
+     * fetch, network blip) silently crippled every later video. Now a failure
+     * only backs NewPipe off for a short cooldown; after that it re-probes so
+     * the best decoder keeps working whenever YouTube recovered.
+     */
+    private const val NSIG_SUPPRESSION_COOLDOWN_MS = 60_000L
+
     @Volatile
-    private var nsigThrewThisSession = false
+    private var nsigSuppressedUntil = 0L
 
     fun deobfuscateThrottling(videoId: String, url: String): String? {
-        if (nsigThrewThisSession) return null
         init()
+        if (System.currentTimeMillis() < nsigSuppressedUntil) {
+            return null
+        }
         val result = newPipeUtils?.deobfuscateThrottling(videoId, url)
         if (result == null || (url.contains("n=") && result == url)) {
-            nsigThrewThisSession = true
+            nsigSuppressedUntil = System.currentTimeMillis() + NSIG_SUPPRESSION_COOLDOWN_MS
             android.util.Log.w(
                 "NewPipeExtractor",
-                "NewPipe nsig ineffective (${if (result == null) "threw" else "unchanged"}) — disabling for this session, falling back to home-grown"
+                "NewPipe nsig ineffective (${if (result == null) "threw" else "unchanged"}) — backing off for $NSIG_SUPPRESSION_COOLDOWN_MS ms, re-probing after"
             )
         }
         return result

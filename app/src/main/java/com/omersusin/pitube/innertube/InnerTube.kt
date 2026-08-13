@@ -680,8 +680,11 @@ class InnerTube {
         setLogin: Boolean = false,
     ) = withRetry {
         httpClient
-            .post("reel/reel_watch_sequence") {
-                ytClient(client, setLogin = setLogin)
+            // Shorts sequences only resolve on the www host (the music host
+            // serves empty/blocked reel responses) — same override the stream
+            // extractor applies to every player() call.
+            .post("https://www.youtube.com/youtubei/v1/reel/reel_watch_sequence") {
+                ytClient(client, setLogin = setLogin, apiUrl = YouTubeClient.API_URL_YOUTUBE)
                 setBody(
                     ReelBody(
                         context =

@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ import com.omersusin.pitube.player.GlobalPlayerState
 import com.omersusin.pitube.player.SleepTimerManager
 import com.omersusin.pitube.ui.components.DonationPromptHost
 import com.omersusin.pitube.ui.components.FloatingBottomNavBar
+import com.omersusin.pitube.ui.components.FlowPlaylistQueueBottomSheet
 import com.omersusin.pitube.ui.components.PlayerSheetValue
 import com.omersusin.pitube.ui.components.rememberPlayerDraggableState
 import com.omersusin.pitube.ui.screens.home.HomeViewModel
@@ -563,6 +565,14 @@ fun FlowApp(
 
         // ===== GLOBAL MUSIC PLAYER OVERLAY ===== (removed with music feature)
 
+        // ===== GLOBAL QUEUE SHEET HOST =====
+        // The queue sheet must be reachable even before any player/mini-player
+        // is on screen (video still being opened, or nothing loaded yet): a
+        // "Play Next"/"Add to queue" from any feed card always gets visible
+        // feedback instead of silently mutating an unseen queue. Rendered last
+        // in the root Box so it stacks above the NavHost content.
+        GlobalQueueSheetHost()
+
         androidx.compose.material3.SnackbarHost(
             hostState = snackbarHostState,
             modifier =
@@ -616,5 +626,54 @@ private fun ApplyStatusBarStyle(
             }
 
         insetsController.isAppearanceLightStatusBars = !isDarkTheme && !shouldDrawBehindStatusBar
+    }
+}
+
+/**
+ * Global host for the playback-queue sheet, composed in FlowApp's root Box so
+ * "Play Next"/"Add to queue" always has visible feedback even when no
+ * player/mini-player is composed yet. Opens the queue sheet whenever the
+ * manager bumps its display trigger, then acknowledges the request so a stale
+ * trigger can't re-open the sheet later.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GlobalQueueSheetHost() {
+    val manager = EnhancedPlayerManager.getInstance()
+    val queueDisplayRequested by manager.queueDisplayRequested.collectAsStateWithLifecycle()
+    val queueVideos by manager.queueVideos.collectAsStateWithLifecycle(initialValue = emptyList())
+    val currentQueueIndex by manager.currentQueueIndexState.collectAsStateWithLifecycle()
+    val playerState by manager.playerState.collectAsStateWithLifecycle()
+    var showQueueSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(queueDisplayRequested) {
+        if (queueDisplayRequested > 0L) {
+            if (!showQueueSheet) showQueueSheet = true
+            manager.consumeQueueDisplayRequest()
+        }
+    }
+
+    // If the queue is emptied (all items removed) the sheet has nothing to
+    // show — reset so the next add opens it fresh instead of a stale popup.
+    LaunchedEffect(queueVideos) {
+        if (queueVideos.isEmpty()) showQueueSheet = false
+    }
+
+    if (showQueueSheet && queueVideos.isNotEmpty()) {
+        FlowPlaylistQueueBottomSheet(
+            queueVideos = queueVideos,
+            currentQueueIndex = currentQueueIndex,
+            playlistTitle = playerState.queueTitle,
+            isLooping = playerState.isQueueLooping,
+            isShuffled = playerState.isQueueShuffled,
+            onLoopToggle = manager::toggleQueueLoop,
+            onShuffleToggle = manager::toggleQueueShuffle,
+            onPlayVideoAtIndex = { index ->
+                manager.playVideoAtIndex(index, loadStreamsInPlayer = false)
+            },
+            onRemoveVideoAtIndex = manager::removeVideoAtIndex,
+            onMoveVideoAtIndex = manager::moveVideoAtIndex,
+            onDismiss = { showQueueSheet = false },
+        )
     }
 }
