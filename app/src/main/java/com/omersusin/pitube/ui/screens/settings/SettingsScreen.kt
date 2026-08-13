@@ -49,10 +49,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.gson.JsonParser
 import com.omersusin.pitube.BuildConfig
 import com.omersusin.pitube.R
-import com.omersusin.pitube.data.local.AppUiModePreferences
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.network.AppProxyManager
-import com.omersusin.pitube.platform.AppUiMode
 import com.omersusin.pitube.ui.theme.ThemeMode
 import com.omersusin.pitube.ui.theme.extendedColors
 import com.omersusin.pitube.utils.AppLanguageManager
@@ -95,9 +93,6 @@ fun SettingsScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val playerPreferences = remember { PlayerPreferences(context) }
-    val appUiModePreferences = remember { AppUiModePreferences(context) }
-    val appUiMode by appUiModePreferences.mode.collectAsStateWithLifecycle(initialValue = AppUiMode.AUTOMATIC)
-    var showInterfaceModeDialog by remember { mutableStateOf(false) }
     val backupRepo =
         remember {
             com.omersusin.pitube.data.local
@@ -124,16 +119,6 @@ fun SettingsScreen(
     // Player preferences states
     val currentRegion by playerPreferences.trendingRegion.collectAsState(initial = "US")
     val currentAppLanguage by playerPreferences.appLanguage.collectAsState(initial = AppLanguageManager.SYSTEM_DEFAULT)
-
-    if (showInterfaceModeDialog) {
-        InterfaceModeDialog(
-            selected = appUiMode,
-            onSelected = { mode ->
-                coroutineScope.launch { appUiModePreferences.setMode(mode) }
-            },
-            onDismiss = { showInterfaceModeDialog = false },
-        )
-    }
 
     // Optimize Region Dialog: compute list only once
     val regionList = remember { REGION_NAMES.toList() }
@@ -247,12 +232,6 @@ fun SettingsScreen(
                 secAppearance,
                 onNavigateToAppearance,
             ),
-            SettingSearchEntry(
-                Icons.Outlined.Tv,
-                stringResource(R.string.settings_item_interface_mode),
-                stringResource(R.string.settings_item_interface_mode_subtitle),
-                secAppearance,
-            ) { showInterfaceModeDialog = true },
             SettingSearchEntry(
                 Icons.Outlined.Language,
                 stringResource(R.string.settings_item_app_language),
@@ -664,16 +643,6 @@ fun SettingsScreen(
                             title = stringResource(R.string.settings_item_theme),
                             subtitle = stringResource(getThemeNameRes(currentTheme)),
                             onClick = onNavigateToAppearance,
-                        )
-                        HorizontalDivider(
-                            Modifier.padding(start = 56.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
-                        SettingsItem(
-                            icon = Icons.Outlined.Tv,
-                            title = stringResource(R.string.settings_item_interface_mode),
-                            subtitle = stringResource(R.string.settings_item_interface_mode_subtitle),
-                            onClick = { showInterfaceModeDialog = true },
                         )
                         HorizontalDivider(
                             Modifier.padding(start = 56.dp),

@@ -79,10 +79,8 @@ class SubscriptionsViewModel
         private var hasStarted = false
 
         /**
-         * Starts the preference/feed collectors. Deliberately not run from `init`: the TV shell
-         * hoists this ViewModel at launch (see `FlowTvApp`), so constructing it would kick off the
-         * subscription RSS fetch before the user ever opens Subscriptions. Called from the screens
-         * instead, so the work still begins exactly when the feed becomes visible.
+         * Starts the preference/feed collectors. Deliberately not run from `init`: the screen
+         * calls this so the work begins exactly when the feed becomes visible.
          *
          * Idempotent, and only ever called from composition (main thread).
          */

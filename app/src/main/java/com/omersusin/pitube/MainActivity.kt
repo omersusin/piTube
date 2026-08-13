@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
@@ -25,12 +24,8 @@ import androidx.lifecycle.lifecycleScope
 import com.google.gson.JsonParser
 import dagger.hilt.android.AndroidEntryPoint
 import com.omersusin.pitube.BuildConfig
-import com.omersusin.pitube.data.local.AppUiModePreferences
 import com.omersusin.pitube.data.local.LocalDataManager
 import com.omersusin.pitube.network.AppProxyManager
-import com.omersusin.pitube.platform.AppUiMode
-import com.omersusin.pitube.platform.AppUiRoot
-import com.omersusin.pitube.platform.DeviceFormFactorDetector
 import com.omersusin.pitube.player.BackgroundPlaybackPolicy
 import com.omersusin.pitube.player.GlobalPlayerState
 import com.omersusin.pitube.player.MemoryPressurePolicy
@@ -43,7 +38,6 @@ import com.omersusin.pitube.ui.theme.CustomThemePalettes
 import com.omersusin.pitube.ui.theme.FlowTheme
 import com.omersusin.pitube.ui.theme.ThemeMode
 import com.omersusin.pitube.ui.theme.ThemeVariant
-import com.omersusin.pitube.ui.tv.FlowTvApp
 import com.omersusin.pitube.updater.ApkUpdateHelper
 import com.omersusin.pitube.utils.AppLanguageManager
 import com.omersusin.pitube.utils.FlowCrashHandler
@@ -84,8 +78,6 @@ class MainActivity : ComponentActivity() {
 
     private var pipDismissCheckJob: Job? = null
     private var pendingAutoPip = false
-    private var cachedAppUiRoot = AppUiRoot.MOBILE
-
     private fun videoPlaybackStateName(state: Int?): String =
         when (state) {
             androidx.media3.common.Player.STATE_IDLE -> "IDLE"
@@ -201,16 +193,6 @@ class MainActivity : ComponentActivity() {
             var showSplash by remember { mutableStateOf(true) }
 
             val context = LocalContext.current
-            val configuration = LocalConfiguration.current
-            val uiPreferences = remember { AppUiModePreferences(applicationContext) }
-            val appUiMode by uiPreferences.mode.collectAsState(initial = AppUiMode.AUTOMATIC)
-            val deviceFormFactor =
-                remember(configuration.uiMode, context) {
-                    DeviceFormFactorDetector.detect(context)
-                }
-            val appUiRoot = appUiMode.resolve(deviceFormFactor)
-            SideEffect { cachedAppUiRoot = appUiRoot }
-
             // Check for a crash that happened last session.
             // If found, show the CrashReporterScreen instead of the normal UI.
             var pendingCrashLog by remember {
@@ -357,14 +339,7 @@ class MainActivity : ComponentActivity() {
                         val isDeeplinkShort by this@MainActivity.isDeeplinkShort
                         val pendingWidgetRoute by this@MainActivity.pendingWidgetRoute
 
-                        if (appUiRoot == AppUiRoot.TV) {
-                            FlowTvApp(
-                                deeplinkVideoId = deeplinkVideoId,
-                                isShort = isDeeplinkShort,
-                                onDeeplinkConsumed = { consumeDeeplink() },
-                            )
-                        } else {
-                            FlowApp(
+                        FlowApp(
                                 currentTheme = themeMode,
                                 themeVariant = themeVariant,
                                 customThemePalettes = customThemePalettes,
@@ -416,8 +391,7 @@ class MainActivity : ComponentActivity() {
                                 onWidgetRouteConsumed = {
                                     _pendingWidgetRoute.value = null
                                 },
-                            )
-                        }
+                        )
 
                         // 2. THE SPLASH SCREEN (Z-Index Top)
                         if (showSplash) {
@@ -658,9 +632,7 @@ class MainActivity : ComponentActivity() {
         )
         videoLifecycleLog("onStop")
         if (!isInPictureInPictureMode && !PictureInPictureHelper.isPopupActive) {
-            if (cachedAppUiRoot == AppUiRoot.MOBILE) {
-                requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
+            requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             if (!cachedShortsBackgroundPlay) {
                 com.omersusin.pitube.player.shorts.ShortsPlayerPool
                     .getInstance()
@@ -687,7 +659,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (cachedAppUiRoot == AppUiRoot.TV) return
         val explicitBackgroundPlaybackActive =
             GlobalPlayerState.isExplicitBackgroundPlaybackActive.value
         FlowCrashHandler.recordPhase(
@@ -736,7 +707,6 @@ class MainActivity : ComponentActivity() {
         isPlaying: Boolean = true,
         openSettingsOnDenied: Boolean = false,
     ): Boolean {
-        if (cachedAppUiRoot == AppUiRoot.TV) return false
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
         if (!PictureInPictureHelper.isPipAllowed(this)) {
             if (openSettingsOnDenied) {
