@@ -23,7 +23,10 @@ class SponsorBlockRepository @Inject constructor() {
     private val baseUrl = "https://sponsor.ajay.app/api/skipSegments"
 
     // Categories to fetch
-    private val categories = listOf("sponsor", "intro", "outro", "selfpromo", "interaction", "music_offtopic")
+    private val categories = listOf(
+        "sponsor", "intro", "outro", "selfpromo", "interaction", "music_offtopic",
+        "filler", "preview", "exclusive_access", "poi_highlight",
+    )
 
     suspend fun getSegments(videoId: String): List<SponsorBlockSegment> = withContext(Dispatchers.IO) {
         try {

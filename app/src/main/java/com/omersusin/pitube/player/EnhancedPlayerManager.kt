@@ -654,6 +654,7 @@ class EnhancedPlayerManager private constructor() {
         val sbCategories = listOf(
             "sponsor", "intro", "outro", "selfpromo", "interaction",
             "music_offtopic", "filler", "preview", "exclusive_access",
+            "poi_highlight",
         )
         sbCategories.forEach { category ->
             scope.launch {

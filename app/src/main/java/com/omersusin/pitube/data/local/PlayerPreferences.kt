@@ -168,6 +168,7 @@ class PlayerPreferences(context: Context) {
         val SB_ACTION_FILLER = stringPreferencesKey("sb_action_filler")
         val SB_ACTION_PREVIEW = stringPreferencesKey("sb_action_preview")
         val SB_ACTION_EXCLUSIVE_ACCESS = stringPreferencesKey("sb_action_exclusive_access")
+        val SB_ACTION_POI_HIGHLIGHT = stringPreferencesKey("sb_action_poi_highlight")
 
         // SponsorBlock per-category color keys
         val SB_COLOR_SPONSOR = intPreferencesKey("sb_color_sponsor")
@@ -179,6 +180,7 @@ class PlayerPreferences(context: Context) {
         val SB_COLOR_FILLER = intPreferencesKey("sb_color_filler")
         val SB_COLOR_PREVIEW = intPreferencesKey("sb_color_preview")
         val SB_COLOR_EXCLUSIVE_ACCESS = intPreferencesKey("sb_color_exclusive_access")
+        val SB_COLOR_POI_HIGHLIGHT = intPreferencesKey("sb_color_poi_highlight")
 
         // SponsorBlock submit
         val SB_SUBMIT_ENABLED = booleanPreferencesKey("sb_submit_enabled")
@@ -313,6 +315,9 @@ class PlayerPreferences(context: Context) {
 
         // Channel blocking: channel IDs the user never wants to see again.
         val BLOCKED_CHANNEL_IDS = stringSetPreferencesKey("blocked_channel_ids")
+
+        // Remembered default channel tab per channel ("channelId|tabIndex")
+        val CHANNEL_DEFAULT_TABS = stringSetPreferencesKey("channel_default_tabs")
 
         // Auto-backup settings
         val AUTO_BACKUP_FREQUENCY = stringPreferencesKey("auto_backup_frequency")
@@ -480,10 +485,13 @@ class PlayerPreferences(context: Context) {
             "filler" -> Keys.SB_ACTION_FILLER
             "preview" -> Keys.SB_ACTION_PREVIEW
             "exclusive_access" -> Keys.SB_ACTION_EXCLUSIVE_ACCESS
+            "poi_highlight" -> Keys.SB_ACTION_POI_HIGHLIGHT
             else -> Keys.SB_ACTION_SPONSOR
         }
         return context.playerPreferencesDataStore.data.map { preferences ->
-            SponsorBlockAction.fromString(preferences[key] ?: SponsorBlockAction.SKIP.name)
+            val default =
+                if (category == "poi_highlight") SponsorBlockAction.IGNORE else SponsorBlockAction.SKIP
+            SponsorBlockAction.fromString(preferences[key] ?: default.name)
         }
     }
 
@@ -498,6 +506,7 @@ class PlayerPreferences(context: Context) {
             "filler" -> Keys.SB_ACTION_FILLER
             "preview" -> Keys.SB_ACTION_PREVIEW
             "exclusive_access" -> Keys.SB_ACTION_EXCLUSIVE_ACCESS
+            "poi_highlight" -> Keys.SB_ACTION_POI_HIGHLIGHT
             else -> Keys.SB_ACTION_SPONSOR
         }
         context.playerPreferencesDataStore.edit { preferences ->
@@ -517,6 +526,7 @@ class PlayerPreferences(context: Context) {
             "filler" -> Keys.SB_COLOR_FILLER
             "preview" -> Keys.SB_COLOR_PREVIEW
             "exclusive_access" -> Keys.SB_COLOR_EXCLUSIVE_ACCESS
+            "poi_highlight" -> Keys.SB_COLOR_POI_HIGHLIGHT
             else -> Keys.SB_COLOR_SPONSOR
         }
         return context.playerPreferencesDataStore.data.map { prefs -> prefs[key] }
@@ -533,6 +543,7 @@ class PlayerPreferences(context: Context) {
             "filler" -> Keys.SB_COLOR_FILLER
             "preview" -> Keys.SB_COLOR_PREVIEW
             "exclusive_access" -> Keys.SB_COLOR_EXCLUSIVE_ACCESS
+            "poi_highlight" -> Keys.SB_COLOR_POI_HIGHLIGHT
             else -> Keys.SB_COLOR_SPONSOR
         }
         context.playerPreferencesDataStore.edit { prefs ->
@@ -1783,6 +1794,28 @@ class PlayerPreferences(context: Context) {
         context.playerPreferencesDataStore.edit { preferences ->
             val current = preferences[Keys.BLOCKED_CHANNEL_IDS].orEmpty()
             preferences[Keys.BLOCKED_CHANNEL_IDS] = current - channelId
+        }
+    }
+
+    fun channelDefaultTab(channelId: String): Flow<Int?> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.CHANNEL_DEFAULT_TABS].orEmpty()
+                .firstNotNullOfOrNull { entry ->
+                    val separator = entry.indexOf('|')
+                    if (separator > 0 && entry.substring(0, separator) == channelId) {
+                        entry.substring(separator + 1).toIntOrNull()
+                    } else {
+                        null
+                    }
+                }
+        }
+
+    suspend fun setChannelDefaultTab(channelId: String, tabIndex: Int) {
+        if (channelId.isBlank()) return
+        context.playerPreferencesDataStore.edit { preferences ->
+            val current = preferences[Keys.CHANNEL_DEFAULT_TABS].orEmpty()
+                .filterNot { it.startsWith("$channelId|") }
+            preferences[Keys.CHANNEL_DEFAULT_TABS] = current + "$channelId|$tabIndex"
         }
     }
 

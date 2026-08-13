@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.omersusin.pitube.R
@@ -94,6 +95,8 @@ fun ContentSettingsScreen(
     val hideUnplayableVideosFromSubscriptions by preferences.hideUnplayableVideosFromSubscriptions.collectAsState(initial = false)
     val watchedThreshold by preferences.watchedThreshold.collectAsState(initial = com.omersusin.pitube.data.local.WatchedThreshold.ALMOST_FINISHED)
     var showWatchedThresholdDialog by remember { mutableStateOf(false) }
+    val blockedChannelIds by preferences.blockedChannelIds.collectAsState(initial = emptySet())
+    var showBlockedChannelsDialog by remember { mutableStateOf(false) }
     val bottomNavHideOnScroll by preferences.bottomNavHideOnScroll.collectAsState(initial = true)
     val shareWithoutText by preferences.shareWithoutText.collectAsState(initial = false)
     val disableShortsPlayer by preferences.disableShortsPlayer.collectAsState(initial = false)
@@ -495,6 +498,13 @@ fun ContentSettingsScreen(
                         )
                     }
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsItem(
+                        icon = Icons.Outlined.Block,
+                        title = stringResource(R.string.blocked_channels_header),
+                        subtitle = stringResource(R.string.blocked_channels_count_subtitle, blockedChannelIds.size),
+                        onClick = { showBlockedChannelsDialog = true }
+                    )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsSwitchItem(
                         icon = Icons.Outlined.Share,
                         title = stringResource(R.string.content_settings_share_without_text_title),
@@ -891,6 +901,80 @@ fun ContentSettingsScreen(
             confirmButton = {
                 TextButton(onClick = { showWatchedThresholdDialog = false }) {
                     Text(stringResource(R.string.btn_close))
+                }
+            }
+        )
+    }
+
+    if (showBlockedChannelsDialog) {
+        AlertDialog(
+            onDismissRequest = { showBlockedChannelsDialog = false },
+            title = {
+                Text(
+                    stringResource(R.string.blocked_channels_header),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {
+                if (blockedChannelIds.isEmpty()) {
+                    Text(
+                        stringResource(R.string.blocked_channels_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 360.dp)
+                    ) {
+                        blockedChannelIds.forEach { channelId ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = channelId,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                TextButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            preferences.unblockChannel(channelId)
+                                        }
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.blocked_item_unblock_channel))
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showBlockedChannelsDialog = false }) {
+                    Text(stringResource(R.string.btn_close))
+                }
+            },
+            dismissButton = {
+                if (blockedChannelIds.isNotEmpty()) {
+                    TextButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                blockedChannelIds.forEach { preferences.unblockChannel(it) }
+                            }
+                        }
+                    ) {
+                        Text(
+                            stringResource(R.string.blocked_clear_all),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         )

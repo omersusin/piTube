@@ -171,7 +171,8 @@ class SponsorBlockHandler(
         }
 
         if (segment != null && segment.uuid != lastSkippedSegmentUuid) {
-            val action = categoryActions[segment.category] ?: SponsorBlockAction.SKIP
+            val action = categoryActions[segment.category]
+                ?: if (segment.category == "poi_highlight") SponsorBlockAction.IGNORE else SponsorBlockAction.SKIP
             Log.d(TAG, "Segment hit: ${segment.category} action=$action")
 
             return when (action) {

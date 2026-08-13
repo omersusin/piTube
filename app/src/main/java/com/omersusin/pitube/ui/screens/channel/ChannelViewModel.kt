@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.ChannelSubscription
+import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.local.SubscriptionRepository
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.Video
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,6 +49,7 @@ class ChannelViewModel
     constructor(
         @ApplicationContext private val appContext: Context,
         private val subscriptionRepository: SubscriptionRepository,
+        private val playerPreferences: PlayerPreferences,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(ChannelUiState())
         val uiState: StateFlow<ChannelUiState> = _uiState.asStateFlow()
@@ -164,6 +167,14 @@ class ChannelViewModel
                     loadChannelVideoCount(channelId, channelInfo.name, channelAvatar)
                     if (_uiState.value.selectedTab == POSTS_TAB_INDEX) {
                         communityController.ensurePostsLoaded()
+                    }
+
+                    // Restore the tab the user last left this channel on
+                    playerPreferences.channelDefaultTab(channelId).first().let { rememberedTab ->
+                        if (rememberedTab != null && rememberedTab != _uiState.value.selectedTab) {
+                            _uiState.update { it.copy(selectedTab = rememberedTab) }
+                            if (rememberedTab == POSTS_TAB_INDEX) communityController.ensurePostsLoaded()
+                        }
                     }
 
                     // Load subscription state
@@ -412,6 +423,11 @@ class ChannelViewModel
         fun selectTab(tabIndex: Int) {
             _uiState.update { it.copy(selectedTab = tabIndex) }
             if (tabIndex == POSTS_TAB_INDEX) communityController.ensurePostsLoaded()
+            _uiState.value.channelId?.let { channelId ->
+                viewModelScope.launch(PerformanceDispatcher.diskIO) {
+                    playerPreferences.setChannelDefaultTab(channelId, tabIndex)
+                }
+            }
         }
 
         fun openCommunityPostComments(post: CommunityPost) = communityController.openComments(post)
