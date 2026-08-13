@@ -173,17 +173,39 @@ class FlowApplication :
                 Log.w(TAG, "visitorData init error: ${e.message}")
             }
             try {
-                playerPreferences.youtubeCookie.collectLatest { cookie ->
-                    YouTube.cookie = cookie
-                    YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
-                    Log.d(TAG, "YouTube session restored, signedIn=${!cookie.isNullOrEmpty()}")
+                // Bring a pre-profiles install forward: someone already signed in
+                // has a cookie in the DataStore mirror but no encrypted profile
+                // yet, and that session must survive the upgrade.
+                val preferences = com.omersusin.pitube.data.local.PlayerPreferences(this)
+                val pm = com.omersusin.pitube.data.local.ProfileManager(this)
+                val legacyCookie = preferences.youtubeCookie.first()
+                val legacyName = preferences.youtubeAccountName.first()
+                val legacyAvatar = preferences.youtubeAccountThumbnail.first()
+                if (pm.profiles.value.isEmpty()) {
+                    pm.ensureMigrated(legacyCookie, legacyName, legacyAvatar)
                 }
+                // Restore the active profile's session. The source of truth is
+                // the encrypted per-profile store (ProfileManager); the DataStore
+                // key is only a mirror so existing UI that reads it stays in step.
+                val cookie = com.omersusin.pitube.data.local.SessionManager(this).getCookies()
+                YouTube.cookie = cookie
+                YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
+                // Re-align the DataStore mirror with the restored active profile
+                // (migration/new profile stores control the session now).
+                if (cookie.isNullOrBlank()) {
+                    preferences.clearYoutubeAccount()
+                } else {
+                    preferences.refreshYoutubeCookie(cookie)
+                }
+                Log.d(TAG, "YouTube session restored, signedIn=${!cookie.isNullOrEmpty()}")
             } catch (e: Exception) {
                 Log.w(TAG, "session restore error: ${e.message}")
             }
             YouTube.onCookieRotated = { merged ->
                 CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                    runCatching { playerPreferences.refreshYoutubeCookie(merged) }
+                    // Persist the rotated cookie against the active profile
+                    // (which also mirrors it to the DataStore key).
+                    runCatching { com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).saveCookies(merged) }
                 }
             }
             try {
@@ -195,9 +217,10 @@ class FlowApplication :
             // Auto-sync the account library (liked videos / playlists /
             // subscriptions) once a day without opening Settings.
             try {
-                val cookie = playerPreferences.youtubeCookie.first()
+                val loggedIn = com.omersusin.pitube.data.local.SessionManager(this)
+                    .getCookies()?.isNotBlank() == true
                 val syncedAt = playerPreferences.youtubeLibrarySyncedAt.first()
-                if (!cookie.isNullOrBlank() &&
+                if (loggedIn &&
                     System.currentTimeMillis() - syncedAt > AUTO_LIBRARY_SYNC_INTERVAL_MS
                 ) {
                     Log.i(TAG, "Auto-syncing account library (last sync stale)")

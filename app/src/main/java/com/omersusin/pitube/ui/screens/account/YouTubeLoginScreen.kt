@@ -115,9 +115,10 @@ fun YouTubeLoginScreen(
             avatarUrl = accountAvatar,
             onSignOut = {
                 coroutineScope.launch {
+                    val appContext = context.applicationContext
+                    val accountSwitcher = com.omersusin.pitube.data.local.AccountSwitcher(appContext)
+                    accountSwitcher.signOut(accountSwitcher.active().id)
                     playerPreferences.clearYoutubeAccount()
-                    YouTube.cookie = null
-                    YouTube.useLoginForBrowse = false
                 }
                 signedOut = true
             },
@@ -138,21 +139,28 @@ fun YouTubeLoginScreen(
         YouTube.cookie = cookies
         YouTube.useLoginForBrowse = true
         coroutineScope.launch {
-            // Persist the session first so login never depends on the profile
-            // fetch succeeding (accountInfo can transiently fail / rate-limit and
-            // must not bounce the user back out of a successful sign-in).
-            playerPreferences.setYoutubeAccount(
-                cookie = cookies,
-                name = null,
-                email = null,
-                thumbnailUrl = null
-            )
+            // Fetch identity first when possible: it lets ProfileManager dedupe a
+            // re-added account via datasyncId instead of leaving a duplicate row.
+            // Best-effort only - accountInfo can transiently fail or rate-limit
+            // and must never bounce the user back out of a successful sign-in.
+            val identity = runCatching {
+                com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull()
+            }.getOrNull()
             val appContext = context.applicationContext
+            val accountSwitcher = com.omersusin.pitube.data.local.AccountSwitcher(appContext)
+            accountSwitcher.addYouTubeProfileAndSwitch(
+                cookies = cookies,
+                name = identity?.name,
+                email = identity?.email,
+                avatarUrl = identity?.thumbnailUrl,
+                datasyncId = identity?.datasyncId
+            )
+            playerPreferences.setYoutubeAccount(cookie = cookies, name = null, email = null, thumbnailUrl = null)
             CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                 runCatching { HomeFeedCacheRepository(appContext).clearAll() }
                 runCatching { YouTubeLibrarySync.sync(appContext) }
-                // Profile refetch is best-effort; Settings also re-fetches it on
-                // resume, so a transient failure here is not fatal.
+                // Retry the profile refetch in case the attempt above failed, and
+                // stash the identity on the active profile.
                 runCatching {
                     val account = YouTube.accountInfo().getOrNull()
                     if (account != null) {
@@ -161,6 +169,12 @@ fun YouTubeLoginScreen(
                             account.email,
                             account.thumbnailUrl
                         )
+                        com.omersusin.pitube.data.local.SessionManager(appContext)
+                            .let {
+                                it.saveUserName(account.name)
+                                it.saveUserEmail(account.email)
+                                it.saveUserAvatar(account.thumbnailUrl ?: "")
+                            }
                     }
                 }
             }

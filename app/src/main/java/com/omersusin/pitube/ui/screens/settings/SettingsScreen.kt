@@ -171,6 +171,10 @@ fun SettingsScreen(
                     !info.thumbnailUrl.isNullOrBlank()
                 ) {
                     playerPreferences.updateYoutubeAccountInfo(info.name, info.email, info.thumbnailUrl)
+                    val sessionManager = com.omersusin.pitube.data.local.SessionManager(context)
+                    sessionManager.saveUserName(info.name)
+                    info.email?.takeIf { it.isNotBlank() }?.let { sessionManager.saveUserEmail(it) }
+                    info.thumbnailUrl?.takeIf { it.isNotBlank() }?.let { sessionManager.saveUserAvatar(it) }
                     return@LaunchedEffect
                 }
                 if (attempt < 2) kotlinx.coroutines.delay(1_500L * (attempt + 1))
@@ -628,9 +632,9 @@ fun SettingsScreen(
                                 }
                                 TextButton(onClick = {
                                     coroutineScope.launch {
+                                        val accountSwitcher = com.omersusin.pitube.data.local.AccountSwitcher(context)
+                                        accountSwitcher.signOut(accountSwitcher.active().id)
                                         playerPreferences.clearYoutubeAccount()
-                                        com.omersusin.pitube.innertube.YouTube.cookie = null
-                                        com.omersusin.pitube.innertube.YouTube.useLoginForBrowse = false
                                         librarySyncResultText = null
                                         runCatching {
                                             com.omersusin.pitube.data.local.HomeFeedCacheRepository(context).clearAll()

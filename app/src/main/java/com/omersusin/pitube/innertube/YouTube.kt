@@ -1795,11 +1795,16 @@ object YouTube {
                     Regex("\"url\"\\s*:\\s*\"(https?://(?:yt3\\.ggpht\\.com|[a-z0-9-]+\\.(?:googleusercontent\\.com|ggpht\\.com))/[^\"]+)\"")
                         .find(scanBody)?.groupValues?.get(1)
             }
+            // YouTube's own account identifier, used to recognise a profile that
+            // is re-added after removal (Koda-style datasyncId dedupe).
+            val datasyncId = Regex("\"datasyncId\"\\s*:\\s*\"([^\"]+)\"")
+                .find(body)?.groupValues?.get(1)
             AccountInfo(
                 name = name,
                 email = email,
                 channelHandle = handle,
                 thumbnailUrl = avatar?.replace(Regex("=s\\d+"), "=s512"),
+                datasyncId = datasyncId?.takeIf { it.isNotBlank() },
             )
         }
     }

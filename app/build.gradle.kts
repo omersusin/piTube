@@ -242,6 +242,7 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
     // implementation(libs.androidx.datastore) // In TOML if needed
+    implementation(libs.androidx.security.crypto)
 
     // --- Home-screen widgets (Jetpack Glance) ---
     implementation(libs.androidx.glance.appwidget)

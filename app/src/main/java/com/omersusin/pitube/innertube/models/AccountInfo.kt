@@ -5,4 +5,5 @@ data class AccountInfo(
     val email: String?,
     val channelHandle: String?,
     val thumbnailUrl: String?,
+    val datasyncId: String? = null,
 )

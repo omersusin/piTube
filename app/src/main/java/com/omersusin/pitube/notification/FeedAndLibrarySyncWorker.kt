@@ -91,8 +91,9 @@ class FeedAndLibrarySyncWorker(
 
             // 3. Re-pull the account library when signed in and the last sync is
             //    older than the auto interval.
-            val cookie = runCatching { preferences.youtubeCookie.first() }.getOrNull().orEmpty()
-            if (!cookie.isNullOrBlank()) {
+            val loggedIn = com.omersusin.pitube.data.local.SessionManager(applicationContext)
+                .getCookies()?.isNotBlank() == true
+            if (loggedIn) {
                 val syncedAt = runCatching { preferences.youtubeLibrarySyncedAt.first() }.getOrNull() ?: 0L
                 val autoIntervalMs = TimeUnit.HOURS.toMillis(24)
                 if (System.currentTimeMillis() - syncedAt > autoIntervalMs) {
