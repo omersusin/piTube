@@ -1693,8 +1693,9 @@ object YouTube {
         val body = response.bodyAsText()
         val parsed =
             try {
-                Json.parseToJsonElement(body).jsonObject
-                    .toAccountMenuResponseOrNull()
+                AccountMenuResponse.toAccountMenuResponseOrNull(
+                    Json.parseToJsonElement(body).jsonObject
+                )
             } catch (e: Exception) {
                 null
             }
