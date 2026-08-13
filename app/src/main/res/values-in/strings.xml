@@ -547,8 +547,6 @@
     <string name="content_settings_title_lines_2">2 baris</string>
     <string name="content_settings_title_lines_3">3 baris</string>
     <string name="content_settings_title_lines_unlimited">Tanpa batas</string>
-    <string name="content_settings_video_card_actions_title">Tombol suka &amp; tidak suka pada kartu video</string>
-    <string name="content_settings_video_card_actions_subtitle">Tampilkan tombol jempol naik/turun pada kartu video untuk menyetel rekomendasi dengan cepat</string>
     <string name="content_settings_video_card_mark_watched_title">Tombol tandai sudah ditonton pada kartu video</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Tampilkan tombol mata pada kartu video penuh dan ringkas untuk menandai video sebagai sudah ditonton dengan cepat</string>
     <string name="content_settings_show_app_logo_title">Tampilkan ikon logo aplikasi</string>

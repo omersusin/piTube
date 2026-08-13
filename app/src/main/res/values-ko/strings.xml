@@ -719,8 +719,6 @@
     <string name="content_settings_title_lines_2">2줄</string>
     <string name="content_settings_title_lines_3">3줄</string>
     <string name="content_settings_title_lines_unlimited">제한 없음</string>
-    <string name="content_settings_video_card_actions_title">동영상 카드의 좋아요/싫어요 버튼</string>
-    <string name="content_settings_video_card_actions_subtitle">동영상 카드에 좋아요/싫어요 버튼을 표시하여 추천을 빠르게 조정합니다</string>
     <string name="content_settings_video_card_mark_watched_title">동영상 카드의 시청 완료 버튼</string>
     <string name="content_settings_video_card_mark_watched_subtitle">전체 및 간결한 동영상 카드에 눈 모양 버튼을 표시하여 빠르게 시청한 것으로 표시합니다</string>
     <string name="content_settings_show_app_logo_title">앱 로고 아이콘 표시</string>

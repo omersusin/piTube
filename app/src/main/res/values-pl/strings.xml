@@ -758,8 +758,6 @@
     <string name="content_settings_disable_shorts_player_subtitle">Odtwarzaj wszystkie filmy (w tym YouTube Shorts) w standardowym odtwarzaczu wideo</string>
     <string name="content_settings_explore_region_picker_title">Szybki wybór regionu w karcie Odkrywaj</string>
     <string name="content_settings_explore_region_picker_subtitle">Pokaż ikonę globu na górnym pasku karty „Odkrywaj”, aby zmienić region treści.</string>
-    <string name="content_settings_video_card_actions_title">Przyciski Lubię i Nie Lubię pod kartami filmów</string>
-    <string name="content_settings_video_card_actions_subtitle">Pokazuj przyciski „Lubię” i „Nie lubię” pod kartami filmów, aby lepiej dopasować rekomendacje</string>
     <string name="content_settings_video_card_mark_watched_title">Przycisk „Oznacz jako obejrzane” na miniaturze filmu</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Wyświetlaj przycisk „Oka” na miniaturach filmów w trybie pełnym i kompaktowym, które umożliwia szybkie oznaczanie filmów jako obejrzane</string>
     <string name="settings_shorts_nav_tab_title">Karta Shorts w pasku nawigacyjnym</string>

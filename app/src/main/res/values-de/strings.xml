@@ -527,8 +527,6 @@
     <string name="content_settings_title_lines_2">2 Zeilen</string>
     <string name="content_settings_title_lines_3">3 Zeilen</string>
     <string name="content_settings_title_lines_unlimited">Keine Begrenzung</string>
-    <string name="content_settings_video_card_actions_title">„Gefällt mir“- und „Gefällt mir nicht“-Button anzeigen</string>
-    <string name="content_settings_video_card_actions_subtitle">Zeige „Daumen hoch“- und „Daumen runter“-Schaltflächen auf den Videokarten an, um deine Empfehlungen schnell anzupassen</string>
     <string name="content_settings_video_card_mark_watched_title">Schaltfläche „Als angesehen markieren“-Button anzeigen</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Zeige auf den Vollbild- und Kompakt-Videokarten eine „Auge“-Schaltfläche an, um Videos schnell als angesehen zu markieren</string>
     <string name="content_settings_show_app_logo_title">App-Logo-Symbol anzeigen</string>

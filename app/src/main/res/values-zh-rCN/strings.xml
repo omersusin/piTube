@@ -720,8 +720,6 @@
     <string name="content_settings_title_lines_2">2行</string>
     <string name="content_settings_title_lines_3">3行</string>
     <string name="content_settings_title_lines_unlimited">无限制</string>
-    <string name="content_settings_video_card_actions_title">视频卡片的点赞和点踩按钮</string>
-    <string name="content_settings_video_card_actions_subtitle">在视频卡片上显示点赞/点踩按钮，以便快速调整推荐</string>
     <string name="content_settings_video_card_mark_watched_title">视频卡标记为已观看按钮</string>
     <string name="content_settings_video_card_mark_watched_subtitle">在完整和紧凑视频卡上显示眼睛按钮，以快速将视频标记为已观看</string>
     <string name="content_settings_show_app_logo_title">显示应用程序徽标图标</string>

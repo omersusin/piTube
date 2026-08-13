@@ -371,8 +371,6 @@
     <string name="content_settings_title_lines_2">2 سطر</string>
     <string name="content_settings_title_lines_3">3 سطر</string>
     <string name="content_settings_title_lines_unlimited">لا يوجد حد</string>
-    <string name="content_settings_video_card_actions_title">أزرار الإعجاب وعدم الإعجاب ببطاقة الفيديو</string>
-    <string name="content_settings_video_card_actions_subtitle">اعرض أزرار الإعجاب/عدم الإعجاب على بطاقات الفيديو لضبط توصياتك بسرعة</string>
     <string name="content_settings_header_content_components">مكونات المحتوى</string>
     <string name="content_settings_hide_watched_title">إخفاء الفيديوهات التي تمت مشاهدتها</string>
     <string name="content_settings_hide_watched_subtitle">قم بتصفية الفيديوهات التي شاهدتها بالفعل من صفحتك الرئيسية واشتراكاتك</string>

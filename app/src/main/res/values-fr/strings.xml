@@ -1011,8 +1011,6 @@
     <string name="content_settings_title_lines_2">2 lignes</string>
     <string name="content_settings_title_lines_3">3 lignes</string>
     <string name="content_settings_title_lines_unlimited">Sans limite</string>
-    <string name="content_settings_video_card_actions_title">Boutons « J\'aime » et « Je n\'aime pas » pour les cartes vidéo</string>
-    <string name="content_settings_video_card_actions_subtitle">Affichez les boutons « J\'aime » et « Je n\'aime pas » sur les fiches vidéo pour affiner rapidement vos recommandations</string>
     <string name="settings_categories_nav_tab_title">Onglet « Explorer » dans le menu de navigation</string>
     <string name="settings_categories_nav_tab_subtitle">Afficher un onglet « Tendances et catégories » dans la barre de navigation inférieure.</string>
     <string name="nav_explore">Découvrir</string>

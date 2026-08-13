@@ -719,8 +719,6 @@
     <string name="content_settings_title_lines_2">2 dòng</string>
     <string name="content_settings_title_lines_3">3 dòng</string>
     <string name="content_settings_title_lines_unlimited">Không giới hạn</string>
-    <string name="content_settings_video_card_actions_title">Nút thích/không thích trên thẻ video</string>
-    <string name="content_settings_video_card_actions_subtitle">Hiện nút trên/thích trên thẻ để điều chỉnh gợi ý</string>
     <string name="content_settings_video_card_mark_watched_title">Nút đánh dấu đã xem trên thẻ video</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Hiện nút mắt trên thẻ video để đánh dấu đã xem</string>
     <string name="content_settings_show_app_logo_title">Hiển thị biểu tượng ứng dụng</string>

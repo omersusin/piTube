@@ -1266,11 +1266,9 @@
     <string name="content_settings_title_lines_1">1 linea</string>
     <string name="content_settings_title_lines_2">2 lineas</string>
     <string name="content_settings_title_lines_3">3 lineas</string>
-    <string name="content_settings_video_card_actions_title">Botones Me gusta y No me gusta de la tarjeta de video</string>
     <string name="player_settings_shorts_background_play">Reproducción de fondo de Shorts</string>
     <string name="content_settings_title_lines_unlimited">Sin límite</string>
     <string name="player_settings_shorts_background_play_subtitle">Continuar reproduciendo Shorts cuando la aplicación esté en segundo plano</string>
-    <string name="content_settings_video_card_actions_subtitle">Muestre los botones de aprobación o aprobación en las tarjetas de video para ajustar rápidamente sus recomendaciones</string>
     <string name="content_settings_show_app_logo_subtitle">Muestra el ícono del logotipo de piTube junto al nombre de la aplicación en la barra superior de la pantalla de inicio</string>
     <string name="player_settings_shorts_playback_mode_auto_next">Reproducir siguiente automáticamente (avanza al siguiente short)</string>
     <string name="content_settings_show_app_logo_title">Mostrar icono del logotipo de la aplicación</string>

@@ -720,8 +720,6 @@
     <string name="content_settings_title_lines_2">2 sətir</string>
     <string name="content_settings_title_lines_3">3 sətir</string>
     <string name="content_settings_title_lines_unlimited">Limitsiz</string>
-    <string name="content_settings_video_card_actions_title">Video kartında bəyənmə və bəyənməmə düymələri</string>
-    <string name="content_settings_video_card_actions_subtitle">Tövsiyələri tez tənzimləmək üçün video kartlarında bəyənmə və bəyənməmə düymələrini göstərin</string>
     <string name="content_settings_video_card_mark_watched_title">Video kartında “baxılıb” düyməsi</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Videoları tez “baxılıb” kimi işarələmək üçün tam və yığcam video kartlarında göz düyməsini göstərin</string>
     <string name="content_settings_show_app_logo_title">Tətbiq loqosunu göstər</string>

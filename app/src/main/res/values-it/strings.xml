@@ -510,8 +510,6 @@
     <string name="content_settings_title_lines_2">2 righe</string>
     <string name="content_settings_title_lines_3">3 righe</string>
     <string name="content_settings_title_lines_unlimited">Nessun limite</string>
-    <string name="content_settings_video_card_actions_title">Pulsanti mi piace e non mi piace sulla scheda video</string>
-    <string name="content_settings_video_card_actions_subtitle">Mostra i pulsanti pollice su/pollice giù sulle schede video per ottimizzare rapidamente i tuoi suggerimenti</string>
     <string name="content_settings_show_app_logo_title">Mostra icona del logo dell\'app</string>
     <string name="content_settings_show_app_logo_subtitle">Mostra l\'icona del logo piTube accanto al nome dell\'app nella barra superiore della schermata home</string>
     <string name="content_settings_header_content_components">Componenti dei contenuti</string>

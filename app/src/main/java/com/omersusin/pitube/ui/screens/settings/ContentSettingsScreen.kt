@@ -100,7 +100,6 @@ fun ContentSettingsScreen(
     val showShortsPlayerPrompt by preferences.showShortsPlayerPrompt.collectAsState(initial = true)
     val showRegionPickerInExplore by preferences.showRegionPickerInExplore.collectAsState(initial = true)
     val videoTitleMaxLines by preferences.videoTitleMaxLines.collectAsState(initial = 1)
-    val videoCardActionsEnabled by preferences.videoCardActionsEnabled.collectAsState(initial = false)
     val videoCardMarkWatchedEnabled by preferences.videoCardMarkWatchedEnabled.collectAsState(initial = false)
     val subscriptionRefreshOnStartup by preferences.subscriptionRefreshOnStartup.collectAsState(initial = false)
     val subscriptionShowCheckedVideoCount by preferences.subscriptionShowCheckedVideoCount.collectAsState(initial = true)
@@ -541,18 +540,6 @@ fun ContentSettingsScreen(
                         onCheckedChange = { enabled ->
                             coroutineScope.launch {
                                 preferences.setShowRegionPickerInExplore(enabled)
-                            }
-                        }
-                    )
-                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    SettingsSwitchItem(
-                        icon = Icons.Outlined.ThumbUp,
-                        title = stringResource(R.string.content_settings_video_card_actions_title),
-                        subtitle = stringResource(R.string.content_settings_video_card_actions_subtitle),
-                        checked = videoCardActionsEnabled,
-                        onCheckedChange = { enabled ->
-                            coroutineScope.launch {
-                                preferences.setVideoCardActionsEnabled(enabled)
                             }
                         }
                     )

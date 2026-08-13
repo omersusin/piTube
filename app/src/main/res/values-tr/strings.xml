@@ -783,8 +783,6 @@
     <string name="content_settings_title_lines_2">2 satır</string>
     <string name="content_settings_title_lines_3">3 satır</string>
     <string name="content_settings_title_lines_unlimited">Sınırsız</string>
-    <string name="content_settings_video_card_actions_title">Videolarda beğen &amp; beğenmeme butonları</string>
-    <string name="content_settings_video_card_actions_subtitle">Önerileri hızlıca düzenlemek için videolarda beğeni butonlarını göster</string>
     <string name="content_settings_video_card_mark_watched_title">Videoyu izlendi olarak işaretle butonu</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Tam ve kompakt videolarda, hızlıca \"izlendi\" olarak işaretlemek için bir göz simgesi göster</string>
     <string name="content_settings_show_app_logo_title">Uygulama logosunu göster</string>

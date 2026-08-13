@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.map
 data class VideoCardPreferences(
     val deArrowEnabled: Boolean = false,
     val deArrowBadgeEnabled: Boolean = false,
-    val actionsEnabled: Boolean = false,
     val markWatchedEnabled: Boolean = false,
     val upcomingReminderIds: Set<String> = emptySet()
 )
@@ -103,11 +102,10 @@ fun ProvideVideoCardState(content: @Composable () -> Unit) {
         combine(
             preferences.deArrowEnabled,
             preferences.deArrowBadgeEnabled,
-            preferences.videoCardActionsEnabled,
             preferences.videoCardMarkWatchedEnabled,
             preferences.upcomingVideoReminderIds
-        ) { deArrow, deArrowBadge, actions, markWatched, reminders ->
-            VideoCardPreferences(deArrow, deArrowBadge, actions, markWatched, reminders)
+        ) { deArrow, deArrowBadge, markWatched, reminders ->
+            VideoCardPreferences(deArrow, deArrowBadge, markWatched, reminders)
         }.distinctUntilChanged()
     }
     val preferences by preferencesFlow.collectAsStateWithLifecycle(VideoCardPreferences())

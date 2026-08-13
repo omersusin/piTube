@@ -841,8 +841,6 @@
     <string name="content_settings_related_card_full_width_desc">Miniatura grande com título abaixo</string>
     <string name="content_settings_video_title_lines_title">Linhas de título do vídeo</string>
     <string name="content_settings_video_title_lines_subtitle">Quantas linhas mostrar para títulos de vídeo no reprodutor</string>
-    <string name="content_settings_video_card_actions_title">Botões de curtir e não curtir da cartao de vídeo</string>
-    <string name="content_settings_video_card_actions_subtitle">Mostre botões de polegar para cima / polegar para baixo no cartão de vídeo para ajustar rapidamente suas recomendações</string>
     <string name="content_settings_video_card_mark_watched_title">Marcar cartão de vídeo como botão assistido</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Mostre um botão ocular em cartão de vídeo completas e compactas para marcar rapidamente os vídeos assistidos</string>
     <string name="content_settings_show_app_logo_title">Mostrar ícone do logotipo do aplicativo</string>

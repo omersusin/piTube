@@ -683,8 +683,6 @@
     <string name="content_settings_title_lines_2">2 строки</string>
     <string name="content_settings_title_lines_3">3 строки</string>
     <string name="content_settings_title_lines_unlimited">Полностью</string>
-    <string name="content_settings_video_card_actions_title">Кнопки «Нравится» и «Не нравится» на карточке видео</string>
-    <string name="content_settings_video_card_actions_subtitle">Показывать кнопки «Нравится» и «Не нравится» на карточках видео для быстрой настройки рекомендаций</string>
     <string name="content_settings_show_app_logo_title">Отображать логотип приложения</string>
     <string name="content_settings_show_app_logo_subtitle">Отображать логотип piTube рядом с названием приложения в верхней панели главного экрана</string>
     <string name="player_settings_shorts_background_play">Фоновое воспроизведение Shorts</string>

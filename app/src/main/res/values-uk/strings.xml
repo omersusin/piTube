@@ -635,8 +635,6 @@
     <string name="content_settings_title_lines_2">2 рядки</string>
     <string name="content_settings_title_lines_3">3 рядки</string>
     <string name="content_settings_title_lines_unlimited">Без лімітів</string>
-    <string name="content_settings_video_card_actions_title">Лайки та дизлайки на картці відео</string>
-    <string name="content_settings_video_card_actions_subtitle">Показувати кнопки «Подобається» та «Не подобається» на картках відео для швидкого налаштування рекомендацій</string>
     <string name="content_settings_video_card_mark_watched_title">Кнопка «Позначити як переглянуте»</string>
     <string name="content_settings_video_card_mark_watched_subtitle">Показувати кнопку у вигляді ока на всіх картках відео, щоб швидко позначати їх як переглянуті</string>
     <string name="content_settings_show_app_logo_title">Показувати логотип застосунку</string>
