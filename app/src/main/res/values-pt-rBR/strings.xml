@@ -1560,6 +1560,7 @@
     <string name="sync_error_qr_expired">Este código QR expirou. Peça ao outro dispositivo para mostrar um novo.</string>
     <string name="sync_error_qr_wrong_version">Versão de aplicativo incompatível no outro dispositivo.</string>
     <string name="sync_error_qr_not_flow">Isso não parece um código de sincronização piTube.</string>
+    <plurals name="subscriptions_failed_channels_title">
         <item quantity="one">O Canal %d não foi carregado</item>
         <item quantity="many">Os Canais %d não foram carregados</item>
         <item quantity="other">Os Canais %d não foram carregados</item>

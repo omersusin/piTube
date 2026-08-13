@@ -4,6 +4,7 @@
     <string name="view_all_button_label">All</string>
     <string name="subscribed">Subscribed</string>
     <string name="home_refresh_feed">Refresh Feed</string>
+    <plurals name="subscriptions_failed_channels_title">
         <item quantity="one">%d channel couldn\'t be loaded</item>
         <item quantity="other">%d channels couldn\'t be loaded</item>
     </plurals>
@@ -1723,6 +1724,7 @@
     <string name="close_popup_player">Close popup player</string>
 
     <!-- Android TV -->
+    <plurals name="tv_playlist_video_count">
         <item quantity="one">%1$d video</item>
         <item quantity="other">%1$d videos</item>
     </plurals>

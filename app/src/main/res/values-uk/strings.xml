@@ -1784,6 +1784,7 @@
     <string name="about_reddit">Reddit</string>
     <string name="about_reddit_subtitle">r/piTube_Official</string>
     <string name="about_license_name">GNU GPL v3</string>
+    <plurals name="tv_playlist_video_count">
         <item quantity="one">%1$d відео</item>
         <item quantity="few">%1$d відео</item>
         <item quantity="many">%1$d відео</item>

@@ -1935,6 +1935,7 @@
     <string name="about_reddit">Reddit</string>
     <string name="about_reddit_subtitle">r/piTube_Official</string>
     <string name="about_license_name">GNU GPL v3</string>
+    <plurals name="tv_playlist_video_count">
         <item quantity="zero">%1$d فيديو</item>
         <item quantity="one">%1$d فيديو</item>
         <item quantity="two">%1$d فيديو</item>
@@ -1959,6 +1960,7 @@
     <string name="duration_hours_minutes">%1$d ساعة و %2$d دقيقة</string>
     <string name="duration_hours_short">%1$dساعة</string>
     <string name="duration_minutes_short">%1$dدقيقة</string>
+    <plurals name="subscriptions_failed_channels_title">
         <item quantity="zero">تعذر تحميل %d قناة</item>
         <item quantity="one">تعذر تحميل %d قناة</item>
         <item quantity="two">تعذر تحميل %d قناة</item>

@@ -1745,6 +1745,7 @@
     <string name="recognition_clear_history">Xóa lịch sử?</string>
     <string name="recognition_clear_history_body">Thao tác này xóa tất cả bài hát đã nhận diện. Không thể hoàn tác.</string>
     <string name="close_popup_player">Đóng trình phát cửa sổ</string>
+    <plurals name="tv_playlist_video_count">
         <item quantity="other">%1$d video</item>
     </plurals>
     <string name="widget_now_playing_label">Đang phát</string>
@@ -1934,6 +1935,7 @@
     <string name="topic_score_prefix">Bằng chứng chủ đề</string>
     <string name="notif_background_restricted_title">Tính năng chạy nền bị hạn chế</string>
     <string name="notif_background_restricted_subtitle">Android đang chặn piTube kiểm tra video mới khi ứng dụng đang đóng, nên các cảnh báo chỉ xuất hiện khi bạn mở ứng dụng. Nhấn vào đây để cho phép hoạt động nền không bị hạn chế.</string>
+    <plurals name="subscriptions_failed_channels_title">
         <item quantity="other">Không thể tải kênh %d</item>
     </plurals>
     <string name="comment_edited">đã chỉnh sửa</string>

@@ -1661,6 +1661,7 @@
     <string name="sync_send_scan_hint">Użyj tej opcji, aby przesłać dane na urządzenie bez aparatu (np. komputer), na którym wyświetla się kod odbioru.</string>
     <string name="sync_error_qr_expired">Ten kod QR wygasł. Wygeneruj nowy kod na drugim urządzeniu.</string>
     <string name="dlna_no_devices">Nie znaleziono urządzeń DLNA/UPnP.\n\nUpewnij się, że TV lub odtwarzacz (VLC, Kodi) działa w tej samej sieci Wi-Fi i ma włączoną obsługę renderera.</string>
+    <plurals name="tv_playlist_video_count">
         <item quantity="one">%1$d film</item>
         <item quantity="few">%1$d filmy</item>
         <item quantity="many">%1$d filmów</item>
