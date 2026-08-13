@@ -1719,6 +1719,8 @@ class PlaylistDetailViewModel
         }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun MergeIntoPlaylistDialog(
     viewModel: PlaylistDetailViewModel,
     onDismiss: () -> Unit,
@@ -1822,3 +1824,5 @@ private fun MergeIntoPlaylistDialog(
     }
 }
 
+
+}

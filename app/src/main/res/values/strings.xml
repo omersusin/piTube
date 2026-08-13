@@ -1951,4 +1951,7 @@
     <string name="settings_google_sync_result">Synced: %1$d liked videos, %2$d playlists, %3$d channels</string>
     <string name="settings_google_sync_error">Sync failed: %1$s</string>
     <string name="settings_item_datetime">Date &amp; Time</string>
+    <string name="merge_playlist_dialog_title">Add all songs to…</string>
+<string name="merge_playlist_no_playlists">No playlists yet. Create one first!</string>
+<string name="songs_count_template">%1$d songs</string>
 </resources>
