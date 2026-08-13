@@ -1,6 +1,6 @@
 # piTube
 
-piTube is a privacy-respecting, feature-rich YouTube client for Android. It is a fork of [Flow](https://github.com/ColOrourke/Flow) (the discontinued open-source YouTube client) with **high changes**: the codebase has been heavily reworked, dead code and legacy surfaces removed, and rebuilt around the [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor) pipeline plus features researched and ported from the wider free-software YouTube ecosystem.
+piTube is a privacy-respecting, feature-rich YouTube client for Android. It is a fork of [Flow](https://github.com/A-EDev/Flow) with **high changes**: the codebase has been heavily reworked, dead code and legacy surfaces removed, and rebuilt around the [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor) pipeline plus features researched and ported from the wider free-software YouTube ecosystem.
 
 > **Status:** active development. Expect rough edges; the app is built continuously via GitHub Actions on every push to `main`.
 
