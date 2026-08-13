@@ -113,6 +113,11 @@ fun SettingsScreen(
         isSyncingLibrary = true
         librarySyncResultText = null
         val result = com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
+        playerPreferences.setYoutubeLibrarySyncCounts(
+            result.likedVideos,
+            result.playlists,
+            result.subscribedChannels
+        )
         isSyncingLibrary = false
         librarySyncResultText = when {
             result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
@@ -129,6 +134,13 @@ fun SettingsScreen(
         }
     }
 
+    // Persisted last-sync counts so the result survives navigating away and
+    // back; falls back to the text already shown when the last pass errored.
+    val (lastLiked, lastPlaylists, lastChannels) by playerPreferences.youtubeLibrarySyncCounts
+        .collectAsStateWithLifecycle(initialValue = Triple(0, 0, 0))
+    val showPersistedSyncResult =
+        librarySyncResultText == null && isGoogleSignedIn && youtubeLibrarySyncedAt > 0L
+
     // Auto-sync: once per day (or right after login) the account library is
     // refreshed silently so liked videos / playlists / subscriptions stay in
     // sync with official YouTube without opening the screen and tapping.
@@ -142,13 +154,22 @@ fun SettingsScreen(
         }
     }
 
-    // Profile picture: if the stored avatar is missing, re-fetch the account
-    // info so the avatar (and name/email) show up in Settings.
-    LaunchedEffect(isGoogleSignedIn, youtubeAccountThumbnail) {
-        if (isGoogleSignedIn && youtubeAccountThumbnail.isNullOrBlank()) {
-            runCatching {
-                val info = com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull() ?: return@runCatching
-                playerPreferences.updateYoutubeAccountInfo(info.name, info.email, info.thumbnailUrl)
+    // Profile picture: always re-fetch the account info when Settings opens so the
+    // avatar and name stay fresh (and show up even if login landed without the
+    // profile fetch); retries a few times on transient failures. The avatar
+    // regex in YouTube.accountInfo now also handles JSON-escaped URLs.
+    LaunchedEffect(isGoogleSignedIn) {
+        if (isGoogleSignedIn) {
+            repeat(3) { attempt ->
+                val info = runCatching {
+                    com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull()
+                }.getOrNull()
+                    ?: return@repeat
+                if (info.name.isNotBlank() || info.email.isNotBlank() || info.thumbnailUrl.isNotBlank()) {
+                    playerPreferences.updateYoutubeAccountInfo(info.name, info.email, info.thumbnailUrl)
+                    return@LaunchedEffect
+                }
+                if (attempt < 2) kotlinx.coroutines.delay(1_500L * (attempt + 1))
             }
         }
     }
@@ -624,7 +645,16 @@ fun SettingsScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = librarySyncResultText
-                                            ?: stringResource(R.string.settings_google_sync_subtitle),
+                                            ?: if (showPersistedSyncResult) {
+                                                context.getString(
+                                                    R.string.settings_google_sync_result,
+                                                    lastLiked,
+                                                    lastPlaylists,
+                                                    lastChannels
+                                                )
+                                            } else {
+                                                stringResource(R.string.settings_google_sync_subtitle)
+                                            },
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

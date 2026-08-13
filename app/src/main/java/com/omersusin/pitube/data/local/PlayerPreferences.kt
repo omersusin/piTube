@@ -52,6 +52,9 @@ class PlayerPreferences(context: Context) {
         val YOUTUBE_ACCOUNT_EMAIL = stringPreferencesKey("youtube_account_email")
         val YOUTUBE_ACCOUNT_THUMBNAIL = stringPreferencesKey("youtube_account_thumbnail")
         val YOUTUBE_LIBRARY_SYNCED_AT = longPreferencesKey("youtube_library_synced_at")
+        val YOUTUBE_LIBRARY_SYNCED_LIKED = intPreferencesKey("youtube_library_synced_liked")
+        val YOUTUBE_LIBRARY_SYNCED_PLAYLISTS = intPreferencesKey("youtube_library_synced_playlists")
+        val YOUTUBE_LIBRARY_SYNCED_CHANNELS = intPreferencesKey("youtube_library_synced_channels")
         val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val DEFAULT_QUALITY_WIFI = stringPreferencesKey("default_quality_wifi")
         val DEFAULT_QUALITY_CELLULAR = stringPreferencesKey("default_quality_cellular")
@@ -2232,6 +2235,25 @@ class PlayerPreferences(context: Context) {
         }
     }
 
+    /** Last library sync counts, shown in Settings so they survive screen navigation. */
+    val youtubeLibrarySyncCounts: Flow<Triple<Int, Int, Int>> =
+        context.playerPreferencesDataStore.data
+            .map { preferences ->
+                Triple(
+                    preferences[Keys.YOUTUBE_LIBRARY_SYNCED_LIKED] ?: 0,
+                    preferences[Keys.YOUTUBE_LIBRARY_SYNCED_PLAYLISTS] ?: 0,
+                    preferences[Keys.YOUTUBE_LIBRARY_SYNCED_CHANNELS] ?: 0
+                )
+            }
+
+    suspend fun setYoutubeLibrarySyncCounts(liked: Int, playlists: Int, channels: Int) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.YOUTUBE_LIBRARY_SYNCED_LIKED] = liked
+            preferences[Keys.YOUTUBE_LIBRARY_SYNCED_PLAYLISTS] = playlists
+            preferences[Keys.YOUTUBE_LIBRARY_SYNCED_CHANNELS] = channels
+        }
+    }
+
     /** Refreshes the account display info without touching the session cookie. */
     suspend fun updateYoutubeAccountInfo(name: String?, email: String?, thumbnailUrl: String?) {
         context.playerPreferencesDataStore.edit { preferences ->
@@ -2249,6 +2271,9 @@ class PlayerPreferences(context: Context) {
             preferences.remove(Keys.YOUTUBE_ACCOUNT_EMAIL)
             preferences.remove(Keys.YOUTUBE_ACCOUNT_THUMBNAIL)
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_AT)
+            preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_LIKED)
+            preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_PLAYLISTS)
+            preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_CHANNELS)
         }
     }
 }

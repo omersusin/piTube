@@ -72,6 +72,7 @@ object YouTubeLibrarySync {
 
         if (firstError.get().isNullOrBlank()) {
             PlayerPreferences(context).setYoutubeLibrarySyncedAt()
+            PlayerPreferences(context).setYoutubeLibrarySyncCounts(likedVideos, playlists, channels)
         }
 
         return LibrarySyncResult(likedVideos, playlists, channels, error = firstError.get())

@@ -1750,11 +1750,10 @@ object YouTube {
      * Fetches a fresh `visitorData` and swaps the app-wide value; returns the
      * new value, or null when the fetch failed (caller keeps the old one).
      */
-    suspend fun rotateVisitorData(): String? = runCatching {
-        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() }
-            ?: return@runCatching null
+    suspend fun rotateVisitorData(): String? {
+        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() } ?: return null
         visitorData = fresh
-        fresh
+        return fresh
     }
 
     suspend fun accountInfo(): Result<AccountInfo> = runCatching {
@@ -1782,14 +1781,19 @@ object YouTube {
             val name = fromModel?.name.orEmpty().ifBlank { AccountMenuResponse.parseNameFromRaw(body) }
             val email = fromModel?.email
             val handle = fromModel?.channelHandle
+            // Account-menu bodies sometimes escape the avatar URL as
+            // `https:\/\/yt3.ggpht.com\/...`. Normalize the escaped backslashes
+            // before regex-scanning so the avatar is found either way (Koda-style).
+            val scanBody =
+                if (body.contains("\\/")) body.replace("\\/", "/") else body
             val regex =
                 "\"url\"\\s*:\\s*\"(https?://(?:yt3\\.ggpht\\.com|[a-z0-9-]+\\.(?:googleusercontent\\.com|ggpht\\.com))/[^\"]+?=s\\d+[^\"]*)\""
                     .toRegex()
-            var avatar = regex.find(body)?.groupValues?.get(1)
+            var avatar = regex.find(scanBody)?.groupValues?.get(1)
             if (avatar == null) {
                 avatar =
                     Regex("\"url\"\\s*:\\s*\"(https?://(?:yt3\\.ggpht\\.com|[a-z0-9-]+\\.(?:googleusercontent\\.com|ggpht\\.com))/[^\"]+)\"")
-                        .find(body)?.groupValues?.get(1)
+                        .find(scanBody)?.groupValues?.get(1)
             }
             AccountInfo(
                 name = name,

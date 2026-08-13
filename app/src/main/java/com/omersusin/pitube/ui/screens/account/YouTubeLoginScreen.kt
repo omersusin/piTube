@@ -138,27 +138,33 @@ fun YouTubeLoginScreen(
         YouTube.cookie = cookies
         YouTube.useLoginForBrowse = true
         coroutineScope.launch {
-            YouTube.accountInfo()
-                .onSuccess { account ->
-                    playerPreferences.setYoutubeAccount(
-                        cookie = cookies,
-                        name = account.name,
-                        email = account.email,
-                        thumbnailUrl = account.thumbnailUrl
-                    )
-                    val appContext = context.applicationContext
-                    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                        runCatching { HomeFeedCacheRepository(appContext).clearAll() }
-                        runCatching { YouTubeLibrarySync.sync(appContext) }
+            // Persist the session first so login never depends on the profile
+            // fetch succeeding (accountInfo can transiently fail / rate-limit and
+            // must not bounce the user back out of a successful sign-in).
+            playerPreferences.setYoutubeAccount(
+                cookie = cookies,
+                name = null,
+                email = null,
+                thumbnailUrl = null
+            )
+            val appContext = context.applicationContext
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                runCatching { HomeFeedCacheRepository(appContext).clearAll() }
+                runCatching { YouTubeLibrarySync.sync(appContext) }
+                // Profile refetch is best-effort; Settings also re-fetches it on
+                // resume, so a transient failure here is not fatal.
+                runCatching {
+                    val account = YouTube.accountInfo().getOrNull()
+                    if (account != null) {
+                        playerPreferences.updateYoutubeAccountInfo(
+                            account.name,
+                            account.email,
+                            account.thumbnailUrl
+                        )
                     }
-                    onLoginComplete()
                 }
-                .onFailure {
-                    YouTube.cookie = null
-                    YouTube.useLoginForBrowse = false
-                    errorMessage = context.getString(R.string.settings_google_login_failed)
-                    isFinishing = false
-                }
+            }
+            onLoginComplete()
         }
     }
 
