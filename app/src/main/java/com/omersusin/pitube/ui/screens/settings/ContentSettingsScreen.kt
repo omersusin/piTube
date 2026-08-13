@@ -91,8 +91,6 @@ fun ContentSettingsScreen(
     val showAppLogoIcon by preferences.showAppLogoIcon.collectAsState(initial = true)
     val currentRelatedCardStyle by preferences.playerRelatedCardStyle.collectAsState(initial = PlayerRelatedCardStyle.COMPACT)
     val hideWatchedVideosFromHome by preferences.hideWatchedVideosFromHome.collectAsState(initial = false)
-    val hideWatchedVideosFromSubscriptions by preferences.hideWatchedVideosFromSubscriptions.collectAsState(initial = false)
-    val hideUnplayableVideosFromSubscriptions by preferences.hideUnplayableVideosFromSubscriptions.collectAsState(initial = false)
     val watchedThreshold by preferences.watchedThreshold.collectAsState(initial = com.omersusin.pitube.data.local.WatchedThreshold.ALMOST_FINISHED)
     var showWatchedThresholdDialog by remember { mutableStateOf(false) }
     val blockedChannelIds by preferences.blockedChannelIds.collectAsState(initial = emptySet())

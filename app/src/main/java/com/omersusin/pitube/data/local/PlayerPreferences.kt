@@ -1630,8 +1630,8 @@ class PlayerPreferences(context: Context) {
 
     /**
      * Videos the player has permanently given up on (restricted, removed, or otherwise
-     * unplayable). Recorded regardless of the filter toggle so that enabling
-     * [hideUnplayableVideosFromSubscriptions] takes effect retroactively.
+     * unplayable). Recorded regardless of any filter toggle so unplayable videos
+     * stay hidden retroactively.
      */
     val unplayableVideoIds: Flow<Set<String>> = context.playerPreferencesDataStore.data
         .map { preferences ->
