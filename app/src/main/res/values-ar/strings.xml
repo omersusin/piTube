@@ -319,14 +319,6 @@
     <string name="unsubscribed_from">تم إلغاء الاشتراك من %s</string>
     <string name="play_mode_suggestion_body">هذا الفيديو اقل من دقيقتين. هل تود الانتقال الى مشغّل مخصص؟</string>
     <string name="shorts_player">مشغّل الشورتز</string>
-    <plurals name="channels_count">
-        <item quantity="zero">%d قناة</item>
-        <item quantity="one">قناة</item>
-        <item quantity="two">قناتان</item>
-        <item quantity="few">%d قنوات</item>
-        <item quantity="many">%d قنوات</item>
-        <item quantity="other">%d قنوات</item>
-    </plurals>
     <string name="cd_delete_download">احذف %1$s</string>
     <string name="save_to">أضف إلى...</string>
     <string name="watch_later">المشاهدة لاحقا</string>
@@ -1929,20 +1921,6 @@
     <string name="equalizer">المعادل</string>
     <string name="action_save_preset">حفظ الإعداد المسبق</string>
     <string name="label_preset_name">إسم‌ الإعداد المسبق</string>
-    
-    
-    
-    
-    
-    
-    <plurals name="tv_playlist_video_count">
-        <item quantity="zero">%1$d فيديو</item>
-        <item quantity="one">%1$d فيديو</item>
-        <item quantity="two">%1$d فيديو</item>
-        <item quantity="few">%1$d فيديوهات</item>
-        <item quantity="many">%1$d فيديو</item>
-        <item quantity="other">%1$d فيديو</item>
-    </plurals>
     <string name="remove_from_queue">إزالة من قائمة الانتظار</string>
     <string name="remove_from_queue_confirmation">هل أنت متأكد من رغبتك في إزالة هذا الفيديو من قائمة الانتظار؟</string>
     <string name="reorder_queue_item">إعادة ترتيب عنصر قائمة الانتظار</string>
@@ -1960,12 +1938,4 @@
     <string name="duration_hours_minutes">%1$d ساعة و %2$d دقيقة</string>
     <string name="duration_hours_short">%1$dساعة</string>
     <string name="duration_minutes_short">%1$dدقيقة</string>
-    <plurals name="subscriptions_failed_channels_title">
-        <item quantity="zero">تعذر تحميل %d قناة</item>
-        <item quantity="one">تعذر تحميل %d قناة</item>
-        <item quantity="two">تعذر تحميل %d قناة</item>
-        <item quantity="few">تعذر تحميل %d قنوات</item>
-        <item quantity="many">تعذر تحميل %d قناة</item>
-        <item quantity="other">تعذر تحميل %d قناة</item>
-    </plurals>
 </resources>

@@ -140,10 +140,6 @@
     <string name="play_mode_suggestion_title">재생 모드 추천</string>
     <string name="play_mode_suggestion_body">이 동영상은 2분 미만입니다. 전용 플레이어로 전환할까요?</string>
     <string name="shorts_player">Shorts 플레이어</string>
-    
-    <plurals name="channels_count">
-        <item quantity="other">채널 %d개</item>
-    </plurals>
     <string name="tab_videos">동영상</string>
     
     <string name="empty_offline_title">오프라인 %1$s</string>

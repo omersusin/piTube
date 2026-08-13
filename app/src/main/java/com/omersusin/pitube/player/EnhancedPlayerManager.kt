@@ -3168,12 +3168,6 @@ class EnhancedPlayerManager private constructor() {
     val skipEvent: SharedFlow<SponsorBlockSegment>
         get() = sponsorBlockHandler?.skipEvent ?: MutableSharedFlow()
 
-    val sbMuteEvent: SharedFlow<Boolean>
-        get() = sponsorBlockHandler?.muteEvent ?: MutableSharedFlow()
-
-    val sbToastEvent: SharedFlow<SponsorBlockSegment>
-        get() = sponsorBlockHandler?.toastEvent ?: MutableSharedFlow()
-
     val sbCategoryActions: Map<String, SponsorBlockAction>
         get() = sponsorBlockHandler?.categoryActions ?: emptyMap()
 

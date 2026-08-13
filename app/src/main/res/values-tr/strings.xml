@@ -84,11 +84,6 @@
     <string name="quality_auto">Otomatik</string>
     <string name="quality_auto_template">Otomatik (%1$dp)</string>
     <string name="shorts_player">Shorts Oynatıcı</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d kanal</item>
-        <item quantity="other">%d kanal</item>
-    </plurals>
     <string name="tab_videos">Videolar</string>
     
     <string name="empty_offline_title">Çevrimdışı %1$s</string>

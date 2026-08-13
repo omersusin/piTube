@@ -119,10 +119,6 @@
     <string name="play_mode_suggestion_title">播放模式建議</string>
     <string name="play_mode_suggestion_body">此影片時長少於 2 分鐘。要轉換到專用播放器嗎？</string>
     <string name="shorts_player">Shorts 播放器</string>
-    
-    <plurals name="channels_count">
-        <item quantity="other">%d 個頻道</item>
-    </plurals>
     <string name="tab_videos">影片</string>
     
     <string name="empty_offline_title">離綫 %1$s</string>

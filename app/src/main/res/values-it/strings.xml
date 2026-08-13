@@ -95,12 +95,6 @@
     <string name="view_all_button_label">Tutti</string>
     <string name="play_mode_suggestion_body">Questo video dura meno di 2 minuti. Vuoi passare a un player specializzato?</string>
     <string name="shorts_player">Player degli Shorts</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d canale</item>
-        <item quantity="many">%d canali</item>
-        <item quantity="other">%d canali</item>
-    </plurals>
     <string name="tab_videos">Video</string>
     
     <string name="action_delete">Elimina</string>

@@ -110,13 +110,6 @@
     <string name="quality_auto_template">Automatyczna (%1$dp)</string>
     <string name="play_mode_suggestion_body">Ten film jest krótszy niż 2 minuty. Czy chcesz przejść do trybu odtwarzania Shorts?</string>
     <string name="shorts_player">Odtwarzacz Shorts</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d kanał</item>
-        <item quantity="few">%d kanały</item>
-        <item quantity="many">%d kanałów</item>
-        <item quantity="other">%d kanałów</item>
-    </plurals>
     <string name="tab_videos">Filmy</string>
     
     <string name="empty_offline_title">Offline %1$s</string>
@@ -1661,12 +1654,6 @@
     <string name="sync_send_scan_hint">Użyj tej opcji, aby przesłać dane na urządzenie bez aparatu (np. komputer), na którym wyświetla się kod odbioru.</string>
     <string name="sync_error_qr_expired">Ten kod QR wygasł. Wygeneruj nowy kod na drugim urządzeniu.</string>
     <string name="dlna_no_devices">Nie znaleziono urządzeń DLNA/UPnP.\n\nUpewnij się, że TV lub odtwarzacz (VLC, Kodi) działa w tej samej sieci Wi-Fi i ma włączoną obsługę renderera.</string>
-    <plurals name="tv_playlist_video_count">
-        <item quantity="one">%1$d film</item>
-        <item quantity="few">%1$d filmy</item>
-        <item quantity="many">%1$d filmów</item>
-        <item quantity="other">%1$d filmów</item>
-    </plurals>
     <string name="community_post_image_content_description">Obrazek posta w Społeczności</string>
     <string name="donations_cryptocurrency">KRYPTOWALUTY</string>
     <string name="ui_open_in_youtube">Otwórz w YouTube</string>

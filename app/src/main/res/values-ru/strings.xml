@@ -95,13 +95,6 @@
     <string name="play_mode_suggestion_title">Предложение режима воспроизведения</string>
     <string name="play_mode_suggestion_body">Это видео длится менее 2 минут. Хотите переключиться на специализированный плеер?</string>
     <string name="shorts_player">Shorts-плеер</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d канал</item>
-        <item quantity="few">%d канала</item>
-        <item quantity="many">%d каналов</item>
-        <item quantity="other">%d каналов</item>
-    </plurals>
     <string name="tab_videos">Видео</string>
     
     <string name="empty_offline_title">%1$s офлайн</string>
@@ -1777,12 +1770,6 @@
     <string name="equalizer">Эквалайзер</string>
     <string name="action_save_preset">Сохранить пресет</string>
     <string name="label_preset_name">Название пресета</string>
-    <plurals name="tv_playlist_video_count">
-        <item quantity="one">%1$d видео</item>
-        <item quantity="few">%1$d видео</item>
-        <item quantity="many">%1$d видео</item>
-        <item quantity="other">%1$d видео</item>
-    </plurals>
     <string name="ui_open_in_youtube">Открыть в YouTube</string>
     <string name="ui_playback_error">Ошибка воспроизведения</string>
     <string name="ui_replay">Повтор</string>
@@ -1944,12 +1931,6 @@
     <string name="reorder_queue_item">Изменение порядка в очереди</string>
     <string name="notif_background_restricted_title">Фоновые проверки ограничены</string>
     <string name="notif_background_restricted_subtitle">Android блокирует проверку новых видео, когда piTube закрыт, поэтому уведомления приходят только при открытии приложения. Нажмите, чтобы снять ограничения на фоновую активность.</string>
-    <plurals name="subscriptions_failed_channels_title">
-        <item quantity="one">Не удалось загрузить %d канал</item>
-        <item quantity="few">Не удалось загрузить %d канала</item>
-        <item quantity="many">Не удалось загрузить %d каналов</item>
-        <item quantity="other">Не удалось загрузить %d каналов</item>
-    </plurals>
     <string name="comment_edited">изменено</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="audio_track_original">Оригинал</string>

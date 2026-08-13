@@ -94,12 +94,6 @@
     <string name="play_mode_suggestion_title">Suggestion de mode de lecture</string>
     <string name="play_mode_suggestion_body">Cette vidéo dure moins de 2 minutes. Souhaitez-vous passer à un lecteur spécialisé ?</string>
     <string name="shorts_player">Lecteur Shorts</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d chaîne</item>
-        <item quantity="many">%d chaînes</item>
-        <item quantity="other">%d chaînes</item>
-    </plurals>
     <string name="tab_videos">Vidéos</string>
     
     <string name="empty_offline_title">Hors ligne %1$s</string>
@@ -1968,27 +1962,11 @@
     <string name="download_failed_audio_length">Impossible d\'obtenir la durée du contenu audio</string>
     <string name="download_workers_failed">Un ou plusieurs travailleurs ont échoué</string>
     <string name="download_block_failed">Échec du bloc %1$s : %2$s</string>
-    
-    
-    
-    
-    
-    
-    <plurals name="tv_playlist_video_count">
-        <item quantity="one">%1$d vidéo</item>
-        <item quantity="many">%1$d vidéos</item>
-        <item quantity="other">%1$d vidéos</item>
-    </plurals>
     <string name="remove_from_queue">Retirer de la file d\'attente</string>
     <string name="remove_from_queue_confirmation">Êtes-vous sûr de vouloir supprimer cette vidéo de la file d\'attente ?</string>
     <string name="reorder_queue_item">Réorganiser un élément de la file d\'attente</string>
     <string name="notif_background_restricted_subtitle">Android empêche piTube de vérifier la présence de nouvelles vidéos lorsque l\'application est fermée ; les notifications ne s\'affichent donc que lorsque vous ouvrez l\'application. Appuyez ici pour autoriser l\'activité en arrière-plan sans restriction.</string>
     <string name="notif_background_restricted_title">Les vérifications d\'antécédents sont soumises à des restrictions</string>
-    <plurals name="subscriptions_failed_channels_title">
-        <item quantity="one">Impossible de charger la chaîne %d</item>
-        <item quantity="many">%d chaînes n\'ont pas pu être chargées</item>
-        <item quantity="other">%d chaînes n\'ont pas pu être chargées</item>
-    </plurals>
     <string name="comment_edited">modifié</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="audio_track_original">Original</string>

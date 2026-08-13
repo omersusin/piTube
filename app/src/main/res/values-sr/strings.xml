@@ -75,12 +75,6 @@
     <string name="play_mode_suggestion_title">Сугестија мода за пуштање</string>
     <string name="play_mode_suggestion_body">Овај снимак је краћи од 2 минута. Желите ли да се пребаците у посебан плејер видеа?</string>
     <string name="shorts_player">Shorts плејер</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d канал</item>
-        <item quantity="few">%d канала</item>
-        <item quantity="other">%d канала</item>
-    </plurals>
     <string name="tab_videos">Снимци</string>
     
     <string name="empty_offline_title">Офлајн %1$s</string>

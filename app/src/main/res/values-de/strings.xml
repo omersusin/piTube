@@ -92,10 +92,6 @@
     <string name="shorts_player">Shorts-Player</string>
     
     <string name="library_history_label">Verlauf</string>
-    <plurals name="channels_count">
-        <item quantity="one">%d Kanal</item>
-        <item quantity="other">%d Kanäle</item>
-    </plurals>
     <string name="tab_videos">Videos</string>
     
     <string name="empty_offline_title">Offline %1$s</string>
@@ -1525,10 +1521,6 @@
     <string name="subtitle_bold_text">Fettgedruckter Text</string>
     <string name="subtitle_reset_default">Auf Standard zurücksetzen</string>
     <string name="check_for_updates_subtitle">Tippen Sie hier, um nach der neuesten Version zu suchen</string>
-    <plurals name="subscriptions_failed_channels_title">
-        <item quantity="one">Kanal %d konnte nicht geladen werden</item>
-        <item quantity="other">%d Kanäle konnten nicht geladen werden</item>
-    </plurals>
     <string name="comment_edited">bearbeitet</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="subtitle_background_opacity_template">Hintergrund-Deckkraft: %1$d%%</string>

@@ -284,12 +284,6 @@
     <string name="unsubscribed_from">Відписано від %s</string>
     <string name="unsubscribe">Відписатись</string>
     <string name="check_out_video_template">Перегляньте це відео: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
-    <plurals name="channels_count">
-        <item quantity="one">%d канал</item>
-        <item quantity="few">%d канали</item>
-        <item quantity="many">%d каналів</item>
-        <item quantity="other">%d каналів</item>
-    </plurals>
     <string name="empty_offline_title">Поза мережею %1$s</string>
     <string name="empty_offline_body">Ваші завантаження %1$s з’явиться тут.\nНасолоджуйтесь вашим контентом навіть без мережі.</string>
     <string name="action_go_to_home">Перейти на головну</string>
@@ -1779,17 +1773,6 @@
     <string name="ui_downloading">Завантаження</string>
     
     <string name="ui_flow_logo">Логотип piTube</string>
-    
-    
-    
-    
-    
-    <plurals name="tv_playlist_video_count">
-        <item quantity="one">%1$d відео</item>
-        <item quantity="few">%1$d відео</item>
-        <item quantity="many">%1$d відео</item>
-        <item quantity="other">%1$d відео</item>
-    </plurals>
     <string name="ui_selected">Вибрано</string>
     <string name="ui_list_view">Перегляд списком</string>
     <string name="ui_grid_view">Перегляд сіткою</string>

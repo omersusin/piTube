@@ -197,10 +197,6 @@
     <string name="play_mode_suggestion_title">Saran Mode Putar</string>
     <string name="play_mode_suggestion_body">Video ini berdurasi kurang dari 2 menit. Apakah Anda ingin beralih ke pemutar khusus?</string>
     <string name="shorts_player">Pemutar Shorts</string>
-    
-    <plurals name="channels_count">
-        <item quantity="other">%d saluran</item>
-    </plurals>
     <string name="tab_videos">Video</string>
     <string name="empty_offline_title">Luring %1$s</string>
     <string name="empty_offline_body">%1$s yang Anda unduh akan muncul di sini.\nNikmati konten Anda meski tanpa internet.</string>
@@ -1748,9 +1744,6 @@
     <string name="subtitle_bold_text">Teks Tebal</string>
     <string name="subtitle_reset_default">Atur Ulang ke Bawaan</string>
     <string name="close_popup_player">Tutup pemutar pop-up</string>
-    <plurals name="tv_playlist_video_count">
-        <item quantity="other">%1$d video</item>
-    </plurals>
     
     
     <string name="widget_quick_actions_label">Tindakan cepat</string>

@@ -134,10 +134,6 @@
     <string name="play_mode_suggestion_title">Gợi ý chế độ phát</string>
     <string name="play_mode_suggestion_body">Video này dài dưới 2 phút. Bạn có muốn chuyển sang trình phát chuyên biệt không?</string>
     <string name="shorts_player">Trình phát Shorts</string>
-    
-    <plurals name="channels_count">
-        <item quantity="other">%d kênh</item>
-    </plurals>
     <string name="tab_videos">Video</string>
     
     <string name="empty_offline_title">Ngoại tuyến %1$s</string>
@@ -1745,9 +1741,6 @@
     
     
     <string name="close_popup_player">Đóng trình phát cửa sổ</string>
-    <plurals name="tv_playlist_video_count">
-        <item quantity="other">%1$d video</item>
-    </plurals>
     
     
     <string name="widget_quick_actions_label">Hành động nhanh</string>
@@ -1935,9 +1928,6 @@
     
     <string name="notif_background_restricted_title">Tính năng chạy nền bị hạn chế</string>
     <string name="notif_background_restricted_subtitle">Android đang chặn piTube kiểm tra video mới khi ứng dụng đang đóng, nên các cảnh báo chỉ xuất hiện khi bạn mở ứng dụng. Nhấn vào đây để cho phép hoạt động nền không bị hạn chế.</string>
-    <plurals name="subscriptions_failed_channels_title">
-        <item quantity="other">Không thể tải kênh %d</item>
-    </plurals>
     <string name="comment_edited">đã chỉnh sửa</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="desc_more">...thêm</string>

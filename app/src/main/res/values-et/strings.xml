@@ -155,11 +155,6 @@
     
     <string name="shorts_quality_settings_title">Lühivideo kvaliteet</string>
     <string name="shorts_quality_settings_subtitle">Kvaliteet lühivideote vaatamisel</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d kanal</item>
-        <item quantity="other">%d kanalit</item>
-    </plurals>
     <string name="empty_offline_title">Pole võrgus: %1$s</string>
     <string name="action_go_to_home">Suundu avalehele</string>
     

@@ -95,12 +95,6 @@
     <string name="play_mode_suggestion_title">Sugerirani mod sviranja</string>
     <string name="play_mode_suggestion_body">Ovaj videozapis traje manje od 2 minute. Želite li prebaciti na specijalizirani player?</string>
     <string name="shorts_player">Player za Shorts</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d kanal</item>
-        <item quantity="few">%d kanala</item>
-        <item quantity="other">%d kanala</item>
-    </plurals>
     <string name="tab_videos">Videi</string>
     
     <string name="empty_offline_title">Izvanmrežno %1$s</string>

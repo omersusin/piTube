@@ -309,13 +309,6 @@
     
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
     
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d Canal</item>
-        <item quantity="many">%d Canais</item>
-        <item quantity="other">%d Canais</item>
-    </plurals>
-    
     <string name="live_chat">Chat ao vivo</string>
     <string name="live_chat_connecting">Conectando ao chat ao vivo…</string>
     <string name="live_chat_empty">Aguardando mensagens…</string>
@@ -1560,11 +1553,6 @@
     <string name="sync_error_qr_expired">Este código QR expirou. Peça ao outro dispositivo para mostrar um novo.</string>
     <string name="sync_error_qr_wrong_version">Versão de aplicativo incompatível no outro dispositivo.</string>
     <string name="sync_error_qr_not_flow">Isso não parece um código de sincronização piTube.</string>
-    <plurals name="subscriptions_failed_channels_title">
-        <item quantity="one">O Canal %d não foi carregado</item>
-        <item quantity="many">Os Canais %d não foram carregados</item>
-        <item quantity="other">Os Canais %d não foram carregados</item>
-    </plurals>
     <string name="comment_edited">editado</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="desc_more">...mais</string>

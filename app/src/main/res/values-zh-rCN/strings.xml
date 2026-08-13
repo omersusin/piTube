@@ -140,11 +140,6 @@
     <string name="play_mode_suggestion_title">播放模式建议</string>
     <string name="play_mode_suggestion_body">此视频不足 2 分钟。要切换到专用播放器吗？</string>
     <string name="shorts_player">Shorts 播放器</string>
-    
-    <plurals name="channels_count">
-        <item quantity="one">%d 个频道</item>
-        <item quantity="other">%d 个频道</item>
-    </plurals>
     <string name="tab_videos">视频</string>
     
     <string name="empty_offline_title">离线 %1$s</string>
