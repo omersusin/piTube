@@ -32,7 +32,6 @@ import com.omersusin.pitube.innertube.models.response.ChannelVideosResponse
 import com.omersusin.pitube.innertube.models.response.channelVideoCountText
 import com.omersusin.pitube.innertube.models.response.CreatePlaylistResponse
 import com.omersusin.pitube.innertube.models.response.EditPlaylistResponse
-import com.omersusin.pitube.innertube.models.response.FeedbackResponse
 import com.omersusin.pitube.innertube.models.response.GetQueueResponse
 import com.omersusin.pitube.innertube.models.response.GetSearchSuggestionsResponse
 import com.omersusin.pitube.innertube.models.response.GetTranscriptResponse
@@ -813,25 +812,6 @@ object YouTube {
     private fun generateCpn(): String {
         val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
         return (1..16).map { chars.random() }.joinToString("")
-    }
-
-    /**
-     * Like/unlike a video on the signed-in account (signed WEB like/like, the
-     * same surface the comments use — the music-host like does not apply to
-     * regular videos). Requires login; false when not signed in.
-     */
-    suspend fun setVideoLiked(videoId: String, liked: Boolean): Result<Boolean> = runCatching {
-        if (cookie.isNullOrBlank()) return@runCatching false
-        val client = currentWebClient()
-        val response = innerTube.signedJsonPost(
-            client = client,
-            endpoint = if (liked) "like/like" else "like/removelike",
-            jsonBody = buildJsonObject {
-                put("context", commentWebContext(client))
-                put("target", buildJsonObject { put("videoId", JsonPrimitive(videoId)) })
-            },
-        )
-        response.status.isSuccess()
     }
 
     // ============================================================
@@ -1919,10 +1899,6 @@ object YouTube {
             .actions[0].openPopupAction.popup.multiPageMenuRenderer
             .header?.activeAccountHeaderRenderer
             ?.toAccountInfo()!!
-    }
-
-    suspend fun feedback(tokens: List<String>): Result<Boolean> = runCatching {
-        innerTube.feedback(WEB_REMIX, tokens).body<FeedbackResponse>().feedbackResponses.all { it.isProcessed }
     }
 
     suspend fun getMediaInfo(videoId: String): Result<MediaInfo> = runCatching {

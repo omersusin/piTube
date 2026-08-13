@@ -201,7 +201,6 @@ fun VideoCard(
     val deArrowResult = rememberDeArrowResult(video.id, cardPreferences.deArrowEnabled)
     val displayTitle = deArrowResult?.title ?: video.title
     val displayThumbnailUrl = deArrowResult?.thumbnailUrl ?: video.thumbnailUrl
-    val videoCardActionsEnabled = cardPreferences.actionsEnabled
     val upcomingReminderIds = cardPreferences.upcomingReminderIds
     val quickActionsVm: QuickActionsViewModel = hiltViewModel()
     val interactionSource = remember { MutableInteractionSource() }
@@ -412,68 +411,6 @@ fun VideoCard(
             }
         }
 
-        // Like / Dislike action buttons
-        if (videoCardActionsEnabled) {
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { quickActionsVm.markAsInteresting(video) }
-                            .padding(horizontal = 4.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        Icons.Outlined.ThumbUp,
-                        contentDescription = stringResource(R.string.i_like_this),
-                        modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(R.string.i_like_this),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Row(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { quickActionsVm.markNotInterested(video) }
-                            .padding(horizontal = 4.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        Icons.Outlined.ThumbDown,
-                        contentDescription = stringResource(R.string.not_interested),
-                        modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(R.string.not_interested),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        }
     }
 
     if (showQuickActions) {
@@ -714,7 +651,6 @@ fun VideoCardFullWidth(
     val deArrowResultFullWidth = rememberDeArrowResult(video.id, cardPreferences.deArrowEnabled)
     val displayTitle = deArrowResultFullWidth?.title ?: video.title
     val displayThumbnailUrl = deArrowResultFullWidth?.thumbnailUrl ?: video.thumbnailUrl
-    val videoCardActionsEnabledFW = cardPreferences.actionsEnabled
     val videoCardMarkWatchedEnabledFW = cardPreferences.markWatchedEnabled
     val upcomingReminderIds = cardPreferences.upcomingReminderIds
     val quickActionsVmFW: QuickActionsViewModel = hiltViewModel()
@@ -927,8 +863,8 @@ fun VideoCardFullWidth(
             }
         }
 
-        // Video card quick actions (like/dislike/mark watched)
-        if (videoCardActionsEnabledFW || videoCardMarkWatchedEnabledFW) {
+        // Video card quick actions (mark watched)
+        if (videoCardMarkWatchedEnabledFW) {
             Column(
                 modifier =
                     Modifier
@@ -937,60 +873,6 @@ fun VideoCardFullWidth(
                         .padding(bottom = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                if (videoCardActionsEnabledFW) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Row(
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .clickable { quickActionsVmFW.markAsInteresting(video) }
-                                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                Icons.Outlined.ThumbUp,
-                                contentDescription = stringResource(R.string.i_like_this),
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(R.string.i_like_this),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        Row(
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .clickable { quickActionsVmFW.markNotInterested(video) }
-                                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                Icons.Outlined.ThumbDown,
-                                contentDescription = stringResource(R.string.not_interested),
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(R.string.not_interested),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-
                 if (videoCardMarkWatchedEnabledFW) {
                     val watchedTint =
                         if (isWatchedFW) {
