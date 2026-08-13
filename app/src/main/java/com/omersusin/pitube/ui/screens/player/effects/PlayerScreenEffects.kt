@@ -784,6 +784,7 @@ fun VideoCleanupEffect(
                 )
 
                 viewModel.reportWatchProgress(video, lastKnownPosition, lastKnownDuration)
+                viewModel.stopHistoryReport()
             }
             Log.d(TAG, "Video cleanup disposed for $videoId")
         }

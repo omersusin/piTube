@@ -117,8 +117,6 @@ class VideoPlayerViewModel @Inject constructor(
     private val navigationHistory = mutableListOf<String>()
     private var currentHistoryIndex = -1
 
-    // One terminal watch signal per video view; ignores repeat dispose fires.
-    private var lastReportedVideoId: String? = null
     private var activeLoadJob: Job? = null
     private var playbackLoadToken: Long = 0L
     private var loadingVideoId: String? = null
@@ -798,7 +796,7 @@ class VideoPlayerViewModel @Inject constructor(
         GlobalPlayerState.setCurrentVideo(video)
         GlobalPlayerState.setExplicitBackgroundPlaybackActive(false)
         saveHistoryEntry(video)
-        reportPlaybackStarted(video)
+        startHistoryReport(video)
         playerManager.startBackgroundService(
             videoId   = video.id,
             title     = video.title.ifEmpty { "piTube Player" },
@@ -1034,7 +1032,7 @@ class VideoPlayerViewModel @Inject constructor(
             )
         }
         saveHistoryEntry(startVideo)
-        reportPlaybackStarted(startVideo)
+        startHistoryReport(startVideo)
         EnhancedPlayerManager.getInstance().startBackgroundService(
             videoId   = startVideo.id,
             title     = startVideo.title.ifEmpty { "piTube Player" },
@@ -2741,24 +2739,20 @@ class VideoPlayerViewModel @Inject constructor(
     fun reportWatchProgress(video: com.omersusin.pitube.data.model.Video, position: Long, duration: Long) {
         if (duration <= 0) return
         if (isLocalMediaId(video.id)) return
-        val watchFraction = position.toDouble() / duration
-        // A fresh start (seek to the beginning / rewatch) resets the per-view
-        // guard so the video can be reported to YouTube history again.
-        if (position < 3_000L) lastReportedVideoId = null
-        // One terminal signal per video view; ignore repeat dispose fires.
-        if (video.id == lastReportedVideoId) return
-        if (watchFraction < 0.20) return
-
-        lastReportedVideoId = video.id
+        if (video.id.isBlank()) return
+        // Report the real (partial) position so YouTube history shows it as
+        // in-progress rather than fully watched. Never reports 0.
+        val safePosition = position.coerceIn(0L, duration)
+        if (safePosition < 2_000L) return
 
         // Signed-in accounts get the watch registered in their real YouTube
         // history (yt-dlp mark-watched port): /player ping + both videostats
-        // beacons (playback URL + watchtime URL with real st/et).
+        // beacons (playback URL + watchtime URL with real st/et = position).
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val reported = repository.reportVideoPlayback(video.id, position)
+                val reported = repository.reportVideoPlayback(video.id, safePosition)
                 if (reported) {
-                    Log.d("VideoPlayerViewModel", "YouTube history sync SUCCESS for ${video.id}")
+                    Log.d("VideoPlayerViewModel", "YouTube history sync SUCCESS at ${safePosition}ms for ${video.id}")
                 }
             } catch (e: Exception) {
                 Log.w("VideoPlayerViewModel", "YouTube history sync failed for ${video.id}", e)
@@ -2766,23 +2760,42 @@ class VideoPlayerViewModel @Inject constructor(
         }
     }
 
+    private var historyReportJob: kotlinx.coroutines.Job? = null
+
     /**
-     * Immediately registers the video as watched in the signed-in account's
-     * real YouTube history when playback starts — mirroring yt-dlp, which
-     * marks on extraction. The default 20%-threshold report on dispose then
-     * pushes the final watch time via the watchtime beacon.
+     * Periodically reports the live playback position to the signed-in
+     * account's real YouTube history (every ~20 s while playing). This is what
+     * makes a partially-watched video appear in official YouTube history as
+     * in-progress/"continue watching" — matching how YouTube's own clients and
+     * yt-dlp behave. A new video cancels the previous reporter.
      */
-    fun reportPlaybackStarted(video: com.omersusin.pitube.data.model.Video) {
+    fun startHistoryReport(video: com.omersusin.pitube.data.model.Video) {
         if (isLocalMediaId(video.id)) return
-        if (video.id == lastReportedVideoId) return
         if (video.id.isBlank()) return
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                repository.reportVideoPlayback(video.id, 0L)
-            } catch (e: Exception) {
-                Log.w("VideoPlayerViewModel", "YouTube history start-report failed for ${video.id}", e)
+        historyReportJob?.cancel()
+        historyReportJob =
+            viewModelScope.launch(Dispatchers.IO) {
+                var lastReportedMs = -1L
+                while (isActive) {
+                    delay(20_000L)
+                    val player = EnhancedPlayerManager.getInstance().getPlayer() ?: break
+                    if (!player.isPlaying) continue
+                    val position = player.currentPosition.coerceAtLeast(0L)
+                    if (position < 5_000L) continue
+                    if (position - lastReportedMs < 20_000L) continue
+                    lastReportedMs = position
+                    try {
+                        repository.reportVideoPlayback(video.id, position)
+                    } catch (e: Exception) {
+                        Log.w("VideoPlayerViewModel", "Periodic YouTube history report failed for ${video.id}", e)
+                    }
+                }
             }
-        }
+    }
+
+    fun stopHistoryReport() {
+        historyReportJob?.cancel()
+        historyReportJob = null
     }
 
     fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {
