@@ -43,7 +43,7 @@ class AccountActions(context: Context) {
     fun setLikeStatus(videoId: String, status: String?) {
         if (!canWriteBack() || videoId.isBlank()) return
         backgroundScope.launch {
-            runCatching { YouTube.setLikeStatus(videoId, status) }
+            YouTube.setLikeStatus(videoId, status)
                 .onFailure { Log.w("AccountActions", "setLikeStatus failed for $videoId", it) }
                 .onSuccess { ok ->
                     if (ok) {
@@ -64,7 +64,7 @@ class AccountActions(context: Context) {
     fun setSubscribed(channelId: String, subscribe: Boolean) {
         if (!canWriteBack() || channelId.isBlank()) return
         backgroundScope.launch {
-            runCatching { YouTube.setSubscribed(channelId, subscribe) }
+            YouTube.setSubscribed(channelId, subscribe)
                 .onFailure { Log.w("AccountActions", "setSubscribed failed for $channelId", it) }
                 .onSuccess { ok ->
                     if (ok) {

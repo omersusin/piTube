@@ -95,12 +95,12 @@ private fun findChannelRenderersInSubscriptionGrids(node: JsonElement?, results:
             if (hasShelf) return
             node.values.forEach { child ->
                 if (child is JsonObject || child is JsonArray) {
-                    child.findChannelRenderersInSubscriptionGrids(results)
+                    findChannelRenderersInSubscriptionGrids(child, results)
                 }
             }
         }
         is JsonArray -> node.forEach {
-            it.findChannelRenderersInSubscriptionGrids(results)
+            findChannelRenderersInSubscriptionGrids(it, results)
         }
         else -> Unit
     }
