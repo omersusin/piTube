@@ -1157,12 +1157,14 @@ class YouTubeRepository
 
         /**
          * Report a video playback into the signed-in account's YouTube watch
-         * history (Koda port). Returns true when the tracking ping succeeded.
+         * history (yt-dlp mark-watched port). Returns true when any tracking
+         * ping succeeded. When positionMs is 0 the video is marked as watched
+         * without pushing watch time.
          */
-        suspend fun reportVideoPlayback(videoId: String): Boolean =
+        suspend fun reportVideoPlayback(videoId: String, positionMs: Long = 0L): Boolean =
             withContext(Dispatchers.IO) {
                 if (!isSignedIn) return@withContext false
-                YouTube.reportVideoPlayback(videoId).getOrDefault(false)
+                YouTube.reportVideoPlayback(videoId, positionMs).getOrDefault(false)
             }
 
         /**

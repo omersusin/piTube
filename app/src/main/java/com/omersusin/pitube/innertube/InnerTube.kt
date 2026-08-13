@@ -496,6 +496,26 @@ class InnerTube {
         }
     }
 
+    /**
+     * Plain cookie-authenticated GET for YouTube's videostats beacon URLs
+     * (watch-history reporting). Mirrors yt-dlp's `_mark_watched`, which only
+     * sends cookies, a UA and a Referer — the beacon hosts (www.youtube.com,
+     * s.youtube.com) reject nothing else and the SAPISIDHASH header is not
+     * needed for them. Returns true when the beacon responded 2xx.
+     */
+    suspend fun videoStatsPing(
+        url: String,
+        referer: String? = null,
+    ): Boolean = withRetry {
+        httpClient.get(url) {
+            headers {
+                referer?.let { append("Referer", it) }
+                userAgent(YouTubeClient.WEB.userAgent)
+                cookie?.let { append("cookie", it) }
+            }
+        }.status.isSuccess()
+    }
+
     private suspend fun <T> withVisitorDataFallback(
         includeVisitorData: Boolean = true,
         block: suspend (String?) -> T,

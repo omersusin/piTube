@@ -86,6 +86,8 @@ import com.omersusin.pitube.innertube.pages.toVideoCommentsToken
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.utils.avatarImageIdentityKey
+import com.omersusin.pitube.utils.potoken.WebPoTokenSession
+import android.net.Uri
 import android.util.Log
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
@@ -108,6 +110,7 @@ import kotlinx.serialization.json.buildJsonArray
 import java.net.Proxy
 import java.util.Locale
 import kotlin.random.Random
+import org.schabi.newpipe.extractor.NewPipeExtractor
 import org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper
 
 /**
@@ -748,66 +751,173 @@ object YouTube {
         }
 
     // ============================================================
-    // Watch-history reporting (Koda port). Reports the playback to
-    // YouTube so the video shows up in the account's watch history:
-    // fetch the /player response for the video, then ping the
-    // videostatsPlaybackUrl with cookies + SAPISIDHASH. The WEB_REMIX
-    // reporter does not register plain videos, hence the WEB flow.
+    // Watch-history reporting (yt-dlp _mark_watched port). Reports the
+    // playback to YouTube so the video shows up in the account's watch
+    // history: fetch the signed /player response, then fire BOTH the
+    // videostatsPlaybackUrl and the videostatsWatchtimeUrl beacons with
+    // ver=2 / cpn / cmt / el=detailpage (and st/et on the watchtime URL,
+    // which is what actually registers watch time in history).
     // ============================================================
 
     /**
      * Report a video playback into the signed-in account's YouTube watch
      * history. Returns true when the tracking ping succeeded. Requires login.
+     *
+     * Mirrors yt-dlp's `_mark_watched`: fetches the signed player response,
+     * then fires BOTH tracking URLs from `playbackTracking`:
+     *  - `videostatsPlaybackUrl`  marks the video as watched,
+     *  - `videostatsWatchtimeUrl` pushes actual watch time (`st`/`et`), which
+     *    is what really registers in the account's history.
+     * Each ping carries `ver=2`, a fresh `cpn`, `cmt` (position or just
+     * before the end) and `el=detailpage`; existing query params are kept.
+     *
+     * [positionMs] is the watched-to position used for `cmt`/`et`. When 0 the
+     * video is marked as watched right before the end (yt-dlp behaviour), so a
+     * video is registered in history even if the app is killed mid-playback.
      */
-    suspend fun reportVideoPlayback(videoId: String): Result<Boolean> = runCatching {
+    suspend fun reportVideoPlayback(videoId: String, positionMs: Long = 0L): Result<Boolean> = runCatching {
         if (cookie.isNullOrBlank()) return@runCatching false
-        val client = currentWebClient()
         val cpn = generateCpn()
-        val visitor = visitorData?.takeIf { it.isNotBlank() } ?: ""
-        val httpResponse = innerTube.signedJsonPost(
-            client = client,
-            endpoint = "player",
-            jsonBody = buildJsonObject {
-                put("context", commentWebContext(client, visitor.takeIf { it.isNotBlank() }))
+        val tracking = signedPlaybackTracking(videoId, cpn) ?: return@runCatching false
+
+        val playbackUrl = tracking.first ?: return@runCatching false
+        val watchtimeUrl = tracking.second
+
+        val lengthSeconds = tracking.third
+        val videoLength = (lengthSeconds - 1f).coerceAtLeast(0f)
+        val cmt = if (positionMs > 0L) {
+            (positionMs / 1000f).coerceIn(0f, videoLength)
+        } else {
+            videoLength
+        }
+        val referer = "https://www.youtube.com/watch?v=$videoId"
+
+        var reported = innerTube.videoStatsPing(
+            url = withVideoStatsParams(playbackUrl, cpn, cmt, watchtime = false),
+            referer = referer,
+        )
+        if (watchtimeUrl != null) {
+            val watchtimeReported = innerTube.videoStatsPing(
+                url = withVideoStatsParams(watchtimeUrl, cpn, cmt, watchtime = true),
+                referer = referer,
+            )
+            reported = reported || watchtimeReported
+        }
+        reported
+    }
+
+    /**
+     * Signed player response restricted to the fields needed for history
+     * tracking. First tries the light unsigned request; if YouTube does not
+     * return `playbackTracking` (bot wall), it retries WITH a signature
+     * timestamp and a WebView-minted poToken, like the SABR player path.
+     */
+    private suspend fun signedPlaybackTracking(
+        videoId: String,
+        cpn: String,
+    ): Triple<String?, String?, Float>? {
+        val client = currentWebClient()
+
+        suspend fun fetch(sts: Int?, poToken: String?, visitorData: String?): Triple<String?, String?, Float>? {
+            val body = buildJsonObject {
+                put("context", commentWebContext(client, visitorData.takeIf { !it.isNullOrBlank() }))
                 put("videoId", JsonPrimitive(videoId))
                 put("cpn", JsonPrimitive(cpn))
-                put(
-                    "playbackContext",
-                    buildJsonObject {
-                        put(
-                            "contentPlaybackContext",
-                            buildJsonObject {
-                                put(
-                                    "signatureTimestamp",
-                                    JsonPrimitive(System.currentTimeMillis() / 1000),
-                                )
-                            },
-                        )
-                    },
-                )
-            },
-        )
-        val root = Json.parseToJsonElement(httpResponse.bodyAsText())
-        val baseUrl = root.jsonObject["playbackTracking"]?.jsonObject
-            ?.get("videostatsPlaybackUrl")?.jsonObject
-            ?.get("baseUrl")?.jsonPrimitive
-            ?.contentOrNull
-        if (baseUrl.isNullOrEmpty()) return@runCatching false
-        val trackingUrl =
-            buildString {
-                append(baseUrl)
-                if (!baseUrl.contains("cpn=")) {
-                    append(if (baseUrl.contains("?")) "&" else "?")
-                    append("cpn=$cpn")
+                if (sts != null || poToken != null) {
+                    put(
+                        "playbackContext",
+                        buildJsonObject {
+                            put(
+                                "contentPlaybackContext",
+                                buildJsonObject {
+                                    if (sts != null) put("signatureTimestamp", JsonPrimitive(sts))
+                                    put("referer", JsonPrimitive("https://www.youtube.com/watch?v=$videoId"))
+                                    put("vis", JsonPrimitive(0))
+                                    put("splay", JsonPrimitive(false))
+                                    put("lactMilliseconds", JsonPrimitive("-1"))
+                                    put("html5Preference", JsonPrimitive("HTML5_PREF_WANTS"))
+                                },
+                            )
+                        },
+                    )
                 }
-                append("&ver=2&c=WEB")
+                if (poToken != null) {
+                    put(
+                        "serviceIntegrityDimensions",
+                        buildJsonObject { put("poToken", JsonPrimitive(poToken)) },
+                    )
+                }
             }
-        val trackingResponse = innerTube.signedJsonGet(
-            client = client,
-            url = trackingUrl,
-            referer = "https://www.youtube.com/watch?v=$videoId",
-        )
-        trackingResponse.status.isSuccess()
+            val httpResponse = innerTube.signedJsonPost(client = client, endpoint = "player", jsonBody = body)
+            val root = Json.parseToJsonElement(httpResponse.bodyAsText())
+            val tracking = root.jsonObject["playbackTracking"]?.jsonObject ?: return null
+            val playback = tracking["videostatsPlaybackUrl"]?.jsonObject
+                ?.get("baseUrl")?.jsonPrimitive?.contentOrNull
+            if (playback.isNullOrEmpty()) return null
+            val watchtime = tracking["videostatsWatchtimeUrl"]?.jsonObject
+                ?.get("baseUrl")?.jsonPrimitive?.contentOrNull
+            val length = tracking["videostatsWatchtimeUrl"]?.jsonObject
+                ?.get("baseUrl")?.jsonPrimitive?.contentOrNull
+                ?.let(::parseLengthFromTrackingUrl)
+                ?: root.jsonObject["videoDetails"]?.jsonObject
+                    ?.get("lengthSeconds")?.jsonPrimitive?.contentOrNull
+                    ?.toFloatOrNull()
+                    ?: 0f
+            return Triple(playback, watchtime, length)
+        }
+
+        // Attempt 1: light signed request (works for most accounts).
+        fetch(sts = null, poToken = null, visitorData = null)?.let { return it }
+
+        // Attempt 2: full WEB player request with sts + poToken.
+        runCatching {
+            val visitorData = WebPoTokenSession.sessionVisitorData()
+            if (visitorData.isNullOrEmpty()) return@runCatching null
+            val poToken = WebPoTokenSession.mintForVisitorData(videoId, visitorData)
+                ?.playerRequestPoToken ?: return@runCatching null
+            val sts = NewPipeExtractor.getSignatureTimestamp(videoId).getOrNull()
+            fetch(sts, poToken, visitorData)
+        }.getOrNull()?.let { return it }
+
+        return null
+    }
+
+    private fun parseLengthFromTrackingUrl(url: String): Float {
+        val lenMatch = Regex("(?:^|&)len=([^&]+)").find(url)?.groupValues?.get(1)
+        return lenMatch?.toFloatOrNull() ?: 0f
+    }
+
+    /**
+     * Rewrite a videostats tracking URL's query the way yt-dlp's
+     * `_mark_watched` does: keep every existing parameter and set
+     * `ver=2`, `cpn`, `cmt` and `el=detailpage`. The watchtime URL also gets
+     * `st=0` and `et=cmt` so the video registers actual watch time.
+     */
+    private fun withVideoStatsParams(
+        baseUrl: String,
+        cpn: String,
+        cmtSeconds: Float,
+        watchtime: Boolean,
+    ): String {
+        val uri = Uri.parse(baseUrl)
+        val params = LinkedHashMap<String, String>()
+        uri.queryParameterNames.forEach { name ->
+            params[name] = uri.getQueryParameter(name).orEmpty()
+        }
+        params["ver"] = "2"
+        params["cpn"] = cpn
+        params["cmt"] = cmtSeconds.toString()
+        params["el"] = "detailpage"
+        if (watchtime) {
+            params["st"] = "0"
+            params["et"] = cmtSeconds.toString()
+        }
+        val builder = Uri.Builder()
+            .scheme(uri.scheme)
+            .authority(uri.authority)
+            .path(uri.path)
+        params.forEach { (key, value) -> builder.appendQueryParameter(key, value) }
+        return builder.build().toString()
     }
 
     private fun generateCpn(): String {

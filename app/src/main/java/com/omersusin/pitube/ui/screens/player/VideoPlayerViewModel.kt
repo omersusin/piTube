@@ -798,6 +798,7 @@ class VideoPlayerViewModel @Inject constructor(
         GlobalPlayerState.setCurrentVideo(video)
         GlobalPlayerState.setExplicitBackgroundPlaybackActive(false)
         saveHistoryEntry(video)
+        reportPlaybackStarted(video)
         playerManager.startBackgroundService(
             videoId   = video.id,
             title     = video.title.ifEmpty { "piTube Player" },
@@ -1033,6 +1034,7 @@ class VideoPlayerViewModel @Inject constructor(
             )
         }
         saveHistoryEntry(startVideo)
+        reportPlaybackStarted(startVideo)
         EnhancedPlayerManager.getInstance().startBackgroundService(
             videoId   = startVideo.id,
             title     = startVideo.title.ifEmpty { "piTube Player" },
@@ -2750,15 +2752,35 @@ class VideoPlayerViewModel @Inject constructor(
         lastReportedVideoId = video.id
 
         // Signed-in accounts get the watch registered in their real YouTube
-        // history (Koda port): /player ping + videostatsPlaybackUrl.
+        // history (yt-dlp mark-watched port): /player ping + both videostats
+        // beacons (playback URL + watchtime URL with real st/et).
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val reported = repository.reportVideoPlayback(video.id)
+                val reported = repository.reportVideoPlayback(video.id, position)
                 if (reported) {
                     Log.d("VideoPlayerViewModel", "YouTube history sync SUCCESS for ${video.id}")
                 }
             } catch (e: Exception) {
                 Log.w("VideoPlayerViewModel", "YouTube history sync failed for ${video.id}", e)
+            }
+        }
+    }
+
+    /**
+     * Immediately registers the video as watched in the signed-in account's
+     * real YouTube history when playback starts — mirroring yt-dlp, which
+     * marks on extraction. The default 20%-threshold report on dispose then
+     * pushes the final watch time via the watchtime beacon.
+     */
+    fun reportPlaybackStarted(video: com.omersusin.pitube.data.model.Video) {
+        if (isLocalMediaId(video.id)) return
+        if (video.id == lastReportedVideoId) return
+        if (video.id.isBlank()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.reportVideoPlayback(video.id, 0L)
+            } catch (e: Exception) {
+                Log.w("VideoPlayerViewModel", "YouTube history start-report failed for ${video.id}", e)
             }
         }
     }
