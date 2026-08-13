@@ -139,7 +139,7 @@ class SubscriptionCheckWorker(
 
             WorkManager.getInstance(context).enqueueUniqueWork(
                 IMMEDIATE_WORK_NAME,
-                ExistingWorkPolicy.KEEP,
+                ExistingWorkPolicy.REPLACE,
                 workRequest,
             )
             Log.d(TAG, "Started immediate subscription check")
