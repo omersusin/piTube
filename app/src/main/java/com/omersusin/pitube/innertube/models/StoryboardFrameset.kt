@@ -1,7 +1,6 @@
 package com.omersusin.pitube.innertube.models
 
 import kotlin.math.ceil
-import kotlin.math.floorDiv
 import kotlin.math.min
 
 /**
@@ -41,10 +40,10 @@ data class StoryboardFrameset(
         val absoluteFrameNumber =
             min((positionMs / durationPerFrame).toInt(), totalCount)
         val relativeFrameNumber = absoluteFrameNumber % framesPerStoryboard
-        val rowIndex = floorDiv(relativeFrameNumber, framesPerPageX)
+        val rowIndex = relativeFrameNumber / framesPerPageX
         val columnIndex = relativeFrameNumber % framesPerPageX
         return FrameBounds(
-            urlIndex = floorDiv(absoluteFrameNumber, framesPerStoryboard),
+            urlIndex = absoluteFrameNumber / framesPerStoryboard,
             left = columnIndex * frameWidth,
             top = rowIndex * frameHeight,
             right = columnIndex * frameWidth + frameWidth,
@@ -83,15 +82,15 @@ data class StoryboardFrameset(
 
                 val baseUrl =
                     urlTemplate
-                        .replace("$L", (index - 1).toString())
-                        .replace("$N", pageName)
+                        .replace("\$L", (index - 1).toString())
+                        .replace("\$N", pageName)
                 val urls =
-                    if (baseUrl.contains("$M")) {
+                    if (baseUrl.contains("\$M")) {
                         val totalPages =
                             ceil(totalCount.toDouble() / (cols * rows).toDouble())
                                 .toInt()
                         (0 until totalPages).map { page ->
-                            baseUrl.replace("$M", page.toString()) + sighUrlSuffix(sigh)
+                            baseUrl.replace("\$M", page.toString()) + sighUrlSuffix(sigh)
                         }
                     } else {
                         listOf(baseUrl + sighUrlSuffix(sigh))

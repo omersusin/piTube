@@ -498,9 +498,9 @@ private fun StoryboardPreviewBubble(
 ) {
     val cellScale = StoryboardPreviewWidth / frameset.frameWidth
     val bubbleWidth = StoryboardPreviewWidth
-    val bubbleHeight = frameset.frameHeight * cellScale
-    val sheetWidth = frameset.framesPerPageX * frameset.frameWidth * cellScale
-    val sheetHeight = frameset.framesPerPageY * frameset.frameHeight * cellScale
+    val bubbleHeight = cellScale * frameset.frameHeight
+    val sheetWidth = cellScale * frameset.framesPerPageX * frameset.frameWidth
+    val sheetHeight = cellScale * frameset.framesPerPageY * frameset.frameHeight
 
     Box(
         modifier = modifier
@@ -516,8 +516,8 @@ private fun StoryboardPreviewBubble(
             modifier = Modifier
                 .offset {
                     IntOffset(
-                        x = -(frame.left * cellScale).roundToPx(),
-                        y = -(frame.top * cellScale).roundToPx()
+                        x = -(cellScale * frame.left).roundToPx(),
+                        y = -(cellScale * frame.top).roundToPx()
                     )
                 }
                 .size(sheetWidth, sheetHeight)
