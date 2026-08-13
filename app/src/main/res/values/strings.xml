@@ -121,7 +121,6 @@
     <string name="move_down">Move down</string>
     <string name="lyrics_not_available">Lyrics not available</string>
     <string name="lyrics_synced">Synced</string>
-    <string name="refresh_lyrics">Refresh lyrics</string>
     <string name="playing">Playing</string>
     <string name="remove">Remove</string>
     <string name="related_content">Related Content</string>
@@ -644,13 +643,6 @@
     <string name="player_fullscreen_seekbar_width_default">Default</string>
     <string name="player_fullscreen_seekbar_width_custom">Custom</string>
     <string name="player_fullscreen_seekbar_width_value">%1$d dp</string>
-    <!-- Lyrics Provider -->
-    <string name="lyrics_provider_title">Lyrics Provider</string>
-    <string name="lyrics_provider_subtitle">Choose your preferred source for song lyrics</string>
-    <string name="lyrics_provider_lrclib">LrcLib</string>
-    <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
-    <string name="lyrics_provider_simpmusic">SimpMusic</string>
-    <string name="lyrics_provider_lyrics_plus">LyricsPlus</string>
     <!-- Theme Names & Descriptions -->
     <string name="theme_name_system_default">System Default</string>
     <string name="theme_desc_system_default">Synchronize with device theme</string>
@@ -2289,7 +2281,6 @@
     <string name="fallback_playing">Playing…</string>
     <string name="empty_saved_shorts">No saved shorts yet</string>
     <string name="settings_search_no_results">No settings found for &quot;%1$s&quot;</string>
-    <string name="settings_lyrics_provider_order_description">Providers are tried in order. The first one that returns lyrics wins.</string>
     <string name="import_running_background">You can navigate away — the import continues in the background.</string>
     <string name="donations_cryptocurrency">CRYPTOCURRENCY</string>
     <string name="import_no_history_entries">No watch-history entries found in file</string>
