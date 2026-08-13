@@ -2820,9 +2820,23 @@ class VideoPlayerViewModel @Inject constructor(
             }
     }
 
-    fun stopHistoryReport() {
+    fun stopHistoryReport(finalVideoId: String? = null, finalPositionMs: Long = 0L) {
         historyReportJob?.cancel()
         historyReportJob = null
+        // Leaving the screen (or app) mid-playback must still register the
+        // real partial position — this is the beacon that makes a
+        // partially-watched video show up in official YouTube history as
+        // "continue watching". Skip for untracked screens and for sub-10s
+        // watches where reporting nothing is more accurate.
+        if (finalVideoId != null && finalVideoId.isNotBlank() && finalPositionMs >= 10_000L) {
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    repository.reportVideoPlayback(finalVideoId, finalPositionMs)
+                } catch (e: Exception) {
+                    Log.w("VideoPlayerViewModel", "Final history report failed for $finalVideoId", e)
+                }
+            }
+        }
     }
 
     fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {

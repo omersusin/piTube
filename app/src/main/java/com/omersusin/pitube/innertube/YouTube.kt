@@ -882,8 +882,15 @@ object YouTube {
             return Triple(playback, watchtime, length)
         }
 
-        // Attempt 1: light signed request (works for most accounts).
-        fetch(sts = null, poToken = null, visitorData = null)?.let { return it }
+        // Attempt 1: signed WEB player request with signature timestamp and
+        // the session visitor data — the same shape the stream extractor and
+        // the original b7594dd reporter used, and what actually registers
+        // history for signed-in accounts. The unsent light variant is
+        // bot-walled for logged-in sessions.
+        val sessionVisitor = visitorData?.takeIf { it.isNotBlank() }
+        val sts = runCatching { NewPipeExtractor.getSignatureTimestamp(videoId).getOrNull() }
+            .getOrNull()
+        fetch(sts, null, sessionVisitor)?.let { return it }
 
         // Attempt 2: full WEB player request with sts + poToken.
         runCatching {

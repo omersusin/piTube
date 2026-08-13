@@ -480,6 +480,13 @@ class ShortsViewModel @Inject constructor(
                 isMusic = false,
                 isShort = true
             )
+            if (positionMs >= 2_000L) {
+                runCatching {
+                    withContext(Dispatchers.IO) {
+                        repository.reportVideoPlayback(video.id, positionMs)
+                    }
+                }
+            }
         }
     }
     
