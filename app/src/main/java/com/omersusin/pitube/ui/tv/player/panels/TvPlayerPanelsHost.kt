@@ -723,7 +723,8 @@ private fun TvDescriptionPanelContent(
             ?.content
             .orEmpty()
     // Mobile's formatter: strips/styles HTML, highlights links and timestamps.
-    val formattedDescription = remember(description) { parseHtmlDescription(description, MaterialTheme.colorScheme.primary) }
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val formattedDescription = remember(description) { parseHtmlDescription(description, primaryColor) }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val hasChapters = uiState.chapters.isNotEmpty()

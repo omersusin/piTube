@@ -160,8 +160,9 @@ fun FlowDescriptionBottomSheet(
     }
     val descriptionScrollState = rememberScrollState()
     
+    val primaryColor = MaterialTheme.colorScheme.primary
     val descriptionText = remember(video.description) {
-        parseHtmlDescription(video.description, MaterialTheme.colorScheme.primary)
+        parseHtmlDescription(video.description, primaryColor)
     }
     var descLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
