@@ -18,7 +18,6 @@ internal fun visibleNavTabIndices(
     val enabled = buildSet {
         if (visibility.home) add(0)
         if (visibility.shorts) add(1)
-        add(3)
         add(4)
         if (visibility.search) add(5)
         if (visibility.categories) add(6)
@@ -38,7 +37,6 @@ internal fun resolveDefaultNavTabIndex(
 internal fun navRouteForIndex(index: Int): String = when (index) {
     0 -> "home"
     1 -> "shorts"
-    3 -> "subscriptions"
     4 -> "library"
     5 -> "search"
     6 -> "categories"

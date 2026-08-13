@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="subscriptions_search_placeholder">搜尋訂閲項目……</string>
-    <string name="top_bar_subscriptions_title">訂閲項目</string>
     <string name="view_all_button_label">全部</string>
     <string name="subscribed">已訂閲</string>
-    <string name="no_subscriptions_yet">未訂閲</string>
-    <string name="empty_subscriptions_body">訂閲頻道，在此觀看最新影片</string>
     <string name="home_refresh_feed">刷新訂閱</string>
-    <string name="subscriptions_refresh_progress_template">正在刷新 %1$d 個頻道（共 %2$d 個）</string>
-    <string name="subscriptions_last_refreshed_template">最後刷新 %1$s ——已檢查 %2$d 個影片</string>
     <string name="retry">重試</string>
     <string name="shorts">Shorts</string>
     <string name="failed_to_load_channel">頻道加載失敗</string>

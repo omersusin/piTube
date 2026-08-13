@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
-    <string name="subscriptions_search_placeholder">Pesquisar Inscrições...</string>
-    <string name="top_bar_subscriptions_title">Inscrições</string>
     <string name="view_all_button_label">Todos</string>
     <string name="subscribed">Inscrito</string>
-    <string name="no_subscriptions_yet">Sem Inscrições Ainda</string>
-    <string name="empty_subscriptions_body">Inscreva-se nos canais para ver os seus\núltimos vídeos aqui</string>
     <string name="home_refresh_feed">Atualizar Feed</string>
     <string name="retry">Tentar Novamente</string>
     <string name="failed_to_load_channel">Não foi possível carregar o canal</string>
@@ -177,8 +173,6 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">O seu feed personalizado</string>
     <string name="videos_curated_template">%1$d vídeos selecionados especialmente para si</string>
-    <string name="import_newpipe_backup">Importar Backup do NewPipe</string>
-    <string name="importing_from_backup">A importar assinaturas do backup do NewPipe...</string>
     <string name="toggle_view_mode">Alternar modo de visualização</string>
     <string name="unsubscribed_from_template">Inscrição cancelada em %1$s</string>
     <string name="videos_count_template">%1$d vídeos</string>
@@ -247,8 +241,6 @@
     <string name="settings_item_notifications">Preferências de notificação</string>
     <string name="settings_item_notifications_subtitle">Controlo quais notificações o piTube pode enviar</string>
     <string name="notif_settings_title">Preferências de notificação</string>
-    <string name="notif_type_new_videos">Novos vídeos</string>
-    <string name="notif_type_new_videos_subtitle">Receba notificações quando os canais inscritos publicarem novos vídeos</string>
     <string name="notif_type_downloads">Descarregar notificações</string>
     <string name="notif_type_downloads_subtitle">Alertas de progresso, conclusão e falha</string>
     <string name="notif_type_reminders">Lembretes de tempo de ecrã</string>
@@ -258,22 +250,9 @@
     <string name="notif_type_general_subtitle">Alertas e anúncios diversos da app</string>
     <string name="notif_system_settings">Configurações de notificação do sistema</string>
     <string name="notif_system_settings_subtitle">Abra as configurações do Android para gerir as permissões por canal</string>
-    <string name="notif_check_interval">Novo intervalo de verificação por vídeo</string>
-    <string name="notif_check_interval_subtitle_template">Verifique cada %s</string>
-    <string name="notif_check_interval_dialog_title">Intervalo de verificação</string>
-    <string name="notif_check_interval_dialog_body">Com que frequência o piTube verifica se há novos vídeos nos canais em que está inscrito.</string>
-    <string name="notif_interval_15m">15 minutos</string>
-    <string name="notif_interval_30m">30 minutos</string>
-    <string name="notif_interval_1h">1 hora</string>
-    <string name="notif_interval_2h">2 horas</string>
     <string name="title_create_playlist">Criar Playlist</string>
     <string name="error_http_forbidden">Acesso negado (403)</string>
     <string name="player_action_copy_link">Copiar ligação</string>
-    <string name="subscriptions_sort_default">Padrão</string>
-    <string name="subscriptions_sort_name">Nome (A-Z)</string>
-    <string name="subscriptions_sort_recent">Atualizado recentemente</string>
-    <string name="subscriptions_refresh_progress_template">Atualizando %1$d de %2$d canais</string>
-    <string name="subscriptions_last_refreshed_time_only_template">Último atualizado %1$s</string>
     <string name="copy_logs">Copiar registros</string>
     <string name="logs_copied">Registros copiados</string>
     <string name="logs_copy_failed">Não foi possível copiar os registros</string>

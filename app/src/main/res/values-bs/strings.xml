@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
-    <string name="subscriptions_search_placeholder">Pretraži pretplate…</string>
-    <string name="top_bar_subscriptions_title">Pretplate</string>
     <string name="view_all_button_label">Svi</string>
     <string name="subscribed">Pretplaćeno</string>
-    <string name="no_subscriptions_yet">Još nema pretplata</string>
-    <string name="empty_subscriptions_body">Pretplatite se na kanale da biste vidjeli\nnajnovije videozapise ovdje</string>
     <string name="home_refresh_feed">Osvježi feed</string>
     <string name="retry">Pokušaj ponovo</string>
     <string name="shorts">Shorts</string>
@@ -172,7 +168,6 @@
     <string name="nav_home">Početna</string>
     <string name="nav_shorts">Shorts</string>
     <string name="nav_music">Muzika</string>
-    <string name="nav_subs">Pretplate</string>
     <string name="nav_library">Biblioteka</string>
     <string name="notifications">Obavijesti</string>
     <string name="search">Pretraži</string>
@@ -205,9 +200,6 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Vaš personalizirani feed</string>
     <string name="videos_curated_template">&gt;%1$d videozapisa prilagođenih vama</string>
-    <string name="import_newpipe_backup">Uvezi sigurnosnu kopiju iz NewPipe-a</string>
-    <string name="importing_from_backup">Uvoz pretplata iz NewPipe sigurnosne kopije…</string>
-    <string name="search_subscriptions">Pretraži pretplate</string>
     <string name="toggle_view_mode">Prebaci način pregleda</string>
     <string name="unsubscribed_from_template">%1$s otpreplaćen</string>
     <string name="videos_count_template">%1$d videozapisa</string>
@@ -291,8 +283,6 @@
     <string name="settings_item_notifications">Preferencije obavještenja</string>
     <string name="settings_item_notifications_subtitle">Kontrolirajte koja obavještenja piTube može slati</string>
     <string name="notif_settings_title">Preferencije obavještenja</string>
-    <string name="notif_type_new_videos">Novi videi</string>
-    <string name="notif_type_new_videos_subtitle">Obavijestite kada pretplaćeni kanali postave nove videozapise</string>
     <string name="notif_type_downloads">Obavještenje o preuzimanju</string>
     <string name="notif_type_downloads_subtitle">Obavijesti o napretku, završetku i neuspjehu</string>
     <string name="notif_type_reminders">Podsjetnici za vrijeme na ekranu</string>
@@ -303,19 +293,6 @@
     <string name="notif_type_general_subtitle">Razne obavijesti i najave aplikacije</string>
     <string name="notif_system_settings">Postavke obavještenja sistema</string>
     <string name="notif_system_settings_subtitle">Otvorite Android postavke da biste upravljali dozvolama za svaki kanal</string>
-    <string name="notif_check_interval_section_header">Feed provjera rasporeda</string>
-    <string name="notif_check_interval">Interval provjere novih videa</string>
-    <string name="notif_check_interval_subtitle_template">Provjeri svakih %s</string>
-    <string name="notif_check_interval_dialog_title">Interval provjere</string>
-    <string name="notif_check_interval_dialog_body">Koliko često piTube provjerava nove videozapise s kanala na koje ste pretplaćeni.</string>
-    <string name="notif_interval_15m">15 minuta</string>
-    <string name="notif_interval_30m">30 minuta</string>
-    <string name="notif_interval_1h">1 sat</string>
-    <string name="notif_interval_2h">2 sata</string>
-    <string name="notif_interval_3h">3 sata</string>
-    <string name="notif_interval_6h">6 sati (standard)</string>
-    <string name="notif_interval_12h">12 sati</string>
-    <string name="notif_interval_24h">24 sata</string>
     <string name="settings_item_theme">Tema</string>
     <string name="settings_item_app_icon">Ikona Aplikacije</string>
     <string name="settings_item_app_icon_subtitle">Prilagodite ikonu pokretača</string>
@@ -336,16 +313,11 @@
     <string name="settings_item_search_history_subtitle">Očisti historiju, upravljaj predlozima</string>
     <string name="settings_item_time_management">Upravljanje vremenom</string>
     <string name="settings_item_time_management_subtitle">Statistike korištenja, podsjetnici za spavanje</string>
-    <string name="settings_item_export_data">Izvoz podataka</string>
-    <string name="settings_item_export_data_subtitle">Napravite sigurnosnu kopiju svojih podataka</string>
-    <string name="settings_item_import_data">Uvoz podataka</string>
-    <string name="settings_item_import_data_subtitle">Obnovite iz sigurnosne kopije ili uvezite iz drugih aplikacija</string>
     <string name="settings_item_about_flow">O piTube-u</string>
     <string name="settings_item_about_flow_subtitle">Verzija, Licenca, Doprinosioci</string>
     <string name="settings_item_support">Podrška i donacije</string>
     <string name="settings_item_support_subtitle">Podržite razvoj piTube-a</string>
     <string name="settings_region_dialog_title">Odaberite regiju</string>
-    <string name="settings_export_success">Podaci uspješno izvezani</string>
     <string name="tap_to_close">Dodirnite da zatvorite</string>
     <string name="group_all">Sve</string>
     <string name="manage_groups">Upravljanje grupama</string>
@@ -359,7 +331,6 @@
     <string name="channel_search_open">Pretraži Kanal</string>
     <string name="channel_search_close">Zatvori pretragu</string>
     <string name="channel_search_no_results">Nisu pronađeni rezultati za %1$s</string>
-    <string name="settings_export_failed">Izvoz je propao: %1$s</string>
     <string name="appearance_title">Izgled</string>
     <string name="appearance_subtitle">Personalizirajte svoje piTube iskustvo</string>
     <string name="appearance_current_theme">TRENUTNA TEMA</string>
@@ -425,9 +396,6 @@
     <string name="skip_button_title">Prikaži dugmad za preskakanje</string>
     <string name="skip_button_subtitle">Prikaži dugmad za vraćanje unazad/prebacivanje naprijed od 10 sekundi na mini-plejeru</string>
     <string name="player_nav_btn_title">Prikaži dugmad Sljedeće/Prethodno</string>
-    <string name="subscriptions_sort_label">Sortiraj kanale</string>
-    <string name="subscriptions_sort_name">Ime (A–Z)</string>
-    <string name="subscriptions_sort_recent">Nedavno ažurirano</string>
     <string name="copy_logs">Kopiraj logs</string>
     <string name="logs_copied">Logovi kopirani</string>
     <string name="logs_copy_failed">Nije moguće kopirati logove</string>
@@ -453,5 +421,4 @@
     <string name="empty_liked_music">Nema omiljene muzike</string>
     <string name="empty_liked_music_body">Pjesme koje volite će se ovdje pojaviti</string>
     <string name="download_all">Preuzmi sve</string>
-    <string name="subscriptions_sort_default">zadano</string>
 </resources>

@@ -7,12 +7,8 @@
     <string name="library_playlists_label">Esitusloendid</string>
     <string name="library_music_playlists_label">Muusika esitusloendid</string>
     <string name="library_music_playlists_subtitle">Sinu muusiakogud</string>
-    <string name="subscriptions_search_placeholder">Otsi tellimusi…</string>
-    <string name="top_bar_subscriptions_title">Tellimused</string>
     <string name="view_all_button_label">Kõik</string>
     <string name="subscribed">Tellitud</string>
-    <string name="no_subscriptions_yet">Tellimusi veel pole</string>
-    <string name="empty_subscriptions_body">Telli mõni kanal ja näed\nnende viimaseid videoid siin</string>
     <string name="home_refresh_feed">Laadi sisuvoog uuesti</string>
     <string name="retry">Proovi uuesti</string>
     <string name="shorts">Lühivideod</string>
@@ -105,7 +101,6 @@
     <string name="nav_home">Avavaade</string>
     <string name="nav_shorts">Lühivideod</string>
     <string name="nav_music">Muusika</string>
-    <string name="nav_subs">Tellimused</string>
     <string name="nav_library">Meediakogu</string>
     <string name="notifications">Teavitused</string>
     <string name="search">Otsi</string>
@@ -219,9 +214,6 @@
     <string name="views_template">%1$s vaatamist</string>
     <string name="personalized_feed">Sinu isiklik sisuvoog</string>
     <string name="videos_curated_template">%1$d videot valitud just sinu jaoks</string>
-    <string name="import_newpipe_backup">Impordi NewPipe\'i varukoopia</string>
-    <string name="importing_from_backup">Impordin tellimusi NewPipe\'i varukoopiast…</string>
-    <string name="search_subscriptions">Otsi tellimusi</string>
     <string name="group_all">Kõik</string>
     <string name="manage_groups">Halda gruppe</string>
     <string name="new_group">Uus grupp</string>
@@ -235,8 +227,6 @@
     <string name="play_all">Esita kõik</string>
     <string name="remove_from_watch_later">Eemalda hilisemate vaatamiste loendist</string>
     <string name="playlist_metadata_template">Esitusloend • Privaatne • %1$d videot</string>
-    <string name="subscriptions_refresh_progress_template">Uuendan kanaleid: %1$d / %2$d</string>
-    <string name="subscriptions_last_refreshed_template">Viimati uuendatud %1$s - %2$d videot on kontrollitud</string>
     <string name="premiere_date_prefix">Esilinastus %1$s</string>
     <string name="view_replies_template">Vaata %1$d vastust</string>
     <string name="release_notes">VERSIOONI MÄRKUSED</string>
@@ -322,6 +312,4 @@
     <string name="settings_item_notifications">Teavituste eelistused</string>
     <string name="settings_item_notifications_subtitle">Halda piTube saadetavaid teavitusi</string>
     <string name="notif_settings_title">Teavituste eelistused</string>
-    <string name="notif_type_new_videos">Uued videod</string>
-    <string name="notif_type_new_videos_subtitle">Teavita, kui tellitud kanalitesse laaditakse üles uusi videoid</string>
 </resources>

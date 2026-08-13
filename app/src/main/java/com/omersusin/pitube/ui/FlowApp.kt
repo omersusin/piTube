@@ -33,7 +33,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
-import com.omersusin.pitube.data.subscriptions.refreshSubscriptionsAtStartup
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import com.omersusin.pitube.player.GlobalPlayerState
 import com.omersusin.pitube.player.SleepTimerManager
@@ -92,7 +91,6 @@ fun FlowApp(
     val disableShortsPlayer by preferences.disableShortsPlayer.collectAsState(initial = false)
     val navTabOrder by preferences.navTabOrder.collectAsState(initial = com.omersusin.pitube.data.local.DEFAULT_NAV_TAB_ORDER)
     val defaultNavTabIndex by preferences.defaultNavTabIndex.collectAsState(initial = 0)
-    val subscriptionRefreshOnStartup by preferences.subscriptionRefreshOnStartup.collectAsState(initial = false)
     val bottomNavHideOnScroll by preferences.bottomNavHideOnScroll.collectAsState(initial = true)
     val sleepTimerCloseAppOnExpiry by preferences.sleepTimerCloseAppOnExpiry.collectAsState(
         initial = SleepTimerManager.preferredCloseAppOnExpiry,
@@ -129,12 +127,6 @@ fun FlowApp(
 
     LaunchedEffect(sleepTimerCloseAppOnExpiry) {
         SleepTimerManager.updatePreferredCloseAppOnExpiry(sleepTimerCloseAppOnExpiry)
-    }
-
-    LaunchedEffect(subscriptionRefreshOnStartup) {
-        if (subscriptionRefreshOnStartup) {
-            refreshSubscriptionsAtStartup(context.applicationContext)
-        }
     }
 
     HandleDeepLinks(deeplinkVideoId, isShort, navController, onDeeplinkConsumed)

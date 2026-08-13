@@ -1,26 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
-    <string name="subscriptions_search_placeholder">Search subscriptions...</string>
-    <string name="subscriptions_sort_label">Sort channels</string>
-    <string name="subscriptions_sort_default">Default</string>
-    <string name="subscriptions_sort_name">Name (A–Z)</string>
-    <string name="subscriptions_sort_recent">Recently updated</string>
-    <string name="top_bar_subscriptions_title">Subscriptions</string>
     <string name="view_all_button_label">All</string>
     <string name="subscribed">Subscribed</string>
-    <string name="no_subscriptions_yet">No Subscriptions Yet</string>
-    <string name="empty_subscriptions_body">Subscribe to channels to see their\nlatest videos here</string>
     <string name="home_refresh_feed">Refresh Feed</string>
-    <string name="subscriptions_refresh_progress_template">Refreshing %1$d of %2$d channels</string>
-    <string name="subscriptions_last_refreshed_template">Last refreshed %1$s - %2$d videos checked</string>
-    <string name="subscriptions_last_refreshed_time_only_template">Last refreshed %1$s</string>
-    <plurals name="subscriptions_failed_channels_title">
         <item quantity="one">%d channel couldn\'t be loaded</item>
         <item quantity="other">%d channels couldn\'t be loaded</item>
     </plurals>
-    <string name="subscriptions_failed_channels_body">Their latest videos are missing from this feed: %1$s</string>
-    <string name="subscriptions_failed_channels_more">%1$s and %2$d more</string>
     <string name="retry">Retry</string>
     <string name="copy_logs">Copy logs</string>
     <string name="logs_copied">Logs copied</string>
@@ -214,10 +200,6 @@
     <string name="duration">Duration</string>
     <string name="copied_to_clipboard">Copied %1$s</string>
     <string name="unknown">Unknown</string>
-    <string name="subscriptions_video_section_title">Video subscriptions</string>
-    <string name="subscriptions_quick_access_title">Quick access</string>
-    <string name="subscriptions_compact_header">Jump into your latest subscribed channels.</string>
-    <string name="no_subscriptions_found">No subscriptions found</string>
     <!-- Live chat -->
     <string name="live_chat">Live chat</string>
     <string name="live_chat_connecting">Connecting to live chat…</string>
@@ -258,7 +240,6 @@
     <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_shorts">Shorts</string>
-    <string name="nav_subs">Subs</string>
     <string name="nav_library">Library</string>
     <string name="notifications">Notifications</string>
     <string name="search">Search</string>
@@ -303,9 +284,6 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Your personalized feed</string>
     <string name="videos_curated_template">%1$d videos curated just for you</string>
-    <string name="import_newpipe_backup">Import NewPipe Backup</string>
-    <string name="importing_from_backup">Importing subscriptions from NewPipe backup...</string>
-    <string name="search_subscriptions">Search Subscriptions</string>
     <!-- Subscription Groups -->
     <string name="group_all">All</string>
     <string name="manage_groups">Manage Groups</string>
@@ -418,8 +396,6 @@
     <string name="settings_item_notifications">Notification Preferences</string>
     <string name="settings_item_notifications_subtitle">Control which notifications piTube can send</string>
     <string name="notif_settings_title">Notification Preferences</string>
-    <string name="notif_type_new_videos">New Videos</string>
-    <string name="notif_type_new_videos_subtitle">Notify when subscribed channels upload new videos</string>
     <string name="notif_type_downloads">Download Notifications</string>
     <string name="notif_type_downloads_subtitle">Progress, completion, and failure alerts</string>
     <string name="notif_type_reminders">Screen Time Reminders</string>
@@ -430,24 +406,10 @@
     <string name="notif_type_general_subtitle">Miscellaneous app alerts and announcements</string>
     <string name="notif_system_settings">System Notification Settings</string>
     <string name="notif_system_settings_subtitle">Open Android settings to manage per-channel permissions</string>
-    <string name="notif_check_interval_section_header">Feed Check Schedule</string>
     <string name="notif_master_toggle">Enable notifications</string>
     <string name="notif_master_toggle_subtitle">Allow piTube to wake up in the background for notification checks and alerts</string>
     <string name="notif_background_restricted_title">Background checks are restricted</string>
     <string name="notif_background_restricted_subtitle">Android is blocking piTube from checking for new videos while it is closed, so alerts only arrive when you open the app. Tap to allow unrestricted background activity.</string>
-    <string name="notif_check_interval">New Video Check Interval</string>
-    <string name="notif_check_interval_subtitle_template">Check every %s</string>
-    <string name="notif_check_interval_disabled">Background notification checks are disabled</string>
-    <string name="notif_check_interval_dialog_title">Check Interval</string>
-    <string name="notif_check_interval_dialog_body">How often piTube checks for new videos from your subscribed channels.</string>
-    <string name="notif_interval_15m">15 minutes</string>
-    <string name="notif_interval_30m">30 minutes</string>
-    <string name="notif_interval_1h">1 hour</string>
-    <string name="notif_interval_2h">2 hours</string>
-    <string name="notif_interval_3h">3 hours</string>
-    <string name="notif_interval_6h">6 hours (default)</string>
-    <string name="notif_interval_12h">12 hours</string>
-    <string name="notif_interval_24h">24 hours</string>
     <string name="settings_item_theme">Theme</string>
     <string name="settings_item_app_icon">App Icon</string>
     <string name="settings_item_app_icon_subtitle">Customize your launcher icon</string>
@@ -470,10 +432,6 @@
     <string name="settings_item_search_history_subtitle">Clear history, manage suggestions</string>
     <string name="settings_item_time_management">Time Management</string>
     <string name="settings_item_time_management_subtitle">Usage stats, Bedtime reminders</string>
-    <string name="settings_item_export_data">Export Data</string>
-    <string name="settings_item_export_data_subtitle">Backup your data</string>
-    <string name="settings_item_import_data">Import Data</string>
-    <string name="settings_item_import_data_subtitle">Restore from backup or import from other apps</string>
     <string name="settings_item_about_flow">About piTube</string>
     <string name="settings_item_about_flow_subtitle">Version, License, Contributors</string>
     <string name="settings_item_support">Support &amp; Donations</string>
@@ -481,8 +439,6 @@
     <string name="settings_region_dialog_title">Select Region</string>
     <string name="settings_language_dialog_title">Select App Language</string>
     <string name="settings_language_system_default">System default</string>
-    <string name="settings_export_success">Data exported successfully</string>
-    <string name="settings_export_failed">Export failed: %1$s</string>
     <!-- Appearance Screen -->
     <string name="appearance_title">Appearance</string>
     <string name="appearance_subtitle">Personalize your piTube experience</string>
@@ -735,10 +691,6 @@
     <string name="content_settings_header_content_components">Content Components</string>
     <string name="content_settings_hide_watched_home_title">Hide Watched Videos from Home</string>
     <string name="content_settings_hide_watched_home_subtitle">Filter videos you\'ve already watched from your home feed</string>
-    <string name="content_settings_hide_watched_subscriptions_title">Hide Watched Videos from Subscriptions</string>
-    <string name="content_settings_hide_watched_subscriptions_subtitle">Filter videos you\'ve already watched from your subscriptions</string>
-    <string name="content_settings_hide_unplayable_subscriptions_title">Hide Unplayable Videos from Subscriptions</string>
-    <string name="content_settings_hide_unplayable_subscriptions_subtitle">Filter out age-restricted, private, members-only and removed videos after they fail to play</string>
     <string name="content_settings_watched_threshold_title">Mark as watched when</string>
     <string name="content_settings_watched_threshold_dialog_body">Choose how much of a video must be played before it counts as watched and gets hidden.</string>
     <string name="content_settings_watched_threshold_90">90% played</string>
@@ -761,20 +713,8 @@
     <string name="content_settings_comments_enabled_subtitle">Load and show the comments section on the video player screen</string>
     <string name="content_settings_comments_preview_title">Comments preview</string>
     <string name="content_settings_comments_preview_subtitle">Show the latest comment inside the comments card</string>
-    <string name="content_settings_subs_startup_refresh_title">Refresh subscriptions at startup</string>
-    <string name="content_settings_subs_startup_refresh_subtitle">Check your subscription feed when the app opens</string>
-    <string name="content_settings_subs_show_checked_count_title">Checked video count</string>
-    <string name="content_settings_subs_show_checked_count_subtitle">Show how many videos were checked beside the last refresh time</string>
-    <string name="content_settings_subs_show_videos_title">Subscription videos</string>
-    <string name="content_settings_subs_show_videos_subtitle">Show regular videos in the subscription feed</string>
-    <string name="content_settings_subs_show_shorts_title">Subscription shorts</string>
-    <string name="content_settings_subs_show_shorts_subtitle">Show Shorts in the subscription feed</string>
-    <string name="content_settings_subs_show_live_title">Subscription live streams</string>
-    <string name="content_settings_subs_show_live_subtitle">Show live and recently ended streams in the subscription feed</string>
     <string name="content_settings_nav_order_title">Tab order and default</string>
     <string name="content_settings_nav_order_subtitle">Use arrows to rearrange tabs. Select the default tab with the radio button.</string>
-    <string name="settings_subs_shorts_shelf_title">Subscriptions shorts shelf</string>
-    <string name="settings_subs_shorts_shelf_subtitle">Show the horizontal shorts shelf in the subscription feed grid.</string>
     <string name="settings_home_shorts_shelf_title">Home screen shorts shelf</string>
     <string name="settings_home_shorts_shelf_subtitle">Show the horizontal shorts shelf on the home screen.</string>
     <string name="settings_shorts_nav_tab_title">Shorts tab in navigation</string>
@@ -1124,51 +1064,8 @@
     <string name="period_one_year">1 year</string>
     <string name="days_count_template">%1$d days</string>
     <!-- Import Data Screen -->
-    <string name="import_data_title">Import Data</string>
-    <string name="import_flow_backup_success">piTube backup imported successfully</string>
-    <string name="import_flow_backup_failed_template">Failed to import piTube backup: %1$s</string>
-    <string name="import_newpipe_success_template">Imported %1$d subscriptions from NewPipe</string>
-    <string name="import_newpipe_failed_template">Failed to import NewPipe backup: %1$s</string>
-    <string name="import_youtube_success_template">Imported %1$d subscriptions from YouTube</string>
-    <string name="import_youtube_failed_template">Failed to import YouTube backup: %1$s</string>
-    <string name="import_flow_backup_item_title">Import piTube Backup</string>
-    <string name="import_flow_backup_desc">Restore your history, settings, and subscriptions from a piTube backup file.</string>
-    <string name="import_from_newpipe">Import from NewPipe</string>
-    <string name="import_from_newpipe_desc">Import subscriptions from a NewPipe export file (JSON).</string>
-    <string name="import_from_libretube">Import from LibreTube</string>
-    <string name="import_from_libretube_desc">Import subscriptions from a LibreTube backup file (JSON).</string>
-    <string name="import_playlists_section_title">Playlists</string>
-    <string name="import_playlists_section_subtitle">Import video playlists from other apps</string>
-    <string name="import_newpipe_playlists">Import NewPipe Playlists</string>
-    <string name="import_newpipe_playlists_desc">Import your NewPipe local playlists from a backup ZIP file.</string>
-    <string name="import_libretube_playlists">Import LibreTube Playlists</string>
-    <string name="import_libretube_playlists_desc">Import your LibreTube local playlists from a backup JSON file.</string>
-    <string name="import_yt_takeout_all">Import from Google Takeout</string>
-    <string name="import_yt_takeout_all_desc">Import your YouTube subscriptions, watch history, and playlists all at once from a Google Takeout ZIP file.</string>
     <!-- Music Apps Import -->
-    <string name="import_from_metrolist">Import from Metrolist</string>
-    <string name="import_from_metrolist_desc">Import music playlists from a Metrolist backup file (.zip). Playlists appear in your Music Library.</string>
-    <string name="import_from_youtube">Import from YouTube</string>
-    <string name="import_from_youtube_desc">Import subscriptions from YouTube Takeout (CSV).</string>
-    <string name="import_subscriptions_section_title">Subs</string>
-    <string name="import_history_section_title">History</string>
-    <string name="import_freetube_history">Import FreeTube History</string>
-    <string name="import_freetube_history_desc">Import your watch history from a FreeTube export JSON file.</string>
-    <string name="import_newpipe_history">Import NewPipe History</string>
-    <string name="import_newpipe_history_desc">Import your watch history from a NewPipe backup ZIP or newpipe.db file.</string>
     <!-- YouTube Data Import (Watch History & Playlists) -->
-    <string name="import_yt_data_section_title">YouTube Data</string>
-    <string name="import_yt_data_section_subtitle">Import additional data from YouTube Takeout</string>
-    <string name="import_yt_watch_history">Import Watch History</string>
-    <string name="import_yt_watch_history_desc">Import your watch history from YouTube Takeout (watch-history.html).</string>
-    <string name="import_yt_playlist">Import YouTube Playlist</string>
-    <string name="import_yt_playlist_desc">Import a playlist from YouTube Takeout CSV (Playlist-&lt;name&gt;.csv).</string>
-    <string name="import_yt_history_success_template">Imported %1$d entries from your YouTube watch history</string>
-    <string name="import_yt_history_failed_template">Failed to import watch history: %1$s</string>
-    <string name="import_yt_playlist_success_template">Imported playlist “%1$s” with %2$d videos</string>
-    <string name="import_yt_playlist_failed_template">Failed to import playlist: %1$s</string>
-    <string name="import_yt_history_empty_error">No watch history entries found in this file. Make sure it is a YouTube Takeout watch-history.html file.</string>
-    <string name="import_yt_playlist_empty_error">No videos found in this CSV. Make sure it is a YouTube Takeout playlist CSV file.</string>
     <!-- Download Settings Screen -->
     <string name="download_settings_title">Download Settings</string>
     <string name="permissions_header">Permissions</string>
@@ -1549,13 +1446,6 @@
     <string name="update_check_failed">Couldn\'t check for updates. Check your connection.</string>
     <!-- Export / Import Flow Engine data (Settings + ImportDataScreen) -->
     <!-- Master Backup -->
-    <string name="master_backup_title">Master Backup</string>
-    <string name="master_backup_subtitle">Export all app data in one file</string>
-    <string name="master_backup_export_success">Master backup saved successfully</string>
-    <string name="master_backup_export_failed">Failed to export master backup</string>
-    <string name="import_master_backup_title">Import Master Backup</string>
-    <string name="import_master_backup_success">Master backup restored successfully</string>
-    <string name="import_master_backup_failed">Failed to import master backup</string>
     <!-- Device Sync (FLOW-SYNC/1) -->
     <string name="sync_devices_title">Sync devices</string>
     <string name="sync_devices_subtitle">Sync library, history &amp; profile over local Wi-Fi</string>
@@ -1584,7 +1474,6 @@
     <string name="sync_camera_permission_rationale">Camera permission is needed to scan the QR code.</string>
     <string name="sync_grant_camera">Grant camera access</string>
     <string name="sync_choose_what_to_send">Choose what to send</string>
-    <string name="sync_safety_backup_note">A safety backup is taken automatically on the receiving device before anything is merged.</string>
     <string name="sync_continue">Continue</string>
     <string name="sync_qr_scan_on_target_sending">Scan this on the device you\'re sending to</string>
     <string name="sync_qr_scan_on_target_receiving">Scan this on the device you\'re receiving from</string>
@@ -1617,39 +1506,7 @@
     <string name="sync_error_qr_not_flow">That doesn\'t look like a piTube sync code.</string>
     <string name="sync_error_qr_bad_address">The sync code is missing a valid network address.</string>
     <!-- Automated Backups -->
-    <string name="auto_backup_title">Automated Backups</string>
-    <string name="auto_backup_subtitle">Schedule automatic backups to a folder</string>
-    <string name="auto_backup_screen_title">Automated Backups</string>
-    <string name="auto_backup_schedule_section">Schedule</string>
-    <string name="auto_backup_type_section">Backup Type</string>
-    <string name="auto_backup_folder_section">Backup Folder</string>
-    <string name="auto_backup_status_section">Status</string>
-    <string name="auto_backup_frequency_none">None</string>
-    <string name="auto_backup_frequency_daily">Daily</string>
-    <string name="auto_backup_frequency_weekly">Weekly</string>
-    <string name="auto_backup_frequency_monthly">Monthly</string>
-    <string name="auto_backup_type_app_data">App Data</string>
-    <string name="auto_backup_type_master">Master Backup</string>
-    <string name="auto_backup_folder_label">Backup Folder</string>
-    <string name="auto_backup_pick_folder">Pick Folder</string>
-    <string name="auto_backup_no_folder">No folder selected</string>
-    <string name="auto_backup_last_run">Last backup: %s</string>
-    <string name="auto_backup_last_run_label">Last Backup</string>
-    <string name="auto_backup_never_run">No backup yet</string>
-    <string name="auto_backup_run_now">Back Up Now</string>
-    <string name="auto_backup_success">Backup completed successfully</string>
-    <string name="auto_backup_failed">Backup failed</string>
-    <string name="auto_backup_notification_channel">Automated Backups</string>
     <!-- Export Data Screen -->
-    <string name="export_data_screen_title">Export Data</string>
-    <string name="export_data_section_header">Choose Export Type</string>
-    <string name="export_data_section_subtitle">Select what you want to export and save to your device</string>
-    <string name="export_newpipe_subs_title">Export subscriptions (NewPipe format)</string>
-    <string name="export_newpipe_subs_desc">Export your subscriptions as a NewPipe-compatible JSON file.</string>
-    <string name="export_newpipe_subs_success">NewPipe subscriptions exported successfully</string>
-    <string name="export_newpipe_subs_failed">Failed to export NewPipe subscriptions</string>
-    <string name="export_app_data_title">App Data Backup</string>
-    <string name="export_app_data_desc">Export your subscriptions, watch history, playlists, and settings</string>
     <!-- Video Player Errors -->
     <string name="error_age_restricted">Age-restricted content</string>
     <string name="error_age_restricted_hint">This video is only available to signed-in users who have verified their age.</string>
@@ -1739,10 +1596,6 @@
     <string name="merge_playlist_success">Added %1$d songs to “%2$s”</string>
     <string name="merge_playlist_no_playlists">No playlists yet. Create one first!</string>
     <!-- Profile Export/Import Toasts -->
-    <string name="profile_export_success">Profile exported successfully</string>
-    <string name="profile_export_failed">Export failed</string>
-    <string name="profile_import_success">Profile imported successfully</string>
-    <string name="profile_import_failed">Import failed - invalid file</string>
     <!-- Profile Maturity Section -->
     <string name="profile_maturity_label">Profile maturity</string>
     <string name="profile_maturity_detail">Higher maturity means the profile has enough signals to be stable</string>
@@ -1811,10 +1664,6 @@
     <string name="blocked_item_showing_count">Showing %1$d of %2$d</string>
     <!-- Profile Data Section -->
     <string name="profile_data_title">Profile Data</string>
-    <string name="profile_action_export">Export profile</string>
-    <string name="profile_action_export_detail">Save the current profile as JSON</string>
-    <string name="profile_action_import">Import profile</string>
-    <string name="profile_action_import_detail">Restore a profile backup</string>
     <string name="profile_action_reset">Reset profile</string>
     <string name="profile_action_reset_detail">Erase learned preferences and start fresh</string>
     <!-- Reset Profile Dialog -->
@@ -1854,9 +1703,6 @@
     <string name="shorts_playback_speed">Playback speed</string>
     <string name="speed_normal">Normal</string>
     <!-- Export / delete watch history (#507) -->
-    <string name="export_watch_history_title">Watch history</string>
-    <string name="export_watch_history_desc">Export as YouTube-history JSON (imports into LibreTube and piTube)</string>
-    <string name="history_export_failed">Failed to export watch history</string>
     <string name="history_delete_shorts">Delete Shorts from history</string>
     <string name="history_sync_youtube">Sync from YouTube</string>
     <string name="history_delete_shorts_title">Delete Shorts?</string>
@@ -1994,37 +1840,27 @@
     <string name="toast_failed_to_merge_playlist">Failed to merge playlist</string>
 
     <!-- Localization follow-up: notifications (#738) -->
-    <string name="notification_importing">Importing %1$s</string>
-    <string name="notification_import_complete">Import complete</string>
-    <string name="notification_imported">Imported %1$d %2$s</string>
     <string name="notification_downloading">Downloading: %1$s</string>
     <string name="notification_download_complete">Download complete</string>
     <string name="notification_download_failed">Download failed</string>
-    <string name="notification_more">+%1$d more</string>
-    <string name="notification_new_videos">New videos</string>
-    <string name="notification_new_videos_from_subscriptions">%1$d new videos from your subscriptions</string>
     <string name="notification_update_available">Update Available: %1$s</string>
     <string name="notification_tap_to_update">Tap to update to the latest version.</string>
     <string name="notification_watch_later_reminder">Watch Later Reminder</string>
     <string name="notification_video_live">Video is live</string>
     <string name="notification_channel_live">%1$s is now live: %2$s</string>
     <string name="notification_channel_downloads_description">Shows download progress and completion</string>
-    <string name="notification_channel_new_videos_description">Notifications when subscribed channels upload new videos</string>
     <string name="notification_channel_video_playback_description">Video playback controls</string>
     <string name="notification_channel_music_playback_description">Music playback controls</string>
     <string name="notification_download_progress_description">Video and audio download progress</string>
     <string name="notification_channel_general_description">General app notifications</string>
     <string name="notification_channel_break_reminders_description">Bedtime and break reminders</string>
     <string name="notification_channel_updates_description">App update notifications</string>
-    <string name="notification_channel_import_description">Shows progress while importing subscriptions or watch history</string>
     <string name="notification_channel_downloads">Downloads</string>
-    <string name="notification_channel_new_videos">New Videos</string>
     <string name="notification_channel_video_playback">Video Playback</string>
     <string name="notification_channel_music_playback">Music Playback</string>
     <string name="notification_channel_general">General</string>
     <string name="notification_channel_reminders">Reminders</string>
     <string name="notification_channel_updates">App Updates</string>
-    <string name="notification_channel_imports">Data Import</string>
 
     <!-- Localization follow-up: errors and import screens (#738) -->
     <string name="error_no_internet_found">No internet connection found</string>
@@ -2070,27 +1906,12 @@
     <string name="download_failed_audio_length">Failed to get audio content length</string>
     <string name="download_workers_failed">One or more workers failed</string>
     <string name="download_block_failed">Block %1$s failed: %2$s</string>
-    <string name="import_migrate_description">Migrate your subscriptions and history from other platforms to piTube seamlessly.</string>
-    <string name="import_backup_restore">Backup &amp; Restore</string>
-    <string name="import_manage_backups">Manage your piTube backups</string>
-    <string name="import_external_services">External Services</string>
-    <string name="import_other_youtube_clients">Import from other YouTube clients</string>
-    <string name="imported_count">Imported %1$d %2$s</string>
-    <string name="imported_successfully">%1$s imported successfully</string>
-    <string name="importing_label">Importing %1$s…</string>
-    <string name="imported_from_google_takeout">Imported from Google Takeout</string>
 
     <!-- Localization follow-up: fallback labels (#738) -->
     <string name="fallback_playing">Playing…</string>
     <string name="empty_saved_shorts">No saved shorts yet</string>
     <string name="settings_search_no_results">No settings found for &quot;%1$s&quot;</string>
-    <string name="import_running_background">You can navigate away — the import continues in the background.</string>
     <string name="donations_cryptocurrency">CRYPTOCURRENCY</string>
-    <string name="import_no_history_entries">No watch-history entries found in file</string>
-    <string name="import_no_videos">No videos found in playlist file</string>
-    <string name="import_no_content">No importable content found in this backup</string>
-    <string name="import_invalid_format">Unrecognised backup format — make sure you selected the correct file</string>
-    <string name="import_failed_template">Import failed: %1$s</string>
     <string name="duration_hours_minutes">%1$d hr %2$d min</string>
     <string name="duration_minutes">%1$d min</string>
     <string name="duration_hours_short">%1$dh</string>

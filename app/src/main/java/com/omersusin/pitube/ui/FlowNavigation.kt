@@ -38,7 +38,6 @@ import com.omersusin.pitube.ui.screens.search.SearchScreen
 import com.omersusin.pitube.ui.screens.account.YouTubeLoginScreen
 import com.omersusin.pitube.ui.screens.settings.SettingsScreen
 import com.omersusin.pitube.ui.screens.shorts.ShortsScreen
-import com.omersusin.pitube.ui.screens.subscriptions.SubscriptionsScreen
 import com.omersusin.pitube.ui.screens.channel.ChannelScreen
 import com.omersusin.pitube.ui.screens.onboarding.OnboardingScreen
 import com.omersusin.pitube.ui.theme.CustomThemePalettes
@@ -197,32 +196,6 @@ fun NavGraphBuilder.flowAppGraph(
         )
     }
 
-    composable("subscriptions") {
-        currentRoute.value = "subscriptions"
-        showBottomNav.value = true
-        selectedBottomNavIndex.intValue = 3
-        SubscriptionsScreen(
-            onVideoClick = { video ->
-                if (video.isShort && !disableShortsPlayer) {
-                    navController.navigate("shorts?startVideoId=${video.id}")
-                } else {
-                    playerViewModel.playVideo(video)
-                    GlobalPlayerState.setCurrentVideo(video)
-                }
-            },
-            onShortClick = { videoId ->
-                if (disableShortsPlayer) {
-                    navController.navigate("player/$videoId")
-                } else {
-                    navController.navigate("shorts?startVideoId=$videoId")
-                }
-            },
-            onChannelClick = { channel ->
-                navController.navigateToYoutubeChannel(channel.url.ifBlank { channel.id })
-            }
-        )
-    }
-
     composable("library") {
         currentRoute.value = "library"
         showBottomNav.value = true
@@ -340,19 +313,9 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToNotifications = { navController.navigate("settings/notifications") },
             onNavigateToAppIconPicker = { navController.navigate("settings/app_icon") },
             onNavigateToDiagnostics = { navController.navigate("settings/diagnostics") },
-            onNavigateToAutoBackup = { navController.navigate("settings/auto_backup") },
             onNavigateToSyncDevices = { navController.navigate("settings/sync_devices") },
-            onNavigateToExport = { navController.navigate("settings/export") },
             onNavigateToSponsorBlockSettings = { navController.navigate("settings/sponsorblock") },
             onNavigateToGoogleLogin = { navController.navigate("account") }
-        )
-    }
-
-    composable("settings/auto_backup") {
-        currentRoute.value = "settings/auto_backup"
-        showBottomNav.value = false
-        com.omersusin.pitube.ui.screens.settings.AutoBackupSettingsScreen(
-            onNavigateBack = { navController.popBackStack() }
         )
     }
 
@@ -360,14 +323,6 @@ fun NavGraphBuilder.flowAppGraph(
         currentRoute.value = "settings/sync_devices"
         showBottomNav.value = false
         com.omersusin.pitube.ui.screens.sync.SyncScreen(
-            onNavigateBack = { navController.popBackStack() }
-        )
-    }
-
-    composable("settings/export") {
-        currentRoute.value = "settings/export"
-        showBottomNav.value = false
-        com.omersusin.pitube.ui.screens.settings.ExportDataScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }

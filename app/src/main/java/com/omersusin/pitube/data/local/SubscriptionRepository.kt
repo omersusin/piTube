@@ -100,10 +100,6 @@ class SubscriptionRepository private constructor(
             }
         }
 
-        AppDatabase
-            .getDatabase(context)
-            .cacheDao()
-            .deleteSubscriptionFeedForChannel(channelId)
     }
 
     /**

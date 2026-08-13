@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
-    <string name="subscriptions_search_placeholder">සබ්ක්‍රිප්ශන්ස් හොයන්න...</string>
-    <string name="subscriptions_sort_label">නාලිකා වර්ග කරන්න</string>
-    <string name="subscriptions_sort_default">පෙරනිමිය</string>
-    <string name="subscriptions_sort_name">නම (A-Z)</string>
-    <string name="subscriptions_sort_recent">මෑතකදී යාවත්කාලීන කරන ලද</string>
-    <string name="top_bar_subscriptions_title">දායකත්වයන්</string>
     <string name="view_all_button_label">සියල්ල</string>
     <string name="subscribed">දායක වූ</string>
-    <string name="no_subscriptions_yet">තවම දායකත්වයන් නොමැත</string>
-    <string name="empty_subscriptions_body">නාලිකා නැරඹීමට දායක වන්න\nනවතම වීඩියෝ නරඹන්න</string>
     <string name="home_refresh_feed">ෆීඩ් එක අලුත් කරන්න</string>
-    <string name="subscriptions_refresh_progress_template">නැවුම් කරමින් %1$d වල %2$d නාලිකා</string>
-    <string name="subscriptions_last_refreshed_template">අවසන් වරට නැවුම් කළේ %1$s-%2$d වීඩියෝ පරීක්ෂා කරන ලදී</string>
-    <string name="subscriptions_last_refreshed_time_only_template">අවසන් වරට නැවුම් කළේ %1$s</string>
     <string name="retry">නැවත උත්සාහ කරන්න</string>
     <string name="copy_logs">ලොග් පිටපත් කරන්න</string>
     <string name="logs_copied">ලොග් පිටපත් කරගන්නා ලදී</string>

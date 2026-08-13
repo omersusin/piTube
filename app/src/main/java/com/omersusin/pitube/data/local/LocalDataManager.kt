@@ -54,11 +54,7 @@ class LocalDataManager @Inject constructor(@ApplicationContext private val conte
         private val SYSTEM_DARK_THEME_MODE = stringPreferencesKey("system_dark_theme_mode")
         private val SYSTEM_DARK_THEME_VARIANT = stringPreferencesKey("system_dark_theme_variant")
 
-        val AUTO_BACKUP_LAST_RUN = androidx.datastore.preferences.core.longPreferencesKey("auto_backup_last_run")
     }
-
-    enum class AutoBackupFrequency { NONE, DAILY, WEEKLY, MONTHLY }
-    enum class AutoBackupType { APP_DATA, MASTER }
 
     // Update Settings
     val lastUpdateCheck: Flow<Long> = context.dataStore.data.map { prefs ->
@@ -481,15 +477,5 @@ class LocalDataManager @Inject constructor(@ApplicationContext private val conte
         }
     }
 
-
-    val autoBackupLastRun: Flow<Long> = context.dataStore.data.map { prefs ->
-        prefs[AUTO_BACKUP_LAST_RUN] ?: 0L
-    }
-
-    suspend fun setAutoBackupLastRun(timestamp: Long) {
-        context.dataStore.edit { prefs ->
-            prefs[AUTO_BACKUP_LAST_RUN] = timestamp
-        }
-    }
 }
 

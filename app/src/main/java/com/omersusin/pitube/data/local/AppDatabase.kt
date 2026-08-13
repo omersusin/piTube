@@ -25,7 +25,6 @@ import com.omersusin.pitube.data.local.entity.NotificationEntity
 import com.omersusin.pitube.data.local.entity.PlaylistEntity
 import com.omersusin.pitube.data.local.entity.PlaylistVideoCrossRef
 import com.omersusin.pitube.data.local.entity.RecognitionHistoryEntity
-import com.omersusin.pitube.data.local.entity.SubscriptionFeedEntity
 import com.omersusin.pitube.data.local.entity.SubscriptionGroupEntity
 import com.omersusin.pitube.data.local.entity.SyncLogEntity
 import com.omersusin.pitube.data.local.entity.SyncPeerEntity
@@ -39,7 +38,6 @@ import com.omersusin.pitube.data.local.migrations.MIGRATIONS
         PlaylistEntity::class,
         PlaylistVideoCrossRef::class,
         NotificationEntity::class,
-        SubscriptionFeedEntity::class,
         MusicHomeCacheEntity::class,
         MusicHomeChipEntity::class,
         DownloadedSongEntity::class,
@@ -52,7 +50,7 @@ import com.omersusin.pitube.data.local.migrations.MIGRATIONS
         SyncLogEntity::class,
         SyncPeerEntity::class,
     ],
-    version = 24,
+    version = 25,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

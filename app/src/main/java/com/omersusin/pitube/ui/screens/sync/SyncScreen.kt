@@ -251,11 +251,6 @@ private fun SelectSendContent(
             }
         }
     }
-    Text(
-        stringResource(R.string.sync_safety_backup_note),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
     Button(
         onClick = onContinue,
         enabled = selected.isNotEmpty(),

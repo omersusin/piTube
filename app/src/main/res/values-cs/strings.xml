@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
-    <string name="subscriptions_sort_label">Seřadit kanály</string>
-    <string name="subscriptions_sort_default">Výchozí</string>
-    <string name="subscriptions_sort_name">Jméno (A-Z)</string>
-    <string name="subscriptions_sort_recent">Nedávno aktualizováno</string>
-    <string name="top_bar_subscriptions_title">Odběry</string>
     <string name="view_all_button_label">Vše</string>
     <string name="subscribed">Odebíráno</string>
-    <string name="no_subscriptions_yet">Zatím žádné odběry</string>
-    <string name="empty_subscriptions_body">Přihlásit se na kanály vidět jejich\nnejnovější videa zde</string>
     <string name="home_refresh_feed">Aktualizovat Feed</string>
     <string name="retry">Obnovit</string>
     <string name="copy_logs">Zkopírovat logy</string>
@@ -71,7 +64,6 @@
     <string name="empty_liked_music_body">Hudba kterou jste lajkovali se zobrazí zde</string>
     <string name="song">Hudba</string>
     <string name="video">Videa</string>
-    <string name="subscriptions_search_placeholder">Hledat odběry...</string>
     <string name="history_tab_shorts">Shorty</string>
     <string name="share">Sdílet</string>
     <string name="downloaded">Stažené</string>
@@ -109,7 +101,6 @@
     <string name="share_video">Sdílet video</string>
     <string name="content_settings_share_without_text_title">Sdílet odkaz bez textu</string>
     <string name="related_videos">Navrhnout Videa</string>
-    <string name="subscriptions_last_refreshed_time_only_template">Naposledy aktualizováno %1$s</string>
     <string name="channel_error_log_clip_label">Záznam chyb průtokového kanálu</string>
     <string name="channel_and_more_template">A další</string>
     <string name="local_media_empty_title">Není nalezeno</string>

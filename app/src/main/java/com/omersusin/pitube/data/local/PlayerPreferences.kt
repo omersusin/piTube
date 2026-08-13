@@ -26,7 +26,7 @@ const val DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP = 16
 const val MAX_PORTRAIT_SEEKBAR_PADDING_DP = 64
 const val DEFAULT_FULLSCREEN_SEEKBAR_PADDING_DP = 48
 const val MAX_FULLSCREEN_SEEKBAR_PADDING_DP = 120
-val DEFAULT_NAV_TAB_ORDER = listOf(0, 1, 3, 4, 5, 6)
+val DEFAULT_NAV_TAB_ORDER = listOf(0, 1, 4, 5, 6)
 
 private const val MAX_UNPLAYABLE_VIDEO_IDS = 300
 
@@ -180,7 +180,6 @@ class PlayerPreferences(context: Context) {
 
         // Notification preferences
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
-        val NOTIF_NEW_VIDEOS_ENABLED = booleanPreferencesKey("notif_new_videos_enabled")
         val NOTIF_DOWNLOADS_ENABLED = booleanPreferencesKey("notif_downloads_enabled")
         val NOTIF_REMINDERS_ENABLED = booleanPreferencesKey("notif_reminders_enabled")
         val NOTIF_UPDATES_ENABLED = booleanPreferencesKey("notif_updates_enabled")
@@ -213,14 +212,6 @@ class PlayerPreferences(context: Context) {
         // Audio focus during calls
         val PLAY_DURING_CALLS = booleanPreferencesKey("play_during_calls")
 
-        // Subscriptions feed view mode
-        val SUBS_FULL_WIDTH_VIEW = booleanPreferencesKey("subs_full_width_view")
-        val SUBS_SORT_MODE = stringPreferencesKey("subs_sort_mode")
-        val SUBS_SELECTED_GROUP = stringPreferencesKey("subs_selected_group")
-        val SUBS_REFRESH_ON_STARTUP = booleanPreferencesKey("subs_refresh_on_startup")
-        val SUBS_LAST_REFRESH_TIME = longPreferencesKey("subs_last_refresh_time")
-        val SUBS_LAST_REFRESHED_COUNT = intPreferencesKey("subs_last_refreshed_count")
-        val SUBS_SHOW_CHECKED_VIDEO_COUNT = booleanPreferencesKey("subs_show_checked_video_count")
 
         // Donation / support prompt
         val DONATION_FIRST_LAUNCH_TIME = longPreferencesKey("donation_first_launch_time")
@@ -234,9 +225,6 @@ class PlayerPreferences(context: Context) {
         // Remember playback speed
         val REMEMBER_PLAYBACK_SPEED = booleanPreferencesKey("remember_playback_speed")
 
-        // Subscription check interval
-        val SUBSCRIPTION_CHECK_INTERVAL_MINUTES = intPreferencesKey("subscription_check_interval_minutes")
-
         // Custom playback speeds
         val CUSTOM_SPEEDS_ENABLED = booleanPreferencesKey("custom_speeds_enabled")
         val CUSTOM_SPEED_PRESETS = stringPreferencesKey("custom_speed_presets")
@@ -246,7 +234,6 @@ class PlayerPreferences(context: Context) {
         // Content filtering
         val HIDE_WATCHED_VIDEOS = booleanPreferencesKey("hide_watched_videos")
         val HIDE_WATCHED_HOME_FEED = booleanPreferencesKey("hide_watched_home_feed")
-        val HIDE_WATCHED_SUBSCRIPTIONS = booleanPreferencesKey("hide_watched_subscriptions")
         val WATCHED_THRESHOLD = stringPreferencesKey("watched_threshold")
         val DISABLE_SHORTS_PLAYER = booleanPreferencesKey("disable_shorts_player")
         val SHOW_SHORTS_PLAYER_PROMPT = booleanPreferencesKey("show_shorts_player_prompt")
@@ -287,15 +274,10 @@ class PlayerPreferences(context: Context) {
         val COMMENTS_ENABLED = booleanPreferencesKey("comments_enabled")
         val COMMENTS_PREVIEW_ENABLED = booleanPreferencesKey("comments_preview_enabled")
 
-        val SUBSCRIPTION_SHOW_VIDEOS = booleanPreferencesKey("subscription_show_videos")
-        val SUBSCRIPTION_SHOW_SHORTS = booleanPreferencesKey("subscription_show_shorts")
-        val SUBSCRIPTION_SHOW_LIVE = booleanPreferencesKey("subscription_show_live")
-        val SUBSCRIPTION_SHORTS_EXCLUDED_CHANNELS = stringSetPreferencesKey("subscription_shorts_excluded_channels")
         val UPCOMING_VIDEO_REMINDER_IDS = stringSetPreferencesKey("upcoming_video_reminder_ids")
 
         // Newest-first, newline-delimited so the list can be trimmed to a bounded size.
         val UNPLAYABLE_VIDEO_IDS = stringPreferencesKey("unplayable_video_ids")
-        val HIDE_UNPLAYABLE_SUBSCRIPTIONS = booleanPreferencesKey("hide_unplayable_subscriptions")
 
         // Home subscription feed rotation cursor
         val HOME_SUBS_ROTATION_CURSOR = intPreferencesKey("home_subs_rotation_cursor")
@@ -305,11 +287,6 @@ class PlayerPreferences(context: Context) {
 
         // Remembered default channel tab per channel ("channelId|tabIndex")
         val CHANNEL_DEFAULT_TABS = stringSetPreferencesKey("channel_default_tabs")
-
-        // Auto-backup settings
-        val AUTO_BACKUP_FREQUENCY = stringPreferencesKey("auto_backup_frequency")
-        val AUTO_BACKUP_FOLDER_URI = stringPreferencesKey("auto_backup_folder_uri")
-        val AUTO_BACKUP_TYPE = stringPreferencesKey("auto_backup_type")
 
         // Return YouTube Dislikes
         val RYTD_ENABLED = booleanPreferencesKey("rytd_enabled")
@@ -1046,15 +1023,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    val notifNewVideosEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.NOTIF_NEW_VIDEOS_ENABLED] ?: true }
-
-    suspend fun setNotifNewVideosEnabled(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.NOTIF_NEW_VIDEOS_ENABLED] = enabled
-        }
-    }
-
     val notifDownloadsEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
         .map { preferences -> preferences[Keys.NOTIF_DOWNLOADS_ENABLED] ?: true }
 
@@ -1361,17 +1329,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    // Subscription check interval (default: 360 minutes / 6 hours)
-    val subscriptionCheckIntervalMinutes: Flow<Int> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            preferences[Keys.SUBSCRIPTION_CHECK_INTERVAL_MINUTES] ?: 360
-        }
-
-    suspend fun setSubscriptionCheckIntervalMinutes(minutes: Int) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBSCRIPTION_CHECK_INTERVAL_MINUTES] = minutes
-        }
-    }
 
     // Custom playback speeds
     val customSpeedsEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
@@ -1420,71 +1377,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    // Subscriptions feed view mode
-    val subsFullWidthView: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            preferences[Keys.SUBS_FULL_WIDTH_VIEW] ?: false
-        }
-
-    suspend fun setSubsFullWidthView(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBS_FULL_WIDTH_VIEW] = enabled
-        }
-    }
-
-    // Subscriptions channel sort mode (persisted as the enum name)
-    val subsSortMode: Flow<String> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBS_SORT_MODE] ?: "" }
-
-    suspend fun setSubsSortMode(mode: String) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBS_SORT_MODE] = mode
-        }
-    }
-
-    val selectedSubscriptionGroup: Flow<String?> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBS_SELECTED_GROUP]?.takeIf { it.isNotBlank() } }
-
-    suspend fun setSelectedSubscriptionGroup(groupName: String?) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            if (groupName.isNullOrBlank()) {
-                preferences.remove(Keys.SUBS_SELECTED_GROUP)
-            } else {
-                preferences[Keys.SUBS_SELECTED_GROUP] = groupName
-            }
-        }
-    }
-
-    val subscriptionRefreshOnStartup: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBS_REFRESH_ON_STARTUP] ?: false }
-
-    suspend fun setSubscriptionRefreshOnStartup(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBS_REFRESH_ON_STARTUP] = enabled
-        }
-    }
-
-    val subscriptionLastRefreshTime: Flow<Long> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBS_LAST_REFRESH_TIME] ?: 0L }
-
-    val subscriptionLastRefreshedCount: Flow<Int> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBS_LAST_REFRESHED_COUNT] ?: 0 }
-
-    val subscriptionShowCheckedVideoCount: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBS_SHOW_CHECKED_VIDEO_COUNT] ?: true }
-
-    suspend fun setSubscriptionShowCheckedVideoCount(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBS_SHOW_CHECKED_VIDEO_COUNT] = enabled
-        }
-    }
-
-    suspend fun setSubscriptionLastRefresh(timeMillis: Long, count: Int) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBS_LAST_REFRESH_TIME] = timeMillis
-            preferences[Keys.SUBS_LAST_REFRESHED_COUNT] = count
-        }
-    }
 
     // ── Donation / support prompt ───────────────────────────────────────────
     val donationFirstLaunchTime: Flow<Long> = context.playerPreferencesDataStore.data
@@ -1556,32 +1448,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    val subscriptionShowVideos: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_VIDEOS] ?: true }
-
-    suspend fun setSubscriptionShowVideos(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBSCRIPTION_SHOW_VIDEOS] = enabled
-        }
-    }
-
-    val subscriptionShowShorts: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_SHORTS] ?: true }
-
-    suspend fun setSubscriptionShowShorts(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBSCRIPTION_SHOW_SHORTS] = enabled
-        }
-    }
-
-    val subscriptionShowLive: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_LIVE] ?: true }
-
-    suspend fun setSubscriptionShowLive(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SUBSCRIPTION_SHOW_LIVE] = enabled
-        }
-    }
 
     // PiP Preferences
     val autoPipEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
@@ -1717,19 +1583,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    val subscriptionShortsExcludedChannels: Flow<Set<String>> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            preferences[Keys.SUBSCRIPTION_SHORTS_EXCLUDED_CHANNELS].orEmpty()
-        }
-
-    suspend fun setSubscriptionShortsChannelExcluded(channelId: String, excluded: Boolean) {
-        if (channelId.isBlank()) return
-        context.playerPreferencesDataStore.edit { preferences ->
-            val current = preferences[Keys.SUBSCRIPTION_SHORTS_EXCLUDED_CHANNELS].orEmpty()
-            preferences[Keys.SUBSCRIPTION_SHORTS_EXCLUDED_CHANNELS] =
-                if (excluded) current + channelId else current - channelId
-        }
-    }
 
     val upcomingVideoReminderIds: Flow<Set<String>> = context.playerPreferencesDataStore.data
         .map { preferences ->
@@ -2312,47 +2165,6 @@ class PlayerPreferences(context: Context) {
     suspend fun setMiniPlayerShowNextPrevControls(show: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.MINI_PLAYER_SHOW_NEXT_PREV_CONTROLS] = show
-        }
-    }
-
-    // AUTO-BACKUP SETTINGS
-    val autoBackupFrequency: Flow<LocalDataManager.AutoBackupFrequency> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            runCatching {
-                LocalDataManager.AutoBackupFrequency.valueOf(
-                    preferences[Keys.AUTO_BACKUP_FREQUENCY] ?: LocalDataManager.AutoBackupFrequency.NONE.name
-                )
-            }.getOrDefault(LocalDataManager.AutoBackupFrequency.NONE)
-        }
-
-    suspend fun setAutoBackupFrequency(frequency: LocalDataManager.AutoBackupFrequency) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.AUTO_BACKUP_FREQUENCY] = frequency.name
-        }
-    }
-
-    val autoBackupFolderUri: Flow<String?> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.AUTO_BACKUP_FOLDER_URI]?.takeIf { it.isNotBlank() } }
-
-    suspend fun setAutoBackupFolderUri(uri: String?) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            if (uri != null) preferences[Keys.AUTO_BACKUP_FOLDER_URI] = uri
-            else preferences.remove(Keys.AUTO_BACKUP_FOLDER_URI)
-        }
-    }
-
-    val autoBackupType: Flow<LocalDataManager.AutoBackupType> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            runCatching {
-                LocalDataManager.AutoBackupType.valueOf(
-                    preferences[Keys.AUTO_BACKUP_TYPE] ?: LocalDataManager.AutoBackupType.APP_DATA.name
-                )
-            }.getOrDefault(LocalDataManager.AutoBackupType.APP_DATA)
-        }
-
-    suspend fun setAutoBackupType(type: LocalDataManager.AutoBackupType) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.AUTO_BACKUP_TYPE] = type.name
         }
     }
 

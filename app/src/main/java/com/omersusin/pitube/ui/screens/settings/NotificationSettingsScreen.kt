@@ -38,7 +38,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,14 +50,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.omersusin.pitube.BuildConfig
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.notification.BackgroundWorkPolicy
-import com.omersusin.pitube.notification.SubscriptionCheckWorker
 import com.omersusin.pitube.notification.UpdateCheckWorker
 import kotlinx.coroutines.launch
 
@@ -70,46 +65,14 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
     val prefs = remember { PlayerPreferences(context) }
 
     val notificationsEnabled by prefs.notificationsEnabled.collectAsState(initial = true)
-    val notifNewVideos by prefs.notifNewVideosEnabled.collectAsState(initial = true)
     val notifDownloads by prefs.notifDownloadsEnabled.collectAsState(initial = true)
     val notifReminders by prefs.notifRemindersEnabled.collectAsState(initial = true)
     val notifUpdates by prefs.notifUpdatesEnabled.collectAsState(initial = true)
     val notifGeneral by prefs.notifGeneralEnabled.collectAsState(initial = true)
-    val subCheckInterval by prefs.subscriptionCheckIntervalMinutes.collectAsState(initial = 360)
-    var showIntervalDialog by remember { mutableStateOf(false) }
 
     var backgroundWorkAllowed by remember {
         mutableStateOf(BackgroundWorkPolicy.isBackgroundWorkUnrestricted(context))
     }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer =
-            LifecycleEventObserver { _, event ->
-                if (event != Lifecycle.Event.ON_RESUME) return@LifecycleEventObserver
-                val allowed = BackgroundWorkPolicy.isBackgroundWorkUnrestricted(context)
-                if (allowed && !backgroundWorkAllowed) {
-                    SubscriptionCheckWorker.runImmediateCheck(context)
-                }
-                backgroundWorkAllowed = allowed
-            }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    val intervalOptions =
-        listOf(
-            15 to stringResource(R.string.notif_interval_15m),
-            30 to stringResource(R.string.notif_interval_30m),
-            60 to stringResource(R.string.notif_interval_1h),
-            120 to stringResource(R.string.notif_interval_2h),
-            180 to stringResource(R.string.notif_interval_3h),
-            360 to stringResource(R.string.notif_interval_6h),
-            720 to stringResource(R.string.notif_interval_12h),
-            1440 to stringResource(R.string.notif_interval_24h),
-        )
-    val currentIntervalLabel =
-        intervalOptions.firstOrNull { it.first == subCheckInterval }?.second
-            ?: "${subCheckInterval}min"
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -146,7 +109,6 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                SectionHeader(text = stringResource(R.string.notif_check_interval_section_header))
                 SettingsGroup {
                     SettingsSwitchItem(
                         icon = Icons.Outlined.NotificationsOff,
@@ -154,17 +116,9 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
                         subtitle = stringResource(R.string.notif_master_toggle_subtitle),
                         checked = notificationsEnabled,
                         onCheckedChange = { enabled ->
-                            if (!enabled) {
-                                showIntervalDialog = false
-                            }
                             coroutineScope.launch {
                                 prefs.setNotificationsEnabled(enabled)
                                 if (enabled) {
-                                    SubscriptionCheckWorker.schedulePeriodicCheck(
-                                        context,
-                                        intervalMinutes = subCheckInterval.toLong(),
-                                        reschedule = true,
-                                    )
                                     if (BuildConfig.UPDATER_ENABLED) {
                                         UpdateCheckWorker.schedulePeriodicCheck(context, reschedule = true)
                                     }
@@ -172,7 +126,6 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
                                         BackgroundWorkPolicy.requestUnrestrictedBackgroundWork(context)
                                     }
                                 } else {
-                                    SubscriptionCheckWorker.cancelScheduledChecks(context)
                                     UpdateCheckWorker.cancelScheduledChecks(context)
                                 }
                             }
@@ -190,42 +143,11 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
                             onClick = { BackgroundWorkPolicy.requestUnrestrictedBackgroundWork(context) },
                         )
                     }
-                    HorizontalDivider(
-                        Modifier.padding(start = 56.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    )
-                    SettingsItem(
-                        icon = Icons.Outlined.Schedule,
-                        title = stringResource(R.string.notif_check_interval),
-                        subtitle =
-                            if (notificationsEnabled) {
-                                stringResource(R.string.notif_check_interval_subtitle_template, currentIntervalLabel)
-                            } else {
-                                stringResource(R.string.notif_check_interval_disabled)
-                            },
-                        onClick = {
-                            if (notificationsEnabled) {
-                                showIntervalDialog = true
-                            }
-                        },
-                    )
                 }
             }
 
             item {
                 SettingsGroup {
-                    SettingsSwitchItem(
-                        icon = Icons.Outlined.Subscriptions,
-                        title = stringResource(R.string.notif_type_new_videos),
-                        subtitle = stringResource(R.string.notif_type_new_videos_subtitle),
-                        checked = notifNewVideos,
-                        enabled = notificationsEnabled,
-                        onCheckedChange = { coroutineScope.launch { prefs.setNotifNewVideosEnabled(it) } },
-                    )
-                    HorizontalDivider(
-                        Modifier.padding(start = 56.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    )
                     SettingsSwitchItem(
                         icon = Icons.Outlined.Download,
                         title = stringResource(R.string.notif_type_downloads),
@@ -292,58 +214,5 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
                 }
             }
         }
-    }
-
-    if (showIntervalDialog) {
-        AlertDialog(
-            onDismissRequest = { showIntervalDialog = false },
-            title = {
-                Text(
-                    stringResource(R.string.notif_check_interval_dialog_title),
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            },
-            text = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        stringResource(R.string.notif_check_interval_dialog_body),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 12.dp),
-                    )
-                    intervalOptions.forEach { (minutes, label) ->
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        coroutineScope.launch {
-                                            prefs.setSubscriptionCheckIntervalMinutes(minutes)
-                                            SubscriptionCheckWorker.schedulePeriodicCheck(
-                                                context,
-                                                intervalMinutes = minutes.toLong(),
-                                                reschedule = true,
-                                            )
-                                        }
-                                        showIntervalDialog = false
-                                    }.padding(vertical = 10.dp, horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(
-                                selected = subCheckInterval == minutes,
-                                onClick = null,
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(text = label, style = MaterialTheme.typography.bodyLarge)
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showIntervalDialog = false }) {
-                    Text(stringResource(R.string.btn_close))
-                }
-            },
-        )
     }
 }

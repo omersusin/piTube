@@ -37,27 +37,20 @@ import java.net.URL
 object NotificationHelper {
     // Notification Channel IDs
     const val CHANNEL_DOWNLOADS = "downloads_channel"
-    const val CHANNEL_SUBSCRIPTIONS = "subscriptions_channel"
     const val CHANNEL_PLAYBACK = "playback_channel"
     const val CHANNEL_MUSIC_PLAYBACK = "music_playback_channel"
     const val CHANNEL_GENERAL = "general_channel"
     const val CHANNEL_REMINDERS = "reminders_channel"
     const val CHANNEL_UPDATES = "updates_channel"
-    const val CHANNEL_IMPORTS = "imports_channel"
 
     // Notification IDs
     const val NOTIFICATION_DOWNLOAD_PROGRESS = 1001
     const val NOTIFICATION_DOWNLOAD_COMPLETE = 1002
     const val NOTIFICATION_DOWNLOAD_FAILED = 1003
-    const val NOTIFICATION_NEW_VIDEO = 2000 // Base ID, per-video IDs are this + (videoId hash & 0xFFFF)
-    const val NOTIFICATION_NEW_VIDEO_SUMMARY = 1999 // Group summary; kept below the per-video range
-    private const val GROUP_NEW_VIDEOS = "new_videos"
     const val NOTIFICATION_PLAYBACK = 3001
     const val NOTIFICATION_MUSIC_PLAYBACK = 3002
     const val NOTIFICATION_GENERAL = 4000
     const val NOTIFICATION_REMINDER = 5000
-    const val NOTIFICATION_IMPORT_PROGRESS = 6001
-    const val NOTIFICATION_IMPORT_COMPLETE = 6002
     private const val NOTIFICATION_BITMAP_MAX_PX = 512
 
     private var channelsCreated = false
@@ -100,19 +93,6 @@ object NotificationHelper {
                     setShowBadge(true)
                     enableLights(true)
                     enableVibration(false)
-                }
-
-            // Subscriptions channel - Default importance for new videos
-            val subscriptionsChannel =
-                NotificationChannel(
-                    CHANNEL_SUBSCRIPTIONS,
-                    context.getString(R.string.notification_channel_new_videos),
-                    NotificationManager.IMPORTANCE_DEFAULT,
-                ).apply {
-                    description = context.getString(R.string.notification_channel_new_videos_description)
-                    setShowBadge(true)
-                    enableLights(true)
-                    enableVibration(true)
                 }
 
             // Video playback channel - Low importance for background playback
@@ -173,28 +153,14 @@ object NotificationHelper {
                     setShowBadge(true)
                 }
 
-            val importsChannel =
-                NotificationChannel(
-                    CHANNEL_IMPORTS,
-                    context.getString(R.string.notification_channel_imports),
-                    NotificationManager.IMPORTANCE_LOW,
-                ).apply {
-                    description = context.getString(R.string.notification_channel_import_description)
-                    setShowBadge(false)
-                    enableLights(false)
-                    enableVibration(false)
-                }
-
             notificationManager.createNotificationChannels(
                 listOf(
                     downloadsChannel,
-                    subscriptionsChannel,
                     playbackChannel,
                     musicPlaybackChannel,
                     generalChannel,
                     remindersChannel,
                     updatesChannel,
-                    importsChannel,
                 ),
             )
 
@@ -222,62 +188,6 @@ object NotificationHelper {
 
     // ========== IMPORT NOTIFICATIONS ==========
 
-    /**
-     * Show (or update) the import-in-progress notification.
-     * When total == 0 the progress bar is indeterminate.
-     */
-    fun showImportProgress(
-        context: Context,
-        label: String,
-        current: Int,
-        total: Int,
-    ) {
-        if (!hasNotificationPermission(context)) return
-        val contentText = if (total > 0) "$current / $total" else "Starting…"
-        val builder =
-            NotificationCompat
-                .Builder(context, CHANNEL_IMPORTS)
-                .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(context.getString(R.string.notification_importing, label))
-                .setContentText(contentText)
-                .apply {
-                    if (total > 0) {
-                        setProgress(total, current, false)
-                    } else {
-                        setProgress(0, 0, true)
-                    }
-                }.setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_IMPORT_PROGRESS, builder.build())
-    }
-
-    /** Replace the progress notification with a one-shot completion notification. */
-    fun showImportComplete(
-        context: Context,
-        label: String,
-        count: Int,
-        message: String? = null,
-    ) {
-        if (!hasNotificationPermission(context)) return
-        // cancel progress first
-        NotificationManagerCompat.from(context).cancel(NOTIFICATION_IMPORT_PROGRESS)
-        val builder =
-            NotificationCompat
-                .Builder(context, CHANNEL_IMPORTS)
-                .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(context.getString(R.string.notification_import_complete))
-                .setContentText(message ?: context.getString(R.string.notification_imported, count, label.lowercase()))
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_IMPORT_COMPLETE, builder.build())
-    }
-
-    /** Cancel the ongoing import progress notification (e.g. on error). */
-    fun cancelImportNotification(context: Context) {
-        NotificationManagerCompat.from(context).cancel(NOTIFICATION_IMPORT_PROGRESS)
-    }
 
     // ========== DOWNLOAD NOTIFICATIONS ==========
 
@@ -421,226 +331,6 @@ object NotificationHelper {
         // Cancel progress notification
         NotificationManagerCompat.from(context).cancel(NOTIFICATION_DOWNLOAD_PROGRESS)
         NotificationManagerCompat.from(context).notify(notificationId, notification)
-    }
-
-    // ========== SUBSCRIPTION NOTIFICATIONS ==========
-
-    /**
-     * Represents a single new video found during a subscription check cycle.
-     */
-    data class NewVideoEntry(
-        val channelName: String,
-        val videoTitle: String,
-        val videoId: String,
-        val thumbnailUrl: String?,
-    )
-
-    /**
-     * Dispatcher for subscription update notifications.
-     */
-    suspend fun showSubscriptionUpdates(
-        context: Context,
-        videos: List<NewVideoEntry>,
-    ) {
-        if (!hasNotificationPermission(context)) return
-        if (!PlayerPreferences(context).notifNewVideosEnabled.first()) return
-        if (videos.isEmpty()) return
-
-        videos.forEach { v ->
-            storeNotification(
-                context,
-                NotificationEntity(
-                    videoId = v.videoId,
-                    title = v.videoTitle,
-                    channelName = v.channelName,
-                    thumbnailUrl = v.thumbnailUrl,
-                    type = "NEW_VIDEO",
-                ),
-            )
-        }
-
-        val manager = NotificationManagerCompat.from(context)
-        val multiple = videos.size > 1
-
-        videos.forEach { v ->
-            val notifId = NOTIFICATION_NEW_VIDEO + v.videoId.hashCode().and(0xFFFF)
-            val watchIntent =
-                Intent(context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    putExtra("notification_video_id", v.videoId)
-                    putExtra("video_id", v.videoId)
-                    putExtra("video_title", v.videoTitle)
-                }
-            val watchPendingIntent =
-                PendingIntent.getActivity(
-                    context,
-                    notifId,
-                    watchIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-                )
-            val builder =
-                NotificationCompat
-                    .Builder(context, CHANNEL_SUBSCRIPTIONS)
-                    .setSmallIcon(R.drawable.ic_notification_logo)
-                    .setContentTitle(v.channelName)
-                    .setContentText(v.videoTitle)
-                    .setContentIntent(watchPendingIntent)
-                    .setAutoCancel(true)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setCategory(NotificationCompat.CATEGORY_SOCIAL)
-                    .setGroup(GROUP_NEW_VIDEOS)
-            v.thumbnailUrl?.let { url ->
-                getBitmapFromUrl(context, url)?.let { bm ->
-                    builder.setLargeIcon(bm)
-                    builder.setStyle(
-                        NotificationCompat.BigPictureStyle().bigPicture(bm).bigLargeIcon(null as Bitmap?),
-                    )
-                }
-            }
-            manager.notify(notifId, builder.build())
-        }
-
-        if (!multiple) return
-
-        val summaryIntent =
-            Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-        val summaryPendingIntent =
-            PendingIntent.getActivity(
-                context,
-                NOTIFICATION_NEW_VIDEO_SUMMARY,
-                summaryIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-        val inboxStyle =
-            NotificationCompat
-                .InboxStyle()
-                .setBigContentTitle(context.getString(R.string.notification_new_videos_from_subscriptions, videos.size))
-        videos.take(6).forEach { v ->
-            inboxStyle.addLine("${v.channelName}: ${v.videoTitle}")
-        }
-        if (videos.size > 6) {
-            inboxStyle.setSummaryText(context.getString(R.string.notification_more, videos.size - 6))
-        }
-
-        val summaryNotification =
-            NotificationCompat
-                .Builder(context, CHANNEL_SUBSCRIPTIONS)
-                .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(context.getString(R.string.notification_new_videos))
-                .setContentText(context.getString(R.string.notification_new_videos_from_subscriptions, videos.size))
-                .setContentIntent(summaryPendingIntent)
-                .setAutoCancel(true)
-                .setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setCategory(NotificationCompat.CATEGORY_SOCIAL)
-                .setStyle(inboxStyle)
-                .setGroup(GROUP_NEW_VIDEOS)
-                .setGroupSummary(true)
-                .setNumber(videos.size)
-                .build()
-
-        manager.notify(NOTIFICATION_NEW_VIDEO_SUMMARY, summaryNotification)
-    }
-
-    /**
-     * Show notification for new video from subscribed channel
-     */
-    suspend fun showNewVideoNotification(
-        context: Context,
-        channelName: String,
-        videoTitle: String,
-        videoId: String,
-        thumbnailUrl: String? = null,
-        channelId: String,
-    ) {
-        if (!hasNotificationPermission(context)) return
-        if (!PlayerPreferences(context).notifNewVideosEnabled.first()) return
-
-        // Save to database
-        storeNotification(
-            context,
-            NotificationEntity(
-                videoId = videoId,
-                title = videoTitle,
-                channelName = channelName,
-                thumbnailUrl = thumbnailUrl,
-                type = "NEW_VIDEO",
-            ),
-        )
-
-        // Generate unique notification ID based on video ID
-        val notificationId = NOTIFICATION_NEW_VIDEO + videoId.hashCode().and(0xFFFF)
-
-        // Intent to open the video
-        val watchIntent =
-            Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                putExtra("notification_video_id", videoId)
-                putExtra("video_id", videoId)
-                putExtra("video_title", videoTitle)
-            }
-        val watchPendingIntent =
-            PendingIntent.getActivity(
-                context,
-                notificationId,
-                watchIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-
-        val builder =
-            NotificationCompat
-                .Builder(context, CHANNEL_SUBSCRIPTIONS)
-                .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(channelName)
-                .setContentText(videoTitle)
-                .setContentIntent(watchPendingIntent)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setCategory(NotificationCompat.CATEGORY_SOCIAL)
-                .setGroup("new_videos")
-
-        // Try to load thumbnail
-        thumbnailUrl?.let { url ->
-            val bitmap = getBitmapFromUrl(context, url)
-            bitmap?.let {
-                builder.setLargeIcon(it)
-                builder.setStyle(
-                    NotificationCompat
-                        .BigPictureStyle()
-                        .bigPicture(it)
-                        .bigLargeIcon(null as Bitmap?),
-                )
-            }
-        }
-
-        NotificationManagerCompat.from(context).notify(notificationId, builder.build())
-    }
-
-    /**
-     * Show grouped notification summary for multiple new videos
-     */
-    fun showNewVideosSummary(
-        context: Context,
-        videoCount: Int,
-    ) {
-        if (!hasNotificationPermission(context)) return
-        if (!runBlocking { PlayerPreferences(context).notifNewVideosEnabled.first() }) return
-
-        val summaryNotification =
-            NotificationCompat
-                .Builder(context, CHANNEL_SUBSCRIPTIONS)
-                .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(context.getString(R.string.notification_new_videos))
-                .setContentText(context.getString(R.string.notification_new_videos_from_subscriptions, videoCount))
-                .setGroup("new_videos")
-                .setGroupSummary(true)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .build()
-
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_NEW_VIDEO, summaryNotification)
     }
 
     // ========== UPDATE NOTIFICATIONS ==========

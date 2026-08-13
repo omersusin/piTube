@@ -18,7 +18,6 @@ import com.omersusin.pitube.innertube.models.normalizeYouTubeHostLanguage
 import com.omersusin.pitube.innertube.pages.NewPipeExtractor
 import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.notification.NotificationHelper
-import com.omersusin.pitube.notification.SubscriptionCheckWorker
 import com.omersusin.pitube.utils.AppLanguageManager
 import com.omersusin.pitube.utils.FlowCrashHandler
 import com.omersusin.pitube.utils.PerformanceDispatcher
@@ -114,15 +113,8 @@ class FlowApplication :
         }
          */
 
-        // Schedule periodic subscription checks for new videos
+        // Schedule periodic update checks (every 12 hours) — github flavor only
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            val savedIntervalMinutes = playerPreferences.subscriptionCheckIntervalMinutes.first()
-            SubscriptionCheckWorker.schedulePeriodicCheck(
-                this@FlowApplication,
-                intervalMinutes = savedIntervalMinutes.toLong(),
-            )
-
-            // Schedule periodic update checks (every 12 hours) — github flavor only
             if (BuildConfig.UPDATER_ENABLED) {
                 com.omersusin.pitube.notification.UpdateCheckWorker
                     .schedulePeriodicCheck(this@FlowApplication)

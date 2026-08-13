@@ -83,9 +83,7 @@ fun SettingsScreen(
     onNavigateToNotifications: () -> Unit,
     onNavigateToAppIconPicker: () -> Unit,
     onNavigateToDiagnostics: () -> Unit,
-    onNavigateToAutoBackup: () -> Unit,
     onNavigateToSyncDevices: () -> Unit,
-    onNavigateToExport: () -> Unit,
     onNavigateToSponsorBlockSettings: () -> Unit,
     onNavigateToGoogleLogin: () -> Unit,
     modifier: Modifier = Modifier,
@@ -93,11 +91,6 @@ fun SettingsScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val playerPreferences = remember { PlayerPreferences(context) }
-    val backupRepo =
-        remember {
-            com.omersusin.pitube.data.local
-                .BackupRepository(context)
-        }
 
     // Dialog state
     var showRegionDialog by remember { mutableStateOf(false) }
@@ -341,20 +334,6 @@ fun SettingsScreen(
                 stringResource(R.string.settings_item_time_management_subtitle),
                 secDataManagement,
                 onNavigateToTimeManagement,
-            ),
-            SettingSearchEntry(
-                Icons.Outlined.FileUpload,
-                stringResource(R.string.settings_item_export_data),
-                stringResource(R.string.settings_item_export_data_subtitle),
-                secDataManagement,
-                onNavigateToExport,
-            ),
-            SettingSearchEntry(
-                Icons.Outlined.Schedule,
-                stringResource(R.string.auto_backup_title),
-                stringResource(R.string.auto_backup_subtitle),
-                secDataManagement,
-                onNavigateToAutoBackup,
             ),
             SettingSearchEntry(
                 Icons.Outlined.Devices,
@@ -829,26 +808,6 @@ fun SettingsScreen(
                             title = stringResource(R.string.settings_item_time_management),
                             subtitle = stringResource(R.string.settings_item_time_management_subtitle),
                             onClick = onNavigateToTimeManagement,
-                        )
-                        HorizontalDivider(
-                            Modifier.padding(start = 56.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
-                        SettingsItem(
-                            icon = Icons.Outlined.FileUpload,
-                            title = stringResource(R.string.settings_item_export_data),
-                            subtitle = stringResource(R.string.settings_item_export_data_subtitle),
-                            onClick = onNavigateToExport,
-                        )
-                        HorizontalDivider(
-                            Modifier.padding(start = 56.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
-                        SettingsItem(
-                            icon = Icons.Outlined.Schedule,
-                            title = stringResource(R.string.auto_backup_title),
-                            subtitle = stringResource(R.string.auto_backup_subtitle),
-                            onClick = onNavigateToAutoBackup,
                         )
                         HorizontalDivider(
                             Modifier.padding(start = 56.dp),
