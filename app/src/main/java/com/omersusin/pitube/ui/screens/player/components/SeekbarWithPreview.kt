@@ -73,6 +73,7 @@ fun rememberSponsorSegmentColors(
     val filler by playerPreferences.sbColorForCategory("filler").collectAsState(initial = null)
     val preview by playerPreferences.sbColorForCategory("preview").collectAsState(initial = null)
     val exclusiveAccess by playerPreferences.sbColorForCategory("exclusive_access").collectAsState(initial = null)
+    val poiHighlight by playerPreferences.sbColorForCategory("poi_highlight").collectAsState(initial = null)
 
     return buildMap {
         sponsor?.let { put("sponsor", Color(it)) }
@@ -84,6 +85,7 @@ fun rememberSponsorSegmentColors(
         filler?.let { put("filler", Color(it)) }
         preview?.let { put("preview", Color(it)) }
         exclusiveAccess?.let { put("exclusive_access", Color(it)) }
+        poiHighlight?.let { put("poi_highlight", Color(it)) }
     }
 }
 
@@ -271,10 +273,13 @@ fun SeekbarWithPreview(
                             var segmentColor = when (segment.category) {
                                 "sponsor" -> Color(0xFF00D100) // Green
                                 "selfpromo" -> Color(0xFFFFFF00) // Yellow
-                                "interaction" -> Color(0xFFFF00FF) // Magenta
+                                "interaction", "poi_highlight" -> Color(0xFFFF00FF) // Magenta
                                 "intro" -> Color(0xFF00FFFF) // Cyan
                                 "outro" -> Color(0xFF00FFFF) // Cyan
                                 "music_offtopic" -> Color(0xFFFF8000) // Orange
+                                "filler" -> Color(0xFF9E9E9E) // Gray
+                                "preview" -> Color(0xFFFF9800) // Deep orange
+                                "exclusive_access" -> Color(0xFFAA00FF) // Purple
                                 else -> Color(0xFF00D100)
                             }
                             sponsorSegmentColors[segment.category]?.let { segmentColor = it }
