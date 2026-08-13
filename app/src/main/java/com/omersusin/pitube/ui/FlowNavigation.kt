@@ -344,16 +344,7 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToSyncDevices = { navController.navigate("settings/sync_devices") },
             onNavigateToExport = { navController.navigate("settings/export") },
             onNavigateToSponsorBlockSettings = { navController.navigate("settings/sponsorblock") },
-            onNavigateToDiscordSettings = { navController.navigate("settings/discord") },
             onNavigateToGoogleLogin = { navController.navigate("account") }
-        )
-    }
-
-    composable("settings/discord") {
-        currentRoute.value = "settings/discord"
-        showBottomNav.value = false
-        com.omersusin.pitube.ui.screens.settings.DiscordSettingsScreen(
-            onNavigateBack = { navController.popBackStack() }
         )
     }
 

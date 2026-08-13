@@ -45,13 +45,13 @@ jobs:
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Build Release APK
-        run: ./gradlew assembleGithubRelease --stacktrace
+        run: ./gradlew assembleRelease --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: piTube-debug
-          path: app/build/outputs/apk/github/debug/app-github-universal-debug.apk
+          path: app/build/outputs/apk/debug/app-universal-debug.apk
           if-no-files-found: error
           retention-days: 14
 
@@ -59,6 +59,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: piTube-release
-          path: app/build/outputs/apk/github/release/app-github-universal-release.apk
+          path: app/build/outputs/apk/release/app-universal-release.apk
           if-no-files-found: error
           retention-days: 14

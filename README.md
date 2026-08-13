@@ -43,8 +43,8 @@ Release builds are signed using environment variables (no secrets in the repo):
 
 `.github/workflows/build.yml` builds both debug and release APKs on every push, decodes the signing keystore from the `KEYSTORE_BASE64` secret, and uploads the signed artifacts:
 
-- `piTube-debug` artifact → `app-github-universal-debug.apk`
-- `piTube-release` artifact → `app-github-universal-release.apk`
+- `piTube-debug` artifact → `app-universal-debug.apk`
+- `piTube-release` artifact → `app-universal-release.apk`
 
 ## Credits & Acknowledgements
 

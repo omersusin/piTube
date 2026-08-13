@@ -12,7 +12,6 @@ import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.local.SubscriptionRepository
 import com.omersusin.pitube.data.repository.NewPipeDownloader
 import com.omersusin.pitube.data.repository.YouTubeRepository
-import com.omersusin.pitube.discord.DiscordPresenceRuntime
 import com.omersusin.pitube.innertube.YouTube
 import com.omersusin.pitube.innertube.models.YouTubeLocale
 import com.omersusin.pitube.innertube.models.normalizeYouTubeHostLanguage
@@ -71,8 +70,6 @@ class FlowApplication :
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
-
-        DiscordPresenceRuntime.initialize(this, okHttpClient)
 
         val playerPreferences = PlayerPreferences(this)
 
@@ -285,7 +282,6 @@ class FlowApplication :
     }
 
     override fun onTerminate() {
-        DiscordPresenceRuntime.shutdown()
         super.onTerminate()
         // Clean up performance dispatcher resources
         PerformanceDispatcher.shutdown()

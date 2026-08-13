@@ -51,7 +51,6 @@ import com.omersusin.pitube.BuildConfig
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.AppUiModePreferences
 import com.omersusin.pitube.data.local.PlayerPreferences
-import com.omersusin.pitube.discord.DiscordPresenceRuntime
 import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.platform.AppUiMode
 import com.omersusin.pitube.ui.theme.ThemeMode
@@ -90,7 +89,6 @@ fun SettingsScreen(
     onNavigateToSyncDevices: () -> Unit,
     onNavigateToExport: () -> Unit,
     onNavigateToSponsorBlockSettings: () -> Unit,
-    onNavigateToDiscordSettings: () -> Unit,
     onNavigateToGoogleLogin: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -126,8 +124,6 @@ fun SettingsScreen(
     // Player preferences states
     val currentRegion by playerPreferences.trendingRegion.collectAsState(initial = "US")
     val currentAppLanguage by playerPreferences.appLanguage.collectAsState(initial = AppLanguageManager.SYSTEM_DEFAULT)
-    val discordSettingsState by DiscordPresenceRuntime.settingsState.collectAsStateWithLifecycle()
-    val discordSettingsSummary = discordSettingsSummaryText(discordSettingsState)
 
     if (showInterfaceModeDialog) {
         InterfaceModeDialog(
@@ -297,13 +293,6 @@ fun SettingsScreen(
                 stringResource(R.string.settings_item_player_subtitle),
                 secContentPlayback,
                 onNavigateToPlayerSettings,
-            ),
-            SettingSearchEntry(
-                Icons.Outlined.Share,
-                stringResource(R.string.discord_presence_title),
-                discordSettingsSummary,
-                secContentPlayback,
-                onNavigateToDiscordSettings,
             ),
             SettingSearchEntry(
                 Icons.Outlined.Public,
@@ -755,12 +744,6 @@ fun SettingsScreen(
                         HorizontalDivider(
                             Modifier.padding(start = 56.dp),
                             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        )
-                        SettingsItem(
-                            icon = Icons.Outlined.Share,
-                            title = stringResource(R.string.discord_presence_title),
-                            subtitle = discordSettingsSummary,
-                            onClick = onNavigateToDiscordSettings,
                         )
                         HorizontalDivider(
                             Modifier.padding(start = 56.dp),

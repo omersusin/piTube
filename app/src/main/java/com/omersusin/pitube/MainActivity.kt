@@ -27,7 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.omersusin.pitube.BuildConfig
 import com.omersusin.pitube.data.local.AppUiModePreferences
 import com.omersusin.pitube.data.local.LocalDataManager
-import com.omersusin.pitube.discord.DiscordPresenceRuntime
 import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.platform.AppUiMode
 import com.omersusin.pitube.platform.AppUiRoot
@@ -127,7 +126,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
-        DiscordPresenceRuntime.attachActivity(this)
 
         window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
 
@@ -437,12 +435,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        DiscordPresenceRuntime.setAppForeground(true)
     }
 
     override fun onDestroy() {
         videoLifecycleLog("onDestroy")
-        DiscordPresenceRuntime.detachActivity(this)
         val playerManager =
             com.omersusin.pitube.player.EnhancedPlayerManager
                 .getInstance()
@@ -655,7 +651,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onStop() {
-        DiscordPresenceRuntime.setAppForeground(false)
         super.onStop()
         FlowCrashHandler.recordPhase(
             "activity",

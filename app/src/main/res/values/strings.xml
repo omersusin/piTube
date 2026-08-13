@@ -1876,56 +1876,6 @@
     <string name="recognition_clear_history_body">This removes all recognized songs. This cannot be undone.</string>
     <string name="close_popup_player">Close popup player</string>
 
-    <!-- Discord Rich Presence -->
-    <string name="discord_presence_title">Discord Rich Presence</string>
-    <string name="discord_presence_enable">Share playback activity</string>
-    <string name="discord_presence_enable_description">Stays connected during pauses and background playback</string>
-    <string name="discord_presence_off">Off</string>
-    <string name="discord_presence_not_connected">Not connected</string>
-    <string name="discord_presence_ready">Linked and ready</string>
-    <string name="discord_presence_ready_as">Linked as %1$s · connects during playback</string>
-    <string name="discord_presence_connected">Connected</string>
-    <string name="discord_presence_connected_as">Connected as %1$s</string>
-    <string name="discord_presence_connected_account">Discord account: %1$s</string>
-    <string name="discord_presence_unavailable">Unavailable in this build</string>
-    <string name="discord_presence_connection_error">Connection error</string>
-    <string name="discord_presence_linking">Waiting for Discord sign-in…</string>
-    <string name="discord_presence_connecting">Connecting to Discord…</string>
-    <string name="discord_presence_connect">Connect Discord account</string>
-    <string name="discord_presence_connect_action">Connect</string>
-    <string name="discord_presence_disconnect">Disconnect and unlink</string>
-    <string name="discord_presence_unlink_action">Unlink</string>
-    <string name="discord_presence_retry">Retry connection</string>
-    <string name="discord_presence_description">Show what you are playing in piTube as your Discord Rich Presence.</string>
-    <string name="discord_presence_connection_section">Connection</string>
-    <string name="discord_presence_account">Discord account</string>
-    <string name="discord_presence_privacy_section">Privacy and account risk</string>
-    <string name="discord_presence_privacy_title">Privacy</string>
-    <string name="discord_presence_privacy_body">When enabled, piTube shares the playing video, Short, live stream, or song title, creator or artist, artwork, and playback timing with Discord. The setting is off by default. Your Discord session token is encrypted with Android Keystore and never added to app logs.</string>
-    <string name="discord_presence_gateway_warning">piTube uses an unofficial self-bot connection with your Discord account token, not OAuth. This violates Discord\'s Terms of Service and can lead to account suspension or termination. Unsupported clients may also trigger token-leak alerts, password resets, CAPTCHAs, or phone-verification locks.</string>
-    <string name="discord_presence_risk_dialog_title">Accept Discord account risk?</string>
-    <string name="discord_presence_risk_dialog_body">Connecting signs in through Discord and gives piTube your Discord account token. piTube stores it with Android Keystore encryption and sends it only to Discord, but this unofficial self-bot method violates Discord\'s Terms of Service. Discord may suspend or terminate your account, require a password reset, show CAPTCHAs, or lock the account behind phone verification.</string>
-    <string name="discord_presence_risk_accept">I understand, connect</string>
-    <string name="discord_error_not_initialized">Discord Rich Presence has not initialized.</string>
-    <string name="discord_error_enable_before_connect">Enable Discord Rich Presence before connecting an account.</string>
-    <string name="discord_error_unavailable">Discord Rich Presence is unavailable in this build.</string>
-    <string name="discord_error_open_flow">Open piTube before connecting Discord.</string>
-    <string name="discord_error_connection_in_progress">A Discord connection is already in progress.</string>
-    <string name="discord_error_login_timeout">Discord sign-in timed out.</string>
-    <string name="discord_error_login_cancelled">Discord connection was cancelled.</string>
-    <string name="discord_error_connection_incomplete">Discord connection did not complete.</string>
-    <string name="discord_error_empty_token">Discord returned an empty session token.</string>
-    <string name="discord_error_missing_application_id">Discord application ID is missing from this build.</string>
-    <string name="discord_error_gateway_timeout">Discord Gateway connection timed out.</string>
-    <string name="discord_error_gateway_reconnect">Discord requested a reconnect.</string>
-    <string name="discord_error_session_rejected">Discord rejected the session. Reconnect your account.</string>
-    <string name="discord_error_gateway_failed">Discord Gateway connection failed.</string>
-    <string name="discord_error_heartbeat_unacknowledged">Discord Gateway heartbeat was not acknowledged.</string>
-    <string name="discord_error_heartbeat_failed">Discord Gateway heartbeat failed.</string>
-    <string name="discord_account_fallback">Discord user</string>
-    <string name="discord_presence_playing_fallback">Playing in piTube</string>
-    <string name="discord_presence_by_creator">by %1$s</string>
-
     <!-- Android TV -->
     <string name="settings_item_interface_mode">Interface mode</string>
     <string name="settings_item_interface_mode_subtitle">Choose automatic, mobile, or TV layout</string>
