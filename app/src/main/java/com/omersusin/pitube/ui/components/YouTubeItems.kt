@@ -156,8 +156,6 @@ private data class Quadruple<A, B, C, D>(
 )
 
 @Composable
-
-@Composable
 fun ChartTrackItem(
     item: SongItem,
     rank: Int,
