@@ -141,6 +141,8 @@ fun YouTubeListItem(
         modifier = modifier,
     )
 }
+
+@Composable
 ) {
     val (title, subtitle, thumbnailUrl, shape) =
         when (item) {
@@ -230,6 +232,8 @@ private data class Quadruple<A, B, C, D>(
     val third: C,
     val fourth: D,
 )
+
+@Composable
 
 @Composable
 fun ChartTrackItem(

@@ -15,11 +15,11 @@
     <string name="collaborator">Cộng tác viên</string>
     <string name="stats">Thống kê</string>
     <string name="library">Thư viện</string>
-    <string name="library_section_header">Nội dung của bạn</string>
+    
     <string name="library_history_label">Lịch sử</string>
     <string name="library_playlists_label">Danh sách phát</string>
-    <string name="library_music_playlists_label">Danh sách phát nhạc</string>
-    <string name="library_music_playlists_subtitle">Bộ sưu tập nhạc của bạn</string>
+    
+    
     <string name="library_liked_videos_label">Đã thích</string>
     <string name="library_saved_shorts_label">Shorts đã lưu</string>
     <string name="library_watch_later_label">Xem sau</string>
@@ -37,7 +37,7 @@
     <string name="library_manage_data_label">Quản lý dữ liệu</string>
     <string name="library_manage_data_subtitle">Xóa bộ nhớ đệm và lịch sử</string>
     <string name="about">Giới thiệu</string>
-    <string name="empty_description">Không có mô tả</string>
+    
     <string name="clear_all">Xóa tất cả</string>
     <string name="clear_watch_history_alert_title">Xóa lịch sử xem?</string>
     <string name="clear_watch_history_alert_body">Thao tác này xóa toàn bộ video trong lịch sử. Không thể hoàn tác.</string>
@@ -54,17 +54,17 @@
     <string name="history_tab_videos">Video</string>
     <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_local_videos">Video cục bộ</string>
-    <string name="history_tab_local_music">Nhạc cục bộ</string>
+    
     <string name="liked">Đã thích</string>
-    <string name="liked_music">Nhạc đã thích</string>
-    <string name="liked_videos">Đã thích</string>
-    <string name="share_song">Chia sẻ bài hát</string>
+    
+    
+    
     <string name="empty_liked">Chưa có bài thích</string>
     <string name="empty_liked_body">Nội dung bạn thích sẽ hiển thị tại đây</string>
-    <string name="empty_liked_videos">Chưa có video đã thích</string>
-    <string name="empty_liked_music">Chưa có nhạc đã thích</string>
-    <string name="empty_liked_music_body">Bài hát bạn thích sẽ hiển thị tại đây</string>
-    <string name="song">Bài hát</string>
+    
+    
+    
+    
     <string name="video">Video</string>
     <string name="share">Chia sẻ</string>
     <string name="downloaded">Đã tải xuống</string>
@@ -73,13 +73,13 @@
     <string name="download_all_confirmation">Tải xuống tất cả %1$d video? Có thể tốn nhiều bộ nhớ.</string>
     <string name="save">Lưu</string>
     <string name="saved">Đã lưu</string>
-    <string name="add_to_library">Thêm vào thư viện</string>
-    <string name="saved_to_library">Đã lưu vào thư viện</string>
-    <string name="failed_to_save_to_library">Lưu thất bại</string>
+    
+    
+    
     <string name="open">Mở</string>
-    <string name="up_next">TIẾP THEO</string>
+    
     <string name="lyrics">LỜI BÀI HÁT</string>
-    <string name="related">LIÊN QUAN</string>
+    
     <string name="close">Đóng</string>
     <string name="more_options">Thêm tùy chọn</string>
     <string name="like">Thích</string>
@@ -90,35 +90,35 @@
     <string name="play">Phát</string>
     <string name="next">Tiếp</string>
     <string name="repeat">Lặp lại</string>
-    <string name="loading_track">Đang tải bài hát…</string>
+    
     <string name="error_occurred">Đã có lỗi xảy ra</string>
-    <string name="playing_from">Đang phát từ</string>
+    
     <string name="autoplay">Tự động phát</string>
     <string name="move_up">Di chuyển lên</string>
     <string name="move_down">Di chuyển xuống</string>
     <string name="lyrics_not_available">Không có lời bài hát</string>
-    <string name="refresh_lyrics">Làm mới lời</string>
-    <string name="playing">Đang phát</string>
+    
+    
     <string name="remove">Xóa</string>
-    <string name="related_content">Nội dung liên quan</string>
-    <string name="no_related_content">Không tìm thấy nội dung liên quan</string>
-    <string name="share_message_template">Nghe thử bài hát này: %1$s - %2$s\nhttps://music.youtube.com/watch?v=%3$s</string>
+    
+    
+    
     <string name="hz">Hz</string>
     <string name="kbps">kbps</string>
-    <string name="filter_discover">Khám phá</string>
+    
     <string name="filter_popular">Phổ biến</string>
-    <string name="filter_deep_cuts">Chiều sâu</string>
-    <string name="filter_workout">Tập luyện</string>
-    <string name="track_details">Chi tiết</string>
+    
+    
+    
     <string name="title_label">Tên</string>
     <string name="artist_label">Nghệ sĩ</string>
     <string name="album_label">Album</string>
     <string name="video_id_label">ID video</string>
-    <string name="codec_label">Codec</string>
+    
     <string name="sample_rate_label">Tần số lấy mẫu</string>
     <string name="bitrate_label">Bitrate</string>
-    <string name="channels_label">Kênh âm thanh</string>
-    <string name="audio_info_not_available">Chưa có thông tin âm thanh.</string>
+    
+    
     <string name="undo">Hoàn tác</string>
     <string name="subscribed_to">Đã đăng ký %s</string>
     <string name="unsubscribed_from">Đã hủy đăng ký %s</string>
@@ -126,20 +126,20 @@
     <string name="share_video">Chia sẻ video</string>
     <string name="check_out_video_template">Xem thử video này: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="content_settings_share_without_text_title">Chia sẻ không kèm văn bản</string>
-    <string name="content_settings_share_without_text_subtitle">Chỉ chia sẻ đường dẫn, bỏ qua tin nhắn mặc định</string>
-    <string name="related_videos">Video liên quan</string>
+    
+    
+    
     <string name="quality_auto">Tự động</string>
     <string name="quality_auto_template">Tự động (%1$dp)</string>
     <string name="play_mode_suggestion_title">Gợi ý chế độ phát</string>
     <string name="play_mode_suggestion_body">Video này dài dưới 2 phút. Bạn có muốn chuyển sang trình phát chuyên biệt không?</string>
     <string name="shorts_player">Trình phát Shorts</string>
-    <string name="music_player">Trình phát nhạc</string>
+    
     <plurals name="channels_count">
         <item quantity="other">%d kênh</item>
     </plurals>
     <string name="tab_videos">Video</string>
-    <string name="tab_music">Nhạc</string>
+    
     <string name="empty_offline_title">Ngoại tuyến %1$s</string>
     <string name="channel_error_log_clip_label">Nhật ký lỗi kênh piTube</string>
     <string name="channel_and_more_template">%1$s và %2$d khác</string>
@@ -151,11 +151,11 @@
     <string name="action_go_to_home">Về trang chủ</string>
     <string name="action_delete">Xóa</string>
     <string name="downloads_title">Tải xuống</string>
-    <string name="download_deleted">Đã xóa tải xuống</string>
-    <string name="action_undo">Hoàn tác</string>
+    
+    
     <string name="cd_delete_download">Xóa %1$s</string>
     <string name="cd_video_thumbnail">Ảnh thu nhỏ của %1$s</string>
-    <string name="cd_track_artwork">Ảnh bìa của %1$s</string>
+    
     <string name="save_to">Lưu vào…</string>
     <string name="watch_later">Xem sau</string>
     <string name="watch_later_unsave">Bỏ lưu Xem sau</string>
@@ -189,7 +189,7 @@
     <string name="premiere_date_prefix">Công chiếu %1$s</string>
     <string name="upcoming_label">Sắp ra mắt</string>
     <string name="upcoming_waiting_count">%1$s đang chờ</string>
-    <string name="upcoming_video_overlay_title">Video được lên lịch. Phát sẽ mở khi trực tiếp.</string>
+    
     <string name="upcoming_video_starts_in">Bắt đầu sau</string>
     <string name="upcoming_video_reminder_action">Nhắc tôi</string>
     <string name="upcoming_video_reminder_enabled">Đã đặt nhắc</string>
@@ -199,14 +199,14 @@
     <string name="duration">Thời lượng</string>
     <string name="copied_to_clipboard">Đã sao chép %1$s</string>
     <string name="unknown">Không rõ</string>
-    <string name="subscriptions_music_section_title">Kênh nhạc</string>
-    <string name="subscriptions_compact_header_with_music">Kênh nhạc được đánh dấu để gọn gàng.</string>
-    <string name="subscriptions_music_chip_label">Nhạc</string>
-    <string name="subscriptions_music_badge_cd">Kênh nhạc</string>
+    
+    
+    
+    
     <string name="live_chat">Trò chuyện trực tiếp</string>
     <string name="live_chat_connecting">Đang kết nối trò chuyện…</string>
     <string name="live_chat_empty">Đang chờ tin nhắn…</string>
-    <string name="live_chat_show">Hiện chat</string>
+    
     <string name="live_chat_hide">Ẩn chat</string>
     <string name="live_chat_jump_to_latest">Đến tin nhắn mới nhất</string>
     <string name="comments">Bình luận</string>
@@ -225,7 +225,7 @@
     <string name="hide_replies">Ẩn trả lời</string>
     <string name="view_replies_template">Xem %1$d trả lời</string>
     <string name="load_more_replies">Tải thêm trả lời</string>
-    <string name="select_text">Chọn văn bản</string>
+    
     <string name="pinned_comment">Bình luận ghim</string>
     <string name="pinned_by_creator">Người tạo đã ghim</string>
     <string name="tap_to_close">Chạm để đóng</string>
@@ -236,12 +236,12 @@
     <string name="maybe_later">Để sau</string>
     <string name="nav_home">Trang chủ</string>
     <string name="nav_shorts">Shorts</string>
-    <string name="nav_music">Nhạc</string>
+    
     <string name="nav_library">Thư viện</string>
     <string name="notifications">Thông báo</string>
     <string name="search">Tìm kiếm</string>
     <string name="settings">Cài đặt</string>
-    <string name="select_artist">Chọn nghệ sĩ</string>
+    
     <string name="description">Mô tả</string>
     <string name="copy_description">Sao chép mô tả</string>
     <string name="description_copied">Đã sao chép mô tả</string>
@@ -250,28 +250,28 @@
     <string name="in_this_video">Trong video này</string>
     <string name="sb_manual_skip">Bỏ qua</string>
     <string name="sb_skip_segment">Bỏ qua %1$s</string>
-    <string name="ago">trước</string>
-    <string name="since">kể từ</string>
-    <string name="add_to_playlist">Thêm vào danh sách phát</string>
+    
+    
+    
     <string name="playback_header">Phát lại</string>
-    <string name="play_next">Phát tiếp theo</string>
-    <string name="play_next_desc">Thêm vào đầu hàng chờ</string>
-    <string name="add_to_queue">Thêm vào hàng chờ</string>
-    <string name="add_to_queue_desc">Thêm vào cuối hàng chờ</string>
-    <string name="similar_content">Nội dung tương tự</string>
-    <string name="no_similar_content_found">Không tìm thấy nội dung tương tự</string>
-    <string name="radio_source_template">Radio • %1$s</string>
-    <string name="unknown_source">Nguồn không xác định</string>
-    <string name="added_to_playlist_toast">Đã thêm vào danh sách phát</string>
-    <string name="already_downloaded_toast">Đã tải xuống</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="download_started_toast">Đã bắt đầu tải…</string>
-    <string name="download_error_toast">Lỗi tải: %1$s</string>
+    
     <string name="audio_effects">Hiệu ứng âm thanh</string>
-    <string name="more_header">Thêm</string>
-    <string name="view_artist">Xem nghệ sĩ</string>
-    <string name="view_album">Xem album</string>
-    <string name="album_art">Ảnh bìa</string>
-    <string name="close_player">Đóng trình phát</string>
+    
+    
+    
+    
+    
     <string name="views_template">%1$s lượt xem</string>
     <string name="chapters">Chương</string>
     <string name="artist">Nghệ sĩ</string>
@@ -281,49 +281,49 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Nguồn cấp cá nhân hóa</string>
     <string name="videos_curated_template">%1$d video được tuyển chọn riêng cho bạn</string>
-    <string name="group_all">Tất cả</string>
-    <string name="manage_groups">Quản lý nhóm</string>
-    <string name="new_group">Nhóm mới</string>
-    <string name="edit_group">Sửa nhóm</string>
-    <string name="delete_group">Xóa nhóm</string>
-    <string name="group_name_label">Tên nhóm</string>
-    <string name="no_groups_yet">Chưa có nhóm. Hãy tạo để lọc nguồn cấp.</string>
-    <string name="search_channels_hint">Tìm kênh…</string>
-    <string name="toggle_view_mode">Chuyển chế độ xem</string>
-    <string name="unsubscribed_from_template">Đã hủy đăng ký %1$s</string>
-    <string name="hide_channel_shorts">Ẩn Shorts từ kênh này</string>
-    <string name="show_channel_shorts">Hiện Shorts từ kênh này</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="videos_count_template">%1$d video</string>
-    <string name="likes_count_template">%1$d lượt thích</string>
-    <string name="playlists_count_template">%1$d danh sách phát</string>
-    <string name="shorts_count_template">%1$d shorts</string>
-    <string name="songs_count_template">%1$d bài hát</string>
-    <string name="empty_downloads">Chưa có tải xuống</string>
+    
+    
+    
+    
+    
     <string name="play_all">Phát tất cả</string>
     <string name="remove_from_watch_later">Xóa khỏi Xem sau</string>
-    <string name="playlist_metadata_template">Danh sách phát • Riêng tư • %1$d video</string>
-    <string name="explicit">E</string>
+    
+    
     <string name="no_videos_saved">Chưa có video lưu</string>
     <string name="no_videos_saved_body">Video bạn lưu để xem sau sẽ xuất hiện tại đây</string>
     <string name="search_hint">Tìm kiếm</string>
     <string name="search_videos_channels_placeholder">Tìm video, kênh…</string>
     <string name="recent_searches">Tìm kiếm gần đây</string>
     <string name="search_empty_prompt">Tìm kiếm video, nhạc và hơn thế</string>
-    <string name="trending">Thịnh hành</string>
+    
     <string name="channels_header">Kênh</string>
     <string name="videos_header">Video</string>
-    <string name="end_of_results">Hết kết quả</string>
+    
     <string name="clear_search_history">Xóa lịch sử tìm kiếm</string>
     <string name="search_filter_all">Tất cả</string>
     <string name="search_toggle_view_mode">Chuyển chế độ xem kết quả</string>
-    <string name="filter_upload_date">Ngày đăng</string>
-    <string name="filter_duration">Thời lượng</string>
-    <string name="filter_sort_by">Sắp xếp</string>
-    <string name="filter_hd">HD</string>
-    <string name="filter_4k">4K</string>
+    
+    
+    
+    
+    
     <string name="filter_subtitles">Phụ đề</string>
     <string name="date_any">Bất kỳ lúc</string>
-    <string name="date_last_hour">Giờ qua</string>
+    
     <string name="date_today">Hôm nay</string>
     <string name="date_this_week">Tuần này</string>
     <string name="date_this_month">Tháng này</string>
@@ -333,11 +333,11 @@
     <string name="duration_4_20">4-20 phút</string>
     <string name="duration_over_20">Trên 20 phút</string>
     <string name="sort_relevance">Liên quan</string>
-    <string name="sort_upload_date">Ngày đăng</string>
-    <string name="sort_view_count">Lượt xem</string>
+    
+    
     <string name="sort_rating">Đánh giá</string>
     <string name="channel_sort_latest">Mới nhất</string>
-    <string name="channel_default_title">Kênh</string>
+    
     <string name="channel_banner">Biểu ngữ kênh</string>
     <string name="channel_avatar">Ảnh đại diện</string>
     <string name="subscribe">Đăng ký</string>
@@ -352,9 +352,9 @@
     <string name="channel_search_failed">Không tìm kiếm được trên kênh này</string>
     <string name="community_post_image_content_description">Ảnh bài đăng cộng đồng</string>
     <string name="share_community_post">Chia sẻ bài đăng</string>
-    <string name="end_of_queue">Hết hàng chờ</string>
-    <string name="no_videos_found">Không tìm thấy video</string>
-    <string name="no_shorts_found">Không tìm thấy shorts</string>
+    
+    
+    
     <string name="no_playlists_found">Không tìm thấy danh sách phát</string>
     <string name="subscribers_count_template">%1$s người đăng ký</string>
     <string name="views_count_short_template">%1$s lượt xem</string>
@@ -362,9 +362,9 @@
     <string name="channel_search_open">Tìm trong kênh</string>
     <string name="channel_search_close">Đóng tìm kiếm</string>
     <string name="channel_search_no_results">Không tìm thấy kết quả cho %1$s</string>
-    <string name="music_history">Lịch sử nhạc</string>
+    
     <string name="remove_from_history">Xóa khỏi lịch sử</string>
-    <string name="share_song_chooser">Chia sẻ bài hát</string>
+    
     <string name="time_today">Hôm nay</string>
     <string name="time_yesterday">Hôm qua</string>
     <string name="time_earlier">Trước đó</string>
@@ -374,13 +374,13 @@
     <string name="peace_and_quiet">Yên bình</string>
     <string name="notifications_empty_body">Bạn đã cập nhật! Thông báo mới sẽ xuất hiện tại đây.</string>
     <string name="settings_title">Cài đặt</string>
-    <string name="settings_flow_engine_header">Động cơ piTube</string>
-    <string name="settings_active_learning">HỌC TÍCH CỰC</string>
-    <string name="settings_reset_brain_title">Đặt lại tính cách piTube?</string>
-    <string name="settings_reset_brain_body">Thao tác này xóa hoàn toàn hồ sơ sở thích \'piTube Brain\'.\n\n• Tất cả chủ đề đã học sẽ bị xóa.\n• Đặc điểm tính cách về mặc định.\n• Gợi ý trở về trạng thái ban đầu.\n\nKhông thể hoàn tác.</string>
-    <string name="settings_reset_everything">Đặt lại mọi thứ</string>
-    <string name="settings_analyzing_interactions">Đang phân tích tương tác…</string>
-    <string name="settings_view_analytics">Xem phân tích</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_header_appearance">Giao diện</string>
     <string name="settings_header_content_playback">Nội dung &amp; Phát lại</string>
     <string name="settings_header_data_management">Quản lý dữ liệu</string>
@@ -404,8 +404,8 @@
     <string name="settings_item_theme">Chủ đề</string>
     <string name="settings_item_app_icon">Biểu tượng ứng dụng</string>
     <string name="settings_item_app_icon_subtitle">Tùy chỉnh biểu tượng trên màn hình chính</string>
-    <string name="settings_item_content_prefs">Tùy chọn nội dung</string>
-    <string name="settings_item_content_prefs_subtitle">Chặn chủ đề không muốn thấy</string>
+    
+    
     <string name="settings_item_player">Cài đặt trình phát</string>
     <string name="settings_item_player_subtitle">Tự động phát, nền, SponsorBlock</string>
     <string name="settings_item_proxy">Cài đặt proxy</string>
@@ -435,16 +435,16 @@
     <string name="appearance_title">Giao diện</string>
     <string name="appearance_subtitle">Cá nhân hóa trải nghiệm piTube</string>
     <string name="appearance_current_theme">CHỦ ĐỀ HIỆN TẠI</string>
-    <string name="appearance_category_all">Tất cả</string>
+    
     <string name="appearance_category_light">Sáng</string>
     <string name="appearance_category_dark">Tối</string>
     <string name="appearance_category_custom">Tùy chỉnh</string>
-    <string name="appearance_category_special">Đặc biệt</string>
+    
     <string name="appearance_themes_count_all">%1$d chủ đề</string>
-    <string name="appearance_themes_count_filtered">%1$d chủ đề %2$s</string>
+    
     <string name="appearance_applied_toast">Đã áp dụng: %1$s</string>
     <string name="appearance_customize_theme">Tùy chỉnh chủ đề</string>
-    <string name="appearance_customizer_title">Trình chỉnh sửa chủ đề</string>
+    
     <string name="appearance_customizer_variant_title">%1$s chủ đề tùy chỉnh</string>
     <string name="appearance_customizer_subtitle">Điều chỉnh màu sắc Material 3 và xem trước</string>
     <string name="appearance_customizer_format_hint">Định dạng Hex: #RRGGBB hoặc #AARRGGBB</string>
@@ -511,15 +511,15 @@
     <string name="icon_name_monochrome">Đơn sắc</string>
     <string name="player_appearance_title">Giao diện trình phát</string>
     <string name="player_appearance_header">Tùy chỉnh điều khiển</string>
-    <string name="player_appearance_style_title">Kiểu thanh tiến trình nhạc</string>
+    
     <string name="player_appearance_style_subtitle">Chọn kiểu hiển thị thanh kéo</string>
-    <string name="player_background_style_title">Nền trình phát nhạc</string>
-    <string name="player_background_style_blur_gradient">Làm mờ + Chuyển màu</string>
-    <string name="player_background_style_blur">Làm mờ ảnh bìa</string>
-    <string name="player_background_style_gradient">Chuyển màu bảng màu</string>
-    <string name="player_background_style_default">Bề mặt mặc định</string>
-    <string name="player_appearance_hide_music_artwork_title">Ẩn ảnh bìa trình phát nhạc</string>
-    <string name="player_appearance_hide_music_artwork_subtitle">Hiện biểu tượng ứng dụng trên màu trích xuất</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="player_appearance_shorts_ui_title">Giao diện trình phát Shorts</string>
     <string name="player_appearance_shorts_ui_subtitle">Chọn mức độ hiển thị lớp phủ</string>
     <string name="shorts_player_ui_default">Mặc định</string>
@@ -531,14 +531,14 @@
     <string name="shorts_unsaved">Đã bỏ lưu Short</string>
     <string name="settings_item_player_appearance">Giao diện trình phát</string>
     <string name="settings_item_player_appearance_subtitle">Tùy chỉnh kiểu thanh tiến trình</string>
-    <string name="style_default">Thông thường</string>
-    <string name="style_metrolist">Dày</string>
-    <string name="style_metrolist_slim">Mặc định</string>
-    <string name="style_squiggly">Lượn sóng</string>
-    <string name="style_slim">Cực mỏng</string>
+    
+    
+    
+    
+    
     <string name="player_appearance_gestures_header">Cử chỉ</string>
-    <string name="player_appearance_swipe_gestures_title">Cử chỉ độ sáng &amp; âm lượng</string>
-    <string name="player_appearance_swipe_gestures_subtitle">Vuốt cạnh trái/phải để điều chỉnh khi toàn màn hình</string>
+    
+    
     <string name="player_appearance_brightness_gesture_title">Cử chỉ độ sáng</string>
     <string name="player_appearance_brightness_gesture_subtitle">Vuốt cạnh trái khi toàn màn hình</string>
     <string name="player_appearance_remember_brightness_title">Ghi nhớ độ sáng</string>
@@ -548,7 +548,7 @@
     <string name="player_appearance_controls_while_loading_title">Điều khiển khi đang tải</string>
     <string name="player_appearance_controls_while_loading_subtitle">Hiện điều khiển trước khi video tải xong để điều chỉnh âm lượng</string>
     <string name="player_appearance_long_press_speed_title">Tốc độ phát khi giữ</string>
-    <string name="player_appearance_long_press_speed_subtitle">Tốc độ tạm thời khi giữ trình phát</string>
+    
     <string name="player_appearance_long_press_speed_disabled">Tắt</string>
     <string name="mini_player_header">Tùy chỉnh trình phát thu nhỏ</string>
     <string name="mini_player_size">Kích thước trình phát thu nhỏ</string>
@@ -576,18 +576,18 @@
     <string name="player_fullscreen_seekbar_width_default">Mặc định</string>
     <string name="player_fullscreen_seekbar_width_custom">Tùy chỉnh</string>
     <string name="player_fullscreen_seekbar_width_value">%1$d dp</string>
-    <string name="lyrics_provider_title">Nhà cung cấp lời bài hát</string>
-    <string name="lyrics_provider_subtitle">Chọn nguồn lời bài hát</string>
-    <string name="lyrics_provider_lrclib">LrcLib</string>
-    <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
-    <string name="lyrics_provider_simpmusic">SimpMusic</string>
-    <string name="lyrics_provider_lyrics_plus">LyricsPlus</string>
+    
+    
+    
+    
+    
+    
     <string name="theme_name_system_default">Mặc định hệ thống</string>
     <string name="theme_desc_system_default">Đồng bộ với chủ đề thiết bị</string>
     <string name="theme_name_material_you">Material You</string>
     <string name="theme_desc_material_you">Màu từ hình nền (Android 12+)</string>
     <string name="theme_name_pure_light">Sáng thuần</string>
-    <string name="theme_desc_pure_light">Sạch &amp; tối giản</string>
+    
     <string name="theme_name_mint_fresh">Bạc hà</string>
     <string name="theme_desc_mint_fresh">Mát mẻ, sảng khoái</string>
     <string name="theme_name_rose_petal">Cánh hoa hồng</string>
@@ -599,7 +599,7 @@
     <string name="theme_name_classic_dark">Cổ điển</string>
     <string name="theme_desc_classic_dark">Bảng màu gốc của piTube</string>
     <string name="theme_name_true_black">Đen tuyệt đối</string>
-    <string name="theme_desc_true_black">OLED thuần</string>
+    
     <string name="theme_name_monochrome">Đơn sắc</string>
     <string name="theme_desc_monochrome">Rõ ràng đen trắng</string>
     <string name="theme_name_custom">Tùy chỉnh</string>
@@ -651,18 +651,18 @@
     <string name="content_settings_grid_big_desc">Ảnh thu nhỏ lớn</string>
     <string name="content_settings_grid_small_title">Nhỏ</string>
     <string name="content_settings_grid_small_desc">Gọn</string>
-    <string name="content_settings_header_preview">Xem trước</string>
-    <string name="content_settings_preview_album_art">Xem trước ảnh bìa</string>
-    <string name="content_settings_preview_big">Lớn - 128dp</string>
-    <string name="content_settings_preview_small">Nhỏ - 104dp</string>
-    <string name="content_settings_dynamic_components">Thành phần động</string>
-    <string name="settings_show_related_videos_title">Hiển thị video liên quan</string>
-    <string name="settings_show_related_videos_subtitle">Hiện video liên quan bên dưới trình phát</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_header_home_feed">Nguồn cấp trang chủ</string>
-    <string name="content_settings_home_feed_title">Bật nguồn cấp trang chủ</string>
-    <string name="content_settings_home_feed_subtitle">Hiện gợi ý video cá nhân hóa trên trang chủ</string>
-    <string name="content_settings_home_reselect_refresh_title">Làm mới khi chọn lại Trang chủ</string>
-    <string name="content_settings_home_reselect_refresh_subtitle">Tải lại gợi ý khi cuộn lên đầu và chạm lại Trang chủ</string>
+    
+    
+    
+    
     <string name="content_settings_home_feed_disabled_title">Đã tắt nguồn cấp trang chủ</string>
     <string name="content_settings_home_feed_disabled_body">Gợi ý cá nhân bị tắt. Bạn có thể bật lại trong Cài đặt nội dung.</string>
     <string name="content_settings_header_player">Trình phát video</string>
@@ -678,61 +678,61 @@
     <string name="content_settings_title_lines_2">2 dòng</string>
     <string name="content_settings_title_lines_3">3 dòng</string>
     <string name="content_settings_title_lines_unlimited">Không giới hạn</string>
-    <string name="content_settings_video_card_mark_watched_title">Nút đánh dấu đã xem trên thẻ video</string>
-    <string name="content_settings_video_card_mark_watched_subtitle">Hiện nút mắt trên thẻ video để đánh dấu đã xem</string>
-    <string name="content_settings_show_app_logo_title">Hiển thị biểu tượng ứng dụng</string>
-    <string name="content_settings_show_app_logo_subtitle">Hiển thị logo piTube cạnh tên ứng dụng trên thanh trên cùng</string>
-    <string name="content_settings_header_content_components">Thành phần nội dung</string>
-    <string name="content_settings_restored_music_mini_player_title">Hiện trình phát nhạc thu nhỏ đã khôi phục</string>
-    <string name="content_settings_restored_music_mini_player_subtitle">Tự động hiện phiên nhạc cuối sau khi khôi phục</string>
-    <string name="content_settings_hide_watched_home_title">Ẩn video đã xem trên trang chủ</string>
-    <string name="content_settings_hide_watched_home_subtitle">Lọc video đã xem khỏi nguồn cấp trang chủ</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_watched_threshold_title">Đánh dấu đã xem khi</string>
     <string name="content_settings_watched_threshold_dialog_body">Chọn tỷ lệ video cần xem để tính là đã xem và ẩn đi.</string>
     <string name="content_settings_watched_threshold_90">Đã xem 90%</string>
     <string name="content_settings_watched_threshold_95">Đã xem 95%</string>
     <string name="content_settings_watched_threshold_99">Đã xem 99%</string>
     <string name="content_settings_watched_threshold_almost">Gần cuối (phút cuối)</string>
-    <string name="content_settings_navbar_hide_on_scroll_title">Ẩn thanh điều hướng khi cuộn</string>
-    <string name="content_settings_navbar_hide_on_scroll_subtitle">Ẩn thanh điều hướng đáy khi cuộn xuống. Tắt để giữ hiển thị (hữu ích nếu hiệu ứng chậm).</string>
-    <string name="content_settings_disable_shorts_player_title">Tắt trình phát Shorts</string>
-    <string name="content_settings_disable_shorts_player_subtitle">Phát tất cả video (bao gồm Shorts) trong trình phát thường</string>
-    <string name="content_settings_shorts_player_prompt_title">Gợi ý trình phát Shorts</string>
-    <string name="content_settings_shorts_player_prompt_subtitle">Hỏi trước khi chuyển video dưới 2 phút sang trình phát Shorts</string>
-    <string name="content_settings_explore_region_picker_title">Trình chọn khu vực nhanh trong Khám phá</string>
-    <string name="content_settings_explore_region_picker_subtitle">Hiển thị biểu tượng quả cầu trên thanh trên cùng Khám phá để thay đổi khu vực.</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="categories_region_picker_desc">Thay đổi khu vực xu hướng (hiện tại: %1$s)</string>
-    <string name="content_settings_header_nav_tabs">Tab điều hướng</string>
-    <string name="settings_home_nav_tab_title">Tab Trang chủ</string>
-    <string name="settings_home_nav_tab_subtitle">Hiện Trang chủ trên thanh điều hướng</string>
-    <string name="content_settings_comments_enabled_title">Bình luận</string>
-    <string name="content_settings_comments_enabled_subtitle">Tải và hiển thị phần bình luận trong trình phát video</string>
-    <string name="content_settings_comments_preview_title">Xem trước bình luận</string>
-    <string name="content_settings_comments_preview_subtitle">Hiển thị bình luận mới nhất trong thẻ bình luận</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_nav_order_title">Thứ tự tab và mặc định</string>
     <string name="content_settings_nav_order_subtitle">Dùng mũi tên để sắp xếp. Chọn tab mặc định bằng nút radio.</string>
-    <string name="settings_home_shorts_shelf_title">Kệ Shorts trên trang chủ</string>
-    <string name="settings_home_shorts_shelf_subtitle">Hiển thị kệ Shorts ngang trên trang chủ.</string>
-    <string name="settings_shorts_nav_tab_title">Tab Shorts trong điều hướng</string>
-    <string name="settings_shorts_nav_tab_subtitle">Hiển thị tab Shorts trên thanh điều hướng đáy.</string>
-    <string name="settings_music_nav_tab_title">Tab Nhạc trong điều hướng</string>
-    <string name="settings_music_nav_tab_subtitle">Hiển thị tab Nhạc trên thanh điều hướng đáy.</string>
-    <string name="settings_search_nav_tab_title">Tab Tìm kiếm trong điều hướng</string>
-    <string name="settings_search_nav_tab_subtitle">Hiển thị tab Tìm kiếm truy cập nhanh trên thanh điều hướng đáy.</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="nav_search">Tìm kiếm</string>
-    <string name="settings_categories_nav_tab_title">Tab Khám phá trong điều hướng</string>
-    <string name="settings_categories_nav_tab_subtitle">Hiển thị tab Khám phá (Thịnh hành &amp; Danh mục) trên thanh điều hướng đáy.</string>
+    
+    
     <string name="nav_explore">Khám phá</string>
     <string name="nav_more">Thêm</string>
     <string name="categories_title">Danh mục</string>
     <string name="categories_switch_to_grid">Chuyển sang lưới</string>
     <string name="categories_switch_to_list">Chuyển sang danh sách</string>
     <string name="category_all">Tất cả</string>
-    <string name="category_trending">Thịnh hành</string>
+    
     <string name="category_movies">Phim</string>
     <string name="category_live">Trực tiếp</string>
-    <string name="settings_continue_watching_title">Kệ tiếp tục xem</string>
-    <string name="settings_continue_watching_subtitle">Hiển thị kệ video đang xem dở trên trang chủ.</string>
+    
+    
     <string name="continue_watching_title">Tiếp tục xem</string>
     <string name="player_settings_mini_player_continue_watching_title">Trình phát thu nhỏ tiếp tục xem</string>
     <string name="player_settings_mini_player_continue_watching_subtitle">Tự động bật trình phát thu nhỏ cho video đã xem cuối</string>
@@ -797,12 +797,12 @@
     <string name="player_settings_speed_slider_subtitle">Dùng thanh trượt để chọn tốc độ bất kỳ</string>
     <string name="speed_slider_decrease">Giảm</string>
     <string name="speed_slider_increase">Tăng</string>
-    <string name="speed_slider_reset">Đặt lại 1×</string>
-    <string name="speed_slider_apply">Áp dụng</string>
+    
+    
     <string name="playback_speed_multiplier">%1$s×</string>
     <string name="playback_speed_multiplier_precise">%1$.2f×</string>
     <string name="player_settings_stable_voice">Giọng ổn định</string>
-    <string name="player_settings_stable_voice_subtitle">Cân bằng âm lượng để phát nhất quán</string>
+    
     <string name="player_settings_display">Hiển thị</string>
     <string name="player_settings_ambient_mode">Chế độ xung quanh</string>
     <string name="player_settings_ambient_mode_subtitle">Tô sáng các thanh xung quanh video bằng màu mềm</string>
@@ -858,17 +858,17 @@
     <string name="player_settings_header_gestures">Cử chỉ</string>
     <string name="player_settings_double_tap_seek">Thời lượng tua khi chạm hai lần</string>
     <string name="player_settings_double_tap_seek_subtitle_template">%ds mỗi bên</string>
-    <string name="player_settings_double_tap_seek_dialog_title">Thời lượng tua hai lần</string>
-    <string name="player_settings_double_tap_seek_dialog_body">Chọn số giây tua khi chạm hai lần vào bên trái hoặc phải trình phát.</string>
+    
+    
     <string name="video_quality_title">Chất lượng video</string>
     <string name="video_quality_warning">Chất lượng cao hơn tiêu tốn nhiều dữ liệu</string>
     <string name="video_quality_wifi_header">Chất lượng Wi-Fi</string>
     <string name="video_quality_cellular_header">Chất lượng di động</string>
-    <string name="music_quality_header">Chất lượng âm thanh nhạc</string>
-    <string name="music_quality_auto">Tự động</string>
-    <string name="music_quality_high">Cao</string>
-    <string name="music_quality_medium">Trung bình</string>
-    <string name="music_quality_low">Thấp</string>
+    
+    
+    
+    
+    
     <string name="quality_144p">144p</string>
     <string name="quality_240p">240p</string>
     <string name="quality_360p">360p</string>
@@ -921,8 +921,8 @@
     <string name="channel_blocked_toast">%1$s sẽ không xuất hiện trong nguồn cấp</string>
     <string name="btn_save">Lưu</string>
     <string name="btn_cancel">Hủy</string>
-    <string name="player_settings_show_pip">Hiển thị nút PiP</string>
-    <string name="player_settings_show_pip_subtitle">Hiện nút PiP thủ công trong điều khiển trình phát</string>
+    
+    
     <string name="player_settings_header_video">Video</string>
     <string name="player_settings_header_audio">Âm thanh</string>
     <string name="share_short_template">Xem thử Short này: https://youtu.be/%1$s</string>
@@ -931,42 +931,42 @@
     <string name="cd_pause">Tạm dừng</string>
     <string name="cd_play">Phát</string>
     <string name="cd_more_options">Thêm</string>
-    <string name="shorts_original_sound">Âm thanh gốc - %1$s</string>
-    <string name="view_count_billion_suffix">T</string>
-    <string name="view_count_million_suffix">Tr</string>
-    <string name="view_count_thousand_suffix">N</string>
+    
+    
+    
+    
     <string name="action_like">Thích</string>
     <string name="action_dislike">Không thích</string>
     <string name="action_comments">Bình luận</string>
     <string name="action_save">Lưu</string>
     <string name="action_share">Chia sẻ</string>
-    <string name="action_description">Mô tả</string>
+    
     <string name="action_subscribe">Đăng ký</string>
-    <string name="action_search">Tìm kiếm</string>
-    <string name="content_preferences_title">Tùy chọn nội dung</string>
-    <string name="content_preferences_subtitle">Tùy chỉnh những gì bạn thấy</string>
-    <string name="interests_tab">Sở thích</string>
-    <string name="blocked_tab">Đã chặn</string>
-    <string name="topics_count_template">%1$d chủ đề</string>
-    <string name="hidden_count_template">%1$d ẩn</string>
-    <string name="your_interests_title">Sở thích của bạn</string>
-    <string name="your_interests_desc">Chủ đề bạn chọn giúp piTube gợi ý tốt hơn. Chạm để thêm hoặc bớt.</string>
-    <string name="currently_following">Đang theo dõi</string>
-    <string name="tap_to_remove">Chạm để xóa</string>
-    <string name="add_topics">Thêm chủ đề</string>
-    <string name="browse_by_category">Duyệt theo danh mục</string>
-    <string name="hidden_content_title">Nội dung đã ẩn</string>
-    <string name="hidden_content_desc">Video có chủ đề này sẽ không xuất hiện trong gợi ý. Bạn cũng có thể dùng nút Không quan tâm trên video.</string>
-    <string name="block_topic_title">Chặn chủ đề</string>
-    <string name="enter_keywords_to_hide">Nhập từ khóa để ẩn</string>
-    <string name="block_topic_placeholder">vd: makeup, fortnite, asmr</string>
-    <string name="desc_add_topic">Thêm chủ đề</string>
-    <string name="quick_add">Thêm nhanh</string>
-    <string name="common_topics_to_block">Chủ đề thường chặn</string>
-    <string name="currently_blocked">Đang chặn</string>
-    <string name="topics_blocked_count_plural">%1$d chủ đề%2$s</string>
-    <string name="desc_remove_topic">Xóa %1$s</string>
-    <string name="desc_unblock_topic">Bỏ chặn %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="selected_count_template">Đã chọn %1$d</string>
     <string name="select_videos">Chọn</string>
     <string name="cancel_selection">Hủy chọn</string>
@@ -977,11 +977,11 @@
     <string name="time_management_subtitle">Theo dõi và kiểm soát thời gian sử dụng</string>
     <string name="stats_disclaimer">Thống kê dựa trên lịch sử xem. Sử dụng thực tế có thể khác.</string>
     <string name="tools_to_manage_time">Công cụ quản lý thời gian</string>
-    <string name="remind_bedtime">Nhắc nhở giờ đi ngủ</string>
+    
     <string name="start_time">Giờ bắt đầu</string>
     <string name="end_time">Giờ kết thúc</string>
     <string name="bedtime_notification_note">Thông báo sẽ được gửi vào giờ bắt đầu.</string>
-    <string name="remind_break">Nhắc nhở nghỉ giải lao</string>
+    
     <string name="reminder_frequency">Tần suất nhắc</string>
     <string name="every_min_template">Mỗi %1$d phút</string>
     <string name="daily_average_label">Trung bình ngày</string>
@@ -1016,7 +1016,7 @@
     <string name="sleep_timer_end_of_media">Kết thúc bài hát hiện tại</string>
     <string name="sleep_timer_reset">Đặt lại</string>
     <string name="sleep_timer_cancel_timer">Hủy hẹn giờ</string>
-    <string name="sleep_timer_active_label">Đang hoạt động</string>
+    
     <string name="sleep_timer_close_app">Đóng ứng dụng khi hết giờ</string>
     <string name="sleep_timer_close_app_desc">Thoát ứng dụng để tiết kiệm pin</string>
     <string name="sleep_timer_will_close_app">Ứng dụng sẽ đóng khi hết giờ</string>
@@ -1053,17 +1053,17 @@
     <string name="media_access_title">Quyền ảnh &amp; video</string>
     <string name="media_access_granted_subtitle">Đã cấp</string>
     <string name="media_access_denied_subtitle">Chưa cấp — chạm để bật</string>
-    <string name="audio_access_title">Quyền nhạc &amp; âm thanh</string>
-    <string name="audio_access_granted_subtitle">Đã cấp</string>
-    <string name="audio_access_denied_subtitle">Chưa cấp — chạm để bật</string>
+    
+    
+    
     <string name="storage_header">Bộ nhớ</string>
     <string name="internal_storage_label">Bộ nhớ trong</string>
     <string name="free_space_template">%1$s trống</string>
     <string name="total_space_template">Tổng: %1$s</string>
-    <string name="location_label">Vị trí</string>
+    
     <string name="video_download_location_label">Vị trí tải video</string>
-    <string name="music_download_location_label">Vị trí tải nhạc</string>
-    <string name="internal_app_storage_label">Bộ nhớ ứng dụng</string>
+    
+    
     <string name="preferences_header">Tùy chọn</string>
     <string name="default_video_quality_label">Chất lượng video mặc định</string>
     <string name="default_download_codec_label">Codec tải xuống mặc định</string>
@@ -1082,7 +1082,7 @@
     <string name="location_downloads_label">Tải xuống / piTube</string>
     <string name="location_movies_label">Phim / piTube</string>
     <string name="location_internal_app_label">Bộ nhớ ứng dụng</string>
-    <string name="location_internal_app_desc">Riêng tư — tệp có thể bị xóa khi gỡ cài đặt</string>
+    
     <string name="location_custom_saf_label">Duyệt…</string>
     <string name="location_custom_saf_desc">Chọn bất kỳ thư mục nào bằng trình chọn hệ thống</string>
     <string name="location_custom_manual_label">Nhập đường dẫn thủ công</string>
@@ -1091,7 +1091,7 @@
     <string name="location_manual_hint">/storage/emulated/0/…</string>
     <string name="location_manual_confirm">Lưu</string>
     <string name="location_badge_recommended">Đề xuất</string>
-    <string name="location_badge_active">Đang dùng</string>
+    
     <string name="select_threads_count_desc">Chọn số luồng (1-8):</string>
     <string name="threads_count_label">%1$d luồng</string>
     <string name="support_donations_title">Hỗ trợ &amp; Quyên góp</string>
@@ -1108,16 +1108,16 @@
     <string name="donation_prompt_later">Để sau</string>
     <string name="donation_prompt_never">Không hiện lại</string>
     <string name="about_creator">Tác giả</string>
-    <string name="about_creator_name">A-EDev</string>
+    
     <string name="about_website">Trang web</string>
-    <string name="about_website_address">flow.aedev.me</string>
-    <string name="about_reddit">Reddit</string>
-    <string name="about_reddit_subtitle">r/piTube_Official</string>
+    
+    
+    
     <string name="github_subtitle">Mã nguồn &amp; Vấn đề</string>
     <string name="newpipe_extractor_title">NewPipe Extractor</string>
     <string name="newpipe_extractor_subtitle">Thư viện trích xuất cốt lõi</string>
     <string name="about_license">Giấy phép</string>
-    <string name="about_license_name">GNU GPL v3</string>
+    
     <string name="about_changelog">Nhật ký thay đổi</string>
     <string name="whats_new_in_flow">Có gì mới trong piTube</string>
     <string name="about_device_info">Thông tin thiết bị</string>
@@ -1126,8 +1126,8 @@
     <string name="error_license_load">Không thể tải giấy phép.</string>
     <string name="no_changelog_found_message">Không tìm thấy nhật ký.</string>
     <string name="error_changelog_load">Không thể tải nhật ký thay đổi.</string>
-    <string name="app_logo_desc">Logo ứng dụng</string>
-    <string name="v_version_template">v%1$s (%2$s)</string>
+    
+    
     <string name="manufacturer_label">Hãng sản xuất: %1$s</string>
     <string name="model_label">Model: %1$s</string>
     <string name="board_label">Codename: %1$s</string>
@@ -1145,10 +1145,10 @@
     <string name="btn_ok">OK</string>
     <string name="btn_copy">Sao chép</string>
     <string name="github_label">GitHub</string>
-    <string name="new_playlist_button">Danh sách mới</string>
-    <string name="your_playlists_header">Danh sách của bạn</string>
-    <string name="saved_playlists_header">Danh sách đã lưu</string>
-    <string name="create_playlist_empty_desc">Tạo danh sách phát đầu tiên để sắp xếp video yêu thích</string>
+    
+    
+    
+    
     <string name="my_playlist_placeholder">Danh sách của tôi</string>
     <string name="add_description_placeholder">Thêm mô tả…</string>
     <string name="edit_playlist_action">Sửa danh sách</string>
@@ -1173,175 +1173,175 @@
     <string name="remove_selected_playlist_text">Chúng sẽ bị xóa khỏi danh sách này.</string>
     <string name="remove_selected_watch_later_text">Chúng sẽ bị xóa khỏi Xem sau.</string>
     <string name="welcome_to_flow">Chào mừng đến piTube</string>
-    <string name="onboarding_subtitle">Cho chúng tôi biết bạn thích gì</string>
-    <string name="onboarding_instructions">Chọn ít nhất 3 chủ đề để cá nhân hóa</string>
-    <string name="selected_with_more_needed_template">Đã chọn %1$d (cần thêm %2$d)</string>
-    <string name="onboarding_interests_title">Bạn thích gì?</string>
-    <string name="onboarding_interests_hint">Chọn ít nhất %1$d chủ đề để cá nhân hóa. Cần thêm %2$d.</string>
-    <string name="onboarding_interests_ready">Lựa chọn tuyệt vời. Bạn có thể thay đổi sau trong cài đặt.</string>
-    <string name="onboarding_channels_title">Tìm kênh</string>
-    <string name="onboarding_channels_subtitle">Tìm kiếm và đăng ký kênh bạn theo dõi.</string>
-    <string name="onboarding_channels_search_placeholder">Tìm kênh…</string>
-    <string name="onboarding_channels_empty_prompt">Nhập tên kênh để tìm</string>
-    <string name="onboarding_channels_no_results">Không tìm thấy kênh cho %1$s</string>
-    <string name="onboarding_channels_added_count">Đã thêm %1$d kênh</string>
-    <string name="onboarding_channels_subscribers">%1$s người đăng ký</string>
-    <string name="onboarding_channels_subscribed">Đã đăng ký</string>
-    <string name="onboarding_channels_subscribe">Đăng ký</string>
-    <string name="onboarding_import_title">Nhập dữ liệu</string>
-    <string name="onboarding_import_subtitle">Mang đăng ký và lịch sử từ ứng dụng khác. Mọi thứ đều tùy chọn.</string>
-    <string name="onboarding_backup_restore_section">Sao lưu &amp; Phục hồi</string>
-    <string name="onboarding_n_selected">Đã chọn %1$d</string>
-    <string name="onboarding_topic_selected">Đã chọn</string>
-    <string name="onboarding_topic_not_selected">Chưa chọn</string>
-    <string name="onboarding_import_failed_template">Nhập thất bại: %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="onboarding_btn_skip">Bỏ qua</string>
-    <string name="onboarding_btn_finish">Hoàn tất</string>
-    <string name="btn_skip_for_now">Bỏ qua</string>
+    
+    
     <string name="onboarding_btn_continue">Tiếp tục</string>
-    <string name="onboarding_btn_back">Quay lại</string>
-    <string name="cd_collapse_category">Thu gọn</string>
-    <string name="cd_expand_category">Mở rộng</string>
+    
+    
+    
     <string name="category_gaming">Game</string>
-    <string name="category_music">Nhạc</string>
-    <string name="category_technology">Công nghệ</string>
-    <string name="category_entertainment">Giải trí</string>
-    <string name="category_education">Giáo dục</string>
-    <string name="category_health_fitness">Sức khỏe &amp; Thể hình</string>
-    <string name="category_lifestyle">Phong cách sống</string>
-    <string name="category_creative">Sáng tạo</string>
-    <string name="category_science_nature">Khoa học &amp; Tự nhiên</string>
-    <string name="category_news_current_events">Tin tức &amp; Sự kiện</string>
-    <string name="flow_control_center">Trung tâm điều khiển piTube</string>
-    <string name="action_refresh">Làm mới</string>
-    <string name="loading_neural_matrix">Đang tải ma trận thần kinh…</string>
-    <string name="neural_interest_map_subtitle">Bản đồ sở thích thần kinh</string>
-    <string name="cognitive_fingerprint">Dấu vết nhận thức</string>
-    <string name="content_dna_subtitle">DNA nội dung</string>
-    <string name="topic_weights">Trọng số chủ đề</string>
-    <string name="topic_weights_subtitle">Minh bạch hoàn toàn nội dung nguồn cấp</string>
-    <string name="temporal_patterns">Mô hình thời gian</string>
-    <string name="temporal_patterns_subtitle">Sở thích thay đổi theo thời gian trong ngày</string>
-    <string name="channel_memory">Bộ nhớ kênh</string>
-    <string name="channel_memory_subtitle">Phản hồi ngầm từ lịch sử xem</string>
-    <string name="persona_initiate_title">Người mới</string>
-    <string name="persona_initiate_description">Mới bắt đầu. Hồ sơ đang hình thành.</string>
-    <string name="persona_audiophile_title">Người yêu nhạc</string>
-    <string name="persona_audiophile_description">Bạn dùng piTube chủ yếu để nghe nhạc. Cảm xúc là tất cả.</string>
-    <string name="persona_livewire_title">Người thích trực tiếp</string>
-    <string name="persona_livewire_description">Bạn thích năng lượng sống động của phát trực tiếp và công chiếu.</string>
-    <string name="persona_night_owl_title">Cú đêm</string>
-    <string name="persona_night_owl_description">Bạn hoạt động tốt nhất khi đêm xuống. Hầu hết xem sau nửa đêm.</string>
-    <string name="persona_binger_title">Người xem dồn</string>
-    <string name="persona_binger_description">Một khi bắt đầu là không dừng lại. Lượng nội dung khổng lồ.</string>
-    <string name="persona_scholar_title">Học giả</string>
-    <string name="persona_scholar_description">Nội dung phức tạp. Đến để phát triển, không chỉ giải trí.</string>
-    <string name="persona_deep_diver_title">Người lặn sâu</string>
-    <string name="persona_deep_diver_description">Video dài và tài liệu là thế giới của bạn.</string>
-    <string name="persona_skimmer_title">Người xem lướt</string>
-    <string name="persona_skimmer_description">Nội dung ngắn, nhanh. Dopamine theo yêu cầu.</string>
-    <string name="persona_specialist_title">Chuyên gia</string>
-    <string name="persona_specialist_description">Tập trung vào một vài lĩnh vực. Bạn biết mình thích gì.</string>
-    <string name="persona_explorer_title">Người khám phá</string>
-    <string name="persona_explorer_description">Hỗn hợp đẹp đẽ. Một chút mọi thứ.</string>
-    <string name="channel_memory_empty">Chưa có kênh nào.</string>
-    <string name="filters_title">Bộ lọc</string>
-    <string name="blocked_topics_channels_subtitle">Chủ đề và kênh bị chặn</string>
-    <string name="reset_neural_profile_title">Đặt lại hồ sơ thần kinh?</string>
-    <string name="reset_neural_profile_body">Thao tác này xóa vĩnh viễn:\n\n• Tất cả sở thích đã học\n• Vectơ tính cách dài hạn\n• Mô hình theo thời gian\n• Điểm liên kết kênh\n\nNguồn cấp sẽ trở về trạng thái ban đầu.</string>
-    <string name="erase_everything">Xóa tất cả</string>
-    <string name="stats_interactions">Tương tác</string>
-    <string name="stats_topics">Chủ đề</string>
-    <string name="empty_bubble_cloud_message">Xem một số video để xây dựng đám mây sở thích!</string>
-    <string name="interactions_level_template">%1$d tương tác • Cấp %2$d</string>
-    <string name="flow_neural_profile_export_subject">Xuất hồ sơ thần kinh piTube</string>
-    <string name="screen_title_music_library">Thư viện nhạc</string>
-    <string name="header_your_collection">Bộ sưu tập của bạn</string>
-    <string name="subtitle_liked_music">Bài hát đã thích</string>
-    <string name="subtitle_history">Bài hát đã nghe</string>
-    <string name="empty_music_playlists">Chưa có danh sách phát nhạc</string>
-    <string name="rename_playlist_title">Đổi tên danh sách</string>
-    <string name="action_rename">Đổi tên</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="link_copied">Đã sao chép liên kết</string>
     <string name="copy_video_link">Sao chép liên kết video</string>
     <string name="copy_channel_link">Sao chép liên kết kênh</string>
-    <string name="share_link_cd">Chia sẻ liên kết</string>
-    <string name="section_singles">Đĩa đơn</string>
-    <string name="section_featured_on">Xuất hiện trong</string>
-    <string name="section_fans_also_like">Người hâm mộ cũng thích</string>
-    <string name="artist_views_template">%1$s • %2$s lượt xem</string>
-    <string name="action_view_all">Xem tất cả</string>
-    <string name="search_content_description">Tìm kiếm</string>
-    <string name="views_count_format">%1$s lượt xem</string>
-    <string name="playlist_footer_template">%1$d bài hát • %2$s</string>
-    <string name="unknown_error">Lỗi không xác định</string>
-    <string name="action_retry">Thử lại</string>
-    <string name="empty_moods_genres">Không có tâm trạng &amp; thể loại</string>
-    <string name="title_browse">Duyệt</string>
-    <string name="empty_browse_content">Không có nội dung</string>
-    <string name="label_featured">NỔI BẬT</string>
-    <string name="year_artist_template">%1$s • %2$s</string>
-    <string name="status_playing">Đang phát</string>
-    <string name="label_explicit">Có nội dung nhạy cảm</string>
-    <string name="duration_with_dot_template">• %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="status_downloaded">Đã tải xuống</string>
-    <string name="title_create_playlist">Tạo danh sách phát</string>
-    <string name="label_playlist_name">Tên danh sách</string>
-    <string name="placeholder_playlist_name">Danh sách hay của tôi</string>
-    <string name="label_description_optional">Mô tả (tùy chọn)</string>
-    <string name="placeholder_playlist_desc">Những bài yêu thích…</string>
-    <string name="action_create">Tạo</string>
-    <string name="action_cancel">Hủy</string>
-    <string name="title_add_to_playlist">Thêm vào danh sách phát</string>
-    <string name="action_create_new_playlist">Tạo danh sách mới</string>
-    <string name="empty_playlists_dialog">Chưa có danh sách phát. Hãy tạo một cái!</string>
-    <string name="action_remove_from_favorites">Xóa khỏi yêu thích</string>
-    <string name="action_add_to_favorites">Thêm vào yêu thích</string>
-    <string name="action_listen_now">Nghe ngay</string>
-    <string name="action_play_all">Phát tất cả</string>
-    <string name="loading_music">Đang tải nhạc…</string>
-    <string name="screen_title_music">NHẠC</string>
-    <string name="section_listen_again">Nghe lại</string>
-    <string name="section_daily_discover">Khám phá hôm nay</string>
-    <string name="section_quick_picks">Chọn nhanh</string>
-    <string name="section_speed_dial">Phát lại</string>
-    <string name="shuffle_play">Phát ngẫu nhiên</string>
-    <string name="feeling_lucky">Ngẫu nhiên?</string>
-    <string name="daily_discover_sounds_like">Giống %1$s</string>
-    <string name="daily_discover_because_you_listen_to">Vì bạn nghe %1$s</string>
-    <string name="daily_discover_similar_to">Tương tự %1$s</string>
-    <string name="daily_discover_based_on">Dựa trên %1$s</string>
-    <string name="daily_discover_for_fans_of">Dành cho fan %1$s</string>
-    <string name="section_recommended">Đề xuất</string>
-    <string name="section_recently_played">Phát gần đây</string>
-    <string name="section_music_videos">Video nhạc</string>
-    <string name="section_music_videos_for_you">Video nhạc cho bạn</string>
-    <string name="section_live_performances">Biểu diễn trực tiếp</string>
-    <string name="section_new_releases">Phát hành mới</string>
-    <string name="subtitle_single_template">Đĩa đơn · %1$s</string>
-    <string name="section_popular_artists">Nghệ sĩ nổi bật</string>
-    <string name="section_mixed_for_you">Tổng hợp cho bạn</string>
-    <string name="section_moods_and_genres">Tâm trạng &amp; Thể loại</string>
-    <string name="section_mood_and_genres">Tâm trạng và Thể loại</string>
-    <string name="section_from_the_community">Từ cộng đồng</string>
-    <string name="daily_discover_subtitle">Lựa chọn mới từ lịch sử nghe</string>
-    <string name="genre_mix_template">Tuyển tập %1$s</string>
-    <string name="section_top_albums">Album hàng đầu</string>
-    <string name="similar_to">Tương tự</string>
-    <string name="section_similar_to">Tương tự %1$s</string>
-    <string name="subtitle_similar_to">Dựa trên lịch sử nghe của bạn</string>
-    <string name="section_vibe_vibes">%1$s</string>
-    <string name="subtitle_community_playlists">Danh sách phát cộng đồng</string>
-    <string name="playlist_author_community">Danh sách cộng đồng</string>
-    <string name="playlist_description_community">Tuyển chọn nhạc %1$s từ cộng đồng</string>
-    <string name="radio">Radio</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="audio_settings_title">Cài đặt âm thanh</string>
     <string name="label_preset">Cài sẵn</string>
     <string name="template_bass_boost">Tăng bass: %1$ddB</string>
-    <string name="label_tempo_pitch">Tempo &amp; Cao độ</string>
-    <string name="action_reset">Đặt lại</string>
-    <string name="template_speed">Tốc độ: %1$d%%</string>
-    <string name="template_pitch">Cao độ: %1$d nửa cung</string>
+    
+    
+    
+    
     <string name="label_parametric_equalizer">Bộ cân bằng tham số</string>
     <string name="action_add_band">Thêm băng tần</string>
     <string name="template_preamp">Tiền khuếch đại: %1$.1fdB</string>
@@ -1352,38 +1352,38 @@
     <string name="action_save_preset">Lưu cài sẵn</string>
     <string name="label_preset_name">Tên cài sẵn</string>
     <string name="now_playing">ĐANG PHÁT</string>
-    <string name="voice_search_prompt">Nói để tìm nhạc</string>
-    <string name="search_music_placeholder">Tìm nhạc</string>
+    
+    
     <string name="voice_search_cd">Tìm kiếm bằng giọng nói</string>
-    <string name="filter_albums">Album</string>
-    <string name="filter_songs">Bài hát</string>
-    <string name="filter_community_playlists">Danh sách cộng đồng</string>
-    <string name="section_top_result">Kết quả hàng đầu</string>
-    <string name="subtitle_song_prefix">Bài hát • %1$s</string>
-    <string name="subtitle_artist">Nghệ sĩ</string>
-    <string name="subtitle_album_template">Album • %1$s</string>
-    <string name="subtitle_playlist_template">Danh sách • %1$s</string>
-    <string name="plays_count_template">• %1$s lượt phát</string>
-    <string name="album_year_template">Album • %1$s • %2$s</string>
-    <string name="artist_audience_template">Nghệ sĩ • %1$s người nghe</string>
-    <string name="search_source_template">Tìm: %1$s</string>
-    <string name="artist_source_template">Nghệ sĩ: %1$s</string>
-    <string name="top_picks_for_you">Lựa chọn hàng đầu cho bạn</string>
-    <string name="no_results_found">Không tìm thấy kết quả</string>
-    <string name="no_tracks_available">Không có bài hát</string>
-    <string name="tab_favorites">Yêu thích</string>
-    <string name="create_playlist_subtitle">Sắp xếp nhạc của bạn</string>
-    <string name="empty_playlists_title">Chưa có danh sách phát</string>
-    <string name="empty_playlists_subtitle">Tạo danh sách phát đầu tiên để sắp xếp bài hát yêu thích</string>
-    <string name="empty_favorites_title">Chưa có yêu thích</string>
-    <string name="empty_favorites_subtitle">Chạm biểu tượng trái tim trên bài hát để thêm vào yêu thích</string>
-    <string name="favorites_count_template">%1$d bài hát yêu thích</string>
-    <string name="empty_history_title">Chưa có lịch sử</string>
-    <string name="empty_history_subtitle">Bắt đầu nghe nhạc để xem lịch sử ở đây</string>
-    <string name="empty_downloads_title">Chưa có tải xuống</string>
-    <string name="empty_downloads_subtitle">Tải nhạc để nghe ngoại tuyến</string>
-    <string name="total_size">Tổng dung lượng</string>
-    <string name="tracks_count_template">%1$s bài hát</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="btn_minimize">Thu nhỏ</string>
     <string name="captions">Phụ đề</string>
     <string name="pip_mode">Hình trong hình</string>
@@ -1397,9 +1397,9 @@
     <string name="shorts_audio_track">Luồng âm thanh</string>
     <string name="shorts_auto_scroll_active_template">Tự động %1$ds</string>
     <string name="shorts_quality">Chất lượng</string>
-    <string name="shorts_no_audio_tracks">Không có luồng âm thanh</string>
-    <string name="shorts_audio_original">Gốc</string>
-    <string name="shorts_audio_dubbed">Lồng tiếng</string>
+    
+    
+    
     <string name="shorts_quality_settings_title">Chất lượng Shorts</string>
     <string name="shorts_quality_settings_subtitle">Chất lượng khi xem Shorts</string>
     <string name="shorts_quality_warning">Chất lượng cao tiêu tốn nhiều dữ liệu. Shorts dùng luồng dọc.</string>
@@ -1411,7 +1411,7 @@
     <string name="add_video_to_queue_desc">Thêm vào cuối hàng chờ</string>
     <string name="added_to_queue_toast">Đã thêm vào hàng chờ</string>
     <string name="play_next_toast">Sẽ phát tiếp</string>
-    <string name="no_active_queue_toast">Không có hàng chờ. Hãy phát video trước.</string>
+    
     <string name="download_video">Tải xuống video</string>
     <string name="select_quality">Chọn chất lượng mong muốn</string>
     <string name="no_download_streams">Không có luồng tải xuống</string>
@@ -1427,7 +1427,7 @@
     <string name="download_menu_style_compact">Gọn</string>
     <string name="download_menu_style_compact_desc">Tiêu đề có thể sửa, dropdown và số luồng</string>
     <string name="downloading_template">Đang tải %1$s…</string>
-    <string name="section_downloading">Đang tải</string>
+    
     <string name="section_incomplete_downloads">Tải chưa hoàn tất</string>
     <string name="section_completed">Đã hoàn tất</string>
     <string name="download_status_queued">Đang chờ</string>
@@ -1450,9 +1450,9 @@
     <string name="playlist_queue">Hàng chờ danh sách</string>
     <string name="next_up">Tiếp theo</string>
     <string name="cast_to_tv">Phát lên TV</string>
-    <string name="cast_connecting">Đang kết nối…</string>
+    
     <string name="cast_connected">Đang phát</string>
-    <string name="cast_disconnected">Ngắt kết nối</string>
+    
     <string name="dlna_cast_to_device">Phát lên thiết bị</string>
     <string name="dlna_no_devices">Không tìm thấy thiết bị DLNA/UPnP nào trên mạng.\n\nĐảm bảo TV hoặc trình phát (VLC, Kodi…) cùng Wi-Fi và bật chế độ phát.</string>
     <string name="dlna_searching">Đang tìm thiết bị DLNA…</string>
@@ -1482,7 +1482,7 @@
     <string name="sync_collection_likes">Lượt thích</string>
     <string name="sync_collection_subscriptions">Đăng ký</string>
     <string name="sync_collection_settings">Cài đặt</string>
-    <string name="sync_collection_recommendation_profile">Hồ sơ gợi ý</string>
+    
     <string name="sync_preparing">Đang chuẩn bị…</string>
     <string name="sync_connecting">Đang kết nối…</string>
     <string name="sync_intro">Đồng bộ thư viện, lịch sử, lượt thích, cài đặt và hồ sơ gợi ý với thiết bị khác qua Wi-Fi cục bộ. Không gì rời khỏi mạng của bạn.</string>
@@ -1569,10 +1569,10 @@
     <string name="error_extraction_failed_hint">YouTube có thể đã thay đổi định dạng. piTube sẽ cập nhật — vui lòng thử lại sau.</string>
     <string name="error_generic">Không tải được video</string>
     <string name="error_generic_hint">Lỗi không xác định. Vui lòng thử lại.</string>
-    <string name="music_playback_warning_forbidden">Truy cập luồng nhạc bị từ chối. YouTube có thể hạn chế IP này; thử tải lại hoặc chuyển mạng/VPN.</string>
-    <string name="music_playback_warning_network">Luồng nhạc thất bại do mạng. Kiểm tra kết nối hoặc thử mạng khác.</string>
-    <string name="music_playback_warning_final">Không thể tải bài hát này sau nhiều lần thử. Thử mạng khác hoặc VPN nếu liên tục thất bại.</string>
-    <string name="music_playback_warning_generic">Phát nhạc thất bại. Thử lại hoặc chuyển mạng nếu sự cố tiếp diễn.</string>
+    
+    
+    
+    
     <string name="player_lock_controls">Khóa điều khiển</string>
     <string name="player_unlock_controls">Mở khóa điều khiển</string>
     <string name="player_settings_overlay_controls">Điều khiển lớp phủ</string>
@@ -1615,94 +1615,94 @@
     <string name="diagnostics_loading">Đang đọc nhật ký…</string>
     <string name="diagnostics_copied">Đã sao chép báo cáo</string>
     <string name="add_all_to_playlist">Thêm vào danh sách của tôi</string>
-    <string name="merge_playlist_dialog_title">Thêm tất cả bài hát vào…</string>
+    
     <string name="merge_playlist_success">Đã thêm %1$d bài hát vào %2$s</string>
-    <string name="merge_playlist_no_playlists">Chưa có danh sách phát. Hãy tạo một cái!</string>
-    <string name="learning_stats_title">Tín hiệu học hỏi</string>
-    <string name="learning_stats_subtitle">Những gì piTube đang ghi nhớ</string>
-    <string name="metric_interactions">Tương tác</string>
-    <string name="metric_interactions_detail">nhấp, xem, bỏ qua</string>
-    <string name="metric_topics">Chủ đề</string>
-    <string name="metric_topics_detail">yêu thích</string>
-    <string name="metric_evidence">Bằng chứng</string>
-    <string name="metric_evidence_detail">chủ đề đã được xác nhận</string>
-    <string name="metric_channels">Kênh</string>
-    <string name="metric_channels_detail">mục liên kết</string>
-    <string name="metric_history">Lịch sử</string>
-    <string name="metric_history_detail">tham chiếu xem</string>
-    <string name="metric_feed_memory">Bộ nhớ nguồn cấp</string>
-    <string name="metric_feed_memory_detail">đã hiển thị gần đây</string>
-    <string name="metric_filters">Bộ lọc</string>
-    <string name="metric_filters_detail">mục bị chặn</string>
-    <string name="profile_maturity_label">Tiến trình</string>
-    <string name="profile_maturity_detail">Hoàn thành tiến trình để cá nhân hoá tốt hơn</string>
-    <string name="metric_suppressed">Đã triệt tiêu</string>
-    <string name="metric_suppressed_detail">mục đang làm mát</string>
-    <string name="taste_shape_title">Hình dạng khẩu vị</string>
-    <string name="taste_shape_subtitle">Hồ sơ toàn cục so với bối cảnh thời gian hiện tại</string>
-    <string name="taste_pacing">Nhịp độ</string>
-    <string name="taste_pacing_context">Bối cảnh hiện tại: %1$s</string>
-    <string name="taste_complexity">Độ phức tạp</string>
-    <string name="taste_duration">Sở thích độ dài</string>
-    <string name="taste_duration_detail">Giá trị cao hơn thiên về video dài</string>
-    <string name="taste_live_affinity">Thích phát trực tiếp</string>
-    <string name="taste_live_affinity_detail">Mức độ phù hợp của nội dung trực tiếp</string>
-    <string name="taste_topic_breadth">Bề rộng chủ đề</string>
-    <string name="taste_topic_breadth_detail">%1$d chủ đề trong vectơ toàn cục</string>
-    <string name="interest_weights_title">Trọng số chủ đề</string>
-    <string name="interest_weights_subtitle">Chủ đề có trọng số cao nhất sau khi kiểm tra</string>
-    <string name="interest_weights_empty">Chưa có trọng số.</string>
-    <string name="time_patterns_title">Mô hình thời gian</string>
-    <string name="time_patterns_subtitle">Vuốt qua các vectơ theo ngày trong tuần và cuối tuần</string>
-    <string name="time_bucket_label_now">Bây giờ</string>
-    <string name="time_bucket_no_topics">Chưa có chủ đề</string>
-    <string name="time_bucket_top_topics">Chủ đề hàng đầu</string>
-    <string name="time_bucket_topics_count">Chủ đề</string>
-    <string name="time_bucket_pace">Nhịp độ</string>
-    <string name="time_bucket_complexity">Độ phức tạp</string>
-    <string name="time_bucket_duration">Độ dài</string>
-    <string name="time_bucket_weekday_morning">Sáng ngày thường</string>
-    <string name="time_bucket_weekday_afternoon">Chiều ngày thường</string>
-    <string name="time_bucket_weekday_evening">Tối ngày thường</string>
-    <string name="time_bucket_weekday_night">Đêm ngày thường</string>
-    <string name="time_bucket_weekend_morning">Sáng cuối tuần</string>
-    <string name="time_bucket_weekend_evening">Tối cuối tuần</string>
-    <string name="time_bucket_weekend_night">Đêm cuối tuần</string>
-    <string name="time_window_morning">6 AM - 12 PM</string>
-    <string name="time_window_afternoon">12 PM - 6 PM</string>
-    <string name="time_bucket_weekend_afternoon">Chiều ngày thường</string>
-    <string name="time_window_evening">6 PM - 12 AM</string>
-    <string name="time_window_night">12 AM - 6 AM</string>
-    <string name="channel_affinity_strong">Mạnh</string>
-    <string name="channel_affinity_balanced">Cân bằng</string>
-    <string name="channel_affinity_cooling">Làm mát</string>
-    <string name="channel_affinity_score">điểm liên kết</string>
-    <string name="discovery_status_title">Trạng thái khám phá</string>
-    <string name="discovery_status_subtitle">Truy vấn và rào cản định hình khám phá</string>
-    <string name="discovery_queries">Truy vấn</string>
-    <string name="discovery_queries_detail">sẵn sàng</string>
-    <string name="discovery_query_memory">Bộ nhớ truy vấn</string>
-    <string name="discovery_query_memory_detail">tập token gần đây</string>
-    <string name="discovery_rejections">Từ chối</string>
-    <string name="discovery_rejections_detail">mô hình chủ đề</string>
-    <string name="discovery_shorts_seen">Shorts đã xem</string>
-    <string name="discovery_shorts_seen_detail">bộ lọc lặp</string>
-    <string name="blocked_content_title">Bộ lọc</string>
-    <string name="blocked_content_subtitle">Chủ đề và kênh bị loại khỏi gợi ý</string>
-    <string name="blocked_topics_header">Chủ đề bị chặn</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="blocked_channels_header">Kênh bị chặn</string>
-    <string name="blocked_item_unblock_topic">Bỏ chặn chủ đề</string>
+    
     <string name="blocked_item_unblock_channel">Bỏ chặn kênh</string>
-    <string name="blocked_item_showing_count">Hiển thị %1$d trên %2$d</string>
-    <string name="profile_data_title">Dữ liệu hồ sơ</string>
-    <string name="profile_data_subtitle">Sao lưu, phục hồi hoặc đặt lại hồ sơ gợi ý cục bộ</string>
-    <string name="profile_action_reset">Đặt lại hồ sơ</string>
-    <string name="profile_action_reset_detail">Xóa sở thích đã học và bắt đầu lại</string>
-    <string name="reset_profile_dialog_title">Đặt lại hồ sơ?</string>
-    <string name="reset_profile_dialog_message">Thao tác này xóa hồ sơ gợi ý cục bộ và bắt đầu học lại từ đầu.</string>
-    <string name="reset_profile_confirm">Đặt lại</string>
-    <string name="taste_chart_profile">Hồ sơ</string>
-    <string name="taste_chart_now">Bây giờ</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_item_datetime">Ngày &amp; Giờ</string>
     <string name="settings_item_datetime_subtitle">Tùy chỉnh cách hiển thị ngày đăng</string>
     <string name="datetime_title">Hiển thị ngày &amp; giờ</string>
@@ -1727,48 +1727,48 @@
     <string name="player_appearance_volume_boost_title">Cho phép tăng âm lượng vượt trội</string>
     <string name="player_appearance_volume_boost_subtitle">Khi tắt, cử chỉ vuốt âm lượng dừng ở mức hệ thống tối đa. Bật để âm thanh to hơn.</string>
     <string name="shorts_playback_speed">Tốc độ phát</string>
-    <string name="speed_normal">Bình thường</string>
+    
     <string name="history_delete_shorts">Xóa Shorts khỏi lịch sử</string>
     <string name="history_delete_shorts_title">Xóa Shorts?</string>
     <string name="history_delete_shorts_body">Thao tác này xóa tất cả Shorts khỏi lịch sử xem. Các video khác được giữ nguyên.</string>
-    <string name="recognize_music">Nhận diện nhạc</string>
-    <string name="recognition_history">Lịch sử nhận diện</string>
-    <string name="tap_to_recognize">Chạm để nhận diện</string>
-    <string name="listening">Đang lắng nghe…</string>
-    <string name="processing">Đang xử lý…</string>
-    <string name="no_match_found">Không tìm thấy</string>
-    <string name="recognition_error">Nhận diện thất bại</string>
-    <string name="try_again">Thử lại</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="search_in_flow">Tìm trong piTube</string>
-    <string name="recognition_search_history">Tìm bài hát đã nhận diện</string>
-    <string name="recognition_history_empty">Bài hát được nhận diện sẽ xuất hiện tại đây</string>
-    <string name="recognition_clear_history">Xóa lịch sử?</string>
-    <string name="recognition_clear_history_body">Thao tác này xóa tất cả bài hát đã nhận diện. Không thể hoàn tác.</string>
+    
+    
+    
+    
     <string name="close_popup_player">Đóng trình phát cửa sổ</string>
     <plurals name="tv_playlist_video_count">
         <item quantity="other">%1$d video</item>
     </plurals>
-    <string name="widget_now_playing_label">Đang phát</string>
-    <string name="widget_now_playing_description">Điều khiển nhạc đang phát trong piTube</string>
+    
+    
     <string name="widget_quick_actions_label">Hành động nhanh</string>
     <string name="widget_quick_actions_description">Tìm kiếm piTube và truy cập tải xuống, lịch sử, nhận diện</string>
-    <string name="widget_recognize_label">Nhận diện nhạc</string>
-    <string name="widget_recognize_description">Nhận diện bài hát xung quanh bằng một chạm</string>
-    <string name="widget_turntable_label">Đĩa than</string>
-    <string name="widget_turntable_description">Nhạc của bạn dưới dạng đĩa quay</string>
+    
+    
+    
+    
     <string name="widget_recently_played_label">Phát gần đây</string>
     <string name="widget_recently_played_description">Tiếp tục xem</string>
     <string name="widget_downloads_label">Tải xuống</string>
     <string name="widget_downloads_description">Phát tải xuống ngoại tuyến</string>
     <string name="widget_recently_played">Phát gần đây</string>
     <string name="widget_downloads">Tải xuống</string>
-    <string name="widget_nothing_playing">Không có gì đang phát</string>
-    <string name="widget_play">Phát</string>
-    <string name="widget_pause">Tạm dừng</string>
-    <string name="widget_next">Bài hát tiếp</string>
-    <string name="widget_previous">Bài hát trước</string>
-    <string name="widget_like">Thích</string>
-    <string name="widget_artwork">Ảnh bìa</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="widget_open_downloads">Mở tải xuống</string>
     <string name="widget_open_history">Mở lịch sử</string>
     <string name="widget_no_recent">Video bạn xem sẽ xuất hiện tại đây</string>
@@ -1780,43 +1780,43 @@
     <string name="ui_skip_forward_10_seconds">Tua tới 10s</string>
     <string name="ui_queued_for_download">Đã thêm vào hàng chờ tải</string>
     <string name="ui_downloading">Đang tải xuống</string>
-    <string name="ui_in_library">Trong thư viện</string>
-    <string name="ui_navigate">Điều hướng</string>
-    <string name="ui_options">Tùy chọn</string>
+    
+    
+    
     <string name="ui_selected">Đã chọn</string>
     <string name="ui_flow_logo">Logo piTube</string>
     <string name="ui_list_view">Xem dạng danh sách</string>
     <string name="ui_grid_view">Xem dạng lưới</string>
     <string name="ui_back">Quay lại</string>
-    <string name="ui_add_songs">Thêm bài hát</string>
+    
     <string name="ui_close_search">Đóng tìm kiếm</string>
     <string name="ui_save_to_library">Lưu vào thư viện</string>
     <string name="ui_remove_from_library">Xóa khỏi thư viện</string>
-    <string name="ui_clear">Xóa</string>
-    <string name="ui_delete_from_playlist">Xóa khỏi danh sách</string>
-    <string name="ui_added">Đã thêm</string>
-    <string name="ui_sync_lyrics">Đồng bộ lời</string>
+    
+    
+    
+    
     <string name="ui_downloading_playlist">Đang tải danh sách phát</string>
-    <string name="ui_no_songs_found">Không tìm thấy bài hát</string>
-    <string name="ui_search_songs_to_add">Tìm bài hát để thêm…</string>
-    <string name="ui_add_songs_to_playlist">Thêm bài hát vào danh sách</string>
-    <string name="ui_show_less">Thu gọn</string>
-    <string name="ui_show_more">Xem thêm</string>
+    
+    
+    
+    
+    
     <string name="ui_try_sabr_download">Thử tải SABR</string>
-    <string name="ui_audio_only">Chỉ âm thanh</string>
+    
     <string name="ui_no_crash_logs">Không có nhật ký sự cố</string>
     <string name="ui_copy_log">Sao chép nhật ký</string>
     <string name="ui_clear_and_continue">Xóa &amp; Tiếp tục</string>
     <string name="ui_crashed_last_session">piTube đã gặp sự cố ở phiên trước</string>
     <string name="ui_copy_log_description">Sao chép nhật ký dưới đây và dán vào issue GitHub để được sửa.</string>
     <string name="ui_search_settings">Tìm trong cài đặt…</string>
-    <string name="ui_custom_interest_title">Thêm sở thích tùy chỉnh</string>
-    <string name="ui_custom_interest_subtitle">Nhập bất kỳ chủ đề nào bạn quan tâm</string>
-    <string name="ui_custom_interest_hint">Sở thích tùy chỉnh (ví dụ: Jazz, Vật lý thiên văn)</string>
-    <string name="ui_add_interest">Thêm sở thích</string>
-    <string name="ui_version">Phiên bản %1$s</string>
+    
+    
+    
+    
+    
     <string name="update_download_prompt">Đã có phiên bản mới của piTube (%1$s). Tải APK?</string>
-    <string name="ui_instrumental">G I A I Đ I Ệ U</string>
+    
     <string name="ui_playlist_empty">Danh sách phát trống</string>
     <string name="ui_downloading_videos">Đang tải %1$d video…</string>
     <string name="ui_playlist_saved_to_library">Đã lưu danh sách phát vào thư viện</string>
@@ -1837,20 +1837,20 @@
     <string name="toast_no_download_source">Không có nguồn tải</string>
     <string name="toast_sabr_download_failed">Tải SABR thất bại: %1$s</string>
     <string name="toast_copied_to_clipboard">Đã sao chép</string>
-    <string name="toast_playlist_deleted">Đã xóa danh sách phát</string>
-    <string name="toast_playlist_renamed">Đã đổi tên danh sách phát</string>
-    <string name="toast_starting_playlist_download">Bắt đầu tải %1$s…</string>
-    <string name="toast_downloaded_tracks_from_playlist">Đã tải %1$d bài hát từ %2$s</string>
-    <string name="toast_failed_to_download_playlist">Không tải được danh sách</string>
-    <string name="toast_error_downloading_playlist">Lỗi tải danh sách</string>
-    <string name="toast_downloaded_tracks">Đã tải %1$d bài hát</string>
-    <string name="toast_added_to_playlist">Đã thêm vào danh sách</string>
-    <string name="toast_failed_to_add_track">Không thêm được</string>
-    <string name="toast_removed_from_playlist">Đã xóa khỏi danh sách</string>
-    <string name="toast_failed_to_remove_track">Không xóa được</string>
-    <string name="toast_saved_playlist_to_music_library">Đã lưu danh sách phát vào thư viện nhạc</string>
-    <string name="toast_failed_to_save_playlist">Không lưu được</string>
-    <string name="toast_removed_playlist_from_library">Đã xóa danh sách khỏi thư viện</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="toast_failed_to_merge_playlist">Không thể hợp nhất</string>
     <string name="notification_downloading">Đang tải: %1$s</string>
     <string name="notification_download_complete">Tải hoàn tất</string>
@@ -1882,10 +1882,10 @@
     <string name="error_failed_to_load_channel">Không tải được kênh</string>
     <string name="error_failed_to_load_shorts">Không tải được shorts</string>
     <string name="error_failed_to_load_more_shorts">Không tải thêm shorts</string>
-    <string name="error_search_timed_out">Tìm kiếm hết thời gian</string>
-    <string name="error_filter_search_timed_out">Tìm kiếm với bộ lọc hết thời gian</string>
-    <string name="error_failed_to_load_playlist">Không tải được danh sách phát</string>
-    <string name="error_failed_to_load_content">Không tải được nội dung</string>
+    
+    
+    
+    
     <string name="error_no_videos_found">Không tìm thấy video</string>
     <string name="error_no_shorts_found">Không tìm thấy Shorts</string>
     <string name="error_no_live_videos_found">Không tìm thấy video trực tiếp</string>
@@ -1900,7 +1900,7 @@
     <string name="error_playback_device">Lỗi thiết bị phát: %1$s</string>
     <string name="error_content_protection">Lỗi bảo vệ nội dung: %1$s</string>
     <string name="error_playback_stopped">Phát lại dừng do lỗi nghiêm trọng</string>
-    <string name="error_invalid_media_streams">Không thể tải phương tiện: luồng không hợp lệ</string>
+    
     <string name="error_failed_to_load_media">Không thể tải phương tiện: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Không thể tải phương tiện: luồng không hợp lệ</string>
     <string name="error_playback_retry_hint">Thử lại sau hoặc kiểm tra kết nối mạng.</string>
@@ -1916,23 +1916,23 @@
     <string name="download_failed_audio_length">Không lấy được dung lượng âm thanh</string>
     <string name="download_workers_failed">Một hoặc nhiều tác vụ thất bại</string>
     <string name="download_block_failed">Block %1$s thất bại: %2$s</string>
-    <string name="fallback_playing">Đang phát…</string>
-    <string name="fallback_unknown_title">Không rõ tiêu đề</string>
-    <string name="fallback_unknown_channel">Kênh không xác định</string>
-    <string name="fallback_unknown_playlist">Không rõ danh sách phát</string>
-    <string name="fallback_unknown_artist">Không rõ nghệ sĩ</string>
-    <string name="fallback_unknown_album">Không rõ album</string>
-    <string name="fallback_unknown_video">Không rõ video</string>
-    <string name="fallback_local_video">Video cục bộ</string>
-    <string name="fallback_local_audio">Âm thanh cục bộ</string>
-    <string name="fallback_your_saved_shorts">Shorts đã lưu</string>
-    <string name="fallback_your_watch_later_list">Danh sách Xem sau</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="fallback_downloaded_locally">Đã tải xuống</string>
-    <string name="fallback_more_results">Thêm kết quả</string>
+    
     <string name="remove_from_queue">Xóa khỏi hàng chờ</string>
     <string name="remove_from_queue_confirmation">Bạn có chắc chắn muốn xóa video này khỏi hàng chờ?</string>
     <string name="reorder_queue_item">Sắp xếp lại mục hàng chờ</string>
-    <string name="topic_score_prefix">Bằng chứng chủ đề</string>
+    
     <string name="notif_background_restricted_title">Tính năng chạy nền bị hạn chế</string>
     <string name="notif_background_restricted_subtitle">Android đang chặn piTube kiểm tra video mới khi ứng dụng đang đóng, nên các cảnh báo chỉ xuất hiện khi bạn mở ứng dụng. Nhấn vào đây để cho phép hoạt động nền không bị hạn chế.</string>
     <plurals name="subscriptions_failed_channels_title">
@@ -1945,7 +1945,7 @@
     <string name="audio_track_dubbed">Lồng tiếng</string>
     <string name="empty_saved_shorts">Chưa có Shorts nào được lưu</string>
     <string name="settings_search_no_results">Không tìm thấy cài đặt cho %1$s</string>
-    <string name="settings_lyrics_provider_order_description">Các nhà cung cấp sẽ được thử theo thứ tự. Nhà cung cấp đầu tiên trả về lời bài hát sẽ được chọn.</string>
+    
     <string name="donations_cryptocurrency">TIỀN MÃ HÓA</string>
     <string name="duration_hours_minutes">%1$d giờ %2$d phút</string>
     <string name="duration_minutes">%1$d phút</string>

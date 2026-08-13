@@ -17,11 +17,11 @@
     <string name="channel_and_more_template">%1$s və daha %2$d nəfər</string>
     <string name="stats">Statistika</string>
     <string name="library">Kitabxana</string>
-    <string name="library_section_header">Məzmununuz</string>
+    
     <string name="library_history_label">Tarixçə</string>
     <string name="library_playlists_label">Pleylistlər</string>
-    <string name="library_music_playlists_label">Musiqi pleylistləri</string>
-    <string name="library_music_playlists_subtitle">Musiqi kolleksiyalarınız</string>
+    
+    
     <string name="library_liked_videos_label">Bəyənilənlər</string>
     <string name="library_saved_shorts_label">Yadda saxlanmış Shorts videoları</string>
     <string name="library_watch_later_label">Sonra bax</string>
@@ -40,7 +40,7 @@
     <string name="library_manage_data_label">Məlumatları idarə et</string>
     <string name="library_manage_data_subtitle">Keşi və tarixçəni təmizlə</string>
     <string name="about">Haqqında</string>
-    <string name="empty_description">Açıqlama yoxdur</string>
+    
     <string name="clear_all">Hamısını təmizlə</string>
     <string name="clear_watch_history_alert_title">Baxış tarixçəsi təmizlənsin?</string>
     <string name="clear_watch_history_alert_body">Bu əməl baxış tarixçənizdəki bütün videoları siləcək. Bu əməli geri qaytarmaq mümkün deyil.</string>
@@ -57,17 +57,17 @@
     <string name="history_tab_videos">Videolar</string>
     <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_local_videos">Yerli videolar</string>
-    <string name="history_tab_local_music">Yerli musiqi</string>
+    
     <string name="liked">Bəyənilənlər</string>
-    <string name="liked_music">Bəyənilən musiqilər</string>
-    <string name="liked_videos">Bəyənilən videolar</string>
-    <string name="share_song">Mahnını paylaş</string>
+    
+    
+    
     <string name="empty_liked">Bəyənilən məzmun yoxdur</string>
     <string name="empty_liked_body">Bəyəndiyiniz videolar burada görünəcək</string>
-    <string name="empty_liked_videos">Bəyənilən video yoxdur</string>
-    <string name="empty_liked_music">Bəyənilən musiqi yoxdur</string>
-    <string name="empty_liked_music_body">Bəyəndiyiniz mahnılar burada görünəcək</string>
-    <string name="song">Mahnı</string>
+    
+    
+    
+    
     <string name="video">Video</string>
     <string name="share">Paylaş</string>
     <string name="downloaded">Endirildi</string>
@@ -79,13 +79,13 @@
     <string name="playlist_filter_owned">Sizə məxsus</string>
     <string name="playlist_creation_menu_open">Pleylist yarat</string>
     <string name="playlist_creation_menu_close">Pleylist yaratma menyusunu bağla</string>
-    <string name="add_to_library">Kitabxanaya əlavə et</string>
-    <string name="saved_to_library">Kitabxanada yadda saxlanıldı</string>
-    <string name="failed_to_save_to_library">Kitabxanada yadda saxlamaq mümkün olmadı</string>
+    
+    
+    
     <string name="open">Aç</string>
-    <string name="up_next">NÖVBƏTİ</string>
+    
     <string name="lyrics">MAHNI SÖZLƏRİ</string>
-    <string name="related">ƏLAQƏLİ</string>
+    
     <string name="close">Bağla</string>
     <string name="more_options">Daha çox seçim</string>
     <string name="like">Bəyən</string>
@@ -96,35 +96,35 @@
     <string name="play">Oxut</string>
     <string name="next">Növbəti</string>
     <string name="repeat">Təkrarla</string>
-    <string name="loading_track">Trek yüklənir...</string>
+    
     <string name="error_occurred">Xəta baş verdi</string>
-    <string name="playing_from">Buradan oxudulur</string>
+    
     <string name="autoplay">Avtomatik oxutma</string>
     <string name="move_up">Yuxarı daşı</string>
     <string name="move_down">Aşağı daşı</string>
     <string name="lyrics_not_available">Mahnı sözləri əlçatan deyil</string>
-    <string name="refresh_lyrics">Mahnı sözlərini yenilə</string>
-    <string name="playing">Oxudulur</string>
+    
+    
     <string name="remove">Sil</string>
-    <string name="related_content">Əlaqəli məzmun</string>
-    <string name="no_related_content">Əlaqəli məzmun tapılmadı</string>
-    <string name="share_message_template">Bu mahnıya baxın: %1$s — %2$s\nhttps://music.youtube.com/watch?v=%3$s</string>
+    
+    
+    
     <string name="hz">Hz</string>
     <string name="kbps">kbps</string>
-    <string name="filter_discover">Kəşf et</string>
+    
     <string name="filter_popular">Populyar</string>
-    <string name="filter_deep_cuts">Az tanınan treklər</string>
-    <string name="filter_workout">Məşq üçün</string>
-    <string name="track_details">Trek təfərrüatları</string>
+    
+    
+    
     <string name="title_label">Başlıq</string>
     <string name="artist_label">İfaçı</string>
     <string name="album_label">Albom</string>
     <string name="video_id_label">Video ID-si</string>
-    <string name="codec_label">Kodek</string>
+    
     <string name="sample_rate_label">Nümunələmə tezliyi</string>
     <string name="bitrate_label">Bit sürəti</string>
-    <string name="channels_label">Kanallar</string>
-    <string name="audio_info_not_available">Audio axını məlumatı hələ əlçatan deyil.</string>
+    
+    
     <string name="undo">Geri qaytar</string>
     <string name="subscribed_to">%s kanalına abunə olundu</string>
     <string name="unsubscribed_from">%s kanalından abunəlik ləğv edildi</string>
@@ -132,31 +132,31 @@
     <string name="share_video">Videonu paylaş</string>
     <string name="check_out_video_template">Bu videoya baxın: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="content_settings_share_without_text_title">Keçidləri mətnsiz paylaş</string>
-    <string name="content_settings_share_without_text_subtitle">“Bu videoya baxın” mesajı olmadan yalnız video keçidini paylaş</string>
-    <string name="related_videos">Əlaqəli videolar</string>
+    
+    
+    
     <string name="quality_auto">Avtomatik</string>
     <string name="quality_auto_template">Avtomatik (%1$dp)</string>
     <string name="play_mode_suggestion_title">Oxutma rejimi təklifi</string>
     <string name="play_mode_suggestion_body">Bu video 2 dəqiqədən qısadır. Xüsusi pleyerə keçmək istəyirsiniz?</string>
     <string name="shorts_player">Shorts pleyeri</string>
-    <string name="music_player">Musiqi pleyeri</string>
+    
     <plurals name="channels_count">
         <item quantity="one">%d kanal</item>
         <item quantity="other">%d kanal</item>
     </plurals>
     <string name="tab_videos">Videolar</string>
-    <string name="tab_music">Musiqi</string>
+    
     <string name="empty_offline_title">Oflayn %1$s</string>
     <string name="empty_offline_body">Endirdiyiniz %1$s burada görünəcək.\nİnternet olmadan da məzmundan zövq alın.</string>
     <string name="action_go_to_home">Əsas səhifəyə keç</string>
     <string name="action_delete">Sil</string>
     <string name="downloads_title">Endirmələr</string>
-    <string name="download_deleted">Endirmə silindi</string>
-    <string name="action_undo">Geri qaytar</string>
+    
+    
     <string name="cd_delete_download">%1$s elementini sil</string>
     <string name="cd_video_thumbnail">%1$s üçün video miniatürü</string>
-    <string name="cd_track_artwork">%1$s üçün trek üz qabığı</string>
+    
     <string name="save_to">Burada yadda saxla...</string>
     <string name="watch_later">Sonra bax</string>
     <string name="watch_later_unsave">“Sonra bax”dan sil</string>
@@ -190,7 +190,7 @@
     <string name="premiere_date_prefix">Premyera: %1$s</string>
     <string name="upcoming_label">Tezliklə</string>
     <string name="upcoming_waiting_count">%1$s nəfər gözləyir</string>
-    <string name="upcoming_video_overlay_title">Bu video planlaşdırılıb. Canlı yayım başlayanda oxutma mümkün olacaq.</string>
+    
     <string name="upcoming_video_starts_in">Başlamasına qalıb</string>
     <string name="upcoming_video_reminder_action">Mənə xatırlat</string>
     <string name="upcoming_video_reminder_enabled">Xatırlatma quruldu</string>
@@ -200,14 +200,14 @@
     <string name="duration">Müddət</string>
     <string name="copied_to_clipboard">%1$s kopyalandı</string>
     <string name="unknown">Naməlum</string>
-    <string name="subscriptions_music_section_title">Musiqi abunəlikləri</string>
-    <string name="subscriptions_compact_header_with_music">Lentin yığcam qalması üçün musiqi kanalları sətir daxilində işarələnir.</string>
-    <string name="subscriptions_music_chip_label">Musiqi</string>
-    <string name="subscriptions_music_badge_cd">Musiqi abunəliyi</string>
+    
+    
+    
+    
     <string name="live_chat">Canlı söhbət</string>
     <string name="live_chat_connecting">Canlı söhbətə qoşulur…</string>
     <string name="live_chat_empty">Mesaj gözlənilir…</string>
-    <string name="live_chat_show">Söhbəti göstər</string>
+    
     <string name="live_chat_hide">Söhbəti gizlət</string>
     <string name="live_chat_jump_to_latest">Ən son söhbət mesajına keç</string>
     <string name="comments">Şərhlər</string>
@@ -226,7 +226,7 @@
     <string name="hide_replies">Cavabları gizlət</string>
     <string name="view_replies_template">%1$d cavaba bax</string>
     <string name="load_more_replies">Daha çox cavab göstər</string>
-    <string name="select_text">Mətni seç</string>
+    
     <string name="pinned_comment">Bərkidilmiş şərh</string>
     <string name="pinned_by_creator">Müəllif tərəfindən bərkidilib</string>
     <string name="tap_to_close">Bağlamaq üçün toxunun</string>
@@ -237,12 +237,12 @@
     <string name="maybe_later">Bəlkə sonra</string>
     <string name="nav_home">Əsas səhifə</string>
     <string name="nav_shorts">Shorts</string>
-    <string name="nav_music">Musiqi</string>
+    
     <string name="nav_library">Kitabxana</string>
     <string name="notifications">Bildirişlər</string>
     <string name="search">Axtar</string>
     <string name="settings">Parametrlər</string>
-    <string name="select_artist">İfaçı seç</string>
+    
     <string name="description">Açıqlama</string>
     <string name="copy_description">Açıqlamanı kopyala</string>
     <string name="description_copied">Açıqlama mübadilə buferinə kopyalandı</string>
@@ -251,28 +251,28 @@
     <string name="in_this_video">Bu videoda</string>
     <string name="sb_manual_skip">Keç</string>
     <string name="sb_skip_segment">%1$s seqmentini keç</string>
-    <string name="ago">əvvəl</string>
-    <string name="since">bəri</string>
-    <string name="add_to_playlist">Pleylistə əlavə et</string>
+    
+    
+    
     <string name="playback_header">Oxutma</string>
-    <string name="play_next">Növbəti oxut</string>
-    <string name="play_next_desc">Növbənin əvvəlinə əlavə et</string>
-    <string name="add_to_queue">Növbəyə əlavə et</string>
-    <string name="add_to_queue_desc">Növbənin sonuna əlavə et</string>
-    <string name="similar_content">Oxşar məzmun</string>
-    <string name="no_similar_content_found">Oxşar məzmun tapılmadı</string>
-    <string name="radio_source_template">Radio • %1$s</string>
-    <string name="unknown_source">Naməlum mənbə</string>
-    <string name="added_to_playlist_toast">Pleylistə əlavə edildi</string>
-    <string name="already_downloaded_toast">Artıq endirilib</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="download_started_toast">Endirmə başladı…</string>
-    <string name="download_error_toast">Endirmə xətası: %1$s</string>
+    
     <string name="audio_effects">Səs effektləri</string>
-    <string name="more_header">Daha çox</string>
-    <string name="view_artist">İfaçıya bax</string>
-    <string name="view_album">Alboma bax</string>
-    <string name="album_art">Albom üz qabığı</string>
-    <string name="close_player">Pleyeri bağla</string>
+    
+    
+    
+    
+    
     <string name="views_template">%1$s baxış</string>
     <string name="chapters">Fəsillər</string>
     <string name="artist">İfaçı</string>
@@ -282,49 +282,49 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Fərdiləşdirilmiş lentiniz</string>
     <string name="videos_curated_template">Sizin üçün seçilmiş %1$d video</string>
-    <string name="group_all">Hamısı</string>
-    <string name="manage_groups">Qrupları idarə et</string>
-    <string name="new_group">Yeni qrup</string>
-    <string name="edit_group">Qrupu redaktə et</string>
-    <string name="delete_group">Qrupu sil</string>
-    <string name="group_name_label">Qrup adı</string>
-    <string name="no_groups_yet">Hələ qrup yoxdur. Lenti filtrləmək üçün qrup yaradın.</string>
-    <string name="search_channels_hint">Kanallarda axtar…</string>
-    <string name="toggle_view_mode">Görünüş rejimini dəyiş</string>
-    <string name="unsubscribed_from_template">%1$s kanalından abunəlik ləğv edildi</string>
-    <string name="hide_channel_shorts">Bu kanalın Shorts videolarını gizlət</string>
-    <string name="show_channel_shorts">Bu kanalın Shorts videolarını göstər</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="videos_count_template">%1$d video</string>
-    <string name="likes_count_template">%1$d bəyənmə</string>
-    <string name="playlists_count_template">%1$d pleylist</string>
-    <string name="shorts_count_template">%1$d Shorts videosu</string>
-    <string name="songs_count_template">%1$d mahnı</string>
-    <string name="empty_downloads">Hələ endirmə yoxdur</string>
+    
+    
+    
+    
+    
     <string name="play_all">Hamısını oxut</string>
     <string name="remove_from_watch_later">“Sonra bax”dan sil</string>
-    <string name="playlist_metadata_template">Pleylist • Gizli • %1$d video</string>
-    <string name="explicit">E</string>
+    
+    
     <string name="no_videos_saved">Yadda saxlanmış video yoxdur</string>
     <string name="no_videos_saved_body">Sonra baxmaq üçün yadda saxladığınız videolar burada görünəcək</string>
     <string name="search_hint">Axtar</string>
     <string name="search_videos_channels_placeholder">Video və kanal axtar...</string>
     <string name="recent_searches">Son axtarışlar</string>
     <string name="search_empty_prompt">Video, musiqi və daha çoxunu axtarın</string>
-    <string name="trending">Trenddə olanlar</string>
+    
     <string name="channels_header">Kanallar</string>
     <string name="videos_header">Videolar</string>
-    <string name="end_of_results">Nəticələrin sonu</string>
+    
     <string name="clear_search_history">Axtarış tarixçəsini təmizlə</string>
     <string name="search_filter_all">Hamısı</string>
     <string name="search_toggle_view_mode">Axtarış nəticələrinin görünüşünü dəyiş</string>
-    <string name="filter_upload_date">Yüklənmə tarixi</string>
-    <string name="filter_duration">Müddət</string>
-    <string name="filter_sort_by">Sırala</string>
-    <string name="filter_hd">HD</string>
-    <string name="filter_4k">4K</string>
+    
+    
+    
+    
+    
     <string name="filter_subtitles">Altyazılar</string>
     <string name="date_any">İstənilən vaxt</string>
-    <string name="date_last_hour">Son 1 saat</string>
+    
     <string name="date_today">Bu gün</string>
     <string name="date_this_week">Bu həftə</string>
     <string name="date_this_month">Bu ay</string>
@@ -334,11 +334,11 @@
     <string name="duration_4_20">4–20 dəqiqə</string>
     <string name="duration_over_20">20 dəqiqədən çox</string>
     <string name="sort_relevance">Uyğunluq</string>
-    <string name="sort_upload_date">Yüklənmə tarixi</string>
-    <string name="sort_view_count">Baxış sayı</string>
+    
+    
     <string name="sort_rating">Reytinq</string>
     <string name="channel_sort_latest">Ən yeni</string>
-    <string name="channel_default_title">Kanal</string>
+    
     <string name="channel_banner">Kanal banneri</string>
     <string name="channel_avatar">Kanal avatarı</string>
     <string name="subscribe">Abunə ol</string>
@@ -353,9 +353,9 @@
     <string name="channel_search_failed">Bu kanalda axtarış etmək mümkün olmadı</string>
     <string name="community_post_image_content_description">İcma paylaşımının şəkli</string>
     <string name="share_community_post">İcma paylaşımını paylaş</string>
-    <string name="end_of_queue">Növbənin sonu</string>
-    <string name="no_videos_found">Video tapılmadı</string>
-    <string name="no_shorts_found">Shorts videosu tapılmadı</string>
+    
+    
+    
     <string name="no_playlists_found">Pleylist tapılmadı</string>
     <string name="subscribers_count_template">%1$s abunəçi</string>
     <string name="views_count_short_template">%1$s baxış</string>
@@ -363,9 +363,9 @@
     <string name="channel_search_open">Kanalda axtar</string>
     <string name="channel_search_close">Axtarışı bağla</string>
     <string name="channel_search_no_results">“%1$s” üçün nəticə tapılmadı</string>
-    <string name="music_history">Musiqi tarixçəsi</string>
+    
     <string name="remove_from_history">Tarixçədən sil</string>
-    <string name="share_song_chooser">Mahnını paylaş</string>
+    
     <string name="time_today">Bu gün</string>
     <string name="time_yesterday">Dünən</string>
     <string name="time_earlier">Daha əvvəl</string>
@@ -375,13 +375,13 @@
     <string name="peace_and_quiet">Sakitlik</string>
     <string name="notifications_empty_body">Hər şeyə baxmısınız! Abunəliklərinizdən gələn yeni yeniliklər burada görünəcək.</string>
     <string name="settings_title">Parametrlər</string>
-    <string name="settings_flow_engine_header">piTube mühərriki</string>
-    <string name="settings_active_learning">AKTİV ÖYRƏNMƏ</string>
-    <string name="settings_reset_brain_title">piTube şəxsiyyəti sıfırlansın?</string>
-    <string name="settings_reset_brain_body">Bu əməl “piTube beyni” maraq profilinizi tamamilə siləcək.\n\n• Öyrənilmiş bütün mövzular unudulacaq.\n• Şəxsiyyət xüsusiyyətləri neytral vəziyyətə qaytarılacaq.\n• Tövsiyələr defolt vəziyyətə qayıdacaq.\n\nBu əməli geri qaytarmaq mümkün deyil.</string>
-    <string name="settings_reset_everything">Hər şeyi sıfırla</string>
-    <string name="settings_analyzing_interactions">Fəaliyyətləriniz təhlil edilir...</string>
-    <string name="settings_view_analytics">Analitikaya bax</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_header_appearance">Görünüş</string>
     <string name="settings_header_content_playback">Məzmun və oxutma</string>
     <string name="settings_header_data_management">Məlumatların idarəsi</string>
@@ -405,8 +405,8 @@
     <string name="settings_item_theme">Tema</string>
     <string name="settings_item_app_icon">Tətbiq nişanı</string>
     <string name="settings_item_app_icon_subtitle">Başladıcı nişanını fərdiləşdirin</string>
-    <string name="settings_item_content_prefs">Məzmun seçimləri</string>
-    <string name="settings_item_content_prefs_subtitle">Görmək istəmədiyiniz mövzuları bloklayın</string>
+    
+    
     <string name="settings_item_player">Pleyer parametrləri</string>
     <string name="settings_item_player_subtitle">Avtomatik oxutma, arxa planda oxutma, SponsorBlock</string>
     <string name="settings_item_proxy">Proksi parametrləri</string>
@@ -436,16 +436,16 @@
     <string name="appearance_title">Görünüş</string>
     <string name="appearance_subtitle">piTube təcrübənizi fərdiləşdirin</string>
     <string name="appearance_current_theme">CARİ TEMA</string>
-    <string name="appearance_category_all">Hamısı</string>
+    
     <string name="appearance_category_light">Açıq</string>
     <string name="appearance_category_dark">Tünd</string>
     <string name="appearance_category_custom">Fərdi</string>
-    <string name="appearance_category_special">Xüsusi</string>
+    
     <string name="appearance_themes_count_all">Cəmi %1$d tema</string>
-    <string name="appearance_themes_count_filtered">%1$d %2$s tema</string>
+    
     <string name="appearance_applied_toast">Tətbiq edildi: %1$s</string>
     <string name="appearance_customize_theme">Temanı fərdiləşdir</string>
-    <string name="appearance_customizer_title">Fərdi tema redaktoru</string>
+    
     <string name="appearance_customizer_variant_title">%1$s fərdi teması</string>
     <string name="appearance_customizer_subtitle">Bütün Material 3 rəng rollarını tənzimləyin və dəyişikliklərə dərhal önbaxın</string>
     <string name="appearance_customizer_format_hint">Hex formatı: #RRGGBB və ya #AARRGGBB</string>
@@ -516,15 +516,15 @@
     <string name="icon_name_material_mint">Material nanə</string>
     <string name="player_appearance_title">Pleyer görünüşü</string>
     <string name="player_appearance_header">Pleyer idarəetmələrini fərdiləşdirin</string>
-    <string name="player_appearance_style_title">Musiqi irəliləyiş çubuğunun üslubu</string>
+    
     <string name="player_appearance_style_subtitle">İrəliləyiş çubuğunun vizual üslubunu seçin</string>
-    <string name="player_background_style_title">Musiqi pleyerinin arxa fonu</string>
-    <string name="player_background_style_blur_gradient">Bulanıqlıq + qradiyent</string>
-    <string name="player_background_style_blur">Bulanıq üz qabığı</string>
-    <string name="player_background_style_gradient">Palitra qradiyenti</string>
-    <string name="player_background_style_default">Defolt səth</string>
-    <string name="player_appearance_hide_music_artwork_title">Musiqi pleyerinin üz qabığını gizlət</string>
-    <string name="player_appearance_hide_music_artwork_subtitle">Əvəzində üz qabığından çıxarılan rəng üzərində tətbiq nişanını göstərin</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="player_appearance_shorts_ui_title">Shorts pleyer interfeysi</string>
     <string name="player_appearance_shorts_ui_subtitle">Shorts örtüyünün nə qədər hissəsinin görünəcəyini seçin</string>
     <string name="shorts_player_ui_default">Defolt</string>
@@ -536,14 +536,14 @@
     <string name="shorts_unsaved">Shorts videosu yadda saxlanılanlardan silindi</string>
     <string name="settings_item_player_appearance">Pleyer görünüşü</string>
     <string name="settings_item_player_appearance_subtitle">İrəliləyiş çubuğunun üslubunu fərdiləşdirin</string>
-    <string name="style_default">Defolt (piTube)</string>
-    <string name="style_metrolist">Metrolist (qalın)</string>
-    <string name="style_metrolist_slim">Metrolist (nazik)</string>
-    <string name="style_squiggly">Dalğalı</string>
-    <string name="style_slim">Çox nazik</string>
+    
+    
+    
+    
+    
     <string name="player_appearance_gestures_header">Jestlər</string>
-    <string name="player_appearance_swipe_gestures_title">Parlaqlıq və səs jestləri</string>
-    <string name="player_appearance_swipe_gestures_subtitle">Tam ekranda parlaqlığı və səsi tənzimləmək üçün sol və ya sağ kənarda sürüşdürün</string>
+    
+    
     <string name="player_appearance_brightness_gesture_title">Parlaqlıq jesti</string>
     <string name="player_appearance_brightness_gesture_subtitle">Tam ekranda parlaqlığı tənzimləmək üçün sol kənarda sürüşdürün</string>
     <string name="player_appearance_remember_brightness_title">Parlaqlığı yadda saxla</string>
@@ -553,7 +553,7 @@
     <string name="player_appearance_controls_while_loading_title">Yüklənmə zamanı idarəetmələr</string>
     <string name="player_appearance_controls_while_loading_subtitle">Səsi dərhal tənzimləyə bilməyiniz üçün video tam yüklənməmiş pleyer idarəetmələrini göstərin</string>
     <string name="player_appearance_long_press_speed_title">Basıb saxladıqda oxutma sürəti</string>
-    <string name="player_appearance_long_press_speed_subtitle">Pleyeri basıb saxlayarkən istifadə olunacaq müvəqqəti sürəti seçin</string>
+    
     <string name="player_appearance_long_press_speed_disabled">Söndürülüb</string>
     <string name="mini_player_header">Mini pleyer fərdiləşdirmələri</string>
     <string name="mini_player_size">Mini pleyer ölçüsü</string>
@@ -577,18 +577,18 @@
     <string name="player_fullscreen_seekbar_width_default">Defolt</string>
     <string name="player_fullscreen_seekbar_width_custom">Fərdi</string>
     <string name="player_fullscreen_seekbar_width_value">%1$d dp</string>
-    <string name="lyrics_provider_title">Mahnı sözləri provayderi</string>
-    <string name="lyrics_provider_subtitle">Mahnı sözləri üçün üstünlük verdiyiniz mənbəni seçin</string>
-    <string name="lyrics_provider_lrclib">LrcLib</string>
-    <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
-    <string name="lyrics_provider_simpmusic">SimpMusic</string>
-    <string name="lyrics_provider_lyrics_plus">LyricsPlus</string>
+    
+    
+    
+    
+    
+    
     <string name="theme_name_system_default">Sistem defoltu</string>
     <string name="theme_desc_system_default">Cihaz teması ilə sinxronlaşdır</string>
     <string name="theme_name_material_you">Material You</string>
     <string name="theme_desc_material_you">Android 12+ cihazlarda divar kağızının rəngləri</string>
     <string name="theme_name_pure_light">Saf işıq</string>
-    <string name="theme_desc_pure_light">Təmiz və minimal</string>
+    
     <string name="theme_name_mint_fresh">Təzə nanə</string>
     <string name="theme_desc_mint_fresh">Sərin və təravətli</string>
     <string name="theme_name_rose_petal">Qızılgül ləçəyi</string>
@@ -600,7 +600,7 @@
     <string name="theme_name_classic_dark">Klassik</string>
     <string name="theme_desc_classic_dark">piTube-un orijinal palitrası</string>
     <string name="theme_name_true_black">Əsl qara</string>
-    <string name="theme_desc_true_black">Saf OLED</string>
+    
     <string name="theme_name_monochrome">Monoxrom</string>
     <string name="theme_desc_monochrome">Saf ağ-qara aydınlıq</string>
     <string name="theme_name_custom">Fərdi</string>
@@ -652,18 +652,18 @@
     <string name="content_settings_grid_big_desc">Daha böyük miniatürlər</string>
     <string name="content_settings_grid_small_title">Kiçik</string>
     <string name="content_settings_grid_small_desc">Yığcam görünüş</string>
-    <string name="content_settings_header_preview">Önbaxış</string>
-    <string name="content_settings_preview_album_art">Albom üz qabığı önbaxışı</string>
-    <string name="content_settings_preview_big">Böyük — 128 dp miniatürlər</string>
-    <string name="content_settings_preview_small">Kiçik — 104 dp miniatürlər</string>
-    <string name="content_settings_dynamic_components">Dinamik komponentlər</string>
-    <string name="settings_show_related_videos_title">Əlaqəli videoları göstər</string>
-    <string name="settings_show_related_videos_subtitle">Əlaqəli videoları video pleyerinin altında göstərin</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_header_home_feed">Əsas səhifə lenti</string>
-    <string name="content_settings_home_feed_title">Əsas səhifə lentini aktiv et</string>
-    <string name="content_settings_home_feed_subtitle">Əsas ekranda fərdiləşdirilmiş video tövsiyələrini göstərin</string>
-    <string name="content_settings_home_reselect_refresh_title">Əsas səhifə yenidən seçildikdə yenilə</string>
-    <string name="content_settings_home_reselect_refresh_subtitle">Yuxarı sürüşdürdükdən sonra Əsas səhifəyə yenidən toxunulduqda tövsiyələri yenidən yükləyin</string>
+    
+    
+    
+    
     <string name="content_settings_home_feed_disabled_title">Əsas səhifə lenti söndürülüb</string>
     <string name="content_settings_home_feed_disabled_body">Fərdiləşdirilmiş tövsiyələr söndürülüb. Onları Məzmun parametrlərində yenidən aktiv edə bilərsiniz.</string>
     <string name="content_settings_header_player">Video pleyeri</string>
@@ -679,61 +679,61 @@
     <string name="content_settings_title_lines_2">2 sətir</string>
     <string name="content_settings_title_lines_3">3 sətir</string>
     <string name="content_settings_title_lines_unlimited">Limitsiz</string>
-    <string name="content_settings_video_card_mark_watched_title">Video kartında “baxılıb” düyməsi</string>
-    <string name="content_settings_video_card_mark_watched_subtitle">Videoları tez “baxılıb” kimi işarələmək üçün tam və yığcam video kartlarında göz düyməsini göstərin</string>
-    <string name="content_settings_show_app_logo_title">Tətbiq loqosunu göstər</string>
-    <string name="content_settings_show_app_logo_subtitle">Əsas ekranın yuxarı panelində tətbiq adının yanında piTube loqosunu göstərin</string>
-    <string name="content_settings_header_content_components">Məzmun komponentləri</string>
-    <string name="content_settings_restored_music_mini_player_title">Bərpa edilmiş musiqi mini pleyerini göstər</string>
-    <string name="content_settings_restored_music_mini_player_subtitle">Son musiqi seansınız bərpa edildikdən sonra onu avtomatik göstərin</string>
-    <string name="content_settings_hide_watched_home_title">Baxılmış videoları Əsas səhifədə gizlət</string>
-    <string name="content_settings_hide_watched_home_subtitle">Artıq baxdığınız videoları əsas səhifə lentindən süzün</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_watched_threshold_title">Bu həddə çatdıqda baxılmış sayılsın</string>
     <string name="content_settings_watched_threshold_dialog_body">Videonun baxılmış sayılıb gizlədilməsi üçün nə qədərinin oxudulmalı olduğunu seçin.</string>
     <string name="content_settings_watched_threshold_90">90% oxudulduqda</string>
     <string name="content_settings_watched_threshold_95">95% oxudulduqda</string>
     <string name="content_settings_watched_threshold_99">99% oxudulduqda</string>
     <string name="content_settings_watched_threshold_almost">Demək olar ki, bitdikdə (son dəqiqə)</string>
-    <string name="content_settings_navbar_hide_on_scroll_title">Sürüşdürərkən naviqasiya panelini gizlət</string>
-    <string name="content_settings_navbar_hide_on_scroll_subtitle">Aşağı sürüşdürərkən alt naviqasiya panelini gizlədin. Həmişə görünməsi üçün söndürün (animasiya ləngiyirsə kömək edə bilər).</string>
-    <string name="content_settings_disable_shorts_player_title">Shorts pleyerini söndür</string>
-    <string name="content_settings_disable_shorts_player_subtitle">YouTube Shorts daxil olmaqla bütün videoları adi video pleyerində oxudun</string>
-    <string name="content_settings_shorts_player_prompt_title">Shorts pleyeri təklifi</string>
-    <string name="content_settings_shorts_player_prompt_subtitle">2 dəqiqədən qısa videoları Shorts pleyerinə keçirməzdən əvvəl soruşun</string>
-    <string name="content_settings_explore_region_picker_title">Kəşf bölməsində sürətli region seçicisi</string>
-    <string name="content_settings_explore_region_picker_subtitle">Trend regionunu dərhal dəyişmək üçün Kəşf ekranının yuxarı panelində qlobus nişanını göstərin.</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="categories_region_picker_desc">Trend regionunu dəyiş (cari: %1$s)</string>
-    <string name="content_settings_header_nav_tabs">Naviqasiya tabları</string>
-    <string name="settings_home_nav_tab_title">Əsas səhifə tabı</string>
-    <string name="settings_home_nav_tab_subtitle">Əsas səhifəni naviqasiya panelində göstərin</string>
-    <string name="content_settings_comments_enabled_title">Şərhlər</string>
-    <string name="content_settings_comments_enabled_subtitle">Video pleyeri ekranında şərhlər bölməsini yükləyib göstərin</string>
-    <string name="content_settings_comments_preview_title">Şərh önbaxışı</string>
-    <string name="content_settings_comments_preview_subtitle">Şərhlər kartında ən son şərhi göstərin</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_nav_order_title">Tab sırası və defolt tab</string>
     <string name="content_settings_nav_order_subtitle">Tabları yenidən sıralamaq üçün oxlardan istifadə edin. Defolt tabı seçim düyməsi ilə müəyyən edin.</string>
-    <string name="settings_home_shorts_shelf_title">Əsas ekranda Shorts bölməsi</string>
-    <string name="settings_home_shorts_shelf_subtitle">Əsas ekranda üfüqi Shorts bölməsini göstərin.</string>
-    <string name="settings_shorts_nav_tab_title">Naviqasiyada Shorts tabı</string>
-    <string name="settings_shorts_nav_tab_subtitle">Alt naviqasiya panelində Shorts tabını göstərin.</string>
-    <string name="settings_music_nav_tab_title">Naviqasiyada Musiqi tabı</string>
-    <string name="settings_music_nav_tab_subtitle">Alt naviqasiya panelində Musiqi tabını göstərin.</string>
-    <string name="settings_search_nav_tab_title">Naviqasiyada Axtarış tabı</string>
-    <string name="settings_search_nav_tab_subtitle">Alt naviqasiya panelində sürətli giriş üçün Axtarış tabını göstərin.</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="nav_search">Axtar</string>
-    <string name="settings_categories_nav_tab_title">Naviqasiyada Kəşf tabı</string>
-    <string name="settings_categories_nav_tab_subtitle">Alt naviqasiya panelində Trendlər və Kateqoriyalar olan Kəşf tabını göstərin.</string>
+    
+    
     <string name="nav_explore">Kəşf</string>
     <string name="nav_more">Daha çox</string>
     <string name="categories_title">Kateqoriyalar</string>
     <string name="categories_switch_to_grid">Tor görünüşünə keç</string>
     <string name="categories_switch_to_list">Siyahı görünüşünə keç</string>
     <string name="category_all">Hamısı</string>
-    <string name="category_trending">Trenddə olanlar</string>
+    
     <string name="category_movies">Filmlər</string>
     <string name="category_live">Canlı</string>
-    <string name="settings_continue_watching_title">“Baxmağa davam et” bölməsi</string>
-    <string name="settings_continue_watching_subtitle">Əsas ekranda yarımçıq qalmış videolar üçün bölmə göstərin.</string>
+    
+    
     <string name="continue_watching_title">Baxmağa davam et</string>
     <string name="player_settings_mini_player_continue_watching_title">Mini pleyerdə baxmağa davam et</string>
     <string name="player_settings_mini_player_continue_watching_subtitle">Son baxılmış videonu avtomatik mini pleyerdə açın</string>
@@ -798,12 +798,12 @@
     <string name="player_settings_speed_slider_subtitle">İstənilən oxutma sürətini təyin etmək üçün fasiləsiz sürüşdürücü istifadə edin</string>
     <string name="speed_slider_decrease">Sürəti azalt</string>
     <string name="speed_slider_increase">Sürəti artır</string>
-    <string name="speed_slider_reset">1× dəyərinə sıfırla</string>
-    <string name="speed_slider_apply">Tətbiq et</string>
+    
+    
     <string name="playback_speed_multiplier">%1$s×</string>
     <string name="playback_speed_multiplier_precise">%1$.2f×</string>
     <string name="player_settings_stable_voice">Stabil səs</string>
-    <string name="player_settings_stable_voice_subtitle">Sabit oxutma üçün səs səviyyəsini normallaşdırın</string>
+    
     <string name="player_settings_display">Görünüş</string>
     <string name="player_settings_ambient_mode">Ətraf rejimi</string>
     <string name="player_settings_ambient_mode_subtitle">Videonun ətrafındakı zolaqları onun rənglərindən yaranan yumşaq parıltı ilə doldurun</string>
@@ -860,8 +860,8 @@
     <string name="channel_blocked_toast">%1$s lentinizdə görünməyəcək</string>
     <string name="btn_save">Yadda saxla</string>
     <string name="btn_cancel">Ləğv et</string>
-    <string name="player_settings_show_pip">PiP düyməsini göstər</string>
-    <string name="player_settings_show_pip_subtitle">Pleyer idarəetmələrində əl ilə PiP düyməsini göstərin</string>
+    
+    
     <string name="player_settings_header_video">Video</string>
     <string name="player_settings_header_audio">Audio</string>
     <string name="player_settings_play_during_calls">Zənglər zamanı oxut</string>
@@ -878,17 +878,17 @@
     <string name="player_settings_header_gestures">Jestlər</string>
     <string name="player_settings_double_tap_seek">İki dəfə toxunma ilə keçid müddəti</string>
     <string name="player_settings_double_tap_seek_subtitle_template">Hər tərəfə iki dəfə toxunma üçün %d san.</string>
-    <string name="player_settings_double_tap_seek_dialog_title">İki dəfə toxunma ilə keçid müddəti</string>
-    <string name="player_settings_double_tap_seek_dialog_body">Pleyerin sol və ya sağ tərəfinə iki dəfə toxunduqda neçə saniyə keçiləcəyini seçin.</string>
+    
+    
     <string name="video_quality_title">Video keyfiyyəti</string>
     <string name="video_quality_warning">Yüksək keyfiyyət daha çox məlumat sərf edir</string>
     <string name="video_quality_wifi_header">Wi-Fi keyfiyyəti</string>
     <string name="video_quality_cellular_header">Mobil şəbəkə keyfiyyəti</string>
-    <string name="music_quality_header">Musiqi audio keyfiyyəti</string>
-    <string name="music_quality_auto">Avtomatik</string>
-    <string name="music_quality_high">Yüksək</string>
-    <string name="music_quality_medium">Orta</string>
-    <string name="music_quality_low">Aşağı</string>
+    
+    
+    
+    
+    
     <string name="quality_144p">144p</string>
     <string name="quality_240p">240p</string>
     <string name="quality_360p">360p</string>
@@ -932,42 +932,42 @@
     <string name="cd_pause">Pauza</string>
     <string name="cd_play">Oxut</string>
     <string name="cd_more_options">Daha çox seçim</string>
-    <string name="shorts_original_sound">Orijinal səs — %1$s</string>
-    <string name="view_count_billion_suffix">mlrd</string>
-    <string name="view_count_million_suffix">mln</string>
-    <string name="view_count_thousand_suffix">min</string>
+    
+    
+    
+    
     <string name="action_like">Bəyən</string>
     <string name="action_dislike">Bəyənmədim</string>
     <string name="action_comments">Şərhlər</string>
     <string name="action_save">Yadda saxla</string>
     <string name="action_share">Paylaş</string>
-    <string name="action_description">Açıqlama</string>
+    
     <string name="action_subscribe">Abunə ol</string>
-    <string name="action_search">Axtar</string>
-    <string name="content_preferences_title">Məzmun seçimləri</string>
-    <string name="content_preferences_subtitle">Gördüyünüz məzmunu fərdiləşdirin</string>
-    <string name="interests_tab">Maraqlar</string>
-    <string name="blocked_tab">Bloklanmışlar</string>
-    <string name="topics_count_template">%1$d mövzu</string>
-    <string name="hidden_count_template">%1$d gizlədilib</string>
-    <string name="your_interests_title">Maraqlarınız</string>
-    <string name="your_interests_desc">Seçdiyiniz mövzular piTube-a daha yaxşı məzmun tövsiyə etməyə kömək edir. Mövzuları əlavə etmək və ya silmək üçün aşağıdakılara toxunun.</string>
-    <string name="currently_following">Hazırda izlədikləriniz</string>
-    <string name="tap_to_remove">Silmək üçün toxunun</string>
-    <string name="add_topics">Mövzu əlavə et</string>
-    <string name="browse_by_category">Kateqoriyaya görə gözdən keçir</string>
-    <string name="hidden_content_title">Gizlədilmiş məzmun</string>
-    <string name="hidden_content_desc">Bu mövzuları əhatə edən videolar tövsiyələrinizdə görünməyəcək. Videolardakı “Maraqlı deyil” düyməsindən də istifadə edə bilərsiniz.</string>
-    <string name="block_topic_title">Mövzunu blokla</string>
-    <string name="enter_keywords_to_hide">Gizlədiləcək açar sözləri daxil edin</string>
-    <string name="block_topic_placeholder">məs., makiyaj, fortnite, asmr</string>
-    <string name="desc_add_topic">Mövzu əlavə et</string>
-    <string name="quick_add">Sürətli əlavə</string>
-    <string name="common_topics_to_block">Tez-tez bloklanan mövzular</string>
-    <string name="currently_blocked">Hazırda bloklananlar</string>
-    <string name="topics_blocked_count_plural">%1$d mövzu</string>
-    <string name="desc_remove_topic">%1$s mövzusunu sil</string>
-    <string name="desc_unblock_topic">%1$s mövzusunun blokunu aç</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="selected_count_template">%1$d seçilib</string>
     <string name="select_videos">Seç</string>
     <string name="cancel_selection">Seçimi ləğv et</string>
@@ -978,11 +978,11 @@
     <string name="time_management_subtitle">Ekran vaxtınızı izləyin və idarə edin</string>
     <string name="stats_disclaimer">Statistika bu tətbiqdəki baxış tarixçənizə əsaslanır. Faktiki istifadə fərqli ola bilər.</string>
     <string name="tools_to_manage_time">Vaxtı idarəetmə alətləri</string>
-    <string name="remind_bedtime">Yuxu vaxtı çatdıqda xatırlat</string>
+    
     <string name="start_time">Başlama vaxtı</string>
     <string name="end_time">Bitmə vaxtı</string>
     <string name="bedtime_notification_note">Başlama vaxtında bildiriş göndəriləcək.</string>
-    <string name="remind_break">Fasilə verməyi xatırlat</string>
+    
     <string name="reminder_frequency">Xatırlatma tezliyi</string>
     <string name="every_min_template">Hər %1$d dəqiqədən bir</string>
     <string name="daily_average_label">Gündəlik orta</string>
@@ -1017,7 +1017,7 @@
     <string name="sleep_timer_end_of_media">Cari mahnının sonunda</string>
     <string name="sleep_timer_reset">Sıfırla</string>
     <string name="sleep_timer_cancel_timer">Taymeri ləğv et</string>
-    <string name="sleep_timer_active_label">Yuxu taymeri aktivdir</string>
+    
     <string name="sleep_timer_close_app">Taymer bitdikdə tətbiqi bağla</string>
     <string name="sleep_timer_close_app_desc">Batareyaya qənaət etmək üçün tətbiqdən çıxın</string>
     <string name="sleep_timer_will_close_app">Taymer bitdikdə tətbiq bağlanacaq</string>
@@ -1054,17 +1054,17 @@
     <string name="media_access_title">Foto və videolara giriş</string>
     <string name="media_access_granted_subtitle">İcazə verilib</string>
     <string name="media_access_denied_subtitle">İcazə verilməyib — aktiv etmək üçün toxunun</string>
-    <string name="audio_access_title">Musiqi və audioya giriş</string>
-    <string name="audio_access_granted_subtitle">İcazə verilib</string>
-    <string name="audio_access_denied_subtitle">İcazə verilməyib — aktiv etmək üçün toxunun</string>
+    
+    
+    
     <string name="storage_header">Yaddaş</string>
     <string name="internal_storage_label">Daxili yaddaş</string>
     <string name="free_space_template">%1$s boş</string>
     <string name="total_space_template">Cəmi: %1$s</string>
-    <string name="location_label">Məkan</string>
+    
     <string name="video_download_location_label">Video endirmə məkanı</string>
-    <string name="music_download_location_label">Musiqi endirmə məkanı</string>
-    <string name="internal_app_storage_label">Tətbiqin daxili yaddaşı</string>
+    
+    
     <string name="preferences_header">Seçimlər</string>
     <string name="default_video_quality_label">Defolt video keyfiyyəti</string>
     <string name="default_download_codec_label">Defolt endirmə kodeki</string>
@@ -1083,7 +1083,7 @@
     <string name="location_downloads_label">Endirmələr / piTube</string>
     <string name="location_movies_label">Filmlər / piTube</string>
     <string name="location_internal_app_label">Tətbiqin daxili yaddaşı</string>
-    <string name="location_internal_app_desc">Yalnız tətbiqə məxsusdur — tətbiqi silsəniz fayllar da silinə bilər</string>
+    
     <string name="location_custom_saf_label">Gözdən keçir…</string>
     <string name="location_custom_saf_desc">Sistem fayl seçicisi ilə istənilən qovluğu seçin</string>
     <string name="location_custom_manual_label">Yolu əl ilə daxil et</string>
@@ -1092,7 +1092,7 @@
     <string name="location_manual_hint">/storage/emulated/0/…</string>
     <string name="location_manual_confirm">Yadda saxla</string>
     <string name="location_badge_recommended">Tövsiyə olunur</string>
-    <string name="location_badge_active">Aktiv</string>
+    
     <string name="select_threads_count_desc">İş axınlarının sayını seçin (1–8):</string>
     <string name="threads_count_label">%1$d iş axını</string>
     <string name="support_donations_title">Dəstək və ianələr</string>
@@ -1122,8 +1122,8 @@
     <string name="error_license_load">Lisenziya faylını yükləmək mümkün olmadı.</string>
     <string name="no_changelog_found_message">Dəyişiklik jurnalı tapılmadı.</string>
     <string name="error_changelog_load">Dəyişiklik jurnalı faylını yükləmək mümkün olmadı.</string>
-    <string name="app_logo_desc">Tətbiq loqosu</string>
-    <string name="v_version_template">v%1$s (%2$s)</string>
+    
+    
     <string name="manufacturer_label">İstehsalçı: %1$s</string>
     <string name="model_label">Model: %1$s</string>
     <string name="board_label">Plata: %1$s</string>
@@ -1141,10 +1141,10 @@
     <string name="btn_ok">OK</string>
     <string name="btn_copy">Kopyala</string>
     <string name="github_label">GitHub</string>
-    <string name="new_playlist_button">Yeni pleylist</string>
-    <string name="your_playlists_header">Pleylistləriniz</string>
-    <string name="saved_playlists_header">Yadda saxlanmış pleylistlər</string>
-    <string name="create_playlist_empty_desc">Sevimli videolarınızı nizamlamaq üçün ilk pleylistinizi yaradın</string>
+    
+    
+    
+    
     <string name="my_playlist_placeholder">Pleylistim</string>
     <string name="add_description_placeholder">Açıqlama əlavə et...</string>
     <string name="edit_playlist_action">Pleylisti redaktə et</string>
@@ -1169,175 +1169,175 @@
     <string name="remove_selected_playlist_text">Onlar bu pleylistdən silinəcək.</string>
     <string name="remove_selected_watch_later_text">Onlar “Sonra bax”dan silinəcək.</string>
     <string name="welcome_to_flow">piTube-a xoş gəlmisiniz</string>
-    <string name="onboarding_subtitle">Maraqlandığınız mövzuları bizə bildirin</string>
-    <string name="onboarding_instructions">Təcrübənizi fərdiləşdirmək üçün ən azı 3 mövzu seçin</string>
-    <string name="selected_with_more_needed_template">%1$d seçilib (daha %2$d lazımdır)</string>
-    <string name="onboarding_interests_title">Nələrdən zövq alırsınız?</string>
-    <string name="onboarding_interests_hint">Lentinizi fərdiləşdirmək üçün ən azı %1$d mövzu seçin. Daha %2$d mövzu lazımdır.</string>
-    <string name="onboarding_interests_ready">Əla seçimdir. Bunu sonra istənilən vaxt parametrlərdə yeniləyə bilərsiniz.</string>
-    <string name="onboarding_channels_title">Kanalları tap</string>
-    <string name="onboarding_channels_subtitle">Artıq izlədiyiniz kanalları axtarın və bir toxunuşla abunə olun.</string>
-    <string name="onboarding_channels_search_placeholder">Kanallarda axtar…</string>
-    <string name="onboarding_channels_empty_prompt">Axtarmaq üçün kanal adı yazın</string>
-    <string name="onboarding_channels_no_results">“%1$s” üçün kanal tapılmadı</string>
-    <string name="onboarding_channels_added_count">%1$d kanal əlavə edildi</string>
-    <string name="onboarding_channels_subscribers">%1$s abunəçi</string>
-    <string name="onboarding_channels_subscribed">Abunə olundu</string>
-    <string name="onboarding_channels_subscribe">Abunə ol</string>
-    <string name="onboarding_import_title">Məlumatlarınızı idxal edin</string>
-    <string name="onboarding_import_subtitle">Abunəliklərinizi və tarixçənizi başqa tətbiqlərdən gətirin. Hər şey istəyə bağlıdır.</string>
-    <string name="onboarding_backup_restore_section">Ehtiyat nüsxə və bərpa</string>
-    <string name="onboarding_n_selected">%1$d seçilib</string>
-    <string name="onboarding_topic_selected">Seçilib</string>
-    <string name="onboarding_topic_not_selected">Seçilməyib</string>
-    <string name="onboarding_import_failed_template">İdxal uğursuz oldu: %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="onboarding_btn_skip">Keç</string>
-    <string name="onboarding_btn_finish">Bitir</string>
-    <string name="btn_skip_for_now">Hələlik keç</string>
+    
+    
     <string name="onboarding_btn_continue">Davam et</string>
-    <string name="onboarding_btn_back">Geri</string>
-    <string name="cd_collapse_category">Yığ</string>
-    <string name="cd_expand_category">Genişləndir</string>
+    
+    
+    
     <string name="category_gaming">Oyunlar</string>
-    <string name="category_music">Musiqi</string>
-    <string name="category_technology">Texnologiya</string>
-    <string name="category_entertainment">Əyləncə</string>
-    <string name="category_education">Təhsil</string>
-    <string name="category_health_fitness">Sağlamlıq və fitnes</string>
-    <string name="category_lifestyle">Həyat tərzi</string>
-    <string name="category_creative">Yaradıcılıq</string>
-    <string name="category_science_nature">Elm və təbiət</string>
-    <string name="category_news_current_events">Xəbərlər və gündəm</string>
-    <string name="flow_control_center">piTube idarəetmə mərkəzi</string>
-    <string name="action_refresh">Yenilə</string>
-    <string name="loading_neural_matrix">Neyron matrisi yüklənir...</string>
-    <string name="neural_interest_map_subtitle">Neyron maraq xəritəniz</string>
-    <string name="cognitive_fingerprint">Koqnitiv barmaq izi</string>
-    <string name="content_dna_subtitle">Məzmun DNT-niz</string>
-    <string name="topic_weights">Mövzu çəkiləri</string>
-    <string name="topic_weights_subtitle">Lentinizi nəyin formalaşdırdığı barədə tam şəffaflıq</string>
-    <string name="temporal_patterns">Zaman nümunələri</string>
-    <string name="temporal_patterns_subtitle">Maraqlarınızın günün vaxtına görə necə dəyişdiyi</string>
-    <string name="channel_memory">Kanal yaddaşı</string>
-    <string name="channel_memory_subtitle">Baxış tarixçənizdən dolayı əks əlaqə</string>
-    <string name="persona_initiate_title">Başlanğıc</string>
-    <string name="persona_initiate_description">Yenicə başlayırsınız. Profiliniz hələ formalaşır.</string>
-    <string name="persona_audiophile_title">Audiofil</string>
-    <string name="persona_audiophile_description">piTube-dan əsasən musiqi üçün istifadə edirsiniz. Ab-hava hər şeydir.</string>
-    <string name="persona_livewire_title">Canlı yayım həvəskarı</string>
-    <string name="persona_livewire_description">Canlı yayımların və premyeraların təbii enerjisini sevirsiniz.</string>
-    <string name="persona_night_owl_title">Gecə quşu</string>
-    <string name="persona_night_owl_description">Qaranlıqda canlanırsınız. Baxışların çoxu gecə yarısından sonra olur.</string>
-    <string name="persona_binger_title">Marafonçu</string>
-    <string name="persona_binger_description">Başladıqdan sonra dayana bilmirsiniz. Böyük məzmun dalğaları.</string>
-    <string name="persona_scholar_title">Alim</string>
-    <string name="persona_scholar_description">Yüksək mürəkkəblikli məzmun. Yalnız əylənmək üçün deyil, inkişaf etmək üçün buradasınız.</string>
-    <string name="persona_deep_diver_title">Dərin dalğıc</string>
-    <string name="persona_deep_diver_description">Uzun video esseləri və sənədli filmlər sizin dünyanızdır.</string>
-    <string name="persona_skimmer_title">Sürətli izləyici</string>
-    <string name="persona_skimmer_description">Sürətli templi, qısa məzmun. İstənilən an dopamin.</string>
-    <string name="persona_specialist_title">Mütəxəssis</string>
-    <string name="persona_specialist_description">Bir neçə xüsusi sahəyə tam fokuslanırsınız. Nəyi sevdiyinizi bilirsiniz.</string>
-    <string name="persona_explorer_title">Kəşfiyyatçı</string>
-    <string name="persona_explorer_description">Xaotik və gözəl. Hər şeydən bir az.</string>
-    <string name="channel_memory_empty">Yaddaşda kanal yoxdur.</string>
-    <string name="filters_title">Filtrlər</string>
-    <string name="blocked_topics_channels_subtitle">Bloklanmış mövzular və kanallar</string>
-    <string name="reset_neural_profile_title">Neyron profili sıfırlansın?</string>
-    <string name="reset_neural_profile_body">Bu əməl aşağıdakıları həmişəlik siləcək:\n\n• Bütün öyrənilmiş seçimlər\n• Uzunmüddətli şəxsiyyət vektoru\n• Zaman-kontekst nümunələri\n• Kanal uyğunluğu balları\n\nLentiniz ilkin vəziyyətə qayıdacaq.</string>
-    <string name="erase_everything">Hər şeyi sil</string>
-    <string name="stats_interactions">Qarşılıqlı əlaqələr</string>
-    <string name="stats_topics">Mövzular</string>
-    <string name="empty_bubble_cloud_message">Maraq dumanlığınızı doldurmaq üçün bir neçə videoya baxın!</string>
-    <string name="interactions_level_template">%1$d qarşılıqlı əlaqə • Səviyyə %2$d</string>
-    <string name="flow_neural_profile_export_subject">piTube neyron profilinin ixracı</string>
-    <string name="screen_title_music_library">Musiqi kitabxanası</string>
-    <string name="header_your_collection">Kolleksiyanız</string>
-    <string name="subtitle_liked_music">Bəyəndiyiniz mahnılar</string>
-    <string name="subtitle_history">Dinlədiyiniz mahnılar</string>
-    <string name="empty_music_playlists">Hələ musiqi pleylisti yoxdur</string>
-    <string name="rename_playlist_title">Pleylistin adını dəyiş</string>
-    <string name="action_rename">Adını dəyiş</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="link_copied">Keçid kopyalandı</string>
     <string name="copy_video_link">Video keçidini kopyala</string>
     <string name="copy_channel_link">Kanal keçidini kopyala</string>
-    <string name="share_link_cd">Keçidi paylaş</string>
-    <string name="section_singles">Sinqlar</string>
-    <string name="section_featured_on">Yer aldığı əsərlər</string>
-    <string name="section_fans_also_like">Pərəstişkarların bəyəndikləri</string>
-    <string name="artist_views_template">%1$s • %2$s baxış</string>
-    <string name="action_view_all">Hamısına bax</string>
-    <string name="search_content_description">Axtar</string>
-    <string name="views_count_format">%1$s baxış</string>
-    <string name="playlist_footer_template">%1$d trek • %2$s</string>
-    <string name="unknown_error">Naməlum xəta</string>
-    <string name="action_retry">Yenidən sına</string>
-    <string name="empty_moods_genres">Əhval və janrlar əlçatan deyil</string>
-    <string name="title_browse">Gözdən keçir</string>
-    <string name="empty_browse_content">Məzmun əlçatan deyil</string>
-    <string name="label_featured">SEÇİLMİŞ</string>
-    <string name="year_artist_template">%1$s • %2$s</string>
-    <string name="status_playing">Oxudulur</string>
-    <string name="label_explicit">Senzurasız</string>
-    <string name="duration_with_dot_template">• %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="status_downloaded">Endirilib</string>
-    <string name="title_create_playlist">Pleylist yarat</string>
-    <string name="label_playlist_name">Pleylist adı</string>
-    <string name="placeholder_playlist_name">Əla pleylistim</string>
-    <string name="label_description_optional">Açıqlama (istəyə bağlı)</string>
-    <string name="placeholder_playlist_desc">Sevimli treklərim...</string>
-    <string name="action_create">Yarat</string>
-    <string name="action_cancel">Ləğv et</string>
-    <string name="title_add_to_playlist">Pleylistə əlavə et</string>
-    <string name="action_create_new_playlist">Yeni pleylist yarat</string>
-    <string name="empty_playlists_dialog">Hələ pleylist yoxdur. Başlamaq üçün birini yaradın!</string>
-    <string name="action_remove_from_favorites">Seçilmişlərdən sil</string>
-    <string name="action_add_to_favorites">Seçilmişlərə əlavə et</string>
-    <string name="action_listen_now">İndi dinlə</string>
-    <string name="action_play_all">Hamısını oxut</string>
-    <string name="loading_music">Musiqi yüklənir...</string>
-    <string name="screen_title_music">MUSİQİ</string>
-    <string name="section_listen_again">Yenidən dinlə</string>
-    <string name="section_daily_discover">Gündəlik kəşfiniz</string>
-    <string name="section_quick_picks">Sürətli seçimlər</string>
-    <string name="section_speed_dial">Sürətli giriş</string>
-    <string name="shuffle_play">Qarışıq oxut</string>
-    <string name="feeling_lucky">Şansınızı sınamaq istəyirsiniz?</string>
-    <string name="daily_discover_sounds_like">%1$s üslubunda</string>
-    <string name="daily_discover_because_you_listen_to">%1$s dinlədiyiniz üçün</string>
-    <string name="daily_discover_similar_to">%1$s ilə oxşar</string>
-    <string name="daily_discover_based_on">%1$s əsasında</string>
-    <string name="daily_discover_for_fans_of">%1$s pərəstişkarları üçün</string>
-    <string name="section_recommended">Tövsiyə olunanlar</string>
-    <string name="section_recently_played">Son oxudulanlar</string>
-    <string name="section_music_videos">Musiqi videoları</string>
-    <string name="section_music_videos_for_you">Sizin üçün musiqi videoları</string>
-    <string name="section_live_performances">Canlı ifalar</string>
-    <string name="section_new_releases">Yeni buraxılışlar</string>
-    <string name="subtitle_single_template">Sinql · %1$s</string>
-    <string name="section_popular_artists">Populyar ifaçılar</string>
-    <string name="section_mixed_for_you">Sizin üçün mikslər</string>
-    <string name="section_moods_and_genres">Əhvallar və janrlar</string>
-    <string name="section_mood_and_genres">Əhval və janrlar</string>
-    <string name="section_from_the_community">İcmadan</string>
-    <string name="daily_discover_subtitle">Dinləmələrinizdən təzə seçimlər</string>
-    <string name="genre_mix_template">%1$s miksi</string>
-    <string name="section_top_albums">Ən yaxşı albomlar</string>
-    <string name="similar_to">Oxşar</string>
-    <string name="section_similar_to">%1$s ilə oxşar</string>
-    <string name="subtitle_similar_to">Dinləmə tarixçənizə əsasən</string>
-    <string name="section_vibe_vibes">%1$s ab-havası</string>
-    <string name="subtitle_community_playlists">İcma pleylistləri</string>
-    <string name="playlist_author_community">İcma pleylisti</string>
-    <string name="playlist_description_community">İcmamızın seçdiyi %1$s musiqilərindən ibarət pleylist</string>
-    <string name="radio">Radio</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="audio_settings_title">Audio parametrləri</string>
     <string name="label_preset">Önayar</string>
     <string name="template_bass_boost">Bas gücləndirməsi: %1$ddB</string>
-    <string name="label_tempo_pitch">Temp və ton</string>
-    <string name="action_reset">Sıfırla</string>
-    <string name="template_speed">Sürət: %1$d%%</string>
-    <string name="template_pitch">Ton: %1$d yarımton</string>
+    
+    
+    
+    
     <string name="label_parametric_equalizer">Parametrik ekvalayzer</string>
     <string name="action_add_band">Zolaq əlavə et</string>
     <string name="template_preamp">Öngücləndirici: %1$.1fdB</string>
@@ -1345,38 +1345,38 @@
     <string name="template_gain">%1$.1fdB</string>
     <string name="template_q">%1$.1f</string>
     <string name="now_playing">İNDİ OXUDULUR</string>
-    <string name="voice_search_prompt">Musiqi axtarmaq üçün danışın</string>
-    <string name="search_music_placeholder">Musiqi axtar</string>
+    
+    
     <string name="voice_search_cd">Səsli axtarış</string>
-    <string name="filter_albums">Albomlar</string>
-    <string name="filter_songs">Mahnılar</string>
-    <string name="filter_community_playlists">İcma pleylistləri</string>
-    <string name="section_top_result">Ən yaxşı nəticə</string>
-    <string name="subtitle_song_prefix">Mahnı • %1$s</string>
-    <string name="subtitle_artist">İfaçı</string>
-    <string name="subtitle_album_template">Albom • %1$s</string>
-    <string name="subtitle_playlist_template">Pleylist • %1$s</string>
-    <string name="plays_count_template">• %1$s oxutma</string>
-    <string name="album_year_template">Albom • %1$s • %2$s</string>
-    <string name="artist_audience_template">İfaçı • aylıq %1$s dinləyici</string>
-    <string name="search_source_template">Axtarış: %1$s</string>
-    <string name="artist_source_template">İfaçı: %1$s</string>
-    <string name="top_picks_for_you">Sizin üçün ən yaxşı seçimlər</string>
-    <string name="no_results_found">Nəticə tapılmadı</string>
-    <string name="no_tracks_available">Əlçatan trek yoxdur</string>
-    <string name="tab_favorites">Seçilmişlər</string>
-    <string name="create_playlist_subtitle">Musiqinizi nizamlayın</string>
-    <string name="empty_playlists_title">Hələ pleylist yoxdur</string>
-    <string name="empty_playlists_subtitle">Sevimli treklərinizi nizamlamaq üçün ilk pleylistinizi yaradın</string>
-    <string name="empty_favorites_title">Hələ seçilmiş yoxdur</string>
-    <string name="empty_favorites_subtitle">Treki seçilmişlərə əlavə etmək üçün ürək nişanına toxunun</string>
-    <string name="favorites_count_template">%1$d seçilmiş trek</string>
-    <string name="empty_history_title">Hələ tarixçə yoxdur</string>
-    <string name="empty_history_subtitle">Tarixçəni burada görmək üçün musiqi dinləməyə başlayın</string>
-    <string name="empty_downloads_title">Hələ endirmə yoxdur</string>
-    <string name="empty_downloads_subtitle">Oflayn oxutma üçün trekləri endirin</string>
-    <string name="total_size">Ümumi ölçü</string>
-    <string name="tracks_count_template">%1$s trek</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="btn_minimize">Kiçilt</string>
     <string name="captions">Altyazılar</string>
     <string name="pip_mode">Şəkil içində şəkil</string>
@@ -1390,9 +1390,9 @@
     <string name="shorts_audio_track">Audio trek</string>
     <string name="shorts_auto_scroll_active_template">Avtomatik %1$d san.</string>
     <string name="shorts_quality">Keyfiyyət</string>
-    <string name="shorts_no_audio_tracks">Əlçatan audio trek yoxdur</string>
-    <string name="shorts_audio_original">Orijinal</string>
-    <string name="shorts_audio_dubbed">Dublyaj</string>
+    
+    
+    
     <string name="shorts_quality_settings_title">Shorts video keyfiyyəti</string>
     <string name="shorts_quality_settings_subtitle">Shorts izləyərkən keyfiyyət</string>
     <string name="shorts_quality_warning">Yüksək keyfiyyət daha çox məlumat sərf edir. Shorts şaquli video axınlarından istifadə edir.</string>
@@ -1404,7 +1404,7 @@
     <string name="add_video_to_queue_desc">Video növbəsinin sonuna əlavə et</string>
     <string name="added_to_queue_toast">Növbəyə əlavə edildi</string>
     <string name="play_next_toast">Növbəti oxudulacaq</string>
-    <string name="no_active_queue_toast">Aktiv video növbəsi yoxdur. Əvvəlcə video oxutmağa başlayın.</string>
+    
     <string name="download_video">Videonu endir</string>
     <string name="select_quality">Üstünlük verdiyiniz keyfiyyəti seçin</string>
     <string name="no_download_streams">Əlçatan endirmə axını yoxdur</string>
@@ -1420,7 +1420,7 @@
     <string name="download_menu_style_compact">Yığcam</string>
     <string name="download_menu_style_compact_desc">Redaktə olunan başlıq, açılan siyahılar və axın sayı</string>
     <string name="downloading_template">%1$s endirilir...</string>
-    <string name="section_downloading">Endirilir</string>
+    
     <string name="section_incomplete_downloads">Tamamlanmamış endirmələr</string>
     <string name="section_completed">Tamamlanıb</string>
     <string name="download_status_queued">Növbədə</string>
@@ -1443,9 +1443,9 @@
     <string name="playlist_queue">Pleylist növbəsi</string>
     <string name="next_up">Növbəti</string>
     <string name="cast_to_tv">TV-yə yayımla</string>
-    <string name="cast_connecting">Yayım cihazına qoşulur…</string>
+    
     <string name="cast_connected">Yayımlanır</string>
-    <string name="cast_disconnected">Yayım bağlantısı kəsildi</string>
+    
     <string name="dlna_cast_to_device">Cihaza yayımla</string>
     <string name="dlna_no_devices">Bu şəbəkədə DLNA/UPnP renderer tapılmadı.\n\nTV və ya media pleyerinizin (VLC, Kodi və s.) eyni Wi-Fi şəbəkəsində olduğuna və media renderer rejiminin aktiv edildiyinə əmin olun.</string>
     <string name="dlna_searching">DLNA cihazları axtarılır...</string>
@@ -1475,7 +1475,7 @@
     <string name="sync_collection_likes">Bəyənmələr</string>
     <string name="sync_collection_subscriptions">Abunəliklər</string>
     <string name="sync_collection_settings">Parametrlər</string>
-    <string name="sync_collection_recommendation_profile">Tövsiyə profili</string>
+    
     <string name="sync_preparing">Hazırlanır…</string>
     <string name="sync_connecting">Qoşulur…</string>
     <string name="sync_intro">Kitabxananızı, tarixçənizi, bəyənmələrinizi, parametrlərinizi və tövsiyə profilinizi yerli Wi-Fi ilə başqa cihazla sinxronlaşdırın. Heç bir məlumat şəbəkənizdən kənara çıxmır.</string>
@@ -1562,10 +1562,10 @@
     <string name="error_extraction_failed_hint">YouTube formatını yeniləmiş ola bilər. piTube tezliklə yenilənəcək — sonra yenidən sınayın.</string>
     <string name="error_generic">Videonu yükləmək mümkün olmadı</string>
     <string name="error_generic_hint">Naməlum xəta baş verdi. Yenidən sınayın.</string>
-    <string name="music_playback_warning_forbidden">Musiqi axınına giriş rədd edildi. YouTube bu IP-ni məhdudlaşdırır ola bilər; yenidən yükləməyi və ya şəbəkəni/VPN-i dəyişməyi sınayın.</string>
-    <string name="music_playback_warning_network">Şəbəkə problemi səbəbindən musiqi axını uğursuz oldu. Bağlantınızı yoxlayın və ya başqa şəbəkə sınayın.</string>
-    <string name="music_playback_warning_final">Bu mahnı bir neçə cəhddən sonra yüklənmədi. Mahnılar davamlı yüklənmirsə başqa şəbəkə və ya VPN sınayın.</string>
-    <string name="music_playback_warning_generic">Musiqini oxutmaq mümkün olmadı. Problem davam edərsə yenidən sınayın və ya şəbəkəni dəyişin.</string>
+    
+    
+    
+    
     <string name="player_lock_controls">İdarəetmələri kilidlə</string>
     <string name="player_unlock_controls">İdarəetmələrin kilidini aç</string>
     <string name="player_settings_overlay_controls">Örtük idarəetmələri</string>
@@ -1609,94 +1609,94 @@
     <string name="diagnostics_loading">Jurnallar oxunur…</string>
     <string name="diagnostics_copied">Hesabat mübadilə buferinə kopyalandı</string>
     <string name="add_all_to_playlist">Pleylistimə əlavə et</string>
-    <string name="merge_playlist_dialog_title">Bütün mahnıları buraya əlavə et…</string>
+    
     <string name="merge_playlist_success">%1$d mahnı “%2$s” pleylistinə əlavə edildi</string>
-    <string name="merge_playlist_no_playlists">Hələ pleylist yoxdur. Əvvəlcə birini yaradın!</string>
-    <string name="learning_stats_title">Öyrənmə siqnalları</string>
-    <string name="learning_stats_subtitle">Mühərrikin hazırda yadda saxladıqları</string>
-    <string name="metric_interactions">Qarşılıqlı əlaqələr</string>
-    <string name="metric_interactions_detail">kliklər, baxışlar, keçidlər</string>
-    <string name="metric_topics">Mövzular</string>
-    <string name="metric_topics_detail">çəkili maraqlar</string>
-    <string name="metric_evidence">Sübutlar</string>
-    <string name="metric_evidence_detail">təsdiqlənmiş mövzular</string>
-    <string name="metric_channels">Kanallar</string>
-    <string name="metric_channels_detail">uyğunluq qeydləri</string>
-    <string name="metric_history">Tarixçə</string>
-    <string name="metric_history_detail">baxış istinadları</string>
-    <string name="metric_feed_memory">Lent yaddaşı</string>
-    <string name="metric_feed_memory_detail">son göstərilənlər</string>
-    <string name="metric_filters">Filtrlər</string>
-    <string name="metric_filters_detail">bloklanmış elementlər</string>
-    <string name="metric_suppressed">Məhdudlaşdırılanlar</string>
-    <string name="metric_suppressed_detail">gözləmə müddətindəki elementlər</string>
-    <string name="profile_maturity_label">Profil yetkinliyi</string>
-    <string name="profile_maturity_detail">Yüksək yetkinlik profilin stabil olması üçün kifayət qədər siqnala malik olduğunu göstərir</string>
-    <string name="taste_shape_title">Zövq forması</string>
-    <string name="taste_shape_subtitle">Qlobal profilin aktiv zaman konteksti ilə müqayisəsi</string>
-    <string name="taste_pacing">Temp</string>
-    <string name="taste_pacing_context">Cari kontekst: %1$s</string>
-    <string name="taste_complexity">Mürəkkəblik</string>
-    <string name="taste_duration">Müddət seçimi</string>
-    <string name="taste_duration_detail">Yüksək dəyərlər daha uzun videolara meyli göstərir</string>
-    <string name="taste_live_affinity">Canlı yayım uyğunluğu</string>
-    <string name="taste_live_affinity_detail">Canlı məzmunun profilə nə qədər uyğun olduğu</string>
-    <string name="taste_topic_breadth">Mövzu genişliyi</string>
-    <string name="taste_topic_breadth_detail">Qlobal vektorda %1$d mövzu</string>
-    <string name="interest_weights_title">Maraq çəkiləri</string>
-    <string name="interest_weights_subtitle">Sınaq müddəti və sübut yoxlamalarından sonra ən yüksək çəkili mövzular</string>
-    <string name="interest_weights_empty">Hələ mövzu çəkisi yoxdur.</string>
-    <string name="time_patterns_title">Zaman nümunələri</string>
-    <string name="time_patterns_subtitle">Həftəiçi və həftəsonu kontekst vektorları arasında sürüşdürün</string>
-    <string name="time_bucket_label_now">İndi</string>
-    <string name="time_bucket_no_topics">Qeydə alınmış mövzu yoxdur</string>
-    <string name="time_bucket_top_topics">Əsas mövzular</string>
-    <string name="time_bucket_topics_count">Mövzular</string>
-    <string name="time_bucket_pace">Temp</string>
-    <string name="time_bucket_complexity">Mürəkkəblik</string>
-    <string name="time_bucket_duration">Müddət</string>
-    <string name="time_bucket_weekday_morning">Həftəiçi səhər</string>
-    <string name="time_bucket_weekday_afternoon">Həftəiçi günorta</string>
-    <string name="time_bucket_weekday_evening">Həftəiçi axşam</string>
-    <string name="time_bucket_weekday_night">Həftəiçi gecə</string>
-    <string name="time_bucket_weekend_morning">Həftəsonu səhər</string>
-    <string name="time_bucket_weekend_afternoon">Həftəsonu günorta</string>
-    <string name="time_bucket_weekend_evening">Həftəsonu axşam</string>
-    <string name="time_bucket_weekend_night">Həftəsonu gecə</string>
-    <string name="time_window_morning">06:00–12:00</string>
-    <string name="time_window_afternoon">12:00–18:00</string>
-    <string name="time_window_evening">18:00–00:00</string>
-    <string name="time_window_night">00:00–06:00</string>
-    <string name="channel_affinity_strong">Güclü</string>
-    <string name="channel_affinity_balanced">Balanslı</string>
-    <string name="channel_affinity_cooling">Azalan</string>
-    <string name="channel_affinity_score">uyğunluq balı</string>
-    <string name="discovery_status_title">Kəşf vəziyyəti</string>
-    <string name="discovery_status_subtitle">Hazırda kəşfi formalaşdıran sorğular və qoruyucu sərhədlər</string>
-    <string name="discovery_queries">Sorğular</string>
-    <string name="discovery_queries_detail">indi hazırdır</string>
-    <string name="discovery_query_memory">Sorğu yaddaşı</string>
-    <string name="discovery_query_memory_detail">son token dəstləri</string>
-    <string name="discovery_rejections">Rədd edilənlər</string>
-    <string name="discovery_rejections_detail">mövzu nümunələri</string>
-    <string name="discovery_shorts_seen">Baxılmış Shorts videoları</string>
-    <string name="discovery_shorts_seen_detail">təkrar qoruması</string>
-    <string name="blocked_content_title">Filtrlər</string>
-    <string name="blocked_content_subtitle">Tövsiyələrdən çıxarılan mövzular və kanallar</string>
-    <string name="blocked_topics_header">Bloklanmış mövzular</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="blocked_channels_header">Bloklanmış kanallar</string>
-    <string name="blocked_item_unblock_topic">Mövzunun blokunu aç</string>
+    
     <string name="blocked_item_unblock_channel">Kanalın blokunu aç</string>
-    <string name="blocked_item_showing_count">%2$d nəticədən %1$d-i göstərilir</string>
-    <string name="profile_data_title">Profil məlumatları</string>
-    <string name="profile_data_subtitle">Yerli tövsiyə profilinin ehtiyat nüsxəsini yaradın, bərpa edin və ya sıfırlayın</string>
-    <string name="profile_action_reset">Profili sıfırla</string>
-    <string name="profile_action_reset_detail">Öyrənilmiş seçimləri silib yenidən başlayın</string>
-    <string name="reset_profile_dialog_title">Profil sıfırlansın?</string>
-    <string name="reset_profile_dialog_message">Bu əməl yerli tövsiyə profilini təmizləyir və öyrənməni sıfırdan başladır.</string>
-    <string name="reset_profile_confirm">Sıfırla</string>
-    <string name="taste_chart_profile">Profil</string>
-    <string name="taste_chart_now">İndi</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_item_datetime">Tarix və vaxt</string>
     <string name="settings_item_datetime_subtitle">Yüklənmə tarixlərinin necə göstəriləcəyini fərdiləşdirin</string>
     <string name="datetime_title">Tarix və vaxt görünüşü</string>
@@ -1721,45 +1721,45 @@
     <string name="player_appearance_volume_boost_title">Əlavə səs gücləndirməsinə icazə ver</string>
     <string name="player_appearance_volume_boost_subtitle">Söndürüləndə səs sürüşdürmə jesti sistemin maksimum səs səviyyəsində dayanır. Səsi daha da yüksəltmək üçün aktiv edin.</string>
     <string name="shorts_playback_speed">Oxutma sürəti</string>
-    <string name="speed_normal">Normal</string>
+    
     <string name="history_delete_shorts">Shorts videolarını tarixçədən sil</string>
     <string name="history_delete_shorts_title">Shorts videoları silinsin?</string>
     <string name="history_delete_shorts_body">Bu əməl bütün Shorts videolarını baxış tarixçənizdən silir. Digər videolar saxlanılır.</string>
-    <string name="recognize_music">Musiqini tanı</string>
-    <string name="recognition_history">Tanıma tarixçəsi</string>
-    <string name="tap_to_recognize">Tanımaq üçün toxunun</string>
-    <string name="listening">Dinlənilir…</string>
-    <string name="processing">Emal edilir…</string>
-    <string name="no_match_found">Uyğunluq tapılmadı</string>
-    <string name="recognition_error">Tanıma uğursuz oldu</string>
-    <string name="try_again">Yenidən sına</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="search_in_flow">piTube-da axtar</string>
-    <string name="recognition_search_history">Tanınmış mahnılarda axtar</string>
-    <string name="recognition_history_empty">Tanınmış mahnılar burada görünəcək</string>
-    <string name="recognition_clear_history">Tarixçə təmizlənsin?</string>
-    <string name="recognition_clear_history_body">Bu əməl bütün tanınmış mahnıları silir. Geri qaytarmaq mümkün deyil.</string>
+    
+    
+    
+    
     <string name="close_popup_player">Açılan pleyeri bağla</string>
-    <string name="widget_now_playing_label">İndi oxudulur</string>
-    <string name="widget_now_playing_description">piTube-da oxudulan musiqini idarə edin</string>
+    
+    
     <string name="widget_quick_actions_label">Sürətli əməliyyatlar</string>
     <string name="widget_quick_actions_description">piTube-da axtarın və endirmələrə, tarixçəyə və ya musiqi tanımaya keçin</string>
-    <string name="widget_recognize_label">Musiqini tanı</string>
-    <string name="widget_recognize_description">Ətrafınızda səslənən mahnını bir toxunuşla müəyyən edin</string>
-    <string name="widget_turntable_label">Val pleyeri</string>
-    <string name="widget_turntable_description">Musiqiniz fırlanan val üzərində</string>
+    
+    
+    
+    
     <string name="widget_recently_played_label">Son oxudulanlar</string>
     <string name="widget_recently_played_description">Qaldığınız yerdən davam edin</string>
     <string name="widget_downloads_label">Endirmələr</string>
     <string name="widget_downloads_description">Oflayn endirmələrinizi oxudun</string>
     <string name="widget_recently_played">Son oxudulanlar</string>
     <string name="widget_downloads">Endirmələr</string>
-    <string name="widget_nothing_playing">Hazırda heç nə oxudulmur</string>
-    <string name="widget_play">Oxut</string>
-    <string name="widget_pause">Pauza</string>
-    <string name="widget_next">Növbəti trek</string>
-    <string name="widget_previous">Əvvəlki trek</string>
-    <string name="widget_like">Bəyən</string>
-    <string name="widget_artwork">Albom üz qabığı</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="widget_open_downloads">Endirmələri aç</string>
     <string name="widget_open_history">Tarixçəni aç</string>
     <string name="widget_no_recent">Baxdığınız videolar burada görünəcək</string>
@@ -1771,43 +1771,43 @@
     <string name="ui_skip_forward_10_seconds">10 saniyə irəli keç</string>
     <string name="ui_queued_for_download">Endirmə növbəsinə əlavə edilib</string>
     <string name="ui_downloading">Endirilir</string>
-    <string name="ui_in_library">Kitabxanada</string>
-    <string name="ui_navigate">Keç</string>
-    <string name="ui_options">Seçimlər</string>
+    
+    
+    
     <string name="ui_selected">Seçilib</string>
     <string name="ui_flow_logo">piTube loqosu</string>
     <string name="ui_list_view">Siyahı görünüşü</string>
     <string name="ui_grid_view">Tor görünüşü</string>
     <string name="ui_back">Geri</string>
-    <string name="ui_add_songs">Mahnı əlavə et</string>
+    
     <string name="ui_close_search">Axtarışı bağla</string>
     <string name="ui_save_to_library">Kitabxanada yadda saxla</string>
     <string name="ui_remove_from_library">Kitabxanadan sil</string>
-    <string name="ui_clear">Təmizlə</string>
-    <string name="ui_delete_from_playlist">Pleylistdən sil</string>
-    <string name="ui_added">Əlavə edildi</string>
-    <string name="ui_sync_lyrics">Mahnı sözlərini sinxronlaşdır</string>
+    
+    
+    
+    
     <string name="ui_downloading_playlist">Pleylist endirilir</string>
-    <string name="ui_no_songs_found">Mahnı tapılmadı</string>
-    <string name="ui_search_songs_to_add">Əlavə ediləcək mahnıları axtar…</string>
-    <string name="ui_add_songs_to_playlist">Pleylistə mahnı əlavə et</string>
-    <string name="ui_show_less">Daha az göstər</string>
-    <string name="ui_show_more">Daha çox göstər</string>
+    
+    
+    
+    
+    
     <string name="ui_try_sabr_download">SABR endirməsini sına</string>
-    <string name="ui_audio_only">Yalnız audio</string>
+    
     <string name="ui_no_crash_logs">Çökmə jurnalı yoxdur</string>
     <string name="ui_copy_log">Jurnalı kopyala</string>
     <string name="ui_clear_and_continue">Təmizlə və davam et</string>
     <string name="ui_crashed_last_session">piTube son seansda çökdü</string>
     <string name="ui_copy_log_description">Aşağıdakı jurnalı kopyalayıb düzəldilməsi üçün GitHub problem hesabatına yapışdırın.</string>
     <string name="ui_search_settings">Parametrlərdə axtar…</string>
-    <string name="ui_custom_interest_title">Fərdi maraq əlavə et</string>
-    <string name="ui_custom_interest_subtitle">İzləmək istədiyiniz hər hansı mövzunu yazın</string>
-    <string name="ui_custom_interest_hint">Fərdi maraq (məs., caz, astrofizika)</string>
-    <string name="ui_add_interest">Maraq əlavə et</string>
-    <string name="ui_version">Versiya %1$s</string>
+    
+    
+    
+    
+    
     <string name="update_download_prompt">piTube-un yeni versiyası mövcuddur (%1$s). Ən son APK endirilsin?</string>
-    <string name="ui_instrumental">İ N S T R U M E N T A L</string>
+    
     <string name="ui_playlist_empty">Pleylist boşdur</string>
     <string name="ui_downloading_videos">%1$d video endirilir…</string>
     <string name="ui_playlist_saved_to_library">Pleylist kitabxanada yadda saxlanıldı</string>
@@ -1828,20 +1828,20 @@
     <string name="toast_no_download_source">Əlçatan endirmə mənbəyi yoxdur</string>
     <string name="toast_sabr_download_failed">SABR endirməsi uğursuz oldu: %1$s</string>
     <string name="toast_copied_to_clipboard">Mübadilə buferinə kopyalandı</string>
-    <string name="toast_playlist_deleted">Pleylist silindi</string>
-    <string name="toast_playlist_renamed">Pleylistin adı dəyişdirildi</string>
-    <string name="toast_starting_playlist_download">%1$s üçün endirmə başladılır…</string>
-    <string name="toast_downloaded_tracks_from_playlist">%2$s pleylistindən %1$d trek endirildi</string>
-    <string name="toast_failed_to_download_playlist">Pleylisti endirmək mümkün olmadı</string>
-    <string name="toast_error_downloading_playlist">Pleylist endirilərkən xəta baş verdi</string>
-    <string name="toast_downloaded_tracks">%1$d trek endirildi</string>
-    <string name="toast_added_to_playlist">Pleylistə əlavə edildi</string>
-    <string name="toast_failed_to_add_track">Treki əlavə etmək mümkün olmadı</string>
-    <string name="toast_removed_from_playlist">Pleylistdən silindi</string>
-    <string name="toast_failed_to_remove_track">Treki silmək mümkün olmadı</string>
-    <string name="toast_saved_playlist_to_music_library">Pleylist musiqi kitabxananızda yadda saxlanıldı</string>
-    <string name="toast_failed_to_save_playlist">Pleylisti yadda saxlamaq mümkün olmadı</string>
-    <string name="toast_removed_playlist_from_library">Pleylist kitabxanadan silindi</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="toast_failed_to_merge_playlist">Pleylisti birləşdirmək mümkün olmadı</string>
     <string name="notification_downloading">Endirilir: %1$s</string>
     <string name="notification_download_complete">Endirmə tamamlandı</string>
@@ -1873,10 +1873,10 @@
     <string name="error_failed_to_load_channel">Kanalı yükləmək mümkün olmadı</string>
     <string name="error_failed_to_load_shorts">Shorts videolarını yükləmək mümkün olmadı</string>
     <string name="error_failed_to_load_more_shorts">Daha çox Shorts videosu yükləmək mümkün olmadı</string>
-    <string name="error_search_timed_out">Axtarışın vaxtı bitdi</string>
-    <string name="error_filter_search_timed_out">Filtrli axtarışın vaxtı bitdi</string>
-    <string name="error_failed_to_load_playlist">Pleylisti yükləmək mümkün olmadı</string>
-    <string name="error_failed_to_load_content">Məzmunu yükləmək mümkün olmadı</string>
+    
+    
+    
+    
     <string name="error_no_videos_found">Video tapılmadı</string>
     <string name="error_no_shorts_found">Shorts videosu tapılmadı</string>
     <string name="error_no_live_videos_found">Canlı video tapılmadı</string>
@@ -1891,7 +1891,7 @@
     <string name="error_playback_device">Oxutma cihazı xətası: %1$s</string>
     <string name="error_content_protection">Məzmun qoruma xətası: %1$s</string>
     <string name="error_playback_stopped">Kritik xəta səbəbindən oxutma dayandırıldı</string>
-    <string name="error_invalid_media_streams">Medianı yükləmək mümkün olmadı: etibarsız axınlar</string>
+    
     <string name="error_failed_to_load_media">Medianı yükləmək mümkün olmadı: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Medianı yükləmək mümkün olmadı: etibarsız axınlar</string>
     <string name="error_playback_retry_hint">Sonra yenidən sınayın və ya şəbəkə bağlantınızı yoxlayın.</string>
@@ -1907,17 +1907,17 @@
     <string name="download_failed_audio_length">Audio məzmununun uzunluğunu almaq mümkün olmadı</string>
     <string name="download_workers_failed">Bir və ya daha çox iş axını uğursuz oldu</string>
     <string name="download_block_failed">%1$s bloku uğursuz oldu: %2$s</string>
-    <string name="fallback_playing">Oxudulur…</string>
-    <string name="fallback_unknown_title">Naməlum başlıq</string>
-    <string name="fallback_unknown_channel">Naməlum kanal</string>
-    <string name="fallback_unknown_playlist">Naməlum pleylist</string>
-    <string name="fallback_unknown_artist">Naməlum ifaçı</string>
-    <string name="fallback_unknown_album">Naməlum albom</string>
-    <string name="fallback_unknown_video">Naməlum video</string>
-    <string name="fallback_local_video">Yerli video</string>
-    <string name="fallback_local_audio">Yerli audio</string>
-    <string name="fallback_your_saved_shorts">Yadda saxladığınız Shorts videoları</string>
-    <string name="fallback_your_watch_later_list">“Sonra bax” siyahınız</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="fallback_downloaded_locally">Cihaza endirilib</string>
-    <string name="fallback_more_results">Daha çox nəticə</string>
+    
 </resources>

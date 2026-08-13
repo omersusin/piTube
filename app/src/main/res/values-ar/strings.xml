@@ -22,7 +22,7 @@
     <string name="download">تحميل</string>
     <string name="save">حفظ</string>
     <string name="lyrics">الكلمات</string>
-    <string name="related">مشابه</string>
+    
     <string name="close">غلق</string>
     <string name="more_options">خيارات إضافية</string>
     <string name="like">إعجاب</string>
@@ -32,36 +32,36 @@
     <string name="play">لعب</string>
     <string name="next">التالي</string>
     <string name="repeat">تكرار</string>
-    <string name="loading_track">تحميل المقطع...</string>
+    
     <string name="error_occurred">خطأ</string>
     <string name="autoplay">التشغيل التلقائي</string>
     <string name="move_up">تحرك للأعلي</string>
     <string name="move_down">تحرك للأسفل</string>
     <string name="lyrics_not_available">الكلمات غير متاحة</string>
     <string name="remove">إزالة</string>
-    <string name="related_content">محتوي مشابه</string>
-    <string name="no_related_content">لم يوجد محتوي مشابه</string>
+    
+    
     <string name="filter_popular">رائج</string>
     <string name="title_label">العنوان</string>
     <string name="artist_label">الفنان</string>
     <string name="album_label">الألبوم</string>
     <string name="video_id_label">معرف الفيديو</string>
-    <string name="channels_label">القنوات</string>
+    
     <string name="undo">تراجع</string>
     <string name="subscribed_to">مشترك لـ %s</string>
     <string name="unsubscribe">إلغاء الإشتراك</string>
     <string name="share_video">مشاركة</string>
-    <string name="related_videos">الفيديوهات المشابه</string>
+    
     <string name="quality_auto">تلقائي</string>
     <string name="quality_auto_template">تلقائي (%1$dp)</string>
-    <string name="music_player">مشغل الموسيقى</string>
+    
     <string name="tab_videos">الفيديوهات</string>
-    <string name="tab_music">الموسيقى</string>
+    
     <string name="action_go_to_home">رجوع للقائمة الرئيسية</string>
     <string name="action_delete">حذف</string>
     <string name="downloads_title">التحميلات</string>
-    <string name="download_deleted">التحميلات المحذوفه</string>
-    <string name="action_undo">تراجع</string>
+    
+    
     <string name="create">إنشاء</string>
     <string name="save_to_playlist">حفظ في قائمة تشغيل</string>
     <string name="dislikes">عدم الإعجاب</string>
@@ -79,34 +79,34 @@
     <string name="notifications">الإشعارات</string>
     <string name="search">البحث</string>
     <string name="settings">الإعدادات</string>
-    <string name="select_artist">حدد الفنان</string>
+    
     <string name="description">الوصف</string>
     <string name="copy_description">نسخ الوصف</string>
     <string name="description_copied">تم نسخ الوصف للحافظة</string>
     <string name="sb_manual_skip">تخطي</string>
-    <string name="add_to_playlist">إضافة لقائمة التشغيل</string>
+    
     <string name="playback_header">تشغيل في الخلفية</string>
-    <string name="play_next">تشغيل التالي</string>
-    <string name="add_to_queue">إضافة لقائمة الإنتظار</string>
-    <string name="add_to_queue_desc">إضافة لنهاية قائمة الإنتظار</string>
+    
+    
+    
     <string name="audio_effects">المؤثرات الصوتية</string>
-    <string name="more_header">المزيد</string>
-    <string name="view_artist">عرض الفنان</string>
-    <string name="view_album">عرض الألبوم</string>
-    <string name="album_art">لوحة الألبوم</string>
-    <string name="close_player">إغلاق المشغل</string>
+    
+    
+    
+    
+    
     <string name="views_template">%1$s مشاهدة</string>
     <string name="chapters">الفصول</string>
     <string name="artist">الفنان</string>
     <string name="playlist">قائمة التشغيل</string>
     <string name="personalized_feed">خلاصتك المخصصة</string>
-    <string name="toggle_view_mode">تفعيل وضع العرض</string>
-    <string name="unsubscribed_from_template">إلغاء الإشتراك من %1$s</string>
+    
+    
     <string name="videos_count_template">%1$d فيديوهات</string>
-    <string name="playlists_count_template">%1$d قوائم التشغيل</string>
-    <string name="shorts_count_template">%1$d مقاطع قصيرة</string>
-    <string name="songs_count_template">%1$d أغاني</string>
-    <string name="empty_downloads">لا يوجد تحميلات بعد</string>
+    
+    
+    
+    
     <string name="play_all">تشغيل الكل</string>
     <string name="remove_from_watch_later">الإزالة من المشاهدة لاحقا</string>
     <string name="no_videos_saved">لا يوجد فديوهات محفوظه</string>
@@ -114,17 +114,17 @@
     <string name="search_hint">البحث</string>
     <string name="search_videos_channels_placeholder">بحث الفيديوهات، القنوات...</string>
     <string name="recent_searches">البحث السابق</string>
-    <string name="trending">رائج</string>
+    
     <string name="channels_header">القنوات</string>
     <string name="videos_header">الفيديوهات</string>
-    <string name="end_of_results">نهاية النتائج</string>
+    
     <string name="clear_search_history">محو سجل بحوثك</string>
-    <string name="filter_upload_date">تاريخ الرفع</string>
-    <string name="filter_duration">طول المدة</string>
-    <string name="filter_sort_by">فرز</string>
+    
+    
+    
     <string name="filter_subtitles">الترجمات</string>
     <string name="date_any">أي وقت</string>
-    <string name="date_last_hour">أخر ساعة</string>
+    
     <string name="date_today">اليوم</string>
     <string name="date_this_week">هذا الأسبوع</string>
     <string name="date_this_month">هذا الشهر</string>
@@ -134,10 +134,10 @@
     <string name="duration_4_20">من 4 إلى 20 دقيقة</string>
     <string name="duration_over_20">أكثر من 20 دقيقة</string>
     <string name="sort_relevance">الصلة</string>
-    <string name="sort_upload_date">وقت الرفع</string>
-    <string name="sort_view_count">عدد المشاهدات</string>
+    
+    
     <string name="sort_rating">التقييم</string>
-    <string name="channel_default_title">القناة</string>
+    
     <string name="channel_banner">راية القناة</string>
     <string name="channel_avatar">صورة القناة</string>
     <string name="subscribe">إشتراك</string>
@@ -145,28 +145,28 @@
     <string name="tab_live">بث مباشر</string>
     <string name="tab_playlists">قوائم التشغيل</string>
     <string name="tab_about">حول</string>
-    <string name="end_of_queue">نهاية قائمة الإنتظار</string>
-    <string name="no_videos_found">لا توجد فيديوهات</string>
-    <string name="no_shorts_found">لا توجد مقاطع قصيرة</string>
+    
+    
+    
     <string name="no_playlists_found">لا توجد قوائم تشغيل</string>
     <string name="subscribers_count_template">%1$s مشترك</string>
     <string name="views_count_short_template">%1$s مشاهدة</string>
-    <string name="music_history">سجل الموسيقى</string>
+    
     <string name="remove_from_history">محو من السجل</string>
-    <string name="share_song_chooser">شارك الأغنية</string>
+    
     <string name="time_today">اليوم</string>
     <string name="time_yesterday">الأمس</string>
     <string name="time_earlier">سابقًا</string>
     <string name="clear_all_notifications">مسح كل الإشعارات</string>
     <string name="delete">حذف</string>
     <string name="settings_title">الإعدادات</string>
-    <string name="settings_flow_engine_header">محرك piTube</string>
-    <string name="settings_active_learning">التعلم النشط</string>
-    <string name="settings_reset_brain_title">إعادة ضبط طابع piTube؟</string>
-    <string name="settings_reset_brain_body">سيقوم هذا بمحو ملف اهتماماتك الخاص ب piTube\' Brain\'\n\n• جميع المواضيع المتعلمة سيتم نسيانها.\n• السمات الشخصية سترجع للوضع الطبيعي.\n• سترجع جميع الإقتراحات للوضع الإفتراضي.\n\nهذه الخطوة لا يمكن التراجع عنها.</string>
-    <string name="settings_reset_everything">إعادة ضبط الجميع</string>
-    <string name="settings_analyzing_interactions">تحليل تفاعلاتك...</string>
-    <string name="settings_view_analytics">عرض التحليلات</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_header_appearance">المظهر</string>
     <string name="settings_header_content_playback">المحتوي و التشغيل</string>
     <string name="settings_header_data_management">إدارة البيانات</string>
@@ -187,8 +187,8 @@
     <string name="settings_item_theme">النمط</string>
     <string name="settings_item_app_icon">أيقونة التطبيق</string>
     <string name="settings_item_app_icon_subtitle">خصص أيقونة التطبيق</string>
-    <string name="settings_item_content_prefs">تفضيلات المحتوي</string>
-    <string name="settings_item_content_prefs_subtitle">إحجب المواضيع التي لا ترغب في رؤيتها</string>
+    
+    
     <string name="settings_item_player">إعدادات المشغل</string>
     <string name="settings_item_player_subtitle">التشغيل التلقائي، التشغيل في الخلفية، SponsorBlock</string>
     <string name="settings_item_quality">دقة الفيديو و الموسيقي</string>
@@ -209,12 +209,12 @@
     <string name="appearance_title">المظهر</string>
     <string name="appearance_subtitle">خصّص تجربتك مع piTube</string>
     <string name="appearance_current_theme">الموضوع الحالي</string>
-    <string name="appearance_category_all">الجميع</string>
+    
     <string name="appearance_category_light">فاتح</string>
     <string name="appearance_category_dark">غامق</string>
-    <string name="appearance_category_special">خاص</string>
+    
     <string name="appearance_themes_count_all">%1$d المواضيع</string>
-    <string name="appearance_themes_count_filtered">%1$d %2$s المواضيع</string>
+    
     <string name="appearance_applied_toast">محدد: %1$s</string>
     <string name="app_icon_picker_subtitle">اختر نمط أيقونة المشغل. سيتم تطبيق التغيير فورًا وسيتم تحديث المشغل لفترة وجيزة.</string>
     <string name="app_icon_picker_warning">تنبيه: تغيير الأيقونات يستخدم آلية في نظام أندرويد و التي تؤدي إلى إزالة إختصار التطبيق من شاشتك الرئيسية. اضغط مطولاً على مشغل التطبيقات لإعادتها مرة أخري إذا لزم الأمر.</string>
@@ -223,18 +223,18 @@
     <string name="icon_name_ghost">شبحي</string>
     <string name="player_appearance_title">مظهر المشغل</string>
     <string name="player_appearance_header">خصص عناصر تحكم المشغل</string>
-    <string name="player_appearance_style_title">نمط شريط تقدم الموسيقى</string>
+    
     <string name="player_appearance_style_subtitle">حدد النمط لشريط التقديم</string>
     <string name="settings_item_player_appearance">مظهر المشغل</string>
     <string name="settings_item_player_appearance_subtitle">خصص نمط شريط التقدم</string>
-    <string name="style_default">عادي</string>
-    <string name="style_squiggly">متعرج</string>
-    <string name="style_slim">نحيف جدا</string>
-    <string name="style_metrolist">عريض</string>
-    <string name="style_metrolist_slim">إفتراضي</string>
+    
+    
+    
+    
+    
     <string name="player_appearance_gestures_header">الإيماءات</string>
-    <string name="player_appearance_swipe_gestures_title">إيماءات السطوع و الصوت</string>
-    <string name="player_appearance_swipe_gestures_subtitle">اسحب لليسار/اليمين لضبط السطوع ومستوى الصوت في وضع ملء الشاشة</string>
+    
+    
     <string name="mini_player_header">تخصيصات مشغل الفيديو المصغر</string>
     <string name="mini_player_size">حجم مشغل الفيديو المصغر</string>
     <string name="mini_player_small">صغير</string>
@@ -250,7 +250,7 @@
     <string name="theme_name_classic_dark">كلاسيكى</string>
     <string name="theme_desc_classic_dark">سمة piTube الأصلية</string>
     <string name="theme_name_true_black">أسود نقي</string>
-    <string name="theme_desc_true_black">OLED نقي</string>
+    
     <string name="theme_name_midnight">منتصف الليل</string>
     <string name="theme_desc_midnight">عميقة ومركزة</string>
     <string name="theme_name_deep_ocean">محيط عميق</string>
@@ -281,13 +281,13 @@
     <string name="content_settings_grid_big_desc">صور مصغرة أكبر</string>
     <string name="content_settings_grid_small_title">صغيرة</string>
     <string name="content_settings_grid_small_desc">عرض مدمج</string>
-    <string name="content_settings_header_preview">معاينة</string>
-    <string name="content_settings_dynamic_components">المكونات الديناميكية</string>
-    <string name="settings_show_related_videos_title">عرض مقاطع الفيديو ذات الصلة</string>
-    <string name="settings_show_related_videos_subtitle">اعرض مقاطع الفيديو ذات الصلة أسفل مشغل الفيديو</string>
+    
+    
+    
+    
     <string name="content_settings_header_home_feed">تغذية الشاشة الرئيسية</string>
-    <string name="content_settings_home_feed_title">تفعيل تغذية الشاشة الرئيسية</string>
-    <string name="content_settings_home_feed_subtitle">عرض توصيات فيديو مخصصة على الشاشة الرئيسية</string>
+    
+    
     <string name="content_settings_home_feed_disabled_title">‌تم تعطيل موجز الصفحة الرئيسية</string>
     <string name="content_settings_home_feed_disabled_body">تم إيقاف التوصيات المخصصة. يمكنك إعادة تفعيلها في إعدادات المحتوى.</string>
     <string name="content_settings_header_player">مشغل الفيديو</string>
@@ -299,23 +299,23 @@
     <string name="content_settings_related_card_full_width_desc">صورة مصغرة كبيرة مع العنوان أسفله</string>
     <string name="shorts">شورتز</string>
     <string name="subscribers">المشتركون</string>
-    <string name="library_section_header">محتواك</string>
+    
     <string name="library_liked_videos_label">الإعجابات</string>
     <string name="library_saved_shorts_label">الشورتز المحفوظة</string>
     <string name="library_settings_data_header"><![CDATA[الإعدادات والبيانات]]></string>
     <string name="library_manage_data_label">أدر البيانات</string>
     <string name="about">حول</string>
-    <string name="empty_description">لا يوجد وصف</string>
+    
     <string name="clear_watch_history_alert_body">هذا سيزيل كل المقاطع من سجل المشاهدة. لا يمكنك التراجع عن هذا الإجراء.</string>
     <string name="empty_liked">لا إعجابات</string>
     <string name="empty_liked_body">المحتوى الذي أعجبتَ به سيظهر هنا</string>
     <string name="video">فيديو</string>
-    <string name="up_next">التالي</string>
-    <string name="playing">يُشغّل</string>
+    
+    
     <string name="hz">هرتز</string>
     <string name="kbps">كيبي بت</string>
-    <string name="filter_discover">اكتشف</string>
-    <string name="audio_info_not_available">معلومات التدفق الصوتي غير متوفرة حاليا.</string>
+    
+    
     <string name="unsubscribed_from">تم إلغاء الاشتراك من %s</string>
     <string name="play_mode_suggestion_body">هذا الفيديو اقل من دقيقتين. هل تود الانتقال الى مشغّل مخصص؟</string>
     <string name="shorts_player">مشغّل الشورتز</string>
@@ -342,29 +342,29 @@
     <string name="content_settings_title_lines_2">2 سطر</string>
     <string name="content_settings_title_lines_3">3 سطر</string>
     <string name="content_settings_title_lines_unlimited">لا يوجد حد</string>
-    <string name="content_settings_header_content_components">مكونات المحتوى</string>
-    <string name="content_settings_hide_watched_title">إخفاء الفيديوهات التي تمت مشاهدتها</string>
-    <string name="content_settings_hide_watched_subtitle">قم بتصفية الفيديوهات التي شاهدتها بالفعل من صفحتك الرئيسية واشتراكاتك</string>
-    <string name="content_settings_disable_shorts_player_title">تعطيل مشغل الفيديوهات القصيرة</string>
-    <string name="content_settings_disable_shorts_player_subtitle">قم بتشغيل جميع مقاطع الفيديو (بما في ذلك مقاطع يوتيوب القصيرة) في مشغل الفيديو العادي</string>
-    <string name="content_settings_explore_region_picker_subtitle">اعرض أيقونة عامة في الشريط العلوي لشاشة الاستكشاف لتغيير المنطقة الرائجة على الفور.</string>
+    
+    
+    
+    
+    
+    
     <string name="categories_region_picker_desc">تغيير منطقة الفيديوهات الرائجة (الحالي: %1$s)</string>
-    <string name="settings_shorts_nav_tab_title">علامة تبويب \"الفيديوهات القصيرة\" في شريط التنقل</string>
-    <string name="settings_shorts_nav_tab_subtitle">اعرض علامة تبويب \"الفيديوهات القصيرة\" في شريط التنقل السفلي.</string>
-    <string name="settings_music_nav_tab_title">علامة تبويب الموسيقى في شريط التنقل</string>
-    <string name="settings_music_nav_tab_subtitle">اعرض علامة تبويب الموسيقى في شريط التنقل السفلي.</string>
-    <string name="settings_search_nav_tab_title">علامة تبويب البحث في شريط التنقل</string>
-    <string name="settings_search_nav_tab_subtitle">اعرض علامة تبويب البحث في شريط التنقل السفلي.</string>
+    
+    
+    
+    
+    
+    
     <string name="nav_search">البحث</string>
     <string name="nav_more">المزيد</string>
     <string name="categories_title">الفئات</string>
     <string name="categories_switch_to_grid">التبديل إلى عرض الشبكة</string>
     <string name="categories_switch_to_list">التبديل إلى عرض القائمة</string>
     <string name="category_all">الكل</string>
-    <string name="category_trending">رائج</string>
+    
     <string name="category_movies">أفلام</string>
     <string name="category_live">بث مباشر</string>
-    <string name="settings_continue_watching_title">رف مواصلة المشاهدة</string>
+    
     <string name="continue_watching_title">مواصلة المشاهدة</string>
     <string name="player_settings_mini_player_continue_watching_title">متابعة مشاهدة المشغل المصغر</string>
     <string name="player_settings_mini_player_continue_watching_subtitle">عرض الفيديو الذي تمت مشاهدته مؤخرًا تلقائيًا في فقاعة عائمة</string>
@@ -390,10 +390,10 @@
     <string name="player_settings_speed_slider_subtitle">استخدم شريط تمرير مستمر لضبط سرعة التشغيل</string>
     <string name="speed_slider_decrease">تقليل السرعة</string>
     <string name="speed_slider_increase">زيادة السرعة</string>
-    <string name="speed_slider_reset">إعادة الضبط ل x1</string>
-    <string name="speed_slider_apply">تطبيق</string>
+    
+    
     <string name="player_settings_stable_voice">صوت مستقر</string>
-    <string name="player_settings_stable_voice_subtitle">ضبط مستوى الصوت لضمان تشغيل متناسق</string>
+    
     <string name="loop_video">تكرار الفيديو</string>
     <string name="player_settings_dearrow_subtitle">استبدل العناوين والصور المصغرة المضللة ببدائل من المجتمع</string>
     <string name="global_loop">تكرار كل الفيديوهات</string>
@@ -423,8 +423,8 @@
     <string name="channel_blocked_toast">%1$s لن تظهر في التغذية الخاصة بك</string>
     <string name="btn_save">حفظ</string>
     <string name="btn_cancel">إلغاء</string>
-    <string name="player_settings_show_pip">عرض زر النوافذ العائمة</string>
-    <string name="player_settings_show_pip_subtitle">إظهار زر يدوي للنوافذ العائمة في عناصر تحكم المشغل</string>
+    
+    
     <string name="player_settings_header_audio">الصوت</string>
     <string name="player_settings_play_during_calls">التشغيل أثناء المكالمات</string>
     <string name="player_settings_play_during_calls_subtitle">استمر في تشغيل الصوت أثناء المكالمات الهاتفية أو مكالمات VoIP (مثل واتساب)</string>
@@ -436,8 +436,8 @@
     <string name="player_settings_header_gestures">الإيماءات</string>
     <string name="player_settings_double_tap_seek">النقر المزدوج لتقديم و تأخير الفيديو</string>
     <string name="player_settings_double_tap_seek_subtitle_template">%ds لكل نقرة مزدوجة جانبية</string>
-    <string name="player_settings_double_tap_seek_dialog_title">النقر المزدوج لتقديم و تأخير الفيديو</string>
-    <string name="player_settings_double_tap_seek_dialog_body">اختر عدد الثواني التي تريد تقديم أو تأخيرها عند النقر المزدوج على الجانب الأيسر أو الأيمن من المشغل.</string>
+    
+    
     <string name="video_quality_title">جودة الفيديو</string>
     <string name="video_quality_warning">الدقة العالية تستخدم بيانات أكثر</string>
     <string name="video_quality_wifi_header">جودة Wi-Fi</string>
@@ -475,52 +475,52 @@
     <string name="cd_pause">إيقاف</string>
     <string name="cd_play">تشغيل</string>
     <string name="cd_more_options">المزيد من الخيارات</string>
-    <string name="shorts_original_sound">الصوت الأصلي - %1$s</string>
-    <string name="view_count_billion_suffix">B</string>
-    <string name="view_count_million_suffix">M</string>
-    <string name="view_count_thousand_suffix">K</string>
+    
+    
+    
+    
     <string name="action_like">أعجبني</string>
     <string name="action_dislike">لم يعجبني</string>
     <string name="action_comments">التعليقات</string>
     <string name="action_save">حفظ</string>
     <string name="action_share">‍مشاركة</string>
-    <string name="action_description">الوصف</string>
+    
     <string name="action_subscribe">إشتراك</string>
-    <string name="action_search">بحث</string>
-    <string name="content_preferences_title">تفضيلات المحتوى</string>
-    <string name="content_preferences_subtitle">خصّص ما تراه</string>
-    <string name="interests_tab">الإهتمامات</string>
-    <string name="blocked_tab">محظور</string>
-    <string name="topics_count_template">%1$d موضوع</string>
-    <string name="hidden_count_template">%1$d مخفي</string>
-    <string name="your_interests_title">إهتماماتك</string>
-    <string name="your_interests_desc">تساعد المواضيع التي اخترتها piTube في اقتراح محتوى أفضل. انقر على المواضيع أدناه لإضافتها أو إزالتها.</string>
-    <string name="currently_following">تُتابع حالياً</string>
-    <string name="tap_to_remove">انقر للإزالة</string>
-    <string name="add_topics">إضافة مواضيع</string>
-    <string name="browse_by_category">تصفح حسب الفئة</string>
-    <string name="hidden_content_title">المحتوي المخفي</string>
-    <string name="hidden_content_desc">لن تظهر مقاطع الفيديو التي تتناول هذه المواضيع ضمن مُقترحاتك. يمكنك أيضاً استخدام زر \"غير مهتم\" على مقاطع الفيديو.</string>
-    <string name="block_topic_title">حظر موضوع</string>
-    <string name="enter_keywords_to_hide">أدخل الكلمات المفتاحية المراد إخفاءها</string>
-    <string name="block_topic_placeholder">مثال makeup، fortnite، asmr</string>
-    <string name="desc_add_topic">إضافة موضوع</string>
-    <string name="quick_add">إضافة سريعة</string>
-    <string name="common_topics_to_block">المواضيع الشائعة لحظرها</string>
-    <string name="currently_blocked">محظور حاليا</string>
-    <string name="topics_blocked_count_plural">%1$d موضوع%2$s</string>
-    <string name="desc_remove_topic">إزالة %1$s</string>
-    <string name="desc_unblock_topic">إلغاء حظر %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="selected_count_template">%1$d محدد</string>
     <string name="time_management_title">إدارة الوقت</string>
     <string name="time_management_subtitle">تتبع وقت استخدامك للشاشة و تحكم فيه</string>
     <string name="stats_disclaimer">تستند الإحصائيات إلى سجل المشاهدة الخاص بك عبر هذا التطبيق. قد يختلف الاستخدام الفعلي.</string>
     <string name="tools_to_manage_time">أدوات لإدارة وقتك</string>
-    <string name="remind_bedtime">ذكّرني عندما يحين وقت النوم</string>
+    
     <string name="start_time">وقت البدء</string>
     <string name="end_time">وقت النهاية</string>
     <string name="bedtime_notification_note">سيتم إرسال إشعار عندما يحين وقت النوم.</string>
-    <string name="remind_break">ذكرني بأخذ استراحة</string>
+    
     <string name="reminder_frequency">عدد مرات التذكير</string>
     <string name="every_min_template">كل %1$d دقيقة</string>
     <string name="daily_average_label">المتوسط اليومي</string>
@@ -555,7 +555,7 @@
     <string name="sleep_timer_end_of_media">نهاية الأغنية الحالية</string>
     <string name="sleep_timer_reset">إعادة الضبط</string>
     <string name="sleep_timer_cancel_timer">إلغاء المؤقت</string>
-    <string name="sleep_timer_active_label">مؤقت النوم نشط</string>
+    
     <string name="sleep_timer_close_app">أغلق التطبيق عند انتهاء المؤقت</string>
     <string name="sleep_timer_close_app_desc">أغلق التطبيق للحفاظ على البطارية</string>
     <string name="sleep_timer_will_close_app">سيتم إغلاق التطبيق عند انتهاء المؤقت</string>
@@ -589,8 +589,8 @@
     <string name="internal_storage_label">التخزين الداخلي</string>
     <string name="free_space_template">%1$s المساحة الفارغة</string>
     <string name="total_space_template">المجموع: %1$s</string>
-    <string name="location_label">الموقع</string>
-    <string name="internal_app_storage_label">التخزين الداخلي للتطبيق</string>
+    
+    
     <string name="preferences_header">التفضيلات</string>
     <string name="default_video_quality_label">جودة الفيديو الافتراضية</string>
     <string name="download_over_wifi_only">التنزيل عبر شبكة Wi-Fi فقط</string>
@@ -607,7 +607,7 @@
     <string name="location_downloads_label">Downloads / piTube</string>
     <string name="location_movies_label">Movies / piTube</string>
     <string name="location_internal_app_label">التخزين الداخلي للتطبيق</string>
-    <string name="location_internal_app_desc">تخزين في التطبيق — قد يتم حذف الملفات في حالة إلغاء التثبيت</string>
+    
     <string name="location_custom_saf_label">تصفح…</string>
     <string name="location_custom_saf_desc">اختر أي مجلد باستخدام أداة اختيار الملفات في النظام</string>
     <string name="location_custom_manual_label">أدخل المسار يدويًا</string>
@@ -616,7 +616,7 @@
     <string name="location_manual_hint">/storage/emulated/0/…</string>
     <string name="location_manual_confirm">حفظ</string>
     <string name="location_badge_recommended">مستحسن</string>
-    <string name="location_badge_active">نشط</string>
+    
     <string name="select_threads_count_desc">‍حدد عدد التقسيمات (1-8):</string>
     <string name="threads_count_label">%1$d تقسيمات</string>
     <string name="support_donations_title">الدعم والتبرعات</string>
@@ -639,8 +639,8 @@
     <string name="error_license_load">تعذر تحميل ملف الترخيص.</string>
     <string name="no_changelog_found_message">لا يوجد سجل للتغييرات.</string>
     <string name="error_changelog_load">تعذر تحميل ملف سجل التغييرات.</string>
-    <string name="app_logo_desc">أيقونة التطبيق</string>
-    <string name="v_version_template">v%1$s (%2$s)</string>
+    
+    
     <string name="manufacturer_label">الشركة المصنعة: %1$s</string>
     <string name="model_label">النموذج: %1$s</string>
     <string name="board_label">اللوحة: %1$s</string>
@@ -658,10 +658,10 @@
     <string name="btn_ok">حسنا</string>
     <string name="btn_copy">نسخ</string>
     <string name="github_label">GitHub</string>
-    <string name="new_playlist_button">قائمة تشغيل جديدة</string>
-    <string name="your_playlists_header">قوائم التشغيل الخاصة بك</string>
-    <string name="saved_playlists_header">قوائم التشغيل المحفوظة</string>
-    <string name="create_playlist_empty_desc">أنشئ قائمة تشغيلك الأولى لتنظيم مقاطع الفيديو المفضلة لديك</string>
+    
+    
+    
+    
     <string name="my_playlist_placeholder">قائمة التشغيل الخاصة بي</string>
     <string name="add_description_placeholder">إضافة وصف...</string>
     <string name="edit_playlist_action">تعديل قائمة التشغيل</string>
@@ -676,142 +676,142 @@
     <string name="playlist_metadata_private_template">قائمة تشغيل • خاصة • فيديوهات %1$d</string>
     <string name="playlist_metadata_public_template">‎قائمة تشغيل • عامة • فيديوهات %1$d</string>
     <string name="welcome_to_flow">مرحبا بك في piTube</string>
-    <string name="onboarding_subtitle">أخبرنا بما يثير اهتمامك</string>
-    <string name="onboarding_instructions">إختر 3 مواضيع على الأقل لتخصيص تجربتك</string>
-    <string name="selected_with_more_needed_template">تم اختيار %1$d (يلزم اختيار %2$d إضافي)</string>
-    <string name="btn_skip_for_now">تخطي الآن</string>
+    
+    
+    
+    
     <string name="onboarding_btn_continue">إستمرار</string>
-    <string name="cd_collapse_category">تصغير</string>
-    <string name="cd_expand_category">تكبير</string>
+    
+    
     <string name="category_gaming">الألعاب</string>
-    <string name="category_music">موسيقى</string>
-    <string name="category_technology">تكنولوجيا</string>
-    <string name="category_entertainment">ترفيه</string>
-    <string name="category_education">تعليم</string>
-    <string name="category_health_fitness">الصحة و اللياقة البدنية</string>
-    <string name="category_lifestyle">نمط الحياة</string>
-    <string name="category_creative">الإبداع</string>
-    <string name="category_science_nature">العلوم و الطبيعة</string>
-    <string name="category_news_current_events">الأخبار و الأحداث الجارية</string>
-    <string name="flow_control_center">مركز تحكم piTube</string>
-    <string name="action_refresh">إعادة التحميل</string>
-    <string name="loading_neural_matrix">جار تحميل دماغ المحتوى...</string>
-    <string name="neural_interest_map_subtitle">خريطة إهتماماتك العصبية</string>
-    <string name="cognitive_fingerprint">البصمة المعرفية</string>
-    <string name="content_dna_subtitle">الحمض النووي للمحتوى الخاص بك</string>
-    <string name="topic_weights">أوزان الموضوع</string>
-    <string name="topic_weights_subtitle">شفافية كاملة بشأن ما يحرك محتواك</string>
-    <string name="temporal_patterns">الأنماط الزمنية</string>
-    <string name="temporal_patterns_subtitle">كيف تتغير إهتماماتك بإختلاف أوقات اليوم</string>
-    <string name="channel_memory">ذاكرة القناة</string>
-    <string name="channel_memory_subtitle">التعليقات الضمنية من سجل المشاهدة الخاص بك</string>
-    <string name="filters_title">المرشحات</string>
-    <string name="blocked_topics_channels_subtitle">المواضيع و القنوات المحظورة</string>
-    <string name="reset_neural_profile_title">إعادة ضبط الملف العصبي؟</string>
-    <string name="reset_neural_profile_body">سيؤدي هذا إلى حذف ما يلي نهائيًا:\n\n• جميع التفضيلات المكتسبة\n• سمات الشخصية طويلة الأمد\n• أنماط السياق الزمني\n• درجات تقارب القنوات\n\nستعود صفحتك الرئيسية إلى حالة البداية.</string>
-    <string name="erase_everything">محو كل شيء</string>
-    <string name="stats_interactions">التفاعلات</string>
-    <string name="stats_topics">المواضيع</string>
-    <string name="empty_bubble_cloud_message">شاهد بعض الفيديوهات لتوسيع دائرة اهتمامك!</string>
-    <string name="interactions_level_template">%1$d التفاعلات • المستوي %2$d</string>
-    <string name="flow_neural_profile_export_subject">تصدير ملف تعريف التدفق العصبي لpiTube</string>
-    <string name="screen_title_music_library">مكتبة الموسيقى</string>
-    <string name="header_your_collection">مجموعتك</string>
-    <string name="subtitle_liked_music">الأغاني المفضلة لديك</string>
-    <string name="subtitle_history">الأغاني التي استمعت إليها</string>
-    <string name="empty_music_playlists">لا توجد قوائم تشغيل موسيقى بعد</string>
-    <string name="rename_playlist_title">إعادة تسمية قائمة التشغيل</string>
-    <string name="action_rename">إعادة التسمية</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="link_copied">تم نسخ الرابط</string>
-    <string name="share_link_cd">مشاركة الرابط</string>
-    <string name="artist_views_template">%1$s • %2$s مشاهدات</string>
-    <string name="action_view_all">عرض الكل</string>
-    <string name="search_content_description">بحث</string>
-    <string name="views_count_format">%1$s مشاهدات</string>
-    <string name="playlist_footer_template">%1$d مسارات • %2$s</string>
-    <string name="unknown_error">خطأ غير معروف</string>
-    <string name="action_retry">إعادة المحاولة</string>
-    <string name="title_browse">تصفح</string>
-    <string name="empty_browse_content">لا يوجد محتوى متاح</string>
-    <string name="label_featured">مميز</string>
-    <string name="year_artist_template">%1$s • %2$s</string>
-    <string name="status_playing">قيد التشغيل</string>
-    <string name="label_explicit">صريح</string>
-    <string name="duration_with_dot_template">• %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="status_downloaded">‍تم التنزيل</string>
-    <string name="title_create_playlist">إنشاء قائمة التشغيل</string>
-    <string name="label_playlist_name">اسم قائمة التشغيل</string>
-    <string name="placeholder_playlist_name">قائمة التشغيل الرائعة الخاصة بي</string>
-    <string name="label_description_optional">الوصف (اختياري)</string>
-    <string name="placeholder_playlist_desc">المفضلة...</string>
-    <string name="action_create">إنشاء</string>
-    <string name="action_cancel">إلغاء</string>
-    <string name="title_add_to_playlist">أضف إلى قائمة التشغيل</string>
-    <string name="action_create_new_playlist">إنشاء قائمة تشغيل جديدة</string>
-    <string name="empty_playlists_dialog">لا توجد قوائم تشغيل حتى الآن. أنشئ واحدة للبدء!</string>
-    <string name="action_remove_from_favorites">إزالة من المفضلة</string>
-    <string name="action_add_to_favorites">أضف إلى المفضلة</string>
-    <string name="action_listen_now">استمع الآن</string>
-    <string name="action_play_all">تشغيل الكل</string>
-    <string name="loading_music">جارٍ تحميل الموسيقى...</string>
-    <string name="screen_title_music">الموسيقى</string>
-    <string name="section_listen_again">استمع مجددا</string>
-    <string name="section_quick_picks">اختيارات سريعة</string>
-    <string name="section_recommended">إقتراحات</string>
-    <string name="section_recently_played">مشغل مؤخرا</string>
-    <string name="section_music_videos">فيديوهات موسيقية</string>
-    <string name="section_new_releases">الإصدارات الجديدة</string>
-    <string name="section_popular_artists">فنانون رائجون</string>
-    <string name="section_mixed_for_you">قائمة لأجلك</string>
-    <string name="section_moods_and_genres">الأجواء والأنواع</string>
-    <string name="genre_mix_template">ميكس %1$s</string>
-    <string name="section_top_albums">أفضل الألبومات</string>
-    <string name="similar_to">مماثلة ل</string>
-    <string name="section_similar_to">مماثلة ل %1$s</string>
-    <string name="subtitle_similar_to">بناءً على سجل استماعك</string>
-    <string name="subtitle_community_playlists">قوائم تشغيل المجتمع</string>
-    <string name="playlist_author_community">قائمة تشغيل المجتمع</string>
-    <string name="radio">Radio</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="audio_settings_title">إعدادات الصوت</string>
     <string name="label_preset">محددة مسبقا</string>
-    <string name="label_tempo_pitch">الإيقاع و درجة الصوت</string>
-    <string name="action_reset">إعادة الضبط</string>
-    <string name="template_speed">السرعة: %1$d%%</string>
-    <string name="template_pitch">درجة الصوت: %1$d أنصاف نغمات</string>
+    
+    
+    
+    
     <string name="label_parametric_equalizer">معادل صوت بارامتري</string>
     <string name="template_freq">%1$d هرتز</string>
-    <string name="voice_search_prompt">تحدث للبحث عن الموسيقى</string>
-    <string name="search_music_placeholder">ابحث عن الموسيقى</string>
+    
+    
     <string name="voice_search_cd">البحث الصوتي</string>
-    <string name="filter_albums">الألبومات</string>
-    <string name="filter_songs">الأغاني</string>
-    <string name="filter_community_playlists">قوائم تشغيل المجتمع</string>
-    <string name="section_top_result">أعلى نتيجة</string>
-    <string name="subtitle_song_prefix">أغنية • %1$s</string>
-    <string name="subtitle_artist">فنان</string>
-    <string name="subtitle_album_template">ألبوم • %1$s</string>
-    <string name="subtitle_playlist_template">قائمة تشغيل • %1$s</string>
-    <string name="plays_count_template">تم التشغيل • %1$s مرة</string>
-    <string name="album_year_template">ألبوم • %1$s • %2$s</string>
-    <string name="artist_audience_template">الفنان • %1$s مستمع شهرياً</string>
-    <string name="search_source_template">بحث: %1$s</string>
-    <string name="artist_source_template">الفنان: %1$s</string>
-    <string name="top_picks_for_you">أفضل الخيارات لك</string>
-    <string name="no_results_found">لا توجد نتائج</string>
-    <string name="no_tracks_available">لا توجد اغاني متاحة</string>
-    <string name="tab_favorites">المفضلة</string>
-    <string name="create_playlist_subtitle">رتب الاغاني الخاصة بك</string>
-    <string name="empty_playlists_title">لا توجد قوائم تشغيل حتى الآن</string>
-    <string name="empty_playlists_subtitle">أنشئ قائمة تشغيلك الأولى لتنظيم أغانيك المفضلة</string>
-    <string name="empty_favorites_title">لا يوجد عناصر مفضلة بعد</string>
-    <string name="empty_favorites_subtitle">انقر على أيقونة القلب الموجودة على أي اغنية لإضافته إلى مفضلاتك</string>
-    <string name="favorites_count_template">%1$d اغاني مفضلة</string>
-    <string name="empty_history_title">لا يوجد سجل بعد</string>
-    <string name="empty_history_subtitle">ابدأ الإستماع للموسيقى للاطلاع على سجلاتك هنا</string>
-    <string name="empty_downloads_title">لا تنزيلات بعد</string>
-    <string name="empty_downloads_subtitle">قم بتنزيل المقاطع الصوتية للاستماع إليها بلا إنترنت</string>
-    <string name="total_size">الحجم الإجمالي</string>
-    <string name="tracks_count_template">%1$s اغنية</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="btn_minimize">تصغير</string>
     <string name="captions">التسميات التوضيحية</string>
     <string name="pip_mode">صورة داخل صورة</string>
@@ -824,9 +824,9 @@
     <string name="resize_zoom">تكبير</string>
     <string name="shorts_audio_track">المسار الصوتي</string>
     <string name="shorts_quality">الدقة</string>
-    <string name="shorts_no_audio_tracks">لا توجد مسارات صوتية متاحة</string>
-    <string name="shorts_audio_original">الأصلي</string>
-    <string name="shorts_audio_dubbed">مدبلج</string>
+    
+    
+    
     <string name="shorts_quality_settings_title">جودة الفيديو القصير</string>
     <string name="shorts_quality_settings_subtitle">الجودة عند مشاهدة الفيديوهات القصيرة</string>
     <string name="shorts_quality_warning">تستهلك الجودة العالية بيانات أكثر. تستخدم المقاطع القصيرة تدفقات فيديو عمودية.</string>
@@ -838,12 +838,12 @@
     <string name="add_video_to_queue_desc">إضافة في نهاية قائمة الانتظار الفيديو</string>
     <string name="added_to_queue_toast">تمت إضافته إلى قائمة الانتظار</string>
     <string name="play_next_toast">سيتم تشغيله تالياً</string>
-    <string name="no_active_queue_toast">لا توجد قائمة انتظار فيديو نشطة. ابدأ تشغيل فيديو أولاً.</string>
+    
     <string name="download_video">تحميل الفيديو</string>
     <string name="select_quality">اختر الجودة المفضلة لديك</string>
     <string name="no_download_streams">لا توجد قنوات تنزيل متاحة</string>
     <string name="downloading_template">جار تحميل %1$s...</string>
-    <string name="section_downloading">جار التحميل</string>
+    
     <string name="section_completed">مكتمل</string>
     <string name="download_status_queued">في قائمة الانتظار</string>
     <string name="download_status_paused">متوقف</string>
@@ -860,9 +860,9 @@
     <string name="playlist_queue">قائمة إنتظار قائمة التشغيل</string>
     <string name="next_up">التالي</string>
     <string name="cast_to_tv">بث علي التلفاز</string>
-    <string name="cast_connecting">جارٍ الاتصال بجهاز البث…</string>
+    
     <string name="cast_connected">يبث</string>
-    <string name="cast_disconnected">إنقطع البث</string>
+    
     <string name="check_for_updates">التحقق من وجود تحديثات</string>
     <string name="check_for_updates_subtitle">انقر للتحقق من أحدث إصدار</string>
     <string name="checking_for_updates">جارٍ التحقق من وجود تحديثات…</string>
@@ -939,24 +939,24 @@
     <string name="diagnostics_loading">قراءة السجلات…</string>
     <string name="diagnostics_copied">تم نسخ التقرير إلى الحافظة</string>
     <string name="add_all_to_playlist">أضف إلى قائمة التشغيل الخاصة بي</string>
-    <string name="merge_playlist_dialog_title">أضف جميع الأغاني إلى…</string>
+    
     <string name="merge_playlist_success">تمت إضافة أغاني %1$d إلي “%2$s”</string>
-    <string name="merge_playlist_no_playlists">لا توجد قوائم تشغيل حتى الآن. أنشئ واحدة أولاً!</string>
+    
     <string name="app_name">piTube</string>
-    <string name="library_music_playlists_label">قوائم تشغيل الموسيقى</string>
-    <string name="library_music_playlists_subtitle">مجموعات الموسيقى الخاصة بك</string>
+    
+    
     <string name="library_manage_data_subtitle">مسح ذاكرة التخزين المؤقت و التاريخ</string>
     <string name="clear">مسح</string>
-    <string name="liked_music">موسيقى أعجبتني</string>
-    <string name="liked_videos">الإعجابات</string>
-    <string name="share_song">مشاركة الأغنية</string>
-    <string name="song">أغنية</string>
-    <string name="playing_from">اللعب من</string>
-    <string name="share_message_template">تحقق من تلك الأغنية: %1$s من %2$s\nhttps://music.youtube.com/watch?v=%3$s</string>
-    <string name="filter_deep_cuts">تقطيعات عميقة</string>
-    <string name="filter_workout">التمارين</string>
-    <string name="track_details">تفاصيل المسار</string>
-    <string name="codec_label">الترميز</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="sample_rate_label">معدل العينة</string>
     <string name="bitrate_label">معدل البت</string>
     <string name="check_out_video_template">تحقق من هذا الفيديو: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
@@ -964,7 +964,7 @@
     <string name="empty_offline_title">%1$s المحلية</string>
     <string name="empty_offline_body">ملفات %1$s المحملة ستظهر هنا.\nاستمتع بمحتواك حتى بدون اتصال بالإنترنت.</string>
     <string name="cd_video_thumbnail">صورة مصغرة للفيديو لـ %1$s</string>
-    <string name="cd_track_artwork">غلاف الأغنية لـ %1$s</string>
+    
     <string name="watch_later_unsave">إلغاء حفظ المشاهدة لاحقًا</string>
     <string name="details_metadata">التفاصيل والبيانات الوصفية</string>
     <string name="mark_as_watched_toast">تمت تحديده كمشاهد — ستتحسن توصياتك!</string>
@@ -1000,18 +1000,18 @@
     <string name="pinned_comment">تعليق مثبت</string>
     <string name="pinned_by_creator">تم التثبيت بواسطة منشئ المحتوى</string>
     <string name="nav_shorts">مقاطع قصيرة</string>
-    <string name="nav_music">موسيقى</string>
+    
     <string name="tags">العلامات</string>
-    <string name="ago">منذ</string>
-    <string name="since">منذ</string>
-    <string name="play_next_desc">أضف إلى بداية قائمة الانتظار</string>
+    
+    
+    
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="videos_curated_template">%1$d فيديوهات مختارة خصيصاً لك</string>
-    <string name="playlist_metadata_template">قوائم التشغيل• خاص • %1$d فيديوهات</string>
-    <string name="explicit">صريحة</string>
-    <string name="filter_hd">HD</string>
-    <string name="filter_4k">4K</string>
+    
+    
+    
+    
     <string name="tab_shorts">المقاطع القصيرة</string>
     <string name="dismiss">تَجاهُل</string>
     <string name="peace_and_quiet">سلام و هدوء</string>
@@ -1024,15 +1024,15 @@
     <string name="icon_name_flow_red">piTube أحمر</string>
     <string name="icon_name_dynamic">نمط Material You</string>
     <string name="player_nav_btn_subtitle">إظهار أزرار الفيديو التالي و السابق في المشغل المصغر</string>
-    <string name="lyrics_provider_title">مُقدّم كلمات الأغاني</string>
-    <string name="lyrics_provider_subtitle">اختر مصدرك المفضل لكلمات الأغاني</string>
-    <string name="lyrics_provider_lrclib">LrcLib</string>
-    <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
-    <string name="lyrics_provider_simpmusic">SimpMusic</string>
+    
+    
+    
+    
+    
     <string name="theme_name_system_default">الإفتراضي للنظام</string>
     <string name="theme_desc_system_default">زامن السمة مع سمة النظام</string>
     <string name="theme_name_pure_light">ضوء نقي</string>
-    <string name="theme_desc_pure_light">نظيف و بسيط</string>
+    
     <string name="theme_name_mint_fresh">نعناع أخضر</string>
     <string name="theme_desc_mint_fresh">بارد ومنعش</string>
     <string name="theme_name_rose_petal">بتلة ورد</string>
@@ -1054,17 +1054,17 @@
     <string name="theme_desc_espresso">غنية و دافئة</string>
     <string name="theme_name_gunmetal">Gunmetal</string>
     <string name="theme_desc_gunmetal">الحافة الصناعية</string>
-    <string name="content_settings_preview_album_art">معاينة الألبوم الفني</string>
-    <string name="content_settings_preview_big">كبير - 128dp الصور المصغرة</string>
-    <string name="content_settings_preview_small">صغير - 104dp صور مصغرة</string>
-    <string name="content_settings_explore_region_picker_title">أداة اختيار البلد السريعة في الاستكشاف</string>
-    <string name="content_settings_header_nav_tabs">علامات تبويب التنقل</string>
-    <string name="settings_home_shorts_shelf_title">رفّ المقاطع القصير في الشاشة الرئيسية</string>
-    <string name="settings_home_shorts_shelf_subtitle">اعرض رف الفيديوهات القصيرة الأفقية على الشاشة الرئيسية.</string>
-    <string name="settings_categories_nav_tab_title">علامة التبويب إستكشاف في شريط التنقل</string>
-    <string name="settings_categories_nav_tab_subtitle">اعرض علامة تبويب \"الأكثر رواجاً والفئات\" في شريط التنقل السفلي.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="nav_explore">استكشاف</string>
-    <string name="settings_continue_watching_subtitle">اعرض رفًا يحتوي على مقاطع الفيديو قيد التقدم على الشاشة الرئيسية.</string>
+    
     <string name="player_settings_sponsorblock">SponsorBlock</string>
     <string name="player_settings_sponsorblock_subtitle">تخطي المقاطع الدعائية</string>
     <string name="player_settings_dearrow">DeArrow</string>
@@ -1093,13 +1093,13 @@
     <string name="quality_2160p_4k">2160p 4K</string>
     <string name="buffer_settings_header_profile">ملف تعريف الأداء</string>
     <string name="buffer_label_playback">أبدا التشغيل: %1$ds</string>
-    <string name="section_singles">Singles</string>
-    <string name="section_featured_on">مقترحة لك</string>
-    <string name="section_fans_also_like">الأخرون يحبون أيضا</string>
-    <string name="empty_moods_genres">لا توجد حالات مزاجية أو أنواع موسيقية متاحة</string>
-    <string name="subtitle_single_template">Single · %1$s</string>
-    <string name="section_vibe_vibes">أجواء %1$s</string>
-    <string name="playlist_description_community">قائمة تشغيل منتقاة من موسيقى %1$s من مجتمعنا</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="template_bass_boost">تعزيز الجهير: %1$ddB</string>
     <string name="action_add_band">أضف فرقة</string>
     <string name="template_preamp">مضخم أولي: %1$.1f dB</string>
@@ -1109,8 +1109,8 @@
     <string name="player_settings_overlay_controls">متحكمات التراكب</string>
     <string name="player_settings_shorts_background_play">تشغيل الفيديوهات القصيرة في الخلفية</string>
     <string name="player_settings_shorts_background_play_subtitle">استمر في تشغيل الفيديوهات القصيرة عندما يكون التطبيق في الخلفية</string>
-    <string name="content_settings_show_app_logo_title">إظهار أيقونة شعار التطبيق</string>
-    <string name="content_settings_show_app_logo_subtitle">إعرض أيقونة شعار piTube بجوار اسم التطبيق في الشريط العلوي للشاشة الرئيسية</string>
+    
+    
     <string name="player_settings_shorts_playback_mode_title">وضع مشغل الفيديوهات القصيرة</string>
     <string name="player_settings_shorts_playback_mode_loop">Loop (تكرار الفيديو القصير الحالي)</string>
     <string name="player_settings_shorts_playback_mode_auto_next">التشغيل التلقائي للتالي (الإنتقال إلي الفيديو القصير التالي)</string>
@@ -1118,7 +1118,7 @@
     <string name="player_settings_shorts_playback_mode_dialog_body">اختر كيف يتصرف الفيديو القصير عندما ينتهي الفيديو القصير الحالي من التشغيل:</string>
     <string name="appearance_category_custom">مخصص</string>
     <string name="appearance_customize_theme">تخصيص الموضوع</string>
-    <string name="appearance_customizer_title">محرر الموضوعات الخاصة</string>
+    
     <string name="appearance_customizer_reset">إعادة الضبط</string>
     <string name="appearance_customizer_save">حفظ الموضوع</string>
     <string name="appearance_role_primary">أساسي</string>
@@ -1137,9 +1137,9 @@
     <string name="theme_desc_monochrome">أسود نقي وأبيض ناصع</string>
     <string name="theme_name_custom">مخصص</string>
     <string name="theme_desc_custom">إبتكر لوحة ألوان إحترافية خاصة بك</string>
-    <string name="audio_access_denied_subtitle">غير مسموح — انقر للتفعيل</string>
-    <string name="audio_access_granted_subtitle">مسموح</string>
-    <string name="audio_access_title">الوصول إلى الموسيقى و الصوت</string>
+    
+    
+    
     <string name="media_access_denied_subtitle">غير مسموح — انقر للتفعيل</string>
     <string name="media_access_granted_subtitle">ممكن</string>
     <string name="media_access_title">الوصول إلى الصور و مقاطع الفيديو</string>
@@ -1156,14 +1156,14 @@
     <string name="sb_settings_title">SponsorBlock, DeArrow &amp; RYD</string>
     <string name="sb_settings_subtitle">إجراءات التقسيمات، خيارات DeArrow، و اعدادت عداد عدم الإعجاب</string>
     <string name="sb_settings_general_header">عام</string>
-    <string name="group_all">الكل</string>
-    <string name="manage_groups">إدارة المجموعات</string>
-    <string name="new_group">مجموعة جديدة</string>
-    <string name="edit_group">تحرير المجموعة</string>
-    <string name="delete_group">حذف المجموعة</string>
-    <string name="group_name_label">إسم المجموعة</string>
-    <string name="no_groups_yet">لا توجد مجموعات حتى الآن. أنشئ واحدة لتصفية التغذية الخاص بك.</string>
-    <string name="search_channels_hint">بحث في القنوات…</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="dearrow_badge_toggle">أظهر شارة DeArrow</string>
     <string name="dearrow_badge_toggle_subtitle">إعرض شارة على الصور المصغرة تعرض (تم التصحيح بواسطة DeArrow)</string>
     <string name="channel_search_hint">البحث في القناة</string>
@@ -1179,8 +1179,8 @@
     <string name="player_appearance_brightness_gesture_title">إيماءات السطوع</string>
     <string name="player_appearance_volume_gesture_title">إيماءات الصوت</string>
     <string name="copy_channel_link">انسخ رابط القناة</string>
-    <string name="content_settings_video_card_mark_watched_subtitle">إعرض زر لرمز عين على بطاقات الفيديو ذات العرض الكامل و المدمج لوضع علامة سريعة على مقاطع الفيديو التي تمت مشاهدتها</string>
-    <string name="content_settings_video_card_mark_watched_title">زر وضع علامة كمشاهدة على بطاقة الفيديو</string>
+    
+    
     <string name="player_appearance_brightness_gesture_subtitle">إسحب من الحافة اليسرى في وضع ملء الشاشة لضبط مستوي السطوع</string>
     <string name="settings_item_proxy_subtitle">توجيه حركة مرور الشبكة عن بعد عبر HTTP أو SOCKS5</string>
     <string name="proxy_settings_username">إسم المستخدم</string>
@@ -1205,83 +1205,83 @@
     <string name="settings_language_dialog_title">إختر لغة التطبيق</string>
     <string name="settings_language_system_default">‌الإفتراضي للنظام</string>
     <string name="support_flow_patreon">إدعم piTube على Patreon</string>
-    <string name="select_text">حدد النص</string>
+    
     <string name="resume">إستأنف</string>
     <string name="saved">تم الحفظ</string>
     <string name="filter_oldest">الأقدم</string>
     <string name="in_this_video">في هذا الفيديو</string>
-    <string name="learning_stats_title">إشارات التعلم</string>
-    <string name="learning_stats_subtitle">‍ما يتذكره المحرك حاليًا</string>
-    <string name="metric_interactions">التفاعلات</string>
-    <string name="metric_interactions_detail">النقرات، المشاهدات، المتخطي</string>
-    <string name="metric_topics">المواضيع</string>
-    <string name="metric_topics_detail">الإهتمامات المراعاه</string>
-    <string name="metric_evidence">العلاقات</string>
-    <string name="metric_evidence_detail">المواضيع المُعتمدة</string>
-    <string name="metric_channels">القنوات</string>
-    <string name="metric_channels_detail">المدخلات المتشابة</string>
-    <string name="metric_history">السجل</string>
-    <string name="metric_history_detail">مراجع المشاهدات</string>
-    <string name="metric_feed_memory">ذاكرة الخلاصة</string>
-    <string name="metric_feed_memory_detail">المشاهد مؤخرًا</string>
-    <string name="metric_filters">المرشحات</string>
-    <string name="metric_filters_detail">العناصر المحظورة</string>
-    <string name="profile_maturity_label">مدي نضج الملف الشخصي</string>
-    <string name="profile_maturity_detail">النضج الأعلى يعني أن الملف الشخصي يحتوي على إشارات كافية ليكون مستقرًا</string>
-    <string name="taste_shape_title">شكل الطباع</string>
-    <string name="taste_shape_subtitle">الملف الشخصي العام مقارنة بسياق الوقت النشط</string>
-    <string name="taste_pacing_context">السياق الحالي: %1$s</string>
-    <string name="taste_complexity">مدي التعقيد</string>
-    <string name="taste_duration">تفضيلات مدة المشاهدة</string>
-    <string name="taste_duration_detail">القيم الأعلى تميل نحو مقاطع الفيديو الأطول</string>
-    <string name="taste_topic_breadth">إتساع الموضوع</string>
-    <string name="taste_topic_breadth_detail">‎%1$d موضوع في المتجه العام</string>
-    <string name="interest_weights_title">أوزان الإهتمامات</string>
-    <string name="interest_weights_subtitle">المواضيع ذات الأهمية القصوى بعد فترة مراقبة الإستخدام و التأكد من الأدلة علي الإهتمام بذلك الموضوع</string>
-    <string name="interest_weights_empty">لم يتم تحديد أوزان للمواضيع بعد.</string>
-    <string name="time_patterns_title">أنماط أوقات المشاهدة</string>
-    <string name="time_patterns_subtitle">تصفح متجهات سياقات أيام الأسبوع و عطلات نهاية الأسبوع</string>
-    <string name="time_bucket_label_now">الأن</string>
-    <string name="time_bucket_no_topics">لم يتم تسجيل أي مواضيع</string>
-    <string name="time_bucket_top_topics">أهم المواضيع</string>
-    <string name="time_bucket_topics_count">المواضيع</string>
-    <string name="time_bucket_complexity">التعقيد</string>
-    <string name="time_bucket_duration">المدة</string>
-    <string name="time_bucket_weekday_morning">صباح أيام الأسبوع</string>
-    <string name="time_bucket_weekday_afternoon">بعد الظهر - أيام الأسبوع</string>
-    <string name="time_bucket_weekday_evening">في المساء من أيام الأسبوع</string>
-    <string name="time_bucket_weekday_night">في الليل - أيام الأسبوع</string>
-    <string name="time_bucket_weekend_morning">صباح عطلة نهاية الأسبوع</string>
-    <string name="time_bucket_weekend_afternoon">بعد الظهر - نهاية الأسبوع</string>
-    <string name="time_bucket_weekend_evening">مساء عطلة نهاية الأسبوع</string>
-    <string name="time_bucket_weekend_night">ليلة نهاية الأسبوع</string>
-    <string name="time_window_morning">6 صباحاً - 12 ظهراً</string>
-    <string name="time_window_afternoon">12 ظهراً - 6 مساءً</string>
-    <string name="time_window_evening">6 مساءً - 12 منتصف الليل</string>
-    <string name="time_window_night">12 منتصف الليل - 6 صباحاً</string>
-    <string name="channel_affinity_strong">قوية</string>
-    <string name="channel_affinity_balanced">متوازنة</string>
-    <string name="channel_affinity_cooling">يتضائل</string>
-    <string name="discovery_queries_detail">جاهز الأن</string>
-    <string name="discovery_rejections_detail">أنماط الموضيع</string>
-    <string name="profile_action_reset">إعادة تعيين الملف الشخصي</string>
-    <string name="profile_action_reset_detail">امسح التفضيلات المكتسبة وابدأ من جديد</string>
-    <string name="reset_profile_dialog_title">هل تريد إعادة تعيين الملف الشخصي؟</string>
-    <string name="reset_profile_dialog_message">يؤدي هذا إلى مسح ملف تعريف التوصيات المحلية والبدء في التعلم من جديد من الصفر.</string>
-    <string name="reset_profile_confirm">إعادة الضبط</string>
-    <string name="taste_chart_profile">الملف التعريفي</string>
-    <string name="taste_chart_now">الأن</string>
-    <string name="channel_memory_empty">لا توجد قنوات محفوظة في الذاكرة.</string>
-    <string name="discovery_status_title">إحصائيات التصفح</string>
-    <string name="blocked_content_title">المرشحات</string>
-    <string name="blocked_content_subtitle">المواضيع والقنوات المُستبعدة من التوصيات</string>
-    <string name="blocked_topics_header">المواضيع المحظورة</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="blocked_channels_header">القنوات المحظورة</string>
-    <string name="blocked_item_unblock_topic">إلغاء حظر موضوع</string>
+    
     <string name="blocked_item_unblock_channel">إلغاء حظر قناة</string>
-    <string name="blocked_item_showing_count">يتم عرض %1$d من %2$d</string>
-    <string name="profile_data_title">بيانات الملف الشخصي</string>
-    <string name="profile_data_subtitle">قم بعمل نسخة احتياطية أو إستعادة أو إعادة ضبط ملف تعريف التوصيات المحلي</string>
+    
+    
+    
     <string name="download_all">تحميل الكل</string>
     <string name="download_all_confirmation">هل تريد تنزيل جميع فيديوهات %1$d؟ قد يستهلك هذا مساحة تخزين كبيرة.</string>
     <string name="title_copied">تم نسخ العنوان إلى الحافظة</string>
@@ -1308,63 +1308,63 @@
     <string name="icon_name_material_mint">نعناع Material</string>
     <string name="theme_name_material_you">الألوان الديناميكية</string>
     <string name="theme_desc_material_you">ألوان خلفية الشاشة على أندرويد 12+</string>
-    <string name="content_settings_comments_preview_title">معاينة التعليقات</string>
-    <string name="content_settings_comments_preview_subtitle">إعرض أحدث تعليق داخل بطاقة التعليقات</string>
+    
+    
     <string name="content_settings_nav_order_title">ترتيب علامة التبويب و الإفتراضي</string>
     <string name="content_settings_nav_order_subtitle">إستخدم الأسهم لإعادة ترتيب علامات التبويب. حدد علامة التبويب الإفتراضية بإستخدام زر الإختيار.</string>
-    <string name="content_settings_comments_enabled_title">التعليقات</string>
-    <string name="content_settings_comments_enabled_subtitle">تحميل قسم التعليقات وعرضه على شاشة مشغل الفيديو</string>
+    
+    
     <string name="history_tab_videos">الفيديوهات</string>
     <string name="history_tab_shorts">الشورتز</string>
-    <string name="hide_channel_shorts">إخفاء الفيديوهات القصيرة من هذه القناة</string>
-    <string name="show_channel_shorts">أظهر الفيديوهات القصيرة للقناة</string>
+    
+    
     <string name="proxy_settings_description">قم بتهيئة وكيل HTTP أو SOCKS5 اختياري للطلبات البعيدة. يبقى Local casting و LAN discovery مباشر.</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">التمرير التلقائي بعد وقت محدد</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">التمرير التلقائي كل %1$d ثانية</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d ثانية</string>
     <string name="shorts_auto_scroll_active_template">تلقائي %1$ds</string>
-    <string name="metric_suppressed">Suppressed</string>
-    <string name="metric_suppressed_detail">عناصر فترة الهدوء</string>
-    <string name="taste_pacing">تنظيم الوتيرة</string>
-    <string name="taste_live_affinity">الميول للمحتوى المباشر</string>
-    <string name="taste_live_affinity_detail">مدى ملائمة المحتوى المباشر للملف الشخصي</string>
-    <string name="time_bucket_pace">التقدم</string>
-    <string name="channel_affinity_score">درجة التقارب</string>
-    <string name="discovery_status_subtitle">الإستفسارات والضوابط التي تشكل حاليًا عملية الاستكشاف</string>
-    <string name="discovery_queries">الكميات</string>
-    <string name="discovery_query_memory">ذاكرة طلبات البحث</string>
-    <string name="discovery_query_memory_detail">مجموعات الرموز الأخيرة</string>
-    <string name="discovery_rejections">مرفوض</string>
-    <string name="discovery_shorts_seen">Shorts تم رؤيته</string>
-    <string name="discovery_shorts_seen_detail">مانع التكرار</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="search_watch_history">البحث في سجل المشاهدة</string>
     <string name="history_filter_all_years">كل الوقت</string>
     <string name="history_sort_newest">الأحدث أولاً</string>
     <string name="history_sort_oldest">الأقدم أولاً</string>
     <string name="history_no_results">لا يوجد سجل مطابق</string>
     <string name="history_no_results_body">جرب بحثًا أو فلتر مختلف</string>
-    <string name="empty_liked_videos">لا توجد مقاطع فيديو أعجبتك</string>
+    
     <string name="playlist_sort_most_popular">الأكثر رواجاً</string>
     <string name="playlist_sort_date_published_newest">وقت النشر (الأحدث)</string>
     <string name="playlist_sort_date_published_oldest">وقت النشر (الأقدم)</string>
     <string name="remove_selected_videos_title">هل تريد حذف %1$d فيديو؟</string>
     <string name="remove_selected_playlist_text">سيتم حذفها من قائمة التشغيل هذه.</string>
     <string name="remove_selected_watch_later_text">سيتم حذفها من المشاهدة لاحقاً.</string>
-    <string name="empty_liked_music_body">ستظهر الأغاني التي تعجبك هنا</string>
-    <string name="empty_liked_music">لا يوجد موسيقى أعجبتك</string>
-    <string name="likes_count_template">%1$d إعجاب</string>
+    
+    
+    
     <string name="playlist_sort_options">‏خيارات فرز قائمة التشغيل</string>
     <string name="playlist_sort_manual">يدوي</string>
     <string name="playlist_sort_date_added_newest">تاريخ الإضافة (الأحدث)</string>
     <string name="playlist_sort_date_added_oldest">تاريخ الإضافة (الأقدم)</string>
     <string name="player_settings_overlay_speed_indicator">مؤشر سرعة التشغيل</string>
     <string name="player_settings_overlay_speed_indicator_subtitle">إعرض السرعة الحالية على واجهة مشغل الفيديو</string>
-    <string name="upcoming_video_overlay_title">‎هذا الفيديو مُجدول. سيتم إتاحة التشغيل عند بدء البث المباشر.</string>
+    
     <string name="upcoming_video_reminder_action">ذكرني</string>
     <string name="upcoming_video_reminder_badge">تم تفعيل التذكير</string>
-    <string name="subscriptions_music_section_title">إشتراكات الموسيقى</string>
-    <string name="subscriptions_compact_header_with_music">‏يتم تمييز قنوات الموسيقى بشكل مضمن للحفاظ على حجم البث صغيرًا.</string>
-    <string name="subscriptions_music_badge_cd">‎إشتراك الموسيقى</string>
+    
+    
+    
     <string name="player_fullscreen_seekbar_width_title">حجم عرض شريط التقدم في وضع ملء الشاشة</string>
     <string name="player_fullscreen_seekbar_width_subtitle">%1$d dp ملء علي كل جانب</string>
     <string name="player_fullscreen_seekbar_width_full">عرض كامل</string>
@@ -1372,54 +1372,54 @@
     <string name="player_fullscreen_seekbar_width_custom">‏مخصص</string>
     <string name="player_fullscreen_seekbar_width_value">%1$d dp</string>
     <string name="upcoming_video_reminder_enabled">التذكير محدد</string>
-    <string name="subscriptions_music_chip_label">الموسيقى</string>
+    
     <string name="player_appearance_remember_brightness_title">تذكر مستوي السطوع</string>
     <string name="player_appearance_remember_brightness_subtitle">أعد إستخدام مستوى سطوع المشغل الأخير في مقاطع الفيديو التالية</string>
-    <string name="lyrics_provider_lyrics_plus">LyricsPlus</string>
-    <string name="daily_discover_because_you_listen_to">لأنك تستمع إلى %1$s</string>
-    <string name="daily_discover_similar_to">مشابه ل %1$s</string>
-    <string name="shuffle_play">تشغيل عشوائي</string>
-    <string name="daily_discover_sounds_like">كأنه مثل %1$s</string>
-    <string name="daily_discover_based_on">بناءاً علي %1$s</string>
-    <string name="daily_discover_for_fans_of">من أجل محبي %1$s</string>
-    <string name="section_music_videos_for_you">فيديوهات موسيقية من أجلك</string>
-    <string name="section_live_performances">العروض الحية</string>
-    <string name="section_mood_and_genres">المزاج و الأنواع</string>
-    <string name="section_from_the_community">من المجتمع</string>
-    <string name="daily_discover_subtitle">مختارات جديدة من قائمة إستماعك</string>
-    <string name="section_daily_discover">إكتشافك اليومي</string>
-    <string name="feeling_lucky">أشعر أني محظوظ؟</string>
-    <string name="section_speed_dial">الطلب السريع</string>
-    <string name="player_background_style_title">خلفية مشغل الموسيقى</string>
-    <string name="player_background_style_blur_gradient">ضبابي + تدرج لوني</string>
-    <string name="player_background_style_blur">ضبابي</string>
-    <string name="player_background_style_gradient">‎تدرج الألوان</string>
-    <string name="player_background_style_default">السطح الإفتراضي</string>
-    <string name="similar_content">محتوي مشابه</string>
-    <string name="no_similar_content_found">لم يتم العثور على أي محتوى مشابه</string>
-    <string name="unknown_source">مصدر غير معروف</string>
-    <string name="added_to_playlist_toast">تمت إضافته إلى قائمة التشغيل</string>
-    <string name="already_downloaded_toast">‎تم تنزيلها بالفعل</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="download_started_toast">بدأ التنزيل…</string>
-    <string name="download_error_toast">خطأ في التنزيل: %1$s</string>
-    <string name="radio_source_template">Radio • %1$s</string>
-    <string name="topic_score_prefix">أدلة الموضوع</string>
-    <string name="add_to_library">أضف إلي المكتبة</string>
-    <string name="saved_to_library">تم الحفظ في المكتبة</string>
-    <string name="failed_to_save_to_library">فشل الحفظ إلي المكتبة</string>
+    
+    
+    
+    
+    
+    
     <string name="open">مفتوح</string>
-    <string name="music_quality_header">دقة صوت الموسيقي</string>
-    <string name="music_quality_auto">تلقائي</string>
-    <string name="music_quality_high">عالي</string>
-    <string name="music_quality_medium">متوسط</string>
-    <string name="music_quality_low">منخفضة</string>
-    <string name="music_playback_warning_forbidden">تم رفض الوصول إلى بث الموسيقى. قد يكون موقع يوتيوب يقيّد الوصول إلى هذا العنوان IP؛ حاول إعادة تحميل الصفحة أو تغيير الشبكة/VPN.</string>
-    <string name="music_playback_warning_network">فشل بث الموسيقى بسبب مشكلة في الشبكة. تحقق من إتصالك بالإنترنت أو جرب شبكة أخرى.</string>
-    <string name="music_playback_warning_final">لم يتم تحميل هذه الأغنية بعد عدة محاولات. جرّب شبكة أخرى أو استخدام VPN إذا استمرت مشكلة تحميل الأغاني.</string>
-    <string name="music_playback_warning_generic">فشل تشغيل الموسيقى. حاول مرة أخرى أو غيّر الشبكة إذا استمر هذا الأمر.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="video_download_location_label">مجلد تحميل الفيديو</string>
-    <string name="music_download_location_label">مجلد تحميل الموسيقي</string>
-    <string name="refresh_lyrics">إعادة تحديث الكلمات</string>
+    
+    
     <string name="settings_item_datetime">التاريخ والوقت</string>
     <string name="settings_item_datetime_subtitle">‏قم بتخصيص طريقة عرض تاريخ نشر المحتوي</string>
     <string name="datetime_title">نمط التاريخ والوقت</string>
@@ -1444,7 +1444,7 @@
     <string name="player_appearance_volume_boost_title">السماح بتعزيز الصوت</string>
     <string name="player_appearance_volume_boost_subtitle">عند إيقاف تشغيل هذه الميزة، تتوقف ميزة التمرير لرفع مستوى الصوت عند أعلى مستوى صوت للنظام. قم بتشغيلها لزيادة مستوى الصوت.</string>
     <string name="shorts_playback_speed">سرعة التشغيل</string>
-    <string name="speed_normal">عادي</string>
+    
     <string name="history_delete_shorts">حذف Shorts من السجل</string>
     <string name="history_delete_shorts_title">هل تريد حذف الshorts؟</string>
     <string name="history_delete_shorts_body">سيؤدي هذا إلى حذف جميع الفيديوهات القصيرة من سجل المشاهدة. أما الفيديوهات الأخرى فستبقى محفوظة.</string>
@@ -1460,7 +1460,7 @@
     <string name="download_menu_style_compact">‎مدمج</string>
     <string name="download_menu_style_compact_desc">عنوان قابل للتعديل، قوائم منسدلة، وعدد التقسيمات</string>
     <string name="player_appearance_long_press_speed_title">سرعة الضغط المطول علي المشغل</string>
-    <string name="player_appearance_long_press_speed_subtitle">إختر السرعة المؤقتة المستخدمة أثناء الضغط المطول علي المشغل</string>
+    
     <string name="player_appearance_long_press_speed_disabled">معطلة</string>
     <string name="player_settings_video_codec">ترميز الفيديو الافتراضي</string>
     <string name="player_settings_video_codec_dialog_title">برنامج ترميز الفيديو الافتراضي</string>
@@ -1469,7 +1469,7 @@
     <string name="live_chat">الدردشة المباشرة</string>
     <string name="live_chat_connecting">جارٍ الاتصال بالدردشة المباشرة…</string>
     <string name="live_chat_empty">في إنتظار الرسائل…</string>
-    <string name="live_chat_show">إظهار الدردشة</string>
+    
     <string name="live_chat_hide">إخفاء الدردشة</string>
     <string name="live_chat_jump_to_latest">إنتقل إلى أحدث رسالة دردشة</string>
     <string name="donation_prompt_title">هل تستمتع بpiTube؟</string>
@@ -1489,18 +1489,18 @@
     <string name="local_media_permission_body">إسمح بالوصول إلى الوسائط الخاصة بك حتى يتمكن piTube من العثور على مقاطع الفيديو والموسيقى المحلية وتشغيلها.</string>
     <string name="local_media_grant">منح الوصول</string>
     <string name="history_tab_local_videos">الفيديوهات المحلية</string>
-    <string name="history_tab_local_music">الموسيقي المحلية</string>
+    
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="content_settings_share_without_text_title">مشاركة الروابط بدون نص</string>
-    <string name="content_settings_share_without_text_subtitle">شارك فقط رابط الفيديو، بدون رسالة \"شاهد هذا الفيديو\"</string>
+    
+    
     <string name="icon_name_flow_play">تشغيل piTube</string>
     <string name="player_appearance_controls_while_loading_subtitle">إعرض عناصر التحكم في المشغل قبل اكتمال تحميل الفيديو حتى تتمكن من ضبط مستوى الصوت على الفور</string>
     <string name="content_settings_watched_threshold_90">تم تشغيل 90%</string>
     <string name="content_settings_watched_threshold_95">تم تشغيل 95%</string>
     <string name="content_settings_watched_threshold_99">تم تشغيل 99%</string>
     <string name="content_settings_watched_threshold_almost">إنتهي تقريباً (في الدقيقة الأخيرة)</string>
-    <string name="content_settings_navbar_hide_on_scroll_title">‫إخفاء شريط التنقل عند التمرير</string>
-    <string name="content_settings_navbar_hide_on_scroll_subtitle">قم بإخفاء شريط التنقل السفلي عند التمرير لأسفل. قم بإيقاف تشغيله لإبقائه مرئيًا دائمًا (يساعد ذلك في حالة تأخر الرسوم المتحركة).</string>
+    
+    
     <string name="player_settings_queue_autoplay">تشغيل مقاطع الفيديو في قائمة الإنتظار تلقائيًاً</string>
     <string name="player_settings_queue_autoplay_subtitle">تشغيل الفيديو التالي في قائمة التشغيل أو قائمة المشاهدة لاحقًا تلقائيًا. عند إيقاف هذه الخاصية، يمكنك تخطي الفيديوهات يدويًا.</string>
     <string name="player_settings_autoplay_countdown_title">تأخير التشغيل التلقائي</string>
@@ -1512,22 +1512,22 @@
     <string name="autoplay_countdown_cancel">إلفاء</string>
     <string name="autoplay_countdown_restart">‪إعادة تشغيل</string>
     <string name="autoplay_countdown_play_now">تشغيل الأن</string>
-    <string name="recognize_music">التعرف على الموسيقى</string>
-    <string name="recognition_history">تاريخ التعرف علي الموسيقي</string>
-    <string name="tap_to_recognize">انقر للتعرف</string>
-    <string name="listening">‫يستمع…</string>
-    <string name="processing">جاري التعرف…</string>
-    <string name="no_match_found">لم يتم العثور على تطابق</string>
-    <string name="recognition_error">فشل التعرف</string>
-    <string name="try_again">إعادة المحاولة</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="search_in_flow">ابحث في piTube</string>
     <string name="player_appearance_controls_while_loading_title">التحكم أثناء تحميل الفيديو</string>
     <string name="content_settings_watched_threshold_title">وضع علامة كمشاهدة عندما</string>
     <string name="content_settings_watched_threshold_dialog_body">حدد كم مدة عرض الفيديو الذي يجب تشغيله قبل أن يتم إحتسابه كمشاهدة و إخفائه.</string>
-    <string name="recognition_search_history">بحث في الموسيقي التي تم التعرف عليها</string>
-    <string name="recognition_history_empty">الموسيقى التي تم التعرف عليها ستظهر هنا</string>
-    <string name="recognition_clear_history">مسح التاريخ؟</string>
-    <string name="recognition_clear_history_body">يؤدي هذا إلى حذف جميع الأغاني التي تم التعرف عليها. ولا يمكن التراجع عن هذا الإجراء.</string>
+    
+    
+    
+    
     <string name="player_settings_display">العرض</string>
     <string name="player_settings_ambient_mode">وضع Ambient</string>
     <string name="player_settings_ambient_mode_subtitle">إملأ الأشرطة المحيطة بالفيديو بتوهج ناعم من ألوانه</string>
@@ -1548,7 +1548,7 @@
     <string name="sync_collection_likes">الإعجابات</string>
     <string name="sync_collection_subscriptions">الاشتراكات</string>
     <string name="sync_collection_settings">الإعدادات</string>
-    <string name="sync_collection_recommendation_profile">ملف التوصيات</string>
+    
     <string name="sync_preparing">جارٍ التحضير…</string>
     <string name="sync_connecting">جارٍ الاتصال…</string>
     <string name="sync_intro">قم بمزامنة مكتبتك وسجل التصفح والإعجابات والإعدادات وملف التوصيات مع جهاز آخر عبر شبكة Wi-Fi المحلية. لا شيء يغادر شبكتك.</string>
@@ -1605,52 +1605,52 @@
     <string name="player_settings_overlay_comments_subtitle">اعرض زر التعليقات في مشغل ملء الشاشة لفتح التعليقات في لوحة جانبية</string>
     <string name="sb_skip_segment">تخطي %1$s</string>
     <string name="upcoming_waiting_count">%1$s في الإنتظار</string>
-    <string name="player_appearance_hide_music_artwork_title">إخفاء صورة مشغل الموسيقى</string>
-    <string name="player_appearance_hide_music_artwork_subtitle">إعرض أيقونة التطبيق على لون العمل الفني المستخرج بدلاً من ذلك</string>
-    <string name="onboarding_interests_title">ما الذي تستمتع به؟</string>
-    <string name="onboarding_interests_hint">إختر ما لا يقل عن %1$d مواضيع لتخصيص الخلاصة الخاص بك. %2$d موضوعات متبقية.</string>
-    <string name="onboarding_interests_ready">تشكيلة رائعة. يمكنك تحديث هذا لاحقًا من الإعدادات.</string>
-    <string name="onboarding_channels_title">ابحث عن القنوات</string>
-    <string name="onboarding_channels_subtitle">ابحث عن القنوات التي تتابعها بالفعل و اشترك فيها بنقرة واحدة.</string>
-    <string name="onboarding_channels_search_placeholder">ابحث عن القنوات…</string>
-    <string name="onboarding_channels_empty_prompt">اكتب إسم القناة لبدء البحث</string>
-    <string name="onboarding_channels_no_results">لم يتم العثور على قنوات لـ \"%1$s\"</string>
-    <string name="onboarding_channels_added_count">تمت إضافة %1$d قناة</string>
-    <string name="persona_initiate_description">‏بدأت للتو. لا يزال ملفك الشخصي قيد الإنشاء.</string>
-    <string name="persona_audiophile_title">‎عُشاق الصوت</string>
-    <string name="persona_audiophile_description">‎تستخدم تطبيق piTube في الغالب للموسيقى. فالأجواء هي كل شيء.</string>
-    <string name="persona_binger_title">المُدمن</string>
-    <string name="persona_binger_description">بمجرد أن تبدأ، لا يمكنك التوقف. موجات هائلة من المحتوى.</string>
-    <string name="persona_scholar_title">الباحث</string>
-    <string name="persona_scholar_description">محتوى عالي التعقيد. هدفنا هو النمو، وليس مجرد الترفيه.</string>
-    <string name="persona_deep_diver_title">الغواص العميق</string>
-    <string name="persona_deep_diver_description">المقالات المصورة الطويلة و الأفلام الوثائقية هي عالمك.</string>
-    <string name="persona_skimmer_title">المتزلج</string>
-    <string name="persona_skimmer_description">محتوى قصير وسريع الإيقاع. جرعة الدوبامين عند الطلب.</string>
-    <string name="persona_specialist_title">المتخصص</string>
-    <string name="persona_specialist_description">‎تركيز دقيق على عدد قليل من المجالات المتخصصة. أنت تعرف ما يعجبك.</string>
-    <string name="persona_explorer_title">المستكشف</string>
-    <string name="persona_explorer_description">فوضوي و جميل. فيه شئ من كل شيء.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="quick_actions_error_template">خطأ: %1$s</string>
     <string name="upcoming_label">قادم قريباً</string>
-    <string name="onboarding_channels_subscribers">%1$s مشترك</string>
-    <string name="onboarding_channels_subscribed">مشترك</string>
-    <string name="onboarding_channels_subscribe">إشتراك</string>
-    <string name="onboarding_import_title">استورد بياناتك</string>
-    <string name="onboarding_import_subtitle">يمكنك نقل اشتراكاتك وسجلّك من التطبيقات الأخرى. كل شيء اختياري.</string>
-    <string name="onboarding_backup_restore_section">النسخ الاحتياطي و الاستعادة</string>
-    <string name="onboarding_n_selected">تم تحديد %1$d</string>
-    <string name="onboarding_topic_selected">مُحدد</string>
-    <string name="onboarding_topic_not_selected">غير مُحدد</string>
-    <string name="onboarding_import_failed_template">فشل الاستيراد: %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="onboarding_btn_skip">تخطي</string>
-    <string name="onboarding_btn_finish">إنتهي</string>
-    <string name="onboarding_btn_back">‏رجوع</string>
-    <string name="persona_initiate_title">المبتدئ</string>
-    <string name="persona_livewire_title">شعلة النشاط</string>
-    <string name="persona_livewire_description">أنت تعشق الطاقة الخام للبث المباشر والعروض الأولى.</string>
-    <string name="persona_night_owl_title">بومة الليل</string>
-    <string name="persona_night_owl_description">تزدهر في الظلام. معظم عمليات المشاهدة تحدث بعد منتصف الليل.</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="player_appearance_grouped_quality_selector_subtitle">إعرض صفًا واحدًا لكل دقة عرض مع خيارات الترميز بداخله</string>
     <string name="player_appearance_grouped_quality_selector_title">تجميع خيارات الجودة</string>
     <string name="playlist_video_added_template">تمت إضافة %1$s</string>
@@ -1659,8 +1659,8 @@
     <string name="select_all">تحديد الكل</string>
     <string name="deselect_all">إلغاء تحديد الكل</string>
     <string name="delete_selected">حذف المحدد</string>
-    <string name="content_settings_shorts_player_prompt_title">إقتراح مشغل الـ Shorts</string>
-    <string name="content_settings_shorts_player_prompt_subtitle">اسأل قبل الإنتقال إلى مشغل الفيديوهات القصيرة (للفيديوهات أقل من 2 دقيقة)</string>
+    
+    
     <string name="collaborators">المتعاونون</string>
     <string name="collaborator">المتعاون</string>
     <string name="channel_and_more_template">%1$s و %2$d أخرى</string>
@@ -1697,10 +1697,10 @@
     <string name="appearance_navigate_back">الرجوع للخلف</string>
     <string name="appearance_selected">محدد</string>
     <string name="close_popup_player">إغلاق النافذة المنبثقة</string>
-    <string name="content_settings_home_reselect_refresh_title">تحديث الصفحة الرئيسية عند إعادة تحديدها</string>
-    <string name="content_settings_home_reselect_refresh_subtitle">إعادة تحميل الاقتراحات بعد التمرير إلى الأعلى عند النقر على الصفحة الرئيسية مرة أخرى</string>
-    <string name="settings_home_nav_tab_title">علامة تبويب المنزل</string>
-    <string name="settings_home_nav_tab_subtitle">اعرض الصفحة الرئيسية في شريط التنقل</string>
+    
+    
+    
+    
     <string name="channel_metadata_unavailable">معلومات القناة غير متاحة</string>
     <string name="search_filter_all">الكل</string>
     <string name="channel_sort_latest">الأحدث</string>
@@ -1737,77 +1737,77 @@
     <string name="playback_speed_multiplier_precise">%1$.2f×</string>
     <string name="player_portrait_seekbar_width_title">عرض شريط التقدم الأفقي</string>
     <string name="player_portrait_seekbar_width_spaced">متباعد</string>
-    <string name="content_settings_hide_watched_home_title">إخفاء الفيديوهات التي تمت مشاهدتها من الصفحة الرئيسية</string>
-    <string name="content_settings_hide_watched_home_subtitle">قم بتصفية الفيديوهات التي شاهدتها بالفعل من صفحتك الرئيسية</string>
+    
+    
     <string name="desc_more">المزيد...</string>
-    <string name="widget_now_playing_label">يعرض الأن</string>
-    <string name="widget_now_playing_description">تحكم في الموسيقى التي يتم تشغيلها في piTube</string>
+    
+    
     <string name="widget_quick_actions_label">الاجراءات السريعة</string>
-    <string name="widget_recognize_label">التعرف علي الموسيقى</string>
-    <string name="widget_recognize_description">تعرف على الأغنية التي تسمعها من حولك بنقرة واحدة</string>
+    
+    
     <string name="widget_recently_played_label">تم تشغيله مؤخراً</string>
     <string name="widget_recently_played_description">استكمل من حيث توقفت</string>
     <string name="widget_downloads_label">التحميلات</string>
     <string name="widget_downloads_description">قم بتشغيل التنزيلات التي قمت بتنزيلها بدون إنترنت</string>
     <string name="widget_recently_played">تم تشغيله مؤخراً</string>
     <string name="widget_downloads">التحميلات</string>
-    <string name="widget_nothing_playing">لا شيء يعرض</string>
-    <string name="widget_play">تشغيل</string>
-    <string name="widget_pause">إيقاف</string>
-    <string name="widget_next">المسار التالي</string>
-    <string name="widget_previous">المسار السابق</string>
-    <string name="widget_like">إعجاب</string>
-    <string name="widget_artwork">صورة غلاف العمل الفني</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="widget_open_downloads">فتح التحميلات</string>
     <string name="widget_open_history">‎فتح السجل</string>
     <string name="widget_no_recent">ستظهر مقاطع الفيديو التي تشاهدها هنا</string>
     <string name="widget_no_downloads">ستظهر تنزيلاتك هنا</string>
     <string name="widget_quick_actions_description">إبحث في piTube و انتقل إلى التنزيلات أو السجل أو التعرف علي الموسيقى</string>
-    <string name="widget_turntable_label">قرص دوار</string>
-    <string name="widget_turntable_description">إجعل موسيقاك كقرص دوار</string>
+    
+    
     <string name="playlist_creation_menu_open">إنشاء قائمة تشغيل</string>
     <string name="playlist_creation_menu_close">‎إغلاق قائمة إنشاء قوائم التشغيل</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
     <string name="playlist_filter_owned">مملوكة</string>
-    <string name="content_settings_restored_music_mini_player_title">إظهار مُشغّل الصوتيات المصغّر المُستعاد</string>
-    <string name="content_settings_restored_music_mini_player_subtitle">عرض جلسة الموسيقى الأخيرة تلقائياً بعد إستعادتها</string>
+    
+    
     <string name="ui_open_in_youtube">افتح في YouTube</string>
     <string name="ui_playback_error">خطأ في التشغيل</string>
     <string name="ui_replay">إعادة التشغيل</string>
     <string name="ui_skip_back_10_seconds">تخطي للخلف 10 ثواني</string>
     <string name="ui_skip_forward_10_seconds">تخطي للأمام 10 ثواني</string>
     <string name="ui_downloading">جاري التحميل</string>
-    <string name="ui_in_library">في المكتبة</string>
-    <string name="ui_options">الخيارات</string>
+    
+    
     <string name="ui_selected">محدد</string>
     <string name="ui_flow_logo">شعار piTube</string>
     <string name="ui_back">تراجع</string>
-    <string name="ui_add_songs">إضافة أغاني</string>
+    
     <string name="ui_close_search">إغلاق البحث</string>
     <string name="ui_save_to_library">حفظ إلي المكتبة</string>
     <string name="ui_remove_from_library">حذف من المكتبة</string>
-    <string name="ui_clear">محو</string>
-    <string name="ui_delete_from_playlist">حذف من قائمة التشغيل</string>
-    <string name="ui_added">مضافة</string>
-    <string name="ui_sync_lyrics">مزامنة الكلمات</string>
+    
+    
+    
+    
     <string name="ui_downloading_playlist">جاري تنزيل قائمة التشغيل</string>
-    <string name="ui_no_songs_found">لم يتم العثور علي أغاني</string>
-    <string name="ui_search_songs_to_add">ابحث عن الأغاني لإضافتها…</string>
-    <string name="ui_add_songs_to_playlist">أضف الأغاني إلى قائمة التشغيل</string>
-    <string name="ui_show_less">عرض أقل</string>
-    <string name="ui_show_more">عرض المزيد</string>
+    
+    
+    
+    
+    
     <string name="ui_try_sabr_download">جرب طريقة تحميل SABR</string>
-    <string name="ui_audio_only">الصوت فقط</string>
+    
     <string name="ui_no_crash_logs">لا توجد تقارير أعطال</string>
     <string name="ui_copy_log">نسخ السجلات</string>
     <string name="ui_clear_and_continue">مسح و متابعة</string>
     <string name="ui_copy_log_description">انسخ السجل أدناه و الصقه في مشكلة (issue) على GitHub حتى يمكن إصلاحها.</string>
     <string name="ui_search_settings">البحث في الإعدادات…</string>
-    <string name="ui_custom_interest_title">أضف إهتماماً مخصصاً</string>
-    <string name="ui_custom_interest_subtitle">اكتب أي موضوع ترغب في متابعته</string>
-    <string name="ui_custom_interest_hint">إهتمامات خاصة (مثل موسيقى الجاز، الفيزياء الفلكية)</string>
-    <string name="ui_add_interest">أضف إهتماماً</string>
-    <string name="ui_version">الإصدار %1$s</string>
+    
+    
+    
+    
+    
     <string name="update_download_prompt">يتوفر إصدار جديد من piTube (%1$s). هل تريد تنزيل أحدث ملف APK؟</string>
     <string name="ui_playlist_empty">قائمة التشغيل فارغة</string>
     <string name="ui_downloading_videos">جاري تنزيل %1$d فيديو…</string>
@@ -1826,28 +1826,28 @@
     <string name="toast_trying_sabr_download">محاولة طريقة تنزيل SABR…</string>
     <string name="toast_no_download_source">لا يوجد مصدر للتحميل متاح</string>
     <string name="toast_copied_to_clipboard">تم النسخ إلى الحافظة</string>
-    <string name="toast_playlist_deleted">تم حذف قائمة التشغيل</string>
-    <string name="toast_playlist_renamed">تمت إعادة تسمية قائمة التشغيل</string>
-    <string name="toast_starting_playlist_download">بدء التنزيل لـ %1$s…</string>
-    <string name="toast_downloaded_tracks_from_playlist">تم تنزيل %1$d مساراً من %2$s</string>
-    <string name="toast_failed_to_download_playlist">فشل تنزيل قائمة التشغيل</string>
-    <string name="toast_error_downloading_playlist">خطأ في تنزيل قائمة التشغيل</string>
-    <string name="toast_downloaded_tracks">تم تنزيل %1$d مساراً</string>
-    <string name="toast_added_to_playlist">تمت إضافته إلى قائمة التشغيل</string>
-    <string name="toast_failed_to_add_track">فشل إضافة المسار</string>
-    <string name="toast_removed_from_playlist">تمت إزالته من قائمة التشغيل</string>
-    <string name="toast_failed_to_remove_track">‎فشل في إزالة المسار</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="ui_queued_for_download">في قائمة الانتظار للتنزيل</string>
-    <string name="ui_navigate">تنقل</string>
+    
     <string name="ui_list_view">عرض القائمة</string>
     <string name="ui_grid_view">عرض الشبكة</string>
     <string name="ui_crashed_last_session">تعطل piTube في الجلسة الأخيرة</string>
     <string name="toast_sabr_download_started">بدأ طريقة تنزيل SABR</string>
     <string name="toast_sabr_download_started_for_video">‎بدأ طريقة تنزيل SABR: %1$s</string>
     <string name="toast_sabr_download_failed">فشل طريقة تنزيل SABR: %1$s</string>
-    <string name="toast_saved_playlist_to_music_library">تم حفظ قائمة التشغيل في مكتبة الموسيقى الخاصة بك</string>
-    <string name="toast_failed_to_save_playlist">‍فشل حفظ قائمة التشغيل</string>
-    <string name="toast_removed_playlist_from_library">تمت إزالة قائمة التشغيل من المكتبة</string>
+    
+    
+    
     <string name="toast_failed_to_merge_playlist">‎فشل دمج قائمة التشغيل</string>
     <string name="notification_downloading">جاري التنزيل: %1$s</string>
     <string name="notification_download_complete">اكتمل التنزيل</string>
@@ -1879,10 +1879,10 @@
     <string name="error_failed_to_load_channel">فشل تحميل القناة</string>
     <string name="error_failed_to_load_shorts">فشل تحميل المقاطع القصيرة</string>
     <string name="error_failed_to_load_more_shorts">فشل تحميل المزيد من المقاطع القصيرة</string>
-    <string name="error_search_timed_out">انتهت مهلة البحث</string>
-    <string name="error_filter_search_timed_out">انتهت مهلة البحث بالفلتر</string>
-    <string name="error_failed_to_load_playlist">فشل تحميل قائمة التشغيل</string>
-    <string name="error_failed_to_load_content">فشل تحميل المحتوى</string>
+    
+    
+    
+    
     <string name="error_no_videos_found">لم يتم العثور على مقاطع فيديو</string>
     <string name="error_no_shorts_found">لم يتم العثور على أي Shorts</string>
     <string name="error_no_live_videos_found">لم يتم العثور على فيديوهات مباشرة</string>
@@ -1897,7 +1897,7 @@
     <string name="error_playback_device">خطأ في التشغيل للجهاز: %1$s</string>
     <string name="error_content_protection">خطأ حماية المحتوى: %1$s</string>
     <string name="error_playback_stopped">توقف التشغيل بسبب خطأ حرج</string>
-    <string name="error_invalid_media_streams">فشل تحميل الوسائط: تدفقات غير صالحة</string>
+    
     <string name="error_failed_to_load_media">فشل تحميل الوسائط: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">فشل تحميل الوسائط: تدفقات غير صالحة</string>
     <string name="error_playback_retry_hint">حاول مرة أخرى لاحقاً أو تحقق من اتصالك بالشبكة.</string>
@@ -1913,28 +1913,28 @@
     <string name="download_failed_audio_length">فشل في الحصول على طول المحتوى الصوتي</string>
     <string name="download_workers_failed">فشل عامل واحد أو أكثر</string>
     <string name="download_block_failed">الكتلة %1$s فشلت: %2$s</string>
-    <string name="fallback_playing">يعرض…</string>
-    <string name="fallback_unknown_title">عنوان غير معروف</string>
-    <string name="fallback_unknown_channel">قناة غير معروفة</string>
-    <string name="fallback_unknown_playlist">قائمة تشغيل غير معروفة</string>
-    <string name="fallback_unknown_artist">فنان غير معروف</string>
-    <string name="fallback_unknown_album">ألبوم غير معروف</string>
-    <string name="fallback_unknown_video">فيديو غير معروف</string>
-    <string name="fallback_local_video">فيديو محلي</string>
-    <string name="fallback_local_audio">الصوت المحلي</string>
-    <string name="fallback_your_saved_shorts">المقاطع القصيرة المحفوظة</string>
-    <string name="fallback_your_watch_later_list">قائمة المشاهدة لاحقاً</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="fallback_downloaded_locally">تم تنزيله محلياً</string>
-    <string name="fallback_more_results">المزيد من النتائج</string>
+    
     <string name="equalizer">المعادل</string>
     <string name="action_save_preset">حفظ الإعداد المسبق</string>
     <string name="label_preset_name">إسم‌ الإعداد المسبق</string>
-    <string name="ui_instrumental">INSTRUMENTAL</string>
-    <string name="about_creator_name">A-EDev</string>
-    <string name="about_website_address">flow.aedev.me</string>
-    <string name="about_reddit">Reddit</string>
-    <string name="about_reddit_subtitle">r/piTube_Official</string>
-    <string name="about_license_name">GNU GPL v3</string>
+    
+    
+    
+    
+    
+    
     <plurals name="tv_playlist_video_count">
         <item quantity="zero">%1$d فيديو</item>
         <item quantity="one">%1$d فيديو</item>
@@ -1954,7 +1954,7 @@
     <string name="audio_track_dubbed">مدبلج</string>
     <string name="empty_saved_shorts">لم يتم حفظ أي مقاطع قصيرة حتى الآن</string>
     <string name="settings_search_no_results">لم يتم العثور على إعدادات لـ %1$s</string>
-    <string name="settings_lyrics_provider_order_description">يتم تجربة مقدمي الخدمات بالترتيب. أول من يقدم كلمات الأغاني يفوز.</string>
+    
     <string name="donations_cryptocurrency">العملات المشفرة</string>
     <string name="duration_minutes">%1$d دقيقة</string>
     <string name="duration_hours_minutes">%1$d ساعة و %2$d دقيقة</string>

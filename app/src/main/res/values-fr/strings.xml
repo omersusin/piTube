@@ -10,11 +10,11 @@
     <string name="subscribers">Abonnés</string>
     <string name="stats">Statistiques</string>
     <string name="library">Bibliothèque</string>
-    <string name="library_section_header">Votre Contenu</string>
+    
     <string name="library_history_label">Historique</string>
     <string name="library_playlists_label">Playlists</string>
-    <string name="library_music_playlists_label">Playlists musicales</string>
-    <string name="library_music_playlists_subtitle">Vos collections musicales</string>
+    
+    
     <string name="library_liked_videos_label">J\'aime</string>
     <string name="library_saved_shorts_label">Shorts enregistrés</string>
     <string name="library_watch_later_label">À regarder plus tard</string>
@@ -23,7 +23,7 @@
     <string name="library_manage_data_label">Gérer les données</string>
     <string name="library_manage_data_subtitle">Effacer le cache et l\'historique</string>
     <string name="about">À Propos</string>
-    <string name="empty_description">Aucune description disponible</string>
+    
     <string name="clear_all">Tout effacer</string>
     <string name="clear_watch_history_alert_title">Effacer l\'historique de visionnage ?</string>
     <string name="clear_watch_history_alert_body">Cela supprimera toutes les vidéos de votre historique de visionnage. Cette action ne peut pas être annulée.</string>
@@ -32,20 +32,20 @@
     <string name="empty_watch_history">Aucun historique</string>
     <string name="empty_watch_history_body">Les vidéos que vous regardez apparaîtront ici</string>
     <string name="liked">Aimé</string>
-    <string name="liked_music">Musique « J\'aime »</string>
-    <string name="liked_videos">J\'aime</string>
-    <string name="share_song">Partager la chanson</string>
+    
+    
+    
     <string name="empty_liked">Pas de « J\'aime »</string>
     <string name="empty_liked_body">Les contenus que vous avez aimés s\'afficheront ici</string>
-    <string name="song">Chanson</string>
+    
     <string name="video">Vidéo</string>
     <string name="share">Partager</string>
     <string name="downloaded">Téléchargé</string>
     <string name="download">Télécharger</string>
     <string name="save">Enregistrer</string>
-    <string name="up_next">À SUIVRE</string>
+    
     <string name="lyrics">PAROLES</string>
-    <string name="related">SIMILAIRES</string>
+    
     <string name="close">Fermer</string>
     <string name="more_options">Plus d\'options</string>
     <string name="like">Aimer</string>
@@ -55,63 +55,63 @@
     <string name="play">Jouer</string>
     <string name="next">Suivant</string>
     <string name="repeat">Répéter</string>
-    <string name="loading_track">Chargement...</string>
+    
     <string name="error_occurred">Une erreur est survenue</string>
-    <string name="playing_from">Lecture depuis</string>
+    
     <string name="autoplay">Lecture automatique</string>
     <string name="move_up">Monter</string>
     <string name="move_down">Descendre</string>
     <string name="lyrics_not_available">Paroles non disponibles</string>
-    <string name="playing">Lecture en cours</string>
+    
     <string name="remove">Retirer</string>
-    <string name="related_content">Contenu associé</string>
-    <string name="no_related_content">Aucun contenu connexe trouvé</string>
-    <string name="share_message_template">Découvrez cette chanson : %1$s par %2$s\nhttps://music.youtube.com/watch?v=%3$s</string>
+    
+    
+    
     <string name="hz">Hz</string>
     <string name="kbps">kbps</string>
-    <string name="filter_discover">Découvrir</string>
+    
     <string name="filter_popular">Populaire</string>
-    <string name="filter_deep_cuts">Pépites</string>
-    <string name="filter_workout">Entraînement</string>
-    <string name="track_details">Détails de la piste</string>
+    
+    
+    
     <string name="title_label">Titre</string>
     <string name="artist_label">Artiste</string>
     <string name="album_label">Album</string>
     <string name="video_id_label">ID Vidéo</string>
-    <string name="codec_label">Codec</string>
+    
     <string name="sample_rate_label">Taux d\'échantillonnage</string>
     <string name="bitrate_label">Débit binaire</string>
-    <string name="channels_label">Chaînes</string>
-    <string name="audio_info_not_available">Informations sur le flux audio non disponibles pour l\'instant.</string>
+    
+    
     <string name="undo">Annuler</string>
     <string name="subscribed_to">Abonné à %s</string>
     <string name="unsubscribed_from">Désabonné de %s</string>
     <string name="share_video">Partager la vidéo</string>
     <string name="check_out_video_template">Découvrez cette vidéo : %1$s\nhttps://youtube.com/watch?v=%2$s</string>
-    <string name="related_videos">Vidéos similaires</string>
+    
     <string name="quality_auto">Auto</string>
     <string name="quality_auto_template">Auto (%1$dp)</string>
     <string name="play_mode_suggestion_title">Suggestion de mode de lecture</string>
     <string name="play_mode_suggestion_body">Cette vidéo dure moins de 2 minutes. Souhaitez-vous passer à un lecteur spécialisé ?</string>
     <string name="shorts_player">Lecteur Shorts</string>
-    <string name="music_player">Lecteur audio</string>
+    
     <plurals name="channels_count">
         <item quantity="one">%d chaîne</item>
         <item quantity="many">%d chaînes</item>
         <item quantity="other">%d chaînes</item>
     </plurals>
     <string name="tab_videos">Vidéos</string>
-    <string name="tab_music">Musique</string>
+    
     <string name="empty_offline_title">Hors ligne %1$s</string>
     <string name="empty_offline_body">Vos %1$s téléchargés apparaîtront ici.\nProfitez de votre contenu même sans internet.</string>
     <string name="action_go_to_home">Aller à l\'Accueil</string>
     <string name="action_delete">Supprimer</string>
     <string name="downloads_title">Téléchargements</string>
-    <string name="download_deleted">Téléchargement supprimé</string>
-    <string name="action_undo">Annuler</string>
+    
+    
     <string name="cd_delete_download">Supprimer %1$s</string>
     <string name="cd_video_thumbnail">Miniature de la vidéo %1$s</string>
-    <string name="cd_track_artwork">Pochette de la piste %1$s</string>
+    
     <!-- Enregistrer dans la Playlist Dialog -->
     <string name="save_to">Enregistrer dans...</string>
     <string name="watch_later">À regarder plus tard</string>
@@ -166,27 +166,27 @@
     <!-- Navigation -->
     <string name="nav_home">Accueil</string>
     <string name="nav_shorts">Shorts</string>
-    <string name="nav_music">Musique</string>
+    
     <string name="nav_library">Bibliothèque</string>
     <string name="notifications">Notifications</string>
     <string name="search">Rechercher</string>
     <string name="settings">Paramètres</string>
-    <string name="select_artist">Sélectionner un artiste</string>
+    
     <string name="description">Description</string>
-    <string name="ago">Il y a quelque temps</string>
-    <string name="since">Depuis</string>
-    <string name="add_to_playlist">Ajouter à la playlist</string>
+    
+    
+    
     <string name="playback_header">Lecture</string>
-    <string name="play_next">Lire ensuite</string>
-    <string name="play_next_desc">Ajouter au début de la file d\'attente</string>
-    <string name="add_to_queue">Ajouter à la file d\'attente</string>
-    <string name="add_to_queue_desc">Ajouter à la fin de la file d\'attente</string>
+    
+    
+    
+    
     <string name="audio_effects">Effets Audio</string>
-    <string name="more_header">Plus</string>
-    <string name="view_artist">Voir l\'Artiste</string>
-    <string name="view_album">Voir l\'Album</string>
-    <string name="album_art">Pochette d\'album</string>
-    <string name="close_player">Fermer le lecteur</string>
+    
+    
+    
+    
+    
     <string name="views_template">%1$s vues</string>
     <string name="chapters">Chapitres</string>
     <string name="artist">Artiste</string>
@@ -195,34 +195,34 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Votre fil personnalisé</string>
     <string name="videos_curated_template">%1$d vidéos sélectionnées rien que pour vous</string>
-    <string name="toggle_view_mode">Changer de mode d\'affichage</string>
-    <string name="unsubscribed_from_template">Désabonné de %1$s</string>
+    
+    
     <string name="videos_count_template">%1$d vidéos</string>
-    <string name="playlists_count_template">%1$d playlists</string>
-    <string name="shorts_count_template">%1$d shorts</string>
+    
+    
     <string name="play_all">Tout lire</string>
     <string name="remove_from_watch_later">Retirer de À regarder plus tard</string>
-    <string name="playlist_metadata_template">Playlist • Privée • %1$d vidéos</string>
-    <string name="explicit">E</string>
+    
+    
     <string name="no_videos_saved">Aucune vidéo enregistrée</string>
     <string name="no_videos_saved_body">Les vidéos que vous enregistrez pour les regarder plus tard apparaîtront ici</string>
     <!-- Écran de Recherche -->
     <string name="search_videos_channels_placeholder">Rechercher des vidéos, des chaînes...</string>
     <string name="recent_searches">Recherches récentes</string>
-    <string name="trending">Tendances</string>
+    
     <string name="channels_header">Chaînes</string>
     <string name="videos_header">Vidéos</string>
-    <string name="end_of_results">Fin des résultats</string>
+    
     <string name="clear_search_history">Effacer l\'historique de recherche</string>
     <!-- Filtres de Recherche -->
-    <string name="filter_upload_date">Date de téléchargement</string>
-    <string name="filter_duration">Durée</string>
-    <string name="filter_sort_by">Trier par</string>
-    <string name="filter_hd">HD</string>
-    <string name="filter_4k">4K</string>
+    
+    
+    
+    
+    
     <string name="filter_subtitles">Sous-titres</string>
     <string name="date_any">N\'importe quand</string>
-    <string name="date_last_hour">Dernière heure</string>
+    
     <string name="date_today">Aujourd\'hui</string>
     <string name="date_this_week">Cette semaine</string>
     <string name="date_this_month">Ce mois-ci</string>
@@ -232,11 +232,11 @@
     <string name="duration_4_20">4-20 min</string>
     <string name="duration_over_20">Plus de 20 min</string>
     <string name="sort_relevance">Pertinence</string>
-    <string name="sort_upload_date">Date de téléchargement</string>
-    <string name="sort_view_count">Nombre de vues</string>
+    
+    
     <string name="sort_rating">Évaluation</string>
     <!-- Écran de Chaîne -->
-    <string name="channel_default_title">Chaîne</string>
+    
     <string name="channel_banner">Bannière de la chaîne</string>
     <string name="channel_avatar">Avatar de la chaîne</string>
     <string name="subscribe">S\'abonner</string>
@@ -245,15 +245,15 @@
     <string name="tab_live">En direct</string>
     <string name="tab_playlists">Playlists</string>
     <string name="tab_about">À propos</string>
-    <string name="no_videos_found">Aucune vidéo trouvée</string>
-    <string name="no_shorts_found">Aucun short trouvé</string>
+    
+    
     <string name="no_playlists_found">Aucune playlist trouvée</string>
     <string name="subscribers_count_template">%1$s abonnés</string>
     <string name="views_count_short_template">%1$s vues</string>
     <!-- Écran d'Historique -->
-    <string name="music_history">Historique musical</string>
+    
     <string name="remove_from_history">Retirer de l\'historique</string>
-    <string name="share_song_chooser">Partager la chanson</string>
+    
     <string name="time_today">Aujourd\'hui</string>
     <string name="time_yesterday">Hier</string>
     <string name="time_earlier">Plus tôt</string>
@@ -265,20 +265,20 @@
     <string name="notifications_empty_body">Vous êtes à jour ! Les nouvelles mises à jour de vos abonnements apparaîtront ici.</string>
     <!-- Écran des Paramètres -->
     <string name="settings_title">Paramètres</string>
-    <string name="settings_flow_engine_header">Moteur piTube</string>
-    <string name="settings_active_learning">APPRENTISSAGE ACTIF</string>
-    <string name="settings_reset_brain_title">Réinitialiser la personnalité ?</string>
-    <string name="settings_reset_brain_body">Cela effacera complètement votre profil d\'intérêt \'piTube Brain\'.\n\n• Tous les sujets appris seront oubliés.\n• Les traits de personnalité reviendront à neutre.\n• Les recommandations reviendront aux valeurs par défaut.\n\nCette action ne peut pas être annulée.</string>
-    <string name="settings_reset_everything">Tout Réinitialiser</string>
-    <string name="settings_analyzing_interactions">Analyse de vos interactions...</string>
-    <string name="settings_view_analytics">Voir les Analytics</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_header_appearance">Apparence</string>
     <string name="settings_header_content_playback">Contenu &amp; Lecture</string>
     <string name="settings_header_data_management">Gestion des Données</string>
     <string name="settings_header_about">À Propos</string>
     <string name="settings_item_theme">Thème</string>
-    <string name="settings_item_content_prefs">Préférences de contenu</string>
-    <string name="settings_item_content_prefs_subtitle">Bloquez les sujets que vous ne voulez pas voir</string>
+    
+    
     <string name="settings_item_player">Paramètres du lecteur</string>
     <string name="settings_item_player_subtitle">Lecture automatique, Lecture en arrière-plan, SponsorBlock</string>
     <string name="settings_item_quality">Qualité Vidéo &amp; Audio</string>
@@ -303,34 +303,34 @@
     <string name="appearance_title">Apparence</string>
     <string name="appearance_subtitle">Personnalisez votre expérience</string>
     <string name="appearance_current_theme">THÈME ACTUEL</string>
-    <string name="appearance_category_all">Tous</string>
+    
     <string name="appearance_category_light">Clair</string>
     <string name="appearance_category_dark">Sombre</string>
-    <string name="appearance_category_special">Spécial</string>
+    
     <string name="appearance_themes_count_all">%1$d thèmes</string>
-    <string name="appearance_themes_count_filtered">%1$d thèmes %2$s</string>
+    
     <string name="appearance_applied_toast">Appliqué : %1$s</string>
     <!-- Apparence du Lecteur -->
     <string name="player_appearance_title">Apparence du Lecteur</string>
     <string name="player_appearance_header">Personnaliser les Contrôles</string>
-    <string name="player_appearance_style_title">Style de la Barre de Progression</string>
+    
     <string name="player_appearance_style_subtitle">Sélectionner le style de la barre de lecture</string>
     <string name="settings_item_player_appearance">Apparence du lecteur</string>
     <string name="settings_item_player_appearance_subtitle">Personnaliser le style de la barre de progression</string>
-    <string name="style_default">Normal</string>
-    <string name="style_metrolist">Épais</string>
-    <string name="style_metrolist_slim">Par défaut</string>
-    <string name="style_squiggly">Vague (Squiggly)</string>
-    <string name="style_slim">Ultra Fin</string>
+    
+    
+    
+    
+    
     <!-- Fournisseur de paroles -->
-    <string name="lyrics_provider_title">Fournisseur de paroles</string>
-    <string name="lyrics_provider_subtitle">Choisissez votre source préférée pour les paroles</string>
-    <string name="lyrics_provider_lrclib">LrcLib</string>
-    <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
-    <string name="lyrics_provider_simpmusic">SimpMusic</string>
+    
+    
+    
+    
+    
     <!-- Noms &amp; Descriptions des Thèmes -->
     <string name="theme_name_pure_light">Lumière pure</string>
-    <string name="theme_desc_pure_light">Épuré et minimaliste</string>
+    
     <string name="theme_name_mint_fresh">Fraîcheur mentholée</string>
     <string name="theme_desc_mint_fresh">Frais et rafraîchissant</string>
     <string name="theme_name_rose_petal">Pétale de rose</string>
@@ -342,7 +342,7 @@
     <string name="theme_name_classic_dark">Classique</string>
     <string name="theme_desc_classic_dark">La palette originale de piTube</string>
     <string name="theme_name_true_black">Noir intense</string>
-    <string name="theme_desc_true_black">OLED pur</string>
+    
     <string name="theme_name_midnight">Minuit</string>
     <string name="theme_desc_midnight">Profond et concentré</string>
     <string name="theme_name_deep_ocean">Océan profond</string>
@@ -386,15 +386,15 @@
     <string name="content_settings_grid_big_desc">Miniatures plus grandes</string>
     <string name="content_settings_grid_small_title">Petit</string>
     <string name="content_settings_grid_small_desc">Vue compacte</string>
-    <string name="content_settings_header_preview">Aperçu</string>
-    <string name="content_settings_preview_album_art">Aperçu de la Pochette d\'Album</string>
-    <string name="content_settings_preview_big">Grand - Miniatures de 128dp</string>
-    <string name="content_settings_preview_small">Petit - Miniatures de 104dp</string>
-    <string name="content_settings_dynamic_components">Composants dynamiques</string>
-    <string name="settings_home_shorts_shelf_title">Shorts sur l\'écran d\'accueil</string>
-    <string name="settings_home_shorts_shelf_subtitle">Afficher la section des Shorts sur l\'écran d\'accueil.</string>
-    <string name="settings_shorts_nav_tab_title">Onglet Shorts dans la navigation</string>
-    <string name="settings_shorts_nav_tab_subtitle">Afficher l\'onglet Shorts dans la barre de navigation inférieure.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- Paramètres du Lecteur -->
     <string name="player_settings_title">Paramètres du lecteur</string>
     <string name="player_settings_background_play">Lecture en Arrière-plan</string>
@@ -406,8 +406,8 @@
     <string name="loop_video">Vidéo en boucle</string>
     <string name="player_settings_sponsorblock">SponsorBlock</string>
     <string name="player_settings_sponsorblock_subtitle">Sauter les segments sponsorisés</string>
-    <string name="player_settings_show_pip">Afficher le Bouton PiP</string>
-    <string name="player_settings_show_pip_subtitle">Afficher le bouton manuel PiP dans les contrôles du lecteur</string>
+    
+    
     <string name="player_settings_header_audio">Audio</string>
     <string name="player_settings_audio_language">Langue Audio Préférée</string>
     <string name="player_settings_audio_language_dialog_title">Langue Audio</string>
@@ -456,53 +456,53 @@
     <string name="cd_liked">Aimé</string>
     <string name="cd_pause">Pause</string>
     <string name="cd_play">Lecture</string>
-    <string name="shorts_original_sound">Son Original - %1$s</string>
-    <string name="view_count_billion_suffix">M</string>
-    <string name="view_count_million_suffix">M</string>
-    <string name="view_count_thousand_suffix">K</string>
+    
+    
+    
+    
     <string name="action_like">Aimer</string>
     <string name="action_dislike">Ne pas aimer</string>
     <string name="action_comments">Commentaires</string>
     <string name="action_save">Enregistrer</string>
     <string name="action_share">Partager</string>
-    <string name="action_description">Description</string>
+    
     <string name="action_subscribe">S\'abonner</string>
-    <string name="action_search">Rechercher</string>
+    
     <!-- Écran des Préférences Utilisateur -->
-    <string name="content_preferences_title">Préférences de contenu</string>
-    <string name="content_preferences_subtitle">Personnalisez ce que vous voyez</string>
-    <string name="interests_tab">Intérêts</string>
-    <string name="blocked_tab">Bloqués</string>
-    <string name="topics_count_template">%1$d sujets</string>
-    <string name="hidden_count_template">%1$d masqués</string>
-    <string name="your_interests_title">Vos Intérêts</string>
-    <string name="your_interests_desc">Les thèmes que vous avez sélectionnés aident piTube à vous recommander des contenus plus pertinents. Appuyez sur les thèmes ci-dessous pour en ajouter ou en supprimer.</string>
-    <string name="currently_following">Actuellement Suivis</string>
-    <string name="tap_to_remove">Appuyez pour supprimer</string>
-    <string name="add_topics">Ajouter des sujets</string>
-    <string name="browse_by_category">Parcourir par catégorie</string>
-    <string name="hidden_content_title">Contenu Masqué</string>
-    <string name="hidden_content_desc">Les vidéos traitant de ces sujets n\'apparaîtront pas dans vos suggestions. Vous pouvez également utiliser le bouton « Ça ne m\'intéresse pas » sur les vidéos.</string>
-    <string name="block_topic_title">Bloquer un sujet</string>
-    <string name="enter_keywords_to_hide">Entrez des mots-clés à masquer</string>
-    <string name="block_topic_placeholder">par exemple : maquillage, Fortnite, ASMR</string>
-    <string name="desc_add_topic">Ajouter un sujet</string>
-    <string name="quick_add">Ajout rapide</string>
-    <string name="common_topics_to_block">Sujets courants à bloquer</string>
-    <string name="currently_blocked">Actuellement Bloqués</string>
-    <string name="topics_blocked_count_plural">%1$d sujet%2$s</string>
-    <string name="desc_remove_topic">Supprimer %1$s</string>
-    <string name="desc_unblock_topic">Débloquer %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="selected_count_template">%1$d sélectionnés</string>
     <!-- Écran de Gestion du Temps -->
     <string name="time_management_title">Gestion du temps</string>
     <string name="stats_disclaimer">Les statistiques sont basées sur votre historique de visionnage dans cette application. L\'utilisation réelle peut varier.</string>
     <string name="tools_to_manage_time">Outils pour gérer votre temps</string>
-    <string name="remind_bedtime">Me rappeler quand il est l\'heure de dormir</string>
+    
     <string name="start_time">Heure de début</string>
     <string name="end_time">Heure de fin</string>
     <string name="bedtime_notification_note">Une notification sera envoyée à l\'heure de début.</string>
-    <string name="remind_break">Me rappeler de faire une pause</string>
+    
     <string name="reminder_frequency">Fréquence des rappels</string>
     <string name="every_min_template">Toutes les %1$d min</string>
     <string name="daily_average_label">Moyenne Quotidienne</string>
@@ -543,8 +543,8 @@
     <string name="internal_storage_label">Stockage Interne</string>
     <string name="free_space_template">%1$s libre</string>
     <string name="total_space_template">Total : %1$s</string>
-    <string name="location_label">Emplacement</string>
-    <string name="internal_app_storage_label">Stockage Interne de l\'Application</string>
+    
+    
     <string name="preferences_header">Préférences</string>
     <string name="default_video_quality_label">Qualité vidéo par défaut</string>
     <string name="download_over_wifi_only">Télécharger uniquement via Wi-Fi</string>
@@ -561,7 +561,7 @@
     <string name="location_downloads_label">Téléchargements / piTube</string>
     <string name="location_movies_label">Vidéos / piTube</string>
     <string name="location_internal_app_label">Stockage interne de l\'application</string>
-    <string name="location_internal_app_desc">Privé à l\'application — les fichiers peuvent être supprimés si vous désinstallez</string>
+    
     <string name="location_custom_saf_label">Parcourir…</string>
     <string name="location_custom_saf_desc">Sélectionnez un dossier à l\'aide du sélecteur de fichiers du système</string>
     <string name="location_custom_manual_label">Saisir un chemin manuellement</string>
@@ -570,7 +570,7 @@
     <string name="location_manual_hint">/storage/emulated/0/…</string>
     <string name="location_manual_confirm">Enregistrer</string>
     <string name="location_badge_recommended">Recommandé</string>
-    <string name="location_badge_active">Actif</string>
+    
     <string name="select_threads_count_desc">Sélectionnez le nombre de threads (1-8) :</string>
     <string name="threads_count_label">%1$d threads</string>
     <!-- Écran des Dons -->
@@ -595,8 +595,8 @@
     <string name="error_license_load">Impossible de charger le fichier de licence.</string>
     <string name="no_changelog_found_message">Aucun journal des modifications trouvé.</string>
     <string name="error_changelog_load">Impossible de charger le fichier du journal des modifications.</string>
-    <string name="app_logo_desc">Logo de l\'application</string>
-    <string name="v_version_template">v%1$s (%2$s)</string>
+    
+    
     <string name="manufacturer_label">Fabricant : %1$s</string>
     <string name="model_label">Modèle : %1$s</string>
     <string name="board_label">Carte : %1$s</string>
@@ -611,9 +611,9 @@
     <string name="btn_copy">Copier</string>
     <string name="github_label">GitHub</string>
     <!-- Playlists &amp; Détails de la Playlist -->
-    <string name="new_playlist_button">Nouvelle playlist</string>
-    <string name="your_playlists_header">Vos playlists</string>
-    <string name="create_playlist_empty_desc">Créez votre première playlist pour organiser vos vidéos préférées</string>
+    
+    
+    
     <string name="my_playlist_placeholder">Ma Playlist</string>
     <string name="add_description_placeholder">Ajouter une description...</string>
     <string name="edit_playlist_action">Modifier la playlist</string>
@@ -629,122 +629,122 @@
     <string name="playlist_metadata_public_template">Playlist • Publique • %1$d vidéos</string>
     <!-- Accueil -->
     <string name="welcome_to_flow">Bienvenue dans piTube</string>
-    <string name="onboarding_subtitle">Dites-nous ce qui vous intéresse</string>
-    <string name="onboarding_instructions">Sélectionnez au moins 3 sujets pour personnaliser votre expérience</string>
-    <string name="selected_with_more_needed_template">%1$d sélectionnés (%2$d de plus nécessaires)</string>
-    <string name="btn_skip_for_now">Passer pour l\'instant</string>
+    
+    
+    
+    
     <string name="onboarding_btn_continue">Continuer</string>
-    <string name="cd_collapse_category">Réduire</string>
-    <string name="cd_expand_category">Développer</string>
+    
+    
     <!-- Catégories -->
     <string name="category_gaming">Jeux Vidéo</string>
-    <string name="category_music">Musique</string>
-    <string name="category_technology">Technologie</string>
-    <string name="category_entertainment">Divertissement</string>
-    <string name="category_education">Éducation</string>
-    <string name="category_health_fitness">Santé &amp; Fitness</string>
-    <string name="category_lifestyle">Mode de Vie</string>
-    <string name="category_creative">Créatif</string>
-    <string name="category_science_nature">Sciences &amp; Nature</string>
-    <string name="category_news_current_events">Actualités &amp; Événements</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- Écran de Contrôle de Flow -->
-    <string name="flow_control_center">Centre de contrôle de piTube</string>
-    <string name="action_refresh">Rafraîchir</string>
-    <string name="loading_neural_matrix">Chargement de la matrice neurale...</string>
-    <string name="neural_interest_map_subtitle">Votre carte d\'intérêt neurale</string>
-    <string name="cognitive_fingerprint">Empreinte cognitive</string>
-    <string name="content_dna_subtitle">Votre ADN de contenu</string>
-    <string name="topic_weights">Poids des sujets</string>
-    <string name="topic_weights_subtitle">Transparence totale sur ce qui alimente votre fil</string>
-    <string name="temporal_patterns">Modèles temporels</string>
-    <string name="temporal_patterns_subtitle">Comment vos centres d\'intérêt évoluent au fil de la journée</string>
-    <string name="channel_memory">Mémoire des chaînes</string>
-    <string name="channel_memory_subtitle">Retour implicite de votre historique de visionnage</string>
-    <string name="filters_title">Filtres</string>
-    <string name="blocked_topics_channels_subtitle">Sujets et chaînes bloqués</string>
-    <string name="reset_neural_profile_title">Réinitialiser le profil neural ?</string>
-    <string name="reset_neural_profile_body">Cela effacera définitivement :\n\n• Toutes les préférences apprises\n• Le vecteur de personnalité à long terme\n• Les modèles de contexte temporel\n• Les scores d\'affinité des chaînes\n\nVotre fil reviendra à un état de départ à froid.</string>
-    <string name="erase_everything">Tout Effacer</string>
-    <string name="stats_interactions">Interactions</string>
-    <string name="stats_topics">Sujets</string>
-    <string name="empty_bubble_cloud_message">Regardez quelques vidéos pour remplir votre nébuleuse d\'intérêts !</string>
-    <string name="interactions_level_template">%1$d interactions • Niveau %2$d</string>
-    <string name="flow_neural_profile_export_subject">Exportation du Profil Neural de piTube</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- Écran des Playlists Musicales -->
-    <string name="screen_title_music_library">Bibliothèque Musicale</string>
-    <string name="header_your_collection">Votre Collection</string>
-    <string name="subtitle_liked_music">Vos chansons préférées</string>
-    <string name="subtitle_history">Chansons que vous avez écoutées</string>
-    <string name="empty_music_playlists">Aucune playlist musicale pour l\'instant</string>
-    <string name="rename_playlist_title">Renommer la Playlist</string>
-    <string name="action_rename">Renommer</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="link_copied">Lien copié</string>
-    <string name="share_link_cd">Partager le Lien</string>
-    <string name="section_singles">Singles</string>
-    <string name="section_featured_on">En vedette sur</string>
-    <string name="section_fans_also_like">Les fans aiment aussi</string>
-    <string name="artist_views_template">%1$s • %2$s vues</string>
-    <string name="action_view_all">Voir tout</string>
-    <string name="search_content_description">Rechercher</string>
-    <string name="views_count_format">%1$s vues</string>
-    <string name="playlist_footer_template">%1$d pistes • %2$s</string>
-    <string name="unknown_error">Erreur inconnue</string>
-    <string name="action_retry">Réessayer</string>
-    <string name="empty_moods_genres">Aucune humeur &amp; genre disponible</string>
-    <string name="title_browse">Parcourir</string>
-    <string name="empty_browse_content">Aucun contenu disponible</string>
-    <string name="label_featured">EN VEDETTE</string>
-    <string name="year_artist_template">%1$s • %2$s</string>
-    <string name="status_playing">Lecture en cours</string>
-    <string name="label_explicit">Explicite</string>
-    <string name="duration_with_dot_template">• %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="status_downloaded">Téléchargé</string>
-    <string name="title_create_playlist">Créer une Playlist</string>
-    <string name="label_playlist_name">Nom de la Playlist</string>
-    <string name="placeholder_playlist_name">Ma Super Playlist</string>
-    <string name="label_description_optional">Description (Optionnelle)</string>
-    <string name="placeholder_playlist_desc">Mes morceaux préférés...</string>
-    <string name="action_create">Créer</string>
-    <string name="action_cancel">Annuler</string>
-    <string name="title_add_to_playlist">Ajouter à la Playlist</string>
-    <string name="action_create_new_playlist">Créer une Nouvelle Playlist</string>
-    <string name="empty_playlists_dialog">Aucune playlist pour l\'instant. Créez-en une pour commencer !</string>
-    <string name="action_remove_from_favorites">Retirer des Favoris</string>
-    <string name="action_add_to_favorites">Ajouter aux Favoris</string>
-    <string name="action_listen_now">Écouter Maintenant</string>
-    <string name="action_play_all">Tout lire</string>
-    <string name="loading_music">Chargement de la musique...</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- Écran de Musique Améliorée -->
-    <string name="screen_title_music">MUSIQUE</string>
-    <string name="section_listen_again">Écouter à nouveau</string>
-    <string name="section_quick_picks">Sélection rapide</string>
-    <string name="section_recommended">Recommandé</string>
-    <string name="section_recently_played">Récemment joué</string>
-    <string name="section_music_videos">Clips musicaux</string>
-    <string name="section_new_releases">Nouveautés</string>
-    <string name="subtitle_single_template">Single • %1$s</string>
-    <string name="section_popular_artists">Artistes populaires</string>
-    <string name="section_mixed_for_you">Mix pour vous</string>
-    <string name="section_moods_and_genres">Humeurs &amp; Genres</string>
-    <string name="genre_mix_template">Mix %1$s</string>
-    <string name="section_top_albums">Meilleurs albums</string>
-    <string name="similar_to">Similaire à</string>
-    <string name="section_similar_to">Similaire à %1$s</string>
-    <string name="subtitle_similar_to">Basé sur votre historique d\'écoute</string>
-    <string name="section_vibe_vibes">Vibes %1$s</string>
-    <string name="subtitle_community_playlists">Playlists de la communauté</string>
-    <string name="playlist_author_community">Playlist de la communauté</string>
-    <string name="playlist_description_community">Playlist de musique %1$s sélectionnée par notre communauté</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- Écran du Lecteur Musical -->
-    <string name="radio">Radio</string>
+    
     <!-- Paramètres Audio -->
     <string name="audio_settings_title">Paramètres Audio</string>
     <string name="label_preset">Préréglage</string>
     <string name="template_bass_boost">Boost des Basses : %1$ddB</string>
-    <string name="label_tempo_pitch">Tempo &amp; Hauteur</string>
-    <string name="action_reset">Réinitialiser</string>
-    <string name="template_speed">Vitesse : %1$d%%</string>
-    <string name="template_pitch">Hauteur : %1$d demi-tons</string>
+    
+    
+    
+    
     <string name="label_parametric_equalizer">Égaliseur Paramétrique</string>
     <string name="action_add_band">Ajouter une Bande</string>
     <string name="template_preamp">Préampli : %1$.1fdB</string>
@@ -754,39 +754,39 @@
     <!-- Lecteur -->
     <string name="now_playing">EN COURS DE LECTURE</string>
     <!-- Écran de Recherche Musicale -->
-    <string name="voice_search_prompt">Parlez pour rechercher de la musique</string>
-    <string name="search_music_placeholder">Rechercher de la musique</string>
+    
+    
     <string name="voice_search_cd">Recherche Vocale</string>
-    <string name="filter_albums">Albums</string>
-    <string name="filter_songs">Chansons</string>
-    <string name="filter_community_playlists">Playlists de la communauté</string>
-    <string name="section_top_result">Top résultat</string>
-    <string name="subtitle_song_prefix">Chanson • %1$s</string>
-    <string name="subtitle_artist">Artiste</string>
-    <string name="subtitle_album_template">Album • %1$s</string>
-    <string name="subtitle_playlist_template">Playlist • %1$s</string>
-    <string name="plays_count_template">• %1$s lectures</string>
-    <string name="album_year_template">Album • %1$s • %2$s</string>
-    <string name="artist_audience_template">Artiste • %1$s audience mensuelle</string>
-    <string name="search_source_template">Recherche : %1$s</string>
-    <string name="artist_source_template">Artiste : %1$s</string>
-    <string name="top_picks_for_you">Nos meilleures suggestions pour vous</string>
-    <string name="no_results_found">Aucun résultat trouvé</string>
-    <string name="no_tracks_available">Aucune piste disponible</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- Écran de Bibliothèque -->
-    <string name="tab_favorites">Favoris</string>
-    <string name="create_playlist_subtitle">Organisez votre musique</string>
-    <string name="empty_playlists_title">Aucune Playlist Pour l\'Instant</string>
-    <string name="empty_playlists_subtitle">Créez votre première playlist pour organiser vos morceaux préférés</string>
-    <string name="empty_favorites_title">Aucun Favoris Pour l\'Instant</string>
-    <string name="empty_favorites_subtitle">Appuyez sur l\'icône de cœur sur n\'importe quelle piste pour l\'ajouter à vos favoris</string>
-    <string name="favorites_count_template">%1$d morceaux favoris</string>
-    <string name="empty_history_title">Aucun Historique Pour l\'Instant</string>
-    <string name="empty_history_subtitle">Commencez à écouter de la musique pour voir votre historique ici</string>
-    <string name="empty_downloads_title">Aucun Téléchargement Pour l\'Instant</string>
-    <string name="empty_downloads_subtitle">Téléchargez des morceaux pour une lecture hors ligne</string>
-    <string name="total_size">Taille Totale</string>
-    <string name="tracks_count_template">%1$s morceaux</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- Contrôles du Lecteur -->
     <string name="btn_minimize">Minimiser</string>
     <string name="captions">Sous-titres</string>
@@ -827,7 +827,7 @@
     <string name="description_copied">La description a été copiée dans le presse-papier</string>
     <string name="tags">Étiquettes</string>
     <string name="sb_manual_skip">Passer</string>
-    <string name="empty_downloads">Aucun téléchargement pour l\'instant</string>
+    
     <string name="search_hint">Recherche</string>
     <string name="settings_header_notifications">Notifications</string>
     <string name="settings_item_notifications">Préférences de notification</string>
@@ -844,16 +844,16 @@
     <string name="pinned_comment">Commentaire épinglé</string>
     <string name="pinned_by_creator">Épinglé par le créateur</string>
     <string name="tap_to_close">Appuyez pour fermer</string>
-    <string name="group_all">Tous</string>
-    <string name="manage_groups">Gérer les groupes</string>
-    <string name="new_group">Nouveau Groupe</string>
-    <string name="edit_group">Modifier un Groupe</string>
-    <string name="delete_group">Supprimer un Groupe</string>
-    <string name="group_name_label">Nom du groupe</string>
-    <string name="no_groups_yet">Pas encore de groupes. Créez-en un pour filtrer vos recommandations.</string>
-    <string name="search_channels_hint">Recherche de chaînes…</string>
-    <string name="songs_count_template">%1$d titres</string>
-    <string name="end_of_queue">Fin de la file d\'attente</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="channel_search_hint">Rechercher dans la chaîne</string>
     <string name="channel_search_open">Rechercher dans la chaîne</string>
     <string name="channel_search_close">Fermer la recherche</string>
@@ -869,7 +869,7 @@
     <string name="settings_item_app_icon_subtitle">Personnalisez l\'icône de votre lanceur</string>
     <string name="appearance_category_custom">Personnalisation</string>
     <string name="appearance_customize_theme">Personnaliser le thème</string>
-    <string name="appearance_customizer_title">Éditeur de thèmes personnalisés</string>
+    
     <string name="appearance_customizer_subtitle">Réglez chaque rôle de couleur de Material 3 et prévisualisez les modifications instantanément</string>
     <string name="appearance_customizer_format_hint">Format hexadécimal : #RRGGBB ou #AARRGGBB</string>
     <string name="appearance_customizer_reset">Réinitialiser</string>
@@ -880,8 +880,8 @@
     <string name="appearance_role_tertiary">Tertiaire</string>
     <string name="app_icon_picker_subtitle">Choisissez un style d\'icône pour le lanceur. La modification prend effet immédiatement et le lanceur s\'actualise brièvement.</string>
     <string name="app_icon_picker_warning">Attention : la modification des icônes fait appel à un mécanisme du système Android qui peut temporairement faire disparaître le raccourci de l\'application de votre écran d\'accueil. Appuyez longuement sur le lanceur d\'applications pour le rajouter si nécessaire.</string>
-    <string name="content_settings_explore_region_picker_title">Sélection rapide de la région dans Explorer</string>
-    <string name="content_settings_explore_region_picker_subtitle">Afficher une icône représentant un globe terrestre dans la barre supérieure de l\'écran « Explorer » pour changer instantanément la région en vogue.</string>
+    
+    
     <string name="categories_region_picker_desc">Changer la région en vogue (actuellement : %1$s)</string>
     <string name="sb_color_picker_title">Couleur de mise en évidence du segment</string>
     <string name="player_settings_shorts_background_play_subtitle">Continuer à lire les Shorts lorsque l\'application est en arrière-plan</string>
@@ -903,25 +903,25 @@
     <string name="content_settings_home_layout_subtitle">Choisissez comment les vidéos s\'affichent sur l\'écran d\'accueil</string>
     <string name="content_settings_layout_grid">Grille</string>
     <string name="content_settings_layout_list">Liste</string>
-    <string name="settings_show_related_videos_title">Afficher les vidéos associées</string>
-    <string name="settings_show_related_videos_subtitle">Afficher les vidéos associées sous le lecteur vidéo</string>
+    
+    
     <string name="player_appearance_gestures_header">Gestes</string>
-    <string name="player_appearance_swipe_gestures_title">Gestes de luminosité et de volume</string>
-    <string name="player_appearance_swipe_gestures_subtitle">Balayez vers la gauche ou vers la droite pour régler la luminosité et le volume en mode plein écran</string>
-    <string name="content_settings_video_card_mark_watched_title">Bouton « Marquer comme vu » de la carte graphique</string>
-    <string name="content_settings_video_card_mark_watched_subtitle">Afficher un bouton en forme d\'œil sur les fiches vidéo « complète » et « compacte » pour marquer rapidement les vidéos comme déjà visionnées</string>
-    <string name="content_settings_show_app_logo_title">Afficher l\'icône du logo de l\'application</string>
-    <string name="content_settings_show_app_logo_subtitle">Afficher l\'icône du logo piTube à côté du nom de l\'application dans la barre supérieure de l\'écran d\'accueil</string>
-    <string name="content_settings_header_content_components">Éléments de contenu</string>
-    <string name="content_settings_hide_watched_title">Masquer les vidéos visionnées</string>
-    <string name="content_settings_hide_watched_subtitle">Filtrez les vidéos que vous avez déjà visionnées dans votre fil d\'actualité et vos abonnements</string>
-    <string name="content_settings_disable_shorts_player_title">Désactiver le lecteur Shorts</string>
-    <string name="content_settings_disable_shorts_player_subtitle">Lire toutes les vidéos (y compris les YouTube Shorts) dans le lecteur vidéo standard</string>
-    <string name="content_settings_header_nav_tabs">Onglets de navigation</string>
-    <string name="settings_music_nav_tab_title">Onglet « Musique » dans le menu de navigation</string>
-    <string name="settings_music_nav_tab_subtitle">Afficher l\'onglet « Musique » dans la barre de navigation inférieure.</string>
-    <string name="settings_search_nav_tab_title">Onglet « Recherche » dans le menu de navigation</string>
-    <string name="settings_search_nav_tab_subtitle">Afficher un onglet « Recherche » à accès rapide dans la barre de navigation inférieure.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="nav_search">Recherche</string>
     <string name="appearance_role_on_secondary">Au niveau secondaire</string>
     <string name="appearance_role_on_tertiary">Au niveau tertiaire</string>
@@ -933,7 +933,7 @@
     <string name="appearance_role_on_surface_variant">Sur la variante de surface</string>
     <string name="appearance_role_error">Erreur</string>
     <string name="appearance_role_on_error">En cas d\'erreur</string>
-    <string name="merge_playlist_no_playlists">Il n\'y a pas encore de playlist. Commencez par en créer une !</string>
+    
     <string name="mini_player_small">Petit</string>
     <string name="mini_player_large">Grand</string>
     <string name="theme_desc_monochrome">Une pureté en noir et blanc</string>
@@ -945,8 +945,8 @@
     <string name="player_settings_custom_speeds_empty">Aucun préréglage n\'a été ajouté. Ajoutez-en un ci-dessous.</string>
     <string name="mini_player_header">Personnalisations du mini-lecteur</string>
     <string name="mini_player_size">Taille du mini-lecteur</string>
-    <string name="content_settings_home_feed_title">Activer le fil d\'actualité</string>
-    <string name="content_settings_home_feed_subtitle">Afficher des suggestions de vidéos personnalisées sur l\'écran d\'accueil</string>
+    
+    
     <string name="content_settings_home_feed_disabled_title">Fil d\'actualité désactivé</string>
     <string name="content_settings_home_feed_disabled_body">Les recommandations personnalisées sont désactivées. Vous pouvez les réactiver dans les paramètres de contenu.</string>
     <string name="content_settings_header_player">Lecteur vidéo</string>
@@ -962,8 +962,8 @@
     <string name="content_settings_title_lines_2">2 lignes</string>
     <string name="content_settings_title_lines_3">3 lignes</string>
     <string name="content_settings_title_lines_unlimited">Sans limite</string>
-    <string name="settings_categories_nav_tab_title">Onglet « Explorer » dans le menu de navigation</string>
-    <string name="settings_categories_nav_tab_subtitle">Afficher un onglet « Tendances et catégories » dans la barre de navigation inférieure.</string>
+    
+    
     <string name="nav_explore">Découvrir</string>
     <string name="player_mini_player_continue_watching_label">Continuer à regarder</string>
     <string name="proxy_settings_title">Paramètres du proxy</string>
@@ -997,11 +997,11 @@
     <string name="categories_switch_to_grid">Passer à l\'affichage en grille</string>
     <string name="categories_switch_to_list">Passer à l\'affichage en liste</string>
     <string name="category_all">Tout</string>
-    <string name="category_trending">Tendances</string>
+    
     <string name="category_movies">Films</string>
     <string name="category_live">Direct</string>
-    <string name="settings_continue_watching_title">Reprendre la lecture</string>
-    <string name="settings_continue_watching_subtitle">Afficher une section pour les vidéos en cours de lecture sur l\'écran d\'accueil.</string>
+    
+    
     <string name="continue_watching_title">Reprendre la lecture</string>
     <string name="player_settings_mini_player_continue_watching_title">Reprendre la lecture dans le mini-lecteur</string>
     <string name="settings_item_proxy">Paramètres du proxy</string>
@@ -1035,10 +1035,10 @@
     <string name="player_settings_speed_slider_subtitle">Utilisez un curseur continu pour régler la vitesse de lecture</string>
     <string name="speed_slider_decrease">Réduire la vitesse</string>
     <string name="speed_slider_increase">Augmenter la vitesse</string>
-    <string name="speed_slider_reset">Réinitialiser à 1×</string>
-    <string name="speed_slider_apply">Appliquer</string>
+    
+    
     <string name="player_settings_stable_voice">Voix stable</string>
-    <string name="player_settings_stable_voice_subtitle">Normaliser le volume audio pour une lecture homogène</string>
+    
     <string name="player_settings_dearrow">DeArrow</string>
     <string name="sb_category_sponsor">Parrainage</string>
     <string name="load_more_replies">Afficher plus de réponses</string>
@@ -1053,7 +1053,7 @@
     <string name="sb_action_mute">Muet</string>
     <string name="sb_action_show_toast">Notification uniquement</string>
     <string name="sb_action_ignore">Ignorer</string>
-    <string name="select_text">Sélectionner le texte</string>
+    
     <string name="flow_is_up_to_date">piTube est à jour !</string>
     <string name="error_not_supported_hint">Ce format ou ce type de contenu ne peut pas être lu dans piTube.</string>
     <string name="proxy_settings_invalid_port">Entrez un port proxy valide compris entre 1 et 65535.</string>
@@ -1079,7 +1079,7 @@
     <string name="sleep_timer_end_of_media">Fin du titre en cours</string>
     <string name="sleep_timer_reset">Réinitialiser</string>
     <string name="sleep_timer_cancel_timer">Annuler le minuteur</string>
-    <string name="sleep_timer_active_label">Minuterie de mise en veille activée</string>
+    
     <string name="permissions_header">Autorisations</string>
     <string name="files_access_title">Accès aux fichiers</string>
     <string name="files_access_denied_subtitle">Non autorisé — appuyez pour activer et afficher la liste complète des téléchargements</string>
@@ -1087,15 +1087,15 @@
     <string name="media_access_title">Accès aux photos &amp; vidéos</string>
     <string name="media_access_granted_subtitle">Autorisé</string>
     <string name="media_access_denied_subtitle">Non autorisé — appuyez pour activer</string>
-    <string name="audio_access_title">Accès à la musique &amp; à l\'audio</string>
-    <string name="audio_access_granted_subtitle">Autorisé</string>
-    <string name="audio_access_denied_subtitle">Non autorisé — appuyez pour activer</string>
+    
+    
+    
     <string name="support_flow_patreon">Soutenez piTube sur Patreon</string>
     <string name="section_app">Application</string>
     <string name="section_contact">Contact</string>
     <string name="section_legal">Légal</string>
     <string name="section_device">Appareil</string>
-    <string name="saved_playlists_header">Playlists enregistrées</string>
+    
     <string name="copy_video_link">Copier le lien de la vidéo</string>
     <string name="error_geo_restricted_hint">Le propriétaire du contenu a restreint l\'accès à cette vidéo dans votre pays. Essayez d\'utiliser un VPN.</string>
     <string name="error_paid_content">Contenu payant / en location</string>
@@ -1161,7 +1161,7 @@
     <string name="diagnostics_loading">Lecture des journaux…</string>
     <string name="diagnostics_copied">Le rapport a été copié dans le presse-papiers</string>
     <string name="add_all_to_playlist">Ajouter à ma playlist</string>
-    <string name="merge_playlist_dialog_title">Ajouter tous les titres à…</string>
+    
     <string name="merge_playlist_success">%1$d titres ont été ajoutés à « %2$s »</string>
     <string name="download_all">Tout télécharger</string>
     <string name="download_all_confirmation">Télécharger les %1$d vidéos ? Cela risque de prendre beaucoup d\'espace de stockage.</string>
@@ -1190,8 +1190,8 @@
     <string name="player_settings_header_gestures">Gestes</string>
     <string name="player_settings_double_tap_seek">Durée de la recherche par double-tap</string>
     <string name="player_settings_double_tap_seek_subtitle_template">%ds par côté en appuyant deux fois</string>
-    <string name="player_settings_double_tap_seek_dialog_title">Durée de la recherche en appuyant deux fois</string>
-    <string name="player_settings_double_tap_seek_dialog_body">Choisissez le nombre de secondes à parcourir lorsque vous appuyez deux fois sur le côté gauche ou droit du lecteur.</string>
+    
+    
     <string name="cache_size_header">Taille du cache multimédia</string>
     <string name="time_management_subtitle">Suivez et gérez votre temps d\'écran</string>
     <string name="this_week">Cette semaine</string>
@@ -1213,12 +1213,12 @@
     <string name="sleep_timer">Minuterie de mise en veille</string>
     <string name="sleep_timer_start">Commencer</string>
     <string name="sleep_timer_stops_in">Arrêts à</string>
-    <string name="channel_memory_empty">Aucune chaîne n\'est enregistrée en mémoire.</string>
+    
     <string name="copy_channel_link">Copier le lien de la chaîne</string>
     <string name="shorts_audio_track">Piste audio</string>
     <string name="shorts_quality">Qualité</string>
-    <string name="shorts_no_audio_tracks">Aucune piste audio disponible</string>
-    <string name="shorts_audio_original">Original</string>
+    
+    
     <string name="resume">Reprendre</string>
     <string name="no_watch_data">Aucune donnée de visionnage pour l\'instant</string>
     <string name="play_next_video">Lecture suivante</string>
@@ -1227,16 +1227,16 @@
     <string name="add_video_to_queue">Ajouter à la file d\'attente</string>
     <string name="add_video_to_queue_desc">Ajouter à la fin de la file d\'attente vidéo</string>
     <string name="added_to_queue_toast">Ajouté à la file d\'attente</string>
-    <string name="no_active_queue_toast">Il n\'y a aucune vidéo en attente. Lancez d\'abord la lecture d\'une vidéo.</string>
-    <string name="section_downloading">Téléchargement</string>
+    
+    
     <string name="section_completed">Terminé</string>
     <string name="download_status_queued">En attente</string>
     <string name="download_status_paused">En pause</string>
     <string name="download_status_failed">Échec</string>
     <string name="cast_to_tv">Diffusion à la télévision</string>
-    <string name="cast_connecting">Connexion à l\'appareil de diffusion…</string>
+    
     <string name="cast_connected">Distribution</string>
-    <string name="cast_disconnected">Cast déconnecté</string>
+    
     <string name="check_for_updates">Vérifier les mises à jour</string>
     <string name="check_for_updates_subtitle">Appuyez ici pour vérifier si la dernière version est disponible</string>
     <string name="checking_for_updates">Recherche de mises à jour…</string>
@@ -1248,98 +1248,98 @@
     <string name="error_geo_restricted">Indisponible dans votre région</string>
     <string name="player_action_background">Arrière-plan</string>
     <string name="player_action_dislike">Je n\'aime pas</string>
-    <string name="learning_stats_title">Signaux d\'apprentissage</string>
-    <string name="learning_stats_subtitle">Ce dont le moteur se souvient actuellement</string>
-    <string name="metric_interactions">Interactions</string>
-    <string name="metric_interactions_detail">clics, visionnages, sauts</string>
-    <string name="metric_topics">Sujets</string>
-    <string name="metric_topics_detail">intérêts pondérés</string>
-    <string name="metric_evidence">Preuve</string>
-    <string name="metric_evidence_detail">sujets validés</string>
-    <string name="metric_channels">Chaînes</string>
-    <string name="metric_channels_detail">entrées d\'affinité</string>
-    <string name="metric_history">Historique</string>
-    <string name="metric_feed_memory">Mémoire de stockage</string>
-    <string name="metric_feed_memory_detail">présenté récemment</string>
-    <string name="metric_filters">Filtres</string>
-    <string name="metric_filters_detail">articles bloqués</string>
-    <string name="metric_suppressed">Supprimé</string>
-    <string name="metric_suppressed_detail">objets réduisant le temps de recharge</string>
-    <string name="shorts_audio_dubbed">Doublé</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="shorts_quality_settings_title">Qualité vidéo des Shorts</string>
     <string name="shorts_quality_settings_subtitle">Qualité lors du visionnage de Shorts</string>
     <string name="shorts_quality_warning">Une meilleure qualité nécessite davantage de données. Les Shorts utilisent des flux vidéo verticaux.</string>
     <string name="shorts_quality_wifi_header">Qualité Wi-Fi des Shorts</string>
     <string name="shorts_quality_cellular_header">Qualité cellulaire des Shorts</string>
-    <string name="metric_history_detail">références de visionnage</string>
-    <string name="profile_maturity_label">Maturité du profil</string>
-    <string name="profile_maturity_detail">Une maturité plus élevée signifie que le profil dispose de suffisamment de signaux pour être stable</string>
-    <string name="taste_shape_subtitle">Profil global par rapport au contexte temporel actif</string>
-    <string name="taste_pacing">Rythme</string>
-    <string name="taste_pacing_context">Contexte actuel : %1$s</string>
-    <string name="taste_complexity">Complexité</string>
-    <string name="taste_duration">Préférence en matière de durée</string>
-    <string name="taste_duration_detail">Des valeurs plus élevées indiquent des vidéos plus longues</string>
-    <string name="taste_live_affinity">Affinité en direct</string>
-    <string name="taste_live_affinity_detail">La part de contenu en direct qui correspond au profil</string>
-    <string name="taste_topic_breadth">Étendue du sujet</string>
-    <string name="taste_topic_breadth_detail">%1$d sujets dans le vecteur global</string>
-    <string name="interest_weights_title">Pondérations des taux d\'intérêt</string>
-    <string name="interest_weights_subtitle">Sujets les plus importants après la période d\'essai et la vérification des antécédents</string>
-    <string name="interest_weights_empty">Aucune pondération des sujets n\'a encore été définie.</string>
-    <string name="time_patterns_title">Rythmes temporels</string>
-    <string name="time_patterns_subtitle">Faites défiler les vecteurs contextuels des jours de semaine et du week-end</string>
-    <string name="time_bucket_label_now">Maintenant</string>
-    <string name="time_bucket_no_topics">Aucun sujet enregistré</string>
-    <string name="time_bucket_top_topics">Sujets principaux</string>
-    <string name="time_bucket_topics_count">Sujets</string>
-    <string name="discovery_rejections_detail">modèles de sujets</string>
-    <string name="blocked_content_subtitle">Sujets et chaînes exclus des recommandations</string>
-    <string name="blocked_topics_header">Sujets bloqués</string>
-    <string name="blocked_item_unblock_topic">Débloquer le sujet</string>
-    <string name="topic_score_prefix">Score</string>
-    <string name="taste_shape_title">Saveur et texture</string>
-    <string name="time_bucket_pace">Rythme</string>
-    <string name="time_bucket_complexity">Complexité</string>
-    <string name="time_bucket_duration">Durée</string>
-    <string name="time_bucket_weekday_morning">Matin en semaine</string>
-    <string name="time_bucket_weekday_afternoon">Après-midi en semaine</string>
-    <string name="time_bucket_weekday_evening">Soirée en semaine</string>
-    <string name="time_bucket_weekday_night">Nuit en semaine</string>
-    <string name="time_bucket_weekend_morning">Matinée du week-end</string>
-    <string name="time_bucket_weekend_afternoon">Après-midi du week-end</string>
-    <string name="time_bucket_weekend_evening">Soirée du week-end</string>
-    <string name="time_bucket_weekend_night">Nuit du week-end</string>
-    <string name="time_window_morning">de 6 h à 12 h</string>
-    <string name="time_window_afternoon">de 12 h à 18 h</string>
-    <string name="time_window_evening">de 18 h à minuit</string>
-    <string name="time_window_night">de minuit à 6 h</string>
-    <string name="channel_affinity_strong">Fort</string>
-    <string name="channel_affinity_balanced">Équilibré</string>
-    <string name="channel_affinity_cooling">Refroidissement</string>
-    <string name="channel_affinity_score">score d\'affinité</string>
-    <string name="discovery_status_title">État de la recherche</string>
-    <string name="discovery_status_subtitle">Les questions et les lignes directrices qui orientent actuellement l\'exploration</string>
-    <string name="discovery_queries">Requêtes</string>
-    <string name="discovery_queries_detail">prêt maintenant</string>
-    <string name="discovery_query_memory">Mémoire de requêtes</string>
-    <string name="discovery_query_memory_detail">séries de jetons récentes</string>
-    <string name="discovery_rejections">Refus</string>
-    <string name="discovery_shorts_seen">Shorts vus</string>
-    <string name="discovery_shorts_seen_detail">garde répétée</string>
-    <string name="blocked_content_title">Filtres</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="blocked_channels_header">Chaînes bloquées</string>
     <string name="blocked_item_unblock_channel">Débloquer la chaîne</string>
-    <string name="blocked_item_showing_count">Affichage de %1$d sur %2$d</string>
-    <string name="profile_data_title">Données de profil</string>
-    <string name="profile_data_subtitle">Sauvegarder, restaurer ou réinitialiser le profil de recommandations local</string>
-    <string name="profile_action_reset">Réinitialiser le profil</string>
-    <string name="profile_action_reset_detail">Effacer les préférences enregistrées et repartir de zéro</string>
-    <string name="reset_profile_dialog_title">Réinitialiser le profil ?</string>
-    <string name="reset_profile_dialog_message">Cela efface le profil de recommandations local et relance l\'apprentissage depuis le début.</string>
-    <string name="reset_profile_confirm">Réinitialiser</string>
-    <string name="taste_chart_profile">Profil</string>
-    <string name="taste_chart_now">Maintenant</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="notif_master_toggle">Activer les notifications</string>
     <string name="notif_master_toggle_subtitle">Autoriser piTube à s\'activer en arrière-plan pour vérifier les notifications et les alertes</string>
     <string name="player_settings_rytd_title">Réintroduire le bouton « Je n\'aime pas » sur YouTube</string>
@@ -1354,8 +1354,8 @@
     <string name="player_unlock_controls">Commandes de déverrouillage</string>
     <string name="player_settings_overlay_lock_mode">Bouton de verrouillage</string>
     <string name="player_settings_overlay_lock_mode_subtitle">Afficher un bouton de verrouillage du lecteur pour empêcher les touches accidentelles</string>
-    <string name="content_settings_comments_preview_title">Aperçu des commentaires</string>
-    <string name="content_settings_comments_preview_subtitle">Afficher le dernier commentaire dans la carte des commentaires</string>
+    
+    
     <string name="content_settings_nav_order_title">Ordre de tabulation et valeur par défaut</string>
     <string name="content_settings_nav_order_subtitle">Utilisez les flèches pour réorganiser les onglets. Sélectionnez l\'onglet par défaut à l\'aide du bouton radio.</string>
     <string name="appearance_system_defaults_title">Thèmes par défaut du système</string>
@@ -1367,12 +1367,12 @@
     <string name="icon_name_material_mint">Material Mint</string>
     <string name="theme_name_material_you">Material You</string>
     <string name="theme_desc_material_you">Couleurs des fonds d\'écran sur Android 12 et versions ultérieures</string>
-    <string name="content_settings_comments_enabled_title">Commentaires</string>
-    <string name="content_settings_comments_enabled_subtitle">Charger et afficher la section des commentaires sur l\'écran du lecteur vidéo</string>
+    
+    
     <string name="history_tab_videos">Vidéos</string>
     <string name="history_tab_shorts">Shorts</string>
-    <string name="hide_channel_shorts">Masquer les Shorts de cette chaîne</string>
-    <string name="show_channel_shorts">Afficher les Shorts de cette chaîne</string>
+    
+    
     <string name="player_settings_shorts_playback_mode_auto_interval">Défilement automatique après une durée personnalisée</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">Défilement automatique toutes les %1$d secondes</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d secondes</string>
@@ -1383,10 +1383,10 @@
     <string name="history_sort_oldest">Les plus anciens en premier</string>
     <string name="history_no_results">Aucun historique correspondant</string>
     <string name="history_no_results_body">Essayez une autre recherche ou un autre filtre</string>
-    <string name="empty_liked_videos">Aucune vidéo aimée</string>
-    <string name="empty_liked_music">Aucune musique préférée</string>
-    <string name="empty_liked_music_body">Les titres que vous aimez s\'afficheront ici</string>
-    <string name="likes_count_template">%1$d mentions « J\'aime »</string>
+    
+    
+    
+    
     <string name="playlist_sort_options">Options de tri des playlists</string>
     <string name="playlist_sort_manual">Manuel</string>
     <string name="playlist_sort_date_added_newest">Date d\'ajout (la plus récente)</string>
@@ -1405,60 +1405,60 @@
     <string name="player_fullscreen_seekbar_width_default">Par défaut</string>
     <string name="player_fullscreen_seekbar_width_custom">Personnalisé</string>
     <string name="player_fullscreen_seekbar_width_value">%1$d dp</string>
-    <string name="upcoming_video_overlay_title">Cette vidéo est programmée. Elle sera disponible dès sa mise en ligne.</string>
+    
     <string name="upcoming_video_reminder_action">Rappelle-le-moi</string>
     <string name="upcoming_video_reminder_enabled">Ensemble de rappels</string>
     <string name="upcoming_video_reminder_badge">Rappel activé</string>
-    <string name="subscriptions_music_section_title">Abonnements musicaux</string>
-    <string name="subscriptions_compact_header_with_music">Les chaînes musicales sont indiquées en ligne afin que le flux reste concis.</string>
-    <string name="subscriptions_music_chip_label">Musique</string>
-    <string name="subscriptions_music_badge_cd">Abonnement musical</string>
+    
+    
+    
+    
     <string name="player_appearance_remember_brightness_title">N\'oubliez pas la luminosité</string>
     <string name="player_appearance_remember_brightness_subtitle">Conserver le dernier réglage de luminosité du lecteur pour les prochaines vidéos</string>
-    <string name="player_background_style_title">Arrière-plan du lecteur de musique</string>
-    <string name="player_background_style_blur_gradient">Flou + Dégradé</string>
-    <string name="player_background_style_blur">Œuvre floue</string>
-    <string name="player_background_style_gradient">Dégradé de couleurs</string>
-    <string name="player_background_style_default">Surface par défaut</string>
-    <string name="lyrics_provider_lyrics_plus">LyricsPlus</string>
-    <string name="section_daily_discover">Votre découverte du jour</string>
-    <string name="section_speed_dial">Accès Rapide</string>
-    <string name="shuffle_play">Lecture aléatoire</string>
-    <string name="feeling_lucky">Vous vous sentez chanceux ?</string>
-    <string name="daily_discover_sounds_like">On dirait %1$s</string>
-    <string name="daily_discover_because_you_listen_to">Parce que vous écoutez %1$s</string>
-    <string name="daily_discover_similar_to">Similaire à %1$s</string>
-    <string name="daily_discover_based_on">Basé sur %1$s</string>
-    <string name="daily_discover_for_fans_of">Pour les fans de %1$s</string>
-    <string name="section_music_videos_for_you">Des clips musicaux pour vous</string>
-    <string name="section_live_performances">Concerts</string>
-    <string name="section_mood_and_genres">Ambiance et Genres</string>
-    <string name="section_from_the_community">De la Communauté</string>
-    <string name="daily_discover_subtitle">Nouvelles suggestions issues de votre historique d\'écoute</string>
-    <string name="similar_content">Contenu similaire</string>
-    <string name="no_similar_content_found">Aucun contenu similaire n\'a été trouvé</string>
-    <string name="radio_source_template">Radio • %1$s</string>
-    <string name="unknown_source">Source inconnue</string>
-    <string name="added_to_playlist_toast">Ajouté à la playlist</string>
-    <string name="already_downloaded_toast">Déjà téléchargé</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="download_started_toast">Téléchargement en cours…</string>
-    <string name="download_error_toast">Erreur de téléchargement : %1$s</string>
-    <string name="music_quality_header">Qualité Audio Musicale</string>
-    <string name="music_quality_auto">Auto</string>
-    <string name="music_quality_high">Haute</string>
-    <string name="music_quality_medium">Moyenne</string>
-    <string name="music_quality_low">Basse</string>
-    <string name="music_playback_warning_forbidden">L\'accès au streaming musical a été refusé. YouTube limite peut-être l\'accès à cette adresse IP ; essayez de recharger la page ou de changer de réseau/VPN.</string>
-    <string name="music_playback_warning_network">La lecture de la musique a échoué en raison d\'un problème de réseau. Vérifiez votre connexion ou essayez un autre réseau.</string>
-    <string name="music_playback_warning_final">Ce titre n\'a pas pu être chargé malgré plusieurs tentatives. Si le problème persiste, essayez un autre réseau ou un VPN.</string>
-    <string name="music_playback_warning_generic">La lecture de la musique a échoué. Réessayez ou changez de réseau si le problème persiste.</string>
-    <string name="add_to_library">Ajouter à la bibliothèque</string>
-    <string name="saved_to_library">Enregistré dans la bibliothèque</string>
-    <string name="failed_to_save_to_library">Échec de l\'enregistrement dans la bibliothèque</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="open">Ouvrir</string>
     <string name="video_download_location_label">Emplacement de téléchargement de la vidéo</string>
-    <string name="music_download_location_label">Emplacement de téléchargement de la musique</string>
-    <string name="refresh_lyrics">Actualiser les paroles</string>
+    
+    
     <string name="settings_item_datetime">Date et heure</string>
     <string name="settings_item_datetime_subtitle">Personnaliser l\'affichage des dates de téléchargement</string>
     <string name="datetime_title">Affichage de la date et de l\'heure</string>
@@ -1483,7 +1483,7 @@
     <string name="player_appearance_volume_boost_title">Activer l\'amplification du volume</string>
     <string name="player_appearance_volume_boost_subtitle">Lorsque cette option est désactivée, le geste de réglage du volume par glissement s\'arrête au volume maximal du système. Activez-la pour augmenter encore davantage le volume.</string>
     <string name="shorts_playback_speed">Vitesse de lecture</string>
-    <string name="speed_normal">Normal</string>
+    
     <string name="history_delete_shorts">Supprimer les Shorts de l\'historique</string>
     <string name="history_delete_shorts_title">Supprimer les Shorts ?</string>
     <string name="history_delete_shorts_body">Cela supprime toutes les vidéos « Shorts » de votre historique de visionnage. Les autres vidéos sont conservées.</string>
@@ -1499,7 +1499,7 @@
     <string name="download_menu_style_compact_desc">Titre modifiable, menus déroulants et nombre de messages</string>
     <string name="download_menu_style_title">Télécharger le style de menu</string>
     <string name="player_appearance_long_press_speed_title">Appui long sur la vitesse de lecture</string>
-    <string name="player_appearance_long_press_speed_subtitle">Choisissez la vitesse temporaire à appliquer lorsque le lecteur est maintenu enfoncé</string>
+    
     <string name="player_appearance_long_press_speed_disabled">Désactivé</string>
     <string name="player_settings_video_codec">Codec vidéo par défaut</string>
     <string name="player_settings_video_codec_dialog_title">Codec vidéo par défaut</string>
@@ -1508,7 +1508,7 @@
     <string name="live_chat">Chat en direct</string>
     <string name="live_chat_connecting">Connexion au chat en direct…</string>
     <string name="live_chat_empty">En attente de messages…</string>
-    <string name="live_chat_show">Afficher le chat</string>
+    
     <string name="live_chat_hide">Masquer la discussion</string>
     <string name="live_chat_jump_to_latest">Aller au dernier message du chat</string>
     <string name="donation_prompt_title">Vous appréciez piTube ?</string>
@@ -1528,10 +1528,10 @@
     <string name="local_media_permission_body">Autorisez l\'accès à vos fichiers multimédias afin que piTube puisse trouver et lire vos vidéos et votre musique stockées localement.</string>
     <string name="local_media_grant">Accorder l\'accès</string>
     <string name="history_tab_local_videos">Vidéos locales</string>
-    <string name="history_tab_local_music">Musique locale</string>
+    
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="content_settings_share_without_text_title">Partager des liens sans texte</string>
-    <string name="content_settings_share_without_text_subtitle">Partagez uniquement le lien vers la vidéo, sans le message « Regardez cette vidéo »</string>
+    
+    
     <string name="icon_name_flow_play">piTube Lecture</string>
     <string name="player_appearance_controls_while_loading_title">Commandes pendant le chargement</string>
     <string name="player_appearance_controls_while_loading_subtitle">Affichez les commandes de lecture avant la fin du chargement de la vidéo afin de pouvoir régler le volume immédiatement</string>
@@ -1550,23 +1550,23 @@
     <string name="content_settings_watched_threshold_95">95 % ont joué</string>
     <string name="content_settings_watched_threshold_99">99 % ont joué</string>
     <string name="content_settings_watched_threshold_almost">Presque terminé (dernière minute)</string>
-    <string name="content_settings_navbar_hide_on_scroll_title">Masquer la barre de navigation lors du défilement</string>
-    <string name="content_settings_navbar_hide_on_scroll_subtitle">Masquer la barre de navigation inférieure lors du défilement vers le bas. Désactivez cette option pour qu\'elle reste toujours visible (utile en cas de ralentissement de l\'animation).</string>
+    
+    
     <string name="player_settings_queue_autoplay">Lecture automatique des vidéos en file d\'attente</string>
     <string name="player_settings_queue_autoplay_subtitle">Lire automatiquement la vidéo suivante d\'une playlist ou de la file d\'attente « À regarder plus tard ». Lorsque cette option est désactivée, vous pouvez toujours passer manuellement à la vidéo suivante.</string>
-    <string name="recognize_music">Reconnaître un morceau de musique</string>
-    <string name="recognition_history">Historique de reconnaissance</string>
-    <string name="tap_to_recognize">Appuyez pour reconnaître</string>
-    <string name="listening">Écoute…</string>
-    <string name="processing">Traitement en cours…</string>
-    <string name="no_match_found">Aucun résultat trouvé</string>
-    <string name="recognition_error">Échec de la reconnaissance</string>
-    <string name="try_again">Réessayez</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="search_in_flow">Rechercher dans piTube</string>
-    <string name="recognition_search_history">Rechercher des morceaux reconnus</string>
-    <string name="recognition_history_empty">Les morceaux identifiés s\'afficheront ici</string>
-    <string name="recognition_clear_history">Effacer l\'historique ?</string>
-    <string name="recognition_clear_history_body">Cette opération supprime toutes les chansons reconnues. Elle est irréversible.</string>
+    
+    
+    
+    
     <string name="player_settings_display">Affichage</string>
     <string name="player_settings_ambient_mode">Mode ambiant</string>
     <string name="player_settings_ambient_mode_subtitle">Remplissez les bandes autour de la vidéo d\'une douce lueur aux couleurs de celle-ci</string>
@@ -1623,7 +1623,7 @@
     <string name="sync_error_qr_bad_address">Il manque une adresse réseau valide dans le code de synchronisation.</string>
     <string name="sync_collection_subscriptions">Abonnements</string>
     <string name="sync_collection_settings">Paramètres</string>
-    <string name="sync_collection_recommendation_profile">Profil de recommandation</string>
+    
     <string name="sync_preparing">Préparation en cours…</string>
     <string name="sync_connecting">Connexion en cours…</string>
     <string name="sync_intro">Synchronisez votre bibliothèque, votre historique, vos coups de cœur, vos paramètres et votre profil de recommandations avec un autre appareil via votre réseau Wi-Fi local. Aucune donnée ne quitte votre réseau.</string>
@@ -1646,50 +1646,50 @@
     <string name="quick_actions_error_template">Erreur : %1$s</string>
     <string name="upcoming_label">À venir</string>
     <string name="upcoming_waiting_count">%1$s en attente</string>
-    <string name="player_appearance_hide_music_artwork_title">Masquer la pochette du lecteur de musique</string>
-    <string name="player_appearance_hide_music_artwork_subtitle">Afficher plutôt l\'icône de l\'application dans la couleur de l\'illustration extraite</string>
-    <string name="onboarding_interests_title">Qu\'est-ce qui vous plaît ?</string>
-    <string name="onboarding_interests_hint">Choisissez au moins %1$d thèmes pour personnaliser votre fil d\'actualité. Il en reste %2$d.</string>
-    <string name="onboarding_interests_ready">Super choix. Vous pourrez toujours modifier cela plus tard dans les paramètres.</string>
-    <string name="onboarding_channels_title">Rechercher des chaînes</string>
-    <string name="onboarding_channels_subtitle">Recherchez les chaînes que vous suivez déjà et abonnez-vous d\'un simple clic.</string>
-    <string name="onboarding_channels_search_placeholder">Recherche de chaînes…</string>
-    <string name="onboarding_channels_empty_prompt">Saisissez le nom d\'une chaîne pour lancer la recherche</string>
-    <string name="onboarding_channels_no_results">Aucune chaîne trouvée pour « %1$s »</string>
-    <string name="onboarding_channels_added_count">%1$d chaînes ajoutées</string>
-    <string name="onboarding_channels_subscribers">%1$s abonnés</string>
-    <string name="onboarding_channels_subscribed">Abonné</string>
-    <string name="onboarding_channels_subscribe">S\'abonner</string>
-    <string name="onboarding_import_title">Importez vos données</string>
-    <string name="onboarding_import_subtitle">Importez vos abonnements et votre historique depuis d\'autres applications. Tout est facultatif.</string>
-    <string name="onboarding_backup_restore_section">Sauvegarde &amp; Restauration</string>
-    <string name="onboarding_n_selected">%1$d sélectionnés</string>
-    <string name="onboarding_topic_selected">Sélectionné</string>
-    <string name="onboarding_topic_not_selected">Non sélectionné</string>
-    <string name="onboarding_import_failed_template">Échec de l\'importation : %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="onboarding_btn_skip">Passer</string>
-    <string name="onboarding_btn_finish">Terminer</string>
-    <string name="onboarding_btn_back">Retour</string>
-    <string name="persona_initiate_title">L\'Initié</string>
-    <string name="persona_initiate_description">Vous venez de commencer. Votre profil est encore en cours de création.</string>
-    <string name="persona_audiophile_title">L\'Audiophile</string>
-    <string name="persona_audiophile_description">Vous utilisez piTube surtout pour écouter de la musique. L\'ambiance, c\'est ce qui compte le plus.</string>
-    <string name="persona_livewire_title">Le Livewire</string>
-    <string name="persona_livewire_description">Vous adorez l\'énergie brute des livestreams et des avant-premières.</string>
-    <string name="persona_night_owl_title">La Chouette Nocturne</string>
-    <string name="persona_night_owl_description">C\'est dans l\'obscurité que vous vous sentez le mieux. La plupart des visionnages ont lieu après minuit.</string>
-    <string name="persona_binger_title">Le Binger</string>
-    <string name="persona_binger_description">Une fois qu\'on commence, on ne peut plus s\'arrêter. Des vagues de contenu gigantesques.</string>
-    <string name="persona_scholar_title">L\'Érudit</string>
-    <string name="persona_scholar_description">Un contenu très complexe. Nous sommes ici pour évoluer, pas seulement pour nous divertir.</string>
-    <string name="persona_deep_diver_title">Le Plongeur des Profondeurs</string>
-    <string name="persona_deep_diver_description">Les essais vidéo et les documentaires de longue durée, c\'est votre univers.</string>
-    <string name="persona_skimmer_title">L\'Écumoire</string>
-    <string name="persona_skimmer_description">Des contenus courts et rythmés. De la dopamine à la demande.</string>
-    <string name="persona_specialist_title">Le Spécialiste</string>
-    <string name="persona_specialist_description">On se concentre exclusivement sur quelques niches. Vous savez ce que vous aimez.</string>
-    <string name="persona_explorer_title">L\'Explorateur</string>
-    <string name="persona_explorer_description">Chaotique et magnifique. Un peu de tout.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="player_appearance_grouped_quality_selector_title">Sélecteur de qualité groupé</string>
     <string name="player_appearance_grouped_quality_selector_subtitle">Afficher une ligne par résolution, avec les choix de codecs à l\'intérieur de celle-ci</string>
     <string name="playlist_video_added_template">Ajouté %1$s</string>
@@ -1698,8 +1698,8 @@
     <string name="select_all">Tout sélectionner</string>
     <string name="deselect_all">Tout désélectionner</string>
     <string name="delete_selected">Supprimer la sélection</string>
-    <string name="content_settings_shorts_player_prompt_title">Suggestion concernant le lecteur de « Shorts »</string>
-    <string name="content_settings_shorts_player_prompt_subtitle">Demander confirmation avant de basculer les vidéos de moins de 2 minutes vers le lecteur Shorts</string>
+    
+    
     <string name="collaborators">Collaborateurs</string>
     <string name="collaborator">Collaborateur</string>
     <string name="channel_and_more_template">%1$s et %2$d de plus</string>
@@ -1736,10 +1736,10 @@
     <string name="appearance_color_hue">Hue</string>
     <string name="appearance_color_saturation">Saturation</string>
     <string name="close_popup_player">Fermer le lecteur contextuel</string>
-    <string name="content_settings_home_reselect_refresh_title">Actualiser la page d\'accueil lors de la resélection</string>
-    <string name="content_settings_home_reselect_refresh_subtitle">Recharger les suggestions après avoir fait défiler jusqu\'en haut de la page lorsque l\'on appuie à nouveau sur « Accueil »</string>
-    <string name="settings_home_nav_tab_title">Onglet « Accueil »</string>
-    <string name="settings_home_nav_tab_subtitle">Afficher « Accueil » dans la barre de navigation</string>
+    
+    
+    
+    
     <string name="channel_metadata_unavailable">Les informations sur la chaîne ne sont pas disponibles</string>
     <string name="copy_logs">Copier les journaux</string>
     <string name="logs_copied">Journaux copiés</string>
@@ -1776,40 +1776,40 @@
     <string name="subtitle_background_opacity_template">Opacité de l\'arrière-plan : %1$d%%</string>
     <string name="subtitle_bold_text">Texte en gras</string>
     <string name="subtitle_reset_default">Rétablir les paramètres par défaut</string>
-    <string name="content_settings_hide_watched_home_title">Masquer les vidéos visionnées de la page d\'accueil</string>
-    <string name="content_settings_hide_watched_home_subtitle">Filtrer les vidéos que vous avez déjà visionnées dans votre fil d\'actualité</string>
-    <string name="widget_now_playing_label">En cours de lecture</string>
-    <string name="widget_now_playing_description">Contrôler la musique en cours de lecture dans piTube</string>
+    
+    
+    
+    
     <string name="widget_quick_actions_label">Actions rapides</string>
     <string name="widget_quick_actions_description">Rechercher dans « piTube » et accéder aux téléchargements, à l\'historique ou à la reconnaissance</string>
-    <string name="widget_recognize_label">Reconnaître un morceau de musique</string>
-    <string name="widget_recognize_description">Identifiez la chanson qui passe autour de vous d\'un simple clic</string>
-    <string name="widget_turntable_label">Platine vinyle</string>
-    <string name="widget_turntable_description">Votre musique, comme un disque qui tourne</string>
+    
+    
+    
+    
     <string name="widget_recently_played_label">Derniers jeux joués</string>
     <string name="widget_recently_played_description">Reprenez là où vous vous étiez arrêté</string>
     <string name="widget_downloads_label">Téléchargements</string>
     <string name="widget_downloads_description">Écoutez vos fichiers téléchargés hors ligne</string>
     <string name="widget_recently_played">Récemment écouté</string>
     <string name="widget_downloads">Téléchargements</string>
-    <string name="widget_nothing_playing">Aucun contenu en cours de lecture</string>
-    <string name="widget_play">Lire</string>
-    <string name="widget_pause">Pause</string>
-    <string name="widget_next">Titre suivant</string>
-    <string name="widget_previous">Titre précédent</string>
-    <string name="widget_artwork">Pochette d\'album</string>
+    
+    
+    
+    
+    
+    
     <string name="widget_open_downloads">Ouvrir les téléchargements</string>
     <string name="widget_open_history">Ouvrir l\'historique</string>
     <string name="widget_no_recent">Les vidéos que vous regardez s\'afficheront ici</string>
     <string name="widget_no_downloads">Vos téléchargements s\'afficheront ici</string>
-    <string name="widget_like">Favoris</string>
+    
     <string name="desc_more">…et plus</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
     <string name="playlist_filter_owned">Appartenant à</string>
     <string name="playlist_creation_menu_open">Création de playlist</string>
     <string name="playlist_creation_menu_close">Fermer le menu de création de playlist</string>
-    <string name="content_settings_restored_music_mini_player_title">Afficher le mini-lecteur de musique restauré</string>
-    <string name="content_settings_restored_music_mini_player_subtitle">Afficher automatiquement votre dernière session musicale une fois celle-ci restaurée</string>
+    
+    
     <string name="ui_open_in_youtube">Ouvrir sur YouTube</string>
     <string name="ui_playback_error">Erreur de lecture</string>
     <string name="ui_replay">Rediffusion</string>
@@ -1817,43 +1817,43 @@
     <string name="ui_skip_forward_10_seconds">Avancer de 10 secondes</string>
     <string name="ui_queued_for_download">En attente de téléchargement</string>
     <string name="ui_downloading">Téléchargement</string>
-    <string name="ui_in_library">Dans la bibliothèque</string>
-    <string name="ui_navigate">Naviguer</string>
-    <string name="ui_options">Options</string>
+    
+    
+    
     <string name="ui_selected">Sélectionné</string>
     <string name="ui_flow_logo">Logo piTube</string>
     <string name="ui_list_view">Affichage sous forme de liste</string>
     <string name="ui_grid_view">Affichage en grille</string>
     <string name="ui_back">Retour</string>
-    <string name="ui_add_songs">Ajouter des titres</string>
+    
     <string name="ui_close_search">Fermer la recherche</string>
     <string name="ui_save_to_library">Enregistrer dans la bibliothèque</string>
     <string name="ui_remove_from_library">Supprimer de la bibliothèque</string>
-    <string name="ui_clear">Effacer</string>
-    <string name="ui_delete_from_playlist">Supprimer de la playlist</string>
-    <string name="ui_added">Ajouté</string>
-    <string name="ui_sync_lyrics">Synchroniser les paroles</string>
+    
+    
+    
+    
     <string name="ui_downloading_playlist">Téléchargement de la playlist</string>
-    <string name="ui_no_songs_found">Aucun titre trouvé</string>
-    <string name="ui_search_songs_to_add">Rechercher des titres à ajouter…</string>
-    <string name="ui_add_songs_to_playlist">Ajouter des titres à la playlist</string>
-    <string name="ui_show_less">Afficher moins</string>
-    <string name="ui_show_more">Afficher plus</string>
+    
+    
+    
+    
+    
     <string name="ui_try_sabr_download">Essayez SABR Download</string>
-    <string name="ui_audio_only">Audio uniquement</string>
+    
     <string name="ui_no_crash_logs">Aucun journal d\'erreurs</string>
     <string name="ui_copy_log">Journal des copies</string>
     <string name="ui_clear_and_continue">Effacer et continuer</string>
     <string name="ui_crashed_last_session">piTube a planté lors de la dernière session</string>
     <string name="ui_copy_log_description">Copiez le journal ci-dessous et collez-le dans un ticket GitHub afin que le problème puisse être résolu.</string>
     <string name="ui_search_settings">Paramètres de recherche…</string>
-    <string name="ui_custom_interest_title">Ajouter un centre d\'intérêt personnalisé</string>
-    <string name="ui_custom_interest_subtitle">Saisissez le sujet que vous souhaitez suivre</string>
-    <string name="ui_custom_interest_hint">Centres d\'intérêt personnels (par exemple : le jazz, l\'astrophysique)</string>
-    <string name="ui_add_interest">Ajouter de l\'intérêt</string>
-    <string name="ui_version">Version %1$s</string>
+    
+    
+    
+    
+    
     <string name="update_download_prompt">Une nouvelle version de piTube est disponible (%1$s). Voulez-vous télécharger la dernière version de l\'APK ?</string>
-    <string name="ui_instrumental">I N S T R U M E N T A L</string>
+    
     <string name="ui_playlist_empty">La playlist est vide</string>
     <string name="equalizer">Égaliseur</string>
     <string name="action_save_preset">Enregistrer le préréglage</string>
@@ -1877,20 +1877,20 @@
     <string name="toast_no_download_source">Aucune source de téléchargement disponible</string>
     <string name="toast_sabr_download_failed">Échec du téléchargement SABR : %1$s</string>
     <string name="toast_copied_to_clipboard">Copié dans le presse-papiers</string>
-    <string name="toast_playlist_deleted">Playlist supprimée</string>
-    <string name="toast_playlist_renamed">Playlist renommée</string>
-    <string name="toast_starting_playlist_download">Début du téléchargement de %1$s…</string>
-    <string name="toast_downloaded_tracks_from_playlist">%1$d titres téléchargés depuis %2$s</string>
-    <string name="toast_failed_to_download_playlist">Échec du téléchargement de la playlist</string>
-    <string name="toast_error_downloading_playlist">Erreur lors du téléchargement de la playlist</string>
-    <string name="toast_downloaded_tracks">%1$d titres téléchargés</string>
-    <string name="toast_added_to_playlist">Ajouté à la playlist</string>
-    <string name="toast_failed_to_add_track">Échec de l\'ajout du titre</string>
-    <string name="toast_removed_from_playlist">Supprimé de la playlist</string>
-    <string name="toast_failed_to_remove_track">Échec de la suppression du titre</string>
-    <string name="toast_saved_playlist_to_music_library">La playlist a été enregistrée dans votre bibliothèque musicale</string>
-    <string name="toast_failed_to_save_playlist">Échec de l\'enregistrement de la playlist</string>
-    <string name="toast_removed_playlist_from_library">Playlist supprimée de la bibliothèque</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="toast_failed_to_merge_playlist">Échec de la fusion de la playlist</string>
     <string name="notification_downloading">Téléchargement en cours : %1$s</string>
     <string name="notification_download_complete">Téléchargement terminé</string>
@@ -1923,31 +1923,31 @@
     <string name="error_playback_device">Erreur du périphérique de lecture : %1$s</string>
     <string name="error_content_protection">Erreur de protection du contenu : %1$s</string>
     <string name="error_playback_stopped">La lecture s\'est arrêtée en raison d\'une erreur critique</string>
-    <string name="error_invalid_media_streams">Échec du chargement du contenu multimédia : flux non valides</string>
+    
     <string name="error_failed_to_load_media">Échec du chargement du fichier multimédia : %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Échec du chargement du contenu multimédia : flux non valides</string>
     <string name="error_playback_retry_hint">Réessayez plus tard ou vérifiez votre connexion réseau.</string>
     <string name="download_waiting_for_wifi">En attente de connexion Wi-Fi</string>
     <string name="download_failed_try_again">Le téléchargement a échoué. Veuillez réessayer.</string>
     <string name="download_merging_audio_video">Fusionner l\'audio et la vidéo…</string>
-    <string name="fallback_playing">Lecture…</string>
-    <string name="fallback_unknown_title">Titre inconnu</string>
-    <string name="fallback_unknown_channel">Chaîne inconnue</string>
-    <string name="fallback_unknown_playlist">Playlist inconnue</string>
-    <string name="fallback_unknown_artist">Artiste inconnu</string>
-    <string name="fallback_unknown_album">Album inconnu</string>
-    <string name="fallback_unknown_video">Vidéo inconnue</string>
-    <string name="fallback_local_video">Vidéo locale</string>
-    <string name="fallback_local_audio">Audio local</string>
-    <string name="fallback_your_watch_later_list">Votre liste « À voir plus tard »</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="fallback_downloaded_locally">Téléchargé localement</string>
-    <string name="fallback_more_results">Plus de résultats</string>
+    
     <string name="error_failed_to_load_shorts">Échec du chargement des shorts</string>
     <string name="error_failed_to_load_more_shorts">Impossible de charger plus de shorts</string>
-    <string name="error_search_timed_out">Délai de recherche expiré</string>
-    <string name="error_filter_search_timed_out">Délai d\'attente dépassé pour la recherche par filtre</string>
-    <string name="error_failed_to_load_playlist">Échec du chargement de la playlist</string>
-    <string name="error_failed_to_load_content">Échec du chargement du contenu</string>
+    
+    
+    
+    
     <string name="error_no_videos_found">Aucune vidéo trouvée</string>
     <string name="error_no_shorts_found">Aucun short trouvé</string>
     <string name="error_no_live_videos_found">Aucune vidéo en direct trouvée</string>
@@ -1968,12 +1968,12 @@
     <string name="download_failed_audio_length">Impossible d\'obtenir la durée du contenu audio</string>
     <string name="download_workers_failed">Un ou plusieurs travailleurs ont échoué</string>
     <string name="download_block_failed">Échec du bloc %1$s : %2$s</string>
-    <string name="fallback_your_saved_shorts">Vos shorts enregistrés</string>
-    <string name="about_creator_name">A-EDev</string>
-    <string name="about_website_address">flow.aedev.me</string>
-    <string name="about_reddit">Reddit</string>
-    <string name="about_reddit_subtitle">r/piTube_Official</string>
-    <string name="about_license_name">GNU GPL v3</string>
+    
+    
+    
+    
+    
+    
     <plurals name="tv_playlist_video_count">
         <item quantity="one">%1$d vidéo</item>
         <item quantity="many">%1$d vidéos</item>
@@ -1999,6 +1999,6 @@
     <string name="duration_minutes_short">%1$dm</string>
     <string name="empty_saved_shorts">Aucun court métrage enregistré pour l\'instant</string>
     <string name="settings_search_no_results">Aucun paramètre trouvé pour %1$s</string>
-    <string name="settings_lyrics_provider_order_description">Les fournisseurs sont testés les uns après les autres. Le premier qui renvoie les paroles remporte la mise.</string>
+    
     <string name="donations_cryptocurrency">CRYPTOMONNAIE</string>
 </resources>

@@ -10,10 +10,10 @@
     <string name="subscribers">Підписники</string>
     <string name="stats">Статистика</string>
     <string name="library">Бібліотека</string>
-    <string name="library_section_header">Ваш контент</string>
+    
     <string name="library_history_label">Історія</string>
     <string name="library_playlists_label">Списки відтворення</string>
-    <string name="library_music_playlists_subtitle">Ваші музичні колекції</string>
+    
     <string name="library_liked_videos_label">Вподобані відео</string>
     <string name="library_saved_shorts_label">Збережені Shorts</string>
     <string name="library_watch_later_label">Подивитися пізніше</string>
@@ -30,49 +30,49 @@
     <string name="empty_watch_history">Немає історії переглядів</string>
     <string name="empty_watch_history_body">Відео які ви подивитесь опиняться тут</string>
     <string name="liked">Вподобано</string>
-    <string name="liked_music">Вподобана музика</string>
-    <string name="liked_videos">Вподобані відео</string>
-    <string name="share_song">Поширити пісню</string>
+    
+    
+    
     <string name="empty_liked">Немає вподобаних відео</string>
     <string name="empty_liked_body">Ваш уподобаний уміст з’явиться тут</string>
-    <string name="song">Пісня</string>
+    
     <string name="video">Відео</string>
     <string name="share">Поширити</string>
     <string name="downloaded">Завантажено</string>
     <string name="download">Завантажити</string>
     <string name="save">Зберегти</string>
-    <string name="up_next">ДАЛІ</string>
+    
     <string name="lyrics">ТЕКСТ ПІСНІ</string>
-    <string name="related">ПОВ’ЯЗАНІ</string>
+    
     <string name="close">Закрити</string>
     <string name="more_options">Більше параметрів</string>
     <string name="shuffle">Перемішати</string>
     <string name="pause">Пауза</string>
-    <string name="loading_track">Завантаження треку...</string>
+    
     <string name="error_occurred">Сталася помилка</string>
     <string name="autoplay">Автовідтворення</string>
-    <string name="related_content">Пов’язаний контент</string>
-    <string name="no_related_content">Пов’язаного контенту не знайдено</string>
-    <string name="codec_label">Кодек</string>
+    
+    
+    
     <string name="sample_rate_label">Частота дискретизації</string>
     <string name="bitrate_label">Бітрейт</string>
-    <string name="channels_label">Канали</string>
-    <string name="audio_info_not_available">Інформація про аудіопотік поки що недоступна.</string>
+    
+    
     <string name="share_video">Поширити відео</string>
-    <string name="related_videos">Пов’язані відео</string>
+    
     <string name="quality_auto">Авто</string>
     <string name="quality_auto_template">Авто (%1$dp)</string>
     <string name="play_mode_suggestion_body">Це відео триває менше 2 хвилин. Бажаєте перемкнутись на спеціалізований програвач?</string>
     <string name="shorts_player">Програвач Shorts</string>
-    <string name="music_player">Музичний програвач</string>
+    
     <string name="tab_videos">Відео</string>
-    <string name="tab_music">Музика</string>
+    
     <string name="action_delete">Видалити</string>
     <string name="downloads_title">Завантаження</string>
-    <string name="download_deleted">Завантаження видалено</string>
+    
     <string name="cd_delete_download">Видалити %1$s</string>
     <string name="cd_video_thumbnail">Мініатюра відео для %1$s</string>
-    <string name="cd_track_artwork">Обкладинка треку для %1$s</string>
+    
     <string name="save_to">Зберегти до...</string>
     <string name="watch_later">Переглянути пізніше</string>
     <string name="create_new_playlist">Створити новий список відтворення</string>
@@ -108,7 +108,7 @@
     <string name="release_notes">ПРИМІТКИ ДО ВИПУСКУ</string>
     <string name="update_flow">Оновити piTube</string>
     <string name="maybe_later">Можливо пізніше</string>
-    <string name="nav_music">Музика</string>
+    
     <string name="nav_library">Бібліотека</string>
     <string name="search">Пошук</string>
     <string name="settings">Налаштування</string>
@@ -117,57 +117,57 @@
     <string name="description_copied">Опис скопійовано в буфер обміну</string>
     <string name="tags">Теги</string>
     <string name="sb_manual_skip">Пропустити</string>
-    <string name="ago">Тому</string>
-    <string name="add_to_playlist">Додати до списку відтворення</string>
-    <string name="add_to_queue">Додати до черги</string>
-    <string name="add_to_queue_desc">Додати в кінець черги</string>
+    
+    
+    
+    
     <string name="audio_effects">Ефекти аудіо</string>
-    <string name="more_header">Більше</string>
+    
     <string name="save_to_playlist">Зберегти до списку відтворення</string>
     <string name="track_info">Інформація про трек</string>
     <string name="itag">iTag</string>
     <string name="video_metadata_template">%1$s • %2$s • %3$s</string>
     <string name="video_metadata_short_template">%1$s • %2$s</string>
     <string name="update_available_template">%1$s тепер доступний</string>
-    <string name="select_artist">Виберіть виконавця</string>
+    
     <string name="playback_header">Відтворення</string>
-    <string name="play_next">Відтворити наступне</string>
-    <string name="play_next_desc">Додати на початок черги</string>
-    <string name="view_artist">Переглянути виконавця</string>
-    <string name="view_album">Переглянути альбом</string>
-    <string name="album_art">Обкладинка альбому</string>
-    <string name="close_player">Закрити програвач</string>
+    
+    
+    
+    
+    
+    
     <string name="views_template">%1$s переглядів</string>
     <string name="artist">Виконавець</string>
     <string name="playlist">Список відтворення</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Ваша персоналізована стрічка</string>
     <string name="videos_curated_template">%1$d відео, підібраних спеціально для вас</string>
-    <string name="toggle_view_mode">Перемикання режиму перегляду</string>
+    
     <string name="videos_count_template">%1$d відео</string>
-    <string name="playlists_count_template">%1$d списків відтворення</string>
-    <string name="shorts_count_template">%1$d shorts</string>
-    <string name="songs_count_template">%1$d пісень</string>
-    <string name="empty_downloads">Завантажень поки що немає</string>
+    
+    
+    
+    
     <string name="play_all">Відтворити все</string>
     <string name="remove_from_watch_later">Видалити з «Переглянути пізніше»</string>
-    <string name="explicit">E</string>
+    
     <string name="no_videos_saved">Немає збережених відео</string>
     <string name="no_videos_saved_body">Відео, які ви збережете для «Перегляду пізніше», з’являтимуться тут</string>
     <string name="search_hint">Пошук</string>
     <string name="search_videos_channels_placeholder">Пошук відео, каналів...</string>
-    <string name="trending">Тренди</string>
+    
     <string name="channels_header">Канали</string>
     <string name="videos_header">Відео</string>
     <string name="clear_search_history">Очистити історію пошуку</string>
-    <string name="filter_upload_date">Дата завантаження</string>
-    <string name="filter_duration">Тривалість</string>
-    <string name="filter_sort_by">Сортувати за</string>
-    <string name="filter_hd">HD</string>
-    <string name="filter_4k">4K</string>
+    
+    
+    
+    
+    
     <string name="filter_subtitles">Субтитри</string>
     <string name="date_any">Будь-коли</string>
-    <string name="date_last_hour">Остання година</string>
+    
     <string name="date_today">Сьогодні</string>
     <string name="date_this_week">Цього тижня</string>
     <string name="date_this_month">Цього місяця</string>
@@ -177,24 +177,24 @@
     <string name="duration_4_20">4-20 хвилин</string>
     <string name="duration_over_20">Більше 20 хвилин</string>
     <string name="sort_relevance">Релевантність</string>
-    <string name="sort_upload_date">Дата завантаження</string>
-    <string name="sort_view_count">Кількість переглядів</string>
+    
+    
     <string name="sort_rating">Рейтинг</string>
-    <string name="channel_default_title">Канал</string>
+    
     <string name="channel_banner">Банер каналу</string>
     <string name="subscribe">Підписатися</string>
     <string name="tab_shorts">Shorts</string>
     <string name="tab_live">Ефір</string>
     <string name="tab_playlists">Список відтворення</string>
     <string name="tab_about">Про нас</string>
-    <string name="end_of_queue">Кінець черги</string>
-    <string name="no_videos_found">Відео не знайдено</string>
-    <string name="no_shorts_found">Shorts не знайдено</string>
+    
+    
+    
     <string name="no_playlists_found">Список відтворення не знайдено</string>
     <string name="subscribers_count_template">%1$s підписників</string>
     <string name="views_count_short_template">%1$s переглядів</string>
     <string name="remove_from_history">Видалити з історії</string>
-    <string name="share_song_chooser">Поширити пісню</string>
+    
     <string name="time_today">Сьогодні</string>
     <string name="time_yesterday">Вчора</string>
     <string name="time_earlier">Раніше</string>
@@ -206,19 +206,19 @@
     <string name="player_appearance_header">Налаштування керування програвачем</string>
     <string name="player_appearance_style_subtitle">Виберіть візуальний стиль панелі пошуку</string>
     <string name="settings_item_player_appearance">Зовнішній вигляд програвача</string>
-    <string name="style_default">Стандартна</string>
-    <string name="style_metrolist">Товстий</string>
-    <string name="style_metrolist_slim">Стандартний</string>
-    <string name="style_squiggly">Хвилястий</string>
-    <string name="style_slim">Ультратонкий</string>
+    
+    
+    
+    
+    
     <string name="delete">Видалити</string>
     <string name="dismiss">Відхилити</string>
     <string name="peace_and_quiet">Мир і тиша</string>
     <string name="settings_title">Налаштування</string>
-    <string name="settings_flow_engine_header">Рушій piTube</string>
-    <string name="settings_active_learning">АКТИВНЕ НАВЧАННЯ</string>
-    <string name="settings_reset_everything">Скинути все</string>
-    <string name="settings_view_analytics">Переглянути аналітику</string>
+    
+    
+    
+    
     <string name="settings_header_appearance">Зовнішній вигляд</string>
     <string name="settings_header_content_playback">Контент і відтворення</string>
     <string name="settings_header_data_management">Керування даними</string>
@@ -235,46 +235,46 @@
     <string name="settings_item_theme">Тема</string>
     <string name="settings_item_app_icon">Значок застосунку</string>
     <string name="settings_item_app_icon_subtitle">Налаштуйте значок запускача</string>
-    <string name="settings_item_content_prefs">Налаштування контенту</string>
-    <string name="library_music_playlists_label">Списки музики</string>
-    <string name="empty_description">Опис відсутній</string>
+    
+    
+    
     <string name="like">Лайк</string>
     <string name="previous">Попереднє</string>
     <string name="play">Грати</string>
     <string name="next">Наступне</string>
     <string name="repeat">Повторювати</string>
-    <string name="playing_from">Грає з</string>
+    
     <string name="move_up">Перемістити вгору</string>
     <string name="move_down">Перемістити вниз</string>
     <string name="lyrics_not_available">Текст пісні не знайдено</string>
-    <string name="playing">Грає</string>
+    
     <string name="remove">Прибрати</string>
     <string name="hz">Гц</string>
-    <string name="filter_discover">Дослідити</string>
+    
     <string name="filter_popular">Популярне</string>
-    <string name="filter_workout">Тренування</string>
-    <string name="content_settings_show_app_logo_subtitle">Показувати логотип piTube поруч із назвою застосунку у верхній панелі головного екрана</string>
-    <string name="content_settings_header_content_components">Компоненти контенту</string>
-    <string name="content_settings_hide_watched_title">Сховати переглянуті відео</string>
-    <string name="content_settings_hide_watched_subtitle">Фільтрувати відео, які ви вже переглянули, зі своєї стрічки та підписок</string>
-    <string name="content_settings_disable_shorts_player_title">Вимкнути програвач Shorts</string>
-    <string name="content_settings_disable_shorts_player_subtitle">Відтворювати всі відео (включно з YouTube Shorts) у звичайному програвачі</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="categories_region_picker_desc">Змінити регіон трендів (поточний: %1$s)</string>
-    <string name="content_settings_header_nav_tabs">Вкладки навігації</string>
+    
     <string name="nav_search">Пошук</string>
-    <string name="settings_categories_nav_tab_subtitle">Показувати вкладку «Тренди та категорії» в нижній панелі навігації.</string>
+    
     <string name="nav_explore">Дослідити</string>
     <string name="nav_more">Більше</string>
     <string name="categories_title">Категорії</string>
     <string name="category_all">Все</string>
-    <string name="category_trending">Тренди</string>
+    
     <string name="category_movies">Фільми</string>
     <string name="category_live">Ефір</string>
     <string name="continue_watching_title">Продовжити перегляд</string>
-    <string name="share_message_template">Послухайте цю пісню: %1$s від %2$s\nhttps://music.youtube.com/watch?v=%3$s</string>
+    
     <string name="kbps">кбіт/с</string>
-    <string name="filter_deep_cuts">Маловідомі пісні</string>
-    <string name="track_details">Деталі треку</string>
+    
+    
     <string name="title_label">Назва</string>
     <string name="artist_label">Виконавець</string>
     <string name="album_label">Альбом</string>
@@ -293,7 +293,7 @@
     <string name="empty_offline_title">Поза мережею %1$s</string>
     <string name="empty_offline_body">Ваші завантаження %1$s з’явиться тут.\nНасолоджуйтесь вашим контентом навіть без мережі.</string>
     <string name="action_go_to_home">Перейти на головну</string>
-    <string name="action_undo">Скасувати</string>
+    
     <string name="watch_later_unsave">Видалити з «Переглянути пізніше»</string>
     <string name="playlist_private">Приватний</string>
     <string name="playlist_public">Публічний</string>
@@ -309,24 +309,24 @@
     <string name="nav_home">Головна</string>
     <string name="nav_shorts">Shorts</string>
     <string name="notifications">Сповіщення</string>
-    <string name="since">З</string>
+    
     <string name="chapters">Частини</string>
     <string name="app_name_uppercase">PITUBE</string>
-    <string name="unsubscribed_from_template">Відписано від %1$s</string>
-    <string name="playlist_metadata_template">Список відтворення • Приватний • %1$d відео</string>
+    
+    
     <string name="recent_searches">Нещодавні пошуки</string>
-    <string name="end_of_results">Кінець результатів</string>
+    
     <string name="channel_avatar">Аватарка каналу</string>
     <string name="clear_all_notifications">Очистити сповіщення</string>
     <string name="notifications_empty_body">Ви переглянули все! Нові оновлення з ваших підписок з’являтимуться тут.</string>
-    <string name="settings_reset_brain_title">Скинути персоналізацію piTube?</string>
-    <string name="settings_reset_brain_body">Це повністю очистить ваш профіль інтересів «piTube Brain».\n\n• Усі вивчені теми будуть забуті.\n• Риси особистості повернуться до нейтральних.\n• Рекомендації повернуться до стандартних.\n\nЦю дію неможливо скасувати.</string>
-    <string name="settings_analyzing_interactions">Аналізую ваші взаємодії...</string>
+    
+    
+    
     <string name="notif_type_downloads">Сповіщення завантажень</string>
     <string name="notif_type_downloads_subtitle">Сповіщення про прогрес, завершення та невдачі</string>
     <string name="notif_type_reminders_subtitle">Нагадування про час сну та перерву від «Керування часом»</string>
     <string name="notif_system_settings_subtitle">Відкрийте налаштування Android, для керувати дозволами кожного каналу</string>
-    <string name="settings_item_content_prefs_subtitle">Блокуйте теми, які ви не хочете бачити</string>
+    
     <string name="settings_item_player">Налаштування програвача</string>
     <string name="settings_item_player_subtitle">Автоматичне відтворення, фонове відтворення, SponsorBlock</string>
     <string name="settings_item_quality">Якість відео та музики</string>
@@ -348,15 +348,15 @@
     <string name="settings_item_support_subtitle">Підтримайте розробку piTube</string>
     <string name="settings_region_dialog_title">Вибрати регіон</string>
     <string name="load_more_replies">Завантажити більше відповідей</string>
-    <string name="select_text">Вибрати текст</string>
+    
     <string name="tap_to_close">Натисність, щоб закрити</string>
-    <string name="group_all">Всі</string>
-    <string name="manage_groups">Керувати групами</string>
-    <string name="new_group">Нова група</string>
-    <string name="edit_group">Редагувати групу</string>
-    <string name="delete_group">Видалити групу</string>
-    <string name="group_name_label">Назва групи</string>
-    <string name="search_channels_hint">Пошук каналів…</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="channel_search_hint">Пошук в каналі</string>
     <string name="channel_search_open">Пошук в каналі</string>
     <string name="channel_search_close">Закрити пошук</string>
@@ -368,15 +368,15 @@
     <string name="appearance_title">Вигляд</string>
     <string name="appearance_subtitle">Налаштуйте ваш досвід в piTube</string>
     <string name="appearance_current_theme">ПОТОЧНА ТЕМА</string>
-    <string name="appearance_category_all">Всі</string>
+    
     <string name="appearance_category_light">Світла</string>
     <string name="appearance_category_dark">Темна</string>
     <string name="appearance_category_custom">Власна</string>
-    <string name="appearance_category_special">Спеціальна</string>
+    
     <string name="appearance_themes_count_all">%1$d тем</string>
-    <string name="appearance_themes_count_filtered">%1$d %2$s тем</string>
+    
     <string name="appearance_applied_toast">Застосовано: %1$s</string>
-    <string name="appearance_customizer_title">Редактор тем</string>
+    
     <string name="appearance_customizer_reset">Скинути</string>
     <string name="appearance_customizer_save">Зберегти тему</string>
     <string name="appearance_role_background">Фон</string>
@@ -387,11 +387,11 @@
     <string name="appearance_role_error">Помилка</string>
     <string name="app_icon_picker_subtitle">Виберіть значок застосунку. Зміни застосуються негайно й застосунок буде перезапущено.</string>
     <string name="player_appearance_title">Вигляд програвача</string>
-    <string name="player_appearance_style_title">Стиль часової шкали пісні</string>
+    
     <string name="settings_item_player_appearance_subtitle">Налаштуйте стиль часової шкали</string>
     <string name="player_appearance_gestures_header">Жести</string>
-    <string name="player_appearance_swipe_gestures_title">Жести яскравості й гучності</string>
-    <string name="player_appearance_swipe_gestures_subtitle">Проведіть пальцем вліво або вправо, щоб налаштувати яскравість або гучність в повноекрнному режимі</string>
+    
+    
     <string name="player_appearance_brightness_gesture_title">Жест яскравості</string>
     <string name="player_appearance_brightness_gesture_subtitle">Проведіть пальцем по лівому краю в повноекранному режимі, щоб налаштувати яскравіть</string>
     <string name="player_appearance_volume_gesture_title">Жест гучності</string>
@@ -406,14 +406,14 @@
     <string name="player_appearance_fullscreen_header">Повний екран</string>
     <string name="player_show_title_title">Показати назву відео</string>
     <string name="player_show_title_subtitle">Показувати назву відео під верхньою панеллю у повноекранному режимі</string>
-    <string name="lyrics_provider_title">Постачальник тексту пісень</string>
-    <string name="lyrics_provider_subtitle">Виберіть бажане джерело тексту пісень</string>
-    <string name="lyrics_provider_lrclib">LrcLib</string>
-    <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
-    <string name="lyrics_provider_simpmusic">SimpMusic</string>
+    
+    
+    
+    
+    
     <string name="theme_desc_system_default">Синхронізувати з темою пристрою</string>
     <string name="theme_name_pure_light">Чисте світло</string>
-    <string name="theme_desc_pure_light">Чиста й мінімалістична</string>
+    
     <string name="theme_name_mint_fresh">Свіжа м\'ята</string>
     <string name="theme_desc_mint_fresh">Крута й освіжаюча</string>
     <string name="theme_name_rose_petal">Пелюстка троянди</string>
@@ -425,7 +425,7 @@
     <string name="theme_name_classic_dark">Класична</string>
     <string name="theme_desc_classic_dark">Оригінальна палітра piTube</string>
     <string name="theme_name_true_black">Справжня чорна</string>
-    <string name="theme_desc_true_black">Справжній OLED</string>
+    
     <string name="theme_name_monochrome">Монохром</string>
     <string name="theme_desc_monochrome">Справжній чорний та чіткий білий</string>
     <string name="theme_name_custom">Власна</string>
@@ -507,8 +507,8 @@
     <string name="channel_blocked_toast">%1$s не з’явиться у вашій стрічці</string>
     <string name="btn_save">Зберегти</string>
     <string name="btn_cancel">Скасувати</string>
-    <string name="player_settings_show_pip">Показувати кнопку PiP</string>
-    <string name="player_settings_show_pip_subtitle">Показати кнопку PiP у панелі керування програвачем</string>
+    
+    
     <string name="player_settings_header_audio">Аудіо</string>
     <string name="player_settings_play_during_calls">Відтворювати під час дзвінків</string>
     <string name="player_settings_play_during_calls_subtitle">Продовжувати відтворення під час телефонних дзвінків або дзвінків через VoIP (наприклад, WhatsApp)</string>
@@ -518,7 +518,7 @@
     <string name="player_settings_audio_original">Оригінальна (рідна)</string>
     <string name="player_settings_audio_original_desc">Використовує рідну звукову доріжку відео</string>
     <string name="player_settings_header_gestures">Жести</string>
-    <string name="player_settings_double_tap_seek_dialog_body">Виберіть, на скільки секунд потрібно переходити при подвійному натисканні на ліву або праву частину плеєра.</string>
+    
     <string name="video_quality_title">Якість відео</string>
     <string name="video_quality_warning">Вища якість використовує більше трафіку</string>
     <string name="video_quality_wifi_header">Якість з Wi-Fi</string>
@@ -562,8 +562,8 @@
     <string name="theme_name_system_default">Тема системи</string>
     <string name="play_mode_suggestion_title">Пропозиція режиму відтворення</string>
     <string name="filter_top">Найпопулярніше</string>
-    <string name="no_groups_yet">Групи відсутні. Створіть, щоб фільтрувати вашу стрічку</string>
-    <string name="music_history">Історія прослуховувань</string>
+    
+    
     <string name="notif_type_general_subtitle">Інші сповіщення та анонси</string>
     <string name="appearance_customizer_subtitle">Налаштовуйте кожну колірну роль Material 3 та миттєво переглядайте зміни</string>
     <string name="appearance_customizer_format_hint">Формат HEX: #RRGGBB або #AARRGGBB</string>
@@ -579,16 +579,16 @@
     <string name="content_settings_grid_big_desc">Великі обкладинки</string>
     <string name="content_settings_grid_small_title">Малий</string>
     <string name="content_settings_grid_small_desc">Компактний перегляд</string>
-    <string name="content_settings_header_preview">Передперегляд</string>
-    <string name="content_settings_preview_album_art">Перегляд обкладинки</string>
-    <string name="content_settings_preview_big">Великі обкладинки — 128dp</string>
-    <string name="content_settings_preview_small">Малі обкладинки — 104dp</string>
-    <string name="content_settings_dynamic_components">Динамічні компоненти</string>
-    <string name="settings_show_related_videos_title">Показувати схожі відео</string>
-    <string name="settings_show_related_videos_subtitle">Показувати схожі відео під програвачем</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_header_home_feed">Головна стрічка</string>
-    <string name="content_settings_home_feed_title">Увімкнути головну стрічку</string>
-    <string name="content_settings_home_feed_subtitle">Показувати персоналізовані рекомендації відео на головному екрані</string>
+    
+    
     <string name="content_settings_home_feed_disabled_title">Головна стрічка вимкнена</string>
     <string name="content_settings_home_feed_disabled_body">Персоналізовані рекомендації вимкнено. Ви можете знову ввімкнути їх у «Налаштуваннях контенту».</string>
     <string name="content_settings_header_player">Відеопрогравач</string>
@@ -604,22 +604,22 @@
     <string name="content_settings_title_lines_2">2 рядки</string>
     <string name="content_settings_title_lines_3">3 рядки</string>
     <string name="content_settings_title_lines_unlimited">Без лімітів</string>
-    <string name="content_settings_video_card_mark_watched_title">Кнопка «Позначити як переглянуте»</string>
-    <string name="content_settings_video_card_mark_watched_subtitle">Показувати кнопку у вигляді ока на всіх картках відео, щоб швидко позначати їх як переглянуті</string>
-    <string name="content_settings_show_app_logo_title">Показувати логотип застосунку</string>
-    <string name="content_settings_explore_region_picker_title">Швидкий вибір регіону в «Дослідити»</string>
-    <string name="content_settings_explore_region_picker_subtitle">Показувати значок у вигляді глобуса у верхній панелі «Дослідити», щоб миттєво змінювати регіон трендів.</string>
+    
+    
+    
+    
+    
     <string name="filter_oldest">Найстарше</string>
     <string name="in_this_video">У цьому відео</string>
     <string name="content_settings_home_layout_title">Режим показу головної</string>
-    <string name="settings_home_shorts_shelf_title">Блок Shorts на головній</string>
-    <string name="settings_shorts_nav_tab_subtitle">Показувати вкладку Shorts на нижній панелі навігації.</string>
-    <string name="settings_music_nav_tab_subtitle">Показувати вкладку музики на нижній панелі навігації.</string>
-    <string name="settings_search_nav_tab_subtitle">Показувати вкладку швидкого пошуку на нижній панелі навігації.</string>
+    
+    
+    
+    
     <string name="categories_switch_to_grid">Перемкнути на перегляд сіткою</string>
     <string name="categories_switch_to_list">Перемкнути на перегляд списком</string>
-    <string name="settings_continue_watching_title">Блок «Продовжити перегляд»</string>
-    <string name="settings_continue_watching_subtitle">Показувати блок незавершених переглядів на головній.</string>
+    
+    
     <string name="player_settings_mini_player_continue_watching_subtitle">Автоматично відкривати останнє відео</string>
     <string name="player_mini_player_continue_watching_label">Продовжити перегляд</string>
     <string name="player_settings_title">Налаштування програвача</string>
@@ -639,7 +639,7 @@
     <string name="proxy_settings_invalid_host">Вкажіть хост проксі-сервера перед його ввімкненням.</string>
     <string name="proxy_settings_invalid_port">Вкажить дійсний ппорт проксі-сервера між 1 та 65535.</string>
     <string name="player_settings_stable_voice">Стабільний голос</string>
-    <string name="player_settings_stable_voice_subtitle">Нормалізація гучності для стабільного відтворення</string>
+    
     <string name="loop_video">Зациклити відео</string>
     <string name="player_settings_sponsorblock">SponsorBlock</string>
     <string name="player_settings_sponsorblock_subtitle">Пропустити фрагменти спонсора</string>
@@ -654,7 +654,7 @@
     <string name="sb_settings_general_header">Головне</string>
     <string name="player_settings_double_tap_seek">Тривалість перемотування подвійним натисканням</string>
     <string name="player_settings_double_tap_seek_subtitle_template">%d с за подвійне натискання</string>
-    <string name="player_settings_double_tap_seek_dialog_title">Тривалість перемотування подвійним натисканням</string>
+    
     <string name="buffer_switch_to_custom">Перейдіть на «Власний» варіант, щоб активувати повзунки.</string>
     <string name="buffer_label_min">Мінімальний буфер: %1$d с</string>
     <string name="buffer_label_max">Максимальний буфер: %1$d с</string>
@@ -677,51 +677,51 @@
     <string name="cd_pause">Пауза</string>
     <string name="cd_play">Відтворити</string>
     <string name="cd_more_options">Більше</string>
-    <string name="shorts_original_sound">Оригінальний звук — %1$s</string>
-    <string name="view_count_billion_suffix">млрд</string>
-    <string name="view_count_million_suffix">млн</string>
-    <string name="view_count_thousand_suffix">тис</string>
+    
+    
+    
+    
     <string name="action_like">Лайк</string>
     <string name="action_dislike">Дизлайк</string>
     <string name="action_comments">Коментарі</string>
     <string name="action_save">Зберегти</string>
     <string name="action_share">Поширити</string>
-    <string name="action_description">Опис</string>
+    
     <string name="action_subscribe">Підписатися</string>
-    <string name="content_preferences_title">Налаштування контенту</string>
-    <string name="content_preferences_subtitle">Налаштуйте те, що бачите</string>
-    <string name="interests_tab">Інтереси</string>
-    <string name="blocked_tab">Заблоковано</string>
-    <string name="topics_count_template">%1$d тем</string>
-    <string name="hidden_count_template">%1$d приховано</string>
-    <string name="your_interests_title">Ваші інтереси</string>
-    <string name="your_interests_desc">Вибрані теми допомагають piTube краще рекомендувати контент. Натисніть на теми нижче, щоб додати або видалити їх.</string>
-    <string name="currently_following">Поточні підписки</string>
-    <string name="tap_to_remove">Натисніть, щоб видалити</string>
-    <string name="add_topics">Додати теми</string>
-    <string name="browse_by_category">Огляд за категоріями</string>
-    <string name="hidden_content_title">Прихований контент</string>
-    <string name="hidden_content_desc">Відео з цими темами не з’являтимуться у ваших рекомендаціях. Ви також можете скористатися кнопкою «Не цікавить» під відео.</string>
-    <string name="block_topic_title">Заблокувати тему</string>
-    <string name="enter_keywords_to_hide">Ключові слова для приховування</string>
-    <string name="block_topic_placeholder">Приклад: макіяж, fortnite, asmr</string>
-    <string name="desc_add_topic">Додати тему</string>
-    <string name="quick_add">Швидке додавання</string>
-    <string name="common_topics_to_block">Теми для блоку</string>
-    <string name="currently_blocked">Зараз заблоковано</string>
-    <string name="topics_blocked_count_plural">%1$d тема %2$s</string>
-    <string name="desc_remove_topic">Видалити %1$s</string>
-    <string name="desc_unblock_topic">Розблокувати %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="selected_count_template">%1$d вибрано</string>
     <string name="time_management_title">Керування часом</string>
     <string name="time_management_subtitle">Відстежуйте й контролюйте кранний час</string>
     <string name="stats_disclaimer">Статистика базується на історії переглядів у цьому застосунку. Фактичні дані можуть відрізнятися.</string>
     <string name="tools_to_manage_time">Інструменти для керування часом</string>
-    <string name="remind_bedtime">Нагадувати мені про час сну</string>
+    
     <string name="start_time">Час початку</string>
     <string name="end_time">Час кінця</string>
     <string name="bedtime_notification_note">Сповіщення надійде в момент початку.</string>
-    <string name="remind_break">Нагадувати ро перерву</string>
+    
     <string name="reminder_frequency">Періодичність нагадувань</string>
     <string name="every_min_template">Кожні %1$d хвилин</string>
     <string name="daily_average_label">Середньодобовий показник</string>
@@ -755,7 +755,7 @@
     <string name="sleep_timer_end_of_media">Кінець поточної пісні</string>
     <string name="sleep_timer_reset">Скинути</string>
     <string name="sleep_timer_cancel_timer">Скасувати таймер</string>
-    <string name="sleep_timer_active_label">Таймер сну активний</string>
+    
     <string name="sleep_timer_close_app">Закрити застосунок, коли таймер закінчиться</string>
     <string name="sleep_timer_close_app_desc">Вийти із застосунка для збереження заряду</string>
     <string name="sleep_timer_will_close_app">Застосунок закриється, коли таймер закінчиться</string>
@@ -793,16 +793,16 @@
     <string name="speed_slider_decrease">Зменшити швидкість</string>
     <string name="unlike">Не подобається</string>
     <string name="speed_slider_increase">Збільшити швидкість</string>
-    <string name="speed_slider_reset">Скинути до 1×</string>
-    <string name="speed_slider_apply">Застосувати</string>
-    <string name="action_search">Пошук</string>
+    
+    
+    
     <string name="confirm">Підтвердити</string>
     <string name="max_history_size_title">Максимальний розмір історії</string>
-    <string name="settings_home_shorts_shelf_subtitle">Показувати горизонтальний блок shorts на головній.</string>
-    <string name="settings_shorts_nav_tab_title">Вкладка Shorts в навігації</string>
-    <string name="settings_music_nav_tab_title">Вкладка музики в навігації</string>
-    <string name="settings_search_nav_tab_title">Вкладка пошуку в навігації</string>
-    <string name="settings_categories_nav_tab_title">Вкладка «Дослідити» в навігації</string>
+    
+    
+    
+    
+    
     <string name="player_settings_mini_player_continue_watching_title">Продовжити перегляд в мініпрогравачі</string>
     <string name="currently_searches_template">Зараз: %1$d пошуків</string>
     <string name="auto_delete_history_title">Автовидалення історії</string>
@@ -832,18 +832,18 @@
     <string name="media_access_title">Доступ до фото та відео</string>
     <string name="media_access_granted_subtitle">Доступ надано</string>
     <string name="media_access_denied_subtitle">Доступ не надано — натисніть, щоб увімкнути</string>
-    <string name="audio_access_granted_subtitle">Доступ надано</string>
-    <string name="audio_access_denied_subtitle">Доступ не надано — натисніть, щоб увімкнути</string>
+    
+    
     <string name="storage_header">Сховище</string>
     <string name="internal_storage_label">Внутрішнє сховище</string>
     <string name="free_space_template">%1$s вільно</string>
     <string name="total_space_template">Загалом: %1$s</string>
-    <string name="location_label">Розташування</string>
-    <string name="internal_app_storage_label">Внутрішнє сховище застосунку</string>
+    
+    
     <string name="preferences_header">Налаштування</string>
     <string name="default_video_quality_label">Якість відео за замовчуванням</string>
     <string name="download_over_wifi_only">Завантажувати тільки з Wi-Fi</string>
-    <string name="audio_access_title">Доступ до музики та аудіо</string>
+    
     <string name="reduce_data_usage_subtitle">Зменшити використання трафіку</string>
     <string name="performance_header">Продуктивність</string>
     <string name="parallel_downloading_title">Паралельне завантаження</string>
@@ -857,12 +857,12 @@
     <string name="location_downloads_label">Downloads/piTube</string>
     <string name="location_movies_label">Movies/piTube</string>
     <string name="location_internal_app_label">Внутрішнє сховище застосунку</string>
-    <string name="location_internal_app_desc">Приватно для застосунку — файли можуть бути видалені, якщо ви видалите застосунок</string>
+    
     <string name="location_custom_saf_label">Огляд…</string>
     <string name="location_custom_saf_desc">Виберіть будь-яку теку за допомогою системного провідника</string>
     <string name="location_custom_manual_label">Ввести шлях вручну</string>
     <string name="location_custom_manual_desc">Введіть абсолютний шлях, наприклад /storage/emulated/0/MyFolder</string>
-    <string name="location_badge_active">Активно</string>
+    
     <string name="select_threads_count_desc">Виберіть кількість потоків (1–8):</string>
     <string name="threads_count_label">%1$d потоків</string>
     <string name="support_donations_title">Підтримка та пожертви</string>
@@ -886,8 +886,8 @@
     <string name="error_license_load">Не вдалось завантажити файл ліцензії.</string>
     <string name="no_changelog_found_message">Список змін не знайдено.</string>
     <string name="error_changelog_load">Не вдалось завантажити файл списку змін.</string>
-    <string name="app_logo_desc">Логотип застосунку</string>
-    <string name="v_version_template">версія %1$s (%2$s)</string>
+    
+    
     <string name="manufacturer_label">Виробник: %1$s</string>
     <string name="model_label">Модель: %1$s</string>
     <string name="board_label">Материнська плата: %1$s</string>
@@ -905,10 +905,10 @@
     <string name="btn_ok">Гаразд</string>
     <string name="btn_copy">Копіювати</string>
     <string name="github_label">GitHub</string>
-    <string name="new_playlist_button">Новий список відтворення</string>
-    <string name="your_playlists_header">Ваші списки відтворення</string>
-    <string name="saved_playlists_header">Збережені списки відтворення</string>
-    <string name="create_playlist_empty_desc">Створіть свій перший список відтворення, щоб упорядкувати улюблені відео</string>
+    
+    
+    
+    
     <string name="my_playlist_placeholder">Мій список відтворення</string>
     <string name="add_description_placeholder">Додати опис...</string>
     <string name="edit_playlist_action">Редагувати список відтворення</string>
@@ -923,119 +923,119 @@
     <string name="playlist_metadata_private_template">Список відтворення • Приватний • %1$d відео</string>
     <string name="playlist_metadata_public_template">Список відтворення • Приватний • %1$d відео</string>
     <string name="welcome_to_flow">Вітаємо у piTube</string>
-    <string name="onboarding_subtitle">Розкажіть нам, що вас цікавить</string>
-    <string name="onboarding_instructions">Оберіть принаймні 3 теми, щоб персоналізувати досвід</string>
-    <string name="selected_with_more_needed_template">Вибрано: %1$d (потрібно ще %2$d)</string>
-    <string name="btn_skip_for_now">Пропустити</string>
+    
+    
+    
+    
     <string name="onboarding_btn_continue">Продовжити</string>
-    <string name="cd_collapse_category">Згорнути</string>
-    <string name="cd_expand_category">Розгорнути</string>
+    
+    
     <string name="category_gaming">Ґеймінґ</string>
-    <string name="category_music">Музика</string>
-    <string name="category_technology">Технології</string>
-    <string name="category_entertainment">Розваги</string>
-    <string name="category_education">Навчання</string>
-    <string name="category_health_fitness">Здоров’я та спорт</string>
-    <string name="category_lifestyle">Стиль життя</string>
-    <string name="category_creative">Творчість</string>
-    <string name="category_science_nature">Наука і природа</string>
-    <string name="category_news_current_events">Новини та події</string>
-    <string name="flow_control_center">Центр керування piTube</string>
-    <string name="action_refresh">Оновити</string>
-    <string name="loading_neural_matrix">Завантаження нейронної матриці...</string>
-    <string name="neural_interest_map_subtitle">Ваша нейронна карта інтересів</string>
-    <string name="cognitive_fingerprint">Когнітивний відбиток</string>
-    <string name="content_dna_subtitle">Ваша контентна ДНК</string>
-    <string name="topic_weights">Пріоритет тем</string>
-    <string name="topic_weights_subtitle">Повна прозорість алгоритмів вашої стрічки</string>
-    <string name="temporal_patterns">Часові закономірності</string>
-    <string name="temporal_patterns_subtitle">Зміна інтересів за часом доби</string>
-    <string name="channel_memory">Пам’ять каналів</string>
-    <string name="channel_memory_subtitle">Неявний зворотний зв’язок з історії переглядів</string>
-    <string name="channel_memory_empty">Канали в пам’яті відсутні.</string>
-    <string name="filters_title">Фільтри</string>
-    <string name="blocked_topics_channels_subtitle">Заблоковані теми та канали</string>
-    <string name="reset_neural_profile_title">Скинути нейронний профіль?</string>
-    <string name="reset_neural_profile_body">Це безповоротно видалить:\n\n• Усі вивчені вподобання\n• Довготривалий вектор особистості\n• Часові закономірності контексту\n• Показники прихильності до каналів\n\nВаша стрічка повернеться до стану «холодного старту».</string>
-    <string name="erase_everything">Видалити все</string>
-    <string name="stats_interactions">Взаємодії</string>
-    <string name="stats_topics">Теми</string>
-    <string name="empty_bubble_cloud_message">Перегляньте кілька відео, щоб сформувати ваш профіль інтересів!</string>
-    <string name="interactions_level_template">%1$d взаємодій • Рівень %2$d</string>
-    <string name="flow_neural_profile_export_subject">Експорт нейронного профілю piTube</string>
-    <string name="screen_title_music_library">Музична бібліотека</string>
-    <string name="header_your_collection">Ваша колекція</string>
-    <string name="subtitle_liked_music">Вподобані пісні</string>
-    <string name="subtitle_history">Пісні, які ви слухали</string>
-    <string name="empty_music_playlists">Списки музики відсутні</string>
-    <string name="rename_playlist_title">Перейменувати список відтворення</string>
-    <string name="action_rename">Перейменувати</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="link_copied">Посилання скопійоване</string>
     <string name="copy_video_link">Копіювати посилання на відео</string>
     <string name="copy_channel_link">Копіювати посилання на канал</string>
-    <string name="share_link_cd">Поширити посилання</string>
-    <string name="section_singles">Сингли</string>
-    <string name="section_featured_on">Згадується у</string>
-    <string name="section_fans_also_like">Слухачам також подобається</string>
-    <string name="artist_views_template">%1$s • %2$s переглядів</string>
-    <string name="action_view_all">Показати все</string>
-    <string name="search_content_description">Пошук</string>
-    <string name="views_count_format">%1$s переглядів</string>
-    <string name="playlist_footer_template">%1$d пісень • %2$s</string>
-    <string name="unknown_error">Невідома помилка</string>
-    <string name="action_retry">Повторити</string>
-    <string name="empty_moods_genres">Немає доступних настроїв та жанрів</string>
-    <string name="title_browse">Огляд</string>
-    <string name="empty_browse_content">Контент недоступний</string>
-    <string name="label_featured">РЕКОМЕНДОВАНЕ</string>
-    <string name="year_artist_template">%1$s • %2$s</string>
-    <string name="status_playing">Грає</string>
-    <string name="label_explicit">Відверто</string>
-    <string name="duration_with_dot_template">• %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="status_downloaded">Завантажено</string>
-    <string name="title_create_playlist">Створити список відтворення</string>
-    <string name="label_playlist_name">Назва списку відтворення</string>
-    <string name="placeholder_playlist_name">Мій крутезний список відтворення</string>
-    <string name="label_description_optional">Опис (необов’язково)</string>
-    <string name="placeholder_playlist_desc">Мої улюблені пісні...</string>
-    <string name="action_create">Створити</string>
-    <string name="action_cancel">Скасувати</string>
-    <string name="title_add_to_playlist">Додати до списку відтворення</string>
-    <string name="action_create_new_playlist">Створити новий список відтворення</string>
-    <string name="empty_playlists_dialog">Списки відтворення відсутні. Створіть, щоб почати!</string>
-    <string name="action_remove_from_favorites">Вилучити з обраного</string>
-    <string name="action_add_to_favorites">Додати до обраного</string>
-    <string name="action_listen_now">Слухати зараз</string>
-    <string name="action_play_all">Відтворити все</string>
-    <string name="loading_music">Завантаження музики...</string>
-    <string name="screen_title_music">МУЗИКА</string>
-    <string name="section_listen_again">Слухати знову</string>
-    <string name="section_quick_picks">Швидкий вибір</string>
-    <string name="section_recommended">Рекомендовано</string>
-    <string name="section_recently_played">Нещодавні</string>
-    <string name="section_music_videos">Музичні відео</string>
-    <string name="section_new_releases">Нові випуски</string>
-    <string name="subtitle_single_template">Сингл · %1$s</string>
-    <string name="section_popular_artists">Популярні виконавці</string>
-    <string name="section_mixed_for_you">Ваш мікс</string>
-    <string name="section_moods_and_genres">Настрої та жанри</string>
-    <string name="genre_mix_template">%1$s мікс</string>
-    <string name="section_top_albums">Найкращі альбоми</string>
-    <string name="similar_to">Схоже з</string>
-    <string name="section_similar_to">Схоже з %1$s</string>
-    <string name="subtitle_similar_to">На основі прослуховувань</string>
-    <string name="section_vibe_vibes">Атмосфера: %1$s</string>
-    <string name="subtitle_community_playlists">Списки спільноти</string>
-    <string name="playlist_author_community">Списки спільноти</string>
-    <string name="playlist_description_community">Список відтворення %1$s від спільноти</string>
-    <string name="radio">Радіо</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="audio_settings_title">Налаштування аудіо</string>
     <string name="label_preset">Шаблон</string>
     <string name="template_bass_boost">Посилення басів: %1$d дБ</string>
-    <string name="label_tempo_pitch">Темп і тональність</string>
-    <string name="action_reset">Скинути</string>
-    <string name="template_speed">Швидкість: %1$d%%</string>
-    <string name="template_pitch">Висота: %1$d півтонів</string>
+    
+    
+    
+    
     <string name="label_parametric_equalizer">Параметричний еквалайзер</string>
     <string name="action_add_band">Додати гурт</string>
     <string name="template_preamp">Підсилення: %1$.1f дБ</string>
@@ -1043,38 +1043,38 @@
     <string name="template_gain">%1$.1fдБ</string>
     <string name="template_q">%1$.1f</string>
     <string name="now_playing">ЗАРАЗ ГРАЄ</string>
-    <string name="voice_search_prompt">Говоріть, щоб знайти музику</string>
-    <string name="search_music_placeholder">Пошук музики</string>
+    
+    
     <string name="voice_search_cd">Голосовий пошук</string>
-    <string name="filter_albums">Альбоми</string>
-    <string name="filter_songs">Пісні</string>
-    <string name="filter_community_playlists">Списки спільноти</string>
-    <string name="section_top_result">Найращі результати</string>
-    <string name="subtitle_song_prefix">Пісня • %1$s</string>
-    <string name="subtitle_artist">Виконавець</string>
-    <string name="subtitle_album_template">Альбом • %1$s</string>
-    <string name="subtitle_playlist_template">Список відтворення • %1$s</string>
-    <string name="plays_count_template">• %1$s грає</string>
-    <string name="album_year_template">Альбом • %1$s • %2$s</string>
-    <string name="artist_audience_template">Артист • %1$s слухачів за місяць</string>
-    <string name="search_source_template">Пошук: %1$s</string>
-    <string name="artist_source_template">Виконавець: %1$s</string>
-    <string name="top_picks_for_you">Найкраще для вас</string>
-    <string name="no_results_found">Результати відсутні</string>
-    <string name="no_tracks_available">Пісні відсутні</string>
-    <string name="tab_favorites">Обране</string>
-    <string name="create_playlist_subtitle">Впорядкуйте музику</string>
-    <string name="empty_playlists_title">Списки відтворення відсутні</string>
-    <string name="empty_playlists_subtitle">Створіть ваш перший список, щоб впорядкувати ваші обрані пісні</string>
-    <string name="empty_favorites_title">Обрані пісні відсутні</string>
-    <string name="empty_favorites_subtitle">Тисни на «значок серця», щоб додати пісню до «Обраного»</string>
-    <string name="favorites_count_template">%1$d обраних пісень</string>
-    <string name="empty_history_title">Історія відсутня</string>
-    <string name="empty_history_subtitle">Почніть прослуховувати музику, щоб побачити історію тут</string>
-    <string name="empty_downloads_title">Завантаження відсутні</string>
-    <string name="empty_downloads_subtitle">Завантажте пісні для офлайн прослуховування</string>
-    <string name="total_size">Загальний розмір</string>
-    <string name="tracks_count_template">%1$s пісень</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="btn_minimize">Згорнути</string>
     <string name="captions">Субтитри</string>
     <string name="pip_mode">Картинка в картинці</string>
@@ -1087,9 +1087,9 @@
     <string name="resize_zoom">Масштаб</string>
     <string name="shorts_audio_track">Аудіодоріжка</string>
     <string name="shorts_quality">Якість</string>
-    <string name="shorts_no_audio_tracks">Аудіодоріжки недоступні</string>
-    <string name="shorts_audio_original">Оригінальна</string>
-    <string name="shorts_audio_dubbed">Дубльована</string>
+    
+    
+    
     <string name="shorts_quality_settings_title">Якість відео Shorts</string>
     <string name="shorts_quality_settings_subtitle">Якість при перегляді Shorts</string>
     <string name="shorts_quality_warning">Вища якість використовує більше трафіку. Shorts використовує вертикальний формат відео.</string>
@@ -1101,12 +1101,12 @@
     <string name="add_video_to_queue_desc">Додати в кінець черги</string>
     <string name="added_to_queue_toast">Додано до черги</string>
     <string name="play_next_toast">Наступне буде</string>
-    <string name="no_active_queue_toast">Черга порожня. Спершу ввімкніть відео.</string>
+    
     <string name="download_video">Завантажити відео</string>
     <string name="select_quality">Оберіть бажану якість</string>
     <string name="no_download_streams">Немає доступних потоків для завантаження</string>
     <string name="downloading_template">Завантаження %1$s...</string>
-    <string name="section_downloading">Завантажується</string>
+    
     <string name="section_completed">Виконано</string>
     <string name="download_status_queued">В черзі</string>
     <string name="download_status_paused">Призупинено</string>
@@ -1123,9 +1123,9 @@
     <string name="playlist_queue">Черга відтворення</string>
     <string name="next_up">Наступне</string>
     <string name="cast_to_tv">Транслювати на ТБ</string>
-    <string name="cast_connecting">З’єднання з пристроєм…</string>
+    
     <string name="cast_connected">Транслюється</string>
-    <string name="cast_disconnected">Трансляцію припинено</string>
+    
     <string name="check_for_updates">Перевірити оновлення</string>
     <string name="check_for_updates_subtitle">Натисніть для перевірки оновлень</string>
     <string name="checking_for_updates">Перевірка оновлень…</string>
@@ -1150,12 +1150,12 @@
     <string name="history_no_results_body">Спробуйте інший запит або фільтр</string>
     <string name="history_tab_videos">Відео</string>
     <string name="history_tab_shorts">Shorts</string>
-    <string name="empty_liked_videos">Немає вподобаних відео</string>
-    <string name="empty_liked_music">Немає вподобаної музики</string>
-    <string name="empty_liked_music_body">Вподобані пісні з’являться тут</string>
-    <string name="hide_channel_shorts">Сховати Shorts з цього каналу</string>
-    <string name="show_channel_shorts">Показати Shorts з цього каналу</string>
-    <string name="likes_count_template">%1$d лайків</string>
+    
+    
+    
+    
+    
+    
     <string name="appearance_system_defaults_title">Тема системи</string>
     <string name="appearance_system_defaults_subtitle">Виберіть тему, яка використовуватиметься під час перемикання пристрою між світлим і темним режимами.</string>
     <string name="appearance_system_light_theme">Світла тема</string>
@@ -1166,10 +1166,10 @@
     <string name="player_adaptive_size_subtitle">Підлаштовувати висоту програвача під формат відео. Вимкніть для фіксованого співвідношення 16:9.</string>
     <string name="theme_name_material_you">Material You</string>
     <string name="theme_desc_material_you">Кольори шпалер на Android 12+</string>
-    <string name="content_settings_comments_enabled_title">Коментарі</string>
-    <string name="content_settings_comments_enabled_subtitle">Завантажувати та показувати коментарі на екрані програвача</string>
-    <string name="content_settings_comments_preview_title">Попередній перегляд коментарів</string>
-    <string name="content_settings_comments_preview_subtitle">Показувати останній коментар у картці</string>
+    
+    
+    
+    
     <string name="player_fullscreen_seekbar_width_title">Ширина часової шкали у повному екрані</string>
     <string name="player_fullscreen_seekbar_width_subtitle">Відступ %1$d dp з кожного боку</string>
     <string name="player_fullscreen_seekbar_width_full">Повна ширина</string>
@@ -1198,14 +1198,14 @@
     <string name="error_paid_content_hint">Це відео потрібно придбати або взяти в прокат на YouTube.</string>
     <string name="error_yt_music_premium">Контент YouTube Music Premium</string>
     <string name="error_yt_music_premium_hint">Цей трек доступний лише для підписників YouTube Music Premium.</string>
-    <string name="upcoming_video_overlay_title">Це заплановане відео. Відтворення почнеться, щойно воно вийде в ефір.</string>
+    
     <string name="upcoming_video_reminder_action">Нагадати мені</string>
     <string name="upcoming_video_reminder_enabled">Нагадування встановлено</string>
     <string name="upcoming_video_reminder_badge">Нагадування увімкнено</string>
-    <string name="subscriptions_music_section_title">Музичні підписки</string>
-    <string name="subscriptions_compact_header_with_music">Музичні канали позначені вбудованими, тому стрічка залишається компактною.</string>
-    <string name="subscriptions_music_chip_label">Музика</string>
-    <string name="subscriptions_music_badge_cd">Музичні підписки</string>
+    
+    
+    
+    
     <string name="player_appearance_remember_brightness_title">Запам’ятати яскравість</string>
     <string name="player_appearance_remember_brightness_subtitle">Повторно використати останній рівень яскравості програвача для наступних відео</string>
     <string name="playlist_sort_date_published_oldest">Дата публікації (найстаріші)</string>
@@ -1227,36 +1227,36 @@
     <string name="player_settings_overlay_pip">Кнопка картинка в картинці</string>
     <string name="player_settings_overlay_pip_subtitle">Показувати кнопку картинка в картинці в накладанні програвача</string>
     <string name="player_settings_auto_pip_title">Автоматична картинка в картинці</string>
-    <string name="similar_content">Схожий контент</string>
-    <string name="no_similar_content_found">Схожого контенту не знайдено</string>
-    <string name="radio_source_template">Радіо • %1$s</string>
-    <string name="unknown_source">Невідоме джерело</string>
-    <string name="added_to_playlist_toast">Додано до списку</string>
-    <string name="already_downloaded_toast">Вже завантажено</string>
+    
+    
+    
+    
+    
+    
     <string name="download_started_toast">Завантаження почато…</string>
-    <string name="download_error_toast">Помилка завантаження: %1$s</string>
-    <string name="player_background_style_gradient">Палітра градієнту</string>
-    <string name="lyrics_provider_lyrics_plus">LyricsPlus</string>
-    <string name="daily_discover_because_you_listen_to">Тому що ви прослухали %1$s</string>
-    <string name="daily_discover_similar_to">Схожий до %1$s</string>
-    <string name="daily_discover_for_fans_of">Для фанатів %1$s</string>
-    <string name="section_music_videos_for_you">Музичні кліпи для вас</string>
-    <string name="section_from_the_community">Від спільноти</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="error_not_available">Відео недоступне</string>
     <string name="error_not_available_hint">Це відео було видалене, позначене як приватне або видалено модерацією Youtube.</string>
-    <string name="player_background_style_title">Фон музичного програвача</string>
-    <string name="player_background_style_blur_gradient">Розмиття + градієнт</string>
-    <string name="player_background_style_blur">Розмиті ілюстрації</string>
-    <string name="player_background_style_default">Стандартна поверхня</string>
-    <string name="section_daily_discover">Ваші щоденні відкриття</string>
-    <string name="section_speed_dial">Швидкий набір</string>
-    <string name="shuffle_play">Випадкове відтворення</string>
-    <string name="feeling_lucky">Щастить?</string>
-    <string name="daily_discover_sounds_like">Звучить як %1$s</string>
-    <string name="daily_discover_based_on">На основі %1$s</string>
-    <string name="section_live_performances">Живі виступи</string>
-    <string name="section_mood_and_genres">Настрій та жанри</string>
-    <string name="daily_discover_subtitle">Свіжа добірка з ваших прослуховувань</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="remove_incomplete_downloads_message">Видалити %1$d призупинених, невдалих або часткових завантажень? Завершені завантаження залишаться незмінними.</string>
     <string name="error_captcha">Потрібна CAPTCHA YouTube</string>
     <string name="error_captcha_hint">YouTube запитує перевірку бота. Відкрийте YouTube у браузері та розв’яжіть CAPTCHA, а потім спробуйте ще раз.</string>
@@ -1285,18 +1285,18 @@
     <string name="player_settings_overlay_cc_subtitle">Показувати кнопку субтитрів на наклаланні програвача</string>
     <string name="player_settings_auto_pip_subtitle">Автоматично переходити в режим «Картинка в картинці», коли ви виходите із застосунку. Вимкніть, щоби використовувати режим лише вручну.</string>
     <string name="player_settings_overlay_autoplay">Перемикач автовідтворення</string>
-    <string name="music_quality_header">Якість звуку музики</string>
-    <string name="music_quality_auto">Авто</string>
-    <string name="music_quality_high">Висока</string>
-    <string name="music_quality_medium">Середня</string>
-    <string name="music_quality_low">Низька</string>
+    
+    
+    
+    
+    
     <string name="player_settings_overlay_speed_indicator_subtitle">Показувати поточну швидкість в накладанні відеопрогравача</string>
     <string name="player_action_background">Фон</string>
     <string name="player_action_copy_link">Копіювати посилання</string>
-    <string name="music_playback_warning_forbidden">Доступ до аудіопотоку відхилено. YouTube може обмежувати цю IP-адресу; спробуйте оновити сторінку або змінити мережу/VPN.</string>
-    <string name="music_playback_warning_network">Збій аудіопотоку через проблеми з мережею. Перевірте з’єднання або змініть мережу.</string>
-    <string name="music_playback_warning_final">Не вдалося завантажити пісню після кількох спроб. Спробуйте іншу мережу або VPN, якщо помилка повторюється.</string>
-    <string name="music_playback_warning_generic">Збій відтворення музики. Спробуйте ще раз або змініть мережу, якщо помилка повторюється.</string>
+    
+    
+    
+    
     <string name="player_settings_overlay_autoplay_subtitle">Показувати перемикач автовідтворення в накладанні програвача</string>
     <string name="player_settings_overlay_sleep_timer">Кнопка таймера сну</string>
     <string name="player_settings_overlay_sleep_timer_subtitle">Показувати кнопку таймера сну в накладанні програвача</string>
@@ -1319,105 +1319,105 @@
     <string name="diagnostics_clear_confirm_body">Всі збережені звіти будуть назавжди видалено. Це не можна буде скасувати.</string>
     <string name="diagnostics_no_crashes">Звітів про збої немає — чудово!</string>
     <string name="diagnostics_no_session_logs">У цьому сеансі немає попереджень чи помилок.</string>
-    <string name="add_to_library">Додати до бібліотеки</string>
-    <string name="saved_to_library">Збережено до бібліотеки</string>
-    <string name="failed_to_save_to_library">Не вдалось зберегти до бібліотеки</string>
+    
+    
+    
     <string name="open">Відкрити</string>
     <string name="diagnostics_loading">Читання журналів…</string>
     <string name="diagnostics_copied">Звіт скопійований до буферу</string>
     <string name="add_all_to_playlist">Додати до списку</string>
-    <string name="merge_playlist_dialog_title">Додати всі пісні до…</string>
+    
     <string name="merge_playlist_success">Додано %1$d пісень до «%2$s»</string>
-    <string name="merge_playlist_no_playlists">Списки відтворення відсутні. Створіть перший!</string>
-    <string name="learning_stats_title">Сигнали навчання</string>
-    <string name="learning_stats_subtitle">Що зараз пам’ятає рушій</string>
-    <string name="metric_interactions">Взаємодії</string>
-    <string name="metric_interactions_detail">натискання, перегляди, пропуски</string>
-    <string name="metric_topics">Теми</string>
-    <string name="metric_topics_detail">Пріоритети інтересів</string>
-    <string name="metric_evidence">Джерела</string>
-    <string name="metric_evidence_detail">Підтверджені теми</string>
-    <string name="metric_channels">Канали</string>
-    <string name="metric_channels_detail">Записи спорідненості</string>
-    <string name="metric_history">Історія</string>
-    <string name="metric_history_detail">Посилання на перегляди</string>
-    <string name="metric_feed_memory">Пам’ять стрічки</string>
-    <string name="metric_feed_memory_detail">Нещодавно показане</string>
-    <string name="metric_filters">Фільтри</string>
-    <string name="metric_filters_detail">Заблоковані елементи</string>
-    <string name="metric_suppressed">Пригнічені</string>
-    <string name="metric_suppressed_detail">Тимчасово призупинені</string>
-    <string name="profile_maturity_label">Зрілість профілю</string>
-    <string name="profile_maturity_detail">Вища зрілість означає, що профіль має достатньо сигналів для стабільної роботи</string>
-    <string name="taste_shape_title">Форма смаку</string>
-    <string name="taste_shape_subtitle">Глобальний профіль порівняно з активним часовим контекстом</string>
-    <string name="taste_pacing">Темп</string>
-    <string name="taste_pacing_context">Поточний контекст: %1$s</string>
-    <string name="taste_complexity">Складність</string>
-    <string name="taste_duration">Перевага за тривалістю</string>
-    <string name="discovery_queries_detail">Готовий зараз</string>
-    <string name="discovery_query_memory">Пам’ять запитів</string>
-    <string name="discovery_query_memory_detail">Останні набори токенів</string>
-    <string name="discovery_rejections">Відхилення</string>
-    <string name="discovery_rejections_detail">шаблони тем</string>
-    <string name="discovery_shorts_seen">Переглянуті Shorts</string>
-    <string name="discovery_shorts_seen_detail">захист від повторів</string>
-    <string name="blocked_content_title">Фільтри</string>
-    <string name="blocked_content_subtitle">Теми та канал виключені з рекомендацій</string>
-    <string name="blocked_topics_header">Заблоковані теми</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="blocked_channels_header">Заблоковані канали</string>
-    <string name="blocked_item_unblock_topic">Розблокувати тему</string>
+    
     <string name="blocked_item_unblock_channel">Розблокувати канал</string>
-    <string name="blocked_item_showing_count">Показано %1$d з %2$d</string>
-    <string name="profile_data_title">Дані профілю</string>
-    <string name="profile_data_subtitle">Створення резервної копії, відновлення або скидання локального профілю рекомендацій</string>
-    <string name="profile_action_reset">Скинути профіль</string>
-    <string name="profile_action_reset_detail">Очистити вивчені вподобання та почати з чистого аркуша</string>
-    <string name="reset_profile_dialog_title">Скинути профіль?</string>
-    <string name="reset_profile_dialog_message">Це очистить локальний профіль вподобань, і алгоритм почне навчання з нуля.</string>
-    <string name="reset_profile_confirm">Скинути</string>
-    <string name="taste_chart_profile">Профіль</string>
-    <string name="taste_chart_now">Зараз</string>
-    <string name="topic_score_prefix">Обґрунтування тем</string>
-    <string name="taste_duration_detail">Вищі значення вказують на вподобання довших відео</string>
-    <string name="taste_live_affinity">Прихильність до трансляцій</string>
-    <string name="taste_live_affinity_detail">Скільки прямих трансляцій відповідає профілю</string>
-    <string name="taste_topic_breadth">Широта тем</string>
-    <string name="taste_topic_breadth_detail">%1$d тем у глобальному векторі</string>
-    <string name="interest_weights_title">Вага інтересів</string>
-    <string name="interest_weights_subtitle">Найвагоміші теми після випробувального терміну та перевірки ознак</string>
-    <string name="interest_weights_empty">Ваги тем відсутні.</string>
-    <string name="time_patterns_title">Часові шаблони</string>
-    <string name="time_patterns_subtitle">Перегортайте для перегляду векторів контексту буднів та вихідних</string>
-    <string name="time_bucket_label_now">Зараз</string>
-    <string name="time_bucket_no_topics">Немає записаних тем</string>
-    <string name="time_bucket_top_topics">Головні теми</string>
-    <string name="time_bucket_topics_count">Теми</string>
-    <string name="time_bucket_pace">Темп</string>
-    <string name="time_bucket_complexity">Складність</string>
-    <string name="time_bucket_duration">Тривалість</string>
-    <string name="time_bucket_weekday_morning">Ранок буднього дня</string>
-    <string name="time_bucket_weekday_afternoon">День буднього дня</string>
-    <string name="time_bucket_weekday_evening">Вечір буднього дня</string>
-    <string name="time_bucket_weekday_night">Ніч буднього дня</string>
-    <string name="time_bucket_weekend_morning">Ранок вихідного дня</string>
-    <string name="time_bucket_weekend_afternoon">День вихідного дня</string>
-    <string name="time_bucket_weekend_evening">Вечір вихідного дня</string>
-    <string name="time_bucket_weekend_night">Ніч вихідного дня</string>
-    <string name="time_window_morning">06:00 – 12:00</string>
-    <string name="time_window_afternoon">12:00 - 18:00</string>
-    <string name="time_window_evening">18:00 - 00:00</string>
-    <string name="time_window_night">00:00 - 6:00</string>
-    <string name="channel_affinity_strong">Сильна</string>
-    <string name="channel_affinity_balanced">Збалансована</string>
-    <string name="channel_affinity_cooling">Охолодження прихильності до каналів</string>
-    <string name="channel_affinity_score">показник прихильності</string>
-    <string name="discovery_status_title">Дослідити статус</string>
-    <string name="discovery_status_subtitle">Запити та обмеження, що визначають поточне дослідження</string>
-    <string name="discovery_queries">Запити</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="video_download_location_label">Місце завантаження відео</string>
-    <string name="music_download_location_label">Місце завантаження музики</string>
-    <string name="refresh_lyrics">Перезавантажити текст пісні</string>
+    
+    
     <string name="settings_item_datetime">Дата і час</string>
     <string name="settings_item_datetime_subtitle">Налаштувати спосіб показу дат завантаження</string>
     <string name="datetime_title">Показ дати та часу</string>
@@ -1442,7 +1442,7 @@
     <string name="player_appearance_volume_boost_title">Дозволити додаткове посилення гучності</string>
     <string name="player_appearance_volume_boost_subtitle">Якщо вимкнено, жест гортання для регулювання гучності зупиняється на системному максимумі. Увімкніть, щоб зробити звук ще гучнішим.</string>
     <string name="shorts_playback_speed">Швидкість відтворення</string>
-    <string name="speed_normal">Нормальна</string>
+    
     <string name="history_delete_shorts">Видалити Shorts з історії</string>
     <string name="history_delete_shorts_title">Видалити Shorts?</string>
     <string name="history_delete_shorts_body">Це вилучить усі Shorts з вашої історії переглядів. Інші відео будуть збережені.</string>
@@ -1461,10 +1461,10 @@
     <string name="live_chat">Живий чат</string>
     <string name="live_chat_connecting">З’єднання з живим чатом…</string>
     <string name="live_chat_empty">Очікуємо на повідомлення…</string>
-    <string name="live_chat_show">Показати чат</string>
+    
     <string name="live_chat_hide">Приховати чат</string>
     <string name="live_chat_jump_to_latest">Перейти до останнього повідомлення в чаті</string>
-    <string name="player_appearance_long_press_speed_subtitle">Виберіть тимчасову швидкість, яка використовується під час утримання програвача</string>
+    
     <string name="player_appearance_long_press_speed_disabled">Вимкнено</string>
     <string name="player_settings_video_codec">Типовий відеокодек</string>
     <string name="player_settings_video_codec_dialog_title">Типовий відеокодек</string>
@@ -1487,10 +1487,10 @@
     <string name="local_media_permission_body">Надайте доступ до медіафайлів, щоб piTube міг знаходити та відтворювати локальні відео й музику.</string>
     <string name="local_media_grant">Надати доступ</string>
     <string name="history_tab_local_videos">Локальні відео</string>
-    <string name="history_tab_local_music">Локальна музика</string>
+    
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="content_settings_share_without_text_title">Поділитися посиланням без тексту</string>
-    <string name="content_settings_share_without_text_subtitle">Поділіться лише посиланням на відео, без повідомлення «Подивись це відео»</string>
+    
+    
     <string name="icon_name_flow_play">piTube Play</string>
     <string name="player_appearance_controls_while_loading_title">Керування під час завантаження</string>
     <string name="player_appearance_controls_while_loading_subtitle">Показувати елементи керування програвачем до завершення завантаження відео, аби ви мали змогу відразу налаштувати гучність</string>
@@ -1509,23 +1509,23 @@
     <string name="content_settings_watched_threshold_95">Переглянуто 95 %</string>
     <string name="content_settings_watched_threshold_99">Переглянуто 99 %</string>
     <string name="content_settings_watched_threshold_almost">Майже завершене (остання хвилина)</string>
-    <string name="content_settings_navbar_hide_on_scroll_title">Приховати панель навігації під час гортання</string>
-    <string name="content_settings_navbar_hide_on_scroll_subtitle">Приховувати нижню панель навігації під час гортання вниз. Вимкніть цей параметр, щоб вона була видимою постійно (допомагає, якщо анімація підвисає).</string>
+    
+    
     <string name="player_settings_queue_autoplay">Автовідтворення відео в черзі</string>
     <string name="player_settings_queue_autoplay_subtitle">Автовідтворення наступного відео в списку відтворення або в черзі «Переглянути пізніше». Якщо цю функцію вимкнено, ви все одно можете перемикати відео вручну.</string>
-    <string name="recognize_music">Розпізнати музику</string>
-    <string name="recognition_history">Історія розпізнавання</string>
-    <string name="tap_to_recognize">Натисніть, щоб розпізнати</string>
-    <string name="listening">Слухаю…</string>
-    <string name="processing">Обробка…</string>
-    <string name="no_match_found">Збігів не знайдено</string>
-    <string name="recognition_error">Не вдалося розпізнати</string>
-    <string name="try_again">Спробувати ще раз</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="search_in_flow">Знайти у piTube</string>
-    <string name="recognition_search_history">Пошук розпізнаних пісень</string>
-    <string name="recognition_history_empty">Розпізнані пісні з’являться тут</string>
-    <string name="recognition_clear_history">Очистити історію?</string>
-    <string name="recognition_clear_history_body">Це видалить усі розпізнані пісні. Цю дію неможливо скасувати.</string>
+    
+    
+    
+    
     <string name="player_settings_display">Дисплей</string>
     <string name="player_settings_ambient_mode">Ambient режим</string>
     <string name="player_settings_ambient_mode_subtitle">Заповнює \"чорні смуги\" навколо відео м\'яким світінням кольором відео</string>
@@ -1546,7 +1546,7 @@
     <string name="sync_collection_likes">Лайки</string>
     <string name="sync_collection_subscriptions">Підписки</string>
     <string name="sync_collection_settings">Налаштування</string>
-    <string name="sync_collection_recommendation_profile">Профіль рекомендацій</string>
+    
     <string name="sync_preparing">Підготовка…</string>
     <string name="sync_connecting">З\'єднання…</string>
     <string name="sync_intro">Синхронізуйте вашу бібліотеку, історію, лайки, налаштування та профіль рекомендацій з іншим пристроєм у вашій мережі Wi-Fi. Жодні данні не виходять за межі вашої мережі.</string>
@@ -1601,8 +1601,8 @@
     <string name="upcoming_waiting_count">%1$s очікує</string>
     <string name="upcoming_video_starts_in">Початок через</string>
     <string name="sb_skip_segment">Пропустити %1$s</string>
-    <string name="player_appearance_hide_music_artwork_title">Приховати обкладинку музичного програвача</string>
-    <string name="player_appearance_hide_music_artwork_subtitle">Використовувати колір обкладинки як фон для значка застосунку</string>
+    
+    
     <string name="player_settings_header_video">Відео</string>
     <string name="default_download_codec_label">Типовий кодек завантаження</string>
     <string name="default_download_codec_auto_subtitle">Використовує ваш останній вибір або кодек поточного відео</string>
@@ -1613,55 +1613,55 @@
     <string name="select_all">Вибрати все</string>
     <string name="deselect_all">Скасувати вибір</string>
     <string name="delete_selected">Видалити вибране</string>
-    <string name="onboarding_interests_title">Що вам подобається?</string>
-    <string name="onboarding_interests_hint">Виберіть що найменше %1$d тем для персоналізації вашої стрічки. Ще %2$d що б почати.</string>
-    <string name="onboarding_interests_ready">Чудовий вибір. Ви завжди можете змінити його в налаштуваннях.</string>
-    <string name="onboarding_channels_title">Знайти канали</string>
-    <string name="onboarding_channels_subtitle">Шукайте канали, на які ви вже підписані, та підписуйтесь одним дотиком.</string>
-    <string name="onboarding_channels_search_placeholder">Пошук каналів…</string>
-    <string name="onboarding_channels_empty_prompt">Введіть ім\'я каналу для пошуку</string>
-    <string name="onboarding_channels_no_results">Збігів з \"%1$s\" не знайдено</string>
-    <string name="onboarding_channels_added_count">%1$d каналів додано</string>
-    <string name="onboarding_channels_subscribers">%1$s підписників</string>
-    <string name="onboarding_channels_subscribed">Підписано</string>
-    <string name="onboarding_channels_subscribe">Підписатись</string>
-    <string name="onboarding_import_title">Імпортуйте ваші дані</string>
-    <string name="onboarding_import_subtitle">Перенесіть ваші підписки та історію з інших додатків. Все необов\'язкове.</string>
-    <string name="onboarding_backup_restore_section">Резервне копіювання та відновлення</string>
-    <string name="onboarding_n_selected">%1$d вибрано</string>
-    <string name="onboarding_topic_selected">Вибрано</string>
-    <string name="onboarding_topic_not_selected">Не вибрано</string>
-    <string name="onboarding_import_failed_template">Імпорт не вдався: %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="onboarding_btn_skip">Пропустити</string>
-    <string name="onboarding_btn_finish">Завершити</string>
-    <string name="onboarding_btn_back">Назад</string>
-    <string name="persona_initiate_title">Початок</string>
-    <string name="persona_initiate_description">Тільки почали. Ваш профіль формується.</string>
-    <string name="persona_audiophile_title">Аудіофіл</string>
-    <string name="persona_audiophile_description">Ви використовуєте piTube в більшості для музики. Атмосфера – це все.</string>
-    <string name="persona_livewire_title">Постійно в ефірі</string>
-    <string name="persona_livewire_description">Ви любите живу енергію ефірів та прем\'єр.</string>
-    <string name="persona_night_owl_title">Нічна сова</string>
-    <string name="persona_night_owl_description">Ви живете в ночі. Більшість переглядів після опівночі.</string>
-    <string name="persona_binger_title">Запійний глядач</string>
-    <string name="persona_binger_description">Ви не зупиняєтесь. Лавина контенту.</string>
-    <string name="persona_scholar_title">Фахівець</string>
-    <string name="persona_scholar_description">Складний контент. Для розвитку, не для розваг.</string>
-    <string name="persona_deep_diver_title">Глибоководник</string>
-    <string name="persona_deep_diver_description">Довгі відеоесе та документальні відео – це ваш світ.</string>
-    <string name="persona_skimmer_title">Спритник</string>
-    <string name="persona_skimmer_description">Швидкий, короткий контент. Дофамін на вимогу.</string>
-    <string name="persona_specialist_title">Спеціаліст</string>
-    <string name="persona_specialist_description">Зосереджений на кількох нішах. Ви знаєте, що вам подобається.</string>
-    <string name="persona_explorer_title">Дослідник</string>
-    <string name="persona_explorer_description">Хаотичний та прекрасний. Всього по трохи.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="player_appearance_grouped_quality_selector_title">Згрупований селектор якості</string>
     <string name="player_appearance_grouped_quality_selector_subtitle">Показувати один рядок для кожної роздільної здатності з вибором кодека всередині нього</string>
     <string name="collaborators">Співавтори</string>
     <string name="collaborator">Співавтор</string>
     <string name="channel_and_more_template">%1$s та ще %2$d</string>
-    <string name="content_settings_shorts_player_prompt_title">Пропозиція для програвача Shorts</string>
-    <string name="content_settings_shorts_player_prompt_subtitle">Запитувати перед перемиканням відео тривалістю менше 2 хвилин у програвач Shorts</string>
+    
+    
     <string name="appearance_customizer_variant_title">%1$s власна тема</string>
     <string name="appearance_role_primary_container">Головний контейнер</string>
     <string name="appearance_role_on_primary_container">На головному контейнері</string>
@@ -1716,14 +1716,14 @@
     <string name="share_community_post">Поділитися дописом спільноти</string>
     <string name="player_portrait_seekbar_width_title">Ширина повзунка в портретному режимі</string>
     <string name="player_portrait_seekbar_width_spaced">З інтервалом</string>
-    <string name="content_settings_home_reselect_refresh_title">Оновлювати «Головну» при повторному виборі</string>
-    <string name="content_settings_home_reselect_refresh_subtitle">Оновити пропозиції після гортання вгору при повторному натисканні «Головна»</string>
-    <string name="content_settings_restored_music_mini_player_title">Показати відновлений мініпрогравач музики</string>
-    <string name="content_settings_restored_music_mini_player_subtitle">Автоматично показувати останній музичний сеанс після його відновлення</string>
-    <string name="content_settings_hide_watched_home_title">Приховати переглянуті відео на «Головній»</string>
-    <string name="content_settings_hide_watched_home_subtitle">Відфільтруйте вже переглянуті відео з вашої головної стрічки</string>
-    <string name="settings_home_nav_tab_title">Вкладка «Головна»</string>
-    <string name="settings_home_nav_tab_subtitle">Показувати «Головна» на панелі навігації</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="playback_speed_multiplier">%1$s×</string>
     <string name="playback_speed_multiplier_precise">%1$.2f×</string>
     <string name="channel_metadata_unavailable">Інформація про канал недоступна</string>
@@ -1744,27 +1744,27 @@
     <string name="subtitle_bold_text">Жирний текст</string>
     <string name="subtitle_reset_default">Скинути до типових</string>
     <string name="desc_more">...більше</string>
-    <string name="widget_now_playing_label">Зараз відтворюється</string>
-    <string name="widget_now_playing_description">Керуйте музикою, що відтворюється у piTube</string>
+    
+    
     <string name="widget_quick_actions_label">Швидкі дії</string>
     <string name="widget_quick_actions_description">Шукайте у piTube та переходьте до завантажень, історії або розпізнавання</string>
-    <string name="widget_recognize_label">Розпізнати музику</string>
-    <string name="widget_recognize_description">Розпізнавайте пісню, що лунає поруч, одним дотиком</string>
-    <string name="widget_turntable_label">Платівка</string>
-    <string name="widget_turntable_description">Ваша музика як платівка, що обертається</string>
+    
+    
+    
+    
     <string name="widget_recently_played_label">Нещодавно відтворено</string>
     <string name="widget_recently_played_description">Продовжуйте з того місця, де зупинилися</string>
     <string name="widget_downloads_label">Завантаження</string>
     <string name="widget_downloads_description">Дивіться завантажене без мережі</string>
     <string name="widget_recently_played">Нещодавно відтворено</string>
     <string name="widget_downloads">Завантаження</string>
-    <string name="widget_nothing_playing">Нічого не відтворюється</string>
-    <string name="widget_play">Відтворити</string>
-    <string name="widget_pause">Призупинити</string>
-    <string name="widget_next">Наступний трек</string>
-    <string name="widget_previous">Попередній трек</string>
-    <string name="widget_like">Подобається</string>
-    <string name="widget_artwork">Обкладинка альбому</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="widget_open_downloads">Відкрити завантажене</string>
     <string name="widget_open_history">Відкрити історію</string>
     <string name="widget_no_recent">Відео, які ви переглянете, з’являться тут</string>
@@ -1777,13 +1777,13 @@
     <string name="label_preset_name">Назва передустановки</string>
     <string name="ui_queued_for_download">В черзі завантажень</string>
     <string name="ui_downloading">Завантаження</string>
-    <string name="ui_in_library">В бібліотеці</string>
+    
     <string name="ui_flow_logo">Логотип piTube</string>
-    <string name="about_creator_name">A-EDev</string>
-    <string name="about_website_address">flow.aedev.me</string>
-    <string name="about_reddit">Reddit</string>
-    <string name="about_reddit_subtitle">r/piTube_Official</string>
-    <string name="about_license_name">GNU GPL v3</string>
+    
+    
+    
+    
+    
     <plurals name="tv_playlist_video_count">
         <item quantity="one">%1$d відео</item>
         <item quantity="few">%1$d відео</item>
@@ -1794,39 +1794,39 @@
     <string name="ui_list_view">Перегляд списком</string>
     <string name="ui_grid_view">Перегляд сіткою</string>
     <string name="ui_back">Назад</string>
-    <string name="ui_add_songs">Додати пісні</string>
+    
     <string name="ui_close_search">Закрити пошуй</string>
     <string name="ui_save_to_library">Зберегти до бібліотеки</string>
     <string name="ui_remove_from_library">Видалити з бібліотеки</string>
     <string name="ui_skip_back_10_seconds">Відмотати на 10 с</string>
     <string name="ui_skip_forward_10_seconds">Перемотати на 10 с</string>
-    <string name="ui_navigate">Навігація</string>
-    <string name="ui_options">Параметри</string>
-    <string name="ui_clear">Очистити</string>
-    <string name="ui_delete_from_playlist">Видалити зі списку відтворення</string>
-    <string name="ui_added">Додано</string>
-    <string name="ui_sync_lyrics">Синхронізація тексту</string>
+    
+    
+    
+    
+    
+    
     <string name="ui_downloading_playlist">Завантаження списку відтворення</string>
-    <string name="ui_no_songs_found">Жодної пісні не знайдено</string>
-    <string name="ui_search_songs_to_add">Шукайте пісні, щоб додати</string>
-    <string name="ui_add_songs_to_playlist">Додати пісні до списку відтворення</string>
-    <string name="ui_show_less">Менше</string>
-    <string name="ui_show_more">Більше</string>
+    
+    
+    
+    
+    
     <string name="ui_try_sabr_download">Спробувати завантажити SABR</string>
-    <string name="ui_audio_only">Лише звук</string>
+    
     <string name="ui_no_crash_logs">Журнали збоїв відсутні</string>
     <string name="ui_copy_log">Копіювати журнал</string>
     <string name="ui_clear_and_continue">Очистити та продовжити</string>
     <string name="ui_crashed_last_session">Під час останнього сеансу piTube аварійно закрився</string>
     <string name="ui_copy_log_description">Скопіюйте наведений нижче журнал і вставте його в GitHub issue, щоб це можна було виправити.</string>
     <string name="ui_search_settings">Знайти налаштування</string>
-    <string name="ui_custom_interest_title">Додати власне зацікавлення</string>
-    <string name="ui_custom_interest_subtitle">Введіть будь-яку тему, за якою ви хочете стежити</string>
-    <string name="ui_custom_interest_hint">Власні захоплення (наприклад, джаз, астрофізика)</string>
-    <string name="ui_add_interest">Додати захоплення</string>
-    <string name="ui_version">Версія %1$s</string>
+    
+    
+    
+    
+    
     <string name="update_download_prompt">Доступна нова версія piTube (%1$s). Завантажити останній APK-файл?</string>
-    <string name="ui_instrumental">І Н С Т Р У М Е Н Т А Л</string>
+    
     <string name="ui_playlist_empty">Список відтворення пустий</string>
     <string name="ui_downloading_videos">Завантаження %1$d відео</string>
     <string name="ui_playlist_saved_to_library">Список відтворення збережено до бібліотеки</string>
@@ -1847,20 +1847,20 @@
     <string name="toast_no_download_source">Немає доступного джерела завантаження</string>
     <string name="toast_sabr_download_failed">Не вдалося завантажити SABR: %1$s</string>
     <string name="toast_copied_to_clipboard">Скопійовано в буфер обміну</string>
-    <string name="toast_playlist_deleted">Список відтворення видалено</string>
-    <string name="toast_playlist_renamed">Список відтворення перейменовано</string>
-    <string name="toast_starting_playlist_download">Розпочато завантаження для %1$s</string>
-    <string name="toast_downloaded_tracks_from_playlist">Завантажено %1$d треків з %2$s</string>
-    <string name="toast_failed_to_download_playlist">Не вдалося завантажити список</string>
-    <string name="toast_error_downloading_playlist">Помилка завантаження списку</string>
-    <string name="toast_downloaded_tracks">Завантажено %1$d треків</string>
-    <string name="toast_added_to_playlist">Додано до списку відтворення</string>
-    <string name="toast_failed_to_add_track">Не вдалося додати трек</string>
-    <string name="toast_removed_from_playlist">Видалено зі списку відтворення</string>
-    <string name="toast_failed_to_remove_track">Не вдалося видалити трек</string>
-    <string name="toast_saved_playlist_to_music_library">Список відтворення збережено у вашій музичній бібліотеці</string>
-    <string name="toast_failed_to_save_playlist">Не вдалося зберегти список відтворення</string>
-    <string name="toast_removed_playlist_from_library">Список відтворення видалено з бібліотеки</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="toast_failed_to_merge_playlist">Не вдалося об\'єднати список</string>
     <string name="notification_downloading">Завантаження: %1$s</string>
     <string name="notification_download_complete">Завантаження завершено</string>
@@ -1892,10 +1892,10 @@
     <string name="error_failed_to_load_channel">Не вдалося завантажити канал</string>
     <string name="error_failed_to_load_shorts">Не вдалося завантажити Shorts</string>
     <string name="error_failed_to_load_more_shorts">Не вдалося завантажити більше Shorts</string>
-    <string name="error_search_timed_out">Час очікування пошуку вичерпано</string>
-    <string name="error_filter_search_timed_out">Час очікування пошуку за фільтром вичерпано</string>
-    <string name="error_failed_to_load_playlist">Не вдалося завантажити список відтворення</string>
-    <string name="error_failed_to_load_content">Не вдалося завантажити вміст</string>
+    
+    
+    
+    
     <string name="error_no_videos_found">Відео не знайдено</string>
     <string name="error_no_shorts_found">Shorts не знайдено</string>
     <string name="error_no_live_videos_found">Прямих ефірів не знайдено</string>
@@ -1910,7 +1910,7 @@
     <string name="error_playback_device">Помилка пристрою відтворення: %1$s</string>
     <string name="error_content_protection">Помилка захисту вмісту: %1$s</string>
     <string name="error_playback_stopped">Відтворення зупинено через критичну помилку</string>
-    <string name="error_invalid_media_streams">Помилка завантаження медіа: недійсні потоки</string>
+    
     <string name="error_failed_to_load_media">Помилка завантаження медіа: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Помилка завантаження медіа: недійсні потоки</string>
     <string name="error_playback_retry_hint">Спробуйте ще раз пізніше або перевірте з’єднання з мережею.</string>
@@ -1926,19 +1926,19 @@
     <string name="download_failed_audio_length">Не вдалося отримати довжину аудіоконтенту</string>
     <string name="download_workers_failed">Один або декілька робочих процесів дали збій</string>
     <string name="download_block_failed">Не вдалося заблокувати %1$s: %2$s</string>
-    <string name="fallback_playing">Відтворення</string>
-    <string name="fallback_unknown_title">Невідома назва</string>
-    <string name="fallback_unknown_channel">Невідомий канал</string>
-    <string name="fallback_unknown_playlist">Невідомий список відтворення</string>
-    <string name="fallback_unknown_artist">Невідомий виконавець</string>
-    <string name="fallback_unknown_album">Невідомий альбом</string>
-    <string name="fallback_unknown_video">Невідоме відео</string>
-    <string name="fallback_local_video">Локальне відео</string>
-    <string name="fallback_local_audio">Локальне аудіо</string>
-    <string name="fallback_your_saved_shorts">Ваші збережені Shorts</string>
-    <string name="fallback_your_watch_later_list">Ваш список «Переглянути пізніше»</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="fallback_downloaded_locally">Завантажено локально</string>
-    <string name="fallback_more_results">Більше результатів</string>
+    
     <string name="remove_from_queue">Видалити з черги</string>
     <string name="remove_from_queue_confirmation">Упевнені, що хочете видалити це відео з черги?</string>
     <string name="reorder_queue_item">Змінити порядок елемента в черзі</string>

@@ -11,9 +11,9 @@
     <string name="collaborator">공동 작업자</string>
     <string name="channel_and_more_template">%1$s 외 %2$d명</string>
     <string name="stats">통계</string>
-    <string name="library_section_header">내 콘텐츠</string>
+    
     <string name="library_history_label">기록</string>
-    <string name="library_music_playlists_subtitle">내 음악 컬렉션</string>
+    
     <string name="library_liked_videos_label">좋아요</string>
     <string name="library_saved_shorts_label">저장한 Shorts</string>
     <string name="library_watch_later_label">나중에 볼 동영상</string>
@@ -32,7 +32,7 @@
     <string name="library_manage_data_label">데이터 관리</string>
     <string name="library_manage_data_subtitle">캐시 및 기록 지우기</string>
     <string name="about">정보</string>
-    <string name="empty_description">설명이 없습니다</string>
+    
     <string name="clear_all">모두 지우기</string>
     <string name="clear_watch_history_alert_title">시청 기록을 지울까요?</string>
     <string name="clear_watch_history_alert_body">시청 기록의 모든 동영상이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
@@ -50,11 +50,11 @@
     <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_local_videos">로컬 동영상</string>
     <string name="liked">좋아요 표시함</string>
-    <string name="liked_music">좋아요 표시한 음악</string>
-    <string name="liked_videos">좋아요</string>
-    <string name="share_song">노래 공유</string>
+    
+    
+    
     <string name="empty_liked_body">좋아요 표시한 동영상이 여기에 표시됩니다</string>
-    <string name="empty_liked_music_body">좋아요 표시한 노래가 여기에 표시됩니다</string>
+    
     <string name="video">동영상</string>
     <string name="share">공유</string>
     <string name="downloaded">다운로드됨</string>
@@ -63,13 +63,13 @@
     <string name="download_all_confirmation">동영상 %1$d개를 모두 다운로드할까요? 저장 공간을 많이 사용할 수 있습니다.</string>
     <string name="save">저장</string>
     <string name="saved">저장됨</string>
-    <string name="add_to_library">라이브러리에 추가</string>
-    <string name="saved_to_library">라이브러리에 저장했습니다</string>
-    <string name="failed_to_save_to_library">라이브러리에 저장하지 못했습니다</string>
+    
+    
+    
     <string name="open">열기</string>
-    <string name="up_next">다음 재생</string>
+    
     <string name="lyrics">가사</string>
-    <string name="related">관련 콘텐츠</string>
+    
     <string name="close">닫기</string>
     <string name="more_options">옵션 더보기</string>
     <string name="like">좋아요</string>
@@ -79,52 +79,52 @@
     <string name="shorts">Shorts</string>
     <string name="library">라이브러리</string>
     <string name="library_playlists_label">재생목록</string>
-    <string name="library_music_playlists_label">음악 재생목록</string>
-    <string name="history_tab_local_music">로컬 음악</string>
+    
+    
     <string name="empty_liked">좋아요 표시한 항목이 없습니다</string>
-    <string name="empty_liked_videos">좋아요 표시한 동영상이 없습니다</string>
-    <string name="empty_liked_music">좋아요 표시한 음악이 없습니다</string>
+    
+    
     <string name="resume">계속 재생</string>
     <string name="play">재생</string>
     <string name="next">다음</string>
     <string name="repeat">반복</string>
-    <string name="loading_track">트랙을 불러오는 중...</string>
+    
     <string name="error_occurred">오류가 발생했습니다</string>
-    <string name="playing_from">재생 출처</string>
+    
     <string name="autoplay">자동재생</string>
     <string name="move_up">위로 이동</string>
     <string name="move_down">아래로 이동</string>
     <string name="lyrics_not_available">가사를 사용할 수 없습니다</string>
-    <string name="refresh_lyrics">가사 새로고침</string>
-    <string name="playing">재생 중</string>
+    
+    
     <string name="remove">삭제</string>
-    <string name="related_content">관련 콘텐츠</string>
-    <string name="no_related_content">관련 콘텐츠를 찾을 수 없습니다</string>
-    <string name="share_message_template">이 노래를 들어보세요: %2$s의 %1$s\nhttps://music.youtube.com/watch?v=%3$s</string>
-    <string name="filter_discover">둘러보기</string>
+    
+    
+    
+    
     <string name="filter_popular">인기곡</string>
-    <string name="filter_deep_cuts">숨은 명곡</string>
-    <string name="track_details">트랙 세부정보</string>
+    
+    
     <string name="title_label">제목</string>
     <string name="artist_label">아티스트</string>
     <string name="album_label">앨범</string>
     <string name="video_id_label">동영상 ID</string>
-    <string name="codec_label">코덱</string>
+    
     <string name="sample_rate_label">샘플링 속도</string>
     <string name="bitrate_label">비트 전송률</string>
-    <string name="channels_label">채널</string>
+    
     <string name="copy_logs">로그 복사</string>
     <string name="logs_copied">로그를 복사했습니다</string>
     <string name="logs_copy_failed">로그를 복사할 수 없습니다</string>
     <string name="channel_error_log_clip_label">piTube 채널 오류 로그</string>
-    <string name="song">노래</string>
+    
     <string name="playlist_filter_owned">내가 만든 항목</string>
     <string name="playlist_creation_menu_open">재생목록 만들기</string>
     <string name="playlist_creation_menu_close">재생목록 만들기 메뉴 닫기</string>
     <string name="hz">Hz</string>
     <string name="kbps">kbps</string>
-    <string name="filter_workout">운동</string>
-    <string name="audio_info_not_available">아직 오디오 스트림 정보를 사용할 수 없습니다.</string>
+    
+    
     <string name="undo">실행 취소</string>
     <string name="subscribed_to">%s 채널을 구독했습니다</string>
     <string name="unsubscribed_from">%s 채널 구독을 취소했습니다</string>
@@ -132,30 +132,30 @@
     <string name="share_video">동영상 공유</string>
     <string name="check_out_video_template">이 동영상을 확인해 보세요: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="content_settings_share_without_text_title">문구 없이 링크 공유</string>
-    <string name="content_settings_share_without_text_subtitle">“이 동영상을 확인해 보세요” 문구 없이 동영상 링크만 공유합니다</string>
-    <string name="related_videos">관련 동영상</string>
+    
+    
+    
     <string name="quality_auto">자동</string>
     <string name="quality_auto_template">자동 (%1$dp)</string>
     <string name="play_mode_suggestion_title">재생 모드 추천</string>
     <string name="play_mode_suggestion_body">이 동영상은 2분 미만입니다. 전용 플레이어로 전환할까요?</string>
     <string name="shorts_player">Shorts 플레이어</string>
-    <string name="music_player">음악 플레이어</string>
+    
     <plurals name="channels_count">
         <item quantity="other">채널 %d개</item>
     </plurals>
     <string name="tab_videos">동영상</string>
-    <string name="tab_music">음악</string>
+    
     <string name="empty_offline_title">오프라인 %1$s</string>
     <string name="empty_offline_body">다운로드한 %1$s이(가) 여기에 표시됩니다.\n인터넷이 없어도 콘텐츠를 즐겨 보세요.</string>
     <string name="action_go_to_home">홈으로 이동</string>
     <string name="action_delete">삭제</string>
     <string name="downloads_title">다운로드</string>
-    <string name="download_deleted">다운로드를 삭제했습니다</string>
-    <string name="action_undo">실행 취소</string>
+    
+    
     <string name="cd_delete_download">%1$s 삭제</string>
     <string name="cd_video_thumbnail">%1$s 동영상 썸네일</string>
-    <string name="cd_track_artwork">%1$s 트랙 앨범아트</string>
+    
     <string name="save_to">저장 위치...</string>
     <string name="watch_later">나중에 볼 동영상</string>
     <string name="watch_later_unsave">나중에 볼 동영상에서 삭제</string>
@@ -189,7 +189,7 @@
     <string name="premiere_date_prefix">%1$s 최초 공개</string>
     <string name="upcoming_label">예정</string>
     <string name="upcoming_waiting_count">%1$s명 대기 중</string>
-    <string name="upcoming_video_overlay_title">예약된 동영상입니다. 실시간 방송이 시작되면 재생할 수 있습니다.</string>
+    
     <string name="upcoming_video_starts_in">시작까지</string>
     <string name="upcoming_video_reminder_action">알림 받기</string>
     <string name="upcoming_video_reminder_enabled">알림을 설정했습니다</string>
@@ -199,14 +199,14 @@
     <string name="duration">길이</string>
     <string name="copied_to_clipboard">%1$s을(를) 복사했습니다</string>
     <string name="unknown">알 수 없음</string>
-    <string name="subscriptions_music_section_title">음악 구독</string>
-    <string name="subscriptions_compact_header_with_music">피드를 간결하게 유지하도록 음악 채널은 별도로 표시됩니다.</string>
-    <string name="subscriptions_music_chip_label">음악</string>
-    <string name="subscriptions_music_badge_cd">음악 구독</string>
+    
+    
+    
+    
     <string name="live_chat">실시간 채팅</string>
     <string name="live_chat_connecting">실시간 채팅에 연결하는 중…</string>
     <string name="live_chat_empty">메시지를 기다리는 중…</string>
-    <string name="live_chat_show">채팅 표시</string>
+    
     <string name="live_chat_hide">채팅 숨기기</string>
     <string name="live_chat_jump_to_latest">최신 채팅 메시지로 이동</string>
     <string name="comments">댓글</string>
@@ -225,7 +225,7 @@
     <string name="hide_replies">답글 숨기기</string>
     <string name="view_replies_template">답글 %1$d개 보기</string>
     <string name="load_more_replies">답글 더 불러오기</string>
-    <string name="select_text">텍스트 선택</string>
+    
     <string name="pinned_comment">고정된 댓글</string>
     <string name="pinned_by_creator">크리에이터가 고정함</string>
     <string name="tap_to_close">탭하여 닫기</string>
@@ -236,12 +236,12 @@
     <string name="maybe_later">나중에</string>
     <string name="nav_home">홈</string>
     <string name="nav_shorts">Shorts</string>
-    <string name="nav_music">음악</string>
+    
     <string name="nav_library">라이브러리</string>
     <string name="notifications">알림</string>
     <string name="search">검색</string>
     <string name="settings">설정</string>
-    <string name="select_artist">아티스트 선택</string>
+    
     <string name="description">설명</string>
     <string name="copy_description">설명 복사</string>
     <string name="description_copied">설명을 클립보드에 복사했습니다</string>
@@ -250,28 +250,28 @@
     <string name="in_this_video">이 동영상에 등장</string>
     <string name="sb_manual_skip">건너뛰기</string>
     <string name="sb_skip_segment">%1$s 건너뛰기</string>
-    <string name="ago">전</string>
-    <string name="since">이후</string>
-    <string name="add_to_playlist">재생목록에 추가</string>
+    
+    
+    
     <string name="playback_header">재생</string>
-    <string name="play_next">다음에 재생</string>
-    <string name="play_next_desc">대기열 맨 앞에 추가</string>
-    <string name="add_to_queue">대기열에 추가</string>
-    <string name="add_to_queue_desc">대기열 맨 뒤에 추가</string>
-    <string name="similar_content">비슷한 콘텐츠</string>
-    <string name="no_similar_content_found">비슷한 콘텐츠를 찾을 수 없습니다</string>
-    <string name="radio_source_template">라디오 • %1$s</string>
-    <string name="unknown_source">알 수 없는 출처</string>
-    <string name="added_to_playlist_toast">재생목록에 추가했습니다</string>
-    <string name="already_downloaded_toast">이미 다운로드했습니다</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="download_started_toast">다운로드를 시작했습니다…</string>
-    <string name="download_error_toast">다운로드 오류: %1$s</string>
+    
     <string name="audio_effects">오디오 효과</string>
-    <string name="more_header">더보기</string>
-    <string name="view_artist">아티스트 보기</string>
-    <string name="view_album">앨범 보기</string>
-    <string name="album_art">앨범아트</string>
-    <string name="close_player">플레이어 닫기</string>
+    
+    
+    
+    
+    
     <string name="views_template">조회수 %1$s회</string>
     <string name="chapters">챕터</string>
     <string name="artist">아티스트</string>
@@ -281,49 +281,49 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">맞춤 피드</string>
     <string name="videos_curated_template">나를 위해 선별한 동영상 %1$d개</string>
-    <string name="group_all">전체</string>
-    <string name="manage_groups">그룹 관리</string>
-    <string name="new_group">새 그룹</string>
-    <string name="edit_group">그룹 수정</string>
-    <string name="delete_group">그룹 삭제</string>
-    <string name="group_name_label">그룹 이름</string>
-    <string name="no_groups_yet">아직 그룹이 없습니다. 피드를 필터링할 그룹을 만들어 보세요.</string>
-    <string name="search_channels_hint">채널 검색…</string>
-    <string name="toggle_view_mode">보기 방식 전환</string>
-    <string name="unsubscribed_from_template">%1$s 구독을 취소했습니다</string>
-    <string name="hide_channel_shorts">이 채널의 Shorts 숨기기</string>
-    <string name="show_channel_shorts">이 채널의 Shorts 표시</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="videos_count_template">동영상 %1$d개</string>
-    <string name="likes_count_template">좋아요 %1$d개</string>
-    <string name="playlists_count_template">재생목록 %1$d개</string>
-    <string name="shorts_count_template">Shorts %1$d개</string>
-    <string name="songs_count_template">노래 %1$d곡</string>
-    <string name="empty_downloads">아직 다운로드한 항목이 없습니다</string>
+    
+    
+    
+    
+    
     <string name="play_all">모두 재생</string>
     <string name="remove_from_watch_later">나중에 볼 동영상에서 삭제</string>
-    <string name="playlist_metadata_template">재생목록 • 비공개 • 동영상 %1$d개</string>
-    <string name="explicit">E</string>
+    
+    
     <string name="no_videos_saved">저장한 동영상이 없습니다</string>
     <string name="no_videos_saved_body">나중에 보려고 저장한 동영상이 여기에 표시됩니다</string>
     <string name="search_hint">검색</string>
     <string name="search_videos_channels_placeholder">동영상, 채널 검색...</string>
     <string name="recent_searches">최근 검색어</string>
     <string name="search_empty_prompt">동영상, 음악 등을 검색하세요</string>
-    <string name="trending">인기 급상승</string>
+    
     <string name="channels_header">채널</string>
     <string name="videos_header">동영상</string>
-    <string name="end_of_results">검색 결과 끝</string>
+    
     <string name="clear_search_history">검색 기록 지우기</string>
     <string name="search_filter_all">전체</string>
     <string name="search_toggle_view_mode">검색 결과 보기 방식 전환</string>
-    <string name="filter_upload_date">업로드 날짜</string>
-    <string name="filter_duration">길이</string>
-    <string name="filter_sort_by">정렬 기준</string>
-    <string name="filter_hd">HD</string>
-    <string name="filter_4k">4K</string>
+    
+    
+    
+    
+    
     <string name="filter_subtitles">자막</string>
     <string name="date_any">전체 기간</string>
-    <string name="date_last_hour">지난 1시간</string>
+    
     <string name="date_today">오늘</string>
     <string name="date_this_week">이번 주</string>
     <string name="date_this_month">이번 달</string>
@@ -333,11 +333,11 @@
     <string name="duration_4_20">4~20분</string>
     <string name="duration_over_20">20분 초과</string>
     <string name="sort_relevance">관련성</string>
-    <string name="sort_upload_date">업로드 날짜</string>
-    <string name="sort_view_count">조회수</string>
+    
+    
     <string name="sort_rating">평점</string>
     <string name="channel_sort_latest">최신순</string>
-    <string name="channel_default_title">채널</string>
+    
     <string name="channel_banner">채널 배너</string>
     <string name="channel_avatar">채널 프로필 사진</string>
     <string name="subscribe">구독</string>
@@ -352,9 +352,9 @@
     <string name="channel_search_failed">이 채널을 검색할 수 없습니다</string>
     <string name="community_post_image_content_description">커뮤니티 게시물 이미지</string>
     <string name="share_community_post">커뮤니티 게시물 공유</string>
-    <string name="end_of_queue">대기열 끝</string>
-    <string name="no_videos_found">동영상을 찾을 수 없습니다</string>
-    <string name="no_shorts_found">Shorts를 찾을 수 없습니다</string>
+    
+    
+    
     <string name="no_playlists_found">재생목록을 찾을 수 없습니다</string>
     <string name="subscribers_count_template">구독자 %1$s명</string>
     <string name="views_count_short_template">조회수 %1$s회</string>
@@ -362,9 +362,9 @@
     <string name="channel_search_open">채널 내 검색</string>
     <string name="channel_search_close">검색 닫기</string>
     <string name="channel_search_no_results">“%1$s”에 대한 결과가 없습니다</string>
-    <string name="music_history">음악 기록</string>
+    
     <string name="remove_from_history">기록에서 삭제</string>
-    <string name="share_song_chooser">노래 공유</string>
+    
     <string name="time_today">오늘</string>
     <string name="time_yesterday">어제</string>
     <string name="time_earlier">이전</string>
@@ -374,13 +374,13 @@
     <string name="peace_and_quiet">조용하네요</string>
     <string name="notifications_empty_body">모든 알림을 확인했습니다! 구독 채널의 새 소식이 여기에 표시됩니다.</string>
     <string name="settings_title">설정</string>
-    <string name="settings_flow_engine_header">piTube 엔진</string>
-    <string name="settings_active_learning">활성 학습 중</string>
-    <string name="settings_reset_brain_title">piTube 성향을 초기화할까요?</string>
-    <string name="settings_reset_brain_body">‘piTube Brain’ 관심사 프로필이 완전히 삭제됩니다.\n\n• 학습한 모든 주제를 잊습니다.\n• 성향 특성이 중립으로 초기화됩니다.\n• 추천이 기본값으로 돌아갑니다.\n\n이 작업은 되돌릴 수 없습니다.</string>
-    <string name="settings_reset_everything">모두 초기화</string>
-    <string name="settings_analyzing_interactions">상호작용을 분석하는 중...</string>
-    <string name="settings_view_analytics">분석 보기</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_header_appearance">화면 및 테마</string>
     <string name="settings_header_content_playback">콘텐츠 및 재생</string>
     <string name="settings_header_data_management">데이터 관리</string>
@@ -404,8 +404,8 @@
     <string name="settings_item_theme">테마</string>
     <string name="settings_item_app_icon">앱 아이콘</string>
     <string name="settings_item_app_icon_subtitle">런처 아이콘을 맞춤설정합니다</string>
-    <string name="settings_item_content_prefs">콘텐츠 환경설정</string>
-    <string name="settings_item_content_prefs_subtitle">보고 싶지 않은 주제를 차단합니다</string>
+    
+    
     <string name="settings_item_player">플레이어 설정</string>
     <string name="settings_item_player_subtitle">자동재생, 백그라운드 재생, SponsorBlock</string>
     <string name="settings_item_proxy">프록시 설정</string>
@@ -435,16 +435,16 @@
     <string name="appearance_title">화면 및 테마</string>
     <string name="appearance_subtitle">piTube 사용 환경을 맞춤설정하세요</string>
     <string name="appearance_current_theme">현재 테마</string>
-    <string name="appearance_category_all">전체</string>
+    
     <string name="appearance_category_light">라이트</string>
     <string name="appearance_category_dark">다크</string>
     <string name="appearance_category_custom">사용자 지정</string>
-    <string name="appearance_category_special">특별</string>
+    
     <string name="appearance_themes_count_all">테마 %1$d개</string>
-    <string name="appearance_themes_count_filtered">%2$s 테마 %1$d개</string>
+    
     <string name="appearance_applied_toast">적용됨: %1$s</string>
     <string name="appearance_customize_theme">테마 맞춤설정</string>
-    <string name="appearance_customizer_title">사용자 지정 테마 편집기</string>
+    
     <string name="appearance_customizer_variant_title">%1$s 사용자 지정 테마</string>
     <string name="appearance_customizer_subtitle">모든 Material 3 색상 역할을 조정하고 변경 사항을 즉시 미리 봅니다</string>
     <string name="appearance_customizer_format_hint">16진수 형식: #RRGGBB 또는 #AARRGGBB</string>
@@ -515,15 +515,15 @@
     <string name="icon_name_material_mint">Material 민트</string>
     <string name="player_appearance_title">플레이어 모양</string>
     <string name="player_appearance_header">플레이어 컨트롤 맞춤설정</string>
-    <string name="player_appearance_style_title">음악 진행률 표시줄 스타일</string>
+    
     <string name="player_appearance_style_subtitle">탐색 막대의 시각적 스타일을 선택하세요</string>
-    <string name="player_background_style_title">음악 플레이어 배경</string>
-    <string name="player_background_style_blur_gradient">블러 + 그라데이션</string>
-    <string name="player_background_style_blur">흐린 앨범아트</string>
-    <string name="player_background_style_gradient">팔레트 그라데이션</string>
-    <string name="player_background_style_default">기본 표면</string>
-    <string name="player_appearance_hide_music_artwork_title">음악 플레이어 앨범아트 숨기기</string>
-    <string name="player_appearance_hide_music_artwork_subtitle">대신 추출한 앨범아트 색상 위에 앱 아이콘을 표시합니다</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="player_appearance_shorts_ui_title">Shorts 플레이어 UI</string>
     <string name="player_appearance_shorts_ui_subtitle">Shorts 오버레이에 표시할 요소의 양을 선택하세요</string>
     <string name="shorts_player_ui_default">기본</string>
@@ -535,14 +535,14 @@
     <string name="shorts_unsaved">Shorts 저장을 취소했습니다</string>
     <string name="settings_item_player_appearance">플레이어 모양</string>
     <string name="settings_item_player_appearance_subtitle">진행률 표시줄 스타일을 맞춤설정합니다</string>
-    <string name="style_default">기본(piTube)</string>
-    <string name="style_metrolist">Metrolist(굵게)</string>
-    <string name="style_metrolist_slim">Metrolist(얇게)</string>
-    <string name="style_squiggly">물결 모양</string>
-    <string name="style_slim">매우 얇게</string>
+    
+    
+    
+    
+    
     <string name="player_appearance_gestures_header">제스처</string>
-    <string name="player_appearance_swipe_gestures_title">밝기 및 음량 제스처</string>
-    <string name="player_appearance_swipe_gestures_subtitle">전체 화면에서 왼쪽/오른쪽 가장자리를 밀어 밝기와 음량을 조절합니다</string>
+    
+    
     <string name="player_appearance_brightness_gesture_title">밝기 제스처</string>
     <string name="player_appearance_brightness_gesture_subtitle">전체 화면에서 왼쪽 가장자리를 밀어 밝기를 조절합니다</string>
     <string name="player_appearance_remember_brightness_title">밝기 기억</string>
@@ -552,7 +552,7 @@
     <string name="player_appearance_controls_while_loading_title">로딩 중 컨트롤 표시</string>
     <string name="player_appearance_controls_while_loading_subtitle">동영상 로딩이 끝나기 전에도 플레이어 컨트롤을 표시하여 바로 음량을 조절할 수 있게 합니다</string>
     <string name="player_appearance_long_press_speed_title">길게 눌러 재생 속도 변경</string>
-    <string name="player_appearance_long_press_speed_subtitle">플레이어를 누르고 있는 동안 사용할 임시 속도를 선택하세요</string>
+    
     <string name="player_appearance_long_press_speed_disabled">사용 안 함</string>
     <string name="mini_player_header">미니 플레이어 맞춤설정</string>
     <string name="mini_player_size">미니 플레이어 크기</string>
@@ -576,18 +576,18 @@
     <string name="player_fullscreen_seekbar_width_default">기본</string>
     <string name="player_fullscreen_seekbar_width_custom">사용자 지정</string>
     <string name="player_fullscreen_seekbar_width_value">%1$d dp</string>
-    <string name="lyrics_provider_title">가사 제공업체</string>
-    <string name="lyrics_provider_subtitle">선호하는 노래 가사 출처를 선택하세요</string>
-    <string name="lyrics_provider_lrclib">LrcLib</string>
-    <string name="lyrics_provider_better_lyrics">Better Lyrics</string>
-    <string name="lyrics_provider_simpmusic">SimpMusic</string>
-    <string name="lyrics_provider_lyrics_plus">LyricsPlus</string>
+    
+    
+    
+    
+    
+    
     <string name="theme_name_system_default">시스템 기본값</string>
     <string name="theme_desc_system_default">기기 테마와 동기화</string>
     <string name="theme_name_material_you">Material You</string>
     <string name="theme_desc_material_you">Android 12 이상에서 배경화면 색상 사용</string>
     <string name="theme_name_pure_light">퓨어 라이트</string>
-    <string name="theme_desc_pure_light">깔끔하고 미니멀함</string>
+    
     <string name="theme_name_mint_fresh">민트 프레시</string>
     <string name="theme_desc_mint_fresh">시원하고 산뜻함</string>
     <string name="theme_name_rose_petal">장미 꽃잎</string>
@@ -599,7 +599,7 @@
     <string name="theme_name_classic_dark">클래식</string>
     <string name="theme_desc_classic_dark">piTube의 원래 색상 팔레트</string>
     <string name="theme_name_true_black">트루 블랙</string>
-    <string name="theme_desc_true_black">완전한 OLED 블랙</string>
+    
     <string name="theme_name_monochrome">모노크롬</string>
     <string name="theme_desc_monochrome">선명한 순수 흑백</string>
     <string name="theme_name_custom">사용자 지정</string>
@@ -651,18 +651,18 @@
     <string name="content_settings_grid_big_desc">더 큰 썸네일</string>
     <string name="content_settings_grid_small_title">작게</string>
     <string name="content_settings_grid_small_desc">간결한 보기</string>
-    <string name="content_settings_header_preview">미리보기</string>
-    <string name="content_settings_preview_album_art">앨범아트 미리보기</string>
-    <string name="content_settings_preview_big">크게 - 128dp 썸네일</string>
-    <string name="content_settings_preview_small">작게 - 104dp 썸네일</string>
-    <string name="content_settings_dynamic_components">동적 구성요소</string>
-    <string name="settings_show_related_videos_title">관련 동영상 표시</string>
-    <string name="settings_show_related_videos_subtitle">동영상 플레이어 아래에 관련 동영상을 표시합니다</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_header_home_feed">홈 피드</string>
-    <string name="content_settings_home_feed_title">홈 피드 사용</string>
-    <string name="content_settings_home_feed_subtitle">홈 화면에 맞춤 동영상 추천을 표시합니다</string>
-    <string name="content_settings_home_reselect_refresh_title">홈을 다시 선택하면 새로고침</string>
-    <string name="content_settings_home_reselect_refresh_subtitle">맨 위로 스크롤한 뒤 홈을 다시 탭하면 추천을 새로 불러옵니다</string>
+    
+    
+    
+    
     <string name="content_settings_home_feed_disabled_title">홈 피드가 꺼져 있습니다</string>
     <string name="content_settings_home_feed_disabled_body">맞춤 추천이 사용 중지되었습니다. 콘텐츠 설정에서 다시 켤 수 있습니다.</string>
     <string name="content_settings_header_player">동영상 플레이어</string>
@@ -678,61 +678,61 @@
     <string name="content_settings_title_lines_2">2줄</string>
     <string name="content_settings_title_lines_3">3줄</string>
     <string name="content_settings_title_lines_unlimited">제한 없음</string>
-    <string name="content_settings_video_card_mark_watched_title">동영상 카드의 시청 완료 버튼</string>
-    <string name="content_settings_video_card_mark_watched_subtitle">전체 및 간결한 동영상 카드에 눈 모양 버튼을 표시하여 빠르게 시청한 것으로 표시합니다</string>
-    <string name="content_settings_show_app_logo_title">앱 로고 아이콘 표시</string>
-    <string name="content_settings_show_app_logo_subtitle">홈 화면 상단 표시줄에서 앱 이름 옆에 piTube 로고를 표시합니다</string>
-    <string name="content_settings_header_content_components">콘텐츠 구성요소</string>
-    <string name="content_settings_restored_music_mini_player_title">복원된 음악 미니 플레이어 표시</string>
-    <string name="content_settings_restored_music_mini_player_subtitle">마지막 음악 세션이 복원되면 자동으로 표시합니다</string>
-    <string name="content_settings_hide_watched_home_title">홈에서 시청한 동영상 숨기기</string>
-    <string name="content_settings_hide_watched_home_subtitle">이미 시청한 동영상을 홈 피드에서 숨깁니다</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_watched_threshold_title">시청한 것으로 표시할 기준</string>
     <string name="content_settings_watched_threshold_dialog_body">동영상을 어느 정도 재생해야 시청한 것으로 간주하고 숨길지 선택하세요.</string>
     <string name="content_settings_watched_threshold_90">90% 재생</string>
     <string name="content_settings_watched_threshold_95">95% 재생</string>
     <string name="content_settings_watched_threshold_99">99% 재생</string>
     <string name="content_settings_watched_threshold_almost">거의 끝까지 재생(마지막 1분)</string>
-    <string name="content_settings_navbar_hide_on_scroll_title">스크롤할 때 탐색 표시줄 숨기기</string>
-    <string name="content_settings_navbar_hide_on_scroll_subtitle">아래로 스크롤할 때 하단 탐색 표시줄을 숨깁니다. 애니메이션이 끊기면 항상 표시되도록 끄세요.</string>
-    <string name="content_settings_disable_shorts_player_title">Shorts 플레이어 사용 안 함</string>
-    <string name="content_settings_disable_shorts_player_subtitle">YouTube Shorts를 포함한 모든 동영상을 일반 동영상 플레이어에서 재생합니다</string>
-    <string name="content_settings_shorts_player_prompt_title">Shorts 플레이어 전환 제안</string>
-    <string name="content_settings_shorts_player_prompt_subtitle">2분 미만 동영상을 Shorts 플레이어로 전환하기 전에 확인합니다</string>
-    <string name="content_settings_explore_region_picker_title">둘러보기의 빠른 지역 선택기</string>
-    <string name="content_settings_explore_region_picker_subtitle">둘러보기 화면 상단에 지구본 아이콘을 표시하여 인기 급상승 지역을 즉시 변경합니다.</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="categories_region_picker_desc">인기 급상승 지역 변경(현재: %1$s)</string>
-    <string name="content_settings_header_nav_tabs">탐색 탭</string>
-    <string name="settings_home_nav_tab_title">홈 탭</string>
-    <string name="settings_home_nav_tab_subtitle">탐색 표시줄에 홈을 표시합니다</string>
-    <string name="content_settings_comments_enabled_title">댓글</string>
-    <string name="content_settings_comments_enabled_subtitle">동영상 플레이어 화면에서 댓글 섹션을 불러와 표시합니다</string>
-    <string name="content_settings_comments_preview_title">댓글 미리보기</string>
-    <string name="content_settings_comments_preview_subtitle">댓글 카드 안에 최신 댓글을 표시합니다</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="content_settings_nav_order_title">탭 순서 및 기본 탭</string>
     <string name="content_settings_nav_order_subtitle">화살표로 탭 순서를 변경하세요. 라디오 버튼으로 기본 탭을 선택합니다.</string>
-    <string name="settings_home_shorts_shelf_title">홈 화면 Shorts 선반</string>
-    <string name="settings_home_shorts_shelf_subtitle">홈 화면에 가로형 Shorts 선반을 표시합니다.</string>
-    <string name="settings_shorts_nav_tab_title">탐색 표시줄의 Shorts 탭</string>
-    <string name="settings_shorts_nav_tab_subtitle">하단 탐색 표시줄에 Shorts 탭을 표시합니다.</string>
-    <string name="settings_music_nav_tab_title">탐색 표시줄의 음악 탭</string>
-    <string name="settings_music_nav_tab_subtitle">하단 탐색 표시줄에 음악 탭을 표시합니다.</string>
-    <string name="settings_search_nav_tab_title">탐색 표시줄의 검색 탭</string>
-    <string name="settings_search_nav_tab_subtitle">하단 탐색 표시줄에 빠른 검색 탭을 표시합니다.</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="nav_search">검색</string>
-    <string name="settings_categories_nav_tab_title">탐색 표시줄의 둘러보기 탭</string>
-    <string name="settings_categories_nav_tab_subtitle">하단 탐색 표시줄에 인기 급상승 및 카테고리 둘러보기 탭을 표시합니다.</string>
+    
+    
     <string name="nav_explore">둘러보기</string>
     <string name="nav_more">더보기</string>
     <string name="categories_title">카테고리</string>
     <string name="categories_switch_to_grid">그리드 보기로 전환</string>
     <string name="categories_switch_to_list">목록 보기로 전환</string>
     <string name="category_all">전체</string>
-    <string name="category_trending">인기 급상승</string>
+    
     <string name="category_movies">영화</string>
     <string name="category_live">실시간</string>
-    <string name="settings_continue_watching_title">이어보기 선반</string>
-    <string name="settings_continue_watching_subtitle">홈 화면에 시청 중인 동영상 선반을 표시합니다.</string>
+    
+    
     <string name="continue_watching_title">이어보기</string>
     <string name="player_settings_mini_player_continue_watching_title">이어보기 미니 플레이어</string>
     <string name="player_settings_mini_player_continue_watching_subtitle">마지막으로 보던 동영상을 자동으로 띄웁니다</string>
@@ -797,12 +797,12 @@
     <string name="player_settings_speed_slider_subtitle">연속 슬라이더로 원하는 재생 속도를 설정합니다</string>
     <string name="speed_slider_decrease">속도 낮추기</string>
     <string name="speed_slider_increase">속도 높이기</string>
-    <string name="speed_slider_reset">1×로 초기화</string>
-    <string name="speed_slider_apply">적용</string>
+    
+    
     <string name="playback_speed_multiplier">%1$s×</string>
     <string name="playback_speed_multiplier_precise">%1$.2f×</string>
     <string name="player_settings_stable_voice">음량 안정화</string>
-    <string name="player_settings_stable_voice_subtitle">일관된 재생을 위해 오디오 음량을 정규화합니다</string>
+    
     <string name="player_settings_display">표시</string>
     <string name="player_settings_ambient_mode">앰비언트 모드</string>
     <string name="player_settings_ambient_mode_subtitle">동영상 주변의 빈 공간을 동영상 색상의 은은한 빛으로 채웁니다</string>
@@ -859,8 +859,8 @@
     <string name="channel_blocked_toast">%1$s이(가) 피드에 표시되지 않습니다</string>
     <string name="btn_save">저장</string>
     <string name="btn_cancel">취소</string>
-    <string name="player_settings_show_pip">PiP 버튼 표시</string>
-    <string name="player_settings_show_pip_subtitle">플레이어 컨트롤에 수동 PiP 버튼을 표시합니다</string>
+    
+    
     <string name="player_settings_header_video">동영상</string>
     <string name="player_settings_header_audio">오디오</string>
     <string name="player_settings_play_during_calls">통화 중 재생</string>
@@ -877,17 +877,17 @@
     <string name="player_settings_header_gestures">제스처</string>
     <string name="player_settings_double_tap_seek">두 번 탭 탐색 시간</string>
     <string name="player_settings_double_tap_seek_subtitle_template">양쪽 두 번 탭 시 %d초 이동</string>
-    <string name="player_settings_double_tap_seek_dialog_title">두 번 탭 탐색 시간</string>
-    <string name="player_settings_double_tap_seek_dialog_body">플레이어 왼쪽 또는 오른쪽을 두 번 탭할 때 이동할 시간을 선택하세요.</string>
+    
+    
     <string name="video_quality_title">동영상 화질</string>
     <string name="video_quality_warning">화질이 높을수록 데이터 사용량이 늘어납니다</string>
     <string name="video_quality_wifi_header">Wi-Fi 화질</string>
     <string name="video_quality_cellular_header">모바일 데이터 화질</string>
-    <string name="music_quality_header">음악 음질</string>
-    <string name="music_quality_auto">자동</string>
-    <string name="music_quality_high">높음</string>
-    <string name="music_quality_medium">보통</string>
-    <string name="music_quality_low">낮음</string>
+    
+    
+    
+    
+    
     <string name="quality_144p">144p</string>
     <string name="quality_240p">240p</string>
     <string name="quality_360p">360p</string>
@@ -931,42 +931,42 @@
     <string name="cd_pause">일시중지</string>
     <string name="cd_play">재생</string>
     <string name="cd_more_options">옵션 더보기</string>
-    <string name="shorts_original_sound">원본 사운드 - %1$s</string>
-    <string name="view_count_billion_suffix">억</string>
-    <string name="view_count_million_suffix">만</string>
-    <string name="view_count_thousand_suffix">천</string>
+    
+    
+    
+    
     <string name="action_like">좋아요</string>
     <string name="action_dislike">싫어요</string>
     <string name="action_comments">댓글</string>
     <string name="action_save">저장</string>
     <string name="action_share">공유</string>
-    <string name="action_description">설명</string>
+    
     <string name="action_subscribe">구독</string>
-    <string name="action_search">검색</string>
-    <string name="content_preferences_title">콘텐츠 환경설정</string>
-    <string name="content_preferences_subtitle">표시할 콘텐츠를 맞춤설정하세요</string>
-    <string name="interests_tab">관심사</string>
-    <string name="blocked_tab">차단됨</string>
-    <string name="topics_count_template">주제 %1$d개</string>
-    <string name="hidden_count_template">숨김 %1$d개</string>
-    <string name="your_interests_title">내 관심사</string>
-    <string name="your_interests_desc">선택한 주제는 piTube가 더 나은 콘텐츠를 추천하는 데 도움이 됩니다. 아래 주제를 탭하여 추가하거나 삭제하세요.</string>
-    <string name="currently_following">현재 팔로우 중</string>
-    <string name="tap_to_remove">탭하여 삭제</string>
-    <string name="add_topics">주제 추가</string>
-    <string name="browse_by_category">카테고리별 둘러보기</string>
-    <string name="hidden_content_title">숨긴 콘텐츠</string>
-    <string name="hidden_content_desc">이 주제가 포함된 동영상은 추천에 표시되지 않습니다. 동영상의 “관심 없음” 버튼을 사용할 수도 있습니다.</string>
-    <string name="block_topic_title">주제 차단</string>
-    <string name="enter_keywords_to_hide">숨길 키워드 입력</string>
-    <string name="block_topic_placeholder">예: 메이크업, 포트나이트, ASMR</string>
-    <string name="desc_add_topic">주제 추가</string>
-    <string name="quick_add">빠른 추가</string>
-    <string name="common_topics_to_block">자주 차단하는 주제</string>
-    <string name="currently_blocked">현재 차단됨</string>
-    <string name="topics_blocked_count_plural">주제 %1$d개%2$s</string>
-    <string name="desc_remove_topic">%1$s 삭제</string>
-    <string name="desc_unblock_topic">%1$s 차단 해제</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="selected_count_template">%1$d개 선택됨</string>
     <string name="select_videos">선택</string>
     <string name="cancel_selection">선택 취소</string>
@@ -977,11 +977,11 @@
     <string name="time_management_subtitle">화면 사용 시간을 확인하고 관리하세요</string>
     <string name="stats_disclaimer">통계는 이 앱의 시청 기록을 기준으로 합니다. 실제 사용 시간과 다를 수 있습니다.</string>
     <string name="tools_to_manage_time">시간 관리 도구</string>
-    <string name="remind_bedtime">취침 시간이 되면 알림</string>
+    
     <string name="start_time">시작 시간</string>
     <string name="end_time">종료 시간</string>
     <string name="bedtime_notification_note">시작 시간에 알림을 보냅니다.</string>
-    <string name="remind_break">휴식 시간 알림</string>
+    
     <string name="reminder_frequency">알림 빈도</string>
     <string name="every_min_template">%1$d분마다</string>
     <string name="daily_average_label">일일 평균</string>
@@ -1016,7 +1016,7 @@
     <string name="sleep_timer_end_of_media">현재 노래 종료 시</string>
     <string name="sleep_timer_reset">초기화</string>
     <string name="sleep_timer_cancel_timer">타이머 취소</string>
-    <string name="sleep_timer_active_label">취침 타이머 사용 중</string>
+    
     <string name="sleep_timer_close_app">타이머 종료 시 앱 닫기</string>
     <string name="sleep_timer_close_app_desc">배터리 절약을 위해 앱을 종료합니다</string>
     <string name="sleep_timer_will_close_app">타이머가 끝나면 앱이 닫힙니다</string>
@@ -1053,17 +1053,17 @@
     <string name="media_access_title">사진 및 동영상 접근</string>
     <string name="media_access_granted_subtitle">허용됨</string>
     <string name="media_access_denied_subtitle">허용되지 않음 — 탭하여 허용하세요</string>
-    <string name="audio_access_title">음악 및 오디오 접근</string>
-    <string name="audio_access_granted_subtitle">허용됨</string>
-    <string name="audio_access_denied_subtitle">허용되지 않음 — 탭하여 허용하세요</string>
+    
+    
+    
     <string name="storage_header">저장공간</string>
     <string name="internal_storage_label">내부 저장공간</string>
     <string name="free_space_template">%1$s 사용 가능</string>
     <string name="total_space_template">전체: %1$s</string>
-    <string name="location_label">위치</string>
+    
     <string name="video_download_location_label">동영상 다운로드 위치</string>
-    <string name="music_download_location_label">음악 다운로드 위치</string>
-    <string name="internal_app_storage_label">앱 내부 저장공간</string>
+    
+    
     <string name="preferences_header">환경설정</string>
     <string name="default_video_quality_label">기본 동영상 화질</string>
     <string name="default_download_codec_label">기본 다운로드 코덱</string>
@@ -1082,7 +1082,7 @@
     <string name="location_downloads_label">다운로드/piTube</string>
     <string name="location_movies_label">영화/piTube</string>
     <string name="location_internal_app_label">앱 내부 저장공간</string>
-    <string name="location_internal_app_desc">앱 전용 공간 — 앱을 삭제하면 파일도 삭제될 수 있습니다</string>
+    
     <string name="location_custom_saf_label">찾아보기…</string>
     <string name="location_custom_saf_desc">시스템 파일 선택기로 원하는 폴더를 선택합니다</string>
     <string name="location_custom_manual_label">경로 직접 입력</string>
@@ -1091,7 +1091,7 @@
     <string name="location_manual_hint">/storage/emulated/0/…</string>
     <string name="location_manual_confirm">저장</string>
     <string name="location_badge_recommended">권장</string>
-    <string name="location_badge_active">사용 중</string>
+    
     <string name="select_threads_count_desc">스레드 수 선택(1~8):</string>
     <string name="threads_count_label">스레드 %1$d개</string>
     <string name="support_donations_title">후원 및 기부</string>
@@ -1121,8 +1121,8 @@
     <string name="error_license_load">라이선스 파일을 불러올 수 없습니다.</string>
     <string name="no_changelog_found_message">변경 기록을 찾을 수 없습니다.</string>
     <string name="error_changelog_load">변경 기록 파일을 불러올 수 없습니다.</string>
-    <string name="app_logo_desc">앱 로고</string>
-    <string name="v_version_template">v%1$s (%2$s)</string>
+    
+    
     <string name="manufacturer_label">제조사: %1$s</string>
     <string name="model_label">모델: %1$s</string>
     <string name="board_label">보드: %1$s</string>
@@ -1140,10 +1140,10 @@
     <string name="btn_ok">확인</string>
     <string name="btn_copy">복사</string>
     <string name="github_label">GitHub</string>
-    <string name="new_playlist_button">새 재생목록</string>
-    <string name="your_playlists_header">내 재생목록</string>
-    <string name="saved_playlists_header">저장한 재생목록</string>
-    <string name="create_playlist_empty_desc">첫 재생목록을 만들어 좋아하는 동영상을 정리하세요</string>
+    
+    
+    
+    
     <string name="my_playlist_placeholder">내 재생목록</string>
     <string name="add_description_placeholder">설명 추가...</string>
     <string name="edit_playlist_action">재생목록 수정</string>
@@ -1168,175 +1168,175 @@
     <string name="remove_selected_playlist_text">이 재생목록에서 삭제됩니다.</string>
     <string name="remove_selected_watch_later_text">나중에 볼 동영상에서 삭제됩니다.</string>
     <string name="welcome_to_flow">piTube에 오신 것을 환영합니다</string>
-    <string name="onboarding_subtitle">관심사를 알려 주세요</string>
-    <string name="onboarding_instructions">맞춤 환경을 위해 주제를 3개 이상 선택하세요</string>
-    <string name="selected_with_more_needed_template">%1$d개 선택됨(%2$d개 더 필요)</string>
-    <string name="onboarding_interests_title">무엇을 좋아하시나요?</string>
-    <string name="onboarding_interests_hint">피드 맞춤설정을 위해 주제를 %1$d개 이상 선택하세요. %2$d개 더 선택하면 됩니다.</string>
-    <string name="onboarding_interests_ready">좋은 선택입니다. 나중에 설정에서 언제든 변경할 수 있습니다.</string>
-    <string name="onboarding_channels_title">채널 찾기</string>
-    <string name="onboarding_channels_subtitle">이미 팔로우하는 채널을 검색하고 한 번의 탭으로 구독하세요.</string>
-    <string name="onboarding_channels_search_placeholder">채널 검색…</string>
-    <string name="onboarding_channels_empty_prompt">검색할 채널 이름을 입력하세요</string>
-    <string name="onboarding_channels_no_results">“%1$s”에 대한 채널을 찾을 수 없습니다</string>
-    <string name="onboarding_channels_added_count">채널 %1$d개 추가됨</string>
-    <string name="onboarding_channels_subscribers">구독자 %1$s명</string>
-    <string name="onboarding_channels_subscribed">구독 중</string>
-    <string name="onboarding_channels_subscribe">구독</string>
-    <string name="onboarding_import_title">데이터 가져오기</string>
-    <string name="onboarding_import_subtitle">다른 앱의 구독과 기록을 가져오세요. 모든 단계는 선택사항입니다.</string>
-    <string name="onboarding_backup_restore_section">백업 및 복원</string>
-    <string name="onboarding_n_selected">%1$d개 선택됨</string>
-    <string name="onboarding_topic_selected">선택됨</string>
-    <string name="onboarding_topic_not_selected">선택되지 않음</string>
-    <string name="onboarding_import_failed_template">가져오기 실패: %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="onboarding_btn_skip">건너뛰기</string>
-    <string name="onboarding_btn_finish">완료</string>
-    <string name="btn_skip_for_now">지금은 건너뛰기</string>
+    
+    
     <string name="onboarding_btn_continue">계속</string>
-    <string name="onboarding_btn_back">뒤로</string>
-    <string name="cd_collapse_category">접기</string>
-    <string name="cd_expand_category">펼치기</string>
+    
+    
+    
     <string name="category_gaming">게임</string>
-    <string name="category_music">음악</string>
-    <string name="category_technology">기술</string>
-    <string name="category_entertainment">엔터테인먼트</string>
-    <string name="category_education">교육</string>
-    <string name="category_health_fitness">건강 및 피트니스</string>
-    <string name="category_lifestyle">라이프스타일</string>
-    <string name="category_creative">창작</string>
-    <string name="category_science_nature">과학 및 자연</string>
-    <string name="category_news_current_events">뉴스 및 시사</string>
-    <string name="flow_control_center">piTube 제어 센터</string>
-    <string name="action_refresh">새로고침</string>
-    <string name="loading_neural_matrix">신경 매트릭스를 불러오는 중...</string>
-    <string name="neural_interest_map_subtitle">나의 신경 관심사 지도</string>
-    <string name="cognitive_fingerprint">인지 지문</string>
-    <string name="content_dna_subtitle">나의 콘텐츠 DNA</string>
-    <string name="topic_weights">주제 가중치</string>
-    <string name="topic_weights_subtitle">피드를 결정하는 요소를 투명하게 확인하세요</string>
-    <string name="temporal_patterns">시간대별 패턴</string>
-    <string name="temporal_patterns_subtitle">시간대에 따라 관심사가 어떻게 달라지는지 확인합니다</string>
-    <string name="channel_memory">채널 기억</string>
-    <string name="channel_memory_subtitle">시청 기록에서 얻은 암묵적 피드백</string>
-    <string name="persona_initiate_title">입문자</string>
-    <string name="persona_initiate_description">이제 막 시작했습니다. 아직 프로필이 형성되는 중입니다.</string>
-    <string name="persona_audiophile_title">오디오 애호가</string>
-    <string name="persona_audiophile_description">piTube를 주로 음악에 사용합니다. 분위기가 가장 중요합니다.</string>
-    <string name="persona_livewire_title">라이브 마니아</string>
-    <string name="persona_livewire_description">실시간 방송과 최초 공개의 생생한 에너지를 좋아합니다.</string>
-    <string name="persona_night_owl_title">올빼미족</string>
-    <string name="persona_night_owl_description">어둠 속에서 활기를 얻습니다. 대부분의 시청이 자정 이후에 이루어집니다.</string>
-    <string name="persona_binger_title">정주행러</string>
-    <string name="persona_binger_description">한번 시작하면 멈출 수 없습니다. 콘텐츠를 몰아서 시청합니다.</string>
-    <string name="persona_scholar_title">학구파</string>
-    <string name="persona_scholar_description">난도 높은 콘텐츠를 즐깁니다. 단순한 재미보다 성장을 위해 시청합니다.</string>
-    <string name="persona_deep_diver_title">심층 탐구자</string>
-    <string name="persona_deep_diver_description">긴 영상 에세이와 다큐멘터리가 주된 관심사입니다.</string>
-    <string name="persona_skimmer_title">속도파</string>
-    <string name="persona_skimmer_description">빠르고 짧은 콘텐츠를 선호합니다. 원하는 순간에 즉각적인 자극을 즐깁니다.</string>
-    <string name="persona_specialist_title">전문가형</string>
-    <string name="persona_specialist_description">몇 가지 분야에 깊이 집중합니다. 무엇을 좋아하는지 명확합니다.</string>
-    <string name="persona_explorer_title">탐험가</string>
-    <string name="persona_explorer_description">혼란스럽지만 아름답습니다. 모든 것을 조금씩 즐깁니다.</string>
-    <string name="channel_memory_empty">기억된 채널이 없습니다.</string>
-    <string name="filters_title">필터</string>
-    <string name="blocked_topics_channels_subtitle">차단한 주제 및 채널</string>
-    <string name="reset_neural_profile_title">신경 프로필을 초기화할까요?</string>
-    <string name="reset_neural_profile_body">다음 항목이 영구적으로 삭제됩니다:\n\n• 학습된 모든 환경설정\n• 장기 성향 벡터\n• 시간대별 패턴\n• 채널 선호도 점수\n\n피드가 초기 상태로 돌아갑니다.</string>
-    <string name="erase_everything">모두 삭제</string>
-    <string name="stats_interactions">상호작용</string>
-    <string name="stats_topics">주제</string>
-    <string name="empty_bubble_cloud_message">동영상을 시청하여 관심사 성운을 채워 보세요!</string>
-    <string name="interactions_level_template">상호작용 %1$d회 • 레벨 %2$d</string>
-    <string name="flow_neural_profile_export_subject">piTube 신경 프로필 내보내기</string>
-    <string name="screen_title_music_library">음악 라이브러리</string>
-    <string name="header_your_collection">내 컬렉션</string>
-    <string name="subtitle_liked_music">좋아요 표시한 노래</string>
-    <string name="subtitle_history">감상한 노래</string>
-    <string name="empty_music_playlists">아직 음악 재생목록이 없습니다</string>
-    <string name="rename_playlist_title">재생목록 이름 변경</string>
-    <string name="action_rename">이름 변경</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="link_copied">링크를 복사했습니다</string>
     <string name="copy_video_link">동영상 링크 복사</string>
     <string name="copy_channel_link">채널 링크 복사</string>
-    <string name="share_link_cd">링크 공유</string>
-    <string name="section_singles">싱글</string>
-    <string name="section_featured_on">참여한 작품</string>
-    <string name="section_fans_also_like">팬들이 좋아하는 아티스트</string>
-    <string name="artist_views_template">%1$s • 조회수 %2$s회</string>
-    <string name="action_view_all">모두 보기</string>
-    <string name="search_content_description">검색</string>
-    <string name="views_count_format">조회수 %1$s회</string>
-    <string name="playlist_footer_template">트랙 %1$d개 • %2$s</string>
-    <string name="unknown_error">알 수 없는 오류</string>
-    <string name="action_retry">다시 시도</string>
-    <string name="empty_moods_genres">사용 가능한 분위기 및 장르가 없습니다</string>
-    <string name="title_browse">둘러보기</string>
-    <string name="empty_browse_content">사용 가능한 콘텐츠가 없습니다</string>
-    <string name="label_featured">추천</string>
-    <string name="year_artist_template">%1$s • %2$s</string>
-    <string name="status_playing">재생 중</string>
-    <string name="label_explicit">청소년 이용불가</string>
-    <string name="duration_with_dot_template">• %1$s</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="status_downloaded">다운로드됨</string>
-    <string name="title_create_playlist">재생목록 만들기</string>
-    <string name="label_playlist_name">재생목록 이름</string>
-    <string name="placeholder_playlist_name">멋진 내 재생목록</string>
-    <string name="label_description_optional">설명(선택사항)</string>
-    <string name="placeholder_playlist_desc">좋아하는 트랙...</string>
-    <string name="action_create">만들기</string>
-    <string name="action_cancel">취소</string>
-    <string name="title_add_to_playlist">재생목록에 추가</string>
-    <string name="action_create_new_playlist">새 재생목록 만들기</string>
-    <string name="empty_playlists_dialog">아직 재생목록이 없습니다. 하나 만들어 시작해 보세요!</string>
-    <string name="action_remove_from_favorites">즐겨찾기에서 삭제</string>
-    <string name="action_add_to_favorites">즐겨찾기에 추가</string>
-    <string name="action_listen_now">지금 듣기</string>
-    <string name="action_play_all">모두 재생</string>
-    <string name="loading_music">음악을 불러오는 중...</string>
-    <string name="screen_title_music">음악</string>
-    <string name="section_listen_again">다시 듣기</string>
-    <string name="section_daily_discover">오늘의 맞춤 발견</string>
-    <string name="section_quick_picks">빠른 선곡</string>
-    <string name="section_speed_dial">빠른 실행</string>
-    <string name="shuffle_play">셔플 재생</string>
-    <string name="feeling_lucky">운에 맡겨 볼까요?</string>
-    <string name="daily_discover_sounds_like">%1$s 느낌의 음악</string>
-    <string name="daily_discover_because_you_listen_to">%1$s을(를) 들어서 추천</string>
-    <string name="daily_discover_similar_to">%1$s와(과) 비슷한 음악</string>
-    <string name="daily_discover_based_on">%1$s 기반 추천</string>
-    <string name="daily_discover_for_fans_of">%1$s 팬을 위한 추천</string>
-    <string name="section_recommended">추천</string>
-    <string name="section_recently_played">최근 재생</string>
-    <string name="section_music_videos">뮤직비디오</string>
-    <string name="section_music_videos_for_you">나를 위한 뮤직비디오</string>
-    <string name="section_live_performances">라이브 공연</string>
-    <string name="section_new_releases">신곡</string>
-    <string name="subtitle_single_template">싱글 · %1$s</string>
-    <string name="section_popular_artists">인기 아티스트</string>
-    <string name="section_mixed_for_you">나를 위한 믹스</string>
-    <string name="section_moods_and_genres">분위기 및 장르</string>
-    <string name="section_mood_and_genres">분위기 및 장르</string>
-    <string name="section_from_the_community">커뮤니티 추천</string>
-    <string name="daily_discover_subtitle">감상 기록을 바탕으로 한 새로운 선곡</string>
-    <string name="genre_mix_template">%1$s 믹스</string>
-    <string name="section_top_albums">인기 앨범</string>
-    <string name="similar_to">비슷한 음악</string>
-    <string name="section_similar_to">%1$s와(과) 비슷한 음악</string>
-    <string name="subtitle_similar_to">감상 기록을 기반으로 추천</string>
-    <string name="section_vibe_vibes">%1$s 분위기</string>
-    <string name="subtitle_community_playlists">커뮤니티 재생목록</string>
-    <string name="playlist_author_community">커뮤니티 재생목록</string>
-    <string name="playlist_description_community">커뮤니티가 선별한 %1$s 음악 재생목록</string>
-    <string name="radio">라디오</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="audio_settings_title">오디오 설정</string>
     <string name="label_preset">프리셋</string>
     <string name="template_bass_boost">저음 강화: %1$d dB</string>
-    <string name="label_tempo_pitch">템포 및 피치</string>
-    <string name="action_reset">초기화</string>
-    <string name="template_speed">속도: %1$d%%</string>
-    <string name="template_pitch">피치: %1$d반음</string>
+    
+    
+    
+    
     <string name="label_parametric_equalizer">파라메트릭 이퀄라이저</string>
     <string name="action_add_band">밴드 추가</string>
     <string name="template_preamp">프리앰프: %1$.1f dB</string>
@@ -1344,38 +1344,38 @@
     <string name="template_gain">%1$.1f dB</string>
     <string name="template_q">%1$.1f</string>
     <string name="now_playing">현재 재생 중</string>
-    <string name="voice_search_prompt">음악을 검색하려면 말씀하세요</string>
-    <string name="search_music_placeholder">음악 검색</string>
+    
+    
     <string name="voice_search_cd">음성 검색</string>
-    <string name="filter_albums">앨범</string>
-    <string name="filter_songs">노래</string>
-    <string name="filter_community_playlists">커뮤니티 재생목록</string>
-    <string name="section_top_result">가장 관련성 높은 결과</string>
-    <string name="subtitle_song_prefix">노래 • %1$s</string>
-    <string name="subtitle_artist">아티스트</string>
-    <string name="subtitle_album_template">앨범 • %1$s</string>
-    <string name="subtitle_playlist_template">재생목록 • %1$s</string>
-    <string name="plays_count_template">• 재생 %1$s회</string>
-    <string name="album_year_template">앨범 • %1$s • %2$s</string>
-    <string name="artist_audience_template">아티스트 • 월간 청취자 %1$s명</string>
-    <string name="search_source_template">검색: %1$s</string>
-    <string name="artist_source_template">아티스트: %1$s</string>
-    <string name="top_picks_for_you">나를 위한 인기 추천</string>
-    <string name="no_results_found">검색 결과가 없습니다</string>
-    <string name="no_tracks_available">사용 가능한 트랙이 없습니다</string>
-    <string name="tab_favorites">즐겨찾기</string>
-    <string name="create_playlist_subtitle">음악을 정리하세요</string>
-    <string name="empty_playlists_title">아직 재생목록이 없습니다</string>
-    <string name="empty_playlists_subtitle">첫 재생목록을 만들어 좋아하는 트랙을 정리하세요</string>
-    <string name="empty_favorites_title">아직 즐겨찾기가 없습니다</string>
-    <string name="empty_favorites_subtitle">트랙의 하트 아이콘을 탭하여 즐겨찾기에 추가하세요</string>
-    <string name="favorites_count_template">즐겨찾기 트랙 %1$d개</string>
-    <string name="empty_history_title">아직 기록이 없습니다</string>
-    <string name="empty_history_subtitle">음악을 들으면 감상 기록이 여기에 표시됩니다</string>
-    <string name="empty_downloads_title">아직 다운로드가 없습니다</string>
-    <string name="empty_downloads_subtitle">오프라인 재생을 위해 트랙을 다운로드하세요</string>
-    <string name="total_size">전체 크기</string>
-    <string name="tracks_count_template">트랙 %1$s개</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="btn_minimize">최소화</string>
     <string name="captions">자막</string>
     <string name="pip_mode">화면 속 화면</string>
@@ -1389,9 +1389,9 @@
     <string name="shorts_audio_track">오디오 트랙</string>
     <string name="shorts_auto_scroll_active_template">자동 %1$d초</string>
     <string name="shorts_quality">화질</string>
-    <string name="shorts_no_audio_tracks">사용 가능한 오디오 트랙이 없습니다</string>
-    <string name="shorts_audio_original">원본</string>
-    <string name="shorts_audio_dubbed">더빙</string>
+    
+    
+    
     <string name="shorts_quality_settings_title">Shorts 동영상 화질</string>
     <string name="shorts_quality_settings_subtitle">Shorts 시청 시 화질</string>
     <string name="shorts_quality_warning">화질이 높을수록 데이터 사용량이 늘어납니다. Shorts는 세로형 동영상 스트림을 사용합니다.</string>
@@ -1403,7 +1403,7 @@
     <string name="add_video_to_queue_desc">동영상 대기열 맨 뒤에 추가</string>
     <string name="added_to_queue_toast">대기열에 추가했습니다</string>
     <string name="play_next_toast">다음에 재생됩니다</string>
-    <string name="no_active_queue_toast">활성 동영상 대기열이 없습니다. 먼저 동영상을 재생하세요.</string>
+    
     <string name="download_video">동영상 다운로드</string>
     <string name="select_quality">원하는 화질을 선택하세요</string>
     <string name="no_download_streams">사용 가능한 다운로드 스트림이 없습니다</string>
@@ -1419,7 +1419,7 @@
     <string name="download_menu_style_compact">간결하게</string>
     <string name="download_menu_style_compact_desc">제목 편집, 드롭다운 및 스레드 수</string>
     <string name="downloading_template">%1$s 다운로드 중...</string>
-    <string name="section_downloading">다운로드 중</string>
+    
     <string name="section_incomplete_downloads">미완료 다운로드</string>
     <string name="section_completed">완료됨</string>
     <string name="download_status_queued">대기 중</string>
@@ -1442,9 +1442,9 @@
     <string name="playlist_queue">재생목록 대기열</string>
     <string name="next_up">다음</string>
     <string name="cast_to_tv">TV로 전송</string>
-    <string name="cast_connecting">전송 기기에 연결하는 중…</string>
+    
     <string name="cast_connected">전송 중</string>
-    <string name="cast_disconnected">전송 연결이 끊어졌습니다</string>
+    
     <string name="dlna_cast_to_device">기기로 전송</string>
     <string name="dlna_no_devices">이 네트워크에서 DLNA/UPnP 렌더러를 찾을 수 없습니다.\n\nTV 또는 미디어 플레이어(VLC, Kodi 등)가 같은 Wi-Fi 네트워크에 연결되어 있고 미디어 렌더러 모드가 사용 설정되어 있는지 확인하세요.</string>
     <string name="dlna_searching">DLNA 기기를 검색하는 중...</string>
@@ -1474,7 +1474,7 @@
     <string name="sync_collection_likes">좋아요</string>
     <string name="sync_collection_subscriptions">구독</string>
     <string name="sync_collection_settings">설정</string>
-    <string name="sync_collection_recommendation_profile">추천 프로필</string>
+    
     <string name="sync_preparing">준비 중…</string>
     <string name="sync_connecting">연결 중…</string>
     <string name="sync_intro">로컬 Wi-Fi를 통해 다른 기기와 라이브러리, 기록, 좋아요, 설정 및 추천 프로필을 동기화합니다. 데이터는 네트워크 밖으로 전송되지 않습니다.</string>
@@ -1561,10 +1561,10 @@
     <string name="error_extraction_failed_hint">YouTube 형식이 변경되었을 수 있습니다. piTube가 곧 업데이트될 예정이니 나중에 다시 시도하세요.</string>
     <string name="error_generic">동영상을 불러오지 못했습니다</string>
     <string name="error_generic_hint">알 수 없는 오류가 발생했습니다. 다시 시도하세요.</string>
-    <string name="music_playback_warning_forbidden">음악 스트림 접근이 거부되었습니다. YouTube에서 이 IP를 제한하고 있을 수 있으니 다시 불러오거나 네트워크/VPN을 바꿔 보세요.</string>
-    <string name="music_playback_warning_network">네트워크 문제로 음악 스트림을 재생하지 못했습니다. 연결 상태를 확인하거나 다른 네트워크를 사용해 보세요.</string>
-    <string name="music_playback_warning_final">여러 번 다시 시도했지만 이 노래를 불러오지 못했습니다. 문제가 계속되면 다른 네트워크나 VPN을 사용해 보세요.</string>
-    <string name="music_playback_warning_generic">음악 재생에 실패했습니다. 다시 시도하거나 문제가 계속되면 네트워크를 바꿔 보세요.</string>
+    
+    
+    
+    
     <string name="player_lock_controls">컨트롤 잠금</string>
     <string name="player_unlock_controls">컨트롤 잠금 해제</string>
     <string name="player_settings_overlay_controls">오버레이 컨트롤</string>
@@ -1608,94 +1608,94 @@
     <string name="diagnostics_loading">로그를 읽는 중…</string>
     <string name="diagnostics_copied">보고서를 클립보드에 복사했습니다</string>
     <string name="add_all_to_playlist">내 재생목록에 모두 추가</string>
-    <string name="merge_playlist_dialog_title">모든 노래를 추가할 재생목록…</string>
+    
     <string name="merge_playlist_success">“%2$s”에 노래 %1$d곡을 추가했습니다</string>
-    <string name="merge_playlist_no_playlists">아직 재생목록이 없습니다. 먼저 하나 만들어 주세요!</string>
-    <string name="learning_stats_title">학습 신호</string>
-    <string name="learning_stats_subtitle">엔진이 현재 기억하는 정보</string>
-    <string name="metric_interactions">상호작용</string>
-    <string name="metric_interactions_detail">클릭, 시청, 건너뛰기</string>
-    <string name="metric_topics">주제</string>
-    <string name="metric_topics_detail">가중 관심사</string>
-    <string name="metric_evidence">근거</string>
-    <string name="metric_evidence_detail">검증된 주제</string>
-    <string name="metric_channels">채널</string>
-    <string name="metric_channels_detail">선호도 항목</string>
-    <string name="metric_history">기록</string>
-    <string name="metric_history_detail">시청 참조</string>
-    <string name="metric_feed_memory">피드 기억</string>
-    <string name="metric_feed_memory_detail">최근 표시 항목</string>
-    <string name="metric_filters">필터</string>
-    <string name="metric_filters_detail">차단된 항목</string>
-    <string name="metric_suppressed">억제됨</string>
-    <string name="metric_suppressed_detail">대기 중인 항목</string>
-    <string name="profile_maturity_label">프로필 성숙도</string>
-    <string name="profile_maturity_detail">성숙도가 높을수록 프로필을 안정적으로 유지할 충분한 신호가 있다는 뜻입니다</string>
-    <string name="taste_shape_title">취향 형태</string>
-    <string name="taste_shape_subtitle">전체 프로필과 현재 시간대 맥락 비교</string>
-    <string name="taste_pacing">콘텐츠 속도</string>
-    <string name="taste_pacing_context">현재 맥락: %1$s</string>
-    <string name="taste_complexity">복잡도</string>
-    <string name="taste_duration">선호 길이</string>
-    <string name="taste_duration_detail">값이 높을수록 긴 동영상을 선호합니다</string>
-    <string name="taste_live_affinity">실시간 콘텐츠 선호도</string>
-    <string name="taste_live_affinity_detail">실시간 콘텐츠가 프로필에 얼마나 잘 맞는지 나타냅니다</string>
-    <string name="taste_topic_breadth">주제 범위</string>
-    <string name="taste_topic_breadth_detail">전체 벡터의 주제 %1$d개</string>
-    <string name="interest_weights_title">관심사 가중치</string>
-    <string name="interest_weights_subtitle">검증 기간과 근거 확인을 거친 가중치가 가장 높은 주제</string>
-    <string name="interest_weights_empty">아직 주제 가중치가 없습니다.</string>
-    <string name="time_patterns_title">시간대 패턴</string>
-    <string name="time_patterns_subtitle">밀어서 평일 및 주말 맥락 벡터를 확인하세요</string>
-    <string name="time_bucket_label_now">현재</string>
-    <string name="time_bucket_no_topics">기록된 주제가 없습니다</string>
-    <string name="time_bucket_top_topics">주요 주제</string>
-    <string name="time_bucket_topics_count">주제</string>
-    <string name="time_bucket_pace">속도</string>
-    <string name="time_bucket_complexity">복잡도</string>
-    <string name="time_bucket_duration">길이</string>
-    <string name="time_bucket_weekday_morning">평일 아침</string>
-    <string name="time_bucket_weekday_afternoon">평일 오후</string>
-    <string name="time_bucket_weekday_evening">평일 저녁</string>
-    <string name="time_bucket_weekday_night">평일 밤</string>
-    <string name="time_bucket_weekend_morning">주말 아침</string>
-    <string name="time_bucket_weekend_afternoon">주말 오후</string>
-    <string name="time_bucket_weekend_evening">주말 저녁</string>
-    <string name="time_bucket_weekend_night">주말 밤</string>
-    <string name="time_window_morning">오전 6시~오후 12시</string>
-    <string name="time_window_afternoon">오후 12시~오후 6시</string>
-    <string name="time_window_evening">오후 6시~오전 12시</string>
-    <string name="time_window_night">오전 12시~오전 6시</string>
-    <string name="channel_affinity_strong">높음</string>
-    <string name="channel_affinity_balanced">균형</string>
-    <string name="channel_affinity_cooling">낮아지는 중</string>
-    <string name="channel_affinity_score">선호도 점수</string>
-    <string name="discovery_status_title">탐색 상태</string>
-    <string name="discovery_status_subtitle">현재 탐색 방향을 결정하는 검색어와 보호 규칙</string>
-    <string name="discovery_queries">검색어</string>
-    <string name="discovery_queries_detail">현재 준비됨</string>
-    <string name="discovery_query_memory">검색어 기억</string>
-    <string name="discovery_query_memory_detail">최근 토큰 집합</string>
-    <string name="discovery_rejections">제외 항목</string>
-    <string name="discovery_rejections_detail">주제 패턴</string>
-    <string name="discovery_shorts_seen">시청한 Shorts</string>
-    <string name="discovery_shorts_seen_detail">반복 방지</string>
-    <string name="blocked_content_title">필터</string>
-    <string name="blocked_content_subtitle">추천에서 제외된 주제와 채널</string>
-    <string name="blocked_topics_header">차단한 주제</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="blocked_channels_header">차단한 채널</string>
-    <string name="blocked_item_unblock_topic">주제 차단 해제</string>
+    
     <string name="blocked_item_unblock_channel">채널 차단 해제</string>
-    <string name="blocked_item_showing_count">%2$d개 중 %1$d개 표시</string>
-    <string name="profile_data_title">프로필 데이터</string>
-    <string name="profile_data_subtitle">로컬 추천 프로필을 백업, 복원 또는 초기화합니다</string>
-    <string name="profile_action_reset">프로필 초기화</string>
-    <string name="profile_action_reset_detail">학습한 환경설정을 삭제하고 처음부터 다시 시작합니다</string>
-    <string name="reset_profile_dialog_title">프로필을 초기화할까요?</string>
-    <string name="reset_profile_dialog_message">로컬 추천 프로필을 지우고 처음부터 다시 학습합니다.</string>
-    <string name="reset_profile_confirm">초기화</string>
-    <string name="taste_chart_profile">프로필</string>
-    <string name="taste_chart_now">현재</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="settings_item_datetime">날짜 및 시간</string>
     <string name="settings_item_datetime_subtitle">업로드 날짜 표시 방식을 맞춤설정합니다</string>
     <string name="datetime_title">날짜 및 시간 표시</string>
@@ -1720,45 +1720,45 @@
     <string name="player_appearance_volume_boost_title">추가 음량 증폭 허용</string>
     <string name="player_appearance_volume_boost_subtitle">끄면 음량 밀기 제스처가 시스템 최대 음량에서 멈춥니다. 오디오를 더 크게 들으려면 켜세요.</string>
     <string name="shorts_playback_speed">재생 속도</string>
-    <string name="speed_normal">보통</string>
+    
     <string name="history_delete_shorts">기록에서 Shorts 삭제</string>
     <string name="history_delete_shorts_title">Shorts를 삭제할까요?</string>
     <string name="history_delete_shorts_body">시청 기록에서 모든 Shorts가 삭제됩니다. 다른 동영상은 유지됩니다.</string>
-    <string name="recognize_music">음악 인식</string>
-    <string name="recognition_history">인식 기록</string>
-    <string name="tap_to_recognize">탭하여 인식</string>
-    <string name="listening">듣는 중…</string>
-    <string name="processing">처리 중…</string>
-    <string name="no_match_found">일치하는 곡을 찾을 수 없습니다</string>
-    <string name="recognition_error">인식 실패</string>
-    <string name="try_again">다시 시도</string>
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="search_in_flow">piTube에서 검색</string>
-    <string name="recognition_search_history">인식한 노래 검색</string>
-    <string name="recognition_history_empty">인식한 노래가 여기에 표시됩니다</string>
-    <string name="recognition_clear_history">기록을 지울까요?</string>
-    <string name="recognition_clear_history_body">인식한 모든 노래가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
+    
+    
+    
+    
     <string name="close_popup_player">팝업 플레이어 닫기</string>
-    <string name="widget_now_playing_label">현재 재생 중</string>
-    <string name="widget_now_playing_description">piTube에서 재생 중인 음악을 제어합니다</string>
+    
+    
     <string name="widget_quick_actions_label">빠른 작업</string>
     <string name="widget_quick_actions_description">piTube를 검색하고 다운로드, 기록 또는 음악 인식으로 바로 이동합니다</string>
-    <string name="widget_recognize_label">음악 인식</string>
-    <string name="widget_recognize_description">주변에서 재생 중인 노래를 한 번의 탭으로 식별합니다</string>
-    <string name="widget_turntable_label">턴테이블</string>
-    <string name="widget_turntable_description">회전하는 레코드로 음악을 표시합니다</string>
+    
+    
+    
+    
     <string name="widget_recently_played_label">최근 재생</string>
     <string name="widget_recently_played_description">중단한 곳에서 이어서 재생합니다</string>
     <string name="widget_downloads_label">다운로드</string>
     <string name="widget_downloads_description">오프라인 다운로드를 재생합니다</string>
     <string name="widget_recently_played">최근 재생</string>
     <string name="widget_downloads">다운로드</string>
-    <string name="widget_nothing_playing">재생 중인 항목 없음</string>
-    <string name="widget_play">재생</string>
-    <string name="widget_pause">일시중지</string>
-    <string name="widget_next">다음 트랙</string>
-    <string name="widget_previous">이전 트랙</string>
-    <string name="widget_like">좋아요</string>
-    <string name="widget_artwork">앨범아트</string>
+    
+    
+    
+    
+    
+    
+    
     <string name="widget_open_downloads">다운로드 열기</string>
     <string name="widget_open_history">기록 열기</string>
     <string name="widget_no_recent">시청한 동영상이 여기에 표시됩니다</string>
@@ -1770,43 +1770,43 @@
     <string name="ui_skip_forward_10_seconds">10초 앞으로</string>
     <string name="ui_queued_for_download">다운로드 대기 중</string>
     <string name="ui_downloading">다운로드 중</string>
-    <string name="ui_in_library">라이브러리에 있음</string>
-    <string name="ui_navigate">이동</string>
-    <string name="ui_options">옵션</string>
+    
+    
+    
     <string name="ui_selected">선택됨</string>
     <string name="ui_flow_logo">piTube 로고</string>
     <string name="ui_list_view">목록 보기</string>
     <string name="ui_grid_view">그리드 보기</string>
     <string name="ui_back">뒤로</string>
-    <string name="ui_add_songs">노래 추가</string>
+    
     <string name="ui_close_search">검색 닫기</string>
     <string name="ui_save_to_library">라이브러리에 저장</string>
     <string name="ui_remove_from_library">라이브러리에서 삭제</string>
-    <string name="ui_clear">지우기</string>
-    <string name="ui_delete_from_playlist">재생목록에서 삭제</string>
-    <string name="ui_added">추가됨</string>
-    <string name="ui_sync_lyrics">가사 동기화</string>
+    
+    
+    
+    
     <string name="ui_downloading_playlist">재생목록 다운로드 중</string>
-    <string name="ui_no_songs_found">노래를 찾을 수 없습니다</string>
-    <string name="ui_search_songs_to_add">추가할 노래 검색…</string>
-    <string name="ui_add_songs_to_playlist">재생목록에 노래 추가</string>
-    <string name="ui_show_less">간략히 보기</string>
-    <string name="ui_show_more">더보기</string>
+    
+    
+    
+    
+    
     <string name="ui_try_sabr_download">SABR 다운로드 시도</string>
-    <string name="ui_audio_only">오디오만</string>
+    
     <string name="ui_no_crash_logs">비정상 종료 로그 없음</string>
     <string name="ui_copy_log">로그 복사</string>
     <string name="ui_clear_and_continue">지우고 계속</string>
     <string name="ui_crashed_last_session">지난 세션에서 piTube가 비정상 종료되었습니다</string>
     <string name="ui_copy_log_description">아래 로그를 복사하여 GitHub 문제에 붙여넣으면 오류 수정에 도움이 됩니다.</string>
     <string name="ui_search_settings">설정 검색…</string>
-    <string name="ui_custom_interest_title">사용자 지정 관심사 추가</string>
-    <string name="ui_custom_interest_subtitle">팔로우할 주제를 자유롭게 입력하세요</string>
-    <string name="ui_custom_interest_hint">사용자 지정 관심사(예: 재즈, 천체물리학)</string>
-    <string name="ui_add_interest">관심사 추가</string>
-    <string name="ui_version">버전 %1$s</string>
+    
+    
+    
+    
+    
     <string name="update_download_prompt">새 piTube 버전(%1$s)을 사용할 수 있습니다. 최신 APK를 다운로드할까요?</string>
-    <string name="ui_instrumental">연 주 곡</string>
+    
     <string name="ui_playlist_empty">재생목록이 비어 있습니다</string>
     <string name="ui_downloading_videos">동영상 %1$d개 다운로드 중…</string>
     <string name="ui_playlist_saved_to_library">재생목록을 라이브러리에 저장했습니다</string>
@@ -1827,20 +1827,20 @@
     <string name="toast_no_download_source">사용 가능한 다운로드 소스가 없습니다</string>
     <string name="toast_sabr_download_failed">SABR 다운로드 실패: %1$s</string>
     <string name="toast_copied_to_clipboard">클립보드에 복사했습니다</string>
-    <string name="toast_playlist_deleted">재생목록을 삭제했습니다</string>
-    <string name="toast_playlist_renamed">재생목록 이름을 변경했습니다</string>
-    <string name="toast_starting_playlist_download">%1$s 다운로드를 시작하는 중…</string>
-    <string name="toast_downloaded_tracks_from_playlist">%2$s에서 트랙 %1$d개를 다운로드했습니다</string>
-    <string name="toast_failed_to_download_playlist">재생목록을 다운로드하지 못했습니다</string>
-    <string name="toast_error_downloading_playlist">재생목록 다운로드 중 오류가 발생했습니다</string>
-    <string name="toast_downloaded_tracks">트랙 %1$d개를 다운로드했습니다</string>
-    <string name="toast_added_to_playlist">재생목록에 추가했습니다</string>
-    <string name="toast_failed_to_add_track">트랙을 추가하지 못했습니다</string>
-    <string name="toast_removed_from_playlist">재생목록에서 삭제했습니다</string>
-    <string name="toast_failed_to_remove_track">트랙을 삭제하지 못했습니다</string>
-    <string name="toast_saved_playlist_to_music_library">재생목록을 음악 라이브러리에 저장했습니다</string>
-    <string name="toast_failed_to_save_playlist">재생목록을 저장하지 못했습니다</string>
-    <string name="toast_removed_playlist_from_library">재생목록을 라이브러리에서 삭제했습니다</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="toast_failed_to_merge_playlist">재생목록을 병합하지 못했습니다</string>
     <string name="notification_downloading">다운로드 중: %1$s</string>
     <string name="notification_download_complete">다운로드 완료</string>
@@ -1872,10 +1872,10 @@
     <string name="error_failed_to_load_channel">채널을 불러오지 못했습니다</string>
     <string name="error_failed_to_load_shorts">Shorts를 불러오지 못했습니다</string>
     <string name="error_failed_to_load_more_shorts">Shorts를 더 불러오지 못했습니다</string>
-    <string name="error_search_timed_out">검색 시간이 초과되었습니다</string>
-    <string name="error_filter_search_timed_out">필터 검색 시간이 초과되었습니다</string>
-    <string name="error_failed_to_load_playlist">재생목록을 불러오지 못했습니다</string>
-    <string name="error_failed_to_load_content">콘텐츠를 불러오지 못했습니다</string>
+    
+    
+    
+    
     <string name="error_no_videos_found">동영상을 찾을 수 없습니다</string>
     <string name="error_no_shorts_found">Shorts를 찾을 수 없습니다</string>
     <string name="error_no_live_videos_found">실시간 동영상을 찾을 수 없습니다</string>
@@ -1890,7 +1890,7 @@
     <string name="error_playback_device">재생 기기 오류: %1$s</string>
     <string name="error_content_protection">콘텐츠 보호 오류: %1$s</string>
     <string name="error_playback_stopped">심각한 오류로 재생이 중지되었습니다</string>
-    <string name="error_invalid_media_streams">미디어를 불러오지 못했습니다: 올바르지 않은 스트림</string>
+    
     <string name="error_failed_to_load_media">미디어를 불러오지 못했습니다: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">미디어를 불러오지 못했습니다: 올바르지 않은 스트림</string>
     <string name="error_playback_retry_hint">나중에 다시 시도하거나 네트워크 연결을 확인하세요.</string>
@@ -1906,17 +1906,17 @@
     <string name="download_failed_audio_length">오디오 콘텐츠 길이를 가져오지 못했습니다</string>
     <string name="download_workers_failed">하나 이상의 작업자가 실패했습니다</string>
     <string name="download_block_failed">블록 %1$s 실패: %2$s</string>
-    <string name="fallback_playing">재생 중…</string>
-    <string name="fallback_unknown_title">알 수 없는 제목</string>
-    <string name="fallback_unknown_channel">알 수 없는 채널</string>
-    <string name="fallback_unknown_playlist">알 수 없는 재생목록</string>
-    <string name="fallback_unknown_artist">알 수 없는 아티스트</string>
-    <string name="fallback_unknown_album">알 수 없는 앨범</string>
-    <string name="fallback_unknown_video">알 수 없는 동영상</string>
-    <string name="fallback_local_video">로컬 동영상</string>
-    <string name="fallback_local_audio">로컬 오디오</string>
-    <string name="fallback_your_saved_shorts">저장한 Shorts</string>
-    <string name="fallback_your_watch_later_list">나중에 볼 동영상 목록</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="fallback_downloaded_locally">로컬에 다운로드됨</string>
-    <string name="fallback_more_results">결과 더보기</string>
+    
 </resources>
