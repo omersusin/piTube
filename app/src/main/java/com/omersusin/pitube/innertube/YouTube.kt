@@ -19,26 +19,17 @@ import com.omersusin.pitube.innertube.models.response.AccountMenuResponse
 import com.omersusin.pitube.innertube.models.response.BrowseResponse
 import com.omersusin.pitube.innertube.models.response.ChannelVideosResponse
 import com.omersusin.pitube.innertube.models.response.channelVideoCountText
-import com.omersusin.pitube.innertube.models.response.GetSearchSuggestionsResponse
 import com.omersusin.pitube.innertube.models.response.GetTranscriptResponse
-import com.omersusin.pitube.innertube.models.response.ImageUploadResponse
 import com.omersusin.pitube.innertube.models.response.NextResponse
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
-import com.omersusin.pitube.innertube.models.response.SearchResponse
 import com.omersusin.pitube.innertube.pages.CommunityCommentsPage
 import com.omersusin.pitube.innertube.pages.CommunityPostsPage
 import com.omersusin.pitube.innertube.pages.HistoryPage
 import com.omersusin.pitube.innertube.pages.PlaylistContinuationPage
 import com.omersusin.pitube.innertube.pages.PlaylistPage
-import com.omersusin.pitube.innertube.pages.RelatedPage
-import com.omersusin.pitube.innertube.pages.SearchPage
-import com.omersusin.pitube.innertube.pages.SearchResult
-import com.omersusin.pitube.innertube.pages.SearchSuggestionPage
-import com.omersusin.pitube.innertube.pages.SearchSummary
 import com.omersusin.pitube.innertube.pages.SearchShortItem
 import com.omersusin.pitube.innertube.pages.TranscriptLine
 import com.omersusin.pitube.innertube.pages.SearchVideosPage
-import com.omersusin.pitube.innertube.pages.SearchSummaryPage
 import com.omersusin.pitube.innertube.pages.ShortsPage
 import com.omersusin.pitube.innertube.pages.toSearchShorts
 import com.omersusin.pitube.innertube.pages.toSearchVideosPage
@@ -140,20 +131,6 @@ object YouTube {
             innerTube.cookieRefreshListener = value
         }
 
-    suspend fun search(query: String, filter: SearchFilter): Result<SearchResult> = runCatching {
-        val response = innerTube.search(WEB_REMIX, query, filter.value).body<SearchResponse>()
-        SearchResult(
-            items = response.contents?.tabbedSearchResultsRenderer?.tabs?.firstOrNull()
-                ?.tabRenderer?.content?.sectionListRenderer?.contents?.lastOrNull()
-                ?.musicShelfRenderer?.contents?.getItems()?.mapNotNull {
-                    SearchPage.toYTItem(it)
-                }.orEmpty(),
-            continuation = response.contents?.tabbedSearchResultsRenderer?.tabs?.firstOrNull()
-                ?.tabRenderer?.content?.sectionListRenderer?.contents?.lastOrNull()
-                ?.musicShelfRenderer?.continuations?.getContinuation()
-        )
-    }
-
     // Long-form search ignores the Shorts shelf; fetch it from the main site (not music).
     suspend fun searchShorts(query: String): Result<List<SearchShortItem>> = runCatching {
         innerTube.webSearch(currentWebClient(), query).body<JsonObject>().toSearchShorts()
@@ -191,16 +168,6 @@ object YouTube {
         )
     }
 
-    suspend fun searchContinuation(continuation: String): Result<SearchResult> = runCatching {
-        val response = innerTube.search(WEB_REMIX, continuation = continuation).body<SearchResponse>()
-        SearchResult(
-            items = response.continuationContents?.musicShelfContinuation?.contents
-                ?.mapNotNull {
-                    SearchPage.toYTItem(it.musicResponsiveListItemRenderer)
-                }!!,
-            continuation = response.continuationContents?.musicShelfContinuation?.continuations?.getContinuation()
-        )
-    }
 
     /**
      * Main YouTube search exposes collaboration avatars in a modern entity block:
@@ -1744,18 +1711,6 @@ object YouTube {
             ).body<PlayerResponse>()
         val spec = response.storyboards?.playerStoryboardSpecRenderer?.spec ?: return@runCatching emptyList()
         StoryboardFrameset.parseSpec(spec)
-    }
-
-    @JvmInline
-    value class SearchFilter(val value: String) {
-        companion object {
-            val FILTER_SONG = SearchFilter("EgWKAQIIAWoKEAkQBRAKEAMQBA%3D%3D")
-            val FILTER_VIDEO = SearchFilter("EgWKAQIQAWoKEAkQChAFEAMQBA%3D%3D")
-            val FILTER_ALBUM = SearchFilter("EgWKAQIYAWoKEAkQChAFEAMQBA%3D%3D")
-            val FILTER_ARTIST = SearchFilter("EgWKAQIgAWoKEAkQChAFEAMQBA%3D%3D")
-            val FILTER_FEATURED_PLAYLIST = SearchFilter("EgeKAQQoADgBagwQDhAKEAMQBRAJEAQ%3D")
-            val FILTER_COMMUNITY_PLAYLIST = SearchFilter("EgeKAQQoAEABagoQAxAEEAoQCRAF")
-        }
     }
 
     suspend fun shorts(sequenceParams: String? = null): Result<ShortsPage> = runCatching {

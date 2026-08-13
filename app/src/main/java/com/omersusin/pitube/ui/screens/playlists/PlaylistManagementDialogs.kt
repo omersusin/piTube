@@ -32,42 +32,6 @@ internal fun PlaylistManagementDialogHost(
 }
 
 @Composable
-private fun RenamePlaylistDialog(
-    playlist: PlaylistInfo,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var name by remember(playlist.id) { mutableStateOf(playlist.name) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.rename_playlist_title)) },
-        text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text(stringResource(R.string.playlist_name)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm(name) },
-                enabled = name.isNotBlank()
-            ) {
-                Text(stringResource(R.string.action_rename))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    )
-}
-
-@Composable
 private fun DeletePlaylistDialog(
     playlist: PlaylistInfo,
     onDismiss: () -> Unit,

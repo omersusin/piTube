@@ -204,9 +204,3 @@ private fun formatDuration(seconds: Int): String {
     val remainingSeconds = seconds % 60
     return "%d:%02d".format(minutes, remainingSeconds)
 }
-
-private fun formatFileSize(bytes: Long?, unknownText: String): String {
-    if (bytes == null) return unknownText
-    val mb = bytes / (1024.0 * 1024.0)
-    return "%.2f MB".format(mb)
-}

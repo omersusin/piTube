@@ -100,20 +100,6 @@ object BadgeIcon {
     }
 
     @Composable
-    fun InLibrary(
-        modifier: Modifier = Modifier
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.DownloadDone,
-            contentDescription = stringResource(R.string.ui_in_library),
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = modifier
-                .size(BadgeSize)
-                .padding(end = BadgeSpacing)
-        )
-    }
-
-    @Composable
     fun ChartPosition(
         position: Int,
         change: String? = null,

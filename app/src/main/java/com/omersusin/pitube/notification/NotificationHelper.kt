@@ -58,19 +58,6 @@ object NotificationHelper {
     /**
      * Store notification in database
      */
-    private suspend fun storeNotification(
-        context: Context,
-        entity: NotificationEntity,
-    ) {
-        withContext(Dispatchers.IO) {
-            try {
-                val db = AppDatabase.getDatabase(context)
-                db.notificationDao().insertNotification(entity)
-            } catch (e: Exception) {
-                android.util.Log.e("NotificationHelper", "Failed to store notification", e)
-            }
-        }
-    }
 
     /**
      * Initialize all notification channels

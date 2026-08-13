@@ -327,40 +327,6 @@ class ChannelViewModel
             }
         }
 
-        private fun extractVideoId(url: String): String =
-            when {
-                url.contains("v=") -> url.substringAfter("v=").substringBefore("&")
-                url.contains("/watch/") -> url.substringAfter("/watch/").substringBefore("?")
-                url.contains("/shorts/") -> url.substringAfter("/shorts/").substringBefore("?")
-                else -> url.substringAfterLast("/").substringBefore("?")
-            }
-
-        private fun extractChannelId(url: String): String {
-            // Extract channel ID from YouTube URL
-            // Format: https://youtube.com/channel/UC... or https://youtube.com/c/...
-            return when {
-                url.contains("/channel/") -> {
-                    url.substringAfter("/channel/").substringBefore("/").substringBefore("?")
-                }
-
-                url.contains("/c/") -> {
-                    url.substringAfter("/c/").substringBefore("/").substringBefore("?")
-                }
-
-                url.contains("/user/") -> {
-                    url.substringAfter("/user/").substringBefore("/").substringBefore("?")
-                }
-
-                url.contains("/@") -> {
-                    url.substringAfter("/@").substringBefore("/").substringBefore("?")
-                }
-
-                else -> {
-                    url
-                }
-            }
-        }
-
         private fun loadSubscriptionState(channelId: String) {
             viewModelScope.launch(PerformanceDispatcher.diskIO) {
                 subscriptionRepository.getSubscription(channelId).collect { subscription ->

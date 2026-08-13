@@ -2856,24 +2856,6 @@ class VideoPlayerViewModel @Inject constructor(
 
     // Rich Video for the currently-open item, used to feed strong learning signals
     // (tags/description/duration) instead of a title-only stub.
-    private fun resolveRichVideo(videoId: String): Video? {
-        val state = _uiState.value
-        return state.cachedVideo?.takeIf { it.id == videoId }
-            ?: state.streamInfo?.takeIf { it.id == videoId }?.let { info ->
-                Video(
-                    id = videoId,
-                    title = info.name ?: "",
-                    channelName = info.uploaderName ?: "",
-                    channelId = info.uploaderUrl?.split("/")?.last() ?: "",
-                    thumbnailUrl = info.thumbnails.maxByOrNull { it.height }?.url ?: "",
-                    duration = info.duration.toInt(),
-                    viewCount = info.viewCount,
-                    uploadDate = "",
-                    description = info.description?.content ?: "",
-                    tags = info.tags ?: emptyList()
-                )
-            }
-    }
 
     fun likeVideo(videoId: String, title: String, thumbnail: String, channelName: String, channelId: String = "") {
         viewModelScope.launch {
@@ -3351,11 +3333,6 @@ class VideoPlayerViewModel @Inject constructor(
             Log.w("VideoPlayerViewModel", "Failed to deserialize SponsorBlock segments", e)
             null
         }
-    }
-
-    private fun extractAvailableQualities(streamInfo: StreamInfo): List<VideoQuality> {
-        val videoStreams = (streamInfo.videoStreams + streamInfo.videoOnlyStreams).filterIsInstance<VideoStream>()
-        return extractAvailableQualitiesFromStreams(videoStreams)
     }
 
     private fun extractAvailableQualitiesFromStreams(videoStreams: List<VideoStream>): List<VideoQuality> {

@@ -121,19 +121,3 @@ private fun solidShapeBitmap(
  * A solid tonal expressive shape (decorative element per the M3 shape library).
  * Cheap to draw and cached per shape+color+size across recompositions.
  */
-@Composable
-fun ShapeDecor(
-    shape: WidgetShape,
-    color: ColorProvider,
-    size: Dp,
-) {
-    val context: Context = LocalContext.current
-    val argb = color.getColor(context).toArgb()
-    val sizePx = (size.value * context.resources.displayMetrics.density).toInt().coerceAtLeast(1)
-    val bitmap = remember(shape, argb, sizePx) { solidShapeBitmap(shape, argb, sizePx) }
-    Image(
-        provider = ImageProvider(bitmap),
-        contentDescription = null,
-        modifier = GlanceModifier.size(size),
-    )
-}

@@ -231,34 +231,5 @@ private fun FlowMenuItemRow(
 // ==========================================
 
 // Enhanced Menu Section Header
-@Composable
-fun FlowMenuSectionHeader(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 16.sp
-        ),
-        color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-    )
-}
 
 // Enhanced Menu Container
-@Composable
-fun FlowMenuContainer(
-    content: @Composable () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .padding(bottom = 32.dp)
-    ) {
-        content()
-    }
-}

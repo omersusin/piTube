@@ -141,23 +141,6 @@ fun YouTubeListItem(
         modifier = modifier,
     )
 }
-
-@Composable
-fun YouTubeGridItem(
-    item: YTItem,
-    modifier: Modifier = Modifier,
-    isActive: Boolean = false,
-    isPlaying: Boolean = false,
-    thumbnailRatio: Float = if (item is SongItem && item.musicVideoType != null) 16f / 9 else 1f,
-    fillMaxWidth: Boolean = false,
-    badges: @Composable RowScope.() -> Unit = {
-        if (item is SongItem && item.explicit) {
-            BadgeIcon.Explicit()
-        }
-        if (item is AlbumItem && item.explicit) {
-            BadgeIcon.Explicit()
-        }
-    },
 ) {
     val (title, subtitle, thumbnailUrl, shape) =
         when (item) {
@@ -247,23 +230,6 @@ private data class Quadruple<A, B, C, D>(
     val third: C,
     val fourth: D,
 )
-
-@Composable
-fun QuickPickTrackItem(
-    item: SongItem,
-    modifier: Modifier = Modifier,
-    isActive: Boolean = false,
-    isPlaying: Boolean = false,
-    onMenuClick: (() -> Unit)? = null,
-) {
-    YouTubeListItem(
-        item = item,
-        isActive = isActive,
-        isPlaying = isPlaying,
-        onMenuClick = onMenuClick,
-        modifier = modifier,
-    )
-}
 
 @Composable
 fun ChartTrackItem(

@@ -512,12 +512,3 @@ private fun openUrl(context: Context, url: String) {
         e.printStackTrace()
     }
 }
-
-// Compat shim — kept for any existing call sites
-@Composable
-fun CustomIconSettingsItem(
-    iconPainter: Painter,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit
-) = AboutRowWithPainter(iconPainter = iconPainter, title = title, subtitle = subtitle, onClick = onClick)
