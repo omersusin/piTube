@@ -28,7 +28,8 @@ private val SB_SUBMIT_CATEGORIES = listOf(
     "music_offtopic"   to R.string.sb_category_music_offtopic,
     "filler"           to R.string.sb_category_filler,
     "preview"          to R.string.sb_category_preview,
-    "exclusive_access" to R.string.sb_category_exclusive_access
+    "exclusive_access" to R.string.sb_category_exclusive_access,
+    "poi_highlight"    to R.string.sb_category_poi_highlight
 )
 
 /**

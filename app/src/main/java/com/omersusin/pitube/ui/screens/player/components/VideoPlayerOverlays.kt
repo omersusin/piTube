@@ -361,6 +361,7 @@ private fun sbCategoryLabelRes(category: String): Int? = when (category) {
     "filler" -> R.string.sb_category_filler
     "preview" -> R.string.sb_category_preview
     "exclusive_access" -> R.string.sb_category_exclusive_access
+    "poi_highlight" -> R.string.sb_category_poi_highlight
     else -> null
 }
 
