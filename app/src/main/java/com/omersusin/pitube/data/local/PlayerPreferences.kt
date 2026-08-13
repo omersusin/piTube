@@ -1487,20 +1487,6 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    val hideWatchedVideosFromSubscriptions: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            resolveMigratedHideWatchedPreference(
-                splitValue = preferences[Keys.HIDE_WATCHED_SUBSCRIPTIONS],
-                legacyValue = preferences[Keys.HIDE_WATCHED_VIDEOS]
-            )
-        }
-
-    suspend fun setHideWatchedVideosFromSubscriptions(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.HIDE_WATCHED_SUBSCRIPTIONS] = enabled
-        }
-    }
-
     // Defaults to ALMOST_FINISHED so long videos only disappear in their final minute instead of at a flat 90%.
     val watchedThreshold: Flow<WatchedThreshold> = context.playerPreferencesDataStore.data
         .map { preferences ->
@@ -1639,18 +1625,6 @@ class PlayerPreferences(context: Context) {
             val current = preferences[Keys.UPCOMING_VIDEO_REMINDER_IDS].orEmpty()
             preferences[Keys.UPCOMING_VIDEO_REMINDER_IDS] =
                 if (enabled) current + videoId else current - videoId
-        }
-    }
-
-    /** Opt-in: off by default, so the feed never hides anything unless the user asks for it. */
-    val hideUnplayableVideosFromSubscriptions: Flow<Boolean> = context.playerPreferencesDataStore.data
-        .map { preferences ->
-            preferences[Keys.HIDE_UNPLAYABLE_SUBSCRIPTIONS] ?: false
-        }
-
-    suspend fun setHideUnplayableVideosFromSubscriptions(enabled: Boolean) {
-        context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.HIDE_UNPLAYABLE_SUBSCRIPTIONS] = enabled
         }
     }
 
