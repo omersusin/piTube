@@ -9,6 +9,8 @@ import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.data.model.needsCollaboratorResolution
 import com.omersusin.pitube.innertube.YouTube
 import com.omersusin.pitube.innertube.models.SongItem
+import com.omersusin.pitube.innertube.models.WatchEndpoint
+import com.omersusin.pitube.innertube.pages.TranscriptLine
 import com.omersusin.pitube.innertube.models.response.WatchMetadataResponse
 import com.omersusin.pitube.utils.PerformanceDispatcher
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
@@ -41,6 +43,12 @@ import org.schabi.newpipe.extractor.stream.StreamType
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+
+sealed interface LyricsResult {
+    data class Synced(val lines: List<TranscriptLine>) : LyricsResult
+    data class Plain(val text: String) : LyricsResult
+    data object Unavailable : LyricsResult
+}
 
 @Singleton
 class YouTubeRepository
@@ -969,6 +977,20 @@ class YouTubeRepository
             }
 
         /**
+         * Fetch lyrics for a video. Prefers the synced transcript from YT Music
+         * (`get_transcript`), falling back to the plain-text lyrics page
+         * referenced by the watch-next lyrics tab.
+         */
+        suspend fun getLyrics(videoId: String): LyricsResult {
+            val transcriptLines = YouTube.transcript(videoId).getOrNull().orEmpty()
+            if (transcriptLines.isNotEmpty()) return LyricsResult.Synced(transcriptLines)
+            val lyricsEndpoint = YouTube.next(WatchEndpoint(videoId = videoId)).getOrNull()?.lyricsEndpoint
+                ?: return LyricsResult.Unavailable
+            val text = YouTube.lyrics(lyricsEndpoint).getOrNull().orEmpty()
+            return if (text.isBlank()) LyricsResult.Unavailable else LyricsResult.Plain(text)
+        }
+
+        /**
          * Fetch the first page of comments for a video.
          * Returns the comments and a next-page token (null if no more pages).
          */
@@ -1165,6 +1187,24 @@ class YouTubeRepository
             withContext(Dispatchers.IO) {
                 if (!isSignedIn) return@withContext false
                 YouTube.reportVideoPlayback(videoId, positionMs).getOrDefault(false)
+            }
+
+        /**
+         * Pull the signed-in account's real YouTube watch history (FEhistory
+         * browse pages, up to [maxPages]) as domain videos. Returns an empty
+         * list when not signed in.
+         */
+        suspend fun getYouTubeHistory(maxPages: Int = 5): List<Video> =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext emptyList()
+                val videos = mutableListOf<Video>()
+                var continuation: String? = null
+                repeat(maxPages) {
+                    val page = YouTube.history(continuation).getOrNull() ?: return@repeat
+                    videos += page.videos
+                    continuation = page.continuation ?: return@repeat
+                }
+                videos.distinctBy { it.id }
             }
 
         /**

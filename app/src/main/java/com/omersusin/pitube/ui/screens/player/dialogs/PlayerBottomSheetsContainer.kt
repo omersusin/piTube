@@ -30,12 +30,14 @@ import com.omersusin.pitube.ui.components.FlowChaptersBottomSheet
 import com.omersusin.pitube.ui.components.FlowCommentsBottomSheet
 import com.omersusin.pitube.ui.components.FlowDescriptionBottomSheet
 import com.omersusin.pitube.ui.components.FlowLiveChatBottomSheet
+import com.omersusin.pitube.ui.components.FlowLyricsBottomSheet
 import com.omersusin.pitube.ui.components.FlowPlaylistQueueBottomSheet
 import com.omersusin.pitube.ui.components.SleepTimerSheet
 import com.omersusin.pitube.ui.components.VideoQuickActionsBottomSheet
 import com.omersusin.pitube.ui.components.commentTimestampToMs
 import com.omersusin.pitube.ui.components.sortCommentsByFilter
 import com.omersusin.pitube.ui.screens.player.VideoPlayerUiState
+import com.omersusin.pitube.ui.screens.player.LyricsUiState
 import com.omersusin.pitube.ui.screens.player.state.PlayerScreenState
 
 @Composable
@@ -52,6 +54,8 @@ fun PlayerBottomSheetsContainer(
     isLoadingMoreComments: Boolean = false,
     hasMoreComments: Boolean = false,
     onLoadMoreComments: (videoId: String) -> Unit = {},
+    lyricsState: LyricsUiState = LyricsUiState.Idle,
+    onRequestLyrics: (videoId: String) -> Unit = {},
     mediaSheetExpandedHeight: Dp? = null,
     mediaSheetCollapsedHeight: Dp = 0.dp,
     context: Context,
@@ -168,6 +172,22 @@ fun PlayerBottomSheetsContainer(
             collapsedHeight = mediaSheetCollapsedHeight,
             onSheetProgressChange = onMediaSheetProgressChange,
             onDismiss = { screenState.showLiveChatSheet = false },
+        )
+    }
+
+    // Lyrics Bottom Sheet
+    if (screenState.showLyricsSheet) {
+        FlowLyricsBottomSheet(
+            lyricsState = lyricsState,
+            currentPosition = screenState.currentPosition,
+            onLyricsLineClick = { positionMs ->
+                EnhancedPlayerManager.getInstance().seekTo(positionMs)
+            },
+            onRequestLyrics = { onRequestLyrics(video.id) },
+            expandedHeight = mediaSheetExpandedHeight,
+            collapsedHeight = mediaSheetCollapsedHeight,
+            onSheetProgressChange = onMediaSheetProgressChange,
+            onDismiss = { screenState.showLyricsSheet = false },
         )
     }
 

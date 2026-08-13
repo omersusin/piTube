@@ -158,6 +158,7 @@ fun GlobalPlayerOverlay(
     val isLoadingComments by playerViewModel.isLoadingComments.collectAsStateWithLifecycle()
     val hasMoreComments by playerViewModel.hasMoreComments.collectAsStateWithLifecycle()
     val isLoadingMoreComments by playerViewModel.isLoadingMoreComments.collectAsStateWithLifecycle()
+    val lyricsState by playerViewModel.lyricsState.collectAsStateWithLifecycle()
 
     val playerPreferences = remember { PlayerPreferences(context) }
     val isGoogleSignedIn by playerPreferences.youtubeCookie.collectAsState(initial = null)
@@ -1696,6 +1697,8 @@ fun GlobalPlayerOverlay(
             isLoadingMoreComments = isLoadingMoreComments,
             hasMoreComments = hasMoreComments,
             onLoadMoreComments = { videoId -> playerViewModel.loadMoreComments(videoId) },
+            lyricsState = lyricsState,
+            onRequestLyrics = { videoId -> playerViewModel.requestLyrics(videoId) },
             mediaSheetExpandedHeight = mediaSheetExpandedHeight,
             mediaSheetCollapsedHeight = mediaSheetCollapsedHeight,
             context = context,

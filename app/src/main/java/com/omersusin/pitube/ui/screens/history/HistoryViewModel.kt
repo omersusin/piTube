@@ -186,10 +186,43 @@ class HistoryViewModel
                 viewHistory.clearVideoHistory(videoId)
             }
         }
+
+        /**
+         * Import the signed-in account's real YouTube watch history into the
+         * local history (same merge semantics as FreeTube/YouTube-archive
+         * imports: entries show as recently-watched, without fabricated resume
+         * positions).
+         */
+        fun importFromYouTube() {
+            if (_uiState.value.isImporting) return
+            viewModelScope.launch {
+                _uiState.update { it.copy(isImporting = true) }
+                try {
+                    val videos = youTubeRepository.getYouTubeHistory()
+                    if (videos.isEmpty()) return@launch
+                    videos.forEach { video ->
+                        videoDao.insertVideoOrIgnore(VideoEntity.fromDomain(video))
+                        viewHistory.touchHistoryEntry(
+                            videoId = video.id,
+                            title = video.title,
+                            thumbnailUrl = video.thumbnailUrl,
+                            channelName = video.channelName,
+                            channelId = video.channelId,
+                            duration = video.duration * 1000L,
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.w("HistoryViewModel", "Failed to import YouTube history", e)
+                } finally {
+                    _uiState.update { it.copy(isImporting = false) }
+                }
+            }
+        }
     }
 
 data class HistoryUiState(
     val historyEntries: List<VideoHistoryEntry> = emptyList(),
     val shortVideos: Map<String, Video> = emptyMap(),
     val isLoading: Boolean = false,
+    val isImporting: Boolean = false,
 )

@@ -63,6 +63,7 @@ import com.omersusin.pitube.innertube.pages.SearchResult
 import com.omersusin.pitube.innertube.pages.SearchSuggestionPage
 import com.omersusin.pitube.innertube.pages.SearchSummary
 import com.omersusin.pitube.innertube.pages.SearchShortItem
+import com.omersusin.pitube.innertube.pages.TranscriptLine
 import com.omersusin.pitube.innertube.pages.SearchVideosPage
 import com.omersusin.pitube.innertube.pages.SearchSummaryPage
 import com.omersusin.pitube.innertube.pages.ShortsPage
@@ -493,6 +494,48 @@ object YouTube {
         val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
         val response = lenientJson.decodeFromString<com.omersusin.pitube.innertube.models.response.ChannelSearchResponse>(rawBody)
         parseChannelSearchResponse(response, channelId, channelName, channelThumbnailUrl)
+    }
+
+    /**
+     * Signed-in watch history from the account's real YouTube history page
+     * (browseId `FEhistory`), following continuation pages. Reuses the
+     * channel-search response model — FEhistory renders the same
+     * `twoColumnBrowseResultsRenderer > tabs > sectionListRenderer >
+     * itemSectionRenderer > videoRenderer` layout.
+     */
+    suspend fun history(continuation: String? = null): Result<HistoryPage> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching HistoryPage(emptyList(), null)
+        val httpResponse =
+            innerTube.signedWebBrowse(currentWebClient(), browseId = "FEhistory", continuation = continuation)
+        val rawBody = httpResponse.bodyAsText()
+        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val response = lenientJson.decodeFromString<com.omersusin.pitube.innertube.models.response.ChannelSearchResponse>(rawBody)
+
+        val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
+        var nextContinuation: String? = null
+
+        val tabContents = response.contents
+            ?.twoColumnBrowseResultsRenderer?.tabs
+            ?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer?.contents
+        if (!tabContents.isNullOrEmpty()) {
+            tabContents.forEach { section ->
+                section.itemSectionRenderer?.contents?.forEach { item ->
+                    item.videoRenderer
+                        ?.let { parseVideoRenderer(it, "", "", "") }
+                        ?.let { videos.add(it) }
+                }
+                section.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
+                    ?.let { nextContinuation = it }
+            }
+        }
+
+        if (nextContinuation == null) {
+            nextContinuation = response.continuationContents
+                ?.sectionListContinuation?.continuations
+                ?.firstOrNull()?.nextContinuationData?.continuation
+        }
+
+        HistoryPage(videos = videos.distinctBy { it.id }, continuation = nextContinuation)
     }
 
     suspend fun channelSearchContinuation(
@@ -1980,6 +2023,46 @@ object YouTube {
         )
     }
 
+
+    suspend fun transcript(videoId: String): Result<List<TranscriptLine>> = runCatching {
+        innerTube.getTranscript(WEB_REMIX, videoId).body<GetTranscriptResponse>()
+            .actions
+            .orEmpty()
+            .firstNotNullOfOrNull { it.updateEngagementPanelAction?.content?.transcriptRenderer?.body?.transcriptBodyRenderer?.cueGroups }
+            .orEmpty()
+            .mapNotNull { group ->
+                group.transcriptCueGroupRenderer?.cues
+                    ?.firstOrNull()
+                    ?.transcriptCueRenderer
+                    ?.let { cue ->
+                        cue.cue?.runs
+                            ?.joinToString("") { it.text }
+                            ?.trim()
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { text -> TranscriptLine(startMs = cue.startOffsetMs, text = text) }
+                    }
+            }
+    }
+
+    suspend fun lyrics(endpoint: BrowseEndpoint?): Result<String> = runCatching {
+        if (endpoint == null) return@runCatching ""
+        innerTube.browse(WEB_REMIX, browseId = endpoint.browseId, params = endpoint.params)
+            .body<BrowseResponse>()
+            .contents
+            ?.singleColumnBrowseResultsRenderer
+            ?.tabs
+            ?.firstOrNull()
+            ?.tabRenderer
+            ?.content
+            ?.sectionListRenderer
+            ?.contents
+            ?.firstNotNullOfOrNull { it.musicDescriptionShelfRenderer }
+            ?.description
+            ?.runs
+            ?.joinToString("") { it.text }
+            ?.trim()
+            ?: ""
+    }
 
     suspend fun queue(videoIds: List<String>? = null, playlistId: String? = null): Result<List<SongItem>> = runCatching {
         if (videoIds != null) {

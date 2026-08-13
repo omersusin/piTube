@@ -171,6 +171,14 @@ fun HistoryScreen(
                             onDismissRequest = { showMenu = false },
                         ) {
                             DropdownMenuItem(
+                                text = { Text(stringResource(R.string.history_sync_youtube)) },
+                                enabled = !uiState.isImporting,
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.importFromYouTube()
+                                },
+                            )
+                            DropdownMenuItem(
                                 text = { Text(stringResource(R.string.history_delete_shorts)) },
                                 enabled = uiState.historyEntries.any { it.isShort },
                                 onClick = {

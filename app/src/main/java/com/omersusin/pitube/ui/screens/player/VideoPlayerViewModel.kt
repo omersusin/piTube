@@ -12,6 +12,7 @@ import com.omersusin.pitube.data.model.mergeDistinctByNonBlankKey
 import com.omersusin.pitube.data.local.entity.WatchHistoryEntity
 import com.omersusin.pitube.ui.components.FeedInvalidationBus
 import com.omersusin.pitube.data.repository.YouTubeRepository
+import com.omersusin.pitube.data.repository.LyricsResult
 import com.omersusin.pitube.player.BackgroundPlaybackPolicy
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import com.omersusin.pitube.player.GlobalPlayerState
@@ -30,6 +31,7 @@ import com.omersusin.pitube.player.stream.StreamMergeUtils
 import com.omersusin.pitube.player.stream.VideoCodecUtils
 import com.omersusin.pitube.innertube.YouTube
 import com.omersusin.pitube.innertube.models.YouTubeClient
+import com.omersusin.pitube.innertube.pages.TranscriptLine
 import com.omersusin.pitube.player.error.PlayerDiagnostics
 import com.omersusin.pitube.notification.UpcomingVideoReminderWorker
 import com.omersusin.pitube.utils.PerformanceDispatcher
@@ -113,6 +115,11 @@ class VideoPlayerViewModel @Inject constructor(
 
     private val _isPostingComment = MutableStateFlow(false)
     val isPostingComment: StateFlow<Boolean> = _isPostingComment.asStateFlow()
+
+    private val _lyricsState = MutableStateFlow<LyricsUiState>(LyricsUiState.Idle)
+    val lyricsState: StateFlow<LyricsUiState> = _lyricsState.asStateFlow()
+    private var lyricsVideoId: String? = null
+    private var lyricsJob: Job? = null
     
     private val navigationHistory = mutableListOf<String>()
     private var currentHistoryIndex = -1
@@ -893,6 +900,10 @@ class VideoPlayerViewModel @Inject constructor(
         commentsNextPage = null
         _hasMoreComments.value = false
         _isLoadingMoreComments.value = false
+
+        lyricsJob?.cancel()
+        lyricsVideoId = null
+        _lyricsState.value = LyricsUiState.Idle
     }
 
     fun startBackgroundPlayback() {
@@ -2774,13 +2785,29 @@ class VideoPlayerViewModel @Inject constructor(
         if (video.id.isBlank()) return
         historyReportJob?.cancel()
         historyReportJob =
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(Dispatchers.Main) {
                 var lastReportedMs = -1L
                 while (isActive) {
-                    delay(20_000L)
-                    val player = EnhancedPlayerManager.getInstance().getPlayer() ?: break
-                    if (!player.isPlaying) continue
-                    val position = player.currentPosition.coerceAtLeast(0L)
+                    delay(10_000L)
+                    // Media3 forbids touching the player off the main thread;
+                    // isPlaying/hasEnded come from the thread-safe state flow.
+                    val playerState = EnhancedPlayerManager.getInstance().playerState.value
+                    if (playerState.hasEnded) {
+                        // Video finished: mark it fully watched in the account
+                        // history (final beacon at the full duration).
+                        val finalMs =
+                            EnhancedPlayerManager.getInstance().getPlayer()?.duration?.coerceAtLeast(0L) ?: 0L
+                        if (finalMs > 0L) {
+                            try {
+                                repository.reportVideoPlayback(video.id, finalMs)
+                            } catch (e: Exception) {
+                                Log.w("VideoPlayerViewModel", "Final history report failed for ${video.id}", e)
+                            }
+                        }
+                        break
+                    }
+                    if (!playerState.isPlaying) continue
+                    val position = EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
                     if (position < 5_000L) continue
                     if (position - lastReportedMs < 20_000L) continue
                     lastReportedMs = position
@@ -2936,6 +2963,28 @@ class VideoPlayerViewModel @Inject constructor(
             }
         }
         EnhancedPlayerManager.getInstance().toggleLoop(enabled)
+    }
+
+    fun requestLyrics(videoId: String) {
+        if (isLocalMediaId(videoId)) {
+            lyricsJob?.cancel()
+            lyricsVideoId = null
+            _lyricsState.value = LyricsUiState.Unavailable
+            return
+        }
+        if (lyricsVideoId == videoId) return
+        lyricsJob?.cancel()
+        lyricsVideoId = videoId
+        _lyricsState.value = LyricsUiState.Loading
+        lyricsJob = viewModelScope.launch {
+            val result = repository.getLyrics(videoId)
+            if (lyricsVideoId != videoId) return@launch
+            _lyricsState.value = when (result) {
+                is LyricsResult.Synced -> LyricsUiState.Synced(result.lines)
+                is LyricsResult.Plain -> LyricsUiState.Plain(result.text)
+                LyricsResult.Unavailable -> LyricsUiState.Unavailable
+            }
+        }
     }
 
     fun loadComments(videoId: String) {
@@ -3462,3 +3511,11 @@ data class SubtitleInfo(
     val languageCode: String,
     val isAutoGenerated: Boolean
 )
+
+sealed interface LyricsUiState {
+    data object Idle : LyricsUiState
+    data object Loading : LyricsUiState
+    data class Synced(val lines: List<TranscriptLine>) : LyricsUiState
+    data class Plain(val text: String) : LyricsUiState
+    data object Unavailable : LyricsUiState
+}

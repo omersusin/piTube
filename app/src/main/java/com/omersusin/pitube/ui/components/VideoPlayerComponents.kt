@@ -87,6 +87,7 @@ fun VideoInfoSection(
     onBackgroundPlayClick: () -> Unit,
     onCopyLinkClick: () -> Unit = {},
     onCopyLinkAtTimeClick: () -> Unit = {},
+    onLyricsClick: () -> Unit = {},
     onDescriptionClick: () -> Unit,
     isSaved: Boolean = false,
     isDownloaded: Boolean = false,
@@ -266,6 +267,7 @@ fun VideoInfoSection(
             onBackgroundPlayClick = onBackgroundPlayClick,
             onCopyLinkClick = onCopyLinkClick,
             onCopyLinkAtTimeClick = onCopyLinkAtTimeClick,
+            onLyricsClick = onLyricsClick,
             isSaved = isSaved,
             isDownloaded = isDownloaded,
         )
@@ -475,6 +477,7 @@ fun VideoActionRow(
     onBackgroundPlayClick: () -> Unit,
     onCopyLinkClick: () -> Unit = {},
     onCopyLinkAtTimeClick: () -> Unit = {},
+    onLyricsClick: () -> Unit = {},
     isSaved: Boolean = false,
     isDownloaded: Boolean = false,
 ) {
@@ -539,6 +542,14 @@ fun VideoActionRow(
                 icon = Icons.Outlined.Timer,
                 label = stringResource(R.string.player_action_copy_link_at_time),
                 onClick = onCopyLinkAtTimeClick,
+            )
+        }
+
+        item {
+            ActionChip(
+                icon = Icons.Outlined.Lyrics,
+                label = stringResource(R.string.player_action_lyrics),
+                onClick = onLyricsClick,
             )
         }
     }

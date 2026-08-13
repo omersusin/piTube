@@ -358,6 +358,7 @@ fun VideoInfoContent(
             clipboard.setPrimaryClip(ClipData.newPlainText("video_link_at_time", url))
             Toast.makeText(context, context.getString(R.string.link_with_timestamp_copied), Toast.LENGTH_SHORT).show()
         },
+        onLyricsClick = { screenState.showLyricsSheet = true },
         onDescriptionClick = { screenState.showDescriptionSheet = true }
     )
 

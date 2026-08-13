@@ -38,6 +38,7 @@ class PlayerScreenState {
     var showChaptersSheet by mutableStateOf(false)
     var showPlaylistQueueSheet by mutableStateOf(false)
     var showLiveChatSheet by mutableStateOf(false)
+    var showLyricsSheet by mutableStateOf(false)
     var showLiveChatPanel by mutableStateOf(true)
     var showLiveChatFullscreen by mutableStateOf(false)
     var showCommentsFullscreen by mutableStateOf(false)
@@ -113,6 +114,7 @@ class PlayerScreenState {
         showCommentsSheet = false
         showDescriptionSheet = false
         showChaptersSheet = false
+        showLyricsSheet = false
         showLiveChatSheet = false
         showLiveChatPanel = true
         showLiveChatFullscreen = false
@@ -128,6 +130,7 @@ class PlayerScreenState {
         showCommentsSheet = false
         showDescriptionSheet = false
         showChaptersSheet = false
+        showLyricsSheet = false
         showLiveChatSheet = false
         showLiveChatFullscreen = false
         showCommentsFullscreen = false
@@ -138,8 +141,7 @@ class PlayerScreenState {
         showSubtitleSelector = false
         showPlaybackSpeedSelector = false
         showSubtitleStyleCustomizer = false
-    }
-    
+    }    
     fun cycleResizeMode() {
         resizeMode = (resizeMode + 1) % 3
     }
