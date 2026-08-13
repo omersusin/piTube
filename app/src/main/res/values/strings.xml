@@ -950,6 +950,9 @@
     <string name="dont_show_channel_desc">Remove from your recommendations</string>
     <string name="channel_metadata_unavailable">Channel information is unavailable</string>
     <string name="channel_blocked_toast">%1$s won’t appear in your feed</string>
+    <string name="play_external">Play with external player</string>
+    <string name="play_external_chooser">Open video in…</string>
+    <string name="no_external_player">No app can play this video</string>
     <!-- Misc -->
     <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>

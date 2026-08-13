@@ -174,6 +174,7 @@ class QuickActionsViewModel @Inject constructor(
                 check(channelId.isNotBlank()) {
                     context.getString(com.omersusin.pitube.R.string.channel_metadata_unavailable)
                 }
+                playerPreferences.addBlockedChannel(channelId)
                 FeedInvalidationBus.emit(
                     FeedInvalidationBus.Event.ChannelBlocked(channelId, video.id)
                 )

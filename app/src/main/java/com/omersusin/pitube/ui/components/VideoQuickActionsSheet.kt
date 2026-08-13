@@ -3,6 +3,7 @@ package com.omersusin.pitube.ui.components
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.PlaylistAdd
+import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material.icons.outlined.PlaylistRemove
 import androidx.compose.material.icons.outlined.QueueMusic
 import androidx.compose.material.icons.outlined.Share
@@ -524,6 +526,34 @@ fun VideoQuickActionsBottomSheet(
                                             } else {
                                                 viewModel.downloadVideo(video)
                                             }
+                                        }
+                                        onDismiss()
+                                    },
+                                ),
+                            )
+
+                            add(
+                                FlowMenuItemData(
+                                    icon = { Icon(Icons.Outlined.PlayCircleOutline, null) },
+                                    title = { Text(stringResource(R.string.play_external)) },
+                                    onClick = {
+                                        val videoUrl = "https://www.youtube.com/watch?v=${video.id}"
+                                        val openIntent =
+                                            Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl))
+                                        try {
+                                            context.startActivity(
+                                                Intent.createChooser(
+                                                    openIntent,
+                                                    context.getString(R.string.play_external_chooser),
+                                                ),
+                                            )
+                                        } catch (_: android.content.ActivityNotFoundException) {
+                                            android.widget.Toast
+                                                .makeText(
+                                                    context,
+                                                    context.getString(R.string.no_external_player),
+                                                    android.widget.Toast.LENGTH_SHORT,
+                                                ).show()
                                         }
                                         onDismiss()
                                     },

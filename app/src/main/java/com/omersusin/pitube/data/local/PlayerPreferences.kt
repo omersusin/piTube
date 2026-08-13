@@ -311,6 +311,9 @@ class PlayerPreferences(context: Context) {
         // Home subscription feed rotation cursor
         val HOME_SUBS_ROTATION_CURSOR = intPreferencesKey("home_subs_rotation_cursor")
 
+        // Channel blocking: channel IDs the user never wants to see again.
+        val BLOCKED_CHANNEL_IDS = stringSetPreferencesKey("blocked_channel_ids")
+
         // Auto-backup settings
         val AUTO_BACKUP_FREQUENCY = stringPreferencesKey("auto_backup_frequency")
         val AUTO_BACKUP_FOLDER_URI = stringPreferencesKey("auto_backup_folder_uri")
@@ -1761,6 +1764,27 @@ class PlayerPreferences(context: Context) {
         .map { preferences ->
             preferences[Keys.UPCOMING_VIDEO_REMINDER_IDS].orEmpty()
         }
+
+    val blockedChannelIds: Flow<Set<String>> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.BLOCKED_CHANNEL_IDS].orEmpty()
+        }
+
+    suspend fun addBlockedChannel(channelId: String) {
+        if (channelId.isBlank()) return
+        context.playerPreferencesDataStore.edit { preferences ->
+            val current = preferences[Keys.BLOCKED_CHANNEL_IDS].orEmpty()
+            preferences[Keys.BLOCKED_CHANNEL_IDS] = current + channelId
+        }
+    }
+
+    suspend fun unblockChannel(channelId: String) {
+        if (channelId.isBlank()) return
+        context.playerPreferencesDataStore.edit { preferences ->
+            val current = preferences[Keys.BLOCKED_CHANNEL_IDS].orEmpty()
+            preferences[Keys.BLOCKED_CHANNEL_IDS] = current - channelId
+        }
+    }
 
     suspend fun setUpcomingVideoReminder(videoId: String, enabled: Boolean) {
         if (videoId.isBlank()) return

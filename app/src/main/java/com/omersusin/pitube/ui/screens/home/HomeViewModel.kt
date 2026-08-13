@@ -522,7 +522,10 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun cacheFilters(): HomeFeedCacheFilters =
-        HomeFeedCacheFilters(watchedVideoIds = watchedVideoIds.value)
+        HomeFeedCacheFilters(
+            watchedVideoIds = watchedVideoIds.value,
+            blockedChannelIds = playerPreferences.blockedChannelIds.first(),
+        )
 
     private fun hydratePersistentHomeFeed() {
         viewModelScope.launch(PerformanceDispatcher.networkIO) {

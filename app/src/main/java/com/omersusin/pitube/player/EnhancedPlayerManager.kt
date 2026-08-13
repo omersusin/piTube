@@ -651,7 +651,10 @@ class EnhancedPlayerManager private constructor() {
         }
 
         // Collect per-category SponsorBlock actions and update handler
-        val sbCategories = listOf("sponsor", "intro", "outro", "selfpromo", "interaction", "music_offtopic")
+        val sbCategories = listOf(
+            "sponsor", "intro", "outro", "selfpromo", "interaction",
+            "music_offtopic", "filler", "preview", "exclusive_access",
+        )
         sbCategories.forEach { category ->
             scope.launch {
                 prefs.sbActionForCategory(category).collect { action ->
