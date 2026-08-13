@@ -791,10 +791,17 @@ object YouTube {
      * [positionMs] is the watched-to position used for `cmt`/`et`. When 0 the
      * video is marked as watched right before the end (yt-dlp behaviour), so a
      * video is registered in history even if the app is killed mid-playback.
+     *
+     * One [cpn] covers one playback session; pass the same value on every ping
+     * of the same video so YouTube treats the pings as one continuous session
+     * (fresh cpns per ping look like repeated restarts in history).
      */
-    suspend fun reportVideoPlayback(videoId: String, positionMs: Long = 0L): Result<Boolean> = runCatching {
+    suspend fun reportVideoPlayback(
+        videoId: String,
+        positionMs: Long = 0L,
+        cpn: String = generateCpn(),
+    ): Result<Boolean> = runCatching {
         if (cookie.isNullOrBlank()) return@runCatching false
-        val cpn = generateCpn()
         val tracking = signedPlaybackTracking(videoId, cpn) ?: return@runCatching false
 
         val playbackUrl = tracking.first ?: return@runCatching false
@@ -948,6 +955,9 @@ object YouTube {
         params.forEach { (key, value) -> builder.appendQueryParameter(key, value) }
         return builder.build().toString()
     }
+
+    /** Sixteen-char opaque ID tying every beacon of one playback session together. */
+    fun newCpn(): String = generateCpn()
 
     private fun generateCpn(): String {
         val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"

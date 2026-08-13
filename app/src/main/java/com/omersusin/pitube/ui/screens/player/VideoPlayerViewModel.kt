@@ -2784,6 +2784,9 @@ class VideoPlayerViewModel @Inject constructor(
         if (isLocalMediaId(video.id)) return
         if (video.id.isBlank()) return
         historyReportJob?.cancel()
+        // One cpn per playback session: YouTube treats every ping with the
+        // same cpn as one continuous watch of the video.
+        val cpn = com.omersusin.pitube.innertube.YouTube.newCpn()
         historyReportJob =
             viewModelScope.launch(Dispatchers.Main) {
                 var lastReportedMs = -1L
@@ -2799,7 +2802,7 @@ class VideoPlayerViewModel @Inject constructor(
                             EnhancedPlayerManager.getInstance().getPlayer()?.duration?.coerceAtLeast(0L) ?: 0L
                         if (finalMs > 0L) {
                             try {
-                                repository.reportVideoPlayback(video.id, finalMs)
+                                repository.reportVideoPlayback(video.id, finalMs, cpn)
                             } catch (e: Exception) {
                                 Log.w("VideoPlayerViewModel", "Final history report failed for ${video.id}", e)
                             }
@@ -2812,7 +2815,7 @@ class VideoPlayerViewModel @Inject constructor(
                     if (position - lastReportedMs < 20_000L) continue
                     lastReportedMs = position
                     try {
-                        repository.reportVideoPlayback(video.id, position)
+                        repository.reportVideoPlayback(video.id, position, cpn)
                     } catch (e: Exception) {
                         Log.w("VideoPlayerViewModel", "Periodic YouTube history report failed for ${video.id}", e)
                     }

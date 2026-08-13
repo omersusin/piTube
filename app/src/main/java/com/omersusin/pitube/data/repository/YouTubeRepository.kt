@@ -1182,10 +1182,14 @@ class YouTubeRepository
          * ping succeeded. When positionMs is 0 the video is marked as watched
          * without pushing watch time.
          */
-        suspend fun reportVideoPlayback(videoId: String, positionMs: Long = 0L): Boolean =
+        suspend fun reportVideoPlayback(
+            videoId: String,
+            positionMs: Long = 0L,
+            cpn: String = com.omersusin.pitube.innertube.YouTube.newCpn(),
+        ): Boolean =
             withContext(Dispatchers.IO) {
                 if (!isSignedIn) return@withContext false
-                YouTube.reportVideoPlayback(videoId, positionMs).getOrDefault(false)
+                YouTube.reportVideoPlayback(videoId, positionMs, cpn).getOrDefault(false)
             }
 
         /**

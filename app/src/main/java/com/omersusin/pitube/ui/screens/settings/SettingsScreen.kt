@@ -196,7 +196,7 @@ fun SettingsScreen(
                     val request =
                         Request
                             .Builder()
-                            .url("https://api.github.com/repos/A-EDev/Flow/releases/latest")
+                            .url("https://api.github.com/repos/omersusin/piTube/releases/latest")
                             .header("Accept", "application/vnd.github.v3+json")
                             .build()
                     val response = client.newCall(request).execute()
@@ -936,7 +936,7 @@ fun SettingsScreen(
                 confirmButton = {
                     Button(onClick = {
                         updateAvailableTag = null
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/A-EDev/Flow/releases/latest"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/omersusin/piTube/releases/latest"))
                         context.startActivity(intent)
                     }) {
                         Text(stringResource(R.string.download))
