@@ -37,6 +37,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -54,6 +55,7 @@ import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.ui.theme.ThemeMode
 import com.omersusin.pitube.ui.theme.extendedColors
 import com.omersusin.pitube.utils.AppLanguageManager
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -99,11 +101,57 @@ fun SettingsScreen(
     // Google account state
     val youtubeAccountName by playerPreferences.youtubeAccountName.collectAsStateWithLifecycle(initialValue = null)
     val youtubeAccountEmail by playerPreferences.youtubeAccountEmail.collectAsStateWithLifecycle(initialValue = null)
+    val youtubeAccountThumbnail by playerPreferences.youtubeAccountThumbnail.collectAsStateWithLifecycle(initialValue = null)
     val isGoogleSignedIn by playerPreferences.youtubeCookie
         .map { !it.isNullOrEmpty() }
         .collectAsStateWithLifecycle(initialValue = false)
     var isSyncingLibrary by remember { mutableStateOf(false) }
     var librarySyncResultText by remember { mutableStateOf<String?>(null) }
+
+    // Shared by the "Sync now" button and the auto-sync below.
+    val performLibrarySync: suspend () -> Unit = {
+        isSyncingLibrary = true
+        librarySyncResultText = null
+        val result = com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
+        isSyncingLibrary = false
+        librarySyncResultText = when {
+            result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
+            !result.error.isNullOrBlank() -> context.getString(
+                R.string.settings_google_sync_error,
+                result.error
+            )
+            else -> context.getString(
+                R.string.settings_google_sync_result,
+                result.likedVideos,
+                result.playlists,
+                result.subscribedChannels
+            )
+        }
+    }
+
+    // Auto-sync: once per day (or right after login) the account library is
+    // refreshed silently so liked videos / playlists / subscriptions stay in
+    // sync with official YouTube without opening the screen and tapping.
+    val youtubeLibrarySyncedAt by playerPreferences.youtubeLibrarySyncedAt
+        .collectAsStateWithLifecycle(initialValue = 0L)
+    LaunchedEffect(isGoogleSignedIn, youtubeLibrarySyncedAt, isSyncingLibrary) {
+        if (isGoogleSignedIn && !isSyncingLibrary && librarySyncResultText == null &&
+            System.currentTimeMillis() - youtubeLibrarySyncedAt > AUTO_SYNC_INTERVAL_MS
+        ) {
+            performLibrarySync()
+        }
+    }
+
+    // Profile picture: if the stored avatar is missing, re-fetch the account
+    // info so the avatar (and name/email) show up in Settings.
+    LaunchedEffect(isGoogleSignedIn, youtubeAccountThumbnail) {
+        if (isGoogleSignedIn && youtubeAccountThumbnail.isNullOrBlank()) {
+            runCatching {
+                val info = com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull() ?: return@runCatching
+                playerPreferences.updateYoutubeAccountInfo(info.name, info.email, info.thumbnailUrl)
+            }
+        }
+    }
     // Update checker state (github flavor only)
     var isCheckingUpdate by remember { mutableStateOf(false) }
     // null = no dialog; non-null = tag string of the available update
@@ -519,11 +567,23 @@ fun SettingsScreen(
                                     .padding(16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.AccountCircle,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                val avatarUrl = youtubeAccountThumbnail?.takeIf { it.isNotBlank() }
+                                if (avatarUrl == null) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.AccountCircle,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                } else {
+                                    AsyncImage(
+                                        model = avatarUrl,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                                 Spacer(Modifier.width(16.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
@@ -576,25 +636,7 @@ fun SettingsScreen(
                                     )
                                 } else {
                                     TextButton(onClick = {
-                                        coroutineScope.launch {
-                                            isSyncingLibrary = true
-                                            librarySyncResultText = null
-                                            val result = com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
-                                            isSyncingLibrary = false
-                                            librarySyncResultText = when {
-                                                result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
-                                                !result.error.isNullOrBlank() -> context.getString(
-                                                    R.string.settings_google_sync_error,
-                                                    result.error
-                                                )
-                                                else -> context.getString(
-                                                    R.string.settings_google_sync_result,
-                                                    result.likedVideos,
-                                                    result.playlists,
-                                                    result.subscribedChannels
-                                                )
-                                            }
-                                        }
+                                        coroutineScope.launch { performLibrarySync() }
                                     }) {
                                         Text(stringResource(R.string.settings_google_sync_now))
                                     }
@@ -1067,6 +1109,8 @@ fun SettingsScreen(
         )
     }
 }
+
+private const val AUTO_SYNC_INTERVAL_MS = 24 * 60 * 60 * 1000L // once a day
 
 private val REGION_NAMES =
     mapOf(

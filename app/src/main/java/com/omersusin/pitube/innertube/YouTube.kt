@@ -801,10 +801,14 @@ object YouTube {
 
         val lengthSeconds = tracking.third
         val videoLength = (lengthSeconds - 1f).coerceAtLeast(0f)
-        val cmt = if (positionMs > 0L) {
-            (positionMs / 1000f).coerceIn(0f, videoLength)
-        } else {
-            videoLength
+        // Integer seconds like every working client sends; a zero position
+        // reports "started watching at 0:00" instead of marking the video as
+        // fully watched (the old behaviour made everything show up fully
+        // watched in official history).
+        val cmt = when {
+            lengthSeconds <= 0f -> 0L
+            positionMs <= 0L -> 0L
+            else -> (positionMs / 1000L).coerceIn(0L, videoLength.toLong())
         }
         val referer = "https://www.youtube.com/watch?v=$videoId"
 
@@ -913,13 +917,13 @@ object YouTube {
     /**
      * Rewrite a videostats tracking URL's query the way yt-dlp's
      * `_mark_watched` does: keep every existing parameter and set
-     * `ver=2`, `cpn`, `cmt` and `el=detailpage`. The watchtime URL also gets
-     * `st=0` and `et=cmt` so the video registers actual watch time.
+     * `ver=2`, `cpn`, `cmt`, `c=WEB` and `el=detailpage`. The watchtime URL
+     * also gets `st=0` and `et=cmt` so the video registers actual watch time.
      */
     private fun withVideoStatsParams(
         baseUrl: String,
         cpn: String,
-        cmtSeconds: Float,
+        cmtSeconds: Long,
         watchtime: Boolean,
     ): String {
         val uri = Uri.parse(baseUrl)
@@ -929,6 +933,7 @@ object YouTube {
         }
         params["ver"] = "2"
         params["cpn"] = cpn
+        params["c"] = "WEB"
         params["cmt"] = cmtSeconds.toString()
         params["el"] = "detailpage"
         if (watchtime) {
@@ -998,19 +1003,39 @@ object YouTube {
         playlists
     }
 
-    /** Videos of one playlist from a signed VL<playlistId> browse (liked videos = "LL"). */
-    suspend fun webPlaylistVideos(playlistId: String): Result<List<RemotePlaylistVideo>> = runCatching {
+    /**
+     * Videos of one playlist from a signed VL<playlistId> browse (liked
+     * videos = "LL"). Follows continuation tokens until the playlist is fully
+     * crawled ([maxPages] is just a safety cap), so accounts with thousands of
+     * liked videos sync completely instead of stopping at the first ~100.
+     */
+    suspend fun webPlaylistVideos(playlistId: String, maxPages: Int = 100): Result<List<RemotePlaylistVideo>> = runCatching {
         if (cookie.isNullOrBlank()) return@runCatching emptyList()
         val client = currentWebClient()
         val browseId = if (playlistId.startsWith("VL")) playlistId else "VL$playlistId"
-        val response = innerTube.signedWebBrowse(client = client, browseId = browseId)
-        if (!response.status.isSuccess()) {
-            Log.w("YouTube", "webPlaylistVideos($playlistId): HTTP ${response.status.value}")
-            return@runCatching emptyList()
-        }
-        val videos = Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylistVideos()
-        if (videos.isEmpty()) Log.w("YouTube", "webPlaylistVideos($playlistId): parser returned 0 videos (body len ${response.bodyAsText().length})")
-        videos
+        val videos = mutableListOf<RemotePlaylistVideo>()
+        var continuation: String? = null
+        var pages = 0
+        do {
+            val response = if (continuation == null) {
+                innerTube.signedWebBrowse(client = client, browseId = browseId)
+            } else {
+                innerTube.signedWebBrowse(client = client, continuation = continuation)
+            }
+            if (!response.status.isSuccess()) {
+                Log.w("YouTube", "webPlaylistVideos($playlistId): HTTP ${response.status.value} on page $pages")
+                break
+            }
+            val root = Json.parseToJsonElement(response.bodyAsText())
+            val found = root.toRemotePlaylistVideos()
+            if (found.isEmpty()) {
+                Log.w("YouTube", "webPlaylistVideos($playlistId): parser returned 0 videos on page $pages (body len ${response.bodyAsText().length})")
+            }
+            videos += found
+            continuation = root.playlistVideoListContinuationToken() ?: root.browseContinuation()
+            pages++
+        } while (continuation != null && pages < maxPages)
+        videos.distinctBy { it.id }
     }
 
     suspend fun communityPostCommentsContinuation(
@@ -1687,9 +1712,10 @@ object YouTube {
 
     suspend fun accountInfo(): Result<AccountInfo> = runCatching {
         innerTube.accountMenu(WEB_REMIX).body<AccountMenuResponse>()
-            .actions[0].openPopupAction.popup.multiPageMenuRenderer
-            .header?.activeAccountHeaderRenderer
-            ?.toAccountInfo()!!
+            .actions.firstOrNull()?.openPopupAction?.popup?.multiPageMenuRenderer
+            ?.header?.activeAccountHeaderRenderer
+            ?.toAccountInfo()
+            ?: AccountInfo(name = "", email = null, channelHandle = null, thumbnailUrl = null)
     }
 
     /**

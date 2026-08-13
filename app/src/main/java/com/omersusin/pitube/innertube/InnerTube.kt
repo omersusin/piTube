@@ -495,11 +495,11 @@ class InnerTube {
     }
 
     /**
-     * Plain cookie-authenticated GET for YouTube's videostats beacon URLs
-     * (watch-history reporting). Mirrors yt-dlp's `_mark_watched`, which only
-     * sends cookies, a UA and a Referer — the beacon hosts (www.youtube.com,
-     * s.youtube.com) reject nothing else and the SAPISIDHASH header is not
-     * needed for them. Returns true when the beacon responded 2xx.
+     * Cookie-authenticated GET for YouTube's videostats beacon URLs
+     * (watch-history reporting). Sent like a real browser playback signal:
+     * the signed-in session cookie, a SAPISIDHASH Authorization (same shape
+     * Koda/ViMusic use for their working history pings), full browser-ish
+     * headers and the watch page Referer. Returns true on a 2xx response.
      */
     suspend fun videoStatsPing(
         url: String,
@@ -507,9 +507,21 @@ class InnerTube {
     ): Boolean = withRetry {
         httpClient.get(url) {
             headers {
+                append("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                append("Accept-Language", "en-US,en;q=0.9")
+                append("Origin", YouTubeClient.ORIGIN_YOUTUBE)
                 referer?.let { append("Referer", it) }
                 userAgent(YouTubeClient.WEB.userAgent)
-                cookie?.let { append("cookie", it) }
+                cookie?.let { cookie ->
+                    append("cookie", cookie)
+                    if ("SAPISID" in cookieMap) {
+                        val currentTime = System.currentTimeMillis() / 1000
+                        val sapisidHash =
+                            sha1("$currentTime ${cookieMap["SAPISID"]} ${YouTubeClient.ORIGIN_YOUTUBE}")
+                        append("Authorization", "SAPISIDHASH ${currentTime}_$sapisidHash")
+                        append("X-Goog-AuthUser", "0")
+                    }
+                }
             }
         }.status.isSuccess()
     }

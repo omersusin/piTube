@@ -308,6 +308,12 @@ class HomeViewModel @Inject constructor(
                     lastRefreshTime = HomeFeedCache.timestamp
                 )
             }
+            // Show the cached feed instantly, but still refresh in the
+            // background when the cache is older than a minute so consecutive
+            // visits don't show the same videos all day.
+            if (System.currentTimeMillis() - HomeFeedCache.timestamp > FEED_BACKGROUND_REFRESH_AFTER_MS) {
+                loadFlowFeed()
+            }
         } else {
             hydratePersistentHomeFeed()
             loadFlowFeed(forceRefresh = true)
@@ -1253,16 +1259,19 @@ private data class Wave1FeedResults(
     val viral: List<Video>
 )
 
+private const val FEED_BACKGROUND_REFRESH_AFTER_MS = 60 * 1000L // 1 minute
+
 /**
  * Process-lifetime in-memory cache for the Home feed.
  *
  * Survives ViewModel recreation (which happens when the user navigates away
  * from Home and comes back via the bottom nav), preventing an unwanted
  * network reload on every tab switch. The cache expires after [CACHE_TTL_MS]
- * (default 30 minutes) and is explicitly cleared when the user pulls-to-refresh.
+ * (3 minutes — short on purpose so the feed keeps rotating; the UI always
+ * refreshes in the background after publishing the cached list).
  */
 internal object HomeFeedCache {
-    private const val CACHE_TTL_MS = 30 * 60 * 1000L // 30 minutes
+    private const val CACHE_TTL_MS = 3 * 60 * 1000L // 3 minutes
 
     @Volatile var videos: List<Video> = emptyList()
         private set

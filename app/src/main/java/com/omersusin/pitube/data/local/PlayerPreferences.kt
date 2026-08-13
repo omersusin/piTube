@@ -51,6 +51,7 @@ class PlayerPreferences(context: Context) {
         val YOUTUBE_ACCOUNT_NAME = stringPreferencesKey("youtube_account_name")
         val YOUTUBE_ACCOUNT_EMAIL = stringPreferencesKey("youtube_account_email")
         val YOUTUBE_ACCOUNT_THUMBNAIL = stringPreferencesKey("youtube_account_thumbnail")
+        val YOUTUBE_LIBRARY_SYNCED_AT = longPreferencesKey("youtube_library_synced_at")
         val ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
         val DEFAULT_QUALITY_WIFI = stringPreferencesKey("default_quality_wifi")
         val DEFAULT_QUALITY_CELLULAR = stringPreferencesKey("default_quality_cellular")
@@ -2221,6 +2222,25 @@ class PlayerPreferences(context: Context) {
         }
     }
 
+    val youtubeLibrarySyncedAt: Flow<Long> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.YOUTUBE_LIBRARY_SYNCED_AT] ?: 0L }
+
+    /** Marks when the account library was last synced (used for auto-sync). */
+    suspend fun setYoutubeLibrarySyncedAt(timestamp: Long = System.currentTimeMillis()) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.YOUTUBE_LIBRARY_SYNCED_AT] = timestamp
+        }
+    }
+
+    /** Refreshes the account display info without touching the session cookie. */
+    suspend fun updateYoutubeAccountInfo(name: String?, email: String?, thumbnailUrl: String?) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            if (!name.isNullOrBlank()) preferences[Keys.YOUTUBE_ACCOUNT_NAME] = name
+            if (!email.isNullOrBlank()) preferences[Keys.YOUTUBE_ACCOUNT_EMAIL] = email
+            if (!thumbnailUrl.isNullOrBlank()) preferences[Keys.YOUTUBE_ACCOUNT_THUMBNAIL] = thumbnailUrl
+        }
+    }
+
     /** Signs out: clears the stored cookie and cached account display info. */
     suspend fun clearYoutubeAccount() {
         context.playerPreferencesDataStore.edit { preferences ->
@@ -2228,6 +2248,7 @@ class PlayerPreferences(context: Context) {
             preferences.remove(Keys.YOUTUBE_ACCOUNT_NAME)
             preferences.remove(Keys.YOUTUBE_ACCOUNT_EMAIL)
             preferences.remove(Keys.YOUTUBE_ACCOUNT_THUMBNAIL)
+            preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_AT)
         }
     }
 }

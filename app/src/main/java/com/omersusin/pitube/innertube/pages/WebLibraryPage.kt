@@ -64,6 +64,25 @@ internal fun JsonElement.browseContinuation(): String? {
     return tokens.firstOrNull()
 }
 
+/**
+ * Continuation token of a playlist page (`playlistVideoListContinuation`).
+ * Looked up specifically inside that section so a menu/endpoint token from a
+ * video item can never be mistaken for the "next page" token — with this,
+ * liked videos ("LL") and large playlists can be crawled past the first
+ * ~100-item page.
+ */
+internal fun JsonElement.playlistVideoListContinuationToken(): String? {
+    val sections = mutableListOf<JsonObject>()
+    findObjectsByKey(this, "playlistVideoListContinuation", sections)
+    return sections.firstNotNullOfOrNull { section ->
+        section["continuations"].arrayOrNull()
+            ?.firstOrNull()?.objectOrNull()
+            ?.get("nextContinuationData").objectOrNull()
+            ?.get("continuation").stringOrNull()
+            ?.takeIf { it.isNotBlank() }
+    }
+}
+
 /** Playlists from the signed FEplaylist_aggregation /browse (lockupViewModel items). */
 internal fun JsonElement.toRemotePlaylists(): List<RemotePlaylist> {
     val lockups = mutableListOf<JsonObject>()

@@ -70,6 +70,10 @@ object YouTubeLibrarySync {
             Log.w(TAG, "Account sync returned all-zero with error: ${firstError.get()}")
         }
 
+        if (firstError.get().isNullOrBlank()) {
+            PlayerPreferences(context).setYoutubeLibrarySyncedAt()
+        }
+
         return LibrarySyncResult(likedVideos, playlists, channels, error = firstError.get())
     }
 

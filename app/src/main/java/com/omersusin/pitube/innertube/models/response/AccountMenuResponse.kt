@@ -39,11 +39,19 @@ data class AccountMenuResponse(
                         ) {
                             fun toAccountInfo() =
                                 AccountInfo(
-                                    name = accountName.runs!!.first().text,
-                                    email = email?.runs?.first()?.text,
-                                    channelHandle = channelHandle?.runs?.first()?.text,
-                                    thumbnailUrl = accountPhoto.thumbnails.lastOrNull()?.url,
+                                    name = accountName.runs?.firstOrNull()?.text.orEmpty(),
+                                    email = email?.runs?.firstOrNull()?.text,
+                                    channelHandle = channelHandle?.runs?.firstOrNull()?.text,
+                                    thumbnailUrl = accountPhoto.thumbnails.lastOrNull()?.url
+                                        ?.let { if (it.startsWith("//")) "https:$it" else it }
+                                        ?.let(::upgradeAvatarResolution),
                                 )
+
+                            /** Bump small avatar sizes (=s96 etc.) to 512px like Koda does. */
+                            private fun upgradeAvatarResolution(url: String): String {
+                                val resized = url.replace(Regex("=s\\d+"), "=s512")
+                                return if (resized.contains("=s512")) resized else "$resized=s512"
+                            }
                         }
                     }
                 }
