@@ -1744,6 +1744,19 @@ object YouTube {
             .jsonPrimitive.content
     }
 
+    /**
+     * Rotate the anonymous visitor identity so personalized/dossier endpoints
+     * (home discovery, trending) stop returning the same pinned items forever.
+     * Fetches a fresh `visitorData` and swaps the app-wide value; returns the
+     * new value, or null when the fetch failed (caller keeps the old one).
+     */
+    suspend fun rotateVisitorData(): String? = runCatching {
+        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() }
+            ?: return@runCatching null
+        visitorData = fresh
+        fresh
+    }
+
     suspend fun accountInfo(): Result<AccountInfo> = runCatching {
         val response = innerTube.accountMenu(WEB_REMIX)
         val body = response.bodyAsText()

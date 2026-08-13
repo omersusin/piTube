@@ -235,7 +235,7 @@ class HomeFeedCacheRepository(context: Context) {
         private const val RELATED_PER_SEED_CAP = 20
         private const val RELATED_SEED_CAP = 50
 
-        private const val LAST_FEED_TTL_MS = 8L * 60L * 60L * 1000L
+        private const val LAST_FEED_TTL_MS = 2L * 60L * 60L * 1000L
         private const val RESERVE_TTL_MS = 12L * 60L * 60L * 1000L
         private const val RELATED_TTL_MS = 90L * 60L * 1000L
     }

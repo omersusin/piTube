@@ -122,6 +122,14 @@ class FlowApplication :
             }
         }
 
+        // Keep the home feed + account library rotating in the background so the
+        // feed never serves the same pinned items (visitor rotation + cache
+        // invalidation + library re-sync every 12 hours).
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            com.omersusin.pitube.notification.FeedAndLibrarySyncWorker
+                .schedulePeriodicSync(this@FlowApplication)
+        }
+
         Log.d(TAG, "Workers scheduled successfully")
 
         // Fetch and cache visitor data for the lifetime of the install.

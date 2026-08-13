@@ -19,6 +19,7 @@ import com.omersusin.pitube.data.shorts.ShortsRepository
 import com.omersusin.pitube.R
 import com.omersusin.pitube.ui.components.FeedInvalidationBus
 import com.omersusin.pitube.utils.PerformanceDispatcher
+import kotlin.random.Random
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -49,6 +50,7 @@ internal fun feedImpressionIds(visibleKeys: List<String>, knownIds: Set<String>)
     visibleKeys.filter { it in knownIds }
 
 internal enum class FeedSource {
+    PERSONAL,
     SUBS,
     RELATED,
     DISCOVERY,
@@ -70,30 +72,34 @@ internal data class FeedMixResult(
 internal fun homeFeedQuotas(
     remaining: Int,
     subCount: Int,
-    totalInteractions: Int
+    totalInteractions: Int,
+    hasPersonalFeed: Boolean = false
 ): Map<FeedSource, Int> {
     val slots = remaining.coerceAtLeast(0)
     if (slots == 0) {
         return FeedSource.entries.associateWith { 0 }
     }
 
+    val personal = if (hasPersonalFeed) (slots * 0.30).toInt().coerceAtLeast(0) else 0
+    val remainingAfterPersonal = (slots - personal).coerceAtLeast(0)
     val subs = when {
         subCount <= 0 -> 0
-        totalInteractions > 50 -> (slots * 0.40).toInt()
-        else -> (slots * 0.35).toInt()
+        totalInteractions > 50 -> (remainingAfterPersonal * 0.40).toInt()
+        else -> (remainingAfterPersonal * 0.35).toInt()
     }.coerceAtLeast(0)
     val related = when {
-        subCount <= 0 -> (slots * 0.35).toInt()
-        totalInteractions > 50 -> (slots * 0.25).toInt()
-        else -> (slots * 0.30).toInt()
+        subCount <= 0 -> (remainingAfterPersonal * 0.35).toInt()
+        totalInteractions > 50 -> (remainingAfterPersonal * 0.25).toInt()
+        else -> (remainingAfterPersonal * 0.30).toInt()
     }.coerceAtLeast(0)
     val discovery = when {
-        subCount <= 0 -> (slots * 0.45).toInt()
-        else -> (slots * 0.25).toInt()
+        subCount <= 0 -> (remainingAfterPersonal * 0.45).toInt()
+        else -> (remainingAfterPersonal * 0.25).toInt()
     }.coerceAtLeast(0)
-    val viral = (slots - subs - related - discovery).coerceAtLeast(0)
+    val viral = (remainingAfterPersonal - subs - related - discovery).coerceAtLeast(0)
 
     return mapOf(
+        FeedSource.PERSONAL to personal,
         FeedSource.SUBS to subs,
         FeedSource.RELATED to related,
         FeedSource.DISCOVERY to discovery,
@@ -164,8 +170,20 @@ internal fun blendFeedSources(
     val queues = FeedSource.entries.associateWith { source ->
         java.util.ArrayDeque(lanes[source].orEmpty().map { FeedCandidate(it, source) })
     }
-    val quotaOrder = listOf(FeedSource.SUBS, FeedSource.RELATED, FeedSource.DISCOVERY, FeedSource.VIRAL)
-    val scarcityOrder = listOf(FeedSource.RELATED, FeedSource.DISCOVERY, FeedSource.SUBS, FeedSource.VIRAL)
+    val quotaOrder = listOf(
+        FeedSource.PERSONAL,
+        FeedSource.SUBS,
+        FeedSource.RELATED,
+        FeedSource.DISCOVERY,
+        FeedSource.VIRAL
+    )
+    val scarcityOrder = listOf(
+        FeedSource.RELATED,
+        FeedSource.DISCOVERY,
+        FeedSource.PERSONAL,
+        FeedSource.SUBS,
+        FeedSource.VIRAL
+    )
     val addedBySource = mutableMapOf<FeedSource, Int>()
     val out = mutableListOf<FeedCandidate>()
 
@@ -253,6 +271,8 @@ class HomeViewModel @Inject constructor(
         private const val FRESH_SUB_WINDOW_MS = 72L * 60L * 60L * 1000L
         private const val HOME_MAX_SUGGESTION_AGE_MS = 365L * 24L * 60L * 60L * 1000L
         private const val MIN_PAGE_SIZE = 8
+        private const val DISCOVERY_ORDER_KEY = "discovery_order"
+        private const val DISCOVERY_EPOCH_KEY = "discovery_epoch"
     }
 
     // Broad discovery searches used to fill the home feed when there are no (or few)
@@ -296,6 +316,41 @@ class HomeViewModel @Inject constructor(
     private var viewHistory: ViewHistory? = null
 
     private val watchedVideoIds = MutableStateFlow<Set<String>>(emptySet())
+
+    private val discoveryPrefs by lazy {
+        appContext.getSharedPreferences("home_feed_rotation", Context.MODE_PRIVATE)
+    }
+    private var discoveryRotationEpoch = 0
+
+    /**
+     * Fill [discoveryQueries] and reset [currentQueryIndex]. On a forced
+     * refresh the query list is reshuffled (and the persisted epoch bumped) so
+     * consecutive pulls surface different items; otherwise the last shuffled
+     * order is reused to avoid reshuffling mid-session churn.
+     */
+    private fun seedDiscoveryQueries(shuffle: Boolean) {
+        val persisted = discoveryPrefs
+            .getString(DISCOVERY_ORDER_KEY, null)
+            ?.split(',')
+            ?.takeIf { it.size == DISCOVERY_QUERIES.size }
+        val seeded =
+            if (shuffle) {
+                val epoch = discoveryPrefs.getInt(DISCOVERY_EPOCH_KEY, 0)
+                discoveryRotationEpoch = epoch
+                DISCOVERY_QUERIES.shuffled(Random(epoch.toLong()))
+            } else {
+                persisted ?: DISCOVERY_QUERIES
+            }
+        discoveryQueries.clear()
+        discoveryQueries.addAll(seeded)
+        if (shuffle) {
+            discoveryPrefs.edit()
+                .putString(DISCOVERY_ORDER_KEY, seeded.joinToString(","))
+                .putInt(DISCOVERY_EPOCH_KEY, discoveryRotationEpoch + 1)
+                .apply()
+        }
+        currentQueryIndex = 0
+    }
 
     init {
         if (HomeFeedCache.isFresh()) {
@@ -584,46 +639,36 @@ class HomeViewModel @Inject constructor(
         
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
+                // Rotate the anonymous visitor identity on a forced refresh/pull
+                // so the personalized "what to watch" lane stops pinning the same
+                // items week after week (the visitor id anchors its response).
+                if (forceRefresh) {
+                    runCatching { com.omersusin.pitube.innertube.YouTube.rotateVisitorData() }
+                    seedDiscoveryQueries(shuffle = true)
+                } else {
+                    seedDiscoveryQueries(shuffle = false)
+                }
+
                 val signedIn = !com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()
 
                 // ── Signed-in lane: the account's own "What to watch" feed ──
-                if (signedIn) {
-                    val personal = withTimeoutOrNull(12_000L) {
-                        runCatching {
-                            com.omersusin.pitube.innertube.YouTube.personalizedFeed().getOrNull()
-                        }.getOrNull()
-                    } ?: null
-                    if (personal != null && personal.videos.isNotEmpty()) {
-                        val now = System.currentTimeMillis()
-                        val visible = personal.videos.filterValid().filterWatched(watchedVideoIds.value)
-                        if (visible.isNotEmpty()) {
-                            _uiState.update { state ->
-                                state.copy(
-                                    videos = visible,
-                                    isLoading = false,
-                                    isRefreshing = false,
-                                    hasMorePages = personal.continuation != null,
-                                    isFlowFeed = true,
-                                    feedContinuation = personal.continuation,
-                                    lastRefreshTime = now
-                                )
-                            }
-                            HomeFeedCache.update(visible, _uiState.value.shorts)
-                            persistentHomeFeedCache.saveLastFeed(visible)
-                            Log.d(
-                                TAG,
-                                "Personalized feed: ${visible.size} videos, continuation=${personal.continuation != null}"
-                            )
-                            return@launch
-                        }
-                    }
-                    Log.w(TAG, "Personalized feed empty or failed; falling back to discovery blend")
+                // Fetched in parallel with discovery below; blended into the mix
+                // instead of short-circuiting so the feed rotates through fresh
+                // items instead of repeating the same personalized set.
+                val personalizedPool = if (signedIn) {
+                    withTimeoutOrNull(12_000L) {
+                        com.omersusin.pitube.innertube.YouTube.personalizedFeed()
+                            .getOrNull()
+                            ?.videos
+                            .orEmpty()
+                            .filterValid()
+                            .filterWatched(watchedVideoIds.value)
+                            .filterRecentHomeSuggestion(System.currentTimeMillis())
+                    } ?: emptyList()
+                } else {
+                    emptyList()
                 }
 
-                discoveryQueries.clear()
-                discoveryQueries.addAll(DISCOVERY_QUERIES)
-                currentQueryIndex = 0
-                
                 val userSubs = subscriptionRepository.getAllSubscriptionIds()
                 val region = playerPreferences.trendingRegion.first()
                 val fetchStart = System.currentTimeMillis()
@@ -760,9 +805,16 @@ class HomeViewModel @Inject constructor(
                 }
 
                 val remaining = (HOME_TARGET_SIZE - finalMix.size).coerceAtLeast(0)
-                val quotas = homeFeedQuotas(remaining, userSubs.size, 0)
+                val quotas = homeFeedQuotas(
+                    remaining,
+                    userSubs.size,
+                    0,
+                    hasPersonalFeed = personalizedPool.isNotEmpty()
+                )
+                val bestPersonal = personalizedPool.take(12)
                 val sourceMix = blendFeedSources(
                     lanes = mapOf(
+                        FeedSource.PERSONAL to bestPersonal,
                         FeedSource.SUBS to bestSubs,
                         FeedSource.DISCOVERY to bestDiscovery,
                         FeedSource.VIRAL to bestViral
@@ -792,6 +844,7 @@ class HomeViewModel @Inject constructor(
                 )
                 val renderedIds = spacedMix.mapTo(HashSet()) { it.id }
                 val reserveCandidates =
+                    cacheCandidates(FeedSource.PERSONAL, bestPersonal, renderedIds) +
                     cacheCandidates(FeedSource.DISCOVERY, bestDiscovery, renderedIds) +
                     cacheCandidates(FeedSource.SUBS, bestSubs, renderedIds) +
                     cacheCandidates(FeedSource.VIRAL, bestViral, renderedIds)
