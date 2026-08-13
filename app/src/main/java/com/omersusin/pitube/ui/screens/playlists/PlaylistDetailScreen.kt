@@ -1263,6 +1263,8 @@ private fun parseRelativeDurationMillis(text: String): Long? {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun MergeIntoPlaylistDialog(
     viewModel: PlaylistDetailViewModel,
     onDismiss: () -> Unit,
@@ -1820,9 +1822,4 @@ class PlaylistDetailViewModel
                 }
             }
         }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-
-
 }
