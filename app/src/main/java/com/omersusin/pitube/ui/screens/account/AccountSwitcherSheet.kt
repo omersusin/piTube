@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -72,6 +73,7 @@ import com.omersusin.pitube.data.local.Profile
  * there is no confirm step and no blocking spinner. The sheet closes on tap and
  * the feeds refill behind it.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountSwitcherSheet(
     onDismiss: () -> Unit,
