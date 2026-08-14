@@ -95,8 +95,10 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import com.omersusin.pitube.R
+import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.distinctByNonBlankKey
+import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import com.omersusin.pitube.utils.formatLikeCount
 import com.omersusin.pitube.utils.formatRichText
 import com.omersusin.pitube.utils.formatTimeAgo
@@ -569,6 +571,9 @@ fun FlowCommentItem(
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     val uriHandler = LocalUriHandler.current
+    val commentContext = LocalContext.current
+    val commentPrefs = remember { PlayerPreferences(commentContext) }
+    val commentState = rememberTranslatedText(comment.text, commentPrefs.translateComments)
 
     LaunchedEffect(comment.replies) {
         isLoadingReplies = false
@@ -695,7 +700,11 @@ fun FlowCommentItem(
             Box(modifier = Modifier.animateContentSize()) {
                 SelectionContainer {
                     BasicText(
-                        text = annotatedText,
+                        text = if (commentState.translated != null) {
+                            androidx.compose.ui.text.AnnotatedString(commentState.displayText)
+                        } else {
+                            annotatedText
+                        },
                         style =
                             MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -750,6 +759,16 @@ fun FlowCommentItem(
                         Modifier
                             .padding(top = 4.dp)
                             .clickable { isExpanded = true },
+                )
+            }
+
+            if (commentState.showOriginalBelow) {
+                Text(
+                    text = commentState.original,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    modifier = Modifier.padding(top = 4.dp),
                 )
             }
 
@@ -951,6 +970,9 @@ fun FlowReplyItem(
     val primaryColor = MaterialTheme.colorScheme.primary
     val onSurface = MaterialTheme.colorScheme.onSurface
     val uriHandler = LocalUriHandler.current
+    val replyContext = LocalContext.current
+    val replyPrefs = remember { PlayerPreferences(replyContext) }
+    val replyState = rememberTranslatedText(reply.text, replyPrefs.translateComments)
     val annotatedText =
         remember(reply.text, primaryColor) {
             formatRichText(
@@ -1047,8 +1069,13 @@ fun FlowReplyItem(
 
             // Reply Body
             SelectionContainer {
-                BasicText(
-                    text = annotatedText,
+                Column {
+                    BasicText(
+                        text = if (replyState.translated != null) {
+                            androidx.compose.ui.text.AnnotatedString(replyState.displayText)
+                        } else {
+                            annotatedText
+                        },
                     style =
                         MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurface,
@@ -1083,6 +1110,16 @@ fun FlowReplyItem(
                             )
                         },
                 )
+                    if (replyState.showOriginalBelow) {
+                        Text(
+                            text = replyState.original,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(4.dp))

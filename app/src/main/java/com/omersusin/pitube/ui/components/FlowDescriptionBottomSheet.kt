@@ -49,7 +49,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalDensity
 import com.omersusin.pitube.R
 import androidx.core.text.HtmlCompat
+import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
+import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import com.omersusin.pitube.utils.formatLikeCount
 import com.omersusin.pitube.utils.formatViewCount
 import com.omersusin.pitube.utils.DateContext
@@ -165,6 +167,15 @@ fun FlowDescriptionBottomSheet(
         parseHtmlDescription(video.description, primaryColor)
     }
     var descLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    val descriptionPrefs = remember { PlayerPreferences(context) }
+    val descriptionState = rememberTranslatedText(
+        text = descriptionText.text,
+        feature = descriptionPrefs.translateDescriptions,
+    )
+    val titleState = rememberTranslatedText(
+        text = video.title,
+        feature = descriptionPrefs.translateTitles,
+    )
 
     // Auto-extract hashtags (This regex is still fine for finding hashtags in the clean text)
     val hashtags = remember(descriptionText.text) {
@@ -316,12 +327,21 @@ fun FlowDescriptionBottomSheet(
                 ) {
                 // 1. Video Title
                 Text(
-                    text = video.title,
+                    text = titleState.displayText,
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
+                if (titleState.showOriginalBelow) {
+                    Text(
+                        text = titleState.original,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
 
                 // 2. Stats Row (Clean Layout)
                 Row(
@@ -381,35 +401,52 @@ fun FlowDescriptionBottomSheet(
                         }
 
                         SelectionContainer {
-                            BasicText(
-                                text = descriptionText,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    lineHeight = 24.sp,
-                                    fontSize = 15.sp
-                                ),
-                                onTextLayout = { descLayoutResult = it },
-                                modifier = Modifier.pointerInput(descriptionText) {
-                                    detectTapGestures(
-                                        onTap = { tapOffset ->
-                                            descLayoutResult?.let { result ->
-                                                val charOffset = result.getOffsetForPosition(tapOffset)
-                                                val ts = descriptionText
-                                                    .getStringAnnotations("TIMESTAMP", charOffset, charOffset)
-                                                    .firstOrNull()
-                                                if (ts != null) {
-                                                    onTimestampClick(ts.item)
-                                                } else {
-                                                    descriptionText
-                                                        .getStringAnnotations("URL", charOffset, charOffset)
+                            Column {
+                                BasicText(
+                                    text = if (descriptionState.translated != null) {
+                                        AnnotatedString(descriptionState.displayText)
+                                    } else {
+                                        descriptionText
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        lineHeight = 24.sp,
+                                        fontSize = 15.sp
+                                    ),
+                                    onTextLayout = { descLayoutResult = it },
+                                    modifier = Modifier.pointerInput(descriptionText) {
+                                        detectTapGestures(
+                                            onTap = { tapOffset ->
+                                                descLayoutResult?.let { result ->
+                                                    val charOffset = result.getOffsetForPosition(tapOffset)
+                                                    val ts = descriptionText
+                                                        .getStringAnnotations("TIMESTAMP", charOffset, charOffset)
                                                         .firstOrNull()
-                                                        ?.let { uriHandler.openUri(it.item) }
+                                                    if (ts != null) {
+                                                        onTimestampClick(ts.item)
+                                                    } else {
+                                                        descriptionText
+                                                            .getStringAnnotations("URL", charOffset, charOffset)
+                                                            .firstOrNull()
+                                                            ?.let { uriHandler.openUri(it.item) }
+                                                    }
                                                 }
                                             }
-                                        }
+                                        )
+                                    }
+                                )
+                                if (descriptionState.showOriginalBelow) {
+                                    Text(
+                                        text = descriptionState.original,
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            lineHeight = 22.sp,
+                                            fontSize = 13.sp
+                                        ),
+                                        modifier = Modifier.padding(top = 12.dp)
                                     )
                                 }
-                            )
+                            }
                         }
 
                         // Tags section

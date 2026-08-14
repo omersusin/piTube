@@ -49,6 +49,7 @@ import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.ui.theme.extendedColors
+import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import com.omersusin.pitube.utils.DateContext
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.formatRichText
@@ -129,17 +130,8 @@ fun VideoInfoSection(
         val titleMaxLinesPref by prefs.videoTitleMaxLines.collectAsState(initial = 1)
         val titleMaxLines = if (titleMaxLinesPref <= 0) Int.MAX_VALUE else titleMaxLinesPref
         val dateSettings = rememberDateDisplaySettings()
-        Text(
-            text = title,
-            style =
-                MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                ),
-            color = MaterialTheme.colorScheme.onBackground,
-            maxLines = titleMaxLines,
-            overflow = if (titleMaxLinesPref <= 0) TextOverflow.Clip else TextOverflow.Ellipsis,
+        val titleState = rememberTranslatedText(title, prefs.translateTitles)
+        Column(
             modifier =
                 Modifier.combinedClickable(
                     onClick = {},
@@ -149,7 +141,31 @@ fun VideoInfoSection(
                         Toast.makeText(context, context.getString(R.string.title_copied), Toast.LENGTH_SHORT).show()
                     },
                 ),
-        )
+        ) {
+            Text(
+                text = titleState.displayText,
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        lineHeight = 28.sp,
+                    ),
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = titleMaxLines,
+                overflow = if (titleMaxLinesPref <= 0) TextOverflow.Clip else TextOverflow.Ellipsis,
+            )
+            if (titleState.showOriginalBelow) {
+                Text(
+                    text = titleState.original,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+        }
 
         // View count and date in a subtle row below title
         Row(
