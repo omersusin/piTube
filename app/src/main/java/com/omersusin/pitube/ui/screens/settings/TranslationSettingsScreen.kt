@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Key
@@ -523,8 +525,10 @@ private fun RadioListDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            Column {
-                options.forEachIndexed { index, option ->
+            LazyColumn(
+                modifier = Modifier.heightIn(max = 420.dp),
+            ) {
+                itemsIndexed(options) { index, option ->
                     val label = optionLabels?.getOrNull(index) ?: option
                     Row(
                         modifier = Modifier

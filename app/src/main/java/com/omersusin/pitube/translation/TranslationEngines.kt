@@ -1,8 +1,9 @@
 package com.omersusin.pitube.translation
 
 import com.omersusin.pitube.translation.engines.apertium.ApertiumEngine
+import com.omersusin.pitube.translation.engines.deepl.DeeplAuthenticatedFreeApiEngine
+import com.omersusin.pitube.translation.engines.deepl.DeeplAuthenticatedPaidApiEngine
 import com.omersusin.pitube.translation.engines.deepl.DeeplBrowserEngine
-import com.omersusin.pitube.translation.engines.deepl.DeeplEngine
 import com.omersusin.pitube.translation.engines.glosbe.GlosbeEngine
 import com.omersusin.pitube.translation.engines.kagi.KagiEngine
 import com.omersusin.pitube.translation.engines.laratranslate.LaraTranslateEngine
@@ -43,22 +44,23 @@ object TranslationEngines {
         GeminiEngine(settingsProvider),
         XAiEngine(settingsProvider),
         MistralEngine(settingsProvider),
-        DeeplEngine(settingsProvider),
+        DeeplAuthenticatedFreeApiEngine(settingsProvider),
+        DeeplAuthenticatedPaidApiEngine(settingsProvider),
         CustomEngine(settingsProvider),
         MozhiEngine(settingsProvider),
-        KagiEngine(settingsProvider),
-        OneRingEngine(settingsProvider),
-        YandexEngine(settingsProvider),
-        DeeplBrowserEngine(settingsProvider),
-        PonsEngine(settingsProvider),
-        GlosbeEngine(settingsProvider),
-        ApertiumEngine(settingsProvider),
-        LaraTranslateEngine(settingsProvider),
-        SimplyTranslateEngine(settingsProvider),
         LibreTranslateEngine(settingsProvider),
         LingvaEngine(settingsProvider),
+        DeeplBrowserEngine(settingsProvider),
+        KagiEngine(settingsProvider),
         MyMemoryEngine(settingsProvider),
+        YandexEngine(settingsProvider),
+        SimplyTranslateEngine(settingsProvider),
         MinTEngine(settingsProvider),
+        GlosbeEngine(settingsProvider),
+        ApertiumEngine(settingsProvider),
+        OneRingEngine(settingsProvider),
+        PonsEngine(settingsProvider),
+        LaraTranslateEngine(settingsProvider),
     )
 
     fun findByName(
