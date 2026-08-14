@@ -131,10 +131,19 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
 
         val seenIds = mutableSetOf<String>()
         val allCandidates = mutableListOf<Video>()
+        // Stop any single channel from monopolising Shorts: across subscriptions
+        // and discovery, cap how many of its uploads make it into the pool.
+        val channelCounts = mutableMapOf<String, Int>()
+        val MAX_PER_CHANNEL = 3
 
         fun addUnique(videos: List<Video>) {
             videos.forEach { v ->
                 if (v.id.isNotBlank() && v.id !in seenIds) {
+                    if (v.channelId.isNotBlank()) {
+                        val count = channelCounts[v.channelId] ?: 0
+                        if (count >= MAX_PER_CHANNEL) return@forEach
+                        channelCounts[v.channelId] = count + 1
+                    }
                     seenIds += v.id
                     allCandidates += v
                 }

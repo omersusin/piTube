@@ -18,8 +18,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,11 +33,13 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +57,7 @@ import com.omersusin.pitube.sync.SyncState
 import com.omersusin.pitube.sync.protocol.SyncCollection
 import com.omersusin.pitube.sync.protocol.SyncRole
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private val COLLECTION_KEYS = listOf(
     SyncCollection.PLAYLISTS,
@@ -83,6 +88,13 @@ fun SyncScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var step by remember { mutableStateOf(Step.CHOOSER) }
     val selected = remember { mutableStateOf(COLLECTION_KEYS.toMutableSet()) }
+    val context = LocalContext.current
+    val accountName = remember {
+        val switcher = com.omersusin.pitube.data.local.AccountSwitcher(context)
+        switcher.active().name.takeIf { !switcher.active().isLocal }
+    }
+    var syncingLibrary by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -118,14 +130,34 @@ fun SyncScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             when (val s = state) {
-                is SyncState.Idle -> IdleContent(
-                    step = step,
-                    onStepChange = { step = it },
-                    selected = selected.value,
-                    onSelectedChange = { selected.value = it },
-                    onHost = { role -> viewModel.host(role, selected.value.toList()) },
-                    onJoin = { role, qr -> viewModel.join(role, qr, selected.value.toList()) },
-                )
+                is SyncState.Idle -> {
+                    if (accountName != null) {
+                        AccountLinkedBanner(
+                            accountName = accountName,
+                            isSyncing = syncingLibrary,
+                            onSyncLibrary = {
+                                syncingLibrary = true
+                                coroutineScope.launch {
+                                    try {
+                                        com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
+                                    } catch (_: Exception) {
+                                        // best-effort: the banner just stops spinning
+                                    } finally {
+                                        syncingLibrary = false
+                                    }
+                                }
+                            },
+                        )
+                    }
+                    IdleContent(
+                        step = step,
+                        onStepChange = { step = it },
+                        selected = selected.value,
+                        onSelectedChange = { selected.value = it },
+                        onHost = { role -> viewModel.host(role, selected.value.toList()) },
+                        onJoin = { role, qr -> viewModel.join(role, qr, selected.value.toList()) },
+                    )
+                }
                 is SyncState.Preparing -> Busy(stringResource(R.string.sync_preparing))
                 is SyncState.Connecting -> Busy(stringResource(R.string.sync_connecting))
                 is SyncState.ShowingQr -> QrContent(s)
@@ -221,6 +253,57 @@ private fun TransportChooser(
     Spacer(Modifier.height(8.dp))
     OutlinedButton(onClick = onScan, modifier = Modifier.fillMaxWidth()) { Text(scanLabel) }
     Text(scanHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+}
+
+/**
+ * Shows which Google account the synced collections come from, and lets the
+ * user re-pull that account's library first so a device-to-device transfer
+ * carries account data (subscribed channels, likes, playlists) rather than
+ * only whatever happens to be on this device.
+ */
+@Composable
+private fun AccountLinkedBanner(
+    accountName: String,
+    isSyncing: Boolean,
+    onSyncLibrary: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AccountCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(end = 8.dp),
+            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.sync_account_title, accountName),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+                Text(
+                    text = stringResource(R.string.sync_account_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            }
+            if (isSyncing) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            } else {
+                TextButton(onClick = onSyncLibrary) {
+                    Text(stringResource(R.string.settings_google_sync_now))
+                }
+            }
+        }
+    }
 }
 
 @Composable

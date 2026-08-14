@@ -71,6 +71,10 @@ interface WatchHistoryDao {
     @Query("SELECT videoId FROM watch_history WHERE isMusic = 0 AND isLocal = 0")
     suspend fun getAllWatchedVideoIds(): List<String>
 
+    /** All video IDs currently in history, for idempotent (re)imports. */
+    @Query("SELECT videoId FROM watch_history")
+    suspend fun getAllHistoryIds(): List<String>
+
     @Query("""
         SELECT videoId FROM watch_history
         WHERE isMusic = 0

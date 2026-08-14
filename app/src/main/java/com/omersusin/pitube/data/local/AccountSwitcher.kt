@@ -48,6 +48,17 @@ class AccountSwitcher(context: Context) {
     fun active(): Profile = profileManager.active()
 
     /**
+     * Re-point the runtime session at the active profile without switching.
+     *
+     * Used after a login screen temporarily cleared the shared session (adding
+     * a new account and backing out) so the still-active profile's cookies are
+     * loaded back into [YouTube.cookie] instead of leaving the app signed out.
+     */
+    fun restoreActiveSession() {
+        repointRuntimeSession()
+    }
+
+    /**
      * True while a switch is settling, so the UI can show progress on the
      * avatar rather than blocking the whole app behind a spinner.
      */

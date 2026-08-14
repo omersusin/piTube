@@ -81,6 +81,7 @@ private const val GOOGLE_LOGIN_URL =
 fun YouTubeLoginScreen(
     onLoginComplete: () -> Unit,
     onNavigateBack: () -> Unit,
+    forceNewLogin: Boolean = false,
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -109,7 +110,7 @@ fun YouTubeLoginScreen(
         return
     }
 
-    if (loggedIn && !signedOut) {
+    if (loggedIn && !signedOut && !forceNewLogin) {
         AccountPanel(
             name = accountName,
             avatarUrl = accountAvatar,
@@ -223,6 +224,14 @@ fun YouTubeLoginScreen(
                         settings.builtInZoomControls = true
                         settings.displayZoomControls = false
                         cookieManager.setAcceptThirdPartyCookies(this, true)
+                        // "Add account" from the switcher: drop the current session
+                        // cookie so Google presents a fresh sign-in (it would otherwise
+                        // detect the existing cookie and silently reuse it).
+                        if (forceNewLogin && com.omersusin.pitube.innertube.YouTube.cookie?.isNotBlank() == true) {
+                            cookieManager.removeAllCookies(null)
+                            com.omersusin.pitube.innertube.YouTube.cookie = null
+                            com.omersusin.pitube.innertube.YouTube.useLoginForBrowse = false
+                        }
                         webViewClient = object : WebViewClient() {
                             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                                 super.onPageStarted(view, url, favicon)

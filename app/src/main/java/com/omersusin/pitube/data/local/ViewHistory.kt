@@ -184,6 +184,9 @@ class ViewHistory private constructor(private val context: Context) {
     fun getAllHistory(): Flow<List<VideoHistoryEntry>> =
         dao.getAllHistory().map { list -> list.map { it.toDomain() } }
 
+    /** All video IDs currently in history (for idempotent YouTube reimports). */
+    suspend fun getAllHistoryIds(): Set<String> = dao.getAllHistoryIds().toHashSet()
+
     fun getRecentLibraryHistory(limit: Int): Flow<List<VideoHistoryEntry>> =
         dao.getRecentLibraryHistory(limit).map { list -> list.map { it.toDomain() } }
 

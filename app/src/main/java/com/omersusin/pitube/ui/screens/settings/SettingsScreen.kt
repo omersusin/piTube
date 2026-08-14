@@ -88,6 +88,7 @@ fun SettingsScreen(
     onNavigateToSyncDevices: () -> Unit,
     onNavigateToSponsorBlockSettings: () -> Unit,
     onNavigateToGoogleLogin: () -> Unit,
+    onAddYouTubeAccount: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -1158,7 +1159,7 @@ fun SettingsScreen(
     if (showAccountSwitcher) {
         com.omersusin.pitube.ui.screens.account.AccountSwitcherSheet(
             onDismiss = { showAccountSwitcher = false },
-            onAddYouTubeAccount = onNavigateToGoogleLogin,
+            onAddYouTubeAccount = onAddYouTubeAccount,
         )
     }
 }

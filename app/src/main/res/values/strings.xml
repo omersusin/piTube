@@ -1442,6 +1442,8 @@
     <!-- Device Sync (FLOW-SYNC/1) -->
     <string name="sync_devices_title">Sync devices</string>
     <string name="sync_devices_subtitle">Sync library, history &amp; profile over local Wi-Fi</string>
+    <string name="sync_account_title">Signing in as %1$s</string>
+    <string name="sync_account_subtitle">Syncs your Google account library (subscriptions, likes, playlists) to this device first</string>
     <string name="sync_notification_title">Syncing devices</string>
     <string name="sync_notification_text">Transferring your library over local Wi-Fi…</string>
     <string name="sync_notification_channel">Device sync</string>

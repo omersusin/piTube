@@ -82,19 +82,21 @@ internal fun homeFeedQuotas(
 
     val personal = if (hasPersonalFeed) (slots * 0.30).toInt().coerceAtLeast(0) else 0
     val remainingAfterPersonal = (slots - personal).coerceAtLeast(0)
+    // Subscribed channels are the heart of the feed: when the user follows
+    // channels, give them the largest share so their uploads actually surface.
     val subs = when {
         subCount <= 0 -> 0
-        totalInteractions > 50 -> (remainingAfterPersonal * 0.40).toInt()
-        else -> (remainingAfterPersonal * 0.35).toInt()
+        totalInteractions > 50 -> (remainingAfterPersonal * 0.50).toInt()
+        else -> (remainingAfterPersonal * 0.45).toInt()
     }.coerceAtLeast(0)
     val related = when {
-        subCount <= 0 -> (remainingAfterPersonal * 0.35).toInt()
-        totalInteractions > 50 -> (remainingAfterPersonal * 0.25).toInt()
-        else -> (remainingAfterPersonal * 0.30).toInt()
+        subCount <= 0 -> (remainingAfterPersonal * 0.30).toInt()
+        totalInteractions > 50 -> (remainingAfterPersonal * 0.20).toInt()
+        else -> (remainingAfterPersonal * 0.25).toInt()
     }.coerceAtLeast(0)
     val discovery = when {
-        subCount <= 0 -> (remainingAfterPersonal * 0.45).toInt()
-        else -> (remainingAfterPersonal * 0.25).toInt()
+        subCount <= 0 -> (remainingAfterPersonal * 0.40).toInt()
+        else -> (remainingAfterPersonal * 0.20).toInt()
     }.coerceAtLeast(0)
     val viral = (remainingAfterPersonal - subs - related - discovery).coerceAtLeast(0)
 
@@ -808,7 +810,7 @@ class HomeViewModel @Inject constructor(
                 val quotas = homeFeedQuotas(
                     remaining,
                     userSubs.size,
-                    0,
+                    watched.size,
                     hasPersonalFeed = personalizedPool.isNotEmpty()
                 )
                 val bestPersonal = personalizedPool.take(12)

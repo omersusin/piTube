@@ -148,13 +148,34 @@ fun NavGraphBuilder.flowAppGraph(
         )
     }
 
-    // Account (YouTube sign-in) Screen
-    composable("account") {
+    // Account (YouTube sign-in) Screen. `add=1` forces a fresh login even when
+    // an account is already signed in, so "Add account" shows the WebView
+    // instead of bouncing to the current account's panel + logout button.
+    composable(
+        route = "account?add={add}",
+        arguments = listOf(
+            navArgument("add") {
+                type = NavType.BoolType
+                defaultValue = false
+            }
+        )
+    ) { backStackEntry ->
         currentRoute.value = "account"
         showBottomNav.value = false
         YouTubeLoginScreen(
-            onLoginComplete = { navController.popBackStack() },
-            onNavigateBack = { navController.popBackStack() }
+            forceNewLogin = backStackEntry.arguments?.getBoolean("add") == true,
+            onLoginComplete = {
+                navController.popBackStack()
+            },
+            onNavigateBack = {
+                // The "add account" mode clears the shared session cookie to
+                // force the login form; backing out without signing in must put
+                // the previous profile's session back.
+                com.omersusin.pitube.data.local.AccountSwitcher(
+                    navController.context.applicationContext
+                ).restoreActiveSession()
+                navController.popBackStack()
+            }
         )
     }
 
@@ -315,7 +336,8 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToDiagnostics = { navController.navigate("settings/diagnostics") },
             onNavigateToSyncDevices = { navController.navigate("settings/sync_devices") },
             onNavigateToSponsorBlockSettings = { navController.navigate("settings/sponsorblock") },
-            onNavigateToGoogleLogin = { navController.navigate("account") }
+            onNavigateToGoogleLogin = { navController.navigate("account") },
+            onAddYouTubeAccount = { navController.navigate("account?add=1") }
         )
     }
 

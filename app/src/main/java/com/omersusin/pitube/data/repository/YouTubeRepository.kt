@@ -1112,7 +1112,7 @@ class YouTubeRepository
             val createCommentParams: String? = null,
         )
 
-        private val isSignedIn: Boolean
+        val isSignedIn: Boolean
             get() = !YouTube.cookie.isNullOrBlank()
 
         /**

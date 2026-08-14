@@ -26,6 +26,7 @@ class TimeManagementViewModel
     constructor(
         private val viewHistory: ViewHistory,
         private val localDataManager: LocalDataManager,
+        private val youTubeRepository: com.omersusin.pitube.data.repository.YouTubeRepository,
         @ApplicationContext private val applicationContext: Context,
     ) : ViewModel() {
         private val initialDuration = applicationContext.getString(R.string.duration_minutes, 0)
@@ -79,7 +80,29 @@ class TimeManagementViewModel
             }
         }
 
+        /**
+         * When signed in, the account's real YouTube watch history is pulled
+         * (idempotent) so the watch-time stats count time spent on the Google
+         * account (all devices), not just this one.
+         */
+        private suspend fun importAccountHistoryIfSignedIn() {
+            if (com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()) return
+            val existingIds = viewHistory.getAllHistoryIds()
+            youTubeRepository.getYouTubeHistory().forEach { video ->
+                if (video.id in existingIds) return@forEach
+                viewHistory.touchHistoryEntry(
+                    videoId = video.id,
+                    title = video.title,
+                    thumbnailUrl = video.thumbnailUrl,
+                    channelName = video.channelName,
+                    channelId = video.channelId,
+                    duration = video.duration * 1000L,
+                )
+            }
+        }
+
         private suspend fun loadHistoryStats() {
+            importAccountHistoryIfSignedIn()
             val history = viewHistory.getAllHistory().first()
 
             // Calculate daily stats for the last 7 days
@@ -107,8 +130,16 @@ class TimeManagementViewModel
                 val daysDiff = TimeUnit.MILLISECONDS.toDays(todayStart - entryDayStart).toInt()
 
                 if (daysDiff in 0..6) {
-                    // It's within the last 7 days (0 is today, 6 is 6 days ago)
-                    dailyDurations[daysDiff] += entry.position
+                    // It's within the last 7 days (0 is today, 6 is 6 days ago).
+                    // Account-imported history (position == 0, not local) carries no
+                    // per-video resume position, so fall back to the video duration —
+                    // those entries are watched on the real account, so their length
+                    // is the watch-time the user wants the account to count.
+                    val watchMillis =
+                        if (entry.position > 0) entry.position
+                        else if (!entry.isLocal && entry.duration > 0) entry.duration
+                        else 0L
+                    dailyDurations[daysDiff] += watchMillis
                 }
             }
 

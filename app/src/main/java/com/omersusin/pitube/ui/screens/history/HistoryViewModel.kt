@@ -33,6 +33,7 @@ class HistoryViewModel
         private val watchHistoryDao: WatchHistoryDao,
     ) : ViewModel() {
         private val isEnriching = AtomicBoolean(false)
+        private val autoImportedFromAccount = AtomicBoolean(false)
 
         private val _uiState = MutableStateFlow(HistoryUiState())
         val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
@@ -112,6 +113,15 @@ class HistoryViewModel
                     if (stubs.isNotEmpty()) {
                         enrichFromApi(stubs)
                     }
+
+                    // Auto-sync the account's real YouTube history (idempotent): the
+                    // last local playback may be older than what the account
+                    // has, and this keeps the History screen matching the real
+                    // YouTube history without a manual menu tap.
+                    if (youTubeRepository.isSignedIn && !autoImportedFromAccount.get()) {
+                        autoImportedFromAccount.set(true)
+                        importFromYouTube(silent = true)
+                    }
                 }
             }
         }
@@ -188,19 +198,23 @@ class HistoryViewModel
         }
 
         /**
-         * Import the signed-in account's real YouTube watch history into the
-         * local history (same merge semantics as FreeTube/YouTube-archive
-         * imports: entries show as recently-watched, without fabricated resume
-         * positions).
+         * Pull the signed-in account's real YouTube watch history (FEhistory)
+         * into local history, then auto-run once when signed in so the screen
+         * shows actual YouTube history without a manual menu tap.
+         *
+         * Idempotent: entries already seen by the local history are left
+         * untouched (their real timestamp and progress preserved) so re-runs
+         * never re-sort history to "now".
          */
-        fun importFromYouTube() {
+        fun importFromYouTube(silent: Boolean = false) {
             if (_uiState.value.isImporting) return
             viewModelScope.launch {
-                _uiState.update { it.copy(isImporting = true) }
+                if (!silent) _uiState.update { it.copy(isImporting = true) }
                 try {
                     val videos = youTubeRepository.getYouTubeHistory()
-                    if (videos.isEmpty()) return@launch
-                    videos.forEach { video ->
+                    val existingIds = viewHistory.getAllHistoryIds()
+                    val fresh = videos.filter { it.id !in existingIds }
+                    fresh.forEach { video ->
                         videoDao.insertVideoOrIgnore(VideoEntity.fromDomain(video))
                         viewHistory.touchHistoryEntry(
                             videoId = video.id,
