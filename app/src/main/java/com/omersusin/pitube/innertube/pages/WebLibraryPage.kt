@@ -20,6 +20,18 @@ data class RemoteChannel(
     val thumbnail: String = "",
 )
 
+/**
+ * Result of crawling FEchannels. [complete] is false when the crawl stopped
+ * because of the page cap rather than running out of continuation tokens —
+ * callers use it to decide whether pruning the local library is safe (a
+ * truncated crawl must never be treated as the authoritative subscription
+ * list, or large accounts would lose most of their channels).
+ */
+data class RemoteChannelCrawl(
+    val channels: List<RemoteChannel>,
+    val complete: Boolean,
+)
+
 data class RemotePlaylist(
     val id: String,
     val title: String,

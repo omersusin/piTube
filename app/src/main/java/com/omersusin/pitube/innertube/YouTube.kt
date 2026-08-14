@@ -38,6 +38,7 @@ import com.omersusin.pitube.innertube.pages.toCommunityPostsPage
 import com.omersusin.pitube.innertube.pages.toShortsPage
 import com.omersusin.pitube.innertube.pages.VideoCommentsPage
 import com.omersusin.pitube.innertube.pages.RemoteChannel
+import com.omersusin.pitube.innertube.pages.RemoteChannelCrawl
 import com.omersusin.pitube.innertube.pages.RemotePlaylist
 import com.omersusin.pitube.innertube.pages.RemotePlaylistVideo
 import com.omersusin.pitube.innertube.pages.browseContinuation
@@ -1093,12 +1094,13 @@ object YouTube {
     // ============================================================
 
     /** All channels the user is subscribed to (FEchannels), following continuations. */
-    suspend fun webSubscribedChannels(): Result<List<RemoteChannel>> = runCatching {
-        if (cookie.isNullOrBlank()) return@runCatching emptyList()
+    suspend fun webSubscribedChannels(): Result<RemoteChannelCrawl> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching RemoteChannelCrawl(emptyList(), complete = false)
         val client = currentWebClient()
         val channels = mutableListOf<RemoteChannel>()
         var continuation: String? = null
         var pages = 0
+        var complete = false
         do {
             val response = innerTube.signedWebBrowse(
                 client = client,
@@ -1117,8 +1119,9 @@ object YouTube {
             }
             continuation = root.browseContinuation()
             pages++
+            if (continuation == null) complete = true
         } while (continuation != null && pages < 10)
-        channels.distinctBy { it.id }
+        RemoteChannelCrawl(channels.distinctBy { it.id }, complete = complete)
     }
 
     /** The user's playlists from FEplaylist_aggregation (Watch Later / Liked pinned elsewhere). */

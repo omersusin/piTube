@@ -128,7 +128,8 @@ object YouTubeLibrarySync {
 
     private suspend fun syncSubscriptions(context: Context): Int {
         val repository = SubscriptionRepository.getInstance(context)
-        val channels = YouTube.webSubscribedChannels().getOrNull().orEmpty()
+        val crawl = YouTube.webSubscribedChannels().getOrNull()
+        val channels = crawl?.channels.orEmpty()
         val remoteIds = channels.mapTo(HashSet()) { it.id }
         channels.forEach { channel ->
             runCatching {
@@ -146,10 +147,11 @@ object YouTubeLibrarySync {
         // remote list. Without this, recommendation-shelf channels that slipped
         // into the local library before the parser scoping fix would stay
         // "subscribed" forever and drown out real subscriptions in the feed.
-        // The prune only runs when the remote list is plausibly complete (a
-        // handful or more) so a truncated/rate-limited fetch can't wipe the
-        // library.
-        if (channels.size >= 10) {
+        // The prune only runs when the crawl exhausted its continuation tokens
+        // (complete) and returned a plausible number of channels — a truncated
+        // or rate-limited fetch must never be treated as authoritative, or a
+        // large account would lose most of its channels in one sync.
+        if (crawl?.complete == true && channels.size >= 10) {
             runCatching {
                 repository.getAllSubscriptionIds()
                     .filter { it !in remoteIds }
