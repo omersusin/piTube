@@ -145,19 +145,24 @@ internal fun ProfileManagementSection(
     var showAddLocal by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
-        profiles.forEach { profile ->
-            ProfileRow(
-                profile = profile,
-                isActive = profile.id == activeId,
-                canRemove = profiles.size > 1 || !profile.isLocal,
-                onClick = {
-                    if (profile.id != activeId) switcher.switchTo(profile.id)
-                    onProfileChanged()
-                },
-                onRemove = { pendingRemoval = profile }
-            )
-            Spacer(Modifier.height(8.dp))
-        }
+        profiles
+            // The always-present signed-out identity is already the header
+            // card ("Signed out / Sign in"), so it must not be listed here as
+            // a "No account / On this device" row too.
+            .filterNot { it.isLocal && it.name == com.omersusin.pitube.data.local.ProfileManager.DEFAULT_LOCAL_NAME }
+            .forEach { profile ->
+                ProfileRow(
+                    profile = profile,
+                    isActive = profile.id == activeId,
+                    canRemove = profiles.size > 1 || !profile.isLocal,
+                    onClick = {
+                        if (profile.id != activeId) switcher.switchTo(profile.id)
+                        onProfileChanged()
+                    },
+                    onRemove = { pendingRemoval = profile }
+                )
+                Spacer(Modifier.height(8.dp))
+            }
 
         Spacer(Modifier.height(8.dp))
 

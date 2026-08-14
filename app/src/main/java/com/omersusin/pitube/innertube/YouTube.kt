@@ -867,42 +867,85 @@ object YouTube {
      * `ACTION_ADD_VIDEO`/`ACTION_REMOVE_VIDEO_BY_VIDEO_ID`. A successful edit
      * reports `status: STATUS_SUCCEEDED`.
      */
-    suspend fun setVideoInWatchLater(videoId: String, add: Boolean): Result<Boolean> = runCatching {
-        if (cookie.isNullOrBlank() || videoId.isBlank()) return@runCatching false
-        val client = WEB_REMIX
-        val httpResponse = innerTube.signedMusicJsonPost(
-            client = client,
-            endpoint = "browse/edit_playlist",
-            jsonBody = buildJsonObject {
-                put("context", signedWriteContext(client))
-                put("playlistId", JsonPrimitive("WL"))
-                put(
-                    "actions",
-                    buildJsonArray {
-                        add(
-                            buildJsonObject {
-                                put("action", JsonPrimitive(if (add) "ACTION_ADD_VIDEO" else "ACTION_REMOVE_VIDEO_BY_VIDEO_ID"))
-                                put(
-                                    if (add) "addedVideoId" else "removedVideoId",
-                                    JsonPrimitive(videoId),
-                                )
-                            },
-                        )
-                    },
-                )
-            },
-        )
-        if (!httpResponse.status.isSuccess()) {
-            Log.w("YouTube", "setVideoInWatchLater(add=$add): HTTP ${httpResponse.status.value}")
-            return@runCatching false
+    suspend fun setVideoInWatchLater(videoId: String, add: Boolean): Result<Boolean> =
+        editPlaylist("WL", videoId, add)
+
+    /**
+     * Add / remove a video on one of the signed-in account's playlists.
+     *
+     * Same `browse/edit_playlist` path as Watch Later (Koda's playlist-edit
+     * implementation, ported into piTube): any `PL…`/`VL…` playlist id works.
+     * Like/removal on the liked lists is out of scope here — use
+     * [setLikeStatus] for "LL".
+     */
+    suspend fun editPlaylist(playlistId: String, videoId: String, add: Boolean): Result<Boolean> =
+        runCatching {
+            if (cookie.isNullOrBlank() || videoId.isBlank()) return@runCatching false
+            val client = WEB_REMIX
+            val httpResponse = innerTube.signedMusicJsonPost(
+                client = client,
+                endpoint = "browse/edit_playlist",
+                jsonBody = buildJsonObject {
+                    put("context", signedWriteContext(client))
+                    // Playlist ids sometimes carry the VL browse prefix — edit
+                    // calls need it stripped (Koda's normalizePlaylistId).
+                    put("playlistId", JsonPrimitive(playlistId.removePrefix("VL")))
+                    put(
+                        "actions",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("action", JsonPrimitive(if (add) "ACTION_ADD_VIDEO" else "ACTION_REMOVE_VIDEO_BY_VIDEO_ID"))
+                                    put(
+                                        if (add) "addedVideoId" else "removedVideoId",
+                                        JsonPrimitive(videoId),
+                                    )
+                                },
+                            )
+                        },
+                    )
+                },
+            )
+            if (!httpResponse.status.isSuccess()) {
+                Log.w("YouTube", "editPlaylist($playlistId, add=$add): HTTP ${httpResponse.status.value}")
+                return@runCatching false
+            }
+            val body = httpResponse.bodyAsText()
+            val statusOk = Regex("\"status\"\\s*:\\s*\"STATUS_SUCCEEDED\"").containsMatchIn(body)
+            if (!statusOk) {
+                Log.w("YouTube", "editPlaylist($playlistId, add=$add): edit_playlist did not report STATUS_SUCCEEDED")
+            }
+            statusOk
         }
-        val body = httpResponse.bodyAsText()
-        val statusOk = Regex("\"status\"\\s*:\\s*\"STATUS_SUCCEEDED\"").containsMatchIn(body)
-        if (!statusOk) {
-            Log.w("YouTube", "setVideoInWatchLater(add=$add): edit_playlist did not report STATUS_SUCCEEDED")
+
+    /**
+     * Create a playlist on the signed-in account and return its id, or null on
+     * failure / when signed out. Ported from Koda's `createYouTubePlaylist`
+     * (`playlist/create`), the music-origin client used for all playlist edits.
+     */
+    suspend fun createPlaylist(title: String, videoIds: List<String> = emptyList()): Result<String?> =
+        runCatching {
+            if (cookie.isNullOrBlank() || title.isBlank()) return@runCatching null
+            val client = WEB_REMIX
+            val httpResponse = innerTube.signedMusicJsonPost(
+                client = client,
+                endpoint = "playlist/create",
+                jsonBody = buildJsonObject {
+                    put("context", signedWriteContext(client))
+                    put("title", JsonPrimitive(title))
+                    if (videoIds.isNotEmpty()) {
+                        put("videoIds", buildJsonArray { videoIds.forEach { add(JsonPrimitive(it)) } })
+                    }
+                },
+            )
+            if (!httpResponse.status.isSuccess()) {
+                Log.w("YouTube", "createPlaylist($title): HTTP ${httpResponse.status.value}")
+                return@runCatching null
+            }
+            val body = httpResponse.bodyAsText()
+            Regex("\"playlistId\"\\s*:\\s*\"([^\"]+)\"").find(body)?.groupValues?.get(1)
+                ?.takeIf { it.isNotBlank() }
         }
-        statusOk
-    }
 
     // ============================================================
     // Watch-history reporting (yt-dlp _mark_watched port). Reports the

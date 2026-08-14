@@ -45,9 +45,29 @@ fun AddToPlaylistDialog(
     var playlistsLoaded by remember { mutableStateOf(false) }
     var watchLaterLoaded by remember { mutableStateOf(false) }
     var selectedPlaylistIds by remember(video.id) { mutableStateOf<Set<String>>(emptySet()) }
-    var playlistSelectionInitialized by remember(video.id) { mutableStateOf(false) }
+    val selectedPlaylistIdsEvaluated = remember(video.id) { mutableStateOf<Set<String>>(emptySet()) }
     var selectedWatchLater by remember(video.id) { mutableStateOf(false) }
     var watchLaterSelectionInitialized by remember(video.id) { mutableStateOf(false) }
+
+    // When signed in, mirror the account's real playlists (and whether this
+    // video is already in them) so the sheet shows the true remote state and
+    // toggles write back through the InnerTube edit_playlist API (Koda port).
+    LaunchedEffect(Unit) {
+        val loggedIn = com.omersusin.pitube.data.local.SessionManager(context).isLoggedIn()
+        if (loggedIn) {
+            val remote = com.omersusin.pitube.innertube.YouTube.webUserPlaylists().getOrNull().orEmpty()
+            remote.forEach { playlist ->
+                runCatching {
+                    repo.saveExternalVideoPlaylist(
+                        id = playlist.id,
+                        name = playlist.title,
+                        description = "",
+                        thumbnailUrl = playlist.thumbnail
+                    )
+                }
+            }
+        }
+    }
 
     // Load playlists and watch later
     LaunchedEffect(Unit) {
@@ -69,16 +89,20 @@ fun AddToPlaylistDialog(
     }
 
     LaunchedEffect(playlistsLoaded, playlists, video.id) {
-        if (playlistsLoaded && !playlistSelectionInitialized) {
-            val existingPlaylistIds =
+        if (playlistsLoaded) {
+            val evaluatedIds = selectedPlaylistIdsEvaluated.value + selectedPlaylistIds
+            val additions =
                 playlists
+                    .filter { playlist -> playlist.id !in evaluatedIds }
                     .filter { playlist ->
                         repo.getPlaylistVideosFlow(playlist.id).first().any { it.id == video.id }
                     }.map { it.id }
                     .toSet()
-
-            selectedPlaylistIds = existingPlaylistIds
-            playlistSelectionInitialized = true
+            if (additions.isNotEmpty()) {
+                selectedPlaylistIds = selectedPlaylistIds + additions
+            }
+            val pendingIds = playlists.map { it.id }.toSet()
+            selectedPlaylistIdsEvaluated.value = selectedPlaylistIdsEvaluated.value + pendingIds
         }
     }
 
@@ -187,7 +211,7 @@ fun AddToPlaylistDialog(
                             },
                         isSaved = playlist.id in selectedPlaylistIds,
                         onClick = {
-                            if (playlistSelectionInitialized) {
+                            if (playlist.id in selectedPlaylistIdsEvaluated.value) {
                                 val isCurrentlySaved = playlist.id in selectedPlaylistIds
                                 selectedPlaylistIds =
                                     if (isCurrentlySaved) {
@@ -210,6 +234,16 @@ fun AddToPlaylistDialog(
                                             } else {
                                                 selectedPlaylistIds - playlist.id
                                             }
+                                    }.onSuccess {
+                                        // Mirror onto the real account when signed
+                                        // in (best-effort, Koda playlist-edit port).
+                                        if (isCurrentlySaved) {
+                                            com.omersusin.pitube.data.local.AccountActions(context)
+                                                .setVideoInPlaylist(playlist.id, video.id, add = false)
+                                        } else {
+                                            com.omersusin.pitube.data.local.AccountActions(context)
+                                                .setVideoInPlaylist(playlist.id, video.id, add = true)
+                                        }
                                     }
                                 }
                             }
@@ -260,7 +294,13 @@ fun AddToPlaylistDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { name, description ->
                 scope.launch {
-                    val playlistId = System.currentTimeMillis().toString()
+                    // Create on the real account first when signed in (Koda
+                    // playlist/create port) so the saved list matches YouTube;
+                    // fall back to a local-only playlist when signed out.
+                    val remoteId = runCatching {
+                        com.omersusin.pitube.innertube.YouTube.createPlaylist(name).getOrNull()
+                    }.getOrNull()
+                    val playlistId = remoteId ?: System.currentTimeMillis().toString()
                     repo.createPlaylist(playlistId, name, description, true)
                     repo.addVideoToPlaylist(playlistId, video)
                     selectedPlaylistIds = selectedPlaylistIds + playlistId

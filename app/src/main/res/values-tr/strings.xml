@@ -1938,6 +1938,11 @@
     <string name="cookie_paste_cancel">İptal</string>
     <string name="account_switcher_expired">Oturum süresi doldu - yeniden bağlanmak için dokunun</string>
     <string name="login_use_cookies_alt">WebView girişi engellendi mi? Bunun yerine tarayıcınızdan oturum çerezini yapıştırın.</string>
+    <string name="login_tab_token">Token / çerez yapıştır</string>
+    <string name="login_tab_webview">Tarayıcı girişi</string>
+    <string name="login_token_description">Oturum açmak için tarayıcıda oturum açılmış bir oturum token'ını veya çerezini yapıştırın; Google'ın yerleşik tarayıcı engelini aşmanın en güvenilir yolu budur. Başka bir uygulamadan dışa aktarabilir veya aşağıdaki adımları kullanabilirsiniz.</string>
+    <string name="login_token_field_label">Token veya çerez</string>
+    <string name="login_token_field_hint">SID=...; SAPISID=...&#10;veya&#10;***DATASYNC ID*** =...&#10;***ACCOUNT NAME*** =...</string>
     <string name="nav_you">Sen</string>
     <string name="account_sheet_signed_out_title">Çıkış yapıldı</string>
     <string name="account_sheet_signed_out_subtitle">Akışınızı ve aboneliklerinizi eşitlemek için giriş yapın</string>

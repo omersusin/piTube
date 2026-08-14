@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Download
@@ -35,6 +34,7 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -97,11 +97,12 @@ fun AccountSheet(
     val profiles by switcher.profiles.collectAsState()
     val activeId by switcher.activeProfileId.collectAsState()
     val active = profiles.firstOrNull { it.id == activeId } ?: switcher.active()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier
@@ -124,6 +125,35 @@ fun AccountSheet(
             )
 
             Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(R.string.account_sheet_profiles_header),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+
+            ProfileManagementSection(
+                switcher = switcher,
+                onAddYouTubeAccount = {
+                    onDismiss()
+                    onAddYouTubeAccount()
+                },
+                onProfileChanged = onDismiss
+            )
+
+            Spacer(Modifier.height(4.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(R.string.library),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
+            )
 
             QuickLinkRow(
                 icon = Icons.Outlined.History,
@@ -179,25 +209,12 @@ fun AccountSheet(
             Spacer(Modifier.height(4.dp))
 
             Text(
-                text = stringResource(R.string.account_sheet_profiles_header),
+                text = stringResource(R.string.sb_settings_general_header),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp)
             )
-
-            ProfileManagementSection(
-                switcher = switcher,
-                onAddYouTubeAccount = {
-                    onDismiss()
-                    onAddYouTubeAccount()
-                },
-                onProfileChanged = onDismiss
-            )
-
-            Spacer(Modifier.height(4.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-            Spacer(Modifier.height(4.dp))
 
             QuickLinkRow(
                 icon = Icons.Outlined.Settings,
@@ -300,13 +317,6 @@ private fun AccountHeader(
             Button(onClick = onSignIn) {
                 Text(stringResource(R.string.account_sheet_sign_in_cta))
             }
-        } else {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(24.dp)
-            )
         }
     }
 }

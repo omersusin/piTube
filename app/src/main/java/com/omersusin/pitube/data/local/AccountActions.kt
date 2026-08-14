@@ -97,4 +97,21 @@ class AccountActions(context: Context) {
                 }
         }
     }
+
+    /**
+     * Add / remove a video on one of the account's real playlists via
+     * `browse/edit_playlist`. Best-effort, mirroring [setVideoInWatchLater].
+     */
+    fun setVideoInPlaylist(playlistId: String, videoId: String, add: Boolean) {
+        if (!canWriteBack() || playlistId.isBlank() || videoId.isBlank()) return
+        backgroundScope.launch {
+            YouTube.editPlaylist(playlistId, videoId, add)
+                .onFailure { Log.w("AccountActions", "setVideoInPlaylist($playlistId, add=$add) failed for $videoId", it) }
+                .onSuccess { ok ->
+                    if (!ok) {
+                        Log.w("AccountActions", "setVideoInPlaylist($playlistId, add=$add) not applied for $videoId")
+                    }
+                }
+        }
+    }
 }
