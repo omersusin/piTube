@@ -683,7 +683,12 @@ class HomeViewModel @Inject constructor(
                 val results = supervisorScope {
                     val deferredSubs = async {
                         if (userSubs.isNotEmpty()) {
-                            withTimeoutOrNull(8_000L) {
+                            // Budget must cover the channel crawl inside
+                            // getVideosForChannels (10-wide chunks, 6s/channel,
+                            // up to 18 channels = 2 rounds = ~12s worst case).
+                            // An 8s cap here silently emptied the subscription
+                            // lane and the feed degraded to trending/discovery.
+                            withTimeoutOrNull(15_000L) {
                                 runCatching {
                                     repository.getSubscriptionFeed(userSubs.toList())
                                 }.getOrElse { emptyList() }

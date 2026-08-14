@@ -764,9 +764,13 @@ class YouTubeRepository
                     // Use supervisorScope for error isolation
                     // If one channel fails, others continue fetching
                     supervisorScope {
-                        // Process in chunks of 5 for optimal parallelism
-                        // This prevents overwhelming the network while maintaining speed
-                        val chunkSize = 5
+                        // Process in chunks of 10 for optimal parallelism.
+                        // This prevents overwhelming the network while keeping the
+                        // whole call inside the caller's overall budget (the caller
+                        // used to kill this after 8s, but sequential 5-wide chunks of
+                        // up-to-8s fetches could take 4x that — so the subscription
+                        // lane always timed out and the feed fell back to trending).
+                        val chunkSize = 10
                         val combined = mutableListOf<Video>()
 
                         channelIdsOrUrls.chunked(chunkSize).forEach { chunk ->
@@ -774,8 +778,8 @@ class YouTubeRepository
                                 chunk
                                     .map { id ->
                                         async(PerformanceDispatcher.networkIO) {
-                                            withTimeoutOrNull(8_000L) {
-                                                // 8 second timeout per channel
+                                            withTimeoutOrNull(6_000L) {
+                                                // 6 second timeout per channel
                                                 try {
                                                     getChannelUploads(id, perChannelLimit)
                                                 } catch (e: Exception) {
