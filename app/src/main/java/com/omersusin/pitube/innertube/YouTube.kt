@@ -838,6 +838,52 @@ object YouTube {
         true
     }
 
+    /**
+     * Add / remove a video on the signed-in account's Watch Later playlist.
+     *
+     * Uses `browse/edit_playlist` against the music origin with the WEB_REMIX
+     * client (Koda's playlist-edit path): the `WL` playlist id is YouTube's
+     * reserved Watch Later list, and the actions array carries
+     * `ACTION_ADD_VIDEO`/`ACTION_REMOVE_VIDEO_BY_VIDEO_ID`. A successful edit
+     * reports `status: STATUS_SUCCEEDED`.
+     */
+    suspend fun setVideoInWatchLater(videoId: String, add: Boolean): Result<Boolean> = runCatching {
+        if (cookie.isNullOrBlank() || videoId.isBlank()) return@runCatching false
+        val client = WEB_REMIX
+        val httpResponse = innerTube.signedMusicJsonPost(
+            client = client,
+            endpoint = "browse/edit_playlist",
+            jsonBody = buildJsonObject {
+                put("context", signedWriteContext(client))
+                put("playlistId", JsonPrimitive("WL"))
+                put(
+                    "actions",
+                    buildJsonArray {
+                        add(
+                            buildJsonObject {
+                                put("action", JsonPrimitive(if (add) "ACTION_ADD_VIDEO" else "ACTION_REMOVE_VIDEO_BY_VIDEO_ID"))
+                                put(
+                                    if (add) "addedVideoId" else "removedVideoId",
+                                    JsonPrimitive(videoId),
+                                )
+                            },
+                        )
+                    },
+                )
+            },
+        )
+        if (!httpResponse.status.isSuccess()) {
+            Log.w("YouTube", "setVideoInWatchLater(add=$add): HTTP ${httpResponse.status.value}")
+            return@runCatching false
+        }
+        val body = httpResponse.bodyAsText()
+        val statusOk = Regex("\"status\"\\s*:\\s*\"STATUS_SUCCEEDED\"").containsMatchIn(body)
+        if (!statusOk) {
+            Log.w("YouTube", "setVideoInWatchLater(add=$add): edit_playlist did not report STATUS_SUCCEEDED")
+        }
+        statusOk
+    }
+
     // ============================================================
     // Watch-history reporting (yt-dlp _mark_watched port). Reports the
     // playback to YouTube so the video shows up in the account's watch

@@ -76,4 +76,25 @@ class AccountActions(context: Context) {
                 }
         }
     }
+
+    /**
+     * Add / remove a video on the account's real Watch Later playlist ("WL").
+     *
+     * The caller already wrote the optimistic local Room entry (which is what
+     * the UI toggles from, and keeps watch-later working offline), so this is
+     * best-effort only: a failed network write never rolls the device state
+     * back. Signed out calls no-op exactly like [setLikeStatus].
+     */
+    fun setVideoInWatchLater(videoId: String, add: Boolean) {
+        if (!canWriteBack() || videoId.isBlank()) return
+        backgroundScope.launch {
+            YouTube.setVideoInWatchLater(videoId, add)
+                .onFailure { Log.w("AccountActions", "setVideoInWatchLater(add=$add) failed for $videoId", it) }
+                .onSuccess { ok ->
+                    if (!ok) {
+                        Log.w("AccountActions", "setVideoInWatchLater(add=$add) not applied for $videoId")
+                    }
+                }
+        }
+    }
 }

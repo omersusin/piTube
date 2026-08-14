@@ -140,7 +140,7 @@ class QuickActionsViewModel @Inject constructor(
                 android.util.Log.d("QuickActionsViewModel", "Toggling Watch Later for video: ${video.id}")
                 val isInWatchLater = playlistRepository.isInWatchLater(video.id)
                 android.util.Log.d("QuickActionsViewModel", "Is currently in Watch Later: $isInWatchLater")
-                
+
                 if (isInWatchLater) {
                     playlistRepository.removeFromWatchLater(video.id)
                     android.util.Log.d("QuickActionsViewModel", "Removed from Watch Later")
@@ -150,6 +150,11 @@ class QuickActionsViewModel @Inject constructor(
                     android.util.Log.d("QuickActionsViewModel", "Added to Watch Later")
                     Toast.makeText(context, context.getString(R.string.toast_added_to_watch_later), Toast.LENGTH_SHORT).show()
                 }
+                // Mirror the toggle onto the real account's Watch Later when
+                // signed in; the local Room entry above is the source of truth
+                // for the UI and works offline, this write is best-effort.
+                com.omersusin.pitube.data.local.AccountActions(context)
+                    .setVideoInWatchLater(video.id, !isInWatchLater)
             } catch (e: Exception) {
                 android.util.Log.e("QuickActionsViewModel", "Error toggling Watch Later", e)
                 Toast.makeText(

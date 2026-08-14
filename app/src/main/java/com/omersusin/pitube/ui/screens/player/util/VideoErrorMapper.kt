@@ -232,7 +232,7 @@ object VideoErrorMapper {
             throwable is ExtractionException ->
                 VideoError(
                     message = context.getString(R.string.error_extraction_failed),
-                    hint = context.getString(R.string.error_extraction_failed_hint),
+                    hint = buildExtractionHint(context, throwable),
                     isRetryable = true,
                     isUserActionable = false
                 )
@@ -328,6 +328,24 @@ object VideoErrorMapper {
         return when {
             msg != null -> "$type: $msg"
             else        -> "Error type: $type. Please try again or restart the app."
+        }
+    }
+
+    /**
+     * Builds a hint for [ExtractionException]s. When the extractor produced a
+     * useful reason (e.g. a playability-status message from InnerTube), surface
+     * it so the user sees the real cause instead of the generic "format updated"
+     * copy. Falls back to the localized generic hint otherwise.
+     */
+    private fun buildExtractionHint(context: Context, t: ExtractionException): String {
+        val reason = t.cause?.message
+            ?.takeIf { it.isNotBlank() }
+            ?.take(160)
+            ?: t.message?.takeIf { it.isNotBlank() }?.take(160)
+        return if (reason != null) {
+            context.getString(R.string.error_extraction_failed_hint) + "\n\n" + reason
+        } else {
+            context.getString(R.string.error_extraction_failed_hint)
         }
     }
 }

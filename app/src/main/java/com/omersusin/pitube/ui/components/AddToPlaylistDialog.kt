@@ -150,6 +150,11 @@ fun AddToPlaylistDialog(
                                         }
                                     }.onFailure {
                                         selectedWatchLater = !shouldSave
+                                    }.onSuccess {
+                                        // Mirror onto the real account's Watch
+                                        // Later when signed in (best-effort).
+                                        com.omersusin.pitube.data.local.AccountActions(context)
+                                            .setVideoInWatchLater(video.id, shouldSave)
                                     }
                                 }
                             }

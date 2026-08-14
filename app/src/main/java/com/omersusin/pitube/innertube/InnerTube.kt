@@ -494,6 +494,24 @@ class InnerTube {
     }
 
     /**
+     * Signed JSON POST to an InnerTube endpoint on music.youtube.com. Same
+     * auth as [signedJsonPost] but for the music origin, whose SAPISIDHASH
+     * must be signed for `https://music.youtube.com` (a www-origin hash is
+     * rejected here). Used by playlist edits ("WL" Watch Later), which Koda
+     * routes through the WEB_REMIX client on the music host.
+     */
+    suspend fun signedMusicJsonPost(
+        client: YouTubeClient,
+        endpoint: String,
+        jsonBody: JsonObject,
+    ) = withRetry {
+        httpClient.post("https://music.youtube.com/youtubei/v1/$endpoint") {
+            ytClient(client, setLogin = true, apiUrl = YouTubeClient.API_URL_YOUTUBE_MUSIC)
+            setBody(jsonBody)
+        }
+    }
+
+    /**
      * Cookie-authenticated GET for YouTube's videostats beacon URLs
      * (watch-history reporting). Sent like a real browser playback signal:
      * the signed-in session cookie, a SAPISIDHASH Authorization (same shape
