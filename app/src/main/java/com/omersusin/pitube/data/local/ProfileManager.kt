@@ -37,6 +37,11 @@ data class Profile(
     val avatarUrl: String? = null,
     val email: String? = null,
     val datasyncId: String? = null,
+    /**
+     * A pasted `***PO TOKEN***` from the OuterTune/ViVi-style session token,
+     * kept per profile for authenticated player requests.
+     */
+    val poToken: String? = null,
     val addedAt: Long = System.currentTimeMillis(),
     /**
      * True once YouTube answered this profile's authenticated call as
@@ -118,7 +123,8 @@ class ProfileManager(context: Context) {
         handle: String? = null,
         avatarUrl: String? = null,
         email: String? = null,
-        datasyncId: String? = null
+        datasyncId: String? = null,
+        poToken: String? = null
     ): Profile {
         val existing = datasyncId?.let { sync ->
             sharedProfiles!!.value.firstOrNull { it.datasyncId == sync }
@@ -128,6 +134,7 @@ class ProfileManager(context: Context) {
             handle = handle ?: existing.handle,
             avatarUrl = avatarUrl ?: existing.avatarUrl,
             email = email ?: existing.email,
+            poToken = poToken ?: existing.poToken,
             expired = false,
         ) ?: Profile(
             id = UUID.randomUUID().toString(),
@@ -136,7 +143,8 @@ class ProfileManager(context: Context) {
             handle = handle,
             avatarUrl = avatarUrl,
             email = email,
-            datasyncId = datasyncId
+            datasyncId = datasyncId,
+            poToken = poToken
         )
         saveCookiesFor(profile.id, cookies)
         upsert(profile)
@@ -161,7 +169,8 @@ class ProfileManager(context: Context) {
         handle: String? = null,
         avatarUrl: String? = null,
         email: String? = null,
-        datasyncId: String? = null
+        datasyncId: String? = null,
+        poToken: String? = null
     ) {
         val current = get(id) ?: return
         upsert(
@@ -170,7 +179,8 @@ class ProfileManager(context: Context) {
                 handle = handle ?: current.handle,
                 avatarUrl = avatarUrl ?: current.avatarUrl,
                 email = email ?: current.email,
-                datasyncId = datasyncId ?: current.datasyncId
+                datasyncId = datasyncId ?: current.datasyncId,
+                poToken = poToken ?: current.poToken
             )
         )
     }
@@ -351,6 +361,7 @@ class ProfileManager(context: Context) {
         put("avatarUrl", avatarUrl ?: JSONObject.NULL)
         put("email", email ?: JSONObject.NULL)
         put("datasyncId", datasyncId ?: JSONObject.NULL)
+        put("poToken", poToken ?: JSONObject.NULL)
         put("addedAt", addedAt)
         put("expired", expired)
     }
@@ -367,6 +378,7 @@ class ProfileManager(context: Context) {
             avatarUrl = str("avatarUrl"),
             email = str("email"),
             datasyncId = str("datasyncId"),
+            poToken = str("poToken"),
             addedAt = obj.optLong("addedAt", 0L),
             expired = obj.optBoolean("expired", false),
         )

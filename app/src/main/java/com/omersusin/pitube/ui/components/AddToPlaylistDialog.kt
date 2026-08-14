@@ -295,10 +295,13 @@ fun AddToPlaylistDialog(
             onCreate = { name, description ->
                 scope.launch {
                     // Create on the real account first when signed in (Koda
-                    // playlist/create port) so the saved list matches YouTube;
-                    // fall back to a local-only playlist when signed out.
+                    // playlist/create port) so the saved list matches YouTube,
+                    // seeding the video into it via the create's videoIds; fall
+                    // back to a local-only playlist when signed out.
                     val remoteId = runCatching {
-                        com.omersusin.pitube.innertube.YouTube.createPlaylist(name).getOrNull()
+                        com.omersusin.pitube.innertube.YouTube.createPlaylist(
+                            name, listOf(video.id)
+                        ).getOrNull()
                     }.getOrNull()
                     val playlistId = remoteId ?: System.currentTimeMillis().toString()
                     repo.createPlaylist(playlistId, name, description, true)

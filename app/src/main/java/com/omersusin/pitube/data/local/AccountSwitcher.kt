@@ -138,9 +138,12 @@ class AccountSwitcher(context: Context) {
         handle: String? = null,
         email: String? = null,
         avatarUrl: String? = null,
-        datasyncId: String? = null
+        datasyncId: String? = null,
+        poToken: String? = null
     ): Profile {
-        val profile = profileManager.addYouTubeProfile(cookies, name, handle, avatarUrl, email, datasyncId)
+        val profile = profileManager.addYouTubeProfile(
+            cookies, name, handle, avatarUrl, email, datasyncId, poToken
+        )
         if (!switchTo(profile.id)) invalidateForProfileChange()
         return profile
     }

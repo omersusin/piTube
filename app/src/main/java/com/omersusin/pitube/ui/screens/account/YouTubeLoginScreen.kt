@@ -201,6 +201,7 @@ fun YouTubeLoginScreen(
             accountSwitcher.addYouTubeProfileAndSwitch(
                 cookies = cookies,
                 name = identity?.name,
+                handle = identity?.channelHandle,
                 email = identity?.email,
                 avatarUrl = identity?.thumbnailUrl,
                 datasyncId = identity?.datasyncId
@@ -219,22 +220,25 @@ fun YouTubeLoginScreen(
                             account.email,
                             account.thumbnailUrl
                         )
-                        com.omersusin.pitube.data.local.SessionManager(appContext)
-                            .let {
-                                it.saveUserName(account.name)
-                                it.saveUserEmail(account.email)
-                                it.saveUserAvatar(account.thumbnailUrl ?: "")
-                            }
-                        // If the first identity fetch was transiently empty, persist
-                        // the datasyncId on the active profile now so the runtime
-                        // session picks it up (onBehalfOfUser on signed writes).
-                        if (!account.datasyncId.isNullOrBlank()) {
-                            val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
-                            val active = pm.active()
-                            if (active.datasyncId.isNullOrBlank()) {
-                                pm.updateIdentity(active.id, datasyncId = account.datasyncId)
-                                com.omersusin.pitube.innertube.YouTube.dataSyncId = account.datasyncId
-                            }
+                        val sm = com.omersusin.pitube.data.local.SessionManager(appContext)
+                        sm.saveUserName(account.name)
+                        sm.saveUserEmail(account.email)
+                        sm.saveUserAvatar(account.thumbnailUrl ?: "")
+                        // Persist any identity details the first fetch missed, so
+                        // the profile row shows the handle and the runtime session
+                        // picks up the datasyncId (onBehalfOfUser on signed writes).
+                        val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
+                        val profile = pm.active()
+                        var needDatasync = false
+                        if (!account.channelHandle.isNullOrBlank() && profile.handle.isNullOrBlank()) {
+                            pm.updateIdentity(profile.id, handle = account.channelHandle)
+                        }
+                        if (!account.datasyncId.isNullOrBlank() && profile.datasyncId.isNullOrBlank()) {
+                            pm.updateIdentity(profile.id, datasyncId = account.datasyncId)
+                            needDatasync = true
+                        }
+                        if (needDatasync) {
+                            com.omersusin.pitube.innertube.YouTube.dataSyncId = account.datasyncId
                         }
                     }
                 }
@@ -269,9 +273,11 @@ fun YouTubeLoginScreen(
             accountSwitcher.addYouTubeProfileAndSwitch(
                 cookies = normalized,
                 name = token.accountName ?: identity?.name,
+                handle = token.accountChannelHandle ?: identity?.channelHandle,
                 email = token.accountEmail ?: identity?.email,
                 avatarUrl = identity?.thumbnailUrl,
-                datasyncId = token.dataSyncId ?: identity?.datasyncId
+                datasyncId = token.dataSyncId ?: identity?.datasyncId,
+                poToken = token.poToken
             )
             playerPreferences.setYoutubeAccount(cookie = normalized, name = null, email = null, thumbnailUrl = null)
             CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
@@ -289,13 +295,21 @@ fun YouTubeLoginScreen(
                         sm.saveUserName(account.name)
                         sm.saveUserEmail(account.email)
                         sm.saveUserAvatar(account.thumbnailUrl ?: "")
-                        if (!account.datasyncId.isNullOrBlank()) {
-                            val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
-                            val active = pm.active()
-                            if (active.datasyncId.isNullOrBlank()) {
-                                pm.updateIdentity(active.id, datasyncId = account.datasyncId)
-                                com.omersusin.pitube.innertube.YouTube.dataSyncId = account.datasyncId
-                            }
+                        // Persist any identity details the first fetch missed, so
+                        // the profile row shows the handle and the runtime session
+                        // picks up the datasyncId (onBehalfOfUser on signed writes).
+                        val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
+                        val profile = pm.active()
+                        var needDatasync = false
+                        if (!account.channelHandle.isNullOrBlank() && profile.handle.isNullOrBlank()) {
+                            pm.updateIdentity(profile.id, handle = account.channelHandle)
+                        }
+                        if (!account.datasyncId.isNullOrBlank() && profile.datasyncId.isNullOrBlank()) {
+                            pm.updateIdentity(profile.id, datasyncId = account.datasyncId)
+                            needDatasync = true
+                        }
+                        if (needDatasync) {
+                            com.omersusin.pitube.innertube.YouTube.dataSyncId = account.datasyncId
                         }
                     }
                 }
