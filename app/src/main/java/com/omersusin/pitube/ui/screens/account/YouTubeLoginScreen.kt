@@ -176,6 +176,17 @@ fun YouTubeLoginScreen(
                                 it.saveUserEmail(account.email)
                                 it.saveUserAvatar(account.thumbnailUrl ?: "")
                             }
+                        // If the first identity fetch was transiently empty, persist
+                        // the datasyncId on the active profile now so the runtime
+                        // session picks it up (onBehalfOfUser on signed writes).
+                        if (!account.datasyncId.isNullOrBlank()) {
+                            val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
+                            val active = pm.active()
+                            if (active.datasyncId.isNullOrBlank()) {
+                                pm.updateIdentity(active.id, datasyncId = account.datasyncId)
+                                com.omersusin.pitube.innertube.YouTube.dataSyncId = account.datasyncId
+                            }
+                        }
                     }
                 }
             }

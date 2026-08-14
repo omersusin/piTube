@@ -190,6 +190,11 @@ class FlowApplication :
                 val cookie = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).getCookies()
                 YouTube.cookie = cookie
                 YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
+                // Identity that ties signed requests (like/subscribe write-back,
+                // personalized browse) to the active account. Without it innertube
+                // answers as the default session and writes can silently no-op.
+                val activeProfile = pm.active()
+                YouTube.dataSyncId = activeProfile.datasyncId.takeIf { !activeProfile.isLocal }
                 // Re-align the DataStore mirror with the restored active profile
                 // (migration/new profile stores control the session now).
                 if (cookie.isNullOrBlank()) {

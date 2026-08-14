@@ -62,6 +62,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -743,6 +744,20 @@ object YouTube {
     // require a non-blank session cookie (see [InnerTube.cookie]).
     // ============================================================
 
+    /**
+     * Full signed-in context for account writes, matching how Koda/Metrolist
+     * build their like/subscribe bodies. Carries the active account's
+     * `dataSyncId` as `user.onBehalfOfUser` — without it YouTube answers as the
+     * default session and the write can silently no-op (HTTP 200, nothing
+     * applied).
+     */
+    private fun signedWriteContext(client: YouTubeClient): JsonObject =
+        Json { ignoreUnknownKeys = true; explicitNulls = false }
+            .encodeToJsonElement(
+                client.toContext(innerTube.locale, innerTube.visitorData, dataSyncId),
+            )
+            .jsonObject
+
     /** Like a video on the signed-in account. [status] is `"LIKE"`, `"DISLIKE"` or null (clear). */
     suspend fun setLikeStatus(videoId: String, status: String?): Result<Boolean> = runCatching {
         val client = currentWebClient()
@@ -756,11 +771,32 @@ object YouTube {
             client = client,
             endpoint = endpoint,
             jsonBody = buildJsonObject {
-                put("context", commentWebContext(client))
+                put("context", signedWriteContext(client))
                 put("target", buildJsonObject { put("videoId", JsonPrimitive(videoId)) })
             },
         )
-        httpResponse.status.isSuccess()
+        if (!httpResponse.status.isSuccess()) {
+            Log.w("YouTube", "setLikeStatus($status): HTTP ${httpResponse.status.value}")
+            return@runCatching false
+        }
+        // YouTube can answer 200 without applying the action (BotGuard gate,
+        // dead/stale session). Confirm from the body rather than trusting the
+        // status code: a real engagement response reports `loggedIn: true` in
+        // its responseContext and usually carries an `actions` list. A session
+        // YouTube explicitly marks signed-out never applied anything.
+        val body = httpResponse.bodyAsText()
+        val loggedOut = Regex("\"loggedIn\"\\s*:\\s*(false|0)").containsMatchIn(body)
+        if (loggedOut) {
+            Log.w("YouTube", "setLikeStatus($status): YouTube reports signed-out — write not applied")
+            return@runCatching false
+        }
+        val hasActions = Regex("\"actions\"\\s*:").containsMatchIn(body)
+        // `actions` missing is acceptable (some client variants omit it) as long
+        // as the session is alive; explicit signed-out is the only hard failure.
+        if (!hasActions) {
+            Log.d("YouTube", "setLikeStatus($status): HTTP 200, logged-in response without actions list")
+        }
+        true
     }
 
     /**
@@ -774,11 +810,25 @@ object YouTube {
             client = client,
             endpoint = endpoint,
             jsonBody = buildJsonObject {
-                put("context", commentWebContext(client))
+                put("context", signedWriteContext(client))
                 put("channelIds", buildJsonArray { add(JsonPrimitive(channelId)) })
             },
         )
-        httpResponse.status.isSuccess()
+        if (!httpResponse.status.isSuccess()) {
+            Log.w("YouTube", "setSubscribed($subscribe): HTTP ${httpResponse.status.value}")
+            return@runCatching false
+        }
+        val body = httpResponse.bodyAsText()
+        val loggedOut = Regex("\"loggedIn\"\\s*:\\s*(false|0)").containsMatchIn(body)
+        if (loggedOut) {
+            Log.w("YouTube", "setSubscribed($subscribe): YouTube reports signed-out — write not applied")
+            return@runCatching false
+        }
+        val hasActions = Regex("\"actions\"\\s*:").containsMatchIn(body)
+        if (!hasActions) {
+            Log.d("YouTube", "setSubscribed($subscribe): HTTP 200, logged-in response without actions list")
+        }
+        true
     }
 
     // ============================================================

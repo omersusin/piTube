@@ -208,6 +208,7 @@ class AccountSwitcher(context: Context) {
         val cookies = sessionManager.getCookies()
         YouTube.cookie = cookies
         YouTube.useLoginForBrowse = !cookies.isNullOrEmpty()
+        YouTube.dataSyncId = active.datasyncId.takeIf { !active.isLocal }
         backgroundScope.launch {
             runCatching {
                 val preferences = PlayerPreferences(appContext)
