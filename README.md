@@ -8,10 +8,14 @@ piTube is a privacy-respecting, feature-rich YouTube client for Android. It is a
 
 - **Ad-free, trackless playback** — no Google Ads, no Analytics SDKs
 - **Signed-in YouTube support** — like, subscribe, comments, playlists, and **real watch-history sync**: a Koda/yt-dlp-style `videostats` beacon reports your actual playback position (integer `cmt`/`st`/`et`, SAPISIDHASH-authenticated pings from the signed player response) so partially watched videos appear as in-progress in official YouTube history, not as fully watched
+- **Multi-account login** — sign in via the embedded WebView *or* paste your cookies (`SAPISID`/`SID`/`LOGIN_INFO`) straight from a browser DevTools export; per-profile cookies, quick account switching, and expired-session detection that flags dead profiles instead of silently falling back
+- **Real Watch Later** — toggling the Watch Later action writes to your actual account playlist (`WL` via the WEB_REMIX client) when signed in, while a local offline-safe copy keeps it working without a connection
 - **Account library sync** — "Sync now" fully crawls your liked videos (continuation-token pagination, no more 100-item cap), playlists and subscriptions from the WEB client, plus a silent daily **auto-sync**
 - **SponsorBlock integration** — skip/mute/notify for all 10 segment categories (sponsor, intro, outro, selfpromo, interaction, music_offtopic, filler, preview, exclusive_access, poi_highlight), custom colors, and segment submission; DeArrow titles/thumbnails; Return YouTube Dislike
 - **Enhanced player** — storyboard hover previews on the seek bar, double-tap to seek, background playback, speed control, audio-only mode, sleep timer, playback queue
 - **Home feed from YouTube's own "what to watch" endpoint** with a rotation cursor and background refresh so the feed keeps changing, plus the usual subscription, trending, and category feeds
+- **Shorts & thumbnails** — working Shorts feed (continuation-token paging, hardened player client ladder) and avatar/thumbnail URL normalization so channel images actually render
+- **Picture-in-picture & popup player** — PiP with playback controls, with automatic AppOps permission checks that guide you to the system settings screen when PiP or overlay access is revoked
 - **Content filtering** — block channels (persisted), hide watched videos, watched-threshold, shorts shelf toggles, dead-code-free quick-actions sheet
 - **Per-channel remembered tab**, default navigation tab, and extensive theming / layout options
 - **Device-to-device sync** between your own piTube installs (watch progress, likes, subscriptions), app update checker, and diagnostics
@@ -51,7 +55,7 @@ Release builds are signed using environment variables (no secrets in the repo):
 piTube is a Flow fork with high changes and builds on the shoulders of the free-software YouTube ecosystem. Research, ports, and design inspiration came from:
 
 - **[Flow](https://github.com/ColOrourke/Flow)** — upstream project piTube is forked from (Compose UI, architecture)
-- **[Koda](https://github.com/Ivorisnoob/Koda)** — WEB-client account reads (subscribed channels, playlists, liked videos), avatar resolution upgrade, watchtime ping auth (SAPISIDHASH), and the multi-account profile backend (per-profile cookies, account switching, session invalidation)
+- **[Koda](https://github.com/Ivorisnoob/Koda)** — WEB-client account reads (subscribed channels, playlists, liked videos), avatar resolution upgrade, watchtime ping auth (SAPISIDHASH), the multi-account profile backend (per-profile cookies, account switching, session invalidation), **cookie-paste login**, **expired-session detection**, and the **real Watch Later playlist-edit** path (`edit_playlist`/`WL` on the music origin)
 - **[NewPipe / NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor)** — the extraction core (channels, streams, tabs, signed requests, signature timestamp handling)
 - **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** — watch-history beacon logic (`videostatsPlaybackUrl`/`videostatsWatchtimeUrl`, `ver=2`/`cpn`/`cmt`/`el=detailpage` params) ported to report real partial positions
 - **[SponsorBlock](https://sponsor.ajay.app)** — crowd-sourced segment skipping (10 categories incl. `poi_highlight`), DeArrow, and RYD data

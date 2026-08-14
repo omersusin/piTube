@@ -1931,7 +1931,6 @@
     
     <string name="account_menu_title">Account</string>
     <string name="settings_google_login_title">Sign in to Google</string>
-    <string name="settings_google_login_failed">Sign-in failed. Google could not verify this session. Please try again.</string>
     <string name="settings_google_login_retry">Retry</string>
     <string name="settings_header_account">Account</string>
     <string name="settings_google_sign_in">Sign in with Google</string>
