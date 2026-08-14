@@ -13,8 +13,10 @@ import com.omersusin.pitube.data.local.dao.RecognitionHistoryDao
 import com.omersusin.pitube.data.local.dao.SubscriptionGroupDao
 import com.omersusin.pitube.data.local.dao.SyncLogDao
 import com.omersusin.pitube.data.local.dao.SyncPeerDao
+import com.omersusin.pitube.data.local.dao.TranslationCacheDao
 import com.omersusin.pitube.data.local.dao.VideoDao
 import com.omersusin.pitube.data.local.dao.WatchHistoryDao
+import com.omersusin.pitube.data.local.entity.CachedTranslationEntity
 import com.omersusin.pitube.data.local.entity.DownloadEntity
 import com.omersusin.pitube.data.local.entity.DownloadItemEntity
 import com.omersusin.pitube.data.local.entity.DownloadedSongEntity
@@ -49,8 +51,9 @@ import com.omersusin.pitube.data.local.migrations.MIGRATIONS
         RecognitionHistoryEntity::class,
         SyncLogEntity::class,
         SyncPeerEntity::class,
+        CachedTranslationEntity::class,
     ],
-    version = 25,
+    version = 26,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -77,6 +80,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun syncLogDao(): SyncLogDao
 
     abstract fun syncPeerDao(): SyncPeerDao
+
+    abstract fun translationCacheDao(): TranslationCacheDao
 
     companion object {
         @Volatile
