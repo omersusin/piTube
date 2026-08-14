@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -310,7 +311,8 @@ private fun PlaylistCardText(
     compact: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val playlistPrefs = remember { PlayerPreferences(LocalContext.current) }
+    val playlistContext = LocalContext.current
+    val playlistPrefs = remember { PlayerPreferences(playlistContext) }
     val titleState = rememberTranslatedText(title, playlistPrefs.translatePlaylistTitles)
     Column(
         modifier = modifier,

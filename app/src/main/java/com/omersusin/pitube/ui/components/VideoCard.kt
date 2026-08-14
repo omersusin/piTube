@@ -196,7 +196,8 @@ fun VideoCardHorizontal(
     var showCollaborators by remember { mutableStateOf(false) }
     val collaboratorItems = rememberCollaboratorItems(video)
     val displayChannelName = rememberCollaboratorChannelDisplayName(video.channelName, collaboratorItems)
-    val cardPrefs = remember { PlayerPreferences(LocalContext.current) }
+    val cardContext = LocalContext.current
+    val cardPrefs = remember { PlayerPreferences(cardContext) }
     val titleState = rememberTranslatedText(displayTitle, cardPrefs.translateTitles)
     val channelState = rememberTranslatedText(displayChannelName, cardPrefs.translateChannelNames)
     val openChannelOrCollaborators = {
@@ -419,7 +420,8 @@ fun VideoCardFullWidth(
     val deArrowResultFullWidth = rememberDeArrowResult(video.id, cardPreferences.deArrowEnabled)
     val displayTitle = deArrowResultFullWidth?.title ?: video.title
     val displayThumbnailUrl = deArrowResultFullWidth?.thumbnailUrl ?: video.thumbnailUrl
-    val cardPrefsFW = remember { PlayerPreferences(LocalContext.current) }
+    val cardContextFW = LocalContext.current
+    val cardPrefsFW = remember { PlayerPreferences(cardContextFW) }
     val titleStateFW = rememberTranslatedText(displayTitle, cardPrefsFW.translateTitles)
     val channelStateFW = rememberTranslatedText(displayChannelName, cardPrefsFW.translateChannelNames)
     val videoCardMarkWatchedEnabledFW = cardPreferences.markWatchedEnabled
@@ -743,7 +745,8 @@ fun CompactVideoCard(
     val isWatchedCompact = rememberIsWatched(video.id, quickActionsVmCompact.watchedVideoIds, watchProgress)
     val displayTitle = deArrowResultCompact?.title ?: video.title
     val displayThumbnailUrl = deArrowResultCompact?.thumbnailUrl ?: video.thumbnailUrl
-    val cardPrefsCompact = remember { PlayerPreferences(LocalContext.current) }
+    val cardContextCompact = LocalContext.current
+    val cardPrefsCompact = remember { PlayerPreferences(cardContextCompact) }
     val titleStateCompact = rememberTranslatedText(displayTitle, cardPrefsCompact.translateTitles)
     val channelStateCompact = rememberTranslatedText(displayChannelName, cardPrefsCompact.translateChannelNames)
 

@@ -1349,7 +1349,8 @@ private fun MergeIntoPlaylistDialog(
                             }
 
                             Column(modifier = Modifier.weight(1f)) {
-                                val detailPrefs = remember { PlayerPreferences(LocalContext.current) }
+                                val detailContext = LocalContext.current
+                                val detailPrefs = remember { PlayerPreferences(detailContext) }
                                 val detailTitleState =
                                     rememberTranslatedText(playlist.name, detailPrefs.translatePlaylistTitles)
                                 Text(
