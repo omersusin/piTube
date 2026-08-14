@@ -76,8 +76,8 @@ class SessionManager(private val context: Context) {
         val active = profileManager.active()
         if (active.isLocal) return
         profileManager.setExpired(active.id, expired)
-        if (sessionExpired.value != expired) {
-            sessionExpired.value = expired
+        if (_sessionExpired.value != expired) {
+            _sessionExpired.value = expired
         }
     }
 
@@ -121,7 +121,7 @@ class SessionManager(private val context: Context) {
         if (!profileManager.remove(active.id)) {
             profileManager.replaceWithFreshLocal(active.id)
         }
-        sessionExpired.value = false
+        _sessionExpired.value = false
         runCatching { runMirror { it.clearYoutubeAccount() } }
     }
 
@@ -149,7 +149,7 @@ class SessionManager(private val context: Context) {
      * Re-read the active profile's expired verdict, after a switch.
      */
     fun refreshExpiredFromProfile() {
-        sessionExpired.value = profileManager.active().expired
+        _sessionExpired.value = profileManager.active().expired
     }
 
     /**
