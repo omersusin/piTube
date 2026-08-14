@@ -132,9 +132,6 @@ fun NavGraphBuilder.flowAppGraph(
             onNotificationClick = {
                 navController.navigate("notifications")
             },
-            onSettingsClick = {
-                navController.navigate("settings")
-            },
             onChannelClick = { channelId ->
                 navController.navigateToYoutubeChannel(channelId)
             },

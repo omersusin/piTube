@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SmartDisplay
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -85,7 +84,6 @@ fun HomeScreen(
     onShortClick: (Video) -> Unit,
     onSearchClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onSettingsClick: () -> Unit,
     onChannelClick: (String) -> Unit = {},
     onNavigateToHistory: () -> Unit = {},
     onOpenShortsFeed: () -> Unit = {},
@@ -235,16 +233,6 @@ fun HomeScreen(
                                     }
                                 }
                             }
-                        }
-                        IconButton(
-                            onClick = onSettingsClick,
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                Icons.Outlined.Settings,
-                                contentDescription = stringResource(R.string.settings),
-                                modifier = Modifier.size(24.dp)
-                            )
                         }
                     }
                 }
