@@ -242,6 +242,7 @@ fun YouTubeLoginScreen(
                             cookieManager.removeAllCookies(null)
                             com.omersusin.pitube.innertube.YouTube.cookie = null
                             com.omersusin.pitube.innertube.YouTube.useLoginForBrowse = false
+                            com.omersusin.pitube.innertube.YouTube.dataSyncId = null
                         }
                         webViewClient = object : WebViewClient() {
                             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
