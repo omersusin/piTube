@@ -111,8 +111,10 @@ class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(
             transliterations = listOf(
                 response.sourceTransliteration,
                 response.targetTransliteration,
-            ).filter {
-                !it.isNullOrBlank() && !it.matches(transliterationFailedRegex)
+            ).mapNotNull { transliteration ->
+                transliteration?.takeIf {
+                    it.isNotBlank() && !it.matches(transliterationFailedRegex)
+                }
             },
             detectedLanguage = response.detectedLanguage?.takeIf { it.isNotBlank() },
             definitions = response.wordChoices.orEmpty().map { definition ->
