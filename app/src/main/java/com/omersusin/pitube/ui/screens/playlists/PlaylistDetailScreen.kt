@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -56,6 +57,7 @@ import com.omersusin.pitube.ui.components.ThumbnailWatchProgress
 import com.omersusin.pitube.ui.components.VideoQuickActionsBottomSheet
 import com.omersusin.pitube.ui.components.rememberDateDisplaySettings
 import com.omersusin.pitube.ui.components.rememberFlowSheetState
+import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import com.omersusin.pitube.ui.components.rememberReorderableLazyListState
 import com.omersusin.pitube.utils.DateContext
 import com.omersusin.pitube.utils.formatPremiereDate
@@ -1347,13 +1349,25 @@ private fun MergeIntoPlaylistDialog(
                             }
 
                             Column(modifier = Modifier.weight(1f)) {
+                                val detailPrefs = remember { PlayerPreferences(LocalContext.current) }
+                                val detailTitleState =
+                                    rememberTranslatedText(playlist.name, detailPrefs.translatePlaylistTitles)
                                 Text(
-                                    text = playlist.name,
+                                    text = detailTitleState.displayText,
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.Medium,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
+                                if (detailTitleState.showOriginalBelow) {
+                                    Text(
+                                        text = detailTitleState.original,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
                                 Text(
                                     text = stringResource(R.string.songs_count_template, playlist.videoCount),
                                     style = MaterialTheme.typography.bodySmall,

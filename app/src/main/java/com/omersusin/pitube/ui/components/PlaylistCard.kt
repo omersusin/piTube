@@ -30,9 +30,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.omersusin.pitube.data.local.PlayerPreferences
+import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -308,12 +310,14 @@ private fun PlaylistCardText(
     compact: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val playlistPrefs = remember { PlayerPreferences(LocalContext.current) }
+    val titleState = rememberTranslatedText(title, playlistPrefs.translatePlaylistTitles)
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(
-            text = title,
+            text = titleState.displayText,
             style =
                 if (compact) {
                     MaterialTheme.typography.bodyMedium
@@ -325,6 +329,15 @@ private fun PlaylistCardText(
             maxLines = if (compact) 1 else 2,
             overflow = TextOverflow.Ellipsis,
         )
+        if (titleState.showOriginalBelow) {
+            Text(
+                text = titleState.original,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Text(
             text = metadata,
             style =

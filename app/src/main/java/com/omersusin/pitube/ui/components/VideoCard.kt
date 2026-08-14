@@ -49,6 +49,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import com.omersusin.pitube.data.local.PlayerPreferences
+import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -194,6 +196,9 @@ fun VideoCardHorizontal(
     var showCollaborators by remember { mutableStateOf(false) }
     val collaboratorItems = rememberCollaboratorItems(video)
     val displayChannelName = rememberCollaboratorChannelDisplayName(video.channelName, collaboratorItems)
+    val cardPrefs = remember { PlayerPreferences(LocalContext.current) }
+    val titleState = rememberTranslatedText(displayTitle, cardPrefs.translateTitles)
+    val channelState = rememberTranslatedText(displayChannelName, cardPrefs.translateChannelNames)
     val openChannelOrCollaborators = {
         if (collaboratorItems.size > 1) {
             showCollaborators = true
@@ -294,16 +299,25 @@ fun VideoCardHorizontal(
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = displayTitle,
+                text = titleState.displayText,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+            if (titleState.showOriginalBelow) {
+                Text(
+                    text = titleState.original,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.extendedColors.textSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
 
             Column {
                 Text(
-                    text = displayChannelName,
+                    text = channelState.displayText,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.extendedColors.textSecondary,
                     maxLines = 1,
@@ -315,6 +329,15 @@ fun VideoCardHorizontal(
                             Modifier
                         },
                 )
+                if (channelState.showOriginalBelow) {
+                    Text(
+                        text = channelState.original,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.extendedColors.textSecondary.copy(alpha = 0.7f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
 
                 val premiereDate = formatPremiereDate(video.uploadDate)
                 val displayDate =
@@ -396,6 +419,9 @@ fun VideoCardFullWidth(
     val deArrowResultFullWidth = rememberDeArrowResult(video.id, cardPreferences.deArrowEnabled)
     val displayTitle = deArrowResultFullWidth?.title ?: video.title
     val displayThumbnailUrl = deArrowResultFullWidth?.thumbnailUrl ?: video.thumbnailUrl
+    val cardPrefsFW = remember { PlayerPreferences(LocalContext.current) }
+    val titleStateFW = rememberTranslatedText(displayTitle, cardPrefsFW.translateTitles)
+    val channelStateFW = rememberTranslatedText(displayChannelName, cardPrefsFW.translateChannelNames)
     val videoCardMarkWatchedEnabledFW = cardPreferences.markWatchedEnabled
     val upcomingReminderIds = cardPreferences.upcomingReminderIds
     val quickActionsVmFW: QuickActionsViewModel = hiltViewModel()
@@ -543,7 +569,7 @@ fun VideoCardFullWidth(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
-                    text = displayTitle,
+                    text = titleStateFW.displayText,
                     style =
                         MaterialTheme.typography.bodyLarge.copy(
                             lineHeight = MaterialTheme.typography.bodyLarge.fontSize * 1.12f,
@@ -552,6 +578,15 @@ fun VideoCardFullWidth(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
+                if (titleStateFW.showOriginalBelow) {
+                    Text(
+                        text = titleStateFW.original,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.extendedColors.textSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
 
                 val premiereDate = formatPremiereDate(video.uploadDate)
                 val displayDate =
@@ -570,12 +605,12 @@ fun VideoCardFullWidth(
                         } else if (video.viewCount >= 0L) {
                             stringResource(
                                 R.string.video_metadata_template,
-                                displayChannelName,
+                                channelStateFW.displayText,
                                 stringResource(R.string.views_template, formatViewCount(video.viewCount)),
                                 displayDate,
                             )
                         } else {
-                            "$displayChannelName · $displayDate"
+                            "${channelStateFW.displayText} · $displayDate"
                         },
                     style = MaterialTheme.typography.bodySmall,
                     color =
@@ -708,6 +743,9 @@ fun CompactVideoCard(
     val isWatchedCompact = rememberIsWatched(video.id, quickActionsVmCompact.watchedVideoIds, watchProgress)
     val displayTitle = deArrowResultCompact?.title ?: video.title
     val displayThumbnailUrl = deArrowResultCompact?.thumbnailUrl ?: video.thumbnailUrl
+    val cardPrefsCompact = remember { PlayerPreferences(LocalContext.current) }
+    val titleStateCompact = rememberTranslatedText(displayTitle, cardPrefsCompact.translateTitles)
+    val channelStateCompact = rememberTranslatedText(displayChannelName, cardPrefsCompact.translateChannelNames)
 
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -820,7 +858,7 @@ fun CompactVideoCard(
             modifier = Modifier.weight(1f),
         ) {
             Text(
-                text = displayTitle,
+                text = titleStateCompact.displayText,
                 style =
                     MaterialTheme.typography.bodyMedium.copy(
                         lineHeight = MaterialTheme.typography.bodyMedium.fontSize * 1.12f,
@@ -830,11 +868,20 @@ fun CompactVideoCard(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold,
             )
+            if (titleStateCompact.showOriginalBelow) {
+                Text(
+                    text = titleStateCompact.original,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.extendedColors.textSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
 
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = displayChannelName,
+                text = channelStateCompact.displayText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.extendedColors.textSecondary,
                 maxLines = 1,
