@@ -1,6 +1,11 @@
 package com.omersusin.pitube.translation
 
+import com.omersusin.pitube.translation.engines.apertium.ApertiumEngine
+import com.omersusin.pitube.translation.engines.deepl.DeeplBrowserEngine
 import com.omersusin.pitube.translation.engines.deepl.DeeplEngine
+import com.omersusin.pitube.translation.engines.glosbe.GlosbeEngine
+import com.omersusin.pitube.translation.engines.kagi.KagiEngine
+import com.omersusin.pitube.translation.engines.laratranslate.LaraTranslateEngine
 import com.omersusin.pitube.translation.engines.lingva.LingvaEngine
 import com.omersusin.pitube.translation.engines.libretranslate.LibreTranslateEngine
 import com.omersusin.pitube.translation.engines.llm.ClaudeEngine
@@ -14,6 +19,10 @@ import com.omersusin.pitube.translation.engines.llm.XAiEngine
 import com.omersusin.pitube.translation.engines.mint.MinTEngine
 import com.omersusin.pitube.translation.engines.mozhi.MozhiEngine
 import com.omersusin.pitube.translation.engines.mymemory.MyMemoryEngine
+import com.omersusin.pitube.translation.engines.onering.OneRingEngine
+import com.omersusin.pitube.translation.engines.pons.PonsEngine
+import com.omersusin.pitube.translation.engines.simplytranslate.SimplyTranslateEngine
+import com.omersusin.pitube.translation.engines.yandex.YandexEngine
 
 /**
  * The registry of every translation provider in the app. Order is the order
@@ -37,6 +46,15 @@ object TranslationEngines {
         DeeplEngine(settingsProvider),
         CustomEngine(settingsProvider),
         MozhiEngine(settingsProvider),
+        KagiEngine(settingsProvider),
+        OneRingEngine(settingsProvider),
+        YandexEngine(settingsProvider),
+        DeeplBrowserEngine(settingsProvider),
+        PonsEngine(settingsProvider),
+        GlosbeEngine(settingsProvider),
+        ApertiumEngine(settingsProvider),
+        LaraTranslateEngine(settingsProvider),
+        SimplyTranslateEngine(settingsProvider),
         LibreTranslateEngine(settingsProvider),
         LingvaEngine(settingsProvider),
         MyMemoryEngine(settingsProvider),
