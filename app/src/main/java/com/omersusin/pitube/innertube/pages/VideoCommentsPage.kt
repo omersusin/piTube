@@ -233,9 +233,14 @@ private fun parseVideoCommentEntity(
         }
     }
 
-    val avatar = entity["avatar"].objectOrNull()
-        ?.get("image").objectOrNull()
-        ?.get("sources").largestThumbnailUrl()
+    // Current web responses carry the avatar as a plain URL under
+    // author.avatarThumbnailUrl; some surfaces still emit the older
+    // avatar.image.sources object shape, so fall back to that too.
+    val avatar = author?.get("avatarThumbnailUrl").stringOrNull()
+        ?.takeIf { it.isNotBlank() }
+        ?: entity["avatar"].objectOrNull()
+            ?.get("image").objectOrNull()
+            ?.get("sources").largestThumbnailUrl()
         ?: author?.get("avatar").objectOrNull()
             ?.get("image").objectOrNull()
             ?.get("sources").largestThumbnailUrl()
