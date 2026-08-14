@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ fun NotificationScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
+        viewModel.refreshNotifications()
         viewModel.markAllAsRead()
     }
 
@@ -92,6 +94,13 @@ fun NotificationScreen(
                 }
             },
             actions = {
+                IconButton(onClick = { viewModel.refreshNotifications() }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Refresh,
+                        contentDescription = stringResource(R.string.refresh_notifications),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 if (notifications.isNotEmpty()) {
                     IconButton(onClick = { viewModel.clearAll() }) {
                         Icon(

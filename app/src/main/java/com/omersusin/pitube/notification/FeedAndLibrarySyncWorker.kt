@@ -11,6 +11,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
 import com.omersusin.pitube.data.local.HomeFeedCacheRepository
+import com.omersusin.pitube.data.local.NotificationSync
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.local.YouTubeLibrarySync
 import com.omersusin.pitube.innertube.YouTube
@@ -119,6 +120,16 @@ class FeedAndLibrarySyncWorker(
                 }
             } else {
                 Log.d(TAG, "Not signed in, skipping library sync")
+            }
+
+            // 4. Mirror the account's notification inbox so the in-app
+            //    Notifications screen and unread badge stay fresh.
+            if (loggedIn) {
+                runCatching { NotificationSync.sync(applicationContext) }
+                    .onSuccess {
+                        Log.d(TAG, "Notification inbox synced")
+                    }
+                    .onFailure { Log.w(TAG, "Notification inbox sync failed: ${it.message}") }
             }
 
             Result.success()

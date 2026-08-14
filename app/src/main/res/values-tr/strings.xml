@@ -330,6 +330,7 @@
     <string name="dismiss">Yok say</string>
     <string name="peace_and_quiet">Huzur ve sessizlik</string>
     <string name="notifications_empty_body">Her şey tamam! Aboneliklerinden gelen yeni güncellemeler burada görünecek.</string>
+    <string name="refresh_notifications">Bildirimleri yenile</string>
     <string name="settings_title">Ayarlar</string>
     
     

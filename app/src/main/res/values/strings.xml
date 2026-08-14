@@ -375,6 +375,7 @@
     <string name="dismiss">Dismiss</string>
     <string name="peace_and_quiet">Peace and quiet</string>
     <string name="notifications_empty_body">You\'re all caught up! New updates from your subscriptions will appear here.</string>
+    <string name="refresh_notifications">Refresh notifications</string>
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
     

@@ -50,7 +50,9 @@ import com.omersusin.pitube.innertube.pages.toRemotePlaylists
 import com.omersusin.pitube.innertube.pages.toRemotePlaylistVideos
 import com.omersusin.pitube.innertube.pages.toVideoCommentsPage
 import com.omersusin.pitube.innertube.pages.toVideoCommentsToken
+import com.omersusin.pitube.innertube.pages.NotificationPage
 import com.omersusin.pitube.innertube.pages.NewPipeExtractor
+import com.omersusin.pitube.innertube.pages.toNotificationPage
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.utils.avatarImageIdentityKey
@@ -723,6 +725,24 @@ object YouTube {
             },
         )
         Json.parseToJsonElement(httpResponse.bodyAsText()).hasSucceededActionResult()
+    }
+
+    /**
+     * The signed-in user's notification inbox
+     * (`notification/get_notification_menu`, inbox tab). Requires login;
+     * returns an empty page otherwise.
+     */
+    suspend fun getNotificationInbox(): Result<NotificationPage> = runCatching {
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedJsonPost(
+            client = client,
+            endpoint = "notification/get_notification_menu",
+            jsonBody = buildJsonObject {
+                put("context", commentWebContext(client))
+                put("notificationsMenuRequestType", JsonPrimitive("NOTIFICATIONS_MENU_REQUEST_TYPE_INBOX"))
+            },
+        )
+        Json.parseToJsonElement(httpResponse.bodyAsText()).toNotificationPage()
     }
 
     private fun commentWebContext(client: YouTubeClient, visitor: String? = null): JsonObject =
