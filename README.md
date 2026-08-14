@@ -62,6 +62,7 @@ piTube is a Flow fork with high changes and builds on the shoulders of the free-
 - **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** — watch-history beacon logic (`videostatsPlaybackUrl`/`videostatsWatchtimeUrl`, `ver=2`/`cpn`/`cmt`/`el=detailpage` params) ported to report real partial positions
 - **[SponsorBlock](https://sponsor.ajay.app)** — crowd-sourced segment skipping (10 categories incl. `poi_highlight`), DeArrow, and RYD data
 - **[ViMusic](https://github.com/vipulnsward/ViMusic) / [InnerTune](https://github.com/z-huang/InnerTune) / [OuterTune](https://github.com/outertune/outertune) / [Metrolist](https://github.com/abdlquadri/Metrolist) / [ArchiveTune](https://github.com/Archivist-ai/ArchiveTune) / [audiotube](https://github.com/nichpan/audiotube)** — music-client lineage: playback registration, library browsing, media-session patterns
+- **[ViVi Music](https://github.com/vivi-app/vivi)** — the AI translation providers (OpenRouter, OpenAI, Perplexity, Claude, Gemini, X.AI, Mistral, DeepL, custom OpenAI-compatible endpoints) and the session-token bundle format ported for the translation feature and cookie-paste login
 - **[LibreTube](https://github.com/libre-tube/LibreTube)** — design patterns for settings and per-channel behavior
 - **[Piped](https://github.com/TeamPiped/Piped)** — API-first client patterns
 - **[Invidious](https://github.com/iv-org/invidious)** — feed/community insights
