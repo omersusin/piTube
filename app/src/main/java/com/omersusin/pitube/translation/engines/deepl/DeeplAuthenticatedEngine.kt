@@ -74,8 +74,12 @@ abstract class DeeplAuthenticatedEngine(settingsProvider: EngineSettingsProvider
         }
         val response = TranslationHttpClient.json
             .decodeFromString<DeeplTranslationResponse>(body.bodyAsText())
+        val translatedText = response.translations.firstOrNull()?.text.orEmpty()
+        if (translatedText.isBlank()) {
+            throw IllegalStateException("DeepL answered without a translation")
+        }
         return Translation(
-            translatedText = response.translations.firstOrNull()?.text.orEmpty(),
+            translatedText = translatedText,
             detectedLanguage = response.translations.firstOrNull()?.detectedSourceLanguage,
         )
     }

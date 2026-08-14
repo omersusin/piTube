@@ -174,8 +174,12 @@ class DeeplBrowserEngine(settingsProvider: EngineSettingsProvider) : Translation
             }.bodyAsText(),
         )
 
+        val translatedText = webResponse.result.texts.firstOrNull()?.text.orEmpty()
+        if (translatedText.isBlank()) {
+            throw IllegalStateException("DeepL (Browser) answered without a translation")
+        }
         return Translation(
-            translatedText = webResponse.result.texts.firstOrNull()?.text ?: "",
+            translatedText = translatedText,
             detectedLanguage = webResponse.result.lang.lowercase(),
         )
     }

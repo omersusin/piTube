@@ -46,9 +46,9 @@ class TranslatedTextState(
     val isTranslated: Boolean
         get() = translated != null && translated.isNotBlank() && translated != original
 
-    /** The text a REPLACE-mode surface should show. */
+    /** The text a REPLACE-mode surface should show. Never blank. */
     val displayText: String
-        get() = translated ?: original
+        get() = translated?.takeIf { it.isNotBlank() } ?: original
 
     /** True when the surface should render the original below the translation. */
     val showOriginalBelow: Boolean

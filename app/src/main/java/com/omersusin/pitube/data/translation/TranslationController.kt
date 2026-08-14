@@ -3,6 +3,7 @@ package com.omersusin.pitube.data.translation
 import com.omersusin.pitube.data.local.dao.TranslationCacheDao
 import com.omersusin.pitube.data.local.entity.CachedTranslationEntity
 import com.omersusin.pitube.translation.Language
+import com.omersusin.pitube.translation.TimestampProtection
 import com.omersusin.pitube.translation.TranslationEngine
 import com.omersusin.pitube.translation.TranslationEngines
 import kotlinx.coroutines.CancellationException
@@ -65,11 +66,18 @@ class TranslationController @Inject constructor(
 
         if (LanguageScriptUtil.shouldSkip(text, target)) return text
 
-        val cacheId = cacheId(engine.name, target, text)
-        cacheDao.get(cacheId)?.let { return it }
+        // YouTube-style timestamps ("0:00", "12:34") must come back untouched
+        // so chapter links keep working after translation.
+        val masked = TimestampProtection.mask(text)
+        val cacheId = cacheId(engine, target, text)
+        cacheDao.get(cacheId)?.let { cached ->
+            if (cached.isNotBlank()) return cached
+            // A blank entry means the provider answered empty under a broken
+            // configuration; ignore it so a fixed config can retry.
+        }
 
         return try {
-            val translation = engine.translate(text, "", target)
+            val translation = engine.translate(masked.text, "", target)
             if (translation.detectedLanguage != null &&
                 translation.detectedLanguage.equals(target, ignoreCase = true)
             ) {
@@ -77,17 +85,25 @@ class TranslationController @Inject constructor(
                 // target language - nothing to translate.
                 return text
             }
+            val translated = TimestampProtection.restore(
+                translation.translatedText,
+                masked.tokens,
+            )
+            if (translated.isBlank()) {
+                _lastError.value = "${engine.name} answered without a translation"
+                return null
+            }
             cacheDao.insert(
                 CachedTranslationEntity(
                     id = cacheId,
                     engine = engine.name,
                     targetLanguage = target,
                     sourceText = text,
-                    translatedText = translation.translatedText,
+                    translatedText = translated,
                 ),
             )
             maybePrune()
-            translation.translatedText
+            translated
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -136,7 +152,22 @@ class TranslationController @Inject constructor(
     }
 
     companion object {
-        fun cacheId(engine: String, target: String, text: String): String =
-            "$engine|$target|${text.hashCode()}"
+        /**
+         * Cache key scoped to the engine's active configuration (name, model
+         * and instance url) so switching models or self-hosted instances
+         * yields fresh translations instead of stale ones.
+         */
+        fun cacheId(engine: TranslationEngine, target: String, text: String): String =
+            buildString {
+                append(engine.name)
+                append('|')
+                append(engine.effectiveModel().orEmpty())
+                append('|')
+                append(engine.getUrl())
+                append('|')
+                append(target)
+                append('|')
+                append(text.hashCode())
+            }
     }
 }

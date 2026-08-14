@@ -58,8 +58,12 @@ class MyMemoryEngine(settingsProvider: EngineSettingsProvider) : TranslationEngi
                     ?: "MyMemory returned HTTP ${response.responseStatus}",
             )
         }
+        val translatedText = response.responseData?.translatedText.orEmpty()
+        if (translatedText.isBlank()) {
+            throw IllegalStateException("MyMemory answered without a translation")
+        }
         return Translation(
-            translatedText = response.responseData?.translatedText ?: "",
+            translatedText = translatedText,
             detectedLanguage = response.responseData?.detectedLanguage,
         )
     }

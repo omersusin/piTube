@@ -127,6 +127,46 @@ fun parseHtmlDescription(rawHtml: String, linkColor: Color = Color(0xFF3EA6FF)):
     }
 }
 
+/**
+ * Re-apply the timestamp and plain-text URL annotations to a translated
+ * description. Timestamps survive translation intact (the controller masks
+ * them), so chapter links keep working on translated text; URLs are matched
+ * again because the translator may rewrap the text.
+ */
+fun annotateTranslatedText(text: String, linkColor: Color): AnnotatedString =
+    buildAnnotatedString {
+        append(text)
+        val timestampRegex = Regex("""\b(?:[0-9]{1,2}:)?[0-9]{1,2}:[0-9]{2}\b""")
+        timestampRegex.findAll(text).forEach { matchResult ->
+            val start = matchResult.range.first
+            val end = matchResult.range.last + 1
+            addStyle(
+                style = SpanStyle(
+                    color = linkColor,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                start = start,
+                end = end
+            )
+            addStringAnnotation(tag = "TIMESTAMP", annotation = matchResult.value, start = start, end = end)
+        }
+        val urlRegex = Regex("""https?://[^\s]+""")
+        urlRegex.findAll(text).forEach { matchResult ->
+            val start = matchResult.range.first
+            val end = matchResult.range.last + 1
+            addStyle(
+                style = SpanStyle(
+                    color = linkColor,
+                    textDecoration = TextDecoration.Underline,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                start = start,
+                end = end
+            )
+            addStringAnnotation(tag = "URL", annotation = matchResult.value, start = start, end = end)
+        }
+    }
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FlowDescriptionBottomSheet(
@@ -172,6 +212,13 @@ fun FlowDescriptionBottomSheet(
         text = descriptionText.text,
         feature = descriptionPrefs.translateDescriptions,
     )
+    val displayedDescription = remember(descriptionText, descriptionState.translated) {
+        if (descriptionState.isTranslated) {
+            annotateTranslatedText(descriptionState.displayText, primaryColor)
+        } else {
+            descriptionText
+        }
+    }
     val titleState = rememberTranslatedText(
         text = video.title,
         feature = descriptionPrefs.translateTitles,
@@ -403,29 +450,25 @@ fun FlowDescriptionBottomSheet(
                         SelectionContainer {
                             Column {
                                 BasicText(
-                                    text = if (descriptionState.translated != null) {
-                                        AnnotatedString(descriptionState.displayText)
-                                    } else {
-                                        descriptionText
-                                    },
+                                    text = displayedDescription,
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         color = MaterialTheme.colorScheme.onSurface,
                                         lineHeight = 24.sp,
                                         fontSize = 15.sp
                                     ),
                                     onTextLayout = { descLayoutResult = it },
-                                    modifier = Modifier.pointerInput(descriptionText) {
+                                    modifier = Modifier.pointerInput(displayedDescription) {
                                         detectTapGestures(
                                             onTap = { tapOffset ->
                                                 descLayoutResult?.let { result ->
                                                     val charOffset = result.getOffsetForPosition(tapOffset)
-                                                    val ts = descriptionText
+                                                    val ts = displayedDescription
                                                         .getStringAnnotations("TIMESTAMP", charOffset, charOffset)
                                                         .firstOrNull()
                                                     if (ts != null) {
                                                         onTimestampClick(ts.item)
                                                     } else {
-                                                        descriptionText
+                                                        displayedDescription
                                                             .getStringAnnotations("URL", charOffset, charOffset)
                                                             .firstOrNull()
                                                             ?.let { uriHandler.openUri(it.item) }

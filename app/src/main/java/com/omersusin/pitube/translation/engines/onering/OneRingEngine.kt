@@ -70,6 +70,12 @@ class OneRingEngine(settingsProvider: EngineSettingsProvider) : TranslationEngin
             parameter("api_key", getApiKey())
         }.bodyAsText()
         val response = TranslationHttpClient.json.decodeFromString<OneRingResponse>(body)
+        if (response.result.isBlank()) {
+            throw IllegalStateException(
+                "OneRing returned an empty translation for the \"${getSelectedModel()}\" model. " +
+                    "The plugin may not be installed on the instance.",
+            )
+        }
         return Translation(response.result)
     }
 }
