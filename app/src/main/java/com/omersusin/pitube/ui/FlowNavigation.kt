@@ -333,6 +333,7 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToDiagnostics = { navController.navigate("settings/diagnostics") },
             onNavigateToSyncDevices = { navController.navigate("settings/sync_devices") },
             onNavigateToSponsorBlockSettings = { navController.navigate("settings/sponsorblock") },
+            onNavigateToTranslation = { navController.navigate("settings/translation") },
             onNavigateToGoogleLogin = { navController.navigate("account") },
             onAddYouTubeAccount = { navController.navigate("account?add=1") }
         )
@@ -350,6 +351,14 @@ fun NavGraphBuilder.flowAppGraph(
         currentRoute.value = "settings/player"
         showBottomNav.value = false
         com.omersusin.pitube.ui.screens.settings.PlayerSettingsScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
+    }
+
+    composable("settings/translation") {
+        currentRoute.value = "settings/translation"
+        showBottomNav.value = false
+        com.omersusin.pitube.ui.screens.settings.TranslationSettingsScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }

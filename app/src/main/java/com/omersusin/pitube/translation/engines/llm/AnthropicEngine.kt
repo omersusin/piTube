@@ -91,7 +91,7 @@ class ClaudeEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine
                 setBody(body.toString())
             }
             val bodyText = response.bodyAsText()
-            if (!response.status.isSuccess()) {
+            if (response.status.value !in 200..299) {
                 throw LlmStatusException(
                     response.status,
                     LlmPrompts.extractServerError(bodyText)

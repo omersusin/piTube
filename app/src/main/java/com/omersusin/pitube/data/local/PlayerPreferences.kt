@@ -73,6 +73,16 @@ class PlayerPreferences(context: Context) {
         val SUBTITLE_BACKGROUND_COLOR = intPreferencesKey("subtitle_background_color")
         val SUBTITLE_BOLD = booleanPreferencesKey("subtitle_bold")
         val SUBTITLE_BOTTOM_PADDING = floatPreferencesKey("subtitle_bottom_padding")
+        // Translation settings
+        val TRANSLATION_ENABLED = booleanPreferencesKey("translation_enabled")
+        val TRANSLATE_TITLES = booleanPreferencesKey("translate_titles")
+        val TRANSLATE_CAPTIONS = booleanPreferencesKey("translate_captions")
+        val TRANSLATE_DESCRIPTIONS = booleanPreferencesKey("translate_descriptions")
+        val TRANSLATE_COMMENTS = booleanPreferencesKey("translate_comments")
+        val TRANSLATE_CHANNEL_NAMES = booleanPreferencesKey("translate_channel_names")
+        val TRANSLATE_PLAYLIST_TITLES = booleanPreferencesKey("translate_playlist_titles")
+        val TRANSLATION_TARGET_LANGUAGE = stringPreferencesKey("translation_target_language")
+        val TRANSLATION_MODE = stringPreferencesKey("translation_mode")
         val PLAYBACK_SPEED = floatPreferencesKey("playback_speed")
         val SLEEP_TIMER_CLOSE_APP_ON_EXPIRY = booleanPreferencesKey("sleep_timer_close_app_on_expiry")
         val TRENDING_REGION = stringPreferencesKey("trending_region")
@@ -1281,6 +1291,88 @@ class PlayerPreferences(context: Context) {
             preferences[Keys.SUBTITLE_BACKGROUND_COLOR] = style.backgroundColor.toArgb()
             preferences[Keys.SUBTITLE_BOLD] = style.isBold
             preferences[Keys.SUBTITLE_BOTTOM_PADDING] = style.bottomPadding
+        }
+    }
+
+    // Translation settings
+    val translationEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATION_ENABLED] ?: false }
+
+    suspend fun setTranslationEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATION_ENABLED] = enabled
+        }
+    }
+
+    val translateTitles: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATE_TITLES] ?: false }
+
+    suspend fun setTranslateTitles(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATE_TITLES] = enabled
+        }
+    }
+
+    val translateCaptions: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATE_CAPTIONS] ?: false }
+
+    suspend fun setTranslateCaptions(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATE_CAPTIONS] = enabled
+        }
+    }
+
+    val translateDescriptions: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATE_DESCRIPTIONS] ?: false }
+
+    suspend fun setTranslateDescriptions(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATE_DESCRIPTIONS] = enabled
+        }
+    }
+
+    val translateComments: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATE_COMMENTS] ?: false }
+
+    suspend fun setTranslateComments(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATE_COMMENTS] = enabled
+        }
+    }
+
+    val translateChannelNames: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATE_CHANNEL_NAMES] ?: false }
+
+    suspend fun setTranslateChannelNames(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATE_CHANNEL_NAMES] = enabled
+        }
+    }
+
+    val translatePlaylistTitles: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATE_PLAYLIST_TITLES] ?: false }
+
+    suspend fun setTranslatePlaylistTitles(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATE_PLAYLIST_TITLES] = enabled
+        }
+    }
+
+    val translationTargetLanguage: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATION_TARGET_LANGUAGE] ?: "" }
+
+    suspend fun setTranslationTargetLanguage(language: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATION_TARGET_LANGUAGE] = language
+        }
+    }
+
+    val translationMode: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATION_MODE] ?: "REPLACE" }
+
+    suspend fun setTranslationMode(mode: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATION_MODE] = mode
         }
     }
     

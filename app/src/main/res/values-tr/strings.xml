@@ -343,6 +343,9 @@
     <string name="settings_header_content_playback">İçerik &amp; Yeniden Oynatma</string>
     <string name="settings_header_data_management">Veri Yönetimi</string>
     <string name="settings_header_about">Hakkında</string>
+    <string name="settings_header_translation">Çeviri</string>
+    <string name="settings_item_translation">Çeviri</string>
+    <string name="settings_item_translation_subtitle">Sağlayıcılar, API anahtarları, hedef dil</string>
     <string name="settings_header_notifications">Bildirimler</string>
     <string name="settings_item_notifications">Bildirim Tercihleri</string>
     <string name="settings_item_notifications_subtitle">piTube\'un hangi bildirimleri göndereceğini yönet</string>
@@ -1950,5 +1953,43 @@
     <string name="account_sheet_unknown_user">Bilinmeyen kullanıcı</string>
     <string name="account_sheet_local_profile">Bu cihazda</string>
     <string name="account_sheet_profiles_header">Profiller</string>
+
+    <string name="translation_settings_title">Çeviri</string>
+    <string name="translation_settings_header_provider">Sağlayıcı</string>
+    <string name="translation_settings_header_language">Dil ve görünüm</string>
+    <string name="translation_settings_header_content">Ne çevrilsin</string>
+    <string name="translation_provider_row">Sağlayıcı</string>
+    <string name="translation_provider_row_subtitle" formatted="false">Geçerli: %1$s</string>
+    <string name="translation_api_key_row">API anahtarı</string>
+    <string name="translation_api_key_not_set">Ayarlanmadı</string>
+    <string name="translation_api_key_required_hint">Gerekli - bu sağlayıcıyı kullanmak için anahtar ekleyin</string>
+    <string name="translation_model_row">Model</string>
+    <string name="translation_model_not_selected">Seçilmedi</string>
+    <string name="translation_model_custom">Özel model</string>
+    <string name="translation_base_url_row">Temel URL</string>
+    <string name="translation_base_url_default">Varsayılan</string>
+    <string name="translation_base_url_dialog_title">Özel temel URL</string>
+    <string name="translation_test_row">Sağlayıcıyı test et</string>
+    <string name="translation_test_row_subtitle">Örnek bir çeviri dener</string>
+    <string name="translation_test_success">Örnek çevrildi</string>
+    <string name="translation_test_failure">Test başarısız</string>
+    <string name="translation_target_language_row">Hedef dil</string>
+    <string name="translation_target_language_device" formatted="false">Cihaz dili (%1$s)</string>
+    <string name="translation_target_language_device_label">Cihaz dili (sistem dili)</string>
+    <string name="translation_mode_row">Çeviri görünümü</string>
+    <string name="translation_mode_replace">Orijinali değiştir</string>
+    <string name="translation_mode_replace_subtitle">Yalnızca çeviriyi göster; orijinali görüntülemek için dokunun</string>
+    <string name="translation_mode_dual">Orijinal + çeviri</string>
+    <string name="translation_mode_dual_subtitle">İkisini birlikte göster</string>
+    <string name="translation_toggle_master">İçeriği çevir</string>
+    <string name="translation_toggle_titles">Video başlıkları</string>
+    <string name="translation_toggle_captions">Altyazılar</string>
+    <string name="translation_toggle_captions_subtitle">YouTube\'un yerleşik altyazı çevirisini kullanır</string>
+    <string name="translation_toggle_descriptions">Video açıklamaları</string>
+    <string name="translation_toggle_comments">Yorumlar</string>
+    <string name="translation_toggle_channel_names">Kanal adları</string>
+    <string name="translation_toggle_playlist_titles">Oynatma listesi başlıkları</string>
+    <string name="translation_caption_note">Altyazılar, hedef dil için varsa YouTube\'un yerleşik çevrilmiş altyazılarını kullanır.</string>
+    <string name="translation_missing_key_hint" formatted="false">Çeviri açık, ancak %1$s bir API anahtarı gerektiriyor: yukarıdan anahtar ekleyin veya ücretsiz bir sağlayıcı seçin; içerik özgün dilinde kalır.</string>
 
 </resources>

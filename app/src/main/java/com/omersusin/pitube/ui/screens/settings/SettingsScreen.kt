@@ -87,6 +87,7 @@ fun SettingsScreen(
     onNavigateToDiagnostics: () -> Unit,
     onNavigateToSyncDevices: () -> Unit,
     onNavigateToSponsorBlockSettings: () -> Unit,
+    onNavigateToTranslation: () -> Unit,
     onNavigateToGoogleLogin: () -> Unit,
     onAddYouTubeAccount: () -> Unit,
     modifier: Modifier = Modifier,
@@ -851,6 +852,22 @@ fun SettingsScreen(
                             title = stringResource(R.string.settings_item_region),
                             subtitle = REGION_NAMES[currentRegion] ?: currentRegion,
                             onClick = { showRegionDialog = true },
+                        )
+                    }
+                }
+
+                // =================================================
+                // TRANSLATION
+                // =================================================
+                item { SectionHeader(text = stringResource(R.string.settings_header_translation)) }
+
+                item {
+                    SettingsGroup {
+                        SettingsItem(
+                            icon = Icons.Outlined.Translate,
+                            title = stringResource(R.string.settings_item_translation),
+                            subtitle = stringResource(R.string.settings_item_translation_subtitle),
+                            onClick = onNavigateToTranslation,
                         )
                     }
                 }

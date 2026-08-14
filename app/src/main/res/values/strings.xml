@@ -386,6 +386,9 @@
     <string name="settings_header_content_playback">Content &amp; Playback</string>
     <string name="settings_header_data_management">Data Management</string>
     <string name="settings_header_about">About</string>
+    <string name="settings_header_translation">Translation</string>
+    <string name="settings_item_translation">Translation</string>
+    <string name="settings_item_translation_subtitle">Providers, API keys, target language</string>
     <string name="settings_header_notifications">Notifications</string>
     <string name="settings_item_notifications">Notification Preferences</string>
     <string name="settings_item_notifications_subtitle">Control which notifications piTube can send</string>
@@ -2000,5 +2003,43 @@
     <string name="account_sheet_unknown_user">Unknown user</string>
     <string name="account_sheet_local_profile">On this device</string>
     <string name="account_sheet_profiles_header">Profiles</string>
+
+    <string name="translation_settings_title">Translation</string>
+    <string name="translation_settings_header_provider">Provider</string>
+    <string name="translation_settings_header_language">Language &amp; display</string>
+    <string name="translation_settings_header_content">What to translate</string>
+    <string name="translation_provider_row">Provider</string>
+    <string name="translation_provider_row_subtitle" formatted="false">Current: %1$s</string>
+    <string name="translation_api_key_row">API key</string>
+    <string name="translation_api_key_not_set">Not set</string>
+    <string name="translation_api_key_required_hint">Required - add a key to use this provider</string>
+    <string name="translation_model_row">Model</string>
+    <string name="translation_model_not_selected">Not selected</string>
+    <string name="translation_model_custom">Custom model</string>
+    <string name="translation_base_url_row">Base URL</string>
+    <string name="translation_base_url_default">Default</string>
+    <string name="translation_base_url_dialog_title">Custom base URL</string>
+    <string name="translation_test_row">Test provider</string>
+    <string name="translation_test_row_subtitle">Run a sample translation</string>
+    <string name="translation_test_success">Sample translated</string>
+    <string name="translation_test_failure">Test failed</string>
+    <string name="translation_target_language_row">Target language</string>
+    <string name="translation_target_language_device" formatted="false">Device default (%1$s)</string>
+    <string name="translation_target_language_device_label">Device default (system language)</string>
+    <string name="translation_mode_row">Translation display</string>
+    <string name="translation_mode_replace">Replace original</string>
+    <string name="translation_mode_replace_subtitle">Show only the translation; tap to view the original</string>
+    <string name="translation_mode_dual">Original + translation</string>
+    <string name="translation_mode_dual_subtitle">Show both together</string>
+    <string name="translation_toggle_master">Translate content</string>
+    <string name="translation_toggle_titles">Video titles</string>
+    <string name="translation_toggle_captions">Subtitles &amp; captions</string>
+    <string name="translation_toggle_captions_subtitle">Uses YouTube\'s native caption translation</string>
+    <string name="translation_toggle_descriptions">Video descriptions</string>
+    <string name="translation_toggle_comments">Comments</string>
+    <string name="translation_toggle_channel_names">Channel names</string>
+    <string name="translation_toggle_playlist_titles">Playlist titles</string>
+    <string name="translation_caption_note">Subtitles use YouTube\'s built-in translated captions when they are available for the target language.</string>
+    <string name="translation_missing_key_hint" formatted="false">Translation is on, but %1$s needs an API key: add one above or pick a free provider and content stays in the original language.</string>
 
 </resources>

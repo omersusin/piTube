@@ -162,7 +162,7 @@ internal suspend fun <T> withProviderRetries(
     block: suspend () -> T,
 ): T {
     var lastFailure: Exception? = null
-    repeat(attempts) { attempt ->
+    for (attempt in 0 until attempts) {
         try {
             return block()
         } catch (e: Exception) {
