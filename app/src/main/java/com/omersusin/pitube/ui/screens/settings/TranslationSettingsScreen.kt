@@ -214,17 +214,13 @@ fun TranslationSettingsScreen(
                         subtitle = stringResource(R.string.translation_test_row_subtitle),
                         onClick = {
                             testResult = null
-                            val successLabel =
-                                stringResource(R.string.translation_test_success)
-                            val failureLabel =
-                                stringResource(R.string.translation_test_failure)
                             viewModel.testConnection(targetLanguage) { result ->
                                 testResult = result.fold(
                                     onSuccess = {
-                                        Pair(true, successLabel + "\n\n" + it)
+                                        Pair(true, it)
                                     },
                                     onFailure = {
-                                        Pair(false, failureLabel + "\n\n" + (it.message ?: ""))
+                                        Pair(false, it.message ?: "")
                                     },
                                 )
                             }
