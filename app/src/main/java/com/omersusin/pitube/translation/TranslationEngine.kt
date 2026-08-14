@@ -71,6 +71,9 @@ abstract class TranslationEngine(private val settingsProvider: EngineSettingsPro
     /** Supported models, in picker order; first entry is the default. */
     open val supportedModels: List<String> = emptyList()
 
+    /** True when the engine can synthesize speech for a text (see [getAudioFile]). */
+    open val supportsAudio: Boolean = false
+
     /**
      * Call once before first use. Engines are effectively stateless in this
      * port (they read settings live and share one HttpClient), so this is a
@@ -89,6 +92,12 @@ abstract class TranslationEngine(private val settingsProvider: EngineSettingsPro
      * An empty [source] means automatic detection (see [autoLanguageCode]).
      */
     abstract suspend fun translate(query: String, source: String, target: String): Translation
+
+    /**
+     * Speech audio for [query] in language [lang], or null when the engine
+     * cannot synthesize speech. Only meaningful when [supportsAudio] is true.
+     */
+    open suspend fun getAudioFile(lang: String, query: String): ByteArray? = null
 
     // ------- helpers against the settings provider -------
 

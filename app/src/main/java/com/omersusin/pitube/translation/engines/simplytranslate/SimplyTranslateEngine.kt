@@ -8,6 +8,7 @@ import com.omersusin.pitube.translation.TranslationEngine
 import com.omersusin.pitube.translation.TranslationHttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -47,6 +48,8 @@ class SimplyTranslateEngine(settingsProvider: EngineSettingsProvider) : Translat
 
     override val autoLanguageCode: String? = "auto"
 
+    override val supportsAudio: Boolean = true
+
     override val supportedModels: List<String> = listOf("google", "libre", "reverso", "iciba")
 
     override suspend fun getLanguages(): List<Language> {
@@ -71,5 +74,13 @@ class SimplyTranslateEngine(settingsProvider: EngineSettingsProvider) : Translat
             detectedLanguage = response.sourceLanguage,
             transliterations = listOfNotNull(response.pronunciation?.takeIf { it.isNotBlank() }),
         )
+    }
+
+    override suspend fun getAudioFile(lang: String, query: String): ByteArray? {
+        return TranslationHttpClient.client.get(url("api/tts")) {
+            parameter("engine", "google")
+            parameter("lang", lang)
+            parameter("text", query)
+        }.bodyAsBytes()
     }
 }

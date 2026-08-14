@@ -32,6 +32,11 @@ data class LvTranslationInfo(
 @Serializable
 data class LvPronunciation(val query: String? = null)
 
+@Serializable
+data class LvAudioResponse(val audio: List<Int> = emptyList()) {
+    fun toByteArray() = audio.map { it.toByte() }.toByteArray()
+}
+
 /**
  * Lingva - free web-mirror front end with the query embedded in the URL path.
  * Ported from Translate You's LVEngine (GPL-3.0).
@@ -47,6 +52,8 @@ class LingvaEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine
     override val apiKeyState: ApiKeyState = ApiKeyState.DISABLED
 
     override val autoLanguageCode: String? = "auto"
+
+    override val supportsAudio: Boolean = true
 
     override suspend fun getLanguages(): List<Language> {
         return runCatching {
@@ -69,5 +76,15 @@ class LingvaEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine
             similar = response.info?.similar,
             examples = response.info?.examples,
         )
+    }
+
+    override suspend fun getAudioFile(lang: String, query: String): ByteArray? {
+        val encodedQuery = Uri.encode(query.replace("/", ""))
+        val body = TranslationHttpClient.client
+            .get(url("api/v1/audio/$lang/$encodedQuery"))
+            .bodyAsText()
+        return TranslationHttpClient.json
+            .decodeFromString<LvAudioResponse>(body)
+            .toByteArray()
     }
 }

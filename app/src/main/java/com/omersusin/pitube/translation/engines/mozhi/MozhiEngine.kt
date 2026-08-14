@@ -2,6 +2,7 @@ package com.omersusin.pitube.translation.engines.mozhi
 
 import com.omersusin.pitube.translation.ApiKeyState
 import com.omersusin.pitube.translation.CommonLanguages
+import com.omersusin.pitube.translation.Definition
 import com.omersusin.pitube.translation.EngineSettingsProvider
 import com.omersusin.pitube.translation.Language
 import com.omersusin.pitube.translation.Translation
@@ -11,6 +12,7 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -23,6 +25,20 @@ data class MhTranslationResponse(
     val detectedLanguage: String? = null,
     @SerialName("translated-text")
     val translatedText: String = "",
+    @SerialName("source_synonyms") val sourceSynonyms: List<String>? = null,
+    @SerialName("source_transliteration") val sourceTransliteration: String? = null,
+    @SerialName("target_synonyms") val targetSynonyms: List<String>? = null,
+    @SerialName("target_transliteration") val targetTransliteration: String? = null,
+    @SerialName("word_choices") val wordChoices: List<WordChoice>? = null,
+)
+
+@Serializable
+data class WordChoice(
+    val definition: String? = null,
+    val example: String? = null,
+    val word: String? = null,
+    @SerialName("examples_source") val examplesSource: List<String>? = null,
+    @SerialName("examples_target") val examplesTarget: List<String>? = null,
 )
 
 @Serializable
@@ -52,6 +68,8 @@ class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(
     override val apiKeyState: ApiKeyState = ApiKeyState.OPTIONAL
 
     override val autoLanguageCode: String? = "auto"
+
+    override val supportsAudio: Boolean = true
 
     override val supportedModels: List<String> = listOf(
         "google",
@@ -90,7 +108,34 @@ class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(
         val response = TranslationHttpClient.json.decodeFromString<MhTranslationResponse>(responseText)
         return Translation(
             translatedText = response.translatedText,
+            transliterations = listOf(
+                response.sourceTransliteration,
+                response.targetTransliteration,
+            ).filter {
+                !it.isNullOrBlank() && !it.matches(transliterationFailedRegex)
+            },
             detectedLanguage = response.detectedLanguage?.takeIf { it.isNotBlank() },
+            definitions = response.wordChoices.orEmpty().map { definition ->
+                Definition(
+                    definition = definition.definition?.takeIf { it.isNotBlank() },
+                    example = definition.example?.takeIf { it.isNotBlank() },
+                )
+            }.takeIf { it.isNotEmpty() },
+            similar = response.targetSynonyms,
+            examples = response.wordChoices.orEmpty()
+                .flatMap { it.examplesSource.orEmpty() + it.examplesTarget.orEmpty() }
+                .map { it.replace(bracketRegex, "") },
         )
+    }
+
+    private val transliterationFailedRegex = Regex("Direction '\\w{2}' is not supported")
+    private val bracketRegex = Regex("[<>]")
+
+    override suspend fun getAudioFile(lang: String, query: String): ByteArray? {
+        return TranslationHttpClient.client.get(url("api/tts")) {
+            parameter("engine", "google")
+            parameter("lang", lang)
+            parameter("text", query)
+        }.bodyAsBytes()
     }
 }
