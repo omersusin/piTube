@@ -37,6 +37,9 @@ data class MhLanguage(
  * Mozhi - free public aggregator over Google, Libre, Reverso, DeepL,
  * DuckDuckGo, MyMemory, Watson and Yandex (picked via the model selector).
  * Multipart form requests, ported from Translate You's MhEngine (GPL-3.0).
+ * Some private instances enforce an API key; when one is set it is sent as
+ * the `api_key` multipart field (same optional-key pattern Translate You
+ * uses for LibreTranslate / MyMemory).
  */
 class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(settingsProvider) {
 
@@ -46,7 +49,7 @@ class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(
 
     override val urlModifiable: Boolean = true
 
-    override val apiKeyState: ApiKeyState = ApiKeyState.DISABLED
+    override val apiKeyState: ApiKeyState = ApiKeyState.OPTIONAL
 
     override val autoLanguageCode: String? = "auto"
 
@@ -72,10 +75,12 @@ class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(
     }
 
     override suspend fun translate(query: String, source: String, target: String): Translation {
+        val apiKey = getApiKey()
         val responseText = TranslationHttpClient.client.submitFormWithBinaryData(
             url = url("api/translate/"),
             formData = formData {
                 append("engine", effectiveModel().orEmpty())
+                if (!apiKey.isNullOrBlank()) append("api_key", apiKey)
                 append("from", sourceOrAuto(source.take(2)))
                 append("to", target.take(2))
                 append("text", query)
