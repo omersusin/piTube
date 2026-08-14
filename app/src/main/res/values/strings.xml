@@ -1963,7 +1963,7 @@
     <string name="login_use_cookies_alt">WebView login blocked? Paste a session cookie from your browser instead.</string>
     <string name="login_tab_token">Paste token / cookie</string>
     <string name="login_tab_webview">Browser sign-in</string>
-    <string name="login_token_description">Paste a session token or cookie from a signed-in browser to sign in without Google's embedded-browser block. You can export it from another app, or use the steps below.</string>
+    <string name="login_token_description">Paste a session token or cookie from a signed-in browser to sign in without Google\'s embedded-browser block. You can export it from another app, or use the steps below.</string>
     <string name="login_token_field_label">Token or cookie</string>
     <string name="login_token_field_hint">SID=...; SAPISID=...\nor\n***DATASYNC ID*** =...\n***ACCOUNT NAME*** =...</string>
     <string name="settings_item_datetime">Date &amp; Time</string>
