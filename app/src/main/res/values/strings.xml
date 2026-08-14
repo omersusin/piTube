@@ -661,6 +661,8 @@
     
     <!-- Home Feed -->
     <string name="content_settings_header_home_feed">Home Feed</string>
+    <string name="content_settings_hide_unplayable_subscriptions_title">Hide Unplayable Videos from Feed</string>
+    <string name="content_settings_hide_unplayable_subscriptions_subtitle">Filter out age-restricted, private, members-only and removed videos after they fail to play</string>
     
     
     

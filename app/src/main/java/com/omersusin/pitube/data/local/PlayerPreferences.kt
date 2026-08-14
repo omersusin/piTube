@@ -292,6 +292,7 @@ class PlayerPreferences(context: Context) {
 
         // Newest-first, newline-delimited so the list can be trimmed to a bounded size.
         val UNPLAYABLE_VIDEO_IDS = stringPreferencesKey("unplayable_video_ids")
+        val HIDE_UNPLAYABLE_SUBSCRIPTIONS = booleanPreferencesKey("hide_unplayable_subscriptions")
 
         // Home subscription feed rotation cursor
         val HOME_SUBS_ROTATION_CURSOR = intPreferencesKey("home_subs_rotation_cursor")
@@ -1721,6 +1722,18 @@ class PlayerPreferences(context: Context) {
             val current = preferences[Keys.UPCOMING_VIDEO_REMINDER_IDS].orEmpty()
             preferences[Keys.UPCOMING_VIDEO_REMINDER_IDS] =
                 if (enabled) current + videoId else current - videoId
+        }
+    }
+
+    /** Opt-in: off by default, so the feed never hides anything unless the user asks for it. */
+    val hideUnplayableVideosFromSubscriptions: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.HIDE_UNPLAYABLE_SUBSCRIPTIONS] ?: false
+        }
+
+    suspend fun setHideUnplayableVideosFromSubscriptions(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HIDE_UNPLAYABLE_SUBSCRIPTIONS] = enabled
         }
     }
 

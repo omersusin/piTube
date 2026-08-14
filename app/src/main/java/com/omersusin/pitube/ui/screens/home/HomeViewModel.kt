@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -339,6 +340,8 @@ class HomeViewModel @Inject constructor(
 
     private val watchedVideoIds = MutableStateFlow<Set<String>>(emptySet())
 
+    private val unplayableVideoIds = MutableStateFlow<Set<String>>(emptySet())
+
     private val discoveryPrefs by lazy {
         appContext.getSharedPreferences("home_feed_rotation", Context.MODE_PRIVATE)
     }
@@ -439,6 +442,27 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
+        }
+
+        viewModelScope.launch(PerformanceDispatcher.diskIO) {
+            combine(
+                playerPreferences.unplayableVideoIds,
+                playerPreferences.hideUnplayableVideosFromSubscriptions
+            ) { ids, hideUnplayable ->
+                if (hideUnplayable) ids else emptySet()
+            }
+                .distinctUntilChanged()
+                .collect { ids ->
+                    unplayableVideoIds.value = ids
+                    _uiState.update { state ->
+                        val videos = state.videos.filterUnplayable(ids)
+                        val shorts = state.shorts.filterUnplayable(ids)
+                        if (videos != state.videos || shorts != state.shorts) {
+                            HomeFeedCache.update(videos, shorts)
+                        }
+                        state.copy(videos = videos, shorts = shorts)
+                    }
+                }
         }
 
         viewModelScope.launch {
@@ -602,7 +626,7 @@ class HomeViewModel @Inject constructor(
                 val shorts = shortsRepository.getHomeFeedShorts().map { it.toVideo() }
                 if (shorts.isNotEmpty()) {
                     _uiState.update {
-                        it.copy(shorts = shorts.filterWatched(watchedVideoIds.value))
+                        it.copy(shorts = shorts.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value))
                     }
                 }
             } catch (e: Exception) {
@@ -626,7 +650,7 @@ class HomeViewModel @Inject constructor(
 
             _uiState.update { state ->
                 if (state.videos.isNotEmpty()) return@update state
-                val videos = hydratedCached.filterWatched(watchedVideoIds.value)
+                val videos = hydratedCached.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value)
                 HomeFeedCache.update(videos, state.shorts)
                 state.copy(
                     videos = videos,
@@ -649,10 +673,12 @@ class HomeViewModel @Inject constructor(
         
         _uiState.update { state ->
             val watched = watchedVideoIds.value
+            val unplayable = unplayableVideoIds.value
             val updatedVideos = if (append) (state.videos + regularVideos) else regularVideos
             state.copy(
-                videos = updatedVideos.distinctBy { it.id }.filterWatched(watched),
+                videos = updatedVideos.distinctBy { it.id }.filterWatched(watched).filterUnplayable(unplayable),
                 shorts = (state.shorts + newShorts).distinctBy { it.id }.filterWatched(watched)
+                    .filterUnplayable(unplayable)
                     .sortedByDescending { it.timestamp }
             )
         }
@@ -698,6 +724,7 @@ class HomeViewModel @Inject constructor(
                             .orEmpty()
                             .filterValid()
                             .filterWatched(watchedVideoIds.value)
+                            .filterUnplayable(unplayableVideoIds.value)
                             .filterRecentHomeSuggestion(System.currentTimeMillis())
                     } ?: emptyList()
                 } else {
@@ -768,14 +795,16 @@ class HomeViewModel @Inject constructor(
                     val viralResult = deferredViral.await()
                     if (viralResult.isNotEmpty() && userSubs.isEmpty()) {
                         val watched = watchedVideoIds.value
+                        val unplayable = unplayableVideoIds.value
                         val quickFeed = viralResult.filterValid()
                             .filterWatched(watched)
+                            .filterUnplayable(unplayable)
                             .filterRecentHomeSuggestion(System.currentTimeMillis())
                             .take(15)
                         if (quickFeed.isNotEmpty()) {
                             _uiState.update { state ->
                                 state.copy(
-                                    videos = quickFeed.filterWatched(watchedVideoIds.value),
+                                    videos = quickFeed.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value),
                                     isLoading = true,
                                     isFlowFeed = true
                                 )
@@ -820,6 +849,7 @@ class HomeViewModel @Inject constructor(
                 val feedShorts = (rawSubs.extractShorts() + rawDiscovery.extractShorts() + rawViral.extractShorts())
                     .distinctBy { it.id }
                     .filterWatched(watchedVideoIds.value)
+                    .filterUnplayable(unplayableVideoIds.value)
                     .filterRecentHomeSuggestion(now)
                 if (feedShorts.isNotEmpty() && playerPreferences.homeShortsShelfEnabled.first()) {
                     _uiState.update { state ->
@@ -829,10 +859,11 @@ class HomeViewModel @Inject constructor(
                 
                 // Filter to regular videos for the main feed
                 val watched = watchedVideoIds.value
-                val subsPool = rawSubs.filterValid().filterWatched(watched).enrichAvatars()
-                val discoveryPool = rawDiscovery.filterValid().filterWatched(watched)
+                val unplayable = unplayableVideoIds.value
+                val subsPool = rawSubs.filterValid().filterWatched(watched).filterUnplayable(unplayable).enrichAvatars()
+                val discoveryPool = rawDiscovery.filterValid().filterWatched(watched).filterUnplayable(unplayable)
                     .filterRecentHomeSuggestion(now)
-                val viralPool = rawViral.filterValid().filterWatched(watched)
+                val viralPool = rawViral.filterValid().filterWatched(watched).filterUnplayable(unplayable)
                     .filterRecentHomeSuggestion(now)
 
                 Log.d(
@@ -909,7 +940,7 @@ class HomeViewModel @Inject constructor(
                     cacheCandidates(FeedSource.VIRAL, bestViral, renderedIds)
                 var visibleFeed = emptyList<Video>()
                 _uiState.update { state ->
-                    visibleFeed = spacedMix.filterWatched(watchedVideoIds.value)
+                    visibleFeed = spacedMix.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value)
                     state.copy(
                         videos = visibleFeed,
                         isLoading = false,
@@ -950,6 +981,7 @@ class HomeViewModel @Inject constructor(
 
                             val wave2Watched = watchedVideoIds.value
                             val wave2Valid = wave2Raw.filterValid().filterWatched(wave2Watched)
+                                .filterUnplayable(unplayableVideoIds.value)
                                 .filter { !wave2FinalMixIds.contains(it.id) }
                             if (wave2Valid.isEmpty()) return@wave2
 
@@ -961,6 +993,7 @@ class HomeViewModel @Inject constructor(
                                     val currentIds = state.videos.map { it.id }.toHashSet()
                                     val uniqueNew = wave2Ranked
                                         .filterWatched(watchedVideoIds.value)
+                                        .filterUnplayable(unplayableVideoIds.value)
                                         .filter { !currentIds.contains(it.id) }
                                         .distinctBy { it.channelId }
                                     if (uniqueNew.isEmpty()) return@update state
@@ -1079,6 +1112,7 @@ class HomeViewModel @Inject constructor(
                 // Extract shorts for shelf
                 val moreShorts = rawVideos.extractShorts()
                     .filterWatched(watchedVideoIds.value)
+                    .filterUnplayable(unplayableVideoIds.value)
                     .filterRecentHomeSuggestion(now)
                 if (moreShorts.isNotEmpty() && playerPreferences.homeShortsShelfEnabled.first()) {
                     _uiState.update { state ->
@@ -1088,6 +1122,7 @@ class HomeViewModel @Inject constructor(
                 
                 val newVideos = rawVideos.filterValid()
                     .filterWatched(watchedVideoIds.value)
+                    .filterUnplayable(unplayableVideoIds.value)
                     .filterRecentHomeSuggestion(now)
 
                 if (newVideos.isNotEmpty()) {
@@ -1140,6 +1175,7 @@ class HomeViewModel @Inject constructor(
             val existingVideoIds = state.videos.mapTo(HashSet()) { it.id }
             appendedPage = page
                 .filterWatched(watchedVideoIds.value)
+                .filterUnplayable(unplayableVideoIds.value)
                 .filterNot { it.id in existingVideoIds }
             if (appendedPage.isEmpty()) return@update state
             val tailChannels = state.videos.takeLast(2).map { it.channelId }
@@ -1365,6 +1401,15 @@ class HomeViewModel @Inject constructor(
     private fun List<Video>.filterWatched(watchedIds: Set<String>): List<Video> {
         if (watchedIds.isEmpty()) return this
         return this.filter { !watchedIds.contains(it.id) }
+    }
+
+    /**
+     * Remove videos the player has permanently given up on (age-restricted,
+     * private, members-only or removed). Only active when the user opts in.
+     */
+    private fun List<Video>.filterUnplayable(unplayableIds: Set<String>): List<Video> {
+        if (unplayableIds.isEmpty()) return this
+        return this.filter { !unplayableIds.contains(it.id) }
     }
 }
 

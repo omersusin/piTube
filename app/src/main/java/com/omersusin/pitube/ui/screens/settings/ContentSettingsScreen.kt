@@ -91,6 +91,7 @@ fun ContentSettingsScreen(
     val showAppLogoIcon by preferences.showAppLogoIcon.collectAsState(initial = true)
     val currentRelatedCardStyle by preferences.playerRelatedCardStyle.collectAsState(initial = PlayerRelatedCardStyle.COMPACT)
     val hideWatchedVideosFromHome by preferences.hideWatchedVideosFromHome.collectAsState(initial = false)
+    val hideUnplayableVideosFromSubscriptions by preferences.hideUnplayableVideosFromSubscriptions.collectAsState(initial = false)
     val watchedThreshold by preferences.watchedThreshold.collectAsState(initial = com.omersusin.pitube.data.local.WatchedThreshold.ALMOST_FINISHED)
     var showWatchedThresholdDialog by remember { mutableStateOf(false) }
     val blockedChannelIds by preferences.blockedChannelIds.collectAsState(initial = emptySet())
@@ -346,6 +347,18 @@ fun ContentSettingsScreen(
                         onDefaultSelected = { index ->
                             coroutineScope.launch {
                                 preferences.setDefaultNavTabIndex(index)
+                            }
+                        }
+                    )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.Block,
+                        title = stringResource(R.string.content_settings_hide_unplayable_subscriptions_title),
+                        subtitle = stringResource(R.string.content_settings_hide_unplayable_subscriptions_subtitle),
+                        checked = hideUnplayableVideosFromSubscriptions,
+                        onCheckedChange = { enabled ->
+                            coroutineScope.launch {
+                                preferences.setHideUnplayableVideosFromSubscriptions(enabled)
                             }
                         }
                     )
