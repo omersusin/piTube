@@ -18,6 +18,7 @@ piTube is a privacy-respecting, feature-rich YouTube client for Android. It is a
 - **Shorts & thumbnails** — working Shorts feed (continuation-token paging, hardened player client ladder) and avatar/thumbnail URL normalization so channel images actually render
 - **Picture-in-picture & popup player** — PiP with playback controls, with automatic AppOps permission checks that guide you to the system settings screen when PiP or overlay access is revoked
 - **Content filtering** — block channels (persisted), hide watched videos, watched-threshold, shorts shelf toggles, dead-code-free quick-actions sheet
+- **Translation everywhere** — translate video titles, descriptions, comments, and channel/playlist names inline, with the original text shown below in "dual" mode when you want it; captions get native YouTube `tlang` tracks for perfectly synced translated subtitles. Providers include the AI families (OpenRouter, OpenAI, Perplexity, Claude, Gemini, X.AI, Mistral, DeepL, custom OpenAI-compatible endpoints) and the free Translate You engines (Kagi, OneRing, Yandex, Mozhi, LibreTranslate, Lingva, MyMemory, MinT, Pons, Glosbe, Apertium, LaraTranslate, SimplyTranslate, DeepL browser)
 - **Per-channel remembered tab**, default navigation tab, and extensive theming / layout options
 - **Device-to-device sync** between your own piTube installs (watch progress, likes, subscriptions), app update checker, and diagnostics
 
@@ -68,6 +69,7 @@ piTube is a Flow fork with high changes and builds on the shoulders of the free-
 - **[ReVanced](https://gitlab.com/ReVanced/revanced-patches)** — content-filtering and SponsorBlock/DeArrow/RYD integration patterns
 - **[ViewTube](https://github.com/ViewTube/viewtube)** — SponsorBlock server-side category handling incl. `poi_highlight`
 - **[FlexTube](https://github.com/FlexTube) / [Beatbump](https://github.com/snuffyDev/Beatbump) / [ViewerTube](https://github.com/wartek-dev/viewertube)** — frontend/UX references
+- **[Translate You](https://github.com/you-apps/TranslateYou)** — the translation engine abstraction and its free engines (Mozhi, LibreTranslate, Lingva, MyMemory, MinT, Kagi, OneRing, Yandex, Pons, Glosbe, Apertium, LaraTranslate, SimplyTranslate, DeepL browser) re-implemented on Ktor for the in-app translation feature
 
 ## License
 
