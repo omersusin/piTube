@@ -42,6 +42,7 @@ import com.omersusin.pitube.ui.components.FloatingBottomNavBar
 import com.omersusin.pitube.ui.components.FlowPlaylistQueueBottomSheet
 import com.omersusin.pitube.ui.components.PlayerSheetValue
 import com.omersusin.pitube.ui.components.rememberPlayerDraggableState
+import com.omersusin.pitube.ui.screens.account.AccountSheet
 import com.omersusin.pitube.ui.screens.home.HomeViewModel
 import com.omersusin.pitube.ui.screens.player.VideoPlayerViewModel
 import com.omersusin.pitube.ui.theme.CustomThemePalettes
@@ -137,6 +138,21 @@ fun FlowApp(
     val selectedBottomNavIndex = remember { mutableIntStateOf(resolvedDefaultNavTabIndex) }
     val showBottomNav = remember { mutableStateOf(true) }
     val navScrollThresholdPx = with(LocalDensity.current) { 32.dp.toPx() }
+
+    // "You" tab: the account sheet is hosted at the app root so it can be
+    // opened from any destination. The active profile's avatar feeds the tab
+    // pill (mirroring YouTube), plus the expired badge on the avatar ring.
+    val accountSwitcher = remember(context) { com.omersusin.pitube.data.local.AccountSwitcher(context) }
+    val activeProfileId by accountSwitcher.activeProfileId.collectAsStateWithLifecycle()
+    val profilesState by accountSwitcher.profiles.collectAsStateWithLifecycle()
+    val activeProfile = remember(profilesState, activeProfileId) {
+        profilesState.firstOrNull { it.id == activeProfileId }
+    }
+    var showAccountSheet by remember { mutableStateOf(false) }
+
+    val closeAccountSheet: () -> Unit = {
+        showAccountSheet = false
+    }
 
     LaunchedEffect(resolvedDefaultNavTabIndex) {
         selectedBottomNavIndex.intValue = resolvedDefaultNavTabIndex
@@ -496,6 +512,12 @@ fun FlowApp(
                     isSearchEnabled = isSearchNavigationEnabled,
                     isCategoriesEnabled = isCategoriesNavigationEnabled,
                     navOrder = navTabOrder,
+                    accountAvatarUrl = activeProfile?.avatarUrl?.takeIf { !activeProfile.isLocal },
+                    accountExpired = activeProfile?.expired == true,
+                    isAccountSelected = showAccountSheet,
+                    onAccountClick = {
+                        showAccountSheet = true
+                    },
                     onItemSelected = { index ->
                         val route = navRouteForIndex(index)
 
@@ -572,6 +594,46 @@ fun FlowApp(
         // feedback instead of silently mutating an unseen queue. Rendered last
         // in the root Box so it stacks above the NavHost content.
         GlobalQueueSheetHost()
+
+        // ===== GLOBAL ACCOUNT SHEET =====
+        // Opened from the "You" tab in the bottom nav. Hosted at the root so
+        // it works from every destination and can push library/settings routes
+        // on top of whatever the user was doing.
+        if (showAccountSheet) {
+            AccountSheet(
+                onDismiss = closeAccountSheet,
+                onSignIn = {
+                    navController.navigate("account")
+                },
+                onAddYouTubeAccount = {
+                    navController.navigate("account?add=1")
+                },
+                onOpenHistory = {
+                    navController.navigate("history")
+                },
+                onOpenPlaylists = {
+                    navController.navigate("playlists")
+                },
+                onOpenLikedVideos = {
+                    navController.navigate("likes")
+                },
+                onOpenWatchLater = {
+                    navController.navigate("playlist/${com.omersusin.pitube.data.local.PlaylistRepository.WATCH_LATER_ID}")
+                },
+                onOpenSavedShorts = {
+                    navController.navigate("savedShorts")
+                },
+                onOpenDownloads = {
+                    navController.navigate("downloads")
+                },
+                onOpenSettings = {
+                    navController.navigate("settings")
+                },
+                onOpenAbout = {
+                    navController.navigate("settings/about")
+                }
+            )
+        }
 
         androidx.compose.material3.SnackbarHost(
             hostState = snackbarHostState,

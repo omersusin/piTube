@@ -83,12 +83,7 @@ fun AccountSwitcherSheet(
 ) {
     val context = LocalContext.current
     val switcher = remember(context) { AccountSwitcher(context) }
-    val profiles by switcher.profiles.collectAsState()
-    val activeId by switcher.activeProfileId.collectAsState()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    var pendingRemoval by remember { mutableStateOf<Profile?>(null) }
-    var showAddLocal by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -119,39 +114,66 @@ fun AccountSwitcherSheet(
                 modifier = Modifier.padding(start = 4.dp, bottom = 16.dp)
             )
 
-            profiles.forEach { profile ->
-                ProfileRow(
-                    profile = profile,
-                    isActive = profile.id == activeId,
-                    canRemove = profiles.size > 1 || !profile.isLocal,
-                    onClick = {
-                        if (profile.id != activeId) switcher.switchTo(profile.id)
-                        onDismiss()
-                    },
-                    onRemove = { pendingRemoval = profile }
-                )
-                Spacer(Modifier.height(8.dp))
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            AddRow(
-                icon = Icons.Rounded.Add,
-                title = stringResource(R.string.account_switcher_add_youtube_title),
-                subtitle = stringResource(R.string.account_switcher_add_youtube_subtitle),
-                onClick = {
+            ProfileManagementSection(
+                switcher = switcher,
+                onAddYouTubeAccount = {
                     onDismiss()
                     onAddYouTubeAccount()
-                }
-            )
-            Spacer(Modifier.height(8.dp))
-            AddRow(
-                icon = Icons.Rounded.PhoneAndroid,
-                title = stringResource(R.string.account_switcher_add_local_title),
-                subtitle = stringResource(R.string.account_switcher_add_local_subtitle),
-                onClick = { showAddLocal = true }
+                },
+                onProfileChanged = onDismiss
             )
         }
+    }
+}
+
+/**
+ * The profile roster kept in a shared spot so both the Settings "Switch
+ * account" sheet and the bottom-nav account sheet render the exact same
+ * switches without duplicating the state.
+ */
+@Composable
+internal fun ProfileManagementSection(
+    switcher: AccountSwitcher,
+    onAddYouTubeAccount: () -> Unit,
+    onProfileChanged: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val profiles by switcher.profiles.collectAsState()
+    val activeId by switcher.activeProfileId.collectAsState()
+
+    var pendingRemoval by remember { mutableStateOf<Profile?>(null) }
+    var showAddLocal by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        profiles.forEach { profile ->
+            ProfileRow(
+                profile = profile,
+                isActive = profile.id == activeId,
+                canRemove = profiles.size > 1 || !profile.isLocal,
+                onClick = {
+                    if (profile.id != activeId) switcher.switchTo(profile.id)
+                    onProfileChanged()
+                },
+                onRemove = { pendingRemoval = profile }
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        AddRow(
+            icon = Icons.Rounded.Add,
+            title = stringResource(R.string.account_switcher_add_youtube_title),
+            subtitle = stringResource(R.string.account_switcher_add_youtube_subtitle),
+            onClick = onAddYouTubeAccount
+        )
+        Spacer(Modifier.height(8.dp))
+        AddRow(
+            icon = Icons.Rounded.PhoneAndroid,
+            title = stringResource(R.string.account_switcher_add_local_title),
+            subtitle = stringResource(R.string.account_switcher_add_local_subtitle),
+            onClick = { showAddLocal = true }
+        )
     }
 
     if (showAddLocal) {
@@ -159,7 +181,7 @@ fun AccountSwitcherSheet(
             onConfirm = { name ->
                 showAddLocal = false
                 switcher.addLocalProfileAndSwitch(name)
-                onDismiss()
+                onProfileChanged()
             },
             onDismiss = { showAddLocal = false }
         )
@@ -185,7 +207,7 @@ fun AccountSwitcherSheet(
  * One profile.
  */
 @Composable
-private fun ProfileRow(
+internal fun ProfileRow(
     profile: Profile,
     isActive: Boolean,
     canRemove: Boolean,
@@ -323,7 +345,7 @@ fun ProfileAvatar(profile: Profile, size: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun AddRow(
+internal fun AddRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
@@ -378,7 +400,7 @@ private fun AddRow(
 }
 
 @Composable
-private fun NameProfileDialog(onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
+internal fun NameProfileDialog(onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
     var name by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -413,7 +435,7 @@ private fun NameProfileDialog(onConfirm: (String) -> Unit, onDismiss: () -> Unit
 }
 
 @Composable
-private fun RemoveProfileDialog(
+internal fun RemoveProfileDialog(
     profile: Profile,
     isSignOutOnly: Boolean,
     onConfirm: () -> Unit,

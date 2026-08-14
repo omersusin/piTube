@@ -1937,5 +1937,11 @@
     <string name="cookie_paste_cancel">İptal</string>
     <string name="account_switcher_expired">Oturum süresi doldu - yeniden bağlanmak için dokunun</string>
     <string name="login_use_cookies_alt">WebView girişi engellendi mi? Bunun yerine tarayıcınızdan oturum çerezini yapıştırın.</string>
-    
-</resources>
+    <string name="nav_you">Sen</string>
+    <string name="account_sheet_signed_out_title">Çıkış yapıldı</string>
+    <string name="account_sheet_signed_out_subtitle">Akışınızı ve aboneliklerinizi eşitlemek için giriş yapın</string>
+    <string name="account_sheet_sign_in_cta">Giriş yap</string>
+    <string name="account_sheet_unknown_user">Bilinmeyen kullanıcı</string>
+    <string name="account_sheet_local_profile">Bu cihazda</string>
+    <string name="account_sheet_profiles_header">Profiller</string>
+    </resources>

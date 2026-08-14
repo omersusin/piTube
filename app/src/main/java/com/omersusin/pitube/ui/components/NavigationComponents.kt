@@ -46,6 +46,12 @@ private data class NavItemSpec(
     val labelRes: Int
 )
 
+/**
+ * The "You" tab is a fixed slot at the end of the bar - never part of the
+ * reorderable nav-order set, because it never navigates: it must not be
+ * selectable as the default start tab or get buried in the overflow menu.
+ */
+
 private const val MAX_VISIBLE_NAV_ITEMS = 5
 
 @Composable
@@ -57,7 +63,11 @@ fun FloatingBottomNavBar(
     isShortsEnabled: Boolean = true,
     isSearchEnabled: Boolean = false,
     isCategoriesEnabled: Boolean = false,
-    navOrder: List<Int> = listOf(0, 1, 4, 5, 6)
+    navOrder: List<Int> = listOf(0, 1, 4, 5, 6),
+    onAccountClick: () -> Unit = {},
+    isAccountSelected: Boolean = false,
+    accountAvatarUrl: String? = null,
+    accountExpired: Boolean = false,
 ) {
     val shortsIcon = ImageVector.vectorResource(id = R.drawable.ic_shorts)
 
@@ -73,14 +83,18 @@ fun FloatingBottomNavBar(
         items.sortedBy { order[it.index] ?: Int.MAX_VALUE }
     }
 
+    // One slot is always reserved for the account tab, so it can never end up
+    // in the overflow menu no matter how many navigation tabs are enabled.
+    val maxReorderableVisible = MAX_VISIBLE_NAV_ITEMS - 1
+
     val visibleItems: List<NavItemSpec>
     val overflowItems: List<NavItemSpec>
-    if (enabledItems.size <= MAX_VISIBLE_NAV_ITEMS) {
+    if (enabledItems.size <= maxReorderableVisible) {
         visibleItems = enabledItems
         overflowItems = emptyList()
     } else {
-        visibleItems = enabledItems.take(MAX_VISIBLE_NAV_ITEMS - 1)
-        overflowItems = enabledItems.drop(MAX_VISIBLE_NAV_ITEMS - 1)
+        visibleItems = enabledItems.take(maxReorderableVisible - 1)
+        overflowItems = enabledItems.drop(maxReorderableVisible - 1)
     }
 
     val isOverflowSelected = overflowItems.any { it.index == selectedIndex }
@@ -152,6 +166,103 @@ fun FloatingBottomNavBar(
                     }
                 }
             }
+
+            // Fixed "You" tab, always last.
+            AccountBottomNavItem(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.nav_you),
+                selected = isAccountSelected,
+                avatarUrl = accountAvatarUrl,
+                expired = accountExpired,
+                onClick = onAccountClick
+            )
+        }
+    }
+}
+
+/**
+ * The "You" tab: a circular avatar when a YouTube account is active (with an
+ * error ring when its session has expired), falling back to the generic
+ * account icon when signed out.
+ */
+@Composable
+private fun AccountBottomNavItem(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    avatarUrl: String? = null,
+    expired: Boolean = false,
+) {
+    val scale by animateFloatAsState(
+        targetValue = if (selected) 1.05f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "accountScale"
+    )
+
+    val iconTint by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "accountTint"
+    )
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .scale(scale)
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = ripple(bounded = true, radius = 28.dp),
+                    onClick = onClick
+                )
+                .padding(horizontal = 12.dp, vertical = 2.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .then(if (expired) Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.error) else Modifier)
+                    .padding(if (expired) 1.dp else 0.dp)
+                    .clip(CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!avatarUrl.isNullOrBlank()) {
+                    coil3.compose.AsyncImage(
+                        model = avatarUrl,
+                        contentDescription = label,
+                        modifier = Modifier.fillMaxSize().clip(CircleShape)
+                    )
+                } else {
+                    Icon(
+                        imageVector = if (selected) Icons.Filled.AccountCircle else Icons.Outlined.AccountCircle,
+                        contentDescription = label,
+                        tint = iconTint,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(1.dp))
+
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = iconTint,
+                fontSize = 10.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }

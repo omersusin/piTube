@@ -1985,6 +1985,14 @@
 <string name="account_switcher_remove_youtube_body">Signs this account out on this device and deletes its subscriptions and hidden recommendations. Nothing changes on YouTube itself.</string>
 <string name="account_switcher_sign_out">Sign out</string>
 <string name="account_switcher_remove_confirm">Remove</string>
-<string name="account_switcher_switch_account">Switch account</string>
-<string name="account_switcher_switch_account_subtitle">Manage multiple Google accounts</string>
+    <string name="account_switcher_switch_account">Switch account</string>
+    <string name="account_switcher_switch_account_subtitle">Manage multiple Google accounts</string>
+    <string name="nav_you">You</string>
+    <string name="account_sheet_signed_out_title">Signed out</string>
+    <string name="account_sheet_signed_out_subtitle">Sign in to sync your feed and subscriptions</string>
+    <string name="account_sheet_sign_in_cta">Sign in</string>
+    <string name="account_sheet_unknown_user">Unknown user</string>
+    <string name="account_sheet_local_profile">On this device</string>
+    <string name="account_sheet_profiles_header">Profiles</string>
+
 </resources>
