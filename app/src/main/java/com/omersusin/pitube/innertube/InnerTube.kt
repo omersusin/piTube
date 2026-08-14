@@ -40,6 +40,14 @@ import kotlin.io.encoding.Base64
 private const val TAG = "InnerTube"
 
 /**
+ * `logged_in` verdict in a response's responseContext tracking params.
+ * Koda uses the same shape to flag a dead session (`logged_in: 0` while we
+ * sent cookies still means the stored session was rejected as anonymous).
+ */
+private val LOGGED_IN_TRACKING_PARAM =
+    Regex("\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"([01])\"")
+
+/**
  * Provide access to InnerTube endpoints.
  * For making HTTP requests, not parsing response.
  */
@@ -85,6 +93,29 @@ class InnerTube {
 
     /** Invoked whenever a response rotated the session cookie to a new value. */
     var cookieRefreshListener: ((String) -> Unit)? = null
+
+    /**
+     * Invoked with YouTube's own session verdict from a response body: true
+     * when `logged_in` is 1, false when it is 0. Only fires when the body
+     * actually carries the tracking param, and only for bodies the callers
+     * route through [noteResponseState].
+     */
+    var sessionStateListener: ((Boolean) -> Unit)? = null
+
+    /**
+     * Read YouTube's verdict on the session out of a response body.
+     *
+     * Every InnerTube response reports `logged_in` in its responseContext
+     * tracking params. When the app sent cookies and a SAPISIDHASH and still
+     * gets `0` back, the stored session is dead - which used to surface only as
+     * empty account screens with no hint that signing in again was the fix.
+     * A `1` clears the flag, so a session revived by a cookie rotation heals
+     * itself without a round trip through the login screen.
+     */
+    fun noteResponseState(body: String) {
+        val match = LOGGED_IN_TRACKING_PARAM.find(body) ?: return
+        sessionStateListener?.invoke(match.groupValues[1] == "1")
+    }
 
     private fun sanitizeLocale(value: YouTubeLocale): YouTubeLocale =
         YouTubeLocale(
@@ -677,6 +708,7 @@ class InnerTube {
         client: YouTubeClient,
         params: String? = null,
         sequenceParams: String? = "CA8%3D", // Default for initial fetch
+        continuation: String? = null, // Continuation token for load-more pages
         setLogin: Boolean = false,
     ) = withRetry {
         httpClient
@@ -695,6 +727,7 @@ class InnerTube {
                             ),
                         params = params,
                         sequenceParams = sequenceParams,
+                        continuation = continuation,
                     ),
                 )
             }.body<ReelWatchSequenceResponse>()

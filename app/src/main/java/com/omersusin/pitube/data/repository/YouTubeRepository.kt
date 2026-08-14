@@ -1210,6 +1210,7 @@ class YouTubeRepository
             tracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking? = null,
             previousPositionMs: Long = 0L,
             final: Boolean = false,
+            relativeTimeSeconds: Long = 0L,
         ): Boolean =
             withContext(Dispatchers.IO) {
                 if (!isSignedIn) return@withContext false
@@ -1220,6 +1221,7 @@ class YouTubeRepository
                     tracking,
                     previousPositionMs,
                     final,
+                    relativeTimeSeconds,
                 ).getOrDefault(false)
             }
 

@@ -44,7 +44,6 @@ class FeedAndLibrarySyncWorker(
                 Constraints
                     .Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
                     .build()
 
             val workRequest =
@@ -83,11 +82,20 @@ class FeedAndLibrarySyncWorker(
                 .onFailure { Log.w(TAG, "Visitor rotation failed: ${it.message}") }
 
             // 2. Drop the in-memory feed cache + persisted Room feed so the next
-            //    Home screen visit fetches a genuinely fresh mix.
+            //    Home screen visit fetches a genuinely fresh mix, and bump the
+            //    discovery rotation epoch so even the non-personalized lane
+            //    reshuffles instead of replaying the same canned searches.
             HomeFeedCache.clear()
             runCatching {
                 HomeFeedCacheRepository(applicationContext).clearAll()
             }.onFailure { Log.w(TAG, "Feed cache clear failed: ${it.message}") }
+            runCatching {
+                applicationContext
+                    .getSharedPreferences("home_feed_rotation", android.content.Context.MODE_PRIVATE)
+                    .edit()
+                    .putLong("discovery_epoch_time", 0L)
+                    .apply()
+            }.onFailure { Log.w(TAG, "Discovery rotation reset failed: ${it.message}") }
 
             // 3. Re-pull the account library when signed in and the last sync is
             //    older than the auto interval.

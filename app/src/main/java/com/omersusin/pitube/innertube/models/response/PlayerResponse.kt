@@ -126,6 +126,9 @@ data class PlayerResponse(
         val hlsManifestUrl: String? = null,
         val dashManifestUrl: String? = null,
     ) {
+        fun hasStreams(): Boolean =
+            (!formats.isNullOrEmpty() && formats.any { !it.url.isNullOrBlank() || !it.signatureCipher.isNullOrBlank() }) ||
+                adaptiveFormats.any { !it.url.isNullOrBlank() || !it.signatureCipher.isNullOrBlank() }
         @Serializable
         data class Format(
             val itag: Int,

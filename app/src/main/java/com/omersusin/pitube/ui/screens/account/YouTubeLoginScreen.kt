@@ -132,6 +132,10 @@ fun YouTubeLoginScreen(
     var isFinishing by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
+    // Koda port: the in-app WebView login can be blocked by Google's
+    // embedded-browser heuristic, so offer pasting a session cookie copied
+    // from a desktop browser as a second path. Same capture pipeline below.
+    var showCookiePaste by remember { mutableStateOf(false) }
 
     fun handleCookiesCaptured(cookies: String) {
         if (isFinishing) return
@@ -303,7 +307,31 @@ fun YouTubeLoginScreen(
                     }
                 }
             }
+
+            // Fallback entry point for when the embedded-browser sign-in is
+            // blocked or the session has decayed (Koda port).
+            TextButton(
+                onClick = { showCookiePaste = true },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = if (errorMessage == null) 16.dp else 88.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.login_use_cookies_alt),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
+    }
+
+    if (showCookiePaste) {
+        CookiePasteSheet(
+            onDismiss = { showCookiePaste = false },
+            onSave = { cookies ->
+                showCookiePaste = false
+                handleCookiesCaptured(cookies)
+            }
+        )
     }
 }
 

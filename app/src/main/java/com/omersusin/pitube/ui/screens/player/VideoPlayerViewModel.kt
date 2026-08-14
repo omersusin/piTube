@@ -2762,6 +2762,7 @@ class VideoPlayerViewModel @Inject constructor(
     private var historyVideoId: String? = null
     private var historyCpn: String? = null
     private var historyTracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking? = null
+    private var historySessionStartMs = 0L
 
     /**
      * Periodically reports the live playback position to the signed-in
@@ -2780,6 +2781,7 @@ class VideoPlayerViewModel @Inject constructor(
         val cpn = com.omersusin.pitube.innertube.YouTube.newCpn()
         historyVideoId = video.id
         historyCpn = cpn
+        historySessionStartMs = System.currentTimeMillis()
         // The beacon pair is minted once per session (not per ping) so partial
         // pings chain st->et into a single in-progress history entry, exactly
         // like yt-dlp/youthub instead of looking like repeated restarts at 0:00.
@@ -2821,6 +2823,7 @@ class VideoPlayerViewModel @Inject constructor(
                                     tracking,
                                     lastReportedMs.coerceAtLeast(0L),
                                     final = true,
+                                    relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
                                 )
                             } catch (e: Exception) {
                                 Log.w("VideoPlayerViewModel", "Final history report failed for ${video.id}", e)
@@ -2847,6 +2850,7 @@ class VideoPlayerViewModel @Inject constructor(
                                     cpn,
                                     tracking,
                                     previousPositionMs = 0L,
+                                    relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
                                 )
                             if (reported) {
                                 Log.d("VideoPlayerViewModel", "YouTube history started for ${video.id} at ${position}ms")
@@ -2878,6 +2882,7 @@ class VideoPlayerViewModel @Inject constructor(
                                     cpn,
                                     tracking,
                                     previousMs,
+                                    relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
                                 )
                             if (reported) {
                                 Log.d("VideoPlayerViewModel", "YouTube history reported at ${position}ms for ${video.id}")
@@ -2919,6 +2924,7 @@ class VideoPlayerViewModel @Inject constructor(
                             minted,
                             finalMs.coerceAtLeast(0L),
                             final = true,
+                            relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
                         )
                     } catch (e: Exception) {
                         Log.w("VideoPlayerViewModel", "Final history report failed for $videoId", e)

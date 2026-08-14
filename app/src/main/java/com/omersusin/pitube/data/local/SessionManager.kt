@@ -4,6 +4,9 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -61,6 +64,24 @@ class SessionManager(private val context: Context) {
     }
 
     /**
+     * Record that YouTube answered an authenticated request as anonymous, or
+     * that it accepted one. Cookies are left alone either way - they are the
+     * only thing a later refresh has to work with, and clearing them on a
+     * single bad response would sign people out over a hiccup.
+     *
+     * The verdict is stored against the profile it came from, so with several
+     * accounts in the roster the badge lands on the right row.
+     */
+    fun setSessionExpired(expired: Boolean) {
+        val active = profileManager.active()
+        if (active.isLocal) return
+        profileManager.setExpired(active.id, expired)
+        if (sessionExpired.value != expired) {
+            sessionExpired.value = expired
+        }
+    }
+
+    /**
      * Begin a session the user has just signed into.
      *
      * When a local profile is active this promotes the sign-in into a new
@@ -76,6 +97,7 @@ class SessionManager(private val context: Context) {
             profileManager.saveCookiesFor(active.id, cookies)
         }
         runCatching { runMirror { it.refreshYoutubeCookie(cookies) } }
+        setSessionExpired(false)
     }
 
     /** Get the active profile's stored session cookies. */
@@ -99,6 +121,7 @@ class SessionManager(private val context: Context) {
         if (!profileManager.remove(active.id)) {
             profileManager.replaceWithFreshLocal(active.id)
         }
+        sessionExpired.value = false
         runCatching { runMirror { it.clearYoutubeAccount() } }
     }
 
@@ -121,6 +144,26 @@ class SessionManager(private val context: Context) {
     }
 
     private fun activeId(): String = profileManager.active().id
+
+    /**
+     * Re-read the active profile's expired verdict, after a switch.
+     */
+    fun refreshExpiredFromProfile() {
+        sessionExpired.value = profileManager.active().expired
+    }
+
+    /**
+     * True once YouTube has answered an authenticated call as anonymous.
+     *
+     * Companion-scoped on purpose: with no DI every ViewModel news up its own
+     * SessionManager, so an instance flow would never reach the screens that
+     * need to react. It mirrors the *active* profile's flag; the durable
+     * per-profile value lives on [Profile.expired].
+     */
+    companion object {
+        private val _sessionExpired = MutableStateFlow(false)
+        val sessionExpired: StateFlow<Boolean> = _sessionExpired.asStateFlow()
+    }
 
     /**
      * Run a suspend mirror write on a background dispatcher. The mirror is

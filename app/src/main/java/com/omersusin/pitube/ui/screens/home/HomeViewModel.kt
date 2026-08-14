@@ -275,14 +275,29 @@ class HomeViewModel @Inject constructor(
         private const val MIN_PAGE_SIZE = 8
         private const val DISCOVERY_ORDER_KEY = "discovery_order"
         private const val DISCOVERY_EPOCH_KEY = "discovery_epoch"
+        private const val DISCOVERY_EPOCH_TIME_KEY = "discovery_epoch_time"
+
+        // Rotate the non-forced discovery order after this long so the home
+        // feed changes even without an explicit pull-to-refresh (12h).
+        private const val DISCOVERY_ROTATE_MS = 12L * 60L * 60L * 1000L
     }
 
     // Broad discovery searches used to fill the home feed when there are no (or few)
-    // subscriptions. Plain queries — no engine involved.
+    // subscriptions. Plain queries — no engine involved. A wide, rotating pool so
+    // consecutive pulls surface genuinely different items instead of looping the
+    // same handful of canned searches.
     private val DISCOVERY_QUERIES = listOf(
         "viral", "trending now", "popular videos", "new releases", "best of the week",
         "trending today", "viral videos", "music videos", "funny videos", "amazing videos",
-        "documentary", "gaming highlights", "science explained", "top 10", "daily news"
+        "documentary", "gaming highlights", "science explained", "top 10", "daily news",
+        "pop music", "live concert", "movie trailers", "how to", "cooking recipes",
+        "fitness workout", "travel vlog", "tech reviews", "AI explained", "history explained",
+        "space science", "nature documentary", "short films", "comedy skits", "animation",
+        "football highlights", "basketball", "e-sports", "reaction videos", "unboxing",
+        "car reviews", "diy projects", "gardening", "meditation music", "study music",
+        "lofi beats", "news analysis", "crypto explained", "true crime", "pets and animals",
+        "learning english", "photography", "gadget comparisons", "vintage music", "nightcore",
+        "challenges", "pranks", "street food", "architecture", "psychology explained"
     )
 
     // Saved-interest enrichment sources + per-seed cooldown.
@@ -315,6 +330,11 @@ class HomeViewModel @Inject constructor(
     private val discoveryQueries = mutableListOf<String>()
     private var wave2Job: Job? = null
 
+    // Continuation token of the signed-in personalized "what to watch" feed,
+    // captured on every loadFlowFeed so scroll-to-load-more can pull the next
+    // personalized page instead of looping the same discovery queries.
+    private var personalizedContinuation: String? = null
+
     private var viewHistory: ViewHistory? = null
 
     private val watchedVideoIds = MutableStateFlow<Set<String>>(emptySet())
@@ -327,28 +347,34 @@ class HomeViewModel @Inject constructor(
     /**
      * Fill [discoveryQueries] and reset [currentQueryIndex]. On a forced
      * refresh the query list is reshuffled (and the persisted epoch bumped) so
-     * consecutive pulls surface different items; otherwise the last shuffled
-     * order is reused to avoid reshuffling mid-session churn.
+     * consecutive pulls surface different items. Without a forced refresh the
+     * last shuffled order is reused UNLESS it has gone stale (older than
+     * [DISCOVERY_ROTATE_MS]) — then it is rotated anyway so the home feed
+     * genuinely changes over time instead of pinning the same set for days.
      */
     private fun seedDiscoveryQueries(shuffle: Boolean) {
         val persisted = discoveryPrefs
             .getString(DISCOVERY_ORDER_KEY, null)
             ?.split(',')
             ?.takeIf { it.size == DISCOVERY_QUERIES.size }
+        val persistedEpoch = discoveryPrefs.getInt(DISCOVERY_EPOCH_KEY, 0)
+        val lastRotated = discoveryPrefs.getLong(DISCOVERY_EPOCH_TIME_KEY, 0L)
+        val stale = System.currentTimeMillis() - lastRotated > DISCOVERY_ROTATE_MS
         val seeded =
-            if (shuffle) {
-                val epoch = discoveryPrefs.getInt(DISCOVERY_EPOCH_KEY, 0)
+            if (shuffle || stale || persisted == null) {
+                val epoch = persistedEpoch + 1
                 discoveryRotationEpoch = epoch
-                DISCOVERY_QUERIES.shuffled(Random(epoch.toLong()))
+                DISCOVERY_QUERIES.shuffled(Random(epoch.toLong() * 31L + System.currentTimeMillis() % 1_000_000L))
             } else {
-                persisted ?: DISCOVERY_QUERIES
+                persisted
             }
         discoveryQueries.clear()
         discoveryQueries.addAll(seeded)
-        if (shuffle) {
+        if (shuffle || stale || persisted == null) {
             discoveryPrefs.edit()
                 .putString(DISCOVERY_ORDER_KEY, seeded.joinToString(","))
-                .putInt(DISCOVERY_EPOCH_KEY, discoveryRotationEpoch + 1)
+                .putInt(DISCOVERY_EPOCH_KEY, discoveryRotationEpoch)
+                .putLong(DISCOVERY_EPOCH_TIME_KEY, System.currentTimeMillis())
                 .apply()
         }
         currentQueryIndex = 0
@@ -656,12 +682,19 @@ class HomeViewModel @Inject constructor(
                 // ── Signed-in lane: the account's own "What to watch" feed ──
                 // Fetched in parallel with discovery below; blended into the mix
                 // instead of short-circuiting so the feed rotates through fresh
-                // items instead of repeating the same personalized set.
+                // items instead of repeating the same personalized set. The
+                // continuation token is preserved so scrolling can pull the
+                // next personalized page (feedContinuation drives load-more).
                 val personalizedPool = if (signedIn) {
                     withTimeoutOrNull(12_000L) {
                         com.omersusin.pitube.innertube.YouTube.personalizedFeed()
                             .getOrNull()
-                            ?.videos
+                            ?.let { result ->
+                                if (result.videos.isNotEmpty()) {
+                                    personalizedContinuation = result.continuation
+                                }
+                                result.videos
+                            }
                             .orEmpty()
                             .filterValid()
                             .filterWatched(watchedVideoIds.value)
@@ -883,7 +916,7 @@ class HomeViewModel @Inject constructor(
                         isRefreshing = false,
                         hasMorePages = true,
                         isFlowFeed = true,
-                        feedContinuation = null,
+                        feedContinuation = personalizedContinuation,
                         lastRefreshTime = now
                     )
                 }
@@ -1012,7 +1045,10 @@ class HomeViewModel @Inject constructor(
                 }
 
                 if (currentQueryIndex >= discoveryQueries.size) {
-                    discoveryQueries.addAll(DISCOVERY_QUERIES)
+                    // Exhausted the seed order: rotate a fresh shuffled order
+                    // instead of appending the same list over and over, so long
+                    // scroll sessions keep surfacing new material.
+                    seedDiscoveryQueries(shuffle = true)
                 }
                 
                 val queryA = discoveryQueries.getOrNull(currentQueryIndex++)

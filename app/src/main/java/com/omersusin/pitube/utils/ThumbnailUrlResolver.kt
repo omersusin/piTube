@@ -6,6 +6,18 @@ object ThumbnailUrlResolver {
     private val googleCdnSizePattern = Regex("""w\d+-h\d+""")
     private val googleCdnParamStartPattern = Regex("""=(?:w|s|h)""")
 
+    /**
+     * Undo JSON-escaped forward slashes. InnerTube responses often ship URLs
+     * with `\/` (JSON escaping); Coil's OkHttp fetcher rejects those paths, so
+     * every resolver must normalize before returning a URL to the image
+     * loader. Also strips a stray protocol-relative `//` prefix.
+     */
+    private fun normalizeUrl(raw: String?): String {
+        var url = raw?.trim().orEmpty().replace("\\/", "/")
+        if (url.startsWith("//")) url = "https:$url"
+        return url
+    }
+
     fun buildHighQualityYoutubeThumbnail(videoId: String): String {
         val id = videoId.trim()
         return if (id.isEmpty()) "" else "https://i.ytimg.com/vi/$id/hq720.jpg"
@@ -39,7 +51,7 @@ object ThumbnailUrlResolver {
     }
 
     fun resolveVideoThumbnailCandidates(videoId: String, rawUrl: String?): List<String> {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         val resolvedVideoId = resolveYoutubeThumbnailVideoId(videoId, raw)
         val youtubeCandidates = youtubeThumbnailCandidates(resolvedVideoId)
 
@@ -57,7 +69,7 @@ object ThumbnailUrlResolver {
     fun preferredVideoThumbnail(videoId: String, urls: List<String?>): String {
         return urls
             .asSequence()
-            .map { it?.trim().orEmpty() }
+            .map { normalizeUrl(it) }
             .filter { it.isNotBlank() }
             .map { normalizeVideoThumbnail(videoId, it) }
             .maxWithOrNull(compareBy<String> { videoThumbnailQualityRank(it) }.thenBy { it.length })
@@ -65,7 +77,7 @@ object ThumbnailUrlResolver {
     }
 
     fun normalizeVideoThumbnail(videoId: String, rawUrl: String?): String {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         if (raw.isEmpty()) return buildHighQualityYoutubeThumbnail(videoId)
 
         if (!youtubeVideoThumbnailPattern.containsMatchIn(raw)) return raw
@@ -78,7 +90,7 @@ object ThumbnailUrlResolver {
     }
 
     fun resolveMusicThumbnail(videoId: String, rawUrl: String?, size: Int = 1080): String {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         val id = videoId.trim()
 
         if (raw.isEmpty()) return buildHighQualityYoutubeThumbnail(id)
@@ -92,7 +104,7 @@ object ThumbnailUrlResolver {
     }
 
     fun resolveChannelBanner(rawUrl: String?, targetWidth: Int = 1060): String {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         if (raw.isEmpty()) return ""
 
         val isGoogleCdn = raw.contains("googleusercontent.com") || raw.contains("ggpht.com")
@@ -122,7 +134,7 @@ object ThumbnailUrlResolver {
     const val AVATAR_SIZE_LIST = 176
 
     fun resolveChannelAvatar(rawUrl: String?, size: Int = AVATAR_SIZE_LIST): String {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         if (raw.isEmpty()) return ""
 
         val isGoogleCdn = raw.contains("googleusercontent.com") || raw.contains("ggpht.com")
@@ -144,9 +156,7 @@ object ThumbnailUrlResolver {
     }
 
     fun resolveCommunityPostImage(rawUrl: String?, targetWidth: Int = 2048): String {
-        val raw = rawUrl?.trim().orEmpty().let { url ->
-            if (url.startsWith("//")) "https:$url" else url
-        }
+        val raw = normalizeUrl(rawUrl)
         if (raw.isEmpty()) return ""
 
         val isGoogleCdn = raw.contains("googleusercontent.com") || raw.contains("ggpht.com")
@@ -162,7 +172,7 @@ object ThumbnailUrlResolver {
     }
 
     fun fallbackVideoThumbnail(videoId: String, rawUrl: String?): String? {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         val resolvedVideoId = youtubeVideoThumbnailPattern.find(raw)
             ?.groupValues
             ?.getOrNull(1)
@@ -174,7 +184,7 @@ object ThumbnailUrlResolver {
     }
 
     fun isYoutubeVideoThumbnail(rawUrl: String?): Boolean {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         return youtubeVideoThumbnailPattern.containsMatchIn(raw)
     }
 
@@ -199,7 +209,7 @@ object ThumbnailUrlResolver {
     }
 
     fun resizeImageThumbnail(rawUrl: String?, width: Int? = null, height: Int? = null): String {
-        val raw = rawUrl?.trim().orEmpty()
+        val raw = normalizeUrl(rawUrl)
         if (raw.isEmpty() || (width == null && height == null)) return raw
 
         val isGoogleCdn = raw.contains("googleusercontent.com") || raw.contains("ggpht.com")

@@ -231,7 +231,7 @@ class ShortsViewModel @Inject constructor(
                     shorts = shorts,
                     currentIndex = startIndex,
                     isLoading = false,
-                    hasMorePages = result.continuation != null || shorts.size >= 5,
+                    hasMorePages = result.continuation != null,
                     continuation = result.continuation
                 )
 
@@ -271,7 +271,7 @@ class ShortsViewModel @Inject constructor(
                         shorts = updatedShorts,
                         continuation = result.continuation,
                         isLoadingMore = false,
-                        hasMorePages = result.continuation != null || result.shorts.isNotEmpty()
+                        hasMorePages = result.continuation != null
                     )
                 } else {
                     val fresh = withTimeoutOrNull(12_000L) {
@@ -285,7 +285,7 @@ class ShortsViewModel @Inject constructor(
                             shorts = updatedShorts,
                             continuation = fresh.continuation,
                             isLoadingMore = false,
-                            hasMorePages = fresh.continuation != null || fresh.shorts.isNotEmpty()
+                            hasMorePages = fresh.continuation != null
                         )
                     } else {
                         _uiState.value = _uiState.value.copy(

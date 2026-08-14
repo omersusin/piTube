@@ -299,10 +299,12 @@ class ShortsRepository private constructor(private val context: Context) {
 
         val userSubs = subscriptionRepository.getAllSubscriptionIds()
 
-        // InnerTube continuation
+        // InnerTube continuation (load-more pages carry a real continuation
+        // token, which must be sent in the request's `continuation` field —
+        // shoving it into `sequenceParams` makes YouTube reject the request).
         val result = try {
             withTimeoutOrNull(INNERTUBE_TIMEOUT_MS) {
-                val page = YouTube.shorts(sequenceParams = continuation).getOrNull()
+                val page = YouTube.shorts(continuation = continuation).getOrNull()
                 if (page != null && page.items.isNotEmpty()) {
                     val shorts = page.items
                         .map { it.toShortVideo() }

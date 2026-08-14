@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.AlertDialog
@@ -226,18 +227,33 @@ private fun ProfileRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Text(
-                text = if (profile.isLocal) {
-                    stringResource(R.string.account_switcher_local_subtitle)
-                } else {
-                    profile.handle ?: stringResource(R.string.settings_google_sign_in_subtitle)
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isActive) MaterialTheme.colorScheme.onSecondaryContainer
-                else MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            val subtitle = when {
+                profile.expired -> stringResource(R.string.account_switcher_expired)
+                profile.isLocal -> stringResource(R.string.account_switcher_local_subtitle)
+                else -> profile.handle ?: stringResource(R.string.settings_google_sign_in_subtitle)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (profile.expired) {
+                    Icon(
+                        imageVector = Icons.Rounded.ErrorOutline,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                }
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = when {
+                        profile.expired -> MaterialTheme.colorScheme.error
+                        isActive -> MaterialTheme.colorScheme.onSecondaryContainer
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
 
         AnimatedVisibility(visible = isActive, enter = fadeIn(), exit = fadeOut()) {
@@ -277,12 +293,14 @@ private fun ProfileRow(
  */
 @Composable
 fun ProfileAvatar(profile: Profile, size: Int, modifier: Modifier = Modifier) {
+    val ringColor = if (profile.expired) MaterialTheme.colorScheme.error
+    else MaterialTheme.colorScheme.outlineVariant
     Box(
         modifier = modifier
             .size(size.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .border(width = 0.dp, color = MaterialTheme.colorScheme.outlineVariant, shape = CircleShape),
+            .border(width = if (profile.expired) 2.dp else 0.dp, color = ringColor, shape = CircleShape),
         contentAlignment = Alignment.Center
     ) {
         val avatar = profile.avatarUrl

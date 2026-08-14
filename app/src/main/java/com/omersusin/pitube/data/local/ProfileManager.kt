@@ -38,6 +38,12 @@ data class Profile(
     val email: String? = null,
     val datasyncId: String? = null,
     val addedAt: Long = System.currentTimeMillis(),
+    /**
+     * True once YouTube answered this profile's authenticated call as
+     * anonymous. Per-profile on purpose: a single global flag would badge the
+     * wrong row the moment there is more than one account.
+     */
+    val expired: Boolean = false,
 ) {
     val isLocal: Boolean get() = kind == ProfileKind.LOCAL
 }
@@ -122,6 +128,7 @@ class ProfileManager(context: Context) {
             handle = handle ?: existing.handle,
             avatarUrl = avatarUrl ?: existing.avatarUrl,
             email = email ?: existing.email,
+            expired = false,
         ) ?: Profile(
             id = UUID.randomUUID().toString(),
             kind = ProfileKind.YOUTUBE,
@@ -168,6 +175,12 @@ class ProfileManager(context: Context) {
         )
     }
 
+    fun setExpired(id: String, expired: Boolean) {
+        val current = get(id) ?: return
+        if (current.expired == expired) return
+        upsert(current.copy(expired = expired))
+    }
+
     /**
      * Remove a profile, its cookies and its feed-shaping data.
      *
@@ -206,7 +219,9 @@ class ProfileManager(context: Context) {
                 name = DEFAULT_LOCAL_NAME,
                 handle = null,
                 avatarUrl = null,
-                datasyncId = null
+                email = null,
+                datasyncId = null,
+                expired = false,
             )
         )
     }
@@ -337,6 +352,7 @@ class ProfileManager(context: Context) {
         put("email", email ?: JSONObject.NULL)
         put("datasyncId", datasyncId ?: JSONObject.NULL)
         put("addedAt", addedAt)
+        put("expired", expired)
     }
 
     private fun fromJson(obj: JSONObject): Profile? {
@@ -351,7 +367,8 @@ class ProfileManager(context: Context) {
             avatarUrl = str("avatarUrl"),
             email = str("email"),
             datasyncId = str("datasyncId"),
-            addedAt = obj.optLong("addedAt", 0L)
+            addedAt = obj.optLong("addedAt", 0L),
+            expired = obj.optBoolean("expired", false),
         )
     }
 

@@ -131,6 +131,11 @@ object YouTube {
         set(value) {
             innerTube.cookieRefreshListener = value
         }
+    var sessionStateListener: ((Boolean) -> Unit)?
+        get() = innerTube.sessionStateListener
+        set(value) {
+            innerTube.sessionStateListener = value
+        }
 
     // Long-form search ignores the Shorts shelf; fetch it from the main site (not music).
     suspend fun searchShorts(query: String): Result<List<SearchShortItem>> = runCatching {
@@ -619,6 +624,7 @@ object YouTube {
             continuation = continuation,
         )
         val rawBody = httpResponse.bodyAsText()
+        innerTube.noteResponseState(rawBody)
         val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
         return parseChannelVideosResponse(response, "", "", "", false)
@@ -884,6 +890,9 @@ object YouTube {
      *
      * [positionMs] is the watched-to position used for `cmt`/`et`. When 0 the
      * video is marked as watched right before the end (yt-dlp behaviour).
+     * [relativeTimeSeconds] is the wall-clock seconds elapsed since the first
+     * beacon of this session — the `rt` param youthub sends on watchtime pings
+     * so YouTube can compute real watch-time independent of seek position.
      */
     suspend fun reportVideoPlayback(
         videoId: String,
@@ -892,6 +901,7 @@ object YouTube {
         tracking: PlaybackTracking? = null,
         previousPositionMs: Long = 0L,
         final: Boolean = false,
+        relativeTimeSeconds: Long = 0L,
     ): Result<Boolean> = runCatching {
         if (cookie.isNullOrBlank()) return@runCatching false
         val tracking = tracking ?: signedPlaybackTracking(videoId, cpn) ?: return@runCatching false
@@ -913,9 +923,9 @@ object YouTube {
         val stSeconds = (previousPositionMs / 1000L).coerceAtLeast(0L)
         val referer = "https://www.youtube.com/watch?v=$videoId"
 
-        var reported = pingStats(playbackUrl, cpn, cmt, watchtime = false, stSeconds = stSeconds, final = final, referer = referer)
+        var reported = pingStats(playbackUrl, cpn, cmt, watchtime = false, stSeconds = stSeconds, final = final, referer = referer, relativeTimeSeconds = relativeTimeSeconds)
         if (watchtimeUrl != null) {
-            val watchtimeReported = pingStats(watchtimeUrl, cpn, cmt, watchtime = true, stSeconds = stSeconds, final = final, referer = referer)
+            val watchtimeReported = pingStats(watchtimeUrl, cpn, cmt, watchtime = true, stSeconds = stSeconds, final = final, referer = referer, relativeTimeSeconds = relativeTimeSeconds)
             reported = reported || watchtimeReported
         }
         reported
@@ -930,9 +940,10 @@ object YouTube {
         stSeconds: Long,
         final: Boolean,
         referer: String,
+        relativeTimeSeconds: Long = 0L,
     ): Boolean {
         val status = innerTube.videoStatsPing(
-            url = withVideoStatsParams(url, cpn, cmtSeconds, watchtime = watchtime, stSeconds = stSeconds, final = final),
+            url = withVideoStatsParams(url, cpn, cmtSeconds, watchtime = watchtime, stSeconds = stSeconds, final = final, relativeTimeSeconds = relativeTimeSeconds),
             referer = referer,
         )
         return when {
@@ -1042,10 +1053,13 @@ object YouTube {
 
     /**
      * Rewrite a videostats tracking URL's query the way yt-dlp's
-     * `_mark_watched` does: keep every existing parameter byte-for-byte and
-     * append `ver=2`, `cpn`, `cmt`, `c=WEB` and `el=detailpage`. The watchtime
-     * URL also gets `st`/`et` (a progressing window from the previous ping to
-     * the current one) and the last ping of a session carries `state=ended`.
+     * `_mark_watched` and youthub's watchstats do: keep every existing
+     * parameter byte-for-byte and append `ver=2`, `cpn`, `cmt`, `c=WEB` and
+     * `el=detailpage`. The watchtime URL also gets `st`/`et` (a progressing
+     * window from the previous ping to the current one) plus `rt` (wall-clock
+     * seconds since the session's first beacon). Every non-final beacon carries
+     * `state=playing` so intermediate pings register watch time instead of
+     * being discounted; only the last ping of a session carries `state=ended`.
      *
      * The URL is rewritten with plain string concatenation on purpose: an
      * Android `Uri` round-trip would form-decode `+`, dedupe repeated params
@@ -1059,6 +1073,7 @@ object YouTube {
         watchtime: Boolean,
         stSeconds: Long = 0L,
         final: Boolean = false,
+        relativeTimeSeconds: Long = 0L,
     ): String {
         val suffix = buildString {
             append(if ('?' in baseUrl) "&" else "?")
@@ -1071,9 +1086,11 @@ object YouTube {
                 append("&st=$stSeconds")
                 append("&et=$cmtSeconds")
             }
-            if (final) {
-                append("&state=ended")
+            // rt = wall-clock since the session's first beacon (youthub).
+            if (relativeTimeSeconds > 0L) {
+                append("&rt=$relativeTimeSeconds")
             }
+            append(if (final) "&state=ended" else "&state=playing")
         }
         return baseUrl + suffix
     }
@@ -1893,6 +1910,7 @@ object YouTube {
     suspend fun accountInfo(): Result<AccountInfo> = runCatching {
         val response = innerTube.accountMenu(WEB_REMIX)
         val body = response.bodyAsText()
+        innerTube.noteResponseState(body)
         val parsed =
             try {
                 AccountMenuResponse.toAccountMenuResponseOrNull(
@@ -1960,10 +1978,14 @@ object YouTube {
         StoryboardFrameset.parseSpec(spec)
     }
 
-    suspend fun shorts(sequenceParams: String? = null): Result<ShortsPage> = runCatching {
+    suspend fun shorts(
+        sequenceParams: String? = null,
+        continuation: String? = null,
+    ): Result<ShortsPage> = runCatching {
         innerTube.reel(
             client = YouTubeClient.ANDROID,
-            sequenceParams = sequenceParams ?: "CA8%3D"
+            sequenceParams = sequenceParams ?: "CA8%3D",
+            continuation = continuation
         ).toShortsPage()
     }
 
@@ -1983,13 +2005,37 @@ object YouTube {
     /**
      * Resolve stream URLs for a Short using the ANDROID client.
      * The ANDROID client is required for Shorts-compatible stream formats.
+     * Falls back through signature-timestamped ANDROID and WEB player
+     * requests so bot-walled unsigned responses don't strand Shorts playback.
      */
     suspend fun shortsPlayer(videoId: String): Result<PlayerResponse> = runCatching {
-        innerTube.player(
+        val plain = innerTube.player(
             client = YouTubeClient.ANDROID,
             videoId = videoId,
             playlistId = null,
             signatureTimestamp = null
+        ).body<PlayerResponse>()
+        if (plain.streamingData?.hasStreams() == true) return@runCatching plain
+
+        // The unsigned ANDROID player response is often bot-walled and comes
+        // back without streamingData. Retry with a signature timestamp, and
+        // then with the WEB client, so Shorts playback mirrors the main
+        // player's resilience instead of failing with "no stream URL".
+        val sts = runCatching { NewPipeExtractor.getSignatureTimestamp(videoId).getOrNull() }.getOrNull()
+        if (sts != null) {
+            val signedAnd = innerTube.player(
+                client = YouTubeClient.ANDROID,
+                videoId = videoId,
+                playlistId = null,
+                signatureTimestamp = sts
+            ).body<PlayerResponse>()
+            if (signedAnd.streamingData?.hasStreams() == true) return@runCatching signedAnd
+        }
+        innerTube.player(
+            client = YouTubeClient.WEB,
+            videoId = videoId,
+            playlistId = null,
+            signatureTimestamp = sts
         ).body<PlayerResponse>()
     }
 

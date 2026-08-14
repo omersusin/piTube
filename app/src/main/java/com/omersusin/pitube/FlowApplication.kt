@@ -213,6 +213,17 @@ class FlowApplication :
                     runCatching { com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).saveCookies(merged) }
                 }
             }
+            // Flag the active profile when YouTube answers its signed requests as
+            // anonymous (logged_in: 0), so the switcher can call out a dead
+            // session on the profile's own row; a 1 clears it again.
+            YouTube.sessionStateListener = { loggedIn ->
+                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                    runCatching {
+                        com.omersusin.pitube.data.local.SessionManager(this@FlowApplication)
+                            .setSessionExpired(!loggedIn)
+                    }
+                }
+            }
             try {
                 com.omersusin.pitube.utils.potoken.WebPoTokenSession
                     .prewarm()

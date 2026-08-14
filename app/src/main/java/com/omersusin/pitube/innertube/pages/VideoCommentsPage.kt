@@ -345,8 +345,10 @@ private fun JsonElement?.largestThumbnailUrl(): String? {
     }
 }
 
-private fun normalizeCommentImageUrl(url: String): String =
-    if (url.startsWith("//")) "https:$url" else url
+private fun normalizeCommentImageUrl(url: String): String {
+    val unescaped = url.replace("\\/", "/")
+    return if (unescaped.startsWith("//")) "https:$unescaped" else unescaped
+}
 
 private fun parseCount(element: JsonElement?): Int {
     val primitive = element as? JsonPrimitive

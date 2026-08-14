@@ -1918,5 +1918,24 @@
     
     
     <string name="fallback_downloaded_locally">Cihaza indirildi</string>
+    <string name="cookie_paste_title">Oturum Çerezleri</string>
+    <string name="cookie_paste_subtitle">Tarayıcıdaki oturumu yapıştırarak giriş yapın</string>
+    <string name="cookie_paste_clipboard">Panodan yapıştır</string>
+    <string name="cookie_paste_field_label">Çerez başlığı</string>
+    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
+    <string name="cookie_paste_missing">%1$s eksik. Çerez değerinin tamamını kopyalayın ve tarayıcının oturum açık olduğundan emin olun.</string>
+    <string name="cookie_paste_how">Bunu nasıl alırım?</string>
+    <string name="cookie_paste_step_1">Masaüstü tarayıcıda oturum açık olarak music.youtube.com açın</string>
+    <string name="cookie_paste_step_2">F12 tuşuna basın ve Ağ (Network) sekmesini açın</string>
+    <string name="cookie_paste_step_3">Filtre kutusuna "youtubei" yazın, sonra sayfayı yenileyin</string>
+    <string name="cookie_paste_step_4">Listeden herhangi bir isteğe tıklayın</string>
+    <string name="cookie_paste_step_5">İstek Başlıkları altında "cookie" değerine sağ tıklayıp Değeri kopyala seçin</string>
+    <string name="cookie_paste_step_6">Bu cihaza gönderin ve yukarıya yapıştırın</string>
+    <string name="cookie_paste_security_title">Bunu şifre gibi koruyun</string>
+    <string name="cookie_paste_security_body">Bu çerezler Google hesabınıza tam erişim sağlar ve iki adımlı doğrulamayı baypas eder. piTube bunları bu cihazda şifreli şekilde saklar ve yalnızca YouTube\'a gönderir. Asla paylaşmayın.</string>
+    <string name="cookie_paste_sign_in">Giriş yap</string>
+    <string name="cookie_paste_cancel">İptal</string>
+    <string name="account_switcher_expired">Oturum süresi doldu - yeniden bağlanmak için dokunun</string>
+    <string name="login_use_cookies_alt">WebView girişi engellendi mi? Bunun yerine tarayıcınızdan oturum çerezini yapıştırın.</string>
     
 </resources>

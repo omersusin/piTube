@@ -1942,6 +1942,25 @@
     <string name="settings_google_sync_now">Sync now</string>
     <string name="settings_google_sync_result">Synced: %1$d liked videos, %2$d playlists, %3$d channels</string>
     <string name="settings_google_sync_error">Sync failed: %1$s</string>
+    <string name="cookie_paste_title">Session Cookies</string>
+    <string name="cookie_paste_subtitle">Sign in by pasting a browser session</string>
+    <string name="cookie_paste_clipboard">Paste from clipboard</string>
+    <string name="cookie_paste_field_label">Cookie header</string>
+    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
+    <string name="cookie_paste_missing">Missing %1$s. Copy the whole cookie value, and make sure that browser is signed in.</string>
+    <string name="cookie_paste_how">How do I get this?</string>
+    <string name="cookie_paste_step_1">Open music.youtube.com on a desktop browser, signed in</string>
+    <string name="cookie_paste_step_2">Press F12 and open the Network tab</string>
+    <string name="cookie_paste_step_3">Type "youtubei" in the filter box, then reload</string>
+    <string name="cookie_paste_step_4">Click any request in the list</string>
+    <string name="cookie_paste_step_5">Under Request Headers, right-click "cookie" and Copy value</string>
+    <string name="cookie_paste_step_6">Send it to this device and paste it above</string>
+    <string name="cookie_paste_security_title">Treat this like a password</string>
+    <string name="cookie_paste_security_body">These cookies grant full access to your Google account and bypass 2-step verification. piTube stores them encrypted on this device and only sends them to YouTube. Never share them.</string>
+    <string name="cookie_paste_sign_in">Sign in</string>
+    <string name="cookie_paste_cancel">Cancel</string>
+    <string name="account_switcher_expired">Session expired - tap to reconnect</string>
+    <string name="login_use_cookies_alt">WebView login blocked? Paste a session cookie from your browser instead.</string>
     <string name="settings_item_datetime">Date &amp; Time</string>
     <string name="merge_playlist_dialog_title">Add all songs to…</string>
 <string name="merge_playlist_no_playlists">No playlists yet. Create one first!</string>
