@@ -1944,4 +1944,5 @@
     <string name="account_sheet_unknown_user">Bilinmeyen kullanıcı</string>
     <string name="account_sheet_local_profile">Bu cihazda</string>
     <string name="account_sheet_profiles_header">Profiller</string>
-    </resources>
+
+</resources>
