@@ -682,18 +682,37 @@ class HomeViewModel @Inject constructor(
 
                 val results = supervisorScope {
                     val deferredSubs = async {
-                        if (userSubs.isNotEmpty()) {
-                            // Budget must cover the channel crawl inside
-                            // getVideosForChannels (10-wide chunks, 6s/channel,
-                            // up to 18 channels = 2 rounds = ~12s worst case).
-                            // An 8s cap here silently emptied the subscription
-                            // lane and the feed degraded to trending/discovery.
-                            withTimeoutOrNull(15_000L) {
-                                runCatching {
-                                    repository.getSubscriptionFeed(userSubs.toList())
-                                }.getOrElse { emptyList() }
-                            } ?: emptyList()
-                        } else emptyList()
+                        if (userSubs.isEmpty()) emptyList()
+                        else {
+                            // Prefer the account's real aggregate subscriptions
+                            // feed (FEsubscriptions): one signed request returns
+                            // actual subscription uploads newest-first, instead
+                            // of crawling per-channel uploads which is slow and
+                            // can be partially rate-limited. Fall back to the
+                            // per-channel crawl only when the aggregate comes
+                            // back empty (bot-walled/unsupported).
+                            val aggregate = if (signedIn) {
+                                withTimeoutOrNull(10_000L) {
+                                    com.omersusin.pitube.innertube.YouTube.webSubscriptionsFeed()
+                                        .getOrNull()
+                                        ?.videos
+                                        .orEmpty()
+                                } ?: emptyList()
+                            } else emptyList()
+                            if (aggregate.size >= 8) aggregate
+                            else {
+                                // Budget must cover the channel crawl inside
+                                // getVideosForChannels (10-wide chunks, 6s/channel,
+                                // up to 18 channels = 2 rounds = ~12s worst case).
+                                // An 8s cap here silently emptied the subscription
+                                // lane and the feed degraded to trending/discovery.
+                                withTimeoutOrNull(15_000L) {
+                                    runCatching {
+                                        repository.getSubscriptionFeed(userSubs.toList())
+                                    }.getOrElse { emptyList() }
+                                } ?: emptyList()
+                            }
+                        }
                     }
 
                     val deferredDiscovery = async {

@@ -1124,6 +1124,31 @@ object YouTube {
         RemoteChannelCrawl(channels.distinctBy { it.id }, complete = complete)
     }
 
+    /**
+     * The user's subscriptions feed in one aggregate request: the same
+     * FEsubscriptions page the web Subscriptions tab shows. InnerTube returns a
+     * rich grid (lockupViewModel / videoRenderer items, newest first, a proper
+     * continuation token for the next page), which is far better than crawling
+     * every channel's uploads individually — and it is genuinely *your* feed,
+     * not a blend rebuilt from trending.
+     */
+    suspend fun webSubscriptionsFeed(continuation: String? = null): Result<ChannelVideoSearchResult> = runCatching {
+        if (cookie.isNullOrBlank()) return@runCatching ChannelVideoSearchResult(emptyList(), null, null)
+        val client = currentWebClient()
+        val httpResponse = innerTube.signedWebBrowse(
+            client = client,
+            browseId = if (continuation == null) "FEsubscriptions" else null,
+            continuation = continuation,
+        )
+        if (!httpResponse.status.isSuccess()) {
+            Log.w("YouTube", "webSubscriptionsFeed: HTTP ${httpResponse.status.value}")
+            return@runCatching ChannelVideoSearchResult(emptyList(), null, null)
+        }
+        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val response = lenientJson.decodeFromString<ChannelVideosResponse>(httpResponse.bodyAsText())
+        parseChannelVideosResponse(response, "", "", "", false)
+    }
+
     /** The user's playlists from FEplaylist_aggregation (Watch Later / Liked pinned elsewhere). */
     suspend fun webUserPlaylists(): Result<List<RemotePlaylist>> = runCatching {
         if (cookie.isNullOrBlank()) return@runCatching emptyList()
@@ -1264,6 +1289,14 @@ object YouTube {
             ?: tabs.firstOrNull { it.tabRenderer?.content?.richGridRenderer != null }?.tabRenderer
             ?: tabs.firstOrNull { it.expandableTabRenderer?.content?.richGridRenderer != null }?.expandableTabRenderer
         selectedTab?.content?.richGridRenderer?.contents?.let { richItems += it }
+        // The subscriptions feed (FEsubscriptions) nests its grid one level
+        // deeper: sectionListRenderer > itemSectionRenderer > richGridRenderer.
+        selectedTab?.content?.sectionListRenderer?.contents
+            ?.mapNotNull { it.itemSectionRenderer }
+            ?.flatMap { it.contents.orEmpty() }
+            ?.mapNotNull { it.richGridRenderer }
+            ?.flatMap { it.contents.orEmpty() }
+            ?.let { richItems += it }
 
         val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
         var nextContinuation: String? = null

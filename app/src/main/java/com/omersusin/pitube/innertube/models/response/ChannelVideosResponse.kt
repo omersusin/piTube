@@ -415,6 +415,32 @@ data class ChannelVideosResponse(
         data class Content(
             @SerialName("richGridRenderer")
             val richGridRenderer: RichGridRenderer? = null,
+            @SerialName("sectionListRenderer")
+            val sectionListRenderer: SectionListRenderer? = null,
+        )
+
+        @Serializable
+        data class SectionListRenderer(
+            @SerialName("contents")
+            val contents: List<SectionItem>? = null,
+        )
+
+        @Serializable
+        data class SectionItem(
+            @SerialName("itemSectionRenderer")
+            val itemSectionRenderer: ItemSectionRenderer? = null,
+        )
+
+        @Serializable
+        data class ItemSectionRenderer(
+            @SerialName("contents")
+            val contents: List<ItemSectionContent>? = null,
+        )
+
+        @Serializable
+        data class ItemSectionContent(
+            @SerialName("richGridRenderer")
+            val richGridRenderer: RichGridRenderer? = null,
         )
 
         @Serializable
