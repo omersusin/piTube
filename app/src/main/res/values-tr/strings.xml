@@ -1942,7 +1942,7 @@
     <string name="login_tab_webview">Tarayıcı girişi</string>
     <string name="login_token_description">Oturum açmak için tarayıcıda oturum açılmış bir oturum token'ını veya çerezini yapıştırın; Google'ın yerleşik tarayıcı engelini aşmanın en güvenilir yolu budur. Başka bir uygulamadan dışa aktarabilir veya aşağıdaki adımları kullanabilirsiniz.</string>
     <string name="login_token_field_label">Token veya çerez</string>
-    <string name="login_token_field_hint">SID=...; SAPISID=...&#10;veya&#10;***DATASYNC ID*** =...&#10;***ACCOUNT NAME*** =...</string>
+    <string name="login_token_field_hint">SID=...; SAPISID=...\nveya\n***DATASYNC ID*** =...\n***ACCOUNT NAME*** =...</string>
     <string name="nav_you">Sen</string>
     <string name="account_sheet_signed_out_title">Çıkış yapıldı</string>
     <string name="account_sheet_signed_out_subtitle">Akışınızı ve aboneliklerinizi eşitlemek için giriş yapın</string>

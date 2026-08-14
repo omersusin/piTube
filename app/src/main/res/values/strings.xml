@@ -1965,7 +1965,7 @@
     <string name="login_tab_webview">Browser sign-in</string>
     <string name="login_token_description">Paste a session token or cookie from a signed-in browser to sign in without Google's embedded-browser block. You can export it from another app, or use the steps below.</string>
     <string name="login_token_field_label">Token or cookie</string>
-    <string name="login_token_field_hint">SID=...; SAPISID=...&#10;or&#10;***DATASYNC ID*** =...&#10;***ACCOUNT NAME*** =...</string>
+    <string name="login_token_field_hint">SID=...; SAPISID=...\nor\n***DATASYNC ID*** =...\n***ACCOUNT NAME*** =...</string>
     <string name="settings_item_datetime">Date &amp; Time</string>
     <string name="merge_playlist_dialog_title">Add all songs to…</string>
 <string name="merge_playlist_no_playlists">No playlists yet. Create one first!</string>
