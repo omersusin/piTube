@@ -301,8 +301,7 @@ fun FlowCommentsBottomSheet(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(with(density) { sheetHeightPx.value.toDp() })
-                    .imePadding(),
+                    .height(with(density) { sheetHeightPx.value.toDp() }),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
         ) {
