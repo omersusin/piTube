@@ -33,6 +33,7 @@ import com.omersusin.pitube.ui.screens.player.components.PlayerTimePill
 import com.omersusin.pitube.ui.screens.player.components.PortraitFullscreenEdgeScrims
 import com.omersusin.pitube.ui.screens.player.components.SeekbarWithPreview
 import com.omersusin.pitube.ui.screens.player.components.rememberSponsorSegmentColors
+import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import com.omersusin.pitube.ui.screens.player.util.VideoPlayerUtils
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import kotlinx.coroutines.delay
@@ -742,6 +743,7 @@ fun PremiumControlsOverlay(
                         // Chapter Display Pill
                         val chapter = currentChapter
                         if (chapter != null) {
+                            val chapterTitleState = rememberTranslatedText(chapter.title, playerPreferences.translateDescriptions)
                             Surface(
                                 color = Color.Black.copy(alpha = 0.4f),
                                 shape = CircleShape,
@@ -756,7 +758,7 @@ fun PremiumControlsOverlay(
                                         .padding(horizontal = 12.dp)
                                 ) {
                                     Text(
-                                        text = chapter.title,
+                                        text = chapterTitleState.displayText,
                                         style = MaterialTheme.typography.labelSmall,
                                         color = Color.White,
                                         fontWeight = FontWeight.Medium,
