@@ -134,4 +134,9 @@
     <string name="unsubscribe">Přestat sledovat</string>
     <string name="check_out_video_template">Podívejte se na toto video: %1$s\nhttps://youtube.com/watch?v=%2$s</string>
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
+    <string name="settings_recognition_voice_source">Rozpoznávání řeči</string>
+    <string name="recognition_voice_source_auto">Online, jinak zařízení</string>
+    <string name="recognition_voice_source_auto_subtitle">Přepisovat online, když je to možné, jinak použít rozpoznávání na zařízení</string>
+    <string name="recognition_voice_source_device_only">Pouze zařízení</string>
+    <string name="recognition_voice_source_device_only_subtitle">Vždy použít rozpoznávání řeči na zařízení</string>
 </resources>

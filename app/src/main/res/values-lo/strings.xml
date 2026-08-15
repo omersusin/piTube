@@ -1,3 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_recognition_voice_source">ການຮັບຮູ້ສຽງເວົ້າ</string>
+    <string name="recognition_voice_source_auto">ອອນໄລນ໌, ຖ້າບໍ່ໄດ້ໃຊ້ອຸປະກອນ</string>
+    <string name="recognition_voice_source_auto_subtitle">ຖອດຄວາມອອນໄລນ໌ເມື່ອເປັນໄປໄດ້, ຖ້າບໍ່ດັ່ງນັ້ນໃຊ້ເຄື່ອງຮັບຮູ້ຂອງອຸປະກອນ</string>
+    <string name="recognition_voice_source_device_only">ອຸປະກອນຢ່າງດຽວ</string>
+    <string name="recognition_voice_source_device_only_subtitle">ໃຊ້ເຄື່ອງຮັບຮູ້ສຽງເວົ້າພາຍໃນອຸປະກອນສະເໝີ</string>
 </resources>

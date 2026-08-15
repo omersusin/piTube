@@ -1759,4 +1759,9 @@
     <string name="widget_open_history">打开历史记录</string>
     <string name="widget_no_recent">您观看的视频将出现在此处</string>
     <string name="widget_no_downloads">您的下载将显示在此处</string>
+    <string name="settings_recognition_voice_source">语音识别</string>
+    <string name="recognition_voice_source_auto">在线优先，设备备用</string>
+    <string name="recognition_voice_source_auto_subtitle">尽可能在线转写，否则使用设备识别器</string>
+    <string name="recognition_voice_source_device_only">仅设备</string>
+    <string name="recognition_voice_source_device_only_subtitle">始终使用设备端语音识别器</string>
 </resources>

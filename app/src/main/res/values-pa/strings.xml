@@ -4,4 +4,9 @@
     <string name="error_extraction_failed">ਵੀਡੀਓ ਡੇਟਾ ਨੂੰ ਪਾਰਸ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ</string>
     <string name="error_extraction_failed_hint">ਹੋ ਸਕਦਾ ਹੈ ਕਿ YouTube ਨੇ ਆਪਣਾ ਫਾਰਮੈਟ ਅੱਪਡੇਟ ਕਰ ਦਿੱਤਾ ਹੋਵੇ। piTube ਜਲਦੀ ਹੀ ਅੱਪਡੇਟ ਕੀਤਾ ਜਾਵੇਗਾ — ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
     <string name="error_generic">ਵੀਡੀਓ ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਫਲ</string>
+    <string name="settings_recognition_voice_source">ਆਵਾਜ਼ ਪਛਾਣ</string>
+    <string name="recognition_voice_source_auto">ਆਨਲਾਈਨ, ਡਿਵਾਈਸ ਫਾਲਬੈਕ</string>
+    <string name="recognition_voice_source_auto_subtitle">ਜਦੋਂ ਸੰਭਵ ਹੋਵੇ ਆਨਲਾਈਨ ਟ੍ਰਾਂਸਕ੍ਰਾਈਬ ਕਰੋ, ਨਹੀਂ ਤਾਂ ਡਿਵਾਈਸ ਰਿਕਗਨਾਈਜ਼ਰ ਵਰਤੋ</string>
+    <string name="recognition_voice_source_device_only">ਸਿਰਫ਼ ਡਿਵਾਈਸ</string>
+    <string name="recognition_voice_source_device_only_subtitle">ਹਮੇਸ਼ਾ ਡਿਵਾਈਸ ਉੱਤੇ ਮੌਜੂਦ ਸਪੀਚ ਰਿਕਗਨਾਈਜ਼ਰ ਵਰਤੋ</string>
 </resources>

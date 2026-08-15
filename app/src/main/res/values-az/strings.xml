@@ -1915,4 +1915,9 @@
     
     <string name="fallback_downloaded_locally">Cihaza endirilib</string>
     
+    <string name="settings_recognition_voice_source">Səs tanıma</string>
+    <string name="recognition_voice_source_auto">Onlayn, cihaz ehtiyatı ilə</string>
+    <string name="recognition_voice_source_auto_subtitle">Mümkün olduqda onlayn transkripsiya edin, əks halda cihazın tanıyıcısından istifadə edin</string>
+    <string name="recognition_voice_source_device_only">Yalnız cihaz</string>
+    <string name="recognition_voice_source_device_only_subtitle">Həmişə cihazdakı nitq tanıyıcısından istifadə edin</string>
 </resources>

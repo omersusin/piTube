@@ -1941,4 +1941,9 @@
     <string name="duration_minutes">%1$d phút</string>
     <string name="duration_hours_short">%1$dg</string>
     <string name="duration_minutes_short">%1$dp</string>
+    <string name="settings_recognition_voice_source">Nhận dạng giọng nói</string>
+    <string name="recognition_voice_source_auto">Trực tuyến, dự phòng thiết bị</string>
+    <string name="recognition_voice_source_auto_subtitle">Phiên âm trực tuyến khi có thể, nếu không hãy dùng bộ nhận dạng trên thiết bị</string>
+    <string name="recognition_voice_source_device_only">Chỉ dùng thiết bị</string>
+    <string name="recognition_voice_source_device_only_subtitle">Luôn dùng bộ nhận dạng giọng nói trên thiết bị</string>
 </resources>

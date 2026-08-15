@@ -82,4 +82,9 @@
     <string name="btn_close">Mdel</string>
     <string name="action_comments">Iwenniten</string>
     <string name="action_save">Sekles</string>
+    <string name="settings_recognition_voice_source">Taragmilt n taɣect</string>
+    <string name="recognition_voice_source_auto">Srid, s wudem n yibenk</string>
+    <string name="recognition_voice_source_auto_subtitle">Yerr taɣect d tirra srid mi yezmer; ma ur yezmir ara, seqdec taragmilt n yibenk</string>
+    <string name="recognition_voice_source_device_only">Yibenk kan</string>
+    <string name="recognition_voice_source_device_only_subtitle">Seqdec daymen taragmilt n taɣect n yibenk</string>
 </resources>

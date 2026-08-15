@@ -1928,4 +1928,9 @@
     <string name="remove_from_queue">Hapus dari antrean</string>
     <string name="remove_from_queue_confirmation">Apakah Anda yakin ingin menghapus video ini dari antrean?</string>
     <string name="reorder_queue_item">Ubah urutan item antrean</string>
+    <string name="settings_recognition_voice_source">Pengenalan suara</string>
+    <string name="recognition_voice_source_auto">Daring, cadangan perangkat</string>
+    <string name="recognition_voice_source_auto_subtitle">Transkripsikan secara daring jika memungkinkan, jika tidak gunakan pengenal perangkat</string>
+    <string name="recognition_voice_source_device_only">Hanya perangkat</string>
+    <string name="recognition_voice_source_device_only_subtitle">Selalu gunakan pengenal ucapan pada perangkat</string>
 </resources>

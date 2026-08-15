@@ -147,4 +147,9 @@
     <string name="go_to_channel">前往頻道</string>
     <string name="track_info">曲目詳情</string>
     <string name="track_info_subtitle">詳細的技術和社交指標</string>
+    <string name="settings_recognition_voice_source">語音辨識</string>
+    <string name="recognition_voice_source_auto">線上優先，裝置備援</string>
+    <string name="recognition_voice_source_auto_subtitle">盡可能在線上轉寫，否則使用裝置辨識器</string>
+    <string name="recognition_voice_source_device_only">僅用裝置</string>
+    <string name="recognition_voice_source_device_only_subtitle">一律使用裝置端語音辨識器</string>
 </resources>

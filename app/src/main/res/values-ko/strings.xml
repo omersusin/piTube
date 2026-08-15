@@ -1914,5 +1914,10 @@
     
     
     <string name="fallback_downloaded_locally">로컬에 다운로드됨</string>
+    <string name="settings_recognition_voice_source">음성 인식</string>
+    <string name="recognition_voice_source_auto">온라인, 기기 대체</string>
+    <string name="recognition_voice_source_auto_subtitle">가능하면 온라인으로 받아쓰기하고, 그렇지 않으면 기기 인식기를 사용합니다</string>
+    <string name="recognition_voice_source_device_only">기기만</string>
+    <string name="recognition_voice_source_device_only_subtitle">항상 기기의 음성 인식기를 사용합니다</string>
     
 </resources>

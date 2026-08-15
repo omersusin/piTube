@@ -3,4 +3,9 @@
     <string name="stats">統計</string>
     <string name="library">ライブラリ</string>
     <string name="local_media_title">ローカルメディア</string>
+    <string name="settings_recognition_voice_source">音声認識</string>
+    <string name="recognition_voice_source_auto">オンライン、デバイスにフォールバック</string>
+    <string name="recognition_voice_source_auto_subtitle">できるだけオンラインで文字起こしし、それ以外の場合はデバイスの認識機能を使用します</string>
+    <string name="recognition_voice_source_device_only">デバイスのみ</string>
+    <string name="recognition_voice_source_device_only_subtitle">常にデバイス上の音声認識機能を使用します</string>
 </resources>

@@ -1103,4 +1103,9 @@
     <string name="playlist_video_added_template">%1$s जोड़ा गया</string>
     <string name="upcoming_label">आगामी</string>
     <string name="upcoming_waiting_count">%1$s का इंतजार</string>
+    <string name="settings_recognition_voice_source">ध्वनि पहचान</string>
+    <string name="recognition_voice_source_auto">ऑनलाइन, डिवाइस फ़ॉलबैक</string>
+    <string name="recognition_voice_source_auto_subtitle">जब संभव हो ऑनलाइन ट्रांसक्राइब करें, अन्यथा डिवाइस रिकग्नाइज़र का उपयोग करें</string>
+    <string name="recognition_voice_source_device_only">केवल डिवाइस</string>
+    <string name="recognition_voice_source_device_only_subtitle">हमेशा डिवाइस पर मौजूद स्पीच रिकग्नाइज़र का उपयोग करें</string>
 </resources>

@@ -1979,4 +1979,9 @@
     <string name="settings_search_no_results">Aucun paramètre trouvé pour %1$s</string>
     
     <string name="donations_cryptocurrency">CRYPTOMONNAIE</string>
+<string name="settings_recognition_voice_source">Reconnaissance vocale</string>
+    <string name="recognition_voice_source_auto">En ligne, repli sur l\'appareil</string>
+    <string name="recognition_voice_source_auto_subtitle">Transcrivez en ligne lorsque c\'est possible, sinon utilisez la reconnaissance vocale de l\'appareil</string>
+    <string name="recognition_voice_source_device_only">Appareil uniquement</string>
+    <string name="recognition_voice_source_device_only_subtitle">Utilisez toujours la reconnaissance vocale de l\'appareil</string>
 </resources>

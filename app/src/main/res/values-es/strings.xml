@@ -1921,4 +1921,9 @@
     
     <string name="fallback_downloaded_locally">Descargado localmente</string>
     
+<string name="settings_recognition_voice_source">Reconocimiento de voz</string>
+    <string name="recognition_voice_source_auto">En línea, con respaldo en el dispositivo</string>
+    <string name="recognition_voice_source_auto_subtitle">Transcribir en línea cuando sea posible; de lo contrario, usar el reconocedor del dispositivo</string>
+    <string name="recognition_voice_source_device_only">Solo dispositivo</string>
+    <string name="recognition_voice_source_device_only_subtitle">Usar siempre el reconocedor de voz del dispositivo</string>
 </resources>

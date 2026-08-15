@@ -1,3 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="settings_recognition_voice_source">語音辨識</string>
+    <string name="recognition_voice_source_auto">線上優先，裝置備用</string>
+    <string name="recognition_voice_source_auto_subtitle">可以就喺線上轉寫，唔得就用裝置嘅辨識器</string>
+    <string name="recognition_voice_source_device_only">只用裝置</string>
+    <string name="recognition_voice_source_device_only_subtitle">永遠用裝置入面嘅語音辨識器</string>
 </resources>

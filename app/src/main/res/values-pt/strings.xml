@@ -296,4 +296,9 @@
     
     
     
+<string name="settings_recognition_voice_source">Reconhecimento de voz</string>
+    <string name="recognition_voice_source_auto">Online, com recurso ao dispositivo</string>
+    <string name="recognition_voice_source_auto_subtitle">Transcreva online sempre que possível; caso contrário, use o reconhecedor de voz do dispositivo</string>
+    <string name="recognition_voice_source_device_only">Apenas no dispositivo</string>
+    <string name="recognition_voice_source_device_only_subtitle">Use sempre o reconhecedor de voz do dispositivo</string>
 </resources>

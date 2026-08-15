@@ -415,4 +415,9 @@
     
     
     <string name="download_all">Preuzmi sve</string>
+    <string name="settings_recognition_voice_source">Prepoznavanje govora</string>
+    <string name="recognition_voice_source_auto">Online, inače uređaj</string>
+    <string name="recognition_voice_source_auto_subtitle">Transkribuj online kada je moguće, inače koristi prepoznavanje govora na uređaju</string>
+    <string name="recognition_voice_source_device_only">Samo uređaj</string>
+    <string name="recognition_voice_source_device_only_subtitle">Uvijek koristi prepoznavanje govora na uređaju</string>
 </resources>

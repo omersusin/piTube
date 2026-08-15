@@ -1927,4 +1927,9 @@
     <string name="reorder_queue_item">Змінити порядок елемента в черзі</string>
     <string name="notif_background_restricted_title">Перевірка біографічних даних обмежена</string>
     <string name="notif_background_restricted_subtitle">Android блокує piTube можливість перевіряти наявність нових відео, коли застосунок закрито, тому сповіщення надходять лише тоді, коли ви його відкриваєте. Натисніть, щоби дозволити необмежену фонову активність.</string>
+    <string name="settings_recognition_voice_source">Розпізнавання мови</string>
+    <string name="recognition_voice_source_auto">Онлайн, інакше пристрій</string>
+    <string name="recognition_voice_source_auto_subtitle">Розшифровувати онлайн, коли це можливо, інакше використовувати розпізнавання на пристрої</string>
+    <string name="recognition_voice_source_device_only">Лише пристрій</string>
+    <string name="recognition_voice_source_device_only_subtitle">Завжди використовувати розпізнавання мови на пристрої</string>
 </resources>

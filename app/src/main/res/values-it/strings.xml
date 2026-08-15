@@ -1749,4 +1749,9 @@
     <string name="equalizer">Equalizzatore</string>
     <string name="action_save_preset">Salva preset</string>
     <string name="label_preset_name">Nome preset</string>
+<string name="settings_recognition_voice_source">Riconoscimento vocale</string>
+    <string name="recognition_voice_source_auto">Online, ripiego sul dispositivo</string>
+    <string name="recognition_voice_source_auto_subtitle">Trascrivi online quando possibile, altrimenti usa il riconoscimento vocale del dispositivo</string>
+    <string name="recognition_voice_source_device_only">Solo dispositivo</string>
+    <string name="recognition_voice_source_device_only_subtitle">Usa sempre il riconoscimento vocale del dispositivo</string>
 </resources>
