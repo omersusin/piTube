@@ -49,8 +49,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.omersusin.pitube.R
-import com.omersusin.pitube.data.local.PlayerPreferences
-import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import kotlinx.coroutines.launch
 import org.schabi.newpipe.extractor.stream.StreamSegment
 
@@ -72,8 +70,6 @@ fun FlowChaptersBottomSheet(
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val chapterPrefs = remember { PlayerPreferences(context) }
     val latestOnDismiss by rememberUpdatedState(onDismiss)
     val sheetExpandedHeight = expandedHeight ?: (configuration.screenHeightDp.dp * 0.75f)
     val expandedHeightPx = with(density) { sheetExpandedHeight.toPx() }
@@ -293,10 +289,9 @@ fun FlowChaptersBottomSheet(
                             endTimeMs
                                 ?.takeIf { it > startTimeMs }
                                 ?.let { formatChapterDuration((it - startTimeMs) / 1000L) }
-                        val titleState = rememberTranslatedText(chapter.title, chapterPrefs.translateDescriptions)
 
                         ChapterItem(
-                            chapter = chapter.copy(title = titleState.displayText),
+                            chapter = chapter,
                             isCurrent = isCurrent,
                             progress = progress,
                             durationLabel = durationLabel,
@@ -305,14 +300,6 @@ fun FlowChaptersBottomSheet(
                                 onChapterClick(startTimeMs)
                             },
                         )
-                        if (titleState.showOriginalBelow) {
-                            Text(
-                                text = titleState.original,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(start = 16.dp, top = 2.dp, bottom = 2.dp),
-                            )
-                        }
                     }
                 }
             }
