@@ -53,6 +53,7 @@ import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import com.omersusin.pitube.ui.translation.toggleOriginalOnDoubleTap
+import com.omersusin.pitube.ui.translation.toggleOriginalOnDoubleTapInSelection
 import com.omersusin.pitube.utils.formatLikeCount
 import com.omersusin.pitube.utils.formatViewCount
 import com.omersusin.pitube.utils.DateContext
@@ -478,14 +479,9 @@ fun FlowDescriptionBottomSheet(
                                                     }
                                                 }
                                             },
-                                            onDoubleTap =
-                                                if (descriptionState.canToggleOriginal) {
-                                                    { descriptionState.toggleShowingOriginal() }
-                                                } else {
-                                                    null
-                                                },
                                         )
                                     }
+                                        .toggleOriginalOnDoubleTapInSelection(descriptionState)
                                 )
                                 if (descriptionState.showOriginalBelow) {
                                     Text(

@@ -156,14 +156,15 @@ fun TranslationSettingsScreen(
                         ),
                         onClick = { showProviderDialog = true },
                     )
-                    if (engine.statusNote != null) {
+                    val engineStatusNote = engine.statusNote
+                    if (engineStatusNote != null) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.errorContainer,
                         ) {
                             Text(
-                                text = engine.statusNote,
+                                text = engineStatusNote,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 modifier = Modifier.padding(12.dp),

@@ -108,6 +108,7 @@ import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.distinctByNonBlankKey
 import com.omersusin.pitube.ui.translation.rememberTranslatedText
+import com.omersusin.pitube.ui.translation.toggleOriginalOnDoubleTapInSelection
 import com.omersusin.pitube.utils.formatLikeCount
 import com.omersusin.pitube.utils.formatRichText
 import com.omersusin.pitube.utils.formatTimeAgo
@@ -830,39 +831,33 @@ fun FlowCommentItem(
                             Modifier.pointerInput(annotatedText) {
                                 detectTapGestures(
                                     onTap = { tapOffset ->
-                                        commentTextLayoutResult?.let { result ->
-                                            val offset = result.getOffsetForPosition(tapOffset)
-                                            val ts =
-                                                annotatedText
-                                                    .getStringAnnotations("TIMESTAMP", offset, offset)
-                                                    .firstOrNull()
-                                            val url =
-                                                annotatedText
-                                                    .getStringAnnotations("URL", offset, offset)
-                                                    .firstOrNull()
-                                            if (ts != null) {
-                                                onTimestampClick(ts.item)
-                                            } else if (url != null) {
-                                                try {
-                                                    uriHandler.openUri(url.item)
-                                                } catch (e: Exception) {
-                                                    e.printStackTrace()
+                                            commentTextLayoutResult?.let { result ->
+                                                val offset = result.getOffsetForPosition(tapOffset)
+                                                val ts =
+                                                    annotatedText
+                                                        .getStringAnnotations("TIMESTAMP", offset, offset)
+                                                        .firstOrNull()
+                                                val url =
+                                                    annotatedText
+                                                        .getStringAnnotations("URL", offset, offset)
+                                                        .firstOrNull()
+                                                if (ts != null) {
+                                                    onTimestampClick(ts.item)
+                                                } else if (url != null) {
+                                                    try {
+                                                        uriHandler.openUri(url.item)
+                                                    } catch (e: Exception) {
+                                                        e.printStackTrace()
+                                                    }
+                                                } else {
+                                                    if (!isExpanded && isOverflowing) isExpanded = true
                                                 }
-                                            } else {
-                                                if (!isExpanded && isOverflowing) isExpanded = true
                                             }
-                                        }
-                                    },
-                                    onDoubleTap =
-                                        if (commentState.canToggleOriginal) {
-                                            { commentState.toggleShowingOriginal() }
-                                        } else {
-                                            null
                                         },
                                 )
-                            },
+                            }
+                                .toggleOriginalOnDoubleTapInSelection(commentState),
                     )
-                }
             }
 
             if (isOverflowing && !isExpanded) {
@@ -1244,14 +1239,9 @@ fun FlowReplyItem(
                                         }
                                     }
                                 },
-                                onDoubleTap =
-                                    if (replyState.canToggleOriginal) {
-                                        { replyState.toggleShowingOriginal() }
-                                    } else {
-                                        null
-                                    },
                             )
-                        },
+                        }
+                            .toggleOriginalOnDoubleTapInSelection(replyState),
                 )
                     if (replyState.showOriginalBelow) {
                         Text(

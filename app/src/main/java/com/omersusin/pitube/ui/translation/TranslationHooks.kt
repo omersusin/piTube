@@ -1,6 +1,9 @@
 package com.omersusin.pitube.ui.translation
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -131,6 +134,37 @@ fun Modifier.toggleOriginalOnDoubleTap(state: TranslatedTextState): Modifier =
             detectTapGestures(
                 onDoubleTap = { state.toggleShowingOriginal() },
             )
+        }
+    } else {
+        this
+    }
+
+/**
+ * Double-tap [state] to flip between the translation and the original when the
+ * text lives inside a [androidx.compose.foundation.text.selection.SelectionContainer.
+ * SelectionContainer claims the double-tap for word-select and consumes the
+ * down/up events before [detectTapGestures]' own double-tap detector can see an
+ * unconsumed second tap, so plain [toggleOriginalOnDoubleTap] never fires there.
+ *
+ * This detector tracks taps at the raw pointer level with
+ * `requireUnconsumed = false`, toggling even when SelectionContainer has already
+ * marked the events as handled. The container may still select the tapped word
+ * in the process (an accepted trade-off on translated text).
+ */
+fun Modifier.toggleOriginalOnDoubleTapInSelection(state: TranslatedTextState): Modifier =
+    if (state.canToggleOriginal) {
+        pointerInput(state) {
+            var firstDownTime = 0L
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                val up = waitForUpOrCancellation() ?: return@awaitEachGesture
+                if (down.uptimeMillis - firstDownTime in 1..viewConfiguration.doubleTapTimeoutMillis) {
+                    state.toggleShowingOriginal()
+                    firstDownTime = 0L
+                } else {
+                    firstDownTime = down.uptimeMillis
+                }
+            }
         }
     } else {
         this
