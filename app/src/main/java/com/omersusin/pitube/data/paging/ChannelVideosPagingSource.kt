@@ -51,7 +51,18 @@ class ChannelVideosPagingSource(
                 val page = params.key
                 
                 Log.d(TAG, "Loading page: ${page?.url ?: "initial"}")
-                
+
+                if (videosTab == null) {
+                    Log.w(TAG, "No videos tab found")
+                    return@withContext LoadResult.Page(
+                        data = emptyList(),
+                        prevKey = null,
+                        nextKey = null,
+                    )
+                }
+
+                val nextPage: Page?
+
                 val videos = if (page == null) {
                     // Initial load - get from tab info
                     val tabInfo = ChannelTabInfo.getInfo(NewPipe.getService(0), videosTab)

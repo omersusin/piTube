@@ -3,11 +3,11 @@ package com.omersusin.pitube.data.translation
 import com.omersusin.pitube.data.local.dao.TranslationCacheDao
 import com.omersusin.pitube.data.local.entity.CachedTranslationEntity
 import com.omersusin.pitube.translation.Language
+import com.omersusin.pitube.translation.MaskedText
 import com.omersusin.pitube.translation.TimestampProtection
 import com.omersusin.pitube.translation.TranslationEngine
 import com.omersusin.pitube.translation.TranslationEngines
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -132,7 +132,7 @@ class TranslationController @Inject constructor(
      */
     private suspend fun performTranslation(
         engine: TranslationEngine,
-        masked: TimestampProtection.Masked,
+        masked: MaskedText,
         target: String,
         cacheId: String,
         original: String,

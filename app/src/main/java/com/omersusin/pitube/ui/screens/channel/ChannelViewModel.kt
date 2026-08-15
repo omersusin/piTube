@@ -629,9 +629,9 @@ class ChannelViewModel
         fun loadMoreLive() = loadMorePage(isLive = true)
 
         private fun loadMorePage(isLive: Boolean) {
-            val tab = if (isLive) currentLiveTab else currentVideosTab ?: return
-            val channelInfo = if (isLive) liveChannelInfo else videosChannelInfo ?: return
-            val nextPage = if (isLive) liveNextPage else videosNextPage ?: return
+            val tab = (if (isLive) currentLiveTab else currentVideosTab) ?: return
+            val channelInfo = (if (isLive) liveChannelInfo else videosChannelInfo) ?: return
+            val nextPage = (if (isLive) liveNextPage else videosNextPage) ?: return
             val target = if (isLive) _liveAll else _videosAll
             val loadingFlag = if (isLive) _isLoadingMoreLive else _isLoadingMoreVideos
             val hasMore = if (isLive) _hasMoreLive else _hasMoreVideos
