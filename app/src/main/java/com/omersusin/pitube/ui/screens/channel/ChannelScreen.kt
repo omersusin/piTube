@@ -298,8 +298,8 @@ fun ChannelScreen(
                     if (authorChannelId.isNotBlank()) onChannelClick(authorChannelId)
                 },
                 channelAvatar =
-                    channelInfo.avatars.maxByOrNull { it.height }?.url
-                        ?: channelInfo.avatars.firstOrNull()?.url,
+                    uiState.channelInfo?.avatars?.maxByOrNull { it.height }?.url
+                        ?: uiState.channelInfo?.avatars?.firstOrNull()?.url,
             )
         }
     }
