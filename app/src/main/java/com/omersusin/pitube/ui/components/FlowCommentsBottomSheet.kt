@@ -858,6 +858,7 @@ fun FlowCommentItem(
                             }
                                 .toggleOriginalOnDoubleTapInSelection(commentState),
                     )
+                }
             }
 
             if (isOverflowing && !isExpanded) {
