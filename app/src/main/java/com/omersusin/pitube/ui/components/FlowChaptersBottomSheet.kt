@@ -296,9 +296,7 @@ fun FlowChaptersBottomSheet(
                         val titleState = rememberTranslatedText(chapter.title, chapterPrefs.translateDescriptions)
 
                         ChapterItem(
-                            chapter = chapter,
-                            title = titleState.displayText,
-                            originalTitle = titleState.original.takeIf { titleState.showOriginalBelow },
+                            chapter = chapter.copy(title = titleState.displayText),
                             isCurrent = isCurrent,
                             progress = progress,
                             durationLabel = durationLabel,
@@ -307,6 +305,14 @@ fun FlowChaptersBottomSheet(
                                 onChapterClick(startTimeMs)
                             },
                         )
+                        if (titleState.showOriginalBelow) {
+                            Text(
+                                text = titleState.original,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 16.dp, top = 2.dp, bottom = 2.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -317,8 +323,6 @@ fun FlowChaptersBottomSheet(
 @Composable
 fun ChapterItem(
     chapter: StreamSegment,
-    title: String,
-    originalTitle: String? = null,
     isCurrent: Boolean,
     progress: Float,
     durationLabel: String?,
@@ -405,23 +409,13 @@ fun ChapterItem(
                     }
 
                     Text(
-                        text = title,
+                        text = chapter.title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.SemiBold,
                         color = if (isCurrent) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    if (originalTitle != null) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = originalTitle,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
                     if (durationLabel != null) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
