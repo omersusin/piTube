@@ -259,6 +259,12 @@ class InnerTube {
      * Simple retry wrapper for transient IO errors (socket aborts, timeouts).
      * Retries the given block up to [maxAttempts] times with exponential backoff.
      * Cancellation is respected since [delay] will throw if the coroutine is cancelled.
+     *
+     * HTTP status errors (4xx/5xx) are NOT retried: with [expectSuccess] they
+     * surface as [ResponseException] (a subclass of [IOException]), and replaying
+     * them just stacks 500ms + 1s sleeps on top of an already-rejected request
+     * (e.g. YouTube 400/403/429 bot-walls). Only genuine transport failures get
+     * another attempt.
      */
     private suspend fun <T> withRetry(
         maxAttempts: Int = 3,
@@ -271,6 +277,8 @@ class InnerTube {
         while (true) {
             try {
                 return block()
+            } catch (e: ResponseException) {
+                throw e
             } catch (e: IOException) {
                 attempt++
                 if (attempt >= maxAttempts) throw e
