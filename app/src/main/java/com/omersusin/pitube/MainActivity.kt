@@ -72,6 +72,12 @@ class MainActivity : ComponentActivity() {
     private val _openRecognitionModalRequest = mutableStateOf(false)
     val openRecognitionModalRequest: State<Boolean> = _openRecognitionModalRequest
 
+    // Background recognition found a song — open Search pre-filled with the
+    // recognized song's query. Consumed by FlowApp.
+    private val _recognitionSearchQueryRequest =
+        mutableStateOf<String?>(null)
+    val recognitionSearchQueryRequest: State<String?> = _recognitionSearchQueryRequest
+
     // Cached auto-PiP preference
     private var cachedAutoPipEnabled = false
 
@@ -398,6 +404,10 @@ class MainActivity : ComponentActivity() {
                                 onRecognitionModalRequestConsumed = {
                                     this@MainActivity._openRecognitionModalRequest.value = false
                                 },
+                                recognitionSearchQueryRequest = this@MainActivity.recognitionSearchQueryRequest.value,
+                                onRecognitionSearchQueryConsumed = {
+                                    this@MainActivity._recognitionSearchQueryRequest.value = null
+                                },
                         )
 
                         // 2. THE SPLASH SCREEN (Z-Index Top)
@@ -456,6 +466,20 @@ class MainActivity : ComponentActivity() {
         if (intent.getBooleanExtra(com.omersusin.pitube.recognition.EXTRA_OPEN_RECOGNITION_MODAL, false)) {
             intent.removeExtra(com.omersusin.pitube.recognition.EXTRA_OPEN_RECOGNITION_MODAL)
             _openRecognitionModalRequest.value = true
+            return
+        }
+
+        // Background song recognition finished — open Search pre-filled with
+        // the recognized track's query (floating button / result notification).
+        val searchQuery =
+            intent.getStringExtra(
+                com.omersusin.pitube.recognition.RecognitionOverlayService.EXTRA_RECOGNITION_SEARCH_QUERY,
+            )
+        if (!searchQuery.isNullOrBlank()) {
+            intent.removeExtra(
+                com.omersusin.pitube.recognition.RecognitionOverlayService.EXTRA_RECOGNITION_SEARCH_QUERY,
+            )
+            _recognitionSearchQueryRequest.value = searchQuery
             return
         }
 

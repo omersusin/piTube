@@ -101,15 +101,26 @@ class RecognitionNotifier private constructor(
         runCatching { notificationManager.cancel(NOTIFICATION_RECOGNITION_ENTRY) }
     }
 
-    /** Shown when an offline-saved recording matches after reconnect. */
-    fun showMatchedTrackNotification(track: TrackMatch) {
+    /**
+     * Shown when an offline-saved recording matches after reconnect, or when a
+     * background floating-button recognition succeeds. With [openSearch] the
+     * tap opens the app with the song query prefilled in Search (instead of
+     * reopening the recognition modal).
+     */
+    fun showMatchedTrackNotification(track: TrackMatch, openSearch: Boolean = false) {
         ensureChannel(context)
         if (!hasPermission()) return
+        val tapIntent =
+            if (openSearch) {
+                RecognitionOverlayService.openSearchPreloadedIntent(context, track.searchQuery)
+            } else {
+                openRecognitionModalIntent(context)
+            }
         val contentIntent =
             PendingIntent.getActivity(
                 context,
                 NOTIFICATION_RECOGNITION_RESULT,
-                openRecognitionModalIntent(context),
+                tapIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
         val text = context.getString(R.string.recognition_result_notification_text, track.title, track.artist)

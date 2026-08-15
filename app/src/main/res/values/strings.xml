@@ -2087,6 +2087,12 @@
     <string name="recognition_tap_to_stop">Tap again to stop</string>
     <string name="recognition_processing">Identifying…</string>
     <string name="recognition_error_generic">Something went wrong. Try again.</string>
+    <string name="recognition_error_no_speech">No speech detected</string>
+    <string name="recognition_error_network">Speech recognition network error</string>
+    <string name="recognition_error_busy">Speech recognition is busy</string>
+    <string name="recognition_error_permission">Microphone permission is missing</string>
+    <string name="recognition_error_unavailable">Speech recognition is unavailable on this device</string>
+    <string name="recognition_error_start_failed">Speech recognition failed to start</string>
     <string name="recognition_error_too_many_requests">Voice service is temporarily busy. Wait a moment and try again.</string>
     <string name="recognition_error_language_not_supported">This language is not supported by the speech recognizer.</string>
     <string name="recognition_error_language_unavailable">The on-device language model is not installed. Download it in device settings, then try again.</string>
@@ -2103,4 +2109,10 @@
     <string name="recognition_source_on_device">Transcribed on device</string>
     <string name="recognition_search_now">Search now</string>
     <string name="recognition_overlay_content_description">Open song recognition</string>
+    <string name="recognition_overlay_recognizing_description">Identifying the song… tap to cancel</string>
+    <string name="recognition_overlay_done_description">Song found — tap to search</string>
+    <string name="recognition_overlay_failed_description">Recognition failed — tap to try again</string>
+    <string name="recognition_overlay_delete_description">Drag here to remove the button</string>
+    <string name="recognition_overlay_foreground_title">Song Recognition</string>
+    <string name="recognition_overlay_not_recording">Couldn\'t start recording. Open piTube to allow the microphone.</string>
 </resources>

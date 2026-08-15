@@ -74,6 +74,8 @@ fun FlowApp(
     onWidgetRouteConsumed: () -> Unit = {},
     openRecognitionModalRequest: Boolean = false,
     onRecognitionModalRequestConsumed: () -> Unit = {},
+    recognitionSearchQueryRequest: String? = null,
+    onRecognitionSearchQueryConsumed: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = context as? androidx.activity.ComponentActivity
@@ -155,6 +157,16 @@ fun FlowApp(
     // Voice & Song recognition modal, opened from the center nav slot, the
     // recognition notification and the floating overlay button.
     var openRecognitionModal by remember { mutableStateOf(false) }
+
+    // Same Activity-scoped ViewModel the modal uses: every open starts a fresh
+    // IDLE session (a stale SUCCESS would otherwise auto-search the old track).
+    val recognitionViewModel: com.omersusin.pitube.ui.recognition.RecognitionViewModel =
+        hiltViewModel(activity!!)
+    LaunchedEffect(openRecognitionModal) {
+        if (openRecognitionModal) {
+            recognitionViewModel.reset()
+        }
+    }
 
     val closeAccountSheet: () -> Unit = {
         showAccountSheet = false
@@ -344,6 +356,20 @@ fun FlowApp(
             if (openRecognitionModalRequest) {
                 openRecognitionModal = true
                 onRecognitionModalRequestConsumed()
+            }
+        }
+
+        LaunchedEffect(recognitionSearchQueryRequest) {
+            val query = recognitionSearchQueryRequest ?: return@LaunchedEffect
+            onRecognitionSearchQueryConsumed()
+            if (currentRoute.value != "search") {
+                navController.navigate("search") {
+                    launchSingleTop = true
+                }
+            }
+            com.omersusin.pitube.ui.recognition.RecognitionSearchBridge.submit(query)
+            if (openRecognitionModal) {
+                openRecognitionModal = false
             }
         }
 

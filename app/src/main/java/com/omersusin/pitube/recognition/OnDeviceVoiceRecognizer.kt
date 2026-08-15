@@ -79,7 +79,7 @@ class OnDeviceVoiceRecognizer(
         watchdog =
             Runnable {
                 Log.w("OnDeviceVoice", "Watchdog: no result within ${MAX_LISTEN_MS}ms")
-                finishError("No speech detected")
+                finishError(context.getString(R.string.recognition_error_no_speech))
             }
 
         mainHandler.post {
@@ -117,14 +117,22 @@ class OnDeviceVoiceRecognizer(
                                                 context.getString(R.string.recognition_error_language_unavailable)
 
                                             SpeechRecognizer.ERROR_NO_MATCH,
-                                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected"
+                                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT ->
+                                                context.getString(R.string.recognition_error_no_speech)
 
                                             SpeechRecognizer.ERROR_NETWORK_TIMEOUT,
-                                            SpeechRecognizer.ERROR_NETWORK -> "Speech recognition network error"
+                                            SpeechRecognizer.ERROR_NETWORK ->
+                                                context.getString(R.string.recognition_error_network)
 
-                                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Speech recognition is busy"
-                                            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission missing"
-                                            else -> "Speech recognition error (code $error)"
+                                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY ->
+                                                context.getString(R.string.recognition_error_busy)
+
+                                            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS ->
+                                                context.getString(R.string.recognition_error_permission)
+
+                                            else ->
+                                                context.getString(R.string.recognition_error_generic) +
+                                                    " (code $error)"
                                         }
                                     Log.w("OnDeviceVoice", "SpeechRecognizer error=$error ($message)")
                                     finishError(message)
@@ -138,7 +146,7 @@ class OnDeviceVoiceRecognizer(
                                             ?.trim()
                                             .orEmpty()
                                     if (text.isEmpty()) {
-                                        finishError("No speech detected")
+                                        finishError(context.getString(R.string.recognition_error_no_speech))
                                     } else {
                                         Log.d("OnDeviceVoice", "On-device transcript: $text")
                                         finishSuccess(text)
@@ -158,7 +166,7 @@ class OnDeviceVoiceRecognizer(
 
             if (created == null) {
                 Log.w("OnDeviceVoice", "Speech recognition unavailable")
-                finishError("Speech recognition unavailable")
+                finishError(context.getString(R.string.recognition_error_unavailable))
                 return@post
             }
 
@@ -167,7 +175,7 @@ class OnDeviceVoiceRecognizer(
                 created.startListening(intent)
             } catch (e: Exception) {
                 Log.w("OnDeviceVoice", "startListening failed", e)
-                finishError(e.message ?: "Speech recognition failed to start")
+                finishError(e.message ?: context.getString(R.string.recognition_error_start_failed))
             }
         }
 
