@@ -297,7 +297,6 @@ fun ChannelScreen(
                 onAuthorClick = { authorChannelId ->
                     if (authorChannelId.isNotBlank()) onChannelClick(authorChannelId)
                 },
-                channelAvatar = uiState.channelInfo?.avatars?.maxByOrNull { it.height }?.url,
             )
         }
     }

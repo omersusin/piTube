@@ -5,13 +5,11 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,8 +21,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -37,16 +35,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Send
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -64,7 +63,6 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,18 +72,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
@@ -112,7 +106,6 @@ import kotlinx.coroutines.launch
 
 enum class CommentSortFilter {
     TOP,
-    POPULAR,
     NEWEST,
     OLDEST,
 }
@@ -142,7 +135,6 @@ fun sortCommentsByFilter(
     val sortedUnpinned =
         when (filter) {
             CommentSortFilter.TOP -> unpinned.sortedByDescending { it.likeCount }
-            CommentSortFilter.POPULAR -> unpinned.sortedByDescending { it.likeCount + it.replyCount }
             CommentSortFilter.NEWEST -> unpinned.sortedBy { relativeTimeToSeconds(it.publishedTime) }
             CommentSortFilter.OLDEST -> unpinned.sortedByDescending { relativeTimeToSeconds(it.publishedTime) }
         }
@@ -186,7 +178,6 @@ fun FlowCommentsBottomSheet(
     expandedHeight: Dp? = null,
     collapsedHeight: Dp = 0.dp,
     onSheetProgressChange: (Float) -> Unit = {},
-    channelAvatar: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
@@ -299,16 +290,14 @@ fun FlowCommentsBottomSheet(
                 Modifier
                     .fillMaxWidth()
                     .height(with(density) { sheetHeightPx.value.toDp() }),
-            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            contentColor = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp,
         ) {
             Column(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .imePadding(),
+                        .navigationBarsPadding(),
             ) {
                 Box(
                     modifier =
@@ -326,7 +315,7 @@ fun FlowCommentsBottomSheet(
                         Modifier
                             .fillMaxWidth()
                             .then(headerDragModifier)
-                            .padding(horizontal = 24.dp)
+                            .padding(horizontal = 16.dp)
                             .padding(bottom = 6.dp),
                 ) {
                     Row(
@@ -335,7 +324,7 @@ fun FlowCommentsBottomSheet(
                     ) {
                         Text(
                             text = stringResource(R.string.comments),
-                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Spacer(modifier = Modifier.weight(1f))
@@ -343,11 +332,7 @@ fun FlowCommentsBottomSheet(
                             onClick = ::animateToDismiss,
                             modifier = Modifier.size(40.dp),
                         ) {
-                            Icon(
-                                Icons.Default.Close,
-                                contentDescription = stringResource(R.string.close),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                         }
                     }
                     CommentSortFilterChips(
@@ -357,6 +342,15 @@ fun FlowCommentsBottomSheet(
                     )
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+
+                if (isSignedIn) {
+                    CommentComposer(
+                        hint = stringResource(R.string.comment_hint),
+                        isPosting = isPostingComment,
+                        onSend = onPostComment,
+                    )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                }
 
                 FlowCommentsList(
                     comments = comments,
@@ -372,13 +366,10 @@ fun FlowCommentsBottomSheet(
                     onLoadMore = onLoadMore,
                     hasMore = hasMore,
                     isSignedIn = isSignedIn,
-                    canComment = isSignedIn,
                     isPostingComment = isPostingComment,
-                    onPostComment = onPostComment,
                     onPostReply = onPostReply,
                     onToggleLike = onToggleLike,
                     onDeleteComment = onDeleteComment,
-                    channelAvatar = channelAvatar,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -389,111 +380,46 @@ fun FlowCommentsBottomSheet(
     }
 }
 
-/**
- * Input row pinned under the comments list (Koda-style). Shows a "Replying
- * to" banner when [replyTarget] is active and focuses the field so the
- * keyboard comes up together with the banner.
- */
 @Composable
 private fun CommentComposer(
-    replyTarget: Comment?,
+    hint: String,
     isPosting: Boolean,
-    onCancelReply: () -> Unit,
     onSend: (String) -> Unit,
 ) {
     var text by remember { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
-    val keyboard = LocalSoftwareKeyboardController.current
     val canSend = text.isNotBlank() && !isPosting
-
-    LaunchedEffect(replyTarget) {
-        if (replyTarget != null) {
-            focusRequester.requestFocus()
-            keyboard?.show()
-        }
-    }
-
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.fillMaxWidth(),
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        Column {
-            if (replyTarget != null) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 4.dp, top = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(R.string.replying_to_template, replyTarget.author),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
-                    )
-                    IconButton(onClick = onCancelReply) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = stringResource(R.string.cancel_reply),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = { Text(hint) },
+            singleLine = true,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = {
+                if (canSend) {
+                    onSend(text.trim())
+                    text = ""
                 }
-            }
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .focusRequester(focusRequester),
-                    placeholder = {
-                        Text(
-                            stringResource(
-                                if (replyTarget != null) R.string.reply_placeholder else R.string.comment_hint,
-                            ),
-                        )
-                    },
-                    shape = CircleShape,
-                    maxLines = 4,
-                    enabled = !isPosting,
+            },
+            enabled = canSend,
+        ) {
+            if (isPosting) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            } else {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(R.string.send),
+                    tint = if (canSend) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (isPosting) {
-                    CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
-                } else {
-                    IconButton(
-                        onClick = {
-                            if (canSend) {
-                                onSend(text.trim())
-                                text = ""
-                            }
-                        },
-                        enabled = canSend,
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.Send,
-                            contentDescription = stringResource(R.string.post),
-                            tint =
-                                if (canSend) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                        )
-                    }
-                }
             }
         }
     }
@@ -506,20 +432,13 @@ fun CommentSortFilterChips(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier =
-            modifier
-                .horizontalScroll(rememberScrollState()),
+        modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         FilterChip(
             selected = selectedFilter == CommentSortFilter.TOP,
             onClick = { onFilterChanged(CommentSortFilter.TOP) },
             label = { Text(stringResource(R.string.filter_top)) },
-        )
-        FilterChip(
-            selected = selectedFilter == CommentSortFilter.POPULAR,
-            onClick = { onFilterChanged(CommentSortFilter.POPULAR) },
-            label = { Text(stringResource(R.string.filter_popular)) },
         )
         FilterChip(
             selected = selectedFilter == CommentSortFilter.NEWEST,
@@ -549,226 +468,82 @@ fun FlowCommentsList(
     onLoadMore: () -> Unit,
     hasMore: Boolean,
     isSignedIn: Boolean = false,
-    canComment: Boolean = false,
     isPostingComment: Boolean = false,
-    onPostComment: (String) -> Unit = {},
     onPostReply: (Comment, String) -> Unit = { _, _ -> },
     onToggleLike: (Comment) -> Unit = {},
     onDeleteComment: (Comment) -> Unit = {},
-    channelAvatar: String? = null,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(bottom = 32.dp),
 ) {
     val latestOnLoadMore by rememberUpdatedState(onLoadMore)
     val uniqueComments =
         remember(comments) {
             comments.distinctByNonBlankKey(Comment::id)
         }
-
-    // The comment being replied to; null = composing a top-level comment.
-    // When replying to a reply, threadParent is the enclosing top-level
-    // comment (the reply posts into that thread, YouTube-style).
-    var replyTarget by remember { mutableStateOf<Comment?>(null) }
-    var replyThreadParent by remember { mutableStateOf<Comment?>(null) }
-
-    // Pagination: fire when the user nears the end of the list.
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val total = listState.layoutInfo.totalItemsCount
-            total > 0 && lastVisible >= total - 5
-        }
-    }
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore && hasMore && !isLoadingMore) latestOnLoadMore()
-    }
-
-    Column(modifier = modifier) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            contentPadding = PaddingValues(bottom = 32.dp),
-        ) {
-            if (isLoading) {
-                item(key = "loading") {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillParentMaxWidth()
-                                .padding(vertical = 48.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    }
+    LazyColumn(
+        state = listState,
+        modifier = modifier,
+        contentPadding = contentPadding,
+    ) {
+        if (isLoading) {
+            item(key = "loading") {
+                Column(Modifier.padding(16.dp)) {
+                    repeat(6) { CommentSkeleton() }
                 }
-            } else if (uniqueComments.isEmpty()) {
-                item(key = "empty") {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillParentMaxWidth()
-                                .height(120.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            stringResource(R.string.no_comments_yet),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            } else {
-                items(
-                    items = uniqueComments,
-                    key = { comment -> "${selectedFilter.name}_${comment.id}" },
-                ) { comment ->
-                    FlowCommentItem(
-                        comment = comment,
-                        onTimestampClick = onTimestampClick,
-                        onLoadReplies = onLoadReplies,
-                        onLoadMoreReplies = onLoadMoreReplies,
-                        onAuthorClick = onAuthorClick,
-                        onAvatarClick = onAvatarClick,
-                        isSignedIn = isSignedIn,
-                        canComment = canComment,
-                        onReplyTarget = { target, _ -> replyTarget = target; replyThreadParent = comment },
-                        onToggleLike = onToggleLike,
-                        onDeleteComment = onDeleteComment,
-                        channelAvatar = channelAvatar,
+            }
+        } else if (uniqueComments.isEmpty()) {
+            item(key = "empty") {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillParentMaxWidth()
+                            .height(120.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        stringResource(R.string.no_comments_yet),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                if (isLoadingMore) {
-                    item(key = "load_more_spinner") {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(28.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                            )
+            }
+        } else {
+            items(
+                items = uniqueComments,
+                key = { comment -> "${selectedFilter.name}_${comment.id}" },
+            ) { comment ->
+                FlowCommentItem(
+                    comment = comment,
+                    onTimestampClick = onTimestampClick,
+                    onLoadReplies = onLoadReplies,
+                    onLoadMoreReplies = onLoadMoreReplies,
+                    onAuthorClick = onAuthorClick,
+                    onAvatarClick = onAvatarClick,
+                    isSignedIn = isSignedIn,
+                    isPostingComment = isPostingComment,
+                    onPostReply = onPostReply,
+                    onToggleLike = onToggleLike,
+                    onDeleteComment = onDeleteComment,
+                )
+            }
+            if (hasMore) {
+                item(key = "load_more_trigger") {
+                    LaunchedEffect(comments.size) {
+                        latestOnLoadMore()
+                    }
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (isLoadingMore) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
                         }
                     }
                 }
             }
         }
-
-        if (canComment) {
-            CommentComposer(
-                replyTarget = replyTarget,
-                isPosting = isPostingComment,
-                onCancelReply = {
-                    replyTarget = null
-                    replyThreadParent = null
-                },
-                onSend = { text ->
-                    val target = replyTarget
-                    val thread = replyThreadParent ?: target
-                    if (target != null && thread != null) {
-                        onPostReply(thread, text)
-                    } else {
-                        onPostComment(text)
-                    }
-                    replyTarget = null
-                    replyThreadParent = null
-                },
-            )
-        }
-    }
-}
-
-/** Small circular avatar for the channel owner who hearted/replied to a comment. */
-@Composable
-private fun CreatorBadgeAvatar(
-    url: String?,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-) {
-    val avatarUrl = url?.takeIf { it.isNotBlank() }
-    if (avatarUrl != null) {
-        AsyncImage(
-            model = avatarUrl,
-            contentDescription = contentDescription,
-            modifier = modifier.clip(CircleShape),
-            contentScale = ContentScale.Crop,
-        )
-    }
-}
-
-@Composable
-private fun CommentAuthorRow(
-    comment: Comment,
-    onAuthorClick: (String) -> Unit,
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        if (comment.isPinned) {
-            Icon(
-                imageVector = Icons.Default.PushPin,
-                contentDescription = stringResource(R.string.pinned_comment),
-                modifier = Modifier.size(12.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        if (comment.isCreator) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier =
-                    Modifier
-                        .weight(1f, fill = false)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(),
-                            onClick = { onAuthorClick(commentAuthorChannelRef(comment)) },
-                        ),
-            ) {
-                Text(
-                    text = formatAuthorName(comment.author),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                )
-            }
-        } else {
-            Text(
-                text = formatAuthorName(comment.author),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier =
-                    Modifier
-                        .weight(1f, fill = false)
-                        .clip(CircleShape)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(),
-                            onClick = { onAuthorClick(commentAuthorChannelRef(comment)) },
-                        )
-                        .padding(horizontal = 4.dp),
-            )
-        }
-        if (comment.isVerified) {
-            Icon(
-                imageVector = Icons.Rounded.Verified,
-                contentDescription = stringResource(R.string.verified),
-                modifier = Modifier.size(14.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Text(
-            text = localizedCommentPublishedTime(comment.publishedTime),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 
@@ -781,11 +556,10 @@ fun FlowCommentItem(
     onAuthorClick: (String) -> Unit = {},
     onAvatarClick: (String) -> Unit = {},
     isSignedIn: Boolean = false,
-    canComment: Boolean = false,
-    onReplyTarget: (Comment, Comment) -> Unit = { _, _ -> },
+    isPostingComment: Boolean = false,
+    onPostReply: (Comment, String) -> Unit = { _, _ -> },
     onToggleLike: (Comment) -> Unit = {},
     onDeleteComment: (Comment) -> Unit = {},
-    channelAvatar: String? = null,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var isRepliesVisible by remember { mutableStateOf(false) }
@@ -793,6 +567,7 @@ fun FlowCommentItem(
     var isLoadingReplies by remember { mutableStateOf(false) }
     var commentTextLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
     var showFullSizeImage by remember { mutableStateOf(false) }
+    var isReplying by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     val uriHandler = LocalUriHandler.current
@@ -852,46 +627,72 @@ fun FlowCommentItem(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 24.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(vertical = 12.dp, horizontal = 16.dp),
     ) {
-        if (comment.authorThumbnail.isBlank()) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = comment.author.removePrefix("@").take(1).uppercase(),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-        } else {
-            ChannelAvatarImage(
-                url = comment.authorThumbnail,
-                contentDescription = null,
-                modifier =
-                    Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable {
-                            onAvatarClick(comment.authorThumbnail)
-                            showFullSizeImage = true
-                        },
-            )
-        }
+        ChannelAvatarImage(
+            url = comment.authorThumbnail,
+            contentDescription = null,
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable {
+                        onAvatarClick(comment.authorThumbnail)
+                        showFullSizeImage = true
+                    },
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            CommentAuthorRow(
-                comment = comment,
-                onAuthorClick = onAuthorClick,
-            )
+            // Pinned indicator
+            if (comment.isPinned) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PushPin,
+                        contentDescription = stringResource(R.string.pinned_comment),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(12.dp),
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.pinned_by_creator),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+
+            // Header: Author + Time
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = formatAuthorName(comment.author),
+                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier =
+                        Modifier
+                            .weight(1f, fill = false)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(),
+                                onClick = { onAuthorClick(commentAuthorChannelRef(comment)) },
+                            ),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = localizedCommentPublishedTime(comment.publishedTime),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -973,157 +774,131 @@ fun FlowCommentItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Action Bar (Like pill, creator heart/avatar, delete)
+            // Action Bar (Like, Dislike, Reply)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Like pill
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                // Like
+                Icon(
+                    imageVector =
+                        if (comment.isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
+                    contentDescription = stringResource(R.string.like),
+                    tint =
+                        if (comment.isLiked) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                     modifier =
                         if (isSignedIn && comment.likeParams != null) {
                             Modifier
-                                .clip(CircleShape)
+                                .size(20.dp)
+                                .clip(RoundedCornerShape(4.dp))
                                 .clickable { onToggleLike(comment) }
-                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                                .padding(2.dp)
                         } else {
-                            Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            Modifier.size(20.dp)
+                        },
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                if (comment.likeCount > 0) {
+                    Text(
+                        text = formatLikeCount(comment.likeCount),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(24.dp))
+
+                // Reply
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier =
+                        if (isSignedIn) {
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { isReplying = !isReplying }
+                                .padding(4.dp)
+                        } else {
+                            Modifier
                         },
                 ) {
                     Icon(
-                        imageVector =
-                            if (comment.isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-                        contentDescription =
-                            stringResource(if (comment.isLiked) R.string.unlike else R.string.like),
-                        tint =
-                            if (comment.isLiked) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
+                        imageVector = Icons.Outlined.ChatBubbleOutline,
+                        contentDescription = stringResource(R.string.reply),
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(14.dp),
                     )
-                    Text(
-                        text = formatLikeCount(comment.likeCount).ifEmpty { "0" },
-                        style = MaterialTheme.typography.labelSmall,
-                        color =
-                            if (comment.isLiked) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                    )
-                }
-
-                // Creator hearted the comment: heart + channel owner avatar
-                if (comment.isHearted) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.Rounded.Favorite,
-                        contentDescription = stringResource(R.string.hearted_by_creator),
-                        modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                    val creatorUrl = comment.creatorThumbnail.ifBlank { channelAvatar.orEmpty() }
-                    CreatorBadgeAvatar(
-                        url = creatorUrl,
-                        contentDescription = stringResource(R.string.hearted_by_creator),
-                        modifier = Modifier.size(16.dp),
-                    )
-                } else if (comment.creatorReplied) {
-                    // Creator replied to the comment: show the owner avatar
-                    val creatorUrl = comment.creatorThumbnail.ifBlank { channelAvatar.orEmpty() }
-                    CreatorBadgeAvatar(
-                        url = creatorUrl,
-                        contentDescription = stringResource(R.string.creator_replied),
-                        modifier = Modifier.size(16.dp),
-                    )
-                }
-
-                if (isSignedIn && comment.deleteParams != null) {
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier =
-                            Modifier
-                                .clip(CircleShape)
-                                .clickable { showDeleteConfirm = true }
-                                .padding(horizontal = 4.dp, vertical = 2.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.DeleteOutline,
-                            contentDescription = stringResource(R.string.delete_comment),
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    if (isSignedIn) {
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = stringResource(R.string.delete),
+                            text = stringResource(R.string.reply),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
+
+                if (isSignedIn && comment.deleteParams != null) {
+                    Spacer(modifier = Modifier.width(24.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.delete_comment),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier =
+                            Modifier
+                                .size(14.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { showDeleteConfirm = true }
+                                .padding(4.dp),
+                    )
+                }
             }
 
-            // Reply affordance (needs login + reply params)
-            if (canComment && comment.replyParams != null) {
-                Text(
-                    text = stringResource(R.string.reply),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold,
-                    modifier =
-                        Modifier
-                            .padding(start = 48.dp, top = 4.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                onReplyTarget(comment, comment)
-                            }
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
+            if (isReplying && isSignedIn) {
+                CommentComposer(
+                    hint = stringResource(R.string.reply_placeholder),
+                    isPosting = isPostingComment,
+                    onSend = { text ->
+                        isReplying = false
+                        onPostReply(comment, text)
+                    },
                 )
             }
 
             // View Replies Button
             if (comment.replyCount > 0) {
-                Spacer(modifier = Modifier.height(4.dp))
-                val repliesArrowRotation by animateFloatAsState(
-                    targetValue = if (isRepliesVisible) 180f else 0f,
-                    label = "repliesArrow",
-                )
+                Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
                         Modifier
-                            .padding(start = 48.dp)
-                            .clip(CircleShape)
+                            .clip(RoundedCornerShape(4.dp))
                             .clickable {
                                 if (!isRepliesVisible && comment.replies.isEmpty()) {
                                     isLoadingReplies = true
                                     onLoadReplies(comment)
                                 }
                                 isRepliesVisible = !isRepliesVisible
-                            }
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                            }.padding(vertical = 4.dp),
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.KeyboardArrowDown,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                    Box(
                         modifier =
                             Modifier
-                                .size(16.dp)
-                                .graphicsLayer { rotationZ = repliesArrowRotation },
+                                .size(24.dp, 1.dp)
+                                .background(MaterialTheme.colorScheme.primary),
                     )
-                    Spacer(modifier = Modifier.width(2.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text =
                             if (isRepliesVisible) {
-                                stringResource(R.string.hide_replies)
+                                stringResource(
+                                    R.string.hide_replies,
+                                )
                             } else {
                                 stringResource(R.string.view_replies_template, comment.replyCount)
                             },
                         color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                     )
                     if (isLoadingReplies) {
@@ -1143,7 +918,7 @@ fun FlowCommentItem(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(start = 40.dp, top = 8.dp),
+                            .padding(top = 8.dp),
                 ) {
                     comment.replies.forEach { reply ->
                         FlowReplyItem(
@@ -1152,13 +927,10 @@ fun FlowCommentItem(
                             onAuthorClick = onAuthorClick,
                             onAvatarClick = onAvatarClick,
                             isSignedIn = isSignedIn,
-                            canComment = canComment,
-                            onReplyTarget = { target ->
-                                onReplyTarget(target, comment)
-                            },
+                            isPostingComment = isPostingComment,
+                            onPostReply = onPostReply,
                             onToggleLike = onToggleLike,
                             onDeleteComment = onDeleteComment,
-                            channelAvatar = channelAvatar,
                         )
                     }
 
@@ -1170,13 +942,11 @@ fun FlowCommentItem(
                             fontWeight = FontWeight.Bold,
                             modifier =
                                 Modifier
-                                    .padding(start = 48.dp, top = 8.dp)
-                                    .clip(CircleShape)
+                                    .padding(top = 8.dp)
                                     .clickable {
                                         isLoadingReplies = true
                                         onLoadMoreReplies(comment)
-                                    }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    },
                         )
                     }
                 }
@@ -1192,11 +962,10 @@ fun FlowReplyItem(
     onAuthorClick: (String) -> Unit = {},
     onAvatarClick: (String) -> Unit = {},
     isSignedIn: Boolean = false,
-    canComment: Boolean = false,
-    onReplyTarget: (Comment) -> Unit = {},
+    isPostingComment: Boolean = false,
+    onPostReply: (Comment, String) -> Unit = { _, _ -> },
     onToggleLike: (Comment) -> Unit = {},
     onDeleteComment: (Comment) -> Unit = {},
-    channelAvatar: String? = null,
 ) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val onSurface = MaterialTheme.colorScheme.onSurface
@@ -1214,6 +983,7 @@ fun FlowReplyItem(
         }
     var replyTextLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
     var showFullSizeImage by remember { mutableStateOf(false) }
+    var isReplying by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     if (showFullSizeImage) {
@@ -1251,97 +1021,43 @@ fun FlowReplyItem(
             Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (reply.authorThumbnail.isBlank()) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = reply.author.removePrefix("@").take(1).uppercase(),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-        } else {
-            ChannelAvatarImage(
-                url = reply.authorThumbnail,
-                contentDescription = null,
-                modifier =
-                    Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable {
-                            onAvatarClick(reply.authorThumbnail)
-                            showFullSizeImage = true
-                        },
-            )
-        }
+        ChannelAvatarImage(
+            url = reply.authorThumbnail,
+            contentDescription = null,
+            modifier =
+                Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable {
+                        onAvatarClick(reply.authorThumbnail)
+                        showFullSizeImage = true
+                    },
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             // Header: Author + Time
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                if (reply.isCreator) {
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier =
-                            Modifier
-                                .weight(1f, fill = false)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(),
-                                    onClick = { onAuthorClick(commentAuthorChannelRef(reply)) },
-                                ),
-                    ) {
-                        Text(
-                            text = formatAuthorName(reply.author),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
-                        )
-                    }
-                } else {
-                    Text(
-                        text = formatAuthorName(reply.author),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier =
-                            Modifier
-                                .weight(1f, fill = false)
-                                .clip(CircleShape)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(),
-                                    onClick = { onAuthorClick(commentAuthorChannelRef(reply)) },
-                                )
-                                .padding(horizontal = 4.dp),
-                    )
-                }
-                if (reply.isVerified) {
-                    Icon(
-                        imageVector = Icons.Rounded.Verified,
-                        contentDescription = stringResource(R.string.verified),
-                        modifier = Modifier.size(12.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = formatAuthorName(reply.author),
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier =
+                        Modifier
+                            .weight(1f, fill = false)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(),
+                                onClick = { onAuthorClick(commentAuthorChannelRef(reply)) },
+                            ),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = localizedCommentPublishedTime(reply.publishedTime),
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
@@ -1393,124 +1109,102 @@ fun FlowReplyItem(
                                 },
                             )
                         },
-                    )
-                }
-            }
-
-            if (replyState.showOriginalBelow) {
-                Text(
-                    text = replyState.original,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    ),
-                    modifier = Modifier.padding(top = 4.dp),
                 )
+                    if (replyState.showOriginalBelow) {
+                        Text(
+                            text = replyState.original,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
             // Action Bar (Minimal for replies)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                Icon(
+                    imageVector =
+                        if (reply.isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
+                    contentDescription = stringResource(R.string.like),
+                    tint =
+                        if (reply.isLiked) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
                     modifier =
                         if (isSignedIn && reply.likeParams != null) {
                             Modifier
-                                .clip(CircleShape)
+                                .size(18.dp)
+                                .clip(RoundedCornerShape(4.dp))
                                 .clickable { onToggleLike(reply) }
-                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                                .padding(2.dp)
                         } else {
-                            Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            Modifier.size(18.dp)
                         },
-                ) {
-                    Icon(
-                        imageVector =
-                            if (reply.isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-                        contentDescription =
-                            stringResource(if (reply.isLiked) R.string.unlike else R.string.like),
-                        tint =
-                            if (reply.isLiked) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                        modifier = Modifier.size(14.dp),
+                )
+                if (reply.likeCount > 0) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = formatLikeCount(reply.likeCount),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    if (reply.likeCount > 0) {
+                }
+
+                if (isSignedIn) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier =
+                            Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { isReplying = !isReplying }
+                                .padding(4.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ChatBubbleOutline,
+                            contentDescription = stringResource(R.string.reply),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = formatLikeCount(reply.likeCount),
-                            style = MaterialTheme.typography.labelSmall,
+                            text = stringResource(R.string.reply),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                }
-
-                // Creator hearted the reply
-                if (reply.isHearted) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.Rounded.Favorite,
-                        contentDescription = stringResource(R.string.hearted_by_creator),
-                        modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                    val creatorUrl = reply.creatorThumbnail.ifBlank { channelAvatar.orEmpty() }
-                    CreatorBadgeAvatar(
-                        url = creatorUrl,
-                        contentDescription = stringResource(R.string.hearted_by_creator),
-                        modifier = Modifier.size(14.dp),
-                    )
-                } else if (reply.creatorReplied) {
-                    val creatorUrl = reply.creatorThumbnail.ifBlank { channelAvatar.orEmpty() }
-                    CreatorBadgeAvatar(
-                        url = creatorUrl,
-                        contentDescription = stringResource(R.string.creator_replied),
-                        modifier = Modifier.size(14.dp),
-                    )
                 }
 
                 if (isSignedIn && reply.deleteParams != null) {
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.delete_comment),
+                        tint = MaterialTheme.colorScheme.error,
                         modifier =
                             Modifier
-                                .clip(CircleShape)
+                                .size(12.dp)
+                                .clip(RoundedCornerShape(4.dp))
                                 .clickable { showDeleteConfirm = true }
-                                .padding(horizontal = 4.dp, vertical = 2.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.DeleteOutline,
-                            contentDescription = stringResource(R.string.delete_comment),
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = stringResource(R.string.delete),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                                .padding(4.dp),
+                    )
                 }
             }
 
-            // Reply affordance for replies (posts into the same thread)
-            if (canComment && reply.replyParams != null) {
-                Text(
-                    text = stringResource(R.string.reply),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold,
-                    modifier =
-                        Modifier
-                            .padding(start = 40.dp, top = 4.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                onReplyTarget(reply)
-                            }
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
+            if (isReplying && isSignedIn) {
+                CommentComposer(
+                    hint = stringResource(R.string.reply_placeholder),
+                    isPosting = isPostingComment,
+                    onSend = { text ->
+                        isReplying = false
+                        onPostReply(reply, text)
+                    },
                 )
             }
         }
@@ -1526,6 +1220,25 @@ private fun localizedCommentPublishedTime(publishedTime: String): String {
         stringResource(R.string.comment_time_edited_template, time, stringResource(R.string.comment_edited))
     } else {
         time
+    }
+}
+
+// ==========================================
+// SKELETONS
+// ==========================================
+
+@Composable
+fun CommentSkeleton() {
+    Row(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+        Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Color.Gray.copy(0.2f)))
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Box(modifier = Modifier.width(100.dp).height(12.dp).background(Color.Gray.copy(0.2f), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(modifier = Modifier.fillMaxWidth().height(12.dp).background(Color.Gray.copy(0.2f), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(modifier = Modifier.width(200.dp).height(12.dp).background(Color.Gray.copy(0.2f), RoundedCornerShape(4.dp)))
+        }
     }
 }
 

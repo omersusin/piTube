@@ -157,7 +157,6 @@ fun PlayerBottomSheetsContainer(
                 screenState.showCommentsSheet = false
                 onNavigateToChannel?.invoke(authorChannelRef)
             },
-            channelAvatar = completeVideo.channelThumbnailUrl.ifBlank { null },
             expandedHeight = mediaSheetExpandedHeight,
             collapsedHeight = mediaSheetCollapsedHeight,
             onSheetProgressChange = onMediaSheetProgressChange,

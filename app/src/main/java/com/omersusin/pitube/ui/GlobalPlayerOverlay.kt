@@ -1612,11 +1612,7 @@ fun GlobalPlayerOverlay(
                             onLoadMore = { playerViewModel.loadMoreComments(video.id) },
                             hasMore = hasMoreComments,
                             isSignedIn = !isGoogleSignedIn.isNullOrBlank(),
-                            canComment = !isGoogleSignedIn.isNullOrBlank(),
                             isPostingComment = isPostingComment,
-                            onPostComment = { text ->
-                                playerViewModel.postComment(text)
-                            },
                             onPostReply = { comment, text ->
                                 playerViewModel.postCommentReply(comment, text)
                             },
@@ -1626,7 +1622,6 @@ fun GlobalPlayerOverlay(
                             onDeleteComment = { comment ->
                                 playerViewModel.deleteComment(comment)
                             },
-                            channelAvatar = completeVideo.channelThumbnailUrl.ifBlank { null },
                             modifier = Modifier.fillMaxWidth().weight(1f),
                         )
                     }

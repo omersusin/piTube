@@ -114,29 +114,16 @@ internal fun JsonElement.toVideoCommentsPage(): VideoCommentsPage {
                 if (id == null) continue
                 val entity = entities[id] ?: continue
                 var repliesToken: String? = null
-                var creatorReplied = false
-                var creatorThumbnail = ""
                 thread?.get("replies").objectOrNull()?.let { replies ->
                     val tokens = mutableListOf<String>()
                     findContinuationTokens(replies, tokens)
                     repliesToken = tokens.firstOrNull()
-                    // The replies section carries a creator thumbnail when the
-                    // channel owner replied to this comment (LibreTube pattern).
-                    replies.get("commentRepliesRenderer").objectOrNull()?.let { repliesRenderer ->
-                        val creatorImage = repliesRenderer["viewRepliesCreatorThumbnail"]
-                        if (creatorImage != null) {
-                            creatorReplied = true
-                            creatorThumbnail = creatorImage.largestThumbnailUrl().orEmpty()
-                        }
-                    }
                 }
                 parseVideoCommentEntity(
                     entity = entity,
                     viewModel = viewModel,
                     toolbarStates = toolbarStates,
                     repliesToken = repliesToken,
-                    creatorReplied = creatorReplied,
-                    creatorThumbnail = creatorThumbnail,
                     replyParams = replyParamsByCommentId[id],
                     toolbarSurfaces = toolbarSurfaces,
                 )?.let(comments::add)
@@ -208,8 +195,6 @@ private fun parseVideoCommentEntity(
     viewModel: JsonObject,
     toolbarStates: Map<String, JsonObject>,
     repliesToken: String?,
-    creatorReplied: Boolean = false,
-    creatorThumbnail: String = "",
     replyParams: String? = null,
     toolbarSurfaces: Map<String, JsonObject> = emptyMap(),
 ): Comment? {    val properties = entity["properties"].objectOrNull()
@@ -278,9 +263,6 @@ private fun parseVideoCommentEntity(
             ?: "",
         isHearted = heartState == "TOOLBAR_HEART_STATE_HEARTED",
         isCreator = author?.get("isCreator").let { (it as? JsonPrimitive)?.booleanOrNull } ?: false,
-        isVerified = author?.get("isVerified").let { (it as? JsonPrimitive)?.booleanOrNull } ?: false,
-        creatorReplied = creatorReplied,
-        creatorThumbnail = normalizeCommentImageUrl(creatorThumbnail),
         isLiked = likeState == "TOOLBAR_LIKE_STATE_LIKED",
         likeParams = surfaceAction("likeCommand"),
         unlikeParams = surfaceAction("unlikeCommand"),

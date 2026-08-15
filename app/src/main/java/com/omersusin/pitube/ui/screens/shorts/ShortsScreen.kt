@@ -28,7 +28,6 @@ import com.omersusin.pitube.player.shorts.ShortsPlayerPool
 import com.omersusin.pitube.ui.components.CommentSortFilter
 import com.omersusin.pitube.ui.components.FlowCommentsBottomSheet
 import com.omersusin.pitube.ui.components.FlowDescriptionBottomSheet
-import com.omersusin.pitube.ui.components.sortCommentsByFilter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -108,9 +107,32 @@ fun ShortsScreen(
     val isPostingComment by viewModel.isPostingComment.collectAsState()
     val isGoogleSignedIn by audioLangPref.youtubeCookie.collectAsState(initial = null)
 
+    fun relativeTimeToSeconds(timeStr: String): Long {
+        val lower = timeStr.lowercase().trim()
+        val number = Regex("\\d+").find(lower)?.value?.toLongOrNull() ?: 0L
+        return when {
+            "second" in lower -> number
+            "minute" in lower -> number * 60L
+            "hour" in lower -> number * 3_600L
+            "day" in lower -> number * 86_400L
+            "week" in lower -> number * 604_800L
+            "month" in lower -> number * 2_592_000L
+            "year" in lower -> number * 31_536_000L
+            else -> Long.MAX_VALUE
+        }
+    }
+
     val sortedComments =
         remember(comments, commentSortFilter) {
-            sortCommentsByFilter(comments, commentSortFilter)
+            val pinned = comments.filter { it.isPinned }
+            val unpinned = comments.filterNot { it.isPinned }
+            val sortedUnpinned =
+                when (commentSortFilter) {
+                    CommentSortFilter.TOP -> unpinned.sortedByDescending { it.likeCount }
+                    CommentSortFilter.NEWEST -> unpinned.sortedBy { relativeTimeToSeconds(it.publishedTime) }
+                    CommentSortFilter.OLDEST -> unpinned.sortedByDescending { relativeTimeToSeconds(it.publishedTime) }
+                }
+            pinned + sortedUnpinned
         }
 
     // Load shorts
@@ -344,7 +366,6 @@ fun ShortsScreen(
                     showCommentsSheet = false
                     onChannelClick(authorChannelRef)
                 },
-                channelAvatar = uiState.shorts.getOrNull(uiState.currentIndex)?.channelThumbnailUrl,
                 onDismiss = { showCommentsSheet = false },
             )
         }
