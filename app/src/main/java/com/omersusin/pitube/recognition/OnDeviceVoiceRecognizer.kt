@@ -27,9 +27,11 @@ class OnDeviceVoiceRecognizer(
     /**
      * Runs one listening session. Resolves with the final transcript or throws
      * [RecognitionException] (BAD_CONNECTION for the network-dependent
-     * recognizer, OTHER for no-speech/errors).
+     * recognizer, OTHER for no-speech/errors). Live RMS levels measured by the
+     * recognizer are forwarded through [onLevel] so the listening visual stays
+     * animated on this fallback path too.
      */
-    suspend fun listen(): String = suspendCancellableCoroutine { continuation ->
+    suspend fun listen(onLevel: (Float) -> Unit = {}): String = suspendCancellableCoroutine { continuation ->
         val recognizer =
             createRecognizer() ?: run {
                 continuation.resumeWith(Result.failure(RecognitionException(RecognitionFailureType.OTHER, "Speech recognition unavailable")))
@@ -66,7 +68,12 @@ class OnDeviceVoiceRecognizer(
 
                 override fun onBeginningOfSpeech() = Unit
 
-                override fun onRmsChanged(rmsdB: Float) = Unit
+                override fun onRmsChanged(rmsdB: Float) {
+                    // SpeechRecognizer reports RMS in dB, roughly [-20, 0];
+                    // map it into the same 0..1 amplitude space the
+                    // AudioRecord path feeds the listening visual with.
+                    onLevel(((rmsdB.coerceAtLeast(-18f) + 18f) / 18f).coerceIn(0f, 1f))
+                }
 
                 override fun onBufferReceived(buffer: ByteArray?) = Unit
 

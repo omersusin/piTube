@@ -126,9 +126,6 @@ fun NavGraphBuilder.flowAppGraph(
                     navController.navigate("shorts?startVideoId=${video.id}")
                 }
             },
-            onSearchClick = {
-                navController.navigate("search")
-            },
             onNotificationClick = {
                 navController.navigate("notifications")
             },

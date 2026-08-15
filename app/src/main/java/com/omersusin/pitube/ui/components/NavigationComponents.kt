@@ -30,14 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 import androidx.compose.ui.res.vectorResource
 import com.omersusin.pitube.R
+import com.omersusin.pitube.ui.NAV_INDEX_SEARCH
 
 private data class NavItemSpec(
     val index: Int,
@@ -119,6 +117,7 @@ fun FloatingBottomNavBar(
                     modifier = Modifier.weight(1f),
                     icon = if (selectedIndex == spec.index) spec.filledIcon else spec.outlinedIcon,
                     label = stringResource(spec.labelRes),
+                    enlarged = spec.index == NAV_INDEX_SEARCH,
                     selected = selectedIndex == spec.index,
                     onClick = { onItemSelected(spec.index) }
                 )
@@ -250,19 +249,6 @@ private fun AccountBottomNavItem(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(1.dp))
-
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = iconTint,
-                fontSize = 10.sp,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }
@@ -274,6 +260,7 @@ private fun BottomNavItem(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enlarged: Boolean = false,
 ) {
     val scale by animateFloatAsState(
         targetValue = if (selected) 1.05f else 1f,
@@ -290,6 +277,7 @@ private fun BottomNavItem(
         label = "iconTint"
     )
     
+    val iconSize = if (enlarged) 36.dp else 22.dp
     val interactionSource = remember { MutableInteractionSource() }
     
     Box(
@@ -306,26 +294,13 @@ private fun BottomNavItem(
                     indication = ripple(bounded = true, radius = 28.dp),
                     onClick = onClick
                 )
-                .padding(horizontal = 12.dp, vertical = 2.dp)
+                .padding(horizontal = if (enlarged) 8.dp else 12.dp, vertical = 2.dp)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
                 tint = iconTint,
-                modifier = Modifier.size(22.dp)
-            )
-
-            Spacer(modifier = Modifier.height(1.dp))
-
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = iconTint,
-                fontSize = 10.sp,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
+                modifier = Modifier.size(iconSize)
             )
         }
     }

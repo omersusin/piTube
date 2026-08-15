@@ -103,8 +103,20 @@ class RecognitionViewModel
                 return
             }
 
-            _uiState.update { it.copy(phase = RecognitionPhase.PROCESSING) }
-            val (transcript, source) = repository.recognizeVoice(captured)
+            // Stay in LISTENING (face keeps animating) while the transcript is
+            // produced: the on-device fallback runs its own live mic session,
+            // so its RMS levels are forwarded here to keep the visual live.
+            val (transcript, source) =
+                repository.recognizeVoice(
+                    captured,
+                    onFallbackLevel = { level ->
+                        _uiState.update { it.copy(levels = (it.levels + level).takeLast(40)) }
+                    },
+                )
+            if (interrupted.value) {
+                _uiState.update { it.copy(phase = RecognitionPhase.IDLE) }
+                return
+            }
             _uiState.update {
                 it.copy(
                     phase = RecognitionPhase.SUCCESS,

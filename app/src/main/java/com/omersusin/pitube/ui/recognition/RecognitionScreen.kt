@@ -5,8 +5,6 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,12 +32,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.omersusin.pitube.R
 import com.omersusin.pitube.recognition.VoiceRecognitionSource
+import kotlinx.coroutines.delay
 
 /**
  * Full-screen Voice/Song recognition modal (Google voice-search style): close
- * top-left, Voice/Song segmented pill, live waveform, big mic button. Opened
+ * top-left, Voice/Song segmented pill, an amplitude-reactive talking face
+ * (Voice) / morphing blob (Song) while listening, big mic button. Opened
  * directly from the center nav slot, the recognition notification and the
- * floating overlay button.
+ * floating overlay button. Final results auto-submit as a piTube search.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +73,17 @@ fun RecognitionScreen(
             !micPermissionGranted -> permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             else -> viewModel.startListening()
         }
+    }
+
+    // Auto-submit the final result as a piTube search query (per spec: the
+    // recognized track / transcript immediately becomes the search). The short
+    // beat lets the result card be seen before the modal closes.
+    val latestOnSearch by rememberUpdatedState(onSearch)
+    LaunchedEffect(uiState.phase, uiState.transcript, uiState.track) {
+        if (uiState.phase != RecognitionPhase.SUCCESS) return@LaunchedEffect
+        val query = uiState.transcript ?: uiState.track?.searchQuery ?: return@LaunchedEffect
+        delay(500)
+        latestOnSearch(query)
     }
 
     Box(
@@ -119,13 +130,16 @@ fun RecognitionScreen(
                 when (uiState.phase) {
                     RecognitionPhase.LISTENING -> {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            WaveformBars(
-                                levels = uiState.levels,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 48.dp)
-                                    .height(96.dp),
-                            )
+                            when (uiState.mode) {
+                                RecognitionMode.VOICE -> TalkingFace(
+                                    amplitude = uiState.levels.lastOrNull() ?: 0f,
+                                    modifier = Modifier.size(208.dp),
+                                )
+                                RecognitionMode.SONG -> MorphingBlob(
+                                    amplitude = uiState.levels.lastOrNull() ?: 0f,
+                                    modifier = Modifier.size(224.dp),
+                                )
+                            }
                             Spacer(Modifier.height(24.dp))
                             Text(
                                 text = stringResource(
@@ -214,13 +228,16 @@ fun RecognitionScreen(
 
                     RecognitionPhase.IDLE -> {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            WaveformBars(
-                                levels = emptyList(),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 48.dp)
-                                    .height(96.dp),
-                            )
+                            when (uiState.mode) {
+                                RecognitionMode.VOICE -> TalkingFace(
+                                    amplitude = 0f,
+                                    modifier = Modifier.size(208.dp),
+                                )
+                                RecognitionMode.SONG -> MorphingBlob(
+                                    amplitude = 0f,
+                                    modifier = Modifier.size(224.dp),
+                                )
+                            }
                             Spacer(Modifier.height(24.dp))
                             if (!micPermissionGranted) {
                                 Text(
@@ -353,52 +370,6 @@ private fun RecognitionMicButton(
             tint = contentColor,
             modifier = Modifier.size(40.dp),
         )
-    }
-}
-
-/**
- * Live waveform: a row of bars whose heights follow the latest RMS levels.
- * With no levels (idle) it shows a calm baseline so the modal still looks
- * alive before the first tap.
- */
-@Composable
-private fun WaveformBars(
-    levels: List<Float>,
-    modifier: Modifier = Modifier,
-) {
-    val barCount = 32
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        repeat(barCount) { index ->
-            val target =
-                if (levels.isEmpty()) {
-                    0.08f
-                } else {
-                    levels[(index * levels.size / barCount).coerceAtMost(levels.lastIndex)]
-                }
-            val heightFraction by animateFloatAsState(
-                targetValue = (0.06f + target * 0.94f).coerceIn(0.04f, 1f),
-                animationSpec = spring(stiffness = 900f, dampingRatio = 0.8f),
-                label = "waveBar$index",
-            )
-            Box(
-                modifier =
-                    Modifier
-                        .width(4.dp)
-                        .height(96.dp * heightFraction)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(
-                            if (levels.isEmpty()) {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            } else {
-                                MaterialTheme.colorScheme.primary
-                            },
-                        ),
-            )
-        }
     }
 }
 

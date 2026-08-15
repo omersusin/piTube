@@ -44,8 +44,13 @@ class RecognitionRepository(
     /**
      * Transcript via Puter if online, else (or on failure) the on-device
      * recognizer. Returns the transcript and which path served it (logged).
+     * Live levels from the on-device fallback session are forwarded through
+     * [onFallbackLevel] so the listening visual stays animated on that path.
      */
-    suspend fun recognizeVoice(captured: CapturedAudio): Pair<String, VoiceRecognitionSource> =
+    suspend fun recognizeVoice(
+        captured: CapturedAudio,
+        onFallbackLevel: (Float) -> Unit = {},
+    ): Pair<String, VoiceRecognitionSource> =
         withContext(Dispatchers.Default) {
             val online = hasInternetConnection(context)
             if (online) {
@@ -59,7 +64,7 @@ class RecognitionRepository(
             } else {
                 Log.d("Recognition", "Offline — using on-device speech recognizer")
             }
-            val transcript = OnDeviceVoiceRecognizer(context).listen()
+            val transcript = OnDeviceVoiceRecognizer(context).listen(onFallbackLevel)
             transcript to VoiceRecognitionSource.ON_DEVICE
         }
 
