@@ -55,6 +55,9 @@ class LingvaEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine
 
     override val supportsAudio: Boolean = true
 
+    override val statusNote: String =
+        "Default lingva.ml instance is often down; use a self-hosted instance."
+
     override suspend fun getLanguages(): List<Language> {
         return runCatching {
             val body = TranslationHttpClient.client.get(url("api/v1/languages")).bodyAsText()

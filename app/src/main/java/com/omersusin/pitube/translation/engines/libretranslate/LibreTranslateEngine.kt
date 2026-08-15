@@ -46,6 +46,9 @@ class LibreTranslateEngine(settingsProvider: EngineSettingsProvider) : Translati
 
     override val autoLanguageCode: String? = "auto"
 
+    override val statusNote: String =
+        "Public instances are key-gated or rate-limited; self-host LibreTranslate for reliable use."
+
     override suspend fun getLanguages(): List<Language> {
         return runCatching {
             val body = TranslationHttpClient.client.get(url("languages")).bodyAsText()

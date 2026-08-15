@@ -156,6 +156,20 @@ fun TranslationSettingsScreen(
                         ),
                         onClick = { showProviderDialog = true },
                     )
+                    if (engine.statusNote != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.errorContainer,
+                        ) {
+                            Text(
+                                text = engine.statusNote,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(12.dp),
+                            )
+                        }
+                    }
                     HorizontalDivider(
                         Modifier.padding(start = 56.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -374,6 +388,7 @@ fun TranslationSettingsScreen(
                 showProviderDialog = false
             },
             onDismiss = { showProviderDialog = false },
+            optionNotes = viewModel.engines.map { it.statusNote },
         )
     }
 
@@ -529,6 +544,7 @@ private fun RadioListDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
     optionLabels: List<String>? = null,
+    optionNotes: List<String?>? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -539,6 +555,7 @@ private fun RadioListDialog(
             ) {
                 itemsIndexed(options) { index, option ->
                     val label = optionLabels?.getOrNull(index) ?: option
+                    val note = optionNotes?.getOrNull(index)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -551,7 +568,16 @@ private fun RadioListDialog(
                             onClick = { onSelect(option) },
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = label, style = MaterialTheme.typography.bodyMedium)
+                            if (note != null) {
+                                Text(
+                                    text = note,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        }
                     }
                 }
             }

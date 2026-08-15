@@ -75,6 +75,14 @@ abstract class TranslationEngine(private val settingsProvider: EngineSettingsPro
     open val supportsAudio: Boolean = false
 
     /**
+     * Optional user-facing note shown next to the engine in the picker.
+     * Used to soft-deprecate providers that are currently broken upstream
+     * (dead instances, rotated session keys, key-gated free tiers) without
+     * removing them for the users who can still reach them.
+     */
+    open val statusNote: String? = null
+
+    /**
      * Call once before first use. Engines are effectively stateless in this
      * port (they read settings live and share one HttpClient), so this is a
      * no-op hook kept for API compatibility with the upstream abstraction.
