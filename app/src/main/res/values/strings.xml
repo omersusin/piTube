@@ -220,6 +220,13 @@
     <string name="hide_replies">Hide replies</string>
     <string name="view_replies_template">View %1$d replies</string>
     <string name="load_more_replies">Load more replies</string>
+    <string name="replying_to_template">Replying to %1$s</string>
+    <string name="cancel_reply">Cancel reply</string>
+    <string name="post">Post</string>
+    <string name="loading_replies">Loading replies…</string>
+    <string name="hearted_by_creator">Hearted by creator</string>
+    <string name="verified">Verified</string>
+    <string name="creator_replied">The channel owner replied to this comment</string>
     
     <string name="pinned_comment">Pinned comment</string>
     <string name="pinned_by_creator">Pinned by creator</string>
