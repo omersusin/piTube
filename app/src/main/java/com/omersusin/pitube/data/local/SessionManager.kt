@@ -84,18 +84,21 @@ class SessionManager(private val context: Context) {
     /**
      * Begin a session the user has just signed into.
      *
-     * When a local profile is active this promotes the sign-in into a new
-     * YouTube profile and switches to it, so the existing login flow keeps
-     * working unchanged and simply produces a profile as a side effect.
+     * This always lands the fresh session on **its own** YouTube profile rather
+     * than overwriting whatever account is currently active: with multiple
+     * accounts in the roster, signing into a second account must never replace
+     * the first one's stored cookies. If this account is already in the roster
+     * it is refreshed in place (dedupe by datasyncId where known); otherwise a
+     * new profile is added and made active, the same semantics as
+     * [com.omersusin.pitube.data.local.AccountSwitcher.addYouTubeProfileAndSwitch].
      */
     fun startSession(cookies: String) {
-        val active = profileManager.active()
-        if (active.isLocal) {
-            val profile = profileManager.addYouTubeProfile(cookies)
-            profileManager.setActive(profile.id)
-        } else {
-            profileManager.saveCookiesFor(active.id, cookies)
-        }
+        // Always land the fresh session on its own profile: a re-add of an
+        // account already in the roster is refreshed in place via datasyncId
+        // dedupe inside addYouTubeProfile, and a brand-new account becomes a
+        // new row - the active account's cookies are never overwritten.
+        val profile = profileManager.addYouTubeProfile(cookies)
+        profileManager.setActive(profile.id)
         runCatching { runMirror { it.refreshYoutubeCookie(cookies) } }
         setSessionExpired(false)
     }
