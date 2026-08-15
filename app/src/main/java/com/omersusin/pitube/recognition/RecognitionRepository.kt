@@ -5,6 +5,8 @@ import android.util.Log
 import com.omersusin.pitube.data.local.RecognitionPreferences
 import com.omersusin.pitube.data.local.RecognitionProvider
 import com.omersusin.pitube.data.local.RecognitionFailureType
+import com.omersusin.pitube.data.local.VoiceSourcePreference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -33,40 +35,51 @@ class RecognitionRepository(
         const val SONG_RECORDING_MS = 12_000L
     }
 
-    /** Records live levels via [onLevel] as it captures. */
-    suspend fun recordVoice(
-        interrupted: () -> Boolean = { false },
-        onLevel: (Float) -> Unit = {},
-    ): CapturedAudio = withContext(Dispatchers.IO) {
-        capturer.record(VOICE_RECORDING_MS, interrupted, onLevel)
-    }
-
     /**
-     * Transcript via Puter if online, else (or on failure) the on-device
-     * recognizer. Returns the transcript and which path served it (logged).
-     * Live levels from the on-device fallback session are forwarded through
-     * [onFallbackLevel] so the listening visual stays animated on that path.
+     * Picks and runs the voice path that will actually work:
+     *
+     * 1. Puter guest whisper is used when a guest token can be obtained (a
+     *    no-key, no-login cloud transcription). The 12-second capture is
+     *    recorded and sent off as a WAV.
+     * 2. Otherwise the Android `SpeechRecognizer` runs the live listening
+     *    session directly — its live RMS levels are forwarded through
+     *    [onLevel] so the talking face keeps animating on this path too.
+     *
+     * Both paths may throw [RecognitionException] (empty transcript, no
+     * speech, recognizer unavailable, network failure). The caller decides
+     * whether to surface the error or retry.
      */
     suspend fun recognizeVoice(
-        captured: CapturedAudio,
-        onFallbackLevel: (Float) -> Unit = {},
-    ): Pair<String, VoiceRecognitionSource> =
-        withContext(Dispatchers.Default) {
-            val online = hasInternetConnection(context)
-            if (online) {
-                try {
-                    val transcript = PuterSpeechToText.transcribe(captured.wavBytes)
-                    Log.d("Recognition", "Voice served by Puter (whisper-1)")
-                    return@withContext transcript to VoiceRecognitionSource.PUTER
-                } catch (e: RecognitionException) {
-                    Log.w("Recognition", "Puter failed (${e.type}), falling back to on-device: ${e.message}")
+        interrupted: () -> Boolean = { false },
+        onLevel: (Float) -> Unit = {},
+    ): Pair<String, VoiceRecognitionSource> = withContext(Dispatchers.Default) {
+        val voiceSource = preferences.voiceSource.first()
+        val usePuter =
+            voiceSource == VoiceSourcePreference.AUTO && PuterSpeechToText.isGuestAuthAvailable()
+
+        if (usePuter) {
+            try {
+                val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel)
+                if (interrupted()) {
+                    throw CancellationException("Voice recognition cancelled")
                 }
-            } else {
-                Log.d("Recognition", "Offline — using on-device speech recognizer")
+                val transcript = PuterSpeechToText.transcribe(captured.wavBytes)
+                Log.d("Recognition", "Voice served by Puter (whisper-1)")
+                return@withContext transcript to VoiceRecognitionSource.PUTER
+            } catch (e: RecognitionException) {
+                Log.w("Recognition", "Puter failed (${e.type}), falling back to on-device: ${e.message}")
             }
-            val transcript = OnDeviceVoiceRecognizer(context).listen(onFallbackLevel)
-            transcript to VoiceRecognitionSource.ON_DEVICE
+        } else {
+            Log.d(
+                "Recognition",
+                "Using on-device speech recognizer (voiceSource=$voiceSource, puter=${
+                    if (voiceSource == VoiceSourcePreference.AUTO) "unavailable" else "disabled"
+                })",
+            )
         }
+        val transcript = OnDeviceVoiceRecognizer(context).listen(onLevel)
+        transcript to VoiceRecognitionSource.ON_DEVICE
+    }
 
     /** Full song-recognition pass with fallback policy applied. */
     suspend fun recognizeSong(

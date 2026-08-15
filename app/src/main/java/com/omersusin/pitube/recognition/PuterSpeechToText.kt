@@ -88,6 +88,23 @@ object PuterSpeechToText {
      * OTHER for schema change / upstream rejection, so the caller can fall
      * back to the on-device recognizer as required.
      */
+    /**
+     * True once a guest auth token is obtainable, else false (for example when
+     * puter.com now requires solving a captcha for guest signup). The token is
+     * cached, so the later [transcribe] call reuses it instead of re-signing
+     * up. Callers use this to decide between the whisper path and the
+     * on-device recognizer before recording anything.
+     */
+    suspend fun isGuestAuthAvailable(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            guestToken = guestToken ?: acquireGuestToken()
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "Guest STT unavailable: ${e.message}")
+            false
+        }
+    }
+
     suspend fun transcribe(wavBytes: ByteArray): String = withContext(Dispatchers.IO) {
         val dataUri =
             "data:audio/wav;base64," +

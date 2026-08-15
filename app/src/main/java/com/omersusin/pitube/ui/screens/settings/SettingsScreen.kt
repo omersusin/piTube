@@ -59,6 +59,7 @@ import com.omersusin.pitube.data.local.RecognitionPreferences
 import com.omersusin.pitube.data.local.RecognitionProvider
 import com.omersusin.pitube.data.local.RecognitionFailureType
 import com.omersusin.pitube.data.local.FallbackPolicy
+import com.omersusin.pitube.data.local.VoiceSourcePreference
 import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.recognition.RecognitionNotifier
 import com.omersusin.pitube.recognition.RecognitionOverlayService
@@ -122,6 +123,7 @@ fun SettingsScreen(
         mutableStateOf(Settings.canDrawOverlays(context))
     }
     var showRecognitionProviderDialog by remember { mutableStateOf(false) }
+    var showRecognitionVoiceSourceDialog by remember { mutableStateOf(false) }
     var showRecognitionFallbackDialog by remember { mutableStateOf(false) }
     var pendingNotificationPermission by remember { mutableStateOf(false) }
 
@@ -227,6 +229,13 @@ fun SettingsScreen(
             RecognitionProvider.SHAZAM -> stringResource(R.string.recognition_provider_shazam)
             RecognitionProvider.AUDD -> stringResource(R.string.recognition_provider_audd)
             RecognitionProvider.ACRCLOUD -> stringResource(R.string.recognition_provider_acrcloud)
+        }
+    val recognitionVoiceSource by recognitionPreferences.voiceSource
+        .collectAsStateWithLifecycle(initialValue = VoiceSourcePreference.AUTO)
+    val recognitionVoiceSourceLabel: String =
+        when (recognitionVoiceSource) {
+            VoiceSourcePreference.AUTO -> stringResource(R.string.recognition_voice_source_auto)
+            VoiceSourcePreference.DEVICE_ONLY -> stringResource(R.string.recognition_voice_source_device_only)
         }
     val recognitionFallbackBadInternet by recognitionPreferences.fallbackBadInternet
         .collectAsStateWithLifecycle(initialValue = FallbackPolicy.IGNORE)
@@ -553,6 +562,12 @@ fun SettingsScreen(
                 recognitionProviderLabel,
                 secRecognition,
             ) { showRecognitionProviderDialog = true },
+            SettingSearchEntry(
+                Icons.Outlined.RecordVoiceOver,
+                stringResource(R.string.settings_recognition_voice_source),
+                recognitionVoiceSourceLabel,
+                secRecognition,
+            ) { showRecognitionVoiceSourceDialog = true },
             SettingSearchEntry(
                 Icons.Outlined.CompareArrows,
                 stringResource(R.string.settings_recognition_fallback),
@@ -1071,6 +1086,12 @@ fun SettingsScreen(
                             onClick = { showRecognitionProviderDialog = true },
                         )
                         SettingsItem(
+                            icon = Icons.Outlined.RecordVoiceOver,
+                            title = stringResource(R.string.settings_recognition_voice_source),
+                            subtitle = recognitionVoiceSourceLabel,
+                            onClick = { showRecognitionVoiceSourceDialog = true },
+                        )
+                        SettingsItem(
                             icon = Icons.Outlined.CompareArrows,
                             title = stringResource(R.string.settings_recognition_fallback),
                             subtitle = stringResource(R.string.settings_recognition_fallback_subtitle),
@@ -1412,6 +1433,55 @@ fun SettingsScreen(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showRecognitionProviderDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    if (showRecognitionVoiceSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showRecognitionVoiceSourceDialog = false },
+            title = { Text(stringResource(R.string.settings_recognition_voice_source)) },
+            text = {
+                Column {
+                    VoiceSourcePreference.entries.forEach { source ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    coroutineScope.launch {
+                                        recognitionPreferences.setVoiceSource(source)
+                                        showRecognitionVoiceSourceDialog = false
+                                    }
+                                }.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = recognitionVoiceSource == source, onClick = null)
+                            Spacer(Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    when (source) {
+                                        VoiceSourcePreference.AUTO -> stringResource(R.string.recognition_voice_source_auto)
+                                        VoiceSourcePreference.DEVICE_ONLY -> stringResource(R.string.recognition_voice_source_device_only)
+                                    },
+                                )
+                                Text(
+                                    when (source) {
+                                        VoiceSourcePreference.AUTO -> stringResource(R.string.recognition_voice_source_auto_subtitle)
+                                        VoiceSourcePreference.DEVICE_ONLY -> stringResource(R.string.recognition_voice_source_device_only_subtitle)
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showRecognitionVoiceSourceDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             },

@@ -1,14 +1,17 @@
 package com.omersusin.pitube.ui.recognition
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.omersusin.pitube.recognition.RecognitionException
 import com.omersusin.pitube.recognition.RecognitionRepository
 import com.omersusin.pitube.recognition.SongRecognitionOutcome
 import com.omersusin.pitube.recognition.TrackMatch
 import com.omersusin.pitube.recognition.VoiceRecognitionSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,6 +56,7 @@ class RecognitionViewModel
         val uiState: StateFlow<RecognitionUiState> = _uiState.asStateFlow()
 
         private val interrupted = MutableStateFlow(false)
+        private var listeningJob: kotlinx.coroutines.Job? = null
 
         fun setMode(mode: RecognitionMode) {
             if (_uiState.value.phase == RecognitionPhase.LISTENING || _uiState.value.phase == RecognitionPhase.PROCESSING) return
@@ -78,51 +82,72 @@ class RecognitionViewModel
                     levels = emptyList(),
                 )
             }
-            viewModelScope.launch {
-                when (mode) {
-                    RecognitionMode.VOICE -> runVoice()
-                    RecognitionMode.SONG -> runSong()
+            listeningJob =
+                viewModelScope.launch {
+                    when (mode) {
+                        RecognitionMode.VOICE -> runVoice()
+                        RecognitionMode.SONG -> runSong()
+                    }
+                }.apply {
+                    invokeOnCompletion { cause ->
+                        if (cause is CancellationException && interrupted.value) {
+                            _uiState.update { it.copy(phase = RecognitionPhase.IDLE) }
+                        }
+                    }
                 }
-            }
         }
 
         fun stopListening() {
             interrupted.value = true
             repository.stopRecording()
+            listeningJob?.cancel()
         }
 
         private suspend fun runVoice() {
-            val captured = repository.recordVoice(
-                interrupted = { interrupted.value },
-                onLevel = { level ->
-                    _uiState.update { it.copy(levels = (it.levels + level).takeLast(40)) }
-                },
-            )
-            if (interrupted.value) {
-                _uiState.update { it.copy(phase = RecognitionPhase.IDLE) }
-                return
-            }
-
-            // Stay in LISTENING (face keeps animating) while the transcript is
-            // produced: the on-device fallback runs its own live mic session,
-            // so its RMS levels are forwarded here to keep the visual live.
-            val (transcript, source) =
-                repository.recognizeVoice(
-                    captured,
-                    onFallbackLevel = { level ->
-                        _uiState.update { it.copy(levels = (it.levels + level).takeLast(40)) }
-                    },
-                )
-            if (interrupted.value) {
-                _uiState.update { it.copy(phase = RecognitionPhase.IDLE) }
-                return
-            }
-            _uiState.update {
-                it.copy(
-                    phase = RecognitionPhase.SUCCESS,
-                    transcript = transcript,
-                    voiceSource = source,
-                )
+            try {
+                // Recognizes on Puter whisper when a guest token is available,
+                // else falls straight into the Android on-device live session.
+                // Either way the live mic levels keep the talking face animating.
+                val (transcript, source) =
+                    repository.recognizeVoice(
+                        interrupted = { interrupted.value },
+                        onLevel = { level ->
+                            _uiState.update { it.copy(levels = (it.levels + level).takeLast(40)) }
+                        },
+                    )
+                if (interrupted.value) {
+                    _uiState.update { it.copy(phase = RecognitionPhase.IDLE) }
+                    return
+                }
+                _uiState.update {
+                    it.copy(
+                        phase = RecognitionPhase.SUCCESS,
+                        transcript = transcript,
+                        voiceSource = source,
+                    )
+                }
+            } catch (e: RecognitionException) {
+                Log.w("Recognition", "Voice recognition failed: ${e.message}")
+                if (interrupted.value) {
+                    _uiState.update { it.copy(phase = RecognitionPhase.IDLE) }
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            phase = RecognitionPhase.ERROR,
+                            message = e.message ?: "Recognition failed",
+                        )
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("Recognition", "Unexpected voice recognition failure", e)
+                _uiState.update {
+                    it.copy(
+                        phase = RecognitionPhase.ERROR,
+                        message = e.message ?: "Recognition failed",
+                    )
+                }
             }
         }
 

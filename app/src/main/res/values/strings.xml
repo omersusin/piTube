@@ -2053,6 +2053,11 @@
     <!-- Voice & Song recognition (piTube center slot) -->
     <string name="settings_header_recognition">Song Recognition</string>
     <string name="settings_recognition_provider">Provider</string>
+    <string name="settings_recognition_voice_source">Voice recognition</string>
+    <string name="recognition_voice_source_auto">Online, device fallback</string>
+    <string name="recognition_voice_source_auto_subtitle">Transcribe online when possible, otherwise use the device recognizer</string>
+    <string name="recognition_voice_source_device_only">Device only</string>
+    <string name="recognition_voice_source_device_only_subtitle">Always use the on-device speech recognizer</string>
     <string name="settings_recognition_fallback">After a failed match</string>
     <string name="settings_recognition_fallback_subtitle">Choose what to do with the recording</string>
     <string name="settings_recognition_notifications">Notifications</string>

@@ -24,12 +24,18 @@ class OnDeviceVoiceRecognizer(
 ) {
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    companion object {
+        /** Hard cap so a stuck recognizer can never leave the UI hanging. */
+        private const val MAX_LISTEN_MS = 20_000L
+    }
+
     /**
      * Runs one listening session. Resolves with the final transcript or throws
      * [RecognitionException] (BAD_CONNECTION for the network-dependent
      * recognizer, OTHER for no-speech/errors). Live RMS levels measured by the
      * recognizer are forwarded through [onLevel] so the listening visual stays
-     * animated on this fallback path too.
+     * animated on this fallback path too. A watchdog caps the session at
+     * [MAX_LISTEN_MS] so it can always settle.
      */
     suspend fun listen(onLevel: (Float) -> Unit = {}): String = suspendCancellableCoroutine { continuation ->
         val recognizer =
@@ -47,10 +53,12 @@ class OnDeviceVoiceRecognizer(
             }
 
         var settled = false
+        var watchdog: Runnable? = null
 
         fun finishSuccess(text: String, r: SpeechRecognizer) {
             if (settled) return
             settled = true
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             runCatching { r.destroy() }
             continuation.resume(text)
         }
@@ -58,9 +66,16 @@ class OnDeviceVoiceRecognizer(
         fun finishError(message: String, r: SpeechRecognizer) {
             if (settled) return
             settled = true
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             runCatching { r.destroy() }
             continuation.resumeWith(Result.failure(RecognitionException(RecognitionFailureType.OTHER, message)))
         }
+
+        watchdog =
+            Runnable {
+                Log.w("OnDeviceVoice", "Watchdog: no result within ${MAX_LISTEN_MS}ms")
+                finishError("No speech detected", recognizer)
+            }
 
         val listener =
             object : RecognitionListener {
@@ -121,9 +136,13 @@ class OnDeviceVoiceRecognizer(
 
         recognizer.setRecognitionListener(listener)
         continuation.invokeOnCancellation {
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             runCatching { recognizer.destroy() }
         }
-        mainHandler.post { recognizer.startListening(intent) }
+        mainHandler.post {
+            mainHandler.postDelayed(watchdog, MAX_LISTEN_MS)
+            recognizer.startListening(intent)
+        }
     }
 
     private fun createRecognizer(): SpeechRecognizer? =

@@ -26,6 +26,24 @@ enum class RecognitionProvider(
 }
 
 /**
+ * How voice recognition picks its engine. AUTO still uses the online Puter
+ * whisper when a guest token can be obtained and falls back to the on-device
+ * recognizer; DEVICE_ONLY always uses the Android `SpeechRecognizer`, which
+ * needs Google speech services on the device.
+ */
+enum class VoiceSourcePreference(
+    val storedValue: String,
+) {
+    AUTO("auto"),
+    DEVICE_ONLY("device_only");
+
+    companion object {
+        fun fromStored(value: String?): VoiceSourcePreference =
+            entries.firstOrNull { it.storedValue == value } ?: AUTO
+    }
+}
+
+/**
  * What to do with a recorded sample when recognition cannot complete.
  * Mirrors Audile's fallback policy model: SAVE_AND_RETRY is only offered for
  * connectivity failures (the recording is kept locally and recognized again
@@ -51,6 +69,7 @@ class RecognitionPreferences(context: Context) {
 
     private object Keys {
         val PROVIDER = stringPreferencesKey("recognition_provider")
+        val VOICE_SOURCE = stringPreferencesKey("recognition_voice_source")
         val FALLBACK_BAD_INTERNET = stringPreferencesKey("fallback_bad_internet")
         val FALLBACK_NO_MATCH = stringPreferencesKey("fallback_no_match")
         val FALLBACK_OTHER = stringPreferencesKey("fallback_other")
@@ -60,6 +79,9 @@ class RecognitionPreferences(context: Context) {
 
     val provider: Flow<RecognitionProvider> = context.recognitionPreferencesDataStore.data
         .map { RecognitionProvider.fromStored(it[Keys.PROVIDER]) }
+
+    val voiceSource: Flow<VoiceSourcePreference> = context.recognitionPreferencesDataStore.data
+        .map { VoiceSourcePreference.fromStored(it[Keys.VOICE_SOURCE]) }
 
     val fallbackBadInternet: Flow<FallbackPolicy> = context.recognitionPreferencesDataStore.data
         .map { FallbackPolicy.fromStored(it[Keys.FALLBACK_BAD_INTERNET]) }
@@ -78,6 +100,10 @@ class RecognitionPreferences(context: Context) {
 
     suspend fun setProvider(value: RecognitionProvider) {
         context.recognitionPreferencesDataStore.edit { it[Keys.PROVIDER] = value.storedValue }
+    }
+
+    suspend fun setVoiceSource(value: VoiceSourcePreference) {
+        context.recognitionPreferencesDataStore.edit { it[Keys.VOICE_SOURCE] = value.storedValue }
     }
 
     suspend fun setFallbackBadInternet(value: FallbackPolicy) {

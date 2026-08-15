@@ -1995,6 +1995,11 @@
     <!-- Voice & Song recognition (piTube center slot) -->
     <string name="settings_header_recognition">Şarkı Tanıma</string>
     <string name="settings_recognition_provider">Sağlayıcı</string>
+    <string name="settings_recognition_voice_source">Ses tanıma</string>
+    <string name="recognition_voice_source_auto">Çevrimiçi, cihaz yedeği</string>
+    <string name="recognition_voice_source_auto_subtitle">Mümkünse çevrimiçi çevir, aksi hâlde cihaz tanıyıcısını kullan</string>
+    <string name="recognition_voice_source_device_only">Yalnızca cihaz</string>
+    <string name="recognition_voice_source_device_only_subtitle">Her zaman cihaz içi konuşma tanıyıcısını kullan</string>
     <string name="settings_recognition_fallback">Eşleşme başarısız olursa</string>
     <string name="settings_recognition_fallback_subtitle">Kaydın ne olacağını seçin</string>
     <string name="settings_recognition_notifications">Bildirimler</string>
