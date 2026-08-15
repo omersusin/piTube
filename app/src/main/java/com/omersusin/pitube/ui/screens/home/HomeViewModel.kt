@@ -779,7 +779,9 @@ class HomeViewModel @Inject constructor(
                         wave1Queries.map { query ->
                             async { 
                                 runCatching { 
-                                    repository.searchVideos(query).first
+                                    withTimeoutOrNull(6_000L) {
+                                        repository.searchVideos(query).first
+                                    }.orEmpty()
                                 }.getOrElse { emptyList() }
                             }
                         }.awaitAll().flatten()
@@ -793,7 +795,7 @@ class HomeViewModel @Inject constructor(
 
                     // ── Fast first paint ────────────────────────────────────────
                     val viralResult = deferredViral.await()
-                    if (viralResult.isNotEmpty() && userSubs.isEmpty()) {
+                    if (viralResult.isNotEmpty()) {
                         val watched = watchedVideoIds.value
                         val unplayable = unplayableVideoIds.value
                         val quickFeed = viralResult.filterValid()
