@@ -150,6 +150,7 @@ fun PlayerBottomSheetsContainer(
             onToggleLike = onToggleLike,
             onDeleteComment = onDeleteComment,
             onTimestampClick = handleTimestampClick,
+            channelAvatar = completeVideo.channelThumbnailUrl,
             isLoadingMore = isLoadingMoreComments,
             hasMore = hasMoreComments,
             onLoadMore = { onLoadMoreComments(video.id) },

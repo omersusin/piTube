@@ -297,6 +297,9 @@ fun ChannelScreen(
                 onAuthorClick = { authorChannelId ->
                     if (authorChannelId.isNotBlank()) onChannelClick(authorChannelId)
                 },
+                channelAvatar =
+                    channelInfo.avatars.maxByOrNull { it.height }?.url
+                        ?: channelInfo.avatars.firstOrNull()?.url,
             )
         }
     }

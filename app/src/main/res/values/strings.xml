@@ -212,6 +212,11 @@
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
     <string name="send">Send</string>
+    <string name="post">Post</string>
+    <string name="replying_to_template">Replying to %1$s</string>
+    <string name="cancel_reply">Cancel reply</string>
+    <string name="hearted_by_creator">Hearted by creator</string>
+    <string name="creator_replied">Creator replied</string>
     <string name="comment_edited">edited</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="read_more">Read more</string>
@@ -219,6 +224,7 @@
     <string name="reply">Reply</string>
     <string name="hide_replies">Hide replies</string>
     <string name="view_replies_template">View %1$d replies</string>
+    <string name="view_replies">View replies</string>
     <string name="load_more_replies">Load more replies</string>
     
     <string name="pinned_comment">Pinned comment</string>
