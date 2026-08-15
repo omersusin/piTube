@@ -431,7 +431,11 @@ fun YouTubeLoginScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            TokenHelpSection()
+            // Helper text lives inside the token tab only - the webview tab has
+            // nothing to paste, so it shows no prompts, warnings or red alerts.
+            if (loginMode == LoginMode.TOKEN.ordinal) {
+                TokenHelpSection()
+            }
 
             Spacer(Modifier.height(16.dp))
         }
@@ -800,7 +804,7 @@ private fun TokenHelpSection() {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.errorContainer
+        color = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -809,7 +813,7 @@ private fun TokenHelpSection() {
             Icon(
                 imageVector = Icons.Rounded.Security,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onErrorContainer,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(Modifier.width(12.dp))
@@ -817,13 +821,13 @@ private fun TokenHelpSection() {
                 Text(
                     text = stringResource(R.string.cookie_paste_security_title),
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(R.string.cookie_paste_security_body),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

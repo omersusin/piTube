@@ -1971,7 +1971,6 @@
     <string name="cookie_paste_sign_in">Sign in</string>
     <string name="cookie_paste_cancel">Cancel</string>
     <string name="account_switcher_expired">Session expired - tap to reconnect</string>
-    <string name="login_use_cookies_alt">WebView login blocked? Paste a session cookie from your browser instead.</string>
     <string name="login_tab_token">Paste token / cookie</string>
     <string name="login_tab_webview">Browser sign-in</string>
     <string name="login_token_description">Paste a session token or cookie from a signed-in browser to sign in without Google\'s embedded-browser block. You can export it from another app, or use the steps below.</string>
