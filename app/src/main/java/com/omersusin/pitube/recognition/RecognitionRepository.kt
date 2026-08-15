@@ -89,7 +89,7 @@ class RecognitionRepository(
         }
     }
 
-    private fun recognizeWithShazam(pcm: ShortArray): TrackMatch {
+    private suspend fun recognizeWithShazam(pcm: ShortArray): TrackMatch {
         val generator = ShazamSignatureGenerator()
         generator.feedPcm16Mono(pcm)
         val signature =

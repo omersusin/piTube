@@ -1421,6 +1421,7 @@ fun SettingsScreen(
     if (showRecognitionFallbackDialog) {
         var fallbackDropdownFor by remember { mutableStateOf<RecognitionFailureType?>(null) }
 
+        @Composable
         fun policyLabel(policy: FallbackPolicy): String =
             when (policy) {
                 FallbackPolicy.IGNORE -> stringResource(R.string.recognition_fallback_ignore)
@@ -1428,6 +1429,7 @@ fun SettingsScreen(
                 FallbackPolicy.SAVE_AND_RETRY -> stringResource(R.string.recognition_fallback_save_retry)
             }
 
+        @Composable
         fun failureLabel(type: RecognitionFailureType): String =
             when (type) {
                 RecognitionFailureType.BAD_CONNECTION -> stringResource(R.string.recognition_failure_no_internet)

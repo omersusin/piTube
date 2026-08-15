@@ -73,15 +73,17 @@ class OnDeviceVoiceRecognizer(
                 override fun onEndOfSpeech() = Unit
 
                 override fun onError(error: Int) {
-                    val message =
-                        when (error) {
-                            SpeechRecognizer.ERROR_NO_MATCH -> "No speech detected"
-                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected"
-                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT,
-                            SpeechRecognizer.ERROR_NETWORK -> "Speech recognition network error",
-                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Speech recognition is busy",
-                            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission missing",
-                            else -> "Speech recognition error (code $error)",
+                    val message: String =
+                        when {
+                            error == SpeechRecognizer.ERROR_NO_MATCH ||
+                                error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected"
+
+                            error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT ||
+                                error == SpeechRecognizer.ERROR_NETWORK -> "Speech recognition network error"
+
+                            error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Speech recognition is busy"
+                            error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission missing"
+                            else -> "Speech recognition error (code $error)"
                         }
                     Log.w("OnDeviceVoice", "SpeechRecognizer error=$error ($message)")
                     finishError(message, recognizer)

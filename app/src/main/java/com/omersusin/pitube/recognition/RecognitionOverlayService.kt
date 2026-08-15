@@ -131,7 +131,8 @@ class RecognitionOverlayService : Service() {
         overlayView = view
     }
 
-    private fun dpPx: Int = (64 * resources.displayMetrics.density).toInt()
+    private val Int.dpPx: Int
+        get() = (this * resources.displayMetrics.density).toInt()
 
     private fun openModal() {
         val intent = RecognitionNotifier.openRecognitionModalIntent(this)
