@@ -143,27 +143,31 @@ fun Modifier.toggleOriginalOnDoubleTap(state: TranslatedTextState): Modifier =
  * Double-tap [state] to flip between the translation and the original when the
  * text lives inside a [androidx.compose.foundation.text.selection.SelectionContainer.
  * SelectionContainer claims the double-tap for word-select and consumes the
- * down/up events before [detectTapGestures]' own double-tap detector can see an
- * unconsumed second tap, so plain [toggleOriginalOnDoubleTap] never fires there.
+ * down/up events. That consumption skips `detectTapGestures` outright ("If the
+ * first down event is consumed somewhere else, the entire gesture will be
+ * skipped"), so plain [toggleOriginalOnDoubleTap] never fires there.
  *
- * This detector tracks taps at the raw pointer level with
- * `requireUnconsumed = false`, toggling even when SelectionContainer has already
- * marked the events as handled. The container may still select the tapped word
- * in the process (an accepted trade-off on translated text).
+ * This detector tracks tap *downs* at the raw pointer level with
+ * `requireUnconsumed = false` — a second down landing inside
+ * `viewConfiguration.doubleTapTimeoutMillis` toggles the state even when the
+ * container has consumed the events. The container may still select the tapped
+ * word in the process (an accepted trade-off on translated text).
  */
 fun Modifier.toggleOriginalOnDoubleTapInSelection(state: TranslatedTextState): Modifier =
     if (state.canToggleOriginal) {
         pointerInput(state) {
-            var firstDownTime = 0L
+            var lastDownTime = 0L
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
-                val up = waitForUpOrCancellation() ?: return@awaitEachGesture
-                if (down.uptimeMillis - firstDownTime in 1..viewConfiguration.doubleTapTimeoutMillis) {
+                if (lastDownTime != 0L &&
+                    down.uptimeMillis - lastDownTime <= viewConfiguration.doubleTapTimeoutMillis
+                ) {
                     state.toggleShowingOriginal()
-                    firstDownTime = 0L
+                    lastDownTime = 0L
                 } else {
-                    firstDownTime = down.uptimeMillis
+                    lastDownTime = down.uptimeMillis
                 }
+                waitForUpOrCancellation()
             }
         }
     } else {
