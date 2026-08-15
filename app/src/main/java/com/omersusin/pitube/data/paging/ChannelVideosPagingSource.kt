@@ -11,6 +11,9 @@ import com.omersusin.pitube.innertube.YouTube
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.schabi.newpipe.extractor.NewPipe
@@ -20,6 +23,7 @@ import org.schabi.newpipe.extractor.channel.tabs.ChannelTabInfo
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * PagingSource for loading channel videos with infinite scroll support.
@@ -48,40 +52,26 @@ class ChannelVideosPagingSource(
                 
                 Log.d(TAG, "Loading page: ${page?.url ?: "initial"}")
                 
-                val videos = mutableListOf<Video>()
-                val nextPage: Page?
-                
-                if (videosTab == null) {
-                    Log.w(TAG, "No videos tab found")
-                    return@withContext LoadResult.Page(
-                        data = emptyList(),
-                        prevKey = null,
-                        nextKey = null
-                    )
-                }
-                
-                if (page == null) {
+                val videos = if (page == null) {
                     // Initial load - get from tab info
                     val tabInfo = ChannelTabInfo.getInfo(NewPipe.getService(0), videosTab)
                     nextPage = tabInfo.nextPage
-                    
-                    // Convert items to videos
-                    tabInfo.relatedItems.filterIsInstance<StreamInfoItem>().forEach { item ->
-                        videos.add(item.toVideo(channelInfo).withCollabAvatarStack())
-                    }
-                    
-                    Log.d(TAG, "Initial load: ${videos.size} videos, hasNextPage: ${nextPage != null}")
+
+                    // Convert items to videos (avatar-stack resolution runs
+                    // concurrently per item instead of one HTTP call at a time)
+                    tabInfo.relatedItems
+                        .filterIsInstance<StreamInfoItem>()
+                        .map { it.toVideo(channelInfo) }
+                        .withCollabAvatarStacks()
                 } else {
                     // Load more - use the page token
                     val moreItems = ChannelTabInfo.getMoreItems(NewPipe.getService(0), videosTab, page)
                     nextPage = moreItems.nextPage
-                    
-                    // Convert items to videos
-                    moreItems.items.filterIsInstance<StreamInfoItem>().forEach { item ->
-                        videos.add(item.toVideo(channelInfo).withCollabAvatarStack())
-                    }
-                    
-                    Log.d(TAG, "More load: ${videos.size} videos, hasNextPage: ${nextPage != null}")
+
+                    moreItems.items
+                        .filterIsInstance<StreamInfoItem>()
+                        .map { it.toVideo(channelInfo) }
+                        .withCollabAvatarStacks()
                 }
                 
                 LoadResult.Page(
@@ -130,41 +120,68 @@ class ChannelVideosPagingSource(
         )
     }
 
-    private suspend fun Video.withCollabAvatarStack(): Video {
-        if (collaborators.size > 1) return this
-        if (channelThumbnailUrls.size < 2 && !channelName.hasLikelyCollaborationByline()) return this
-        val collaborators = withTimeoutOrNull(4_000L) {
-            YouTube.videoCollaborators(id).getOrNull()
-        }.orEmpty()
-        val stack = collaborators
-            .map { it.thumbnailUrl }
-            .filter { it.isNotBlank() }
-            .ifEmpty {
-                channelThumbnailUrls.takeIf { it.size > 1 }
-                    ?: withTimeoutOrNull(4_000L) {
-                        YouTube.videoAvatarStack(id).getOrNull()
-                    }.orEmpty()
+    private suspend fun List<Video>.withCollabAvatarStacks(): List<Video> {
+        val pending =
+            filter { video ->
+                if (video.collaborators.size > 1) return@filter false
+                video.channelThumbnailUrls.size < 2 && video.channelName.hasLikelyCollaborationByline()
             }
-        if (stack.size <= 1 && collaborators.size <= 1) return this
-        val merged = (stack + channelThumbnailUrls + channelThumbnailUrl)
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .distinctBy { it.avatarImageIdentityKey() }
-            .take(2)
-        return if (merged.size > 1 || collaborators.size > 1) {
-            copy(
-                channelName = collaborators
-                    .map { it.name }
-                    .filter { it.isNotBlank() }
-                    .takeIf { it.size > 1 }
-                    ?.joinToString(" and ")
-                    ?: channelName,
-                channelThumbnailUrl = merged.firstOrNull() ?: channelThumbnailUrl,
-                channelThumbnailUrls = merged.ifEmpty { channelThumbnailUrls },
-                collaborators = collaborators.ifEmpty { emptyList<VideoCollaborator>() },
-            )
-        } else {
-            this
+        // Resolve collaborator stacks concurrently instead of one HTTP call per
+        // item at a time (each has its own 4s timeout, so N items ran up to N*4s
+        // serially before this).
+        val collaboratorsById = ConcurrentHashMap<String, List<VideoCollaborator>>()
+        coroutineScope {
+            pending
+                .map { video ->
+                    async {
+                        video.id to
+                            withTimeoutOrNull(4_000L) {
+                                YouTube.videoCollaborators(video.id).getOrNull()
+                            }.orEmpty()
+                    }
+                }
+                .awaitAll()
+                .forEach { (id, collaborators) -> collaboratorsById[id] = collaborators }
+        }
+        return map { video ->
+            val collaborators = collaboratorsById[video.id].orEmpty()
+            if (collaborators.isEmpty() && video.collaborators.isEmpty()) {
+                video
+            } else {
+                val stack =
+                    collaborators
+                        .map { it.thumbnailUrl }
+                        .filter { it.isNotBlank() }
+                        .ifEmpty {
+                            video.channelThumbnailUrls.takeIf { it.size > 1 }
+                                ?: withTimeoutOrNull(4_000L) {
+                                    YouTube.videoAvatarStack(video.id).getOrNull()
+                                }.orEmpty()
+                        }
+                if (stack.size <= 1 && collaborators.size <= 1) return@map video
+                val merged =
+                    (stack + video.channelThumbnailUrls + video.channelThumbnailUrl)
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                        .distinctBy { it.avatarImageIdentityKey() }
+                        .take(2)
+                if (merged.size > 1 || collaborators.size > 1) {
+                    video.copy(
+                        channelName =
+                            collaborators
+                                .map { it.name }
+                                .filter { it.isNotBlank() }
+                                .takeIf { it.size > 1 }
+                                ?.joinToString(" and ")
+                                ?: video.channelName,
+                        channelThumbnailUrl = merged.firstOrNull() ?: video.channelThumbnailUrl,
+                        channelThumbnailUrls = merged.ifEmpty { video.channelThumbnailUrls },
+                        collaborators = collaborators.ifEmpty { video.collaborators },
+                    )
+                } else {
+                    video
+                }
+            }
         }
     }
 

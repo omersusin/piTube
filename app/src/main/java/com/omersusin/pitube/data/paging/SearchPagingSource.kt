@@ -19,6 +19,9 @@ import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.distinctBestImageUrls
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.schabi.newpipe.extractor.Page
@@ -258,22 +261,38 @@ class SearchPagingSource(
     private suspend fun enrichCollabVideoResults(items: List<SearchResultItem>): List<SearchResultItem> {
         val stacks = mutableMapOf<String, List<String>>()
 
-        items.asSequence()
-            .flatMap { item ->
-                when (item) {
-                    is SearchResultItem.VideoResult -> sequenceOf(item.video)
-                    is SearchResultItem.ShortsShelfResult -> item.shorts.asSequence()
-                    else -> emptySequence()
+        val collabVideos =
+            items
+                .asSequence()
+                .flatMap { item ->
+                    when (item) {
+                        is SearchResultItem.VideoResult -> sequenceOf(item.video)
+                        is SearchResultItem.ShortsShelfResult -> item.shorts.asSequence()
+                        else -> emptySequence()
+                    }
                 }
-            }
-            .filter { it.needsCollabAvatarStack() }
-            .take(10)
-            .forEach { video ->
-                val stack = withTimeoutOrNull(4_000L) {
-                    YouTube.videoAvatarStack(video.id).getOrNull()
-                }.orEmpty()
-                if (stack.size > 1) stacks[video.id] = stack
-            }
+                .filter { it.needsCollabAvatarStack() }
+                .take(10)
+                .toList()
+
+        // Resolve avatar stacks concurrently instead of one request at a time;
+        // the innerTube endpoint is per-video, so a 10-slot shelf went ~10x
+        // serial before this.
+        coroutineScope {
+            collabVideos
+                .map { video ->
+                    async {
+                        val stack = withTimeoutOrNull(4_000L) {
+                            YouTube.videoAvatarStack(video.id).getOrNull()
+                        }.orEmpty()
+                        video.id to stack
+                    }
+                }
+                .awaitAll()
+                .forEach { (videoId, stack) ->
+                    if (stack.size > 1) stacks[videoId] = stack
+                }
+        }
 
         if (stacks.isEmpty()) return items
 
