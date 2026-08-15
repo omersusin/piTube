@@ -214,7 +214,7 @@ fun FlowDescriptionBottomSheet(
         text = descriptionText.text,
         feature = descriptionPrefs.translateDescriptions,
     )
-    val displayedDescription = remember(descriptionText, descriptionState.translated) {
+    val displayedDescription = remember(descriptionText, descriptionState.displayText) {
         if (descriptionState.isTranslated) {
             annotateTranslatedText(descriptionState.displayText, primaryColor)
         } else {
