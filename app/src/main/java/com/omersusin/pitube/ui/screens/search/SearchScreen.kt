@@ -222,6 +222,21 @@ fun SearchScreen(
         }
     }
 
+    // Voice/song recognition queries arrive through the bridge (submitted by
+    // the recognition modal before this screen exists): run them immediately.
+    LaunchedEffect(Unit) {
+        com.omersusin.pitube.ui.recognition.RecognitionSearchBridge.pendingQuery.collect { query ->
+            if (!query.isNullOrBlank()) {
+                hasPerformedSearch = true
+                isSearchFocused = false
+                setSearchQueryToEnd(query)
+                dismissKeyboard()
+                viewModel.search(query)
+            }
+            com.omersusin.pitube.ui.recognition.RecognitionSearchBridge.consume()
+        }
+    }
+
     LaunchedEffect(isNavigatingAway) {
         if (isNavigatingAway) {
             repeat(5) {

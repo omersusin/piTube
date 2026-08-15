@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="64dp"
+    android:layout_height="64dp">
+
+    <!-- Icon is tinted by the GradientDrawable background set in RecognitionOverlayService -->
+    <ImageView
+        android:id="@+id/recognition_overlay_icon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/recognition_overlay_content_description"
+        android:padding="16dp"
+        android:src="@drawable/ic_recognition_mic" />
+</FrameLayout>

@@ -72,6 +72,8 @@ fun FlowApp(
     onDeeplinkConsumed: () -> Unit = {},
     pendingWidgetRoute: String? = null,
     onWidgetRouteConsumed: () -> Unit = {},
+    openRecognitionModalRequest: Boolean = false,
+    onRecognitionModalRequestConsumed: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = context as? androidx.activity.ComponentActivity
@@ -149,6 +151,10 @@ fun FlowApp(
         profilesState.firstOrNull { it.id == activeProfileId }
     }
     var showAccountSheet by remember { mutableStateOf(false) }
+
+    // Voice & Song recognition modal, opened from the center nav slot, the
+    // recognition notification and the floating overlay button.
+    var openRecognitionModal by remember { mutableStateOf(false) }
 
     val closeAccountSheet: () -> Unit = {
         showAccountSheet = false
@@ -331,6 +337,13 @@ fun FlowApp(
                 navController.currentBackStackEntryFlow.first()
                 navController.navigate(route)
                 onWidgetRouteConsumed()
+            }
+        }
+
+        LaunchedEffect(openRecognitionModalRequest) {
+            if (openRecognitionModalRequest) {
+                openRecognitionModal = true
+                onRecognitionModalRequestConsumed()
             }
         }
 
@@ -519,6 +532,12 @@ fun FlowApp(
                         showAccountSheet = true
                     },
                     onItemSelected = { index ->
+                        // Center slot: Voice & Song recognition modal instead of
+                        // a navigating to the search tab.
+                        if (index == NAV_INDEX_SEARCH) {
+                            openRecognitionModal = true
+                            return@FloatingBottomNavBar
+                        }
                         val route = navRouteForIndex(index)
 
                         val activeRoute = navController.currentBackStackEntry?.destination?.route
@@ -632,6 +651,25 @@ fun FlowApp(
                 onOpenAbout = {
                     navController.navigate("settings/about")
                 }
+            )
+        }
+
+        // ===== GLOBAL RECOGNITION MODAL =====
+        // Opened from the center nav slot (voice & song recognition), the
+        // recognition notification and the floating overlay button. Hosted at
+        // the root so it can start listening immediately, above the player.
+        if (openRecognitionModal) {
+            com.omersusin.pitube.ui.recognition.RecognitionScreen(
+                onDismiss = { openRecognitionModal = false },
+                onSearch = { query ->
+                    openRecognitionModal = false
+                    if (currentRoute.value != "search") {
+                        navController.navigate("search") {
+                            launchSingleTop = true
+                        }
+                    }
+                    com.omersusin.pitube.ui.recognition.RecognitionSearchBridge.submit(query)
+                },
             )
         }
 

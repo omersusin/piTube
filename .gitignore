@@ -7,3 +7,5 @@ session-*.md
 NewPipe/
 Piped/
 invidious/
+local.properties
+android-sdk/

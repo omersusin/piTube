@@ -67,6 +67,11 @@ class MainActivity : ComponentActivity() {
     private val _pendingWidgetRoute = mutableStateOf<String?>(null)
     val pendingWidgetRoute: State<String?> = _pendingWidgetRoute
 
+    // Recognition modal request (notification tap / floating-button tap while
+    // the app is already running). Consumed by FlowApp.
+    private val _openRecognitionModalRequest = mutableStateOf(false)
+    val openRecognitionModalRequest: State<Boolean> = _openRecognitionModalRequest
+
     // Cached auto-PiP preference
     private var cachedAutoPipEnabled = false
 
@@ -389,6 +394,10 @@ class MainActivity : ComponentActivity() {
                                 onWidgetRouteConsumed = {
                                     _pendingWidgetRoute.value = null
                                 },
+                                openRecognitionModalRequest = this@MainActivity.openRecognitionModalRequest.value,
+                                onRecognitionModalRequestConsumed = {
+                                    this@MainActivity._openRecognitionModalRequest.value = false
+                                },
                         )
 
                         // 2. THE SPLASH SCREEN (Z-Index Top)
@@ -441,6 +450,15 @@ class MainActivity : ComponentActivity() {
 
     private fun handleIntent(intent: Intent) {
         val data = intent.data
+
+        // Recognition modal request (from the recognition notification or the
+        // floating overlay button). Handled before the widget/deeplink blocks.
+        if (intent.getBooleanExtra(com.omersusin.pitube.recognition.EXTRA_OPEN_RECOGNITION_MODAL, false)) {
+            intent.removeExtra(com.omersusin.pitube.recognition.EXTRA_OPEN_RECOGNITION_MODAL)
+            _openRecognitionModalRequest.value = true
+            return
+        }
+
         val notificationVideoId = intent.getStringExtra("notification_video_id") ?: intent.getStringExtra("video_id")
 
         val widgetRoute =

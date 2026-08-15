@@ -104,6 +104,13 @@ class FlowApplication :
         NotificationHelper.createNotificationChannels(this)
         Log.d(TAG, "Notification channels created")
 
+        // Recognition feature: notification channel + offline-recording retry
+        // monitor (replays saved samples once connectivity is restored).
+        com.omersusin.pitube.recognition.RecognitionNotifier.ensureChannel(this)
+        com.omersusin.pitube.recognition.RecognitionSamplesStore
+            .startOfflineRetryMonitor(this)
+        Log.d(TAG, "Recognition initialized")
+
         /*
         try {
             // Initialize YoutubeDL

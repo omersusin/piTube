@@ -1992,4 +1992,48 @@
     <string name="translation_caption_note">Altyazılar, hedef dil için varsa YouTube\'un yerleşik çevrilmiş altyazılarını kullanır.</string>
     <string name="translation_missing_key_hint" formatted="false">Çeviri açık, ancak %1$s bir API anahtarı gerektiriyor: yukarıdan anahtar ekleyin veya ücretsiz bir sağlayıcı seçin; içerik özgün dilinde kalır.</string>
 
+    <!-- Voice & Song recognition (piTube center slot) -->
+    <string name="settings_header_recognition">Şarkı Tanıma</string>
+    <string name="settings_recognition_provider">Sağlayıcı</string>
+    <string name="settings_recognition_fallback">Eşleşme başarısız olursa</string>
+    <string name="settings_recognition_fallback_subtitle">Kaydın ne olacağını seçin</string>
+    <string name="settings_recognition_notifications">Bildirimler</string>
+    <string name="settings_recognition_notifications_subtitle">Kalıcı Şarkı Tanıma girişini göster</string>
+    <string name="settings_recognition_floating_button">Yüzen düğme</string>
+    <string name="settings_recognition_floating_button_subtitle">Diğer uygulamaların üzerinde hızlı mikrofon düğmesi</string>
+    <string name="settings_recognition_fallback_dialog_title">Eşleşme başarısız olursa</string>
+    <string name="settings_recognition_fallback_dialog_hint">Yeniden deneme, kaydedilmiş bir kayıt gerektirir ve tekrar çevrimiçi olduğunuzda otomatik çalışır.</string>
+    <string name="recognition_provider_shazam">Shazam</string>
+    <string name="recognition_provider_audd">AudD</string>
+    <string name="recognition_provider_acrcloud">ACRCloud</string>
+    <string name="recognition_fallback_ignore">Kaydı sil</string>
+    <string name="recognition_fallback_save">Kaydı sakla</string>
+    <string name="recognition_fallback_save_retry">Sakla ve çevrimiçi yeniden dene</string>
+    <string name="recognition_failure_no_internet">İnternet yok</string>
+    <string name="recognition_failure_no_match">Eşleşme bulunamadı</string>
+    <string name="recognition_failure_other">Başka hata</string>
+    <string name="notification_channel_recognition">Şarkı tanıma</string>
+    <string name="notification_channel_recognition_description">Kalıcı Şarkı Tanıma bildirimiyle müzik tanıyın</string>
+    <string name="recognition_notification_title">Şarkı Tanıma</string>
+    <string name="recognition_notification_text">Şarkı tanımak için dokunun</string>
+    <string name="recognition_result_notification_title">Şarkı tanındı</string>
+    <string name="recognition_result_notification_text">%1$s — %2$s.\nAramak için dokunun.</string>
+    <string name="recognition_listening_voice">Dinleniyor…</string>
+    <string name="recognition_listening_song">Müzik dinleniyor…</string>
+    <string name="recognition_tap_to_stop">Durdurmak için tekrar dokunun</string>
+    <string name="recognition_processing">Tanımlanıyor…</string>
+    <string name="recognition_error_generic">Bir şeyler ters gitti. Tekrar deneyin.</string>
+    <string name="recognition_saved_and_will_retry">Kayıt saklandı; tekrar çevrimiçi olduğunuzda otomatik olarak yeniden denenecek.</string>
+    <string name="recognition_recording_saved">Kayıt cihaza kaydedildi.</string>
+    <string name="recognition_retry">Tekrar dene</string>
+    <string name="recognition_mic_permission_needed">Müzik tanımak veya sesle arama yapmak için mikrofon izni verin.</string>
+    <string name="recognition_voice_hint">Mikrofona dokunun ve aramak istediğinizi söyleyin</string>
+    <string name="recognition_song_hint">Mikrofona dokunun, şarkıyı birkaç saniye çaldırın</string>
+    <string name="recognition_mode_voice">Ses</string>
+    <string name="recognition_mode_song">Şarkı</string>
+    <string name="recognition_mic_content_description">Tanımayı başlat</string>
+    <string name="recognition_source_puter">Çevrimiçi çevrildi (puter)</string>
+    <string name="recognition_source_on_device">Cihazda çevrildi</string>
+    <string name="recognition_search_now">Şimdi ara</string>
+    <string name="recognition_overlay_content_description">Şarkı tanımayı aç</string>
 </resources>

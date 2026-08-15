@@ -32,6 +32,27 @@ android {
         }
 
         buildConfigField("Boolean", "UPDATER_ENABLED", "true")
+
+        // Optional build-time credentials for recognition providers (Audile
+        // style: read from local.properties, never exposed in-app):
+        //   AUDD_TOKEN=...
+        //   ACR_CLOUD_HOST=identify-eu-west-1.acrcloud.com
+        //   ACR_CLOUD_ACCESS_KEY=...
+        //   ACR_CLOUD_ACCESS_SECRET=...
+        // Shazam needs no credentials, and builds without a local.properties
+        // simply get empty values (provider falls back gracefully).
+        val localProps = Properties().apply {
+            val file = rootProject.file("local.properties")
+            if (file.exists()) {
+                file.inputStream().use { load(it) }
+            }
+        }
+        fun String.buildConfigLiteral(): String =
+            "\"${replace("\\", "\\\\").replace("\"", "\\\"")}\""
+        buildConfigField("String", "AUDD_TOKEN", localProps.getProperty("AUDD_TOKEN", "").buildConfigLiteral())
+        buildConfigField("String", "ACR_CLOUD_HOST", localProps.getProperty("ACR_CLOUD_HOST", "").buildConfigLiteral())
+        buildConfigField("String", "ACR_CLOUD_ACCESS_KEY", localProps.getProperty("ACR_CLOUD_ACCESS_KEY", "").buildConfigLiteral())
+        buildConfigField("String", "ACR_CLOUD_ACCESS_SECRET", localProps.getProperty("ACR_CLOUD_ACCESS_SECRET", "").buildConfigLiteral())
     }
 
     dependenciesInfo {

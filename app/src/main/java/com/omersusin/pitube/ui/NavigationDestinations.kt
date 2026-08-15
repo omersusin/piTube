@@ -34,6 +34,8 @@ internal fun resolveDefaultNavTabIndex(
     return preferredIndex.takeIf(visible::contains) ?: visible.first()
 }
 
+internal const val NAV_INDEX_SEARCH = 5
+
 internal fun navRouteForIndex(index: Int): String = when (index) {
     0 -> "home"
     1 -> "shorts"

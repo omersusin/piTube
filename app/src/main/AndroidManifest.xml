@@ -190,6 +190,12 @@
             android:exported="false"
             android:foregroundServiceType="dataSync">
         </service>
+
+        <!-- Floating song-recognition button (SYSTEM_ALERT_WINDOW overlay). -->
+        <service
+            android:name=".recognition.RecognitionOverlayService"
+            android:enabled="true"
+            android:exported="false" />
         
         <!-- Notification action receiver for downloads and other actions -->
         <receiver 

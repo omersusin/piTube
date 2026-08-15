@@ -2,6 +2,8 @@ package com.omersusin.pitube.ui.screens.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -46,12 +48,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.gson.JsonParser
 import com.omersusin.pitube.BuildConfig
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlayerPreferences
+import com.omersusin.pitube.data.local.RecognitionPreferences
+import com.omersusin.pitube.data.local.RecognitionProvider
+import com.omersusin.pitube.data.local.RecognitionFailureType
+import com.omersusin.pitube.data.local.FallbackPolicy
 import com.omersusin.pitube.network.AppProxyManager
+import com.omersusin.pitube.recognition.RecognitionNotifier
+import com.omersusin.pitube.recognition.RecognitionOverlayService
 import com.omersusin.pitube.ui.theme.ThemeMode
 import com.omersusin.pitube.ui.theme.extendedColors
 import com.omersusin.pitube.utils.AppLanguageManager
@@ -99,6 +109,140 @@ fun SettingsScreen(
     // Dialog state
     var showRegionDialog by remember { mutableStateOf(false) }
     var showAppLanguageDialog by remember { mutableStateOf(false) }
+
+    // ── Song recognition section ──────────────────────────────────────────────
+    val recognitionPreferences = remember { RecognitionPreferences(context) }
+    val recognitionProvider by recognitionPreferences.provider
+        .collectAsStateWithLifecycle(initialValue = RecognitionProvider.SHAZAM)
+    val recognitionNotificationsEnabled by recognitionPreferences.notificationsEnabled
+        .collectAsStateWithLifecycle(initialValue = false)
+    val floatingButtonPreferred by recognitionPreferences.floatingButtonEnabled
+        .collectAsStateWithLifecycle(initialValue = false)
+    var overlayPermissionAvailable by remember {
+        mutableStateOf(Settings.canDrawOverlays(context))
+    }
+    var showRecognitionProviderDialog by remember { mutableStateOf(false) }
+    var showRecognitionFallbackDialog by remember { mutableStateOf(false) }
+    var pendingNotificationPermission by remember { mutableStateOf(false) }
+
+    // The overlay permission can be granted/revoked in the system screen, so
+    // re-check whenever Settings regains focus and keep the switch in sync
+    // with reality (Audile-style: the toggle reflects actual capability).
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    overlayPermissionAvailable = Settings.canDrawOverlays(context)
+                    if (Settings.canDrawOverlays(context) &&
+                        floatingButtonPreferred &&
+                        !RecognitionOverlayService.isRunning.get()
+                    ) {
+                        RecognitionOverlayService.start(context)
+                    }
+                }
+            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            if (pendingNotificationPermission) {
+                pendingNotificationPermission = false
+                if (granted) {
+                    coroutineScope.launch {
+                        recognitionPreferences.setNotificationsEnabled(true)
+                        RecognitionNotifier.getInstance(context).showEntryNotification()
+                    }
+                }
+            }
+        }
+
+    val overlayPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.StartActivityForResult(),
+        ) {
+            overlayPermissionAvailable = Settings.canDrawOverlays(context)
+            if (overlayPermissionAvailable) {
+                coroutineScope.launch {
+                    recognitionPreferences.setFloatingButtonEnabled(true)
+                    RecognitionOverlayService.start(context)
+                }
+            } else {
+                coroutineScope.launch { recognitionPreferences.setFloatingButtonEnabled(false) }
+            }
+        }
+
+    fun onRecognitionNotificationsToggle(enabled: Boolean) {
+        coroutineScope.launch {
+            if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                androidx.core.content.ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.POST_NOTIFICATIONS,
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                pendingNotificationPermission = true
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                return@launch
+            }
+            recognitionPreferences.setNotificationsEnabled(enabled)
+            val notifier = RecognitionNotifier.getInstance(context)
+            if (enabled) {
+                notifier.showEntryNotification()
+            } else {
+                notifier.cancelEntryNotification()
+            }
+        }
+    }
+
+    fun onRecognitionFloatingToggle(enabled: Boolean) {
+        if (enabled) {
+            if (Settings.canDrawOverlays(context)) {
+                coroutineScope.launch {
+                    recognitionPreferences.setFloatingButtonEnabled(true)
+                    RecognitionOverlayService.start(context)
+                }
+            } else {
+                coroutineScope.launch { recognitionPreferences.setFloatingButtonEnabled(false) }
+                overlayPermissionLauncher.launch(
+                    Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:${context.packageName}"),
+                    ),
+                )
+            }
+        } else {
+            coroutineScope.launch {
+                recognitionPreferences.setFloatingButtonEnabled(false)
+                RecognitionOverlayService.stop(context)
+            }
+        }
+    }
+
+    val recognitionProviderLabel: String =
+        when (recognitionProvider) {
+            RecognitionProvider.SHAZAM -> stringResource(R.string.recognition_provider_shazam)
+            RecognitionProvider.AUDD -> stringResource(R.string.recognition_provider_audd)
+            RecognitionProvider.ACRCLOUD -> stringResource(R.string.recognition_provider_acrcloud)
+        }
+    val recognitionFallbackBadInternet by recognitionPreferences.fallbackBadInternet
+        .collectAsStateWithLifecycle(initialValue = FallbackPolicy.IGNORE)
+    val recognitionFallbackNoMatch by recognitionPreferences.fallbackNoMatch
+        .collectAsStateWithLifecycle(initialValue = FallbackPolicy.IGNORE)
+    val recognitionFallbackOther by recognitionPreferences.fallbackOther
+        .collectAsStateWithLifecycle(initialValue = FallbackPolicy.IGNORE)
+    val recognitionFallbackState =
+        remember(recognitionFallbackBadInternet, recognitionFallbackNoMatch, recognitionFallbackOther) {
+            com.omersusin.pitube.data.local.RecognitionFallbackState(
+                badInternet = recognitionFallbackBadInternet,
+                noMatch = recognitionFallbackNoMatch,
+                other = recognitionFallbackOther,
+            )
+        }
+    val floatingButtonShown = floatingButtonPreferred && overlayPermissionAvailable
 
     // Google account state
     val youtubeAccountName by playerPreferences.youtubeAccountName.collectAsStateWithLifecycle(initialValue = null)
@@ -294,6 +438,7 @@ fun SettingsScreen(
     val secAppearance = stringResource(R.string.settings_header_appearance)
     val secContentPlayback = stringResource(R.string.settings_header_content_playback)
     val secNotifications = stringResource(R.string.settings_header_notifications)
+    val secRecognition = stringResource(R.string.settings_header_recognition)
     val secDataManagement = stringResource(R.string.settings_header_data_management)
     val secAbout = stringResource(R.string.settings_header_about)
 
@@ -402,6 +547,30 @@ fun SettingsScreen(
                 secNotifications,
                 onNavigateToNotifications,
             ),
+            SettingSearchEntry(
+                Icons.Outlined.MusicNote,
+                stringResource(R.string.settings_recognition_provider),
+                recognitionProviderLabel,
+                secRecognition,
+            ) { showRecognitionProviderDialog = true },
+            SettingSearchEntry(
+                Icons.Outlined.CompareArrows,
+                stringResource(R.string.settings_recognition_fallback),
+                stringResource(R.string.settings_recognition_fallback_subtitle),
+                secRecognition,
+            ) { showRecognitionFallbackDialog = true },
+            SettingSearchEntry(
+                Icons.Outlined.NotificationsActive,
+                stringResource(R.string.settings_recognition_notifications),
+                stringResource(R.string.settings_recognition_notifications_subtitle),
+                secRecognition,
+            ) { onRecognitionNotificationsToggle(!recognitionNotificationsEnabled) },
+            SettingSearchEntry(
+                Icons.Outlined.OpenInNew,
+                stringResource(R.string.settings_recognition_floating_button),
+                stringResource(R.string.settings_recognition_floating_button_subtitle),
+                secRecognition,
+            ) { onRecognitionFloatingToggle(!floatingButtonShown) },
             SettingSearchEntry(
                 Icons.Outlined.History,
                 stringResource(R.string.settings_item_search_history),
@@ -889,6 +1058,42 @@ fun SettingsScreen(
                 }
 
                 // =================================================
+                // SONG RECOGNITION
+                // =================================================
+                item { SectionHeader(text = stringResource(R.string.settings_header_recognition)) }
+
+                item {
+                    SettingsGroup {
+                        SettingsItem(
+                            icon = Icons.Outlined.MusicNote,
+                            title = stringResource(R.string.settings_recognition_provider),
+                            subtitle = recognitionProviderLabel,
+                            onClick = { showRecognitionProviderDialog = true },
+                        )
+                        SettingsItem(
+                            icon = Icons.Outlined.CompareArrows,
+                            title = stringResource(R.string.settings_recognition_fallback),
+                            subtitle = stringResource(R.string.settings_recognition_fallback_subtitle),
+                            onClick = { showRecognitionFallbackDialog = true },
+                        )
+                        SettingsSwitchItem(
+                            icon = Icons.Outlined.NotificationsActive,
+                            title = stringResource(R.string.settings_recognition_notifications),
+                            subtitle = stringResource(R.string.settings_recognition_notifications_subtitle),
+                            checked = recognitionNotificationsEnabled,
+                            onCheckedChange = ::onRecognitionNotificationsToggle,
+                        )
+                        SettingsSwitchItem(
+                            icon = Icons.Outlined.OpenInNew,
+                            title = stringResource(R.string.settings_recognition_floating_button),
+                            subtitle = stringResource(R.string.settings_recognition_floating_button_subtitle),
+                            checked = floatingButtonShown,
+                            onCheckedChange = ::onRecognitionFloatingToggle,
+                        )
+                    }
+                }
+
+                // =================================================
                 // DATA MANAGEMENT
                 // =================================================
                 item {
@@ -1170,6 +1375,132 @@ fun SettingsScreen(
             },
             confirmButton = {},
             dismissButton = { TextButton(onClick = { showRegionDialog = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
+
+    if (showRecognitionProviderDialog) {
+        AlertDialog(
+            onDismissRequest = { showRecognitionProviderDialog = false },
+            title = { Text(stringResource(R.string.settings_recognition_provider)) },
+            text = {
+                Column {
+                    RecognitionProvider.entries.forEach { provider ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    coroutineScope.launch {
+                                        recognitionPreferences.setProvider(provider)
+                                        showRecognitionProviderDialog = false
+                                    }
+                                }.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = recognitionProvider == provider, onClick = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                when (provider) {
+                                    RecognitionProvider.SHAZAM -> stringResource(R.string.recognition_provider_shazam)
+                                    RecognitionProvider.AUDD -> stringResource(R.string.recognition_provider_audd)
+                                    RecognitionProvider.ACRCLOUD -> stringResource(R.string.recognition_provider_acrcloud)
+                                },
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showRecognitionProviderDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    if (showRecognitionFallbackDialog) {
+        var fallbackDropdownFor by remember { mutableStateOf<RecognitionFailureType?>(null) }
+
+        fun policyLabel(policy: FallbackPolicy): String =
+            when (policy) {
+                FallbackPolicy.IGNORE -> stringResource(R.string.recognition_fallback_ignore)
+                FallbackPolicy.SAVE -> stringResource(R.string.recognition_fallback_save)
+                FallbackPolicy.SAVE_AND_RETRY -> stringResource(R.string.recognition_fallback_save_retry)
+            }
+
+        fun failureLabel(type: RecognitionFailureType): String =
+            when (type) {
+                RecognitionFailureType.BAD_CONNECTION -> stringResource(R.string.recognition_failure_no_internet)
+                RecognitionFailureType.NO_MATCH -> stringResource(R.string.recognition_failure_no_match)
+                RecognitionFailureType.OTHER -> stringResource(R.string.recognition_failure_other)
+            }
+
+        AlertDialog(
+            onDismissRequest = { showRecognitionFallbackDialog = false },
+            title = { Text(stringResource(R.string.settings_recognition_fallback_dialog_title)) },
+            text = {
+                Column {
+                    RecognitionFailureType.entries.forEach { type ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = failureLabel(type),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Box {
+                                TextButton(onClick = { fallbackDropdownFor = type }) {
+                                    Text(
+                                        policyLabel(
+                                            when (type) {
+                                                RecognitionFailureType.BAD_CONNECTION -> recognitionFallbackState.badInternet
+                                                RecognitionFailureType.NO_MATCH -> recognitionFallbackState.noMatch
+                                                RecognitionFailureType.OTHER -> recognitionFallbackState.other
+                                            },
+                                        ),
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = fallbackDropdownFor == type,
+                                    onDismissRequest = { fallbackDropdownFor = null },
+                                ) {
+                                    FallbackPolicy.entries.forEach { policy ->
+                                        DropdownMenuItem(
+                                            text = { Text(policyLabel(policy)) },
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    when (type) {
+                                                        RecognitionFailureType.BAD_CONNECTION -> recognitionPreferences.setFallbackBadInternet(policy)
+                                                        RecognitionFailureType.NO_MATCH -> recognitionPreferences.setFallbackNoMatch(policy)
+                                                        RecognitionFailureType.OTHER -> recognitionPreferences.setFallbackOther(policy)
+                                                    }
+                                                    fallbackDropdownFor = null
+                                                }
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.settings_recognition_fallback_dialog_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showRecognitionFallbackDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
         )
     }
 
