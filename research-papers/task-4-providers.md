@@ -58,9 +58,13 @@ so their text (with timestamp/URL annotations) can be copied. `SelectionContaine
 claims the double-tap for word-select and consumes the down/up events, so the
 plain `detectTapGestures(onDoubleTap = ...)` handler never saw a second tap and
 the toggle did nothing on those surfaces. Added `toggleOriginalOnDoubleTapInSelection`
-(`TranslationHooks.kt`): a raw `awaitEachGesture` detector that reads the first
-down+up with `requireUnconsumed = false` and toggles when a second tap lands
-inside `viewConfiguration.doubleTapTimeoutMillis`. Trade-off (accepted): the
+(`TranslationHooks.kt`): a raw `awaitEachGesture` detector. It tracks tap *downs*
+at the pointer level with `requireUnconsumed = false` — a second down landing
+inside `viewConfiguration.doubleTapTimeoutMillis` toggles the state — so it cannot
+be starved by the container consuming the up/select events (an initial version
+gated on an unconsumed up via `waitForUpOrCancellation`, which SelectionContainer
+word-select consumption could starve; the final down-only form avoids that).
+Trade-off (accepted): the
 container can still select the tapped word while the original flips in.
 Single-tap timestamp/URL handling and "Read more" are untouched.
 
@@ -128,3 +132,6 @@ flagged in the picker:
 - `189a38f` — perf(startup): trim splash hold before fade
 - `79311c8` — fix(perf): resolve compile errors in lazy pagination and translation dedup
 - `b5e6a50` — feat(translation): soft-deprecate broken providers with picker status notes
+- `950bf05` — fix(translation): double-tap original on SelectionContainer text surfaces
+- `660c33e` — fix(translation): restore SelectionContainer close brace in comment body (CI fix)
+- `b0be2fb` — fix(translation): track double-tap downs so consumed events can't break the toggle
