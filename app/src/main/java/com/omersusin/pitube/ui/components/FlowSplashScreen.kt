@@ -101,7 +101,7 @@ fun FlowSplashScreen(
         }
 
         // 3. Wait for app to be ready, then Fade Out
-        delay(1500) // Adjust this based on your actual data loading time
+        delay(700) // Adjusted down: home first-paint no longer depends on this timer
         alpha.animateTo(
             targetValue = 0f,
             animationSpec = tween(durationMillis = 500)
