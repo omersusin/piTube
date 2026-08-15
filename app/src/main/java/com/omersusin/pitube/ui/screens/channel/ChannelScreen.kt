@@ -147,6 +147,10 @@ fun ChannelScreen(
     val allVideos by viewModel.videosAll.collectAsState()
     val allLiveVideos by viewModel.liveAll.collectAsState()
     val isLoadingAllVideos by viewModel.isLoadingAllVideos.collectAsState()
+    val isLoadingMoreVideos by viewModel.isLoadingMoreVideos.collectAsState()
+    val hasMoreVideos by viewModel.hasMoreVideos.collectAsState()
+    val isLoadingMoreLive by viewModel.isLoadingMoreLive.collectAsState()
+    val hasMoreLive by viewModel.hasMoreLive.collectAsState()
 
     val shortsLazyPagingItems = shortsPagingFlow?.collectAsLazyPagingItems()
     val playlistsLazyPagingItems = playlistsPagingFlow?.collectAsLazyPagingItems()
@@ -243,8 +247,14 @@ fun ChannelScreen(
                             communityUiState = communityUiState,
                             allVideos = allVideos,
                             isLoadingAllVideos = isLoadingAllVideos,
+                            isLoadingMoreVideos = isLoadingMoreVideos,
+                            hasMoreVideos = hasMoreVideos,
+                            onLoadMoreVideos = viewModel::loadMoreVideos,
                             shortsLazyPagingItems = shortsLazyPagingItems,
                             allLiveVideos = allLiveVideos,
+                            isLoadingMoreLive = isLoadingMoreLive,
+                            hasMoreLive = hasMoreLive,
+                            onLoadMoreLive = viewModel::loadMoreLive,
                             playlistsLazyPagingItems = playlistsLazyPagingItems,
                             onVideoClick = onVideoClick,
                             onChannelClick = onChannelClick,
@@ -312,8 +322,14 @@ private fun ChannelContent(
     communityUiState: ChannelCommunityUiState,
     allVideos: List<Video>,
     isLoadingAllVideos: Boolean,
+    isLoadingMoreVideos: Boolean,
+    hasMoreVideos: Boolean,
+    onLoadMoreVideos: () -> Unit,
     shortsLazyPagingItems: LazyPagingItems<Video>?,
     allLiveVideos: List<Video>,
+    isLoadingMoreLive: Boolean,
+    hasMoreLive: Boolean,
+    onLoadMoreLive: () -> Unit,
     playlistsLazyPagingItems: LazyPagingItems<com.omersusin.pitube.data.model.Playlist>?,
     onVideoClick: (Video) -> Unit,
     onChannelClick: (String) -> Unit,
@@ -516,6 +532,39 @@ private fun ChannelContent(
         }
     }
 
+    // Lazy pagination: fetch more channel videos as the user scrolls near the bottom
+    val videosNearEnd by remember(videosListState) {
+        derivedStateOf {
+            val lastVisible = videosListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            val total = videosListState.layoutInfo.totalItemsCount
+            total > 0 && lastVisible >= total - 5
+        }
+    }
+    LaunchedEffect(videosNearEnd, hasMoreVideos, isLoadingMoreVideos, pagerState.settledPage, uiState.searchActive) {
+        if (videosNearEnd &&
+            hasMoreVideos &&
+            !isLoadingMoreVideos &&
+            pagerState.settledPage == 0 &&
+            !uiState.searchActive
+        ) {
+            onLoadMoreVideos()
+        }
+    }
+
+    // Lazy pagination: fetch more live streams as the user scrolls near the bottom
+    val liveNearEnd by remember(liveListState) {
+        derivedStateOf {
+            val lastVisible = liveListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            val total = liveListState.layoutInfo.totalItemsCount
+            total > 0 && lastVisible >= total - 5
+        }
+    }
+    LaunchedEffect(liveNearEnd, hasMoreLive, isLoadingMoreLive, pagerState.settledPage) {
+        if (liveNearEnd && hasMoreLive && !isLoadingMoreLive && pagerState.settledPage == 2) {
+            onLoadMoreLive()
+        }
+    }
+
     Box(
         modifier =
             Modifier
@@ -623,6 +672,7 @@ private fun ChannelContent(
                                     sortedItems = sortedVideos,
                                     isGridView = isGridView,
                                     listKeyPrefix = selectedFilter.name,
+                                    isLoadingMore = isLoadingMoreVideos,
                                     onVideoClick = onVideoClick,
                                 )
                                 item { Spacer(Modifier.height(16.dp)) }
@@ -662,6 +712,7 @@ private fun ChannelContent(
                                 sortedItems = sortedLive,
                                 isGridView = isGridView,
                                 listKeyPrefix = selectedFilter.name,
+                                isLoadingMore = isLoadingMoreLive,
                                 onVideoClick = onVideoClick,
                             )
                             item { Spacer(Modifier.height(16.dp)) }
@@ -1223,6 +1274,7 @@ private fun LazyListScope.videosContent(
     sortedItems: SortedVideos,
     isGridView: Boolean,
     listKeyPrefix: String = "",
+    isLoadingMore: Boolean = false,
     onVideoClick: (Video) -> Unit,
 ) {
     if (sortedItems != null) {
@@ -1237,6 +1289,9 @@ private fun LazyListScope.videosContent(
             } else {
                 CompactVideoCard(video = video, onClick = { onVideoClick(video) })
             }
+        }
+        if (isLoadingMore) {
+            item { LoadingMoreRow() }
         }
         return
     }
@@ -1298,6 +1353,7 @@ private fun LazyListScope.liveContent(
     sortedItems: SortedVideos,
     isGridView: Boolean,
     listKeyPrefix: String = "",
+    isLoadingMore: Boolean = false,
     onVideoClick: (Video) -> Unit,
 ) {
     if (sortedItems != null) {
@@ -1312,6 +1368,9 @@ private fun LazyListScope.liveContent(
             } else {
                 CompactVideoCard(video = video, onClick = { onVideoClick(video) })
             }
+        }
+        if (isLoadingMore) {
+            item { LoadingMoreRow() }
         }
         return
     }
@@ -1351,6 +1410,19 @@ private fun LazyListScope.playlistsContent(
 }
 
 // Shorts grid card (2-column)
+@Composable
+private fun LoadingMoreRow() {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+    }
+}
+
 @Composable
 private fun ShortsGridCard(
     video: Video,

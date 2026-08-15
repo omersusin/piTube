@@ -25,7 +25,6 @@ import com.omersusin.pitube.innertube.pages.CommunityPost
 import com.omersusin.pitube.ui.youtubeChannelUrl
 import com.omersusin.pitube.utils.PerformanceDispatcher
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.schabi.newpipe.extractor.NewPipe
+import org.schabi.newpipe.extractor.Page
 import org.schabi.newpipe.extractor.channel.ChannelInfo
 import org.schabi.newpipe.extractor.channel.tabs.ChannelTabInfo
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler
@@ -94,11 +94,24 @@ class ChannelViewModel
         private var currentLiveTab: ListLinkHandler? = null
         private var currentPlaylistsTab: ListLinkHandler? = null
 
+        // Lazy-pagination continuation for the Videos/Live lists
+        private var videosChannelInfo: ChannelInfo? = null
+        private var videosNextPage: Page? = null
+        private var videosPagesLoaded = 0
+        private val _isLoadingMoreVideos = MutableStateFlow(false)
+        val isLoadingMoreVideos: StateFlow<Boolean> = _isLoadingMoreVideos.asStateFlow()
+        private val _hasMoreVideos = MutableStateFlow(false)
+        val hasMoreVideos: StateFlow<Boolean> = _hasMoreVideos.asStateFlow()
+        private var liveChannelInfo: ChannelInfo? = null
+        private var liveNextPage: Page? = null
+        private var livePagesLoaded = 0
+        private val _isLoadingMoreLive = MutableStateFlow(false)
+        val isLoadingMoreLive: StateFlow<Boolean> = _isLoadingMoreLive.asStateFlow()
+        private val _hasMoreLive = MutableStateFlow(false)
+        val hasMoreLive: StateFlow<Boolean> = _hasMoreLive.asStateFlow()
+
         companion object {
             private const val TAG = "ChannelViewModel"
-
-            /** Delay between page fetches — keeps request pattern human-like, avoids 429s */
-            private const val PAGE_DELAY_MS = 800L
 
             /** Safety cap: stops loading beyond this many pages (~1500 videos) */
             private const val MAX_PAGES = 50
@@ -281,12 +294,10 @@ class ChannelViewModel
                         }
                     }
 
-                    // Load all pages for Videos tab (enables full-list filtering)
+                    // Load first page of Videos tab instantly; remaining pages load lazily on scroll
                     val videosTab = currentVideosTab
                     if (videosTab != null) {
-                        viewModelScope.launch(PerformanceDispatcher.networkIO) {
-                            loadAllPages(videosTab, channelInfo, _videosAll)
-                        }
+                        loadFirstPage(videosTab, channelInfo, _videosAll, isLive = false)
                     }
 
                     // Create the paging flow for Shorts
@@ -300,9 +311,7 @@ class ChannelViewModel
 
                     val liveTab = currentLiveTab
                     if (liveTab != null) {
-                        viewModelScope.launch(PerformanceDispatcher.networkIO) {
-                            loadAllPages(liveTab, channelInfo, _liveAll)
-                        }
+                        loadFirstPage(liveTab, channelInfo, _liveAll, isLive = true)
                     }
 
                     // Create the paging flow for Playlists
@@ -559,46 +568,111 @@ class ChannelViewModel
         }
 
         /**
-         * Fetches all pages for a channel tab sequentially and emits results
-         * incrementally into [target]. This allows filters (Popular/Latest/Oldest)
-         * to operate on the full video list rather than just the first batch.
+         * Loads the first page of a channel tab instantly and stashes the pagination
+         * continuation. Remaining pages are fetched lazily on scroll via
+         * [loadMoreVideos]/[loadMoreLive]. Unlike the old eager crawl, no burst of
+         * paginated requests (with artificial sleeps) is fired on tab open.
          */
-        private suspend fun loadAllPages(
+        private fun loadFirstPage(
             tab: ListLinkHandler,
             channelInfo: ChannelInfo,
             target: MutableStateFlow<List<Video>>,
+            isLive: Boolean,
         ) {
+            if (isLive) {
+                liveChannelInfo = channelInfo
+                liveNextPage = null
+                livePagesLoaded = 0
+            } else {
+                videosChannelInfo = channelInfo
+                videosNextPage = null
+                videosPagesLoaded = 0
+            }
             _isLoadingAllVideos.value = true
-            try {
-                val service = NewPipe.getService(0)
-                val accumulated = mutableListOf<Video>()
-
-                // First page — no delay, show content immediately
-                val initial = ChannelTabInfo.getInfo(service, tab)
-                initial.relatedItems
-                    .filterIsInstance<StreamInfoItem>()
-                    .mapTo(accumulated) { it.toChannelVideo(channelInfo) }
-                target.value = accumulated.toList()
-
-                var nextPage = initial.nextPage
-                var pagesLoaded = 1
-                while (nextPage != null && pagesLoaded < MAX_PAGES) {
-                    // Throttle subsequent pages — keeps the request pattern human-like
-                    // and avoids triggering YouTube's burst rate-limiting (429s)
-                    delay(PAGE_DELAY_MS)
-                    val more = ChannelTabInfo.getMoreItems(service, tab, nextPage)
-                    more.items
-                        .filterIsInstance<StreamInfoItem>()
-                        .mapTo(accumulated) { it.toChannelVideo(channelInfo) }
-                    target.value = accumulated.toList()
-                    nextPage = more.nextPage
-                    pagesLoaded++
+            viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                try {
+                    val service = NewPipe.getService(0)
+                    val initial = ChannelTabInfo.getInfo(service, tab)
+                    val firstPage =
+                        initial.relatedItems
+                            .filterIsInstance<StreamInfoItem>()
+                            .map { it.toChannelVideo(channelInfo) }
+                    target.value = firstPage
+                    val nextPage = initial.nextPage
+                    if (isLive) {
+                        liveNextPage = nextPage
+                        livePagesLoaded = 1
+                        _hasMoreLive.value = nextPage != null
+                    } else {
+                        videosNextPage = nextPage
+                        videosPagesLoaded = 1
+                        _hasMoreVideos.value = nextPage != null
+                    }
+                } catch (e: Exception) {
+                    // Rate-limited or network error — user keeps whatever loaded so far
+                    Log.w(TAG, "First page stopped after rate limit or error", e)
+                    if (isLive) {
+                        liveNextPage = null
+                        _hasMoreLive.value = false
+                    } else {
+                        videosNextPage = null
+                        _hasMoreVideos.value = false
+                    }
+                } finally {
+                    _isLoadingAllVideos.value = false
                 }
-            } catch (e: Exception) {
-                // Rate-limited or network error — user keeps whatever loaded so far
-                Log.w(TAG, "Page loading stopped after rate limit or error", e)
-            } finally {
-                _isLoadingAllVideos.value = false
+            }
+        }
+
+        fun loadMoreVideos() = loadMorePage(isLive = false)
+
+        fun loadMoreLive() = loadMorePage(isLive = true)
+
+        private fun loadMorePage(isLive: Boolean) {
+            val tab = if (isLive) currentLiveTab else currentVideosTab ?: return
+            val channelInfo = if (isLive) liveChannelInfo else videosChannelInfo ?: return
+            val nextPage = if (isLive) liveNextPage else videosNextPage ?: return
+            val target = if (isLive) _liveAll else _videosAll
+            val loadingFlag = if (isLive) _isLoadingMoreLive else _isLoadingMoreVideos
+            val hasMore = if (isLive) _hasMoreLive else _hasMoreVideos
+            if (loadingFlag.value) return
+            loadingFlag.value = true
+            viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                try {
+                    val service = NewPipe.getService(0)
+                    val more = ChannelTabInfo.getMoreItems(service, tab, nextPage)
+                    val pageVideos =
+                        more.items
+                            .filterIsInstance<StreamInfoItem>()
+                            .map { it.toChannelVideo(channelInfo) }
+                    if (pageVideos.isNotEmpty()) {
+                        target.value = target.value.mergeDistinctByNonBlankKey(pageVideos, Video::id)
+                    }
+                    val pagesLoaded =
+                        (if (isLive) livePagesLoaded else videosPagesLoaded) + 1
+                    val hasMorePages = more.nextPage != null && pagesLoaded < MAX_PAGES
+                    if (isLive) {
+                        liveNextPage = if (hasMorePages) more.nextPage else null
+                        livePagesLoaded = pagesLoaded
+                        _hasMoreLive.value = hasMorePages
+                    } else {
+                        videosNextPage = if (hasMorePages) more.nextPage else null
+                        videosPagesLoaded = pagesLoaded
+                        _hasMoreVideos.value = hasMorePages
+                    }
+                } catch (e: Exception) {
+                    // Rate-limited or network error — user keeps whatever loaded so far
+                    Log.w(TAG, "More pages stopped after rate limit or error", e)
+                    if (isLive) {
+                        liveNextPage = null
+                        _hasMoreLive.value = false
+                    } else {
+                        videosNextPage = null
+                        _hasMoreVideos.value = false
+                    }
+                } finally {
+                    loadingFlag.value = false
+                }
             }
         }
 
