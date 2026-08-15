@@ -7,10 +7,20 @@ import com.omersusin.pitube.translation.TimestampProtection
 import com.omersusin.pitube.translation.TranslationEngine
 import com.omersusin.pitube.translation.TranslationEngines
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,6 +49,20 @@ class TranslationController @Inject constructor(
 
     private var pruneCounter = 0
 
+    // App-lifetime scope for coalesced translation requests so dedup serves
+    // every caller regardless of which composable (or its lifecycle) spawned it.
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    // Bounds how many provider calls run at once. A feed renders many texts via
+    // rememberTranslatedText; without a cap every visible composable would fire
+    // its own request the moment the screen composes.
+    private val networkPermits = Semaphore(MAX_CONCURRENT_TRANSLATIONS)
+
+    // Collapses in-flight calls for the exact same cache key (same engine +
+    // model + url + target + source text) into one provider request so an
+    // 80-item card list does not blast 80 identical HTTP calls.
+    private val inFlight = ConcurrentHashMap<String, Deferred<String?>>()
+
     /** The engine the user picked, or the registry default. */
     fun currentEngine(): TranslationEngine =
         TranslationEngines.findByName(enginePrefs.providerName, enginePrefs)
@@ -66,8 +90,7 @@ class TranslationController @Inject constructor(
 
         if (LanguageScriptUtil.shouldSkip(text, target)) return text
 
-        // YouTube-style timestamps ("0:00", "12:34") must come back untouched
-        // so chapter links keep working after translation.
+        // A cached answer is served synchronously.
         val masked = TimestampProtection.mask(text)
         val cacheId = cacheId(engine, target, text)
         cacheDao.get(cacheId)?.let { cached ->
@@ -76,14 +99,52 @@ class TranslationController @Inject constructor(
             // configuration; ignore it so a fixed config can retry.
         }
 
-        return try {
+        // Collapse identical in-flight calls into one provider request; the
+        // first caller starts the network call and every other caller awaits
+        // the same result instead of firing its own request.
+        inFlight[cacheId]?.let { return it.await() }
+
+        val deferred =
+            appScope.async {
+                withContext(Dispatchers.IO) {
+                    networkPermits.withPermit {
+                        try {
+                            performTranslation(engine, masked, target, cacheId, text)
+                        } catch (e: CancellationException) {
+                            throw e
+                        }
+                    }
+                }
+            }
+        inFlight.putIfAbsent(cacheId, deferred)?.let {
+            // Lost the race — someone else's request is already outstanding.
+            return it.await()
+        }
+        // Drop the entry once the deferred settles, whatever its outcome.
+        deferred.invokeOnCompletion { inFlight.remove(cacheId, deferred) }
+        return deferred.await()
+    }
+
+    /**
+     * The actual provider round-trip (already gated by the concurrency cap).
+     * The Room cache write happens here so the first caller to finish caches
+     * a result all coalesced callers observe.
+     */
+    private suspend fun performTranslation(
+        engine: TranslationEngine,
+        masked: TimestampProtection.Masked,
+        target: String,
+        cacheId: String,
+        original: String,
+    ): String? {
+        try {
             val translation = engine.translate(masked.text, "", target)
             if (translation.detectedLanguage != null &&
                 translation.detectedLanguage.equals(target, ignoreCase = true)
             ) {
                 // The engine itself detected the text as already being in the
                 // target language - nothing to translate.
-                return text
+                return original
             }
             val translated = TimestampProtection.restore(
                 translation.translatedText,
@@ -98,17 +159,17 @@ class TranslationController @Inject constructor(
                     id = cacheId,
                     engine = engine.name,
                     targetLanguage = target,
-                    sourceText = text,
+                    sourceText = original,
                     translatedText = translated,
                 ),
             )
             maybePrune()
-            translated
+            return translated
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             _lastError.value = friendlyMessage(e, engine)
-            null
+            return null
         }
     }
 
@@ -181,6 +242,9 @@ class TranslationController @Inject constructor(
     }
 
     companion object {
+        /** Provider calls run concurrently up to this many. */
+        const val MAX_CONCURRENT_TRANSLATIONS = 4
+
         /**
          * Cache key scoped to the engine's active configuration (name, model
          * and instance url) so switching models or self-hosted instances
