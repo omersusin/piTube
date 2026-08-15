@@ -38,8 +38,8 @@ data class GlTranslationResponse(
 
 /**
  * Glosbe - community dictionary, provides machine translation free of
- * charge. The request body is a plain JSON string of the text (same shape
- * as the upstream Retrofit String body). Ported from Translate You's
+ * charge. The request body is the raw text with a text/plain content type
+ * (same as the upstream Retrofit String body). Ported from Translate You's
  * GlEngine (GPL-3.0).
  */
 class GlosbeEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(settingsProvider) {
@@ -66,8 +66,10 @@ class GlosbeEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine
             TranslationHttpClient.client.post(url("translateByLangDetect")) {
                 parameter("sourceLang", source)
                 parameter("targetLang", target)
-                contentType(ContentType.Application.Json)
-                setBody(TranslationHttpClient.json.encodeToString(query))
+                // Glosbe serves the body as plain text (a Retrofit String body);
+                // application/json is answered with HTTP 415.
+                contentType(ContentType.Text.Plain)
+                setBody(query)
             }.bodyAsText(),
         )
         return Translation(response.translation)

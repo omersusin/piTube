@@ -8,8 +8,6 @@ import com.omersusin.pitube.translation.Language
 import com.omersusin.pitube.translation.Translation
 import com.omersusin.pitube.translation.TranslationEngine
 import com.omersusin.pitube.translation.TranslationHttpClient
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsBytes
@@ -52,16 +50,22 @@ data class MhLanguage(
 /**
  * Mozhi - free public aggregator over Google, Libre, Reverso, DeepL,
  * DuckDuckGo, MyMemory, Watson and Yandex (picked via the model selector).
- * Multipart form requests, ported from Translate You's MhEngine (GPL-3.0).
- * Some private instances enforce an API key; when one is set it is sent as
- * the `api_key` multipart field (same optional-key pattern Translate You
- * uses for LibreTranslate / MyMemory).
+ *
+ * The current Mozhi API is an unauthenticated GET contract: `api/translate`
+ * and `api/source_languages` / `api/target_languages` all take plain query
+ * parameters (the historical multipart POST is gone, which broke earlier
+ * versions of this port). A growing number of public instances put translate
+ * behind a paid key; when one is set it is sent as the `api_key` query
+ * parameter and reported as optional, identical to Translate You's MhEngine.
  */
 class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(settingsProvider) {
 
     override val name: String = "Mozhi"
 
-    override val defaultUrl: String = "https://mozhi.aryak.me/"
+    // mozhi.aryak.me's translate endpoint is currently broken server-side
+    // ("invalid json" on every request); trnslt.oddte.ch is a healthy
+    // instance of the same build. Still user-overridable.
+    override val defaultUrl: String = "https://trnslt.oddte.ch/"
 
     override val urlModifiable: Boolean = true
 
@@ -84,26 +88,39 @@ class MozhiEngine(settingsProvider: EngineSettingsProvider) : TranslationEngine(
 
     override suspend fun getLanguages(): List<Language> {
         return runCatching {
-            val body = TranslationHttpClient.client.get(url("api/target_languages/")) {
+            val translations = TranslationHttpClient.client.get(url("api/target_languages")) {
                 parameter("engine", effectiveModel())
             }.bodyAsText()
-            TranslationHttpClient.json.decodeFromString<List<MhLanguage>>(body)
+            val targets = TranslationHttpClient.json
+                .decodeFromString<List<MhLanguage>>(translations)
                 .map { Language(it.id, it.name) }
+
+            // Source languages include an "auto" (detect) entry; offered as a
+            // first option so the picker exposes automatic detection.
+            val sources = runCatching {
+                TranslationHttpClient.client.get(url("api/source_languages")) {
+                    parameter("engine", effectiveModel())
+                }.bodyAsText()
+            }.getOrNull().let { body ->
+                body?.let {
+                    TranslationHttpClient.json.decodeFromString<List<MhLanguage>>(it)
+                        .map { source -> Language(source.id, source.name) }
+                }.orEmpty()
+            }
+            val autoSource = sources.firstOrNull { it.code == "auto" }
+            (listOfNotNull(autoSource) + targets).distinctBy { it.code }
         }.getOrElse { CommonLanguages.languages }
     }
 
     override suspend fun translate(query: String, source: String, target: String): Translation {
         val apiKey = getApiKey()
-        val responseText = TranslationHttpClient.client.submitFormWithBinaryData(
-            url = url("api/translate/"),
-            formData = formData {
-                append("engine", effectiveModel().orEmpty())
-                if (!apiKey.isNullOrBlank()) append("api_key", apiKey)
-                append("from", sourceOrAuto(source.take(2)))
-                append("to", target.take(2))
-                append("text", query)
-            },
-        ).bodyAsText()
+        val responseText = TranslationHttpClient.client.get(url("api/translate")) {
+            parameter("engine", effectiveModel())
+            if (!apiKey.isNullOrBlank()) parameter("api_key", apiKey)
+            parameter("from", sourceOrAuto(source).ifBlank { "auto" })
+            parameter("to", target)
+            parameter("text", query)
+        }.bodyAsText()
 
         val response = TranslationHttpClient.json.decodeFromString<MhTranslationResponse>(responseText)
         return Translation(

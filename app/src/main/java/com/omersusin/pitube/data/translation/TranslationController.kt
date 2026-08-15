@@ -107,7 +107,7 @@ class TranslationController @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            _lastError.value = e.message ?: "Translation failed"
+            _lastError.value = friendlyMessage(e, engine)
             null
         }
     }
@@ -127,7 +127,7 @@ class TranslationController @Inject constructor(
             ).translatedText
         }.onFailure {
             if (it is CancellationException) throw it
-            _lastError.value = it.message ?: "Translation failed"
+            _lastError.value = friendlyMessage(it, engine)
         }
     }
 
@@ -149,6 +149,35 @@ class TranslationController @Inject constructor(
     private suspend fun maybePrune() {
         pruneCounter++
         if (pruneCounter % 20 == 0) cacheDao.prune()
+    }
+
+    /**
+     * A short, human-friendly error message for [e]. Engines may surface
+     * kotlinx.serialization parser dumps, low-level IO stack traces or HTTP
+     * status text; none of that is useful to the user, so it is collapsed to
+     * one of a few canned explanations (never raw parser / socket text).
+     */
+    private fun friendlyMessage(e: Throwable, engine: TranslationEngine): String {
+        val name = engine.name
+        val type = e.javaClass
+        return when {
+            // Provider answered something we could not decode, e.g. an error
+            // page instead of JSON, or a changed API shape.
+            type.let { it.name.contains("Serialization") || it.name.contains("JsonConvert") } ->
+                "$name returned an unexpected response. The service may be down or its API changed."
+
+            // Reaching the server failed (DNS / refused / TLS). "Could not resolve host"
+            // and "Failed to connect" are common strings inside these IO errors.
+            type.let { it.name.contains("UnknownHost") || it.name.contains("ConnectException") } ->
+                "Couldn't reach $name. Check your connection or the instance URL."
+
+            type.let { it.name.contains("Timeout") } ->
+                "$name is taking too long to respond. Try again."
+
+            // 4xx/5xx surfaced by engines (IllegalStateException with our own text).
+            e.message.isNullOrBlank() -> "Translation failed"
+            else -> e.message.orEmpty()
+        }
     }
 
     companion object {

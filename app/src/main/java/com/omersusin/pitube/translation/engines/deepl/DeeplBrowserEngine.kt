@@ -15,6 +15,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -125,62 +126,73 @@ class DeeplBrowserEngine(settingsProvider: EngineSettingsProvider) : Translation
         )
 
     override suspend fun translate(query: String, source: String, target: String): Translation {
-        val id = (floor(Math.random().times(99999)) + 100000).roundToInt().times(1000)
-        val body = TranslationHttpClient.json.encodeToString(
-            DeeplWebTranslationRequest(
-                jsonrpc = "2.0",
-                method = "LMT_handle_texts",
-                params = DeeplWebTranslationRequestParams(
-                    texts = listOf(DeeplWebTranslationRequestParamsText(text = query)),
-                    splitting = "newlines",
-                    lang = DeeplWebTranslationRequestParamsLang(
-                        targetLang = target.uppercase(),
-                        sourceLangUserSelected = sourceOrAuto(source.uppercase()),
-                        preference = DeeplWebTranslationRequestParamsLangPreference(
-                            weight = emptyMap(),
+        // DeepL throttles aggressively when many requests share the same
+        // randomized id seed; retry a few times with a fresh id ("soft-ban"
+        // answers with an empty texts array). Exhaustion surfaces a friendly
+        // rate-limit message instead of "answered without a translation".
+        repeat(DEEPL_MAX_ATTEMPTS) { attempt ->
+            val id = (floor(Math.random().times(99999)) + 100000).roundToInt().times(1000)
+            val body = TranslationHttpClient.json.encodeToString(
+                DeeplWebTranslationRequest(
+                    jsonrpc = "2.0",
+                    method = "LMT_handle_texts",
+                    params = DeeplWebTranslationRequestParams(
+                        texts = listOf(DeeplWebTranslationRequestParamsText(text = query)),
+                        splitting = "newlines",
+                        lang = DeeplWebTranslationRequestParamsLang(
+                            targetLang = target.uppercase(),
+                            sourceLangUserSelected = sourceOrAuto(source.uppercase()),
+                            preference = DeeplWebTranslationRequestParamsLangPreference(
+                                weight = emptyMap(),
+                            ),
                         ),
+                        commonJobParams = emptyMap(),
+                        timestamp = System.currentTimeMillis(),
                     ),
-                    commonJobParams = emptyMap(),
-                    timestamp = System.currentTimeMillis(),
+                    id = id,
                 ),
-                id = id,
-            ),
-        ).replace(
-            "\"method\":\"",
-            // The random ID determines the spacing to use, do NOT change it
-            // This is how the client side of the web service works and the server-side
-            // expects the same, otherwise you will get soft-banned
-            if ((id + 3) % 13 == 0 || (id + 5) % 29 == 0) {
-                "\"method\" : \""
-            } else "\"method\": \"",
-        )
-        val webResponse = TranslationHttpClient.json.decodeFromString<DeeplWebTranslationResponse>(
-            TranslationHttpClient.client.post(url("jsonrpc")) {
-                parameter("client", "chrome-extension,$WEB_CHROME_EXTENSION_VER")
-                header("Accept", "*/*")
-                header("Accept-Language", "en-US,en;q=0.5")
-                header("Authorization", "None")
-                header("Origin", "chrome-extension://cofdbpoegempjloogbagkncekinflcnj")
-                header("referer", "https://www.deepl.com/")
-                header("Sec-Fetch-Dest", "empty")
-                header("Sec-Fetch-Mode", "cors")
-                header("Sec-Fetch-Site", "none")
-                header(
-                    "User-Agent",
-                    "DeepLBrowserExtension/$WEB_CHROME_EXTENSION_VER $WEB_CHROME_USER_AGENT",
-                )
-                contentType(ContentType.Application.Json)
-                setBody(body)
-            }.bodyAsText(),
-        )
+            ).replace(
+                "\"method\":\"",
+                // The random ID determines the spacing to use, do NOT change it
+                // This is how the client side of the web service works and the server-side
+                // expects the same, otherwise you will get soft-banned
+                if ((id + 3) % 13 == 0 || (id + 5) % 29 == 0) {
+                    "\"method\" : \""
+                } else "\"method\": \"",
+            )
+            val webResponse = TranslationHttpClient.json.decodeFromString<DeeplWebTranslationResponse>(
+                TranslationHttpClient.client.post(url("jsonrpc")) {
+                    parameter("client", "chrome-extension,$WEB_CHROME_EXTENSION_VER")
+                    header("Accept", "*/*")
+                    header("Accept-Language", "en-US,en;q=0.5")
+                    header("Authorization", "None")
+                    header("Origin", "chrome-extension://cofdbpoegempjloogbagkncekinflcnj")
+                    header("referer", "https://www.deepl.com/")
+                    header("Sec-Fetch-Dest", "empty")
+                    header("Sec-Fetch-Mode", "cors")
+                    header("Sec-Fetch-Site", "none")
+                    header(
+                        "User-Agent",
+                        "DeepLBrowserExtension/$WEB_CHROME_EXTENSION_VER $WEB_CHROME_USER_AGENT",
+                    )
+                    contentType(ContentType.Application.Json)
+                    setBody(body)
+                }.bodyAsText(),
+            )
 
-        val translatedText = webResponse.result.texts.firstOrNull()?.text.orEmpty()
-        if (translatedText.isBlank()) {
-            throw IllegalStateException("DeepL (Browser) answered without a translation")
+            val translatedText = webResponse.result.texts.firstOrNull()?.text.orEmpty()
+            if (translatedText.isNotBlank()) {
+                return Translation(
+                    translatedText = translatedText,
+                    detectedLanguage = webResponse.result.lang.lowercase(),
+                )
+            }
+            if (attempt < DEEPL_MAX_ATTEMPTS - 1) {
+                delay(DEEPL_RETRY_DELAY_MS)
+            }
         }
-        return Translation(
-            translatedText = translatedText,
-            detectedLanguage = webResponse.result.lang.lowercase(),
+        throw IllegalStateException(
+            "DeepL (Browser) is rate-limiting right now. Try again in a few seconds.",
         )
     }
 
@@ -188,5 +200,7 @@ class DeeplBrowserEngine(settingsProvider: EngineSettingsProvider) : Translation
         const val WEB_CHROME_EXTENSION_VER = "1.49.0"
         const val WEB_CHROME_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+        private const val DEEPL_MAX_ATTEMPTS = 3
+        private const val DEEPL_RETRY_DELAY_MS = 1500L
     }
 }
