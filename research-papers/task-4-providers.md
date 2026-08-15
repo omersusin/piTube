@@ -51,6 +51,56 @@ the original and back. Wired into the existing `combinedClickable` /
 unchanged; subtitles are out of scope (native `tlang` path never touches the
 engines).
 
+### SelectionContainer gap (FIX 3)
+
+Description, comment and reply bodies are wrapped in a `SelectionContainer`
+so their text (with timestamp/URL annotations) can be copied. `SelectionContainer`
+claims the double-tap for word-select and consumes the down/up events, so the
+plain `detectTapGestures(onDoubleTap = ...)` handler never saw a second tap and
+the toggle did nothing on those surfaces. Added `toggleOriginalOnDoubleTapInSelection`
+(`TranslationHooks.kt`): a raw `awaitEachGesture` detector that reads the first
+down+up with `requireUnconsumed = false` and toggles when a second tap lands
+inside `viewConfiguration.doubleTapTimeoutMillis`. Trade-off (accepted): the
+container can still select the tapped word while the original flips in.
+Single-tap timestamp/URL handling and "Read more" are untouched.
+
+## Slow-loading fixes (PERF, 2026-08-15)
+
+Everything incl. startup was flagged as slow; root-caused to InnerTube retrying
+ineligible requests and serial/N+1 request storms. All six landed:
+
+| # | Fix | Files |
+|---|---|---|
+| **A** | HTTP status errors (4xx/5xx) are `ResponseException`s — a subclass of `IOException` — so the generic retry wrapper replayed throttled/bot-walled requests 3x with two ~1.5s backoff sleeps. `withRetry(new)` now rethrows `ResponseException` immediately; only genuine transport `IOException`s get another attempt. | `InnerTube.kt:277` |
+| **B** | Channel Videos/Live tabs fired ALL pages (~50) upfront with an 800ms artificial sleep between each. Now page 1 loads instantly and remaining pages are fetched lazily as the user scrolls near the bottom (`lastVisible >= total - 5`), gated on `pagerState.settledPage` + `!searchActive`. Continuation stashed per-list; merged with `mergeDistinctByNonBlankKey`; `MAX_PAGES=50` cap + `isLoadingMore*`/`hasMore*` flows. Videos/Live keep the accumulated-list model so `VideoFilter` latest/popular/oldest still sorts everything loaded. | `ChannelViewModel.kt`, `ChannelScreen.kt` |
+| **C** | Translation requests capped at 4 concurrent provider calls (`Semaphore`) and identical in-flight calls (same cacheId) collapsed into one request via an app-scoped `Deferred` map — an 80-item feed no longer fires 80 identical HTTP calls. All translation client timeouts cut from 120s to 30s so a dead endpoint stalls a screen for at most ~30s instead of ~2min. | `TranslationController.kt` (`MAX_CONCURRENT_TRANSLATIONS=4`, `appScope`, `inFlight`), `TranslationHttpClient.kt` |
+| **D** | Collaborator/avatar-stack resolution ran one HTTP call at a time (up to 10 videos × up to 4s each serial). Now resolved concurrently via `coroutineScope { map { async { ... } }.awaitAll() }` into a `ConcurrentHashMap`; each call keeps its own 4s timeout. | `SearchPagingSource.kt` (`enrichCollabVideoResults`), `ChannelVideosPagingSource.kt` (`withCollabAvatarStacks`) |
+| **E** | Home wave1 discovery queries had no timeout and the fast "quick feed" first-paint only fired when `userSubs.isEmpty()`, so signed-in users stared at a skeleton. Discovery is now bounded at 6s (mirrors wave2/load-more) and the viral quick-feed paints for everyone, signed in or not. | `HomeViewModel.kt` |
+| **F** | The BotGuard `WebPoTokenSession.prewarm()` was already off the main thread (IO scope + `withContext(IO)`), so no change needed there; trimmed the splash's fixed 1.5s hold to 700ms — home no longer waits on a cosmetic timer. | `FlowSplashScreen.kt:104` |
+
+Build note: the first push of A–F failed CI on three compile errors
+(nullable `ListLinkHandler`/`ChannelInfo`/`Page` smart-casts lost during the
+B/D refactors + a `MaskedText` vs `Masked` type mismatch) — fixed in
+`fix(perf)`: re-added the `videosTab` guard, parenthesised the `?:` fallbacks,
+and used the top-level `MaskedText` in `performTranslation`.
+
+## Soft-deprecation of dead providers (FIX 4, 2026-08-15)
+
+Yandex / Lingva / LibreTranslate stay selectable (some users may still reach
+self-hosted Libretranslate/lingva or have the old Yandex behaviour) but are
+flagged in the picker:
+
+- `TranslationEngine.statusNote` (`open val`, null by default) — every engine can
+  describe a caveat.
+- Yandex: "The web endpoint rotates its session key; translations often fail.
+  Prefer Mozhi or a keyed provider."
+- Lingva: "Default lingva.ml instance is often down; use a self-hosted instance."
+- LibreTranslate: "Public instances are key-gated or rate-limited; self-host
+  LibreTranslate for reliable use."
+- `TranslationSettingsScreen` shows the note as an error-tinted banner under the
+  active provider row and as a muted error line under each option in the picker
+  dialog.
+
 ## Open questions for whoever picks this up
 
 1. **Yandex**: implement the session/login flow (`register`/`login` + `sid`)
@@ -69,3 +119,12 @@ engines).
 
 - `809a697` — fix(translation): repair Mozhi, Glosbe and DeepL browser providers + friendly error mapping
 - `5809d77` — feat(translation): double-tap translated text to show the original
+- `70a5f3c` — docs(translation): task-4 provider audit - working vs broken matrix
+- `917151f` — fix(perf): don't retry HTTP status errors in InnerTube
+- `e8a23ad` — perf(channel): lazy on-scroll video and live feeds
+- `85d3b0d` — perf(translation): 30s timeout, concurrency cap, in-flight dedup
+- `98cd699` — perf: parallel collaborator and avatar-stack resolution
+- `8224e4c` — perf(home): time-box discovery, instant viral first paint
+- `189a38f` — perf(startup): trim splash hold before fade
+- `79311c8` — fix(perf): resolve compile errors in lazy pagination and translation dedup
+- `b5e6a50` — feat(translation): soft-deprecate broken providers with picker status notes
