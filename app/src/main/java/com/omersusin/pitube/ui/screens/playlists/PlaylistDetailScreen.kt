@@ -1310,14 +1310,26 @@ private fun MergeIntoPlaylistDialog(
                         items = playlists,
                         key = { it.id },
                     ) { playlist ->
+                        val detailContext = LocalContext.current
+                        val detailPrefs = remember { PlayerPreferences(detailContext) }
+                        val detailTitleState =
+                            rememberTranslatedText(playlist.name, detailPrefs.translatePlaylistTitles)
                         Row(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .clickable {
-                                        viewModel.mergeIntoPlaylist(playlist.id)
-                                        onDismiss()
-                                    }.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    .combinedClickable(
+                                        onClick = {
+                                            viewModel.mergeIntoPlaylist(playlist.id)
+                                            onDismiss()
+                                        },
+                                        onDoubleClick =
+                                            if (detailTitleState.canToggleOriginal) {
+                                                detailTitleState::toggleShowingOriginal
+                                            } else {
+                                                null
+                                            },
+                                    ).padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -1349,10 +1361,6 @@ private fun MergeIntoPlaylistDialog(
                             }
 
                             Column(modifier = Modifier.weight(1f)) {
-                                val detailContext = LocalContext.current
-                                val detailPrefs = remember { PlayerPreferences(detailContext) }
-                                val detailTitleState =
-                                    rememberTranslatedText(playlist.name, detailPrefs.translatePlaylistTitles)
                                 Text(
                                     text = detailTitleState.displayText,
                                     style = MaterialTheme.typography.bodyLarge,

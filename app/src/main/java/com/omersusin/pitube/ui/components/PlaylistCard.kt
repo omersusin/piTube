@@ -1,7 +1,7 @@
 package com.omersusin.pitube.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.omersusin.pitube.data.local.PlayerPreferences
+import com.omersusin.pitube.ui.translation.TranslatedTextState
 import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
@@ -118,13 +119,19 @@ private fun PlaylistCardContent(
             )
         } ?: stringResource(R.string.videos_count_template, videoCount)
 
+    val playlistContext = LocalContext.current
+    val playlistPrefs = remember { PlayerPreferences(playlistContext) }
+    val titleState = rememberTranslatedText(title, playlistPrefs.translatePlaylistTitles)
+
     if (layout == PlaylistCardLayout.SHELF) {
         Column(
             modifier =
                 Modifier
                     .then(modifier)
-                    .clickable(onClick = onClick)
-                    .padding(vertical = 4.dp),
+                    .combinedClickable(
+                        onClick = onClick,
+                        onDoubleClick = if (titleState.canToggleOriginal) titleState::toggleShowingOriginal else null,
+                    ).padding(vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             LayeredPlaylistArtwork(
@@ -136,7 +143,7 @@ private fun PlaylistCardContent(
                         .aspectRatio(16f / 9f),
             )
             PlaylistCardText(
-                title = title,
+                titleState = titleState,
                 metadata = metadata,
                 description = "",
                 compact = true,
@@ -150,8 +157,10 @@ private fun PlaylistCardContent(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(vertical = 4.dp),
+                .combinedClickable(
+                    onClick = onClick,
+                    onDoubleClick = if (titleState.canToggleOriginal) titleState::toggleShowingOriginal else null,
+                ).padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -165,7 +174,7 @@ private fun PlaylistCardContent(
         )
 
         PlaylistCardText(
-            title = title,
+            titleState = titleState,
             metadata = metadata,
             description = description,
             compact = false,
@@ -305,15 +314,12 @@ private fun LayeredPlaylistArtwork(
 
 @Composable
 private fun PlaylistCardText(
-    title: String,
+    titleState: TranslatedTextState,
     metadata: String,
     description: String,
     compact: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val playlistContext = LocalContext.current
-    val playlistPrefs = remember { PlayerPreferences(playlistContext) }
-    val titleState = rememberTranslatedText(title, playlistPrefs.translatePlaylistTitles)
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp),

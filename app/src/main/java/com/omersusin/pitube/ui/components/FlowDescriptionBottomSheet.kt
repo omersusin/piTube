@@ -52,6 +52,7 @@ import androidx.core.text.HtmlCompat
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.ui.translation.rememberTranslatedText
+import com.omersusin.pitube.ui.translation.toggleOriginalOnDoubleTap
 import com.omersusin.pitube.utils.formatLikeCount
 import com.omersusin.pitube.utils.formatViewCount
 import com.omersusin.pitube.utils.DateContext
@@ -378,7 +379,9 @@ fun FlowDescriptionBottomSheet(
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .toggleOriginalOnDoubleTap(titleState)
                 )
                 if (titleState.showOriginalBelow) {
                     Text(
@@ -474,7 +477,13 @@ fun FlowDescriptionBottomSheet(
                                                             ?.let { uriHandler.openUri(it.item) }
                                                     }
                                                 }
-                                            }
+                                            },
+                                            onDoubleTap =
+                                                if (descriptionState.canToggleOriginal) {
+                                                    { descriptionState.toggleShowingOriginal() }
+                                                } else {
+                                                    null
+                                                },
                                         )
                                     }
                                 )

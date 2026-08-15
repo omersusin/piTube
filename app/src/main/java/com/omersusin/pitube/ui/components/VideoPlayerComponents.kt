@@ -140,6 +140,7 @@ fun VideoInfoSection(
                         clipboard.setPrimaryClip(ClipData.newPlainText("Video Title", title))
                         Toast.makeText(context, context.getString(R.string.title_copied), Toast.LENGTH_SHORT).show()
                     },
+                    onDoubleClick = if (titleState.canToggleOriginal) titleState::toggleShowingOriginal else null,
                 ),
         ) {
             Text(

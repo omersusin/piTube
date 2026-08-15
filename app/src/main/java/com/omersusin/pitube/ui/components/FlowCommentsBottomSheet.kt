@@ -853,6 +853,12 @@ fun FlowCommentItem(
                                             }
                                         }
                                     },
+                                    onDoubleTap =
+                                        if (commentState.canToggleOriginal) {
+                                            { commentState.toggleShowingOriginal() }
+                                        } else {
+                                            null
+                                        },
                                 )
                             },
                     )
@@ -1238,6 +1244,12 @@ fun FlowReplyItem(
                                         }
                                     }
                                 },
+                                onDoubleTap =
+                                    if (replyState.canToggleOriginal) {
+                                        { replyState.toggleShowingOriginal() }
+                                    } else {
+                                        null
+                                    },
                             )
                         },
                 )

@@ -1,5 +1,6 @@
 package com.omersusin.pitube.ui.translation
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -7,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.translation.TranslationController
@@ -41,18 +44,36 @@ class TranslatedTextState(
     val original: String,
     val translated: String?,
     val mode: String,
+    private val translationEnabled: Boolean,
 ) {
+    /** True when double-tapping this text may toggle to the original. */
+    val doubleTapEnabled: Boolean
+        get() = translationEnabled
+
+    /** True when double-tapping should flip back to [original]. */
+    val canToggleOriginal: Boolean
+        get() = doubleTapEnabled && isTranslated
+
     /** True when a real, different translation is available to display. */
     val isTranslated: Boolean
         get() = translated != null && translated.isNotBlank() && translated != original
 
+    /** Whether the surface currently shows the original instead of the translation. */
+    var showingOriginal by mutableStateOf(false)
+        private set
+
+    /** Flip between the translation and the original (only when meaningful). */
+    fun toggleShowingOriginal() {
+        if (canToggleOriginal) showingOriginal = !showingOriginal
+    }
+
     /** The text a REPLACE-mode surface should show. Never blank. */
     val displayText: String
-        get() = translated?.takeIf { it.isNotBlank() } ?: original
+        get() = if (showingOriginal) original else translated?.takeIf { it.isNotBlank() } ?: original
 
     /** True when the surface should render the original below the translation. */
     val showOriginalBelow: Boolean
-        get() = mode == "DUAL" && isTranslated
+        get() = mode == "DUAL" && isTranslated && !showingOriginal
 }
 
 /**
@@ -75,6 +96,7 @@ fun rememberTranslatedText(
     val featureEnabled by feature.collectAsState(initial = false)
     val targetLanguage by preferences.translationTargetLanguage.collectAsState(initial = "")
     val mode by preferences.translationMode.collectAsState(initial = "REPLACE")
+    val doubleTapOriginal by preferences.translationDoubleTapOriginal.collectAsState(initial = true)
 
     var translated by remember(text) { mutableStateOf<String?>(null) }
     val active = masterEnabled && featureEnabled && text.isNotBlank()
@@ -87,7 +109,29 @@ fun rememberTranslatedText(
         }
     }
 
-    return remember(text, translated, mode) {
-        TranslatedTextState(text, translated?.trim(), mode)
+    return remember(text, translated, mode, doubleTapOriginal) {
+        val state = TranslatedTextState(
+            original = text,
+            translated = translated?.trim(),
+            mode = mode,
+            translationEnabled = masterEnabled && featureEnabled && doubleTapOriginal,
+        )
+        state
     }
 }
+
+/**
+ * Double-tap [state] to flip between the translation and the original. The
+ * gesture only activates when the double-tap setting is on and the text is
+ * actually translated, so untouched surfaces keep their existing behaviour.
+ */
+fun Modifier.toggleOriginalOnDoubleTap(state: TranslatedTextState): Modifier =
+    if (state.canToggleOriginal) {
+        pointerInput(state) {
+            detectTapGestures(
+                onDoubleTap = { state.toggleShowingOriginal() },
+            )
+        }
+    } else {
+        this
+    }

@@ -82,6 +82,7 @@ fun TranslationSettingsScreen(
     val translateComments by preferences.translateComments.collectAsState(initial = false)
     val translateChannelNames by preferences.translateChannelNames.collectAsState(initial = false)
     val translatePlaylistTitles by preferences.translatePlaylistTitles.collectAsState(initial = false)
+    val doubleTapOriginal by preferences.translationDoubleTapOriginal.collectAsState(initial = true)
     val targetLanguage by preferences.translationTargetLanguage.collectAsState(initial = "")
     val displayMode by preferences.translationMode.collectAsState(initial = "REPLACE")
 
@@ -332,6 +333,14 @@ fun TranslationSettingsScreen(
                         checked = translatePlaylistTitles,
                         onCheckedChange = {
                             coroutineScope.launch { preferences.setTranslatePlaylistTitles(it) }
+                        },
+                    )
+                    TranslationToggleRow(
+                        title = stringResource(R.string.translation_toggle_double_tap_original),
+                        subtitle = stringResource(R.string.translation_toggle_double_tap_original_subtitle),
+                        checked = doubleTapOriginal,
+                        onCheckedChange = {
+                            coroutineScope.launch { preferences.setTranslationDoubleTapOriginal(it) }
                         },
                     )
                     if (translateCaptions) {

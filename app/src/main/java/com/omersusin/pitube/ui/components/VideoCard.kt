@@ -207,6 +207,11 @@ fun VideoCardHorizontal(
             onChannelClick?.invoke(video.channelId)
         }
     }
+    val maybeToggleOriginal = {
+        titleState.toggleShowingOriginal()
+        channelState.toggleShowingOriginal()
+    }
+    val canToggleAny = titleState.canToggleOriginal || channelState.canToggleOriginal
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier =
@@ -217,6 +222,7 @@ fun VideoCardHorizontal(
                     interactionSource = interactionSource,
                     indication = androidx.compose.material3.ripple(),
                     onLongClick = { showQuickActions = true },
+                    onDoubleClick = if (canToggleAny) maybeToggleOriginal else null,
                     onClick = onClick,
                 ).padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -430,6 +436,11 @@ fun VideoCardFullWidth(
     val isWatchedFW = rememberIsWatched(video.id, quickActionsVmFW.watchedVideoIds, watchProgress)
 
     val interactionSource = remember { MutableInteractionSource() }
+    val maybeToggleOriginalFW = {
+        titleStateFW.toggleShowingOriginal()
+        channelStateFW.toggleShowingOriginal()
+    }
+    val canToggleAnyFW = titleStateFW.canToggleOriginal || channelStateFW.canToggleOriginal
     Column(
         modifier =
             modifier
@@ -439,6 +450,7 @@ fun VideoCardFullWidth(
                     interactionSource = interactionSource,
                     indication = androidx.compose.material3.ripple(),
                     onLongClick = { showQuickActions = true },
+                    onDoubleClick = if (canToggleAnyFW) maybeToggleOriginalFW else null,
                     onClick = onClick,
                 ).then(if (useInternalPadding) Modifier.padding(horizontal = 12.dp) else Modifier),
     ) {
@@ -751,6 +763,11 @@ fun CompactVideoCard(
     val channelStateCompact = rememberTranslatedText(displayChannelName, cardPrefsCompact.translateChannelNames)
 
     val interactionSource = remember { MutableInteractionSource() }
+    val maybeToggleOriginalCompact = {
+        titleStateCompact.toggleShowingOriginal()
+        channelStateCompact.toggleShowingOriginal()
+    }
+    val canToggleAnyCompact = titleStateCompact.canToggleOriginal || channelStateCompact.canToggleOriginal
     Row(
         modifier =
             modifier
@@ -760,6 +777,7 @@ fun CompactVideoCard(
                     interactionSource = interactionSource,
                     indication = androidx.compose.material3.ripple(),
                     onLongClick = { showQuickActions = true },
+                    onDoubleClick = if (canToggleAnyCompact) maybeToggleOriginalCompact else null,
                     onClick = onClick,
                 ).padding(vertical = 8.dp, horizontal = 12.dp),
     ) {

@@ -2046,6 +2046,8 @@
     <string name="translation_toggle_comments">Comments</string>
     <string name="translation_toggle_channel_names">Channel names</string>
     <string name="translation_toggle_playlist_titles">Playlist titles</string>
+    <string name="translation_toggle_double_tap_original">Double-tap to show original</string>
+    <string name="translation_toggle_double_tap_original_subtitle">Double-tap translated text to show the original language</string>
     <string name="translation_caption_note">Subtitles use YouTube\'s built-in translated captions when they are available for the target language.</string>
     <string name="translation_missing_key_hint" formatted="false">Translation is on, but %1$s needs an API key: add one above or pick a free provider and content stays in the original language.</string>
 

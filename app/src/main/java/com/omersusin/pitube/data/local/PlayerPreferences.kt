@@ -85,6 +85,7 @@ class PlayerPreferences(context: Context) {
         val TRANSLATE_PLAYLIST_TITLES = booleanPreferencesKey("translate_playlist_titles")
         val TRANSLATION_TARGET_LANGUAGE = stringPreferencesKey("translation_target_language")
         val TRANSLATION_MODE = stringPreferencesKey("translation_mode")
+        val TRANSLATION_DOUBLE_TAP_ORIGINAL = booleanPreferencesKey("translation_double_tap_original")
         val PLAYBACK_SPEED = floatPreferencesKey("playback_speed")
         val SLEEP_TIMER_CLOSE_APP_ON_EXPIRY = booleanPreferencesKey("sleep_timer_close_app_on_expiry")
         val TRENDING_REGION = stringPreferencesKey("trending_region")
@@ -1378,6 +1379,21 @@ class PlayerPreferences(context: Context) {
     suspend fun setTranslationMode(mode: String) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.TRANSLATION_MODE] = mode
+        }
+    }
+
+    /**
+     * When true, double-tapping translated text swaps back to the original
+     * (and back again). On by default; only relevant for actually-translated
+     * texts (never shown for the raw subtitle track, which uses YouTube's
+     * native `tlang` translation).
+     */
+    val translationDoubleTapOriginal: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.TRANSLATION_DOUBLE_TAP_ORIGINAL] ?: true }
+
+    suspend fun setTranslationDoubleTapOriginal(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.TRANSLATION_DOUBLE_TAP_ORIGINAL] = enabled
         }
     }
     
