@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -300,7 +301,8 @@ fun FlowCommentsBottomSheet(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(with(density) { sheetHeightPx.value.toDp() }),
+                    .height(with(density) { sheetHeightPx.value.toDp() })
+                    .imePadding(),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
         ) {
@@ -462,7 +464,7 @@ private fun CommentComposer(
                             ),
                         )
                     },
-                    shape = CircleShape,
+                    shape = RoundedCornerShape(12.dp),
                     maxLines = 4,
                     enabled = !isPosting,
                 )
@@ -561,7 +563,7 @@ fun FlowCommentsList(
     var replyTarget by remember { mutableStateOf<Comment?>(null) }
     var replyThreadParent by remember { mutableStateOf<Comment?>(null) }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.imePadding()) {
         LazyColumn(
             state = listState,
             modifier = Modifier.weight(1f),
