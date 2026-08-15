@@ -191,6 +191,12 @@ class FlowApplication :
                 if (pm.profiles.value.isEmpty()) {
                     pm.ensureMigrated(legacyCookie, legacyName, legacyAvatar)
                 }
+                // Rehouse any pre-profile install's subscription rows into the
+                // active profile's namespace once (per-profile subscriptions).
+                runCatching {
+                    com.omersusin.pitube.data.local.SubscriptionRepository
+                        .getInstance(this@FlowApplication).ensureScopeMigration()
+                }
                 // Restore the active profile's session. The source of truth is
                 // the encrypted per-profile store (ProfileManager); the DataStore
                 // key is only a mirror so existing UI that reads it stays in step.
