@@ -26,9 +26,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Settings
@@ -58,7 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.AccountSwitcher
-import com.omersusin.pitube.data.local.Profile
+import com.omersusin.pitube.data.local.ProfileManager
 
 /**
  * The "You" sheet, opened from the bottom navigation's profile tab.
@@ -116,15 +116,18 @@ fun AccountSheet(
                 .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            AccountHeader(
-                profile = active,
-                onSignIn = {
-                    onDismiss()
-                    onSignIn()
-                }
-            )
-
-            Spacer(Modifier.height(4.dp))
+            // Signed-out only: the roster lists just the Add rows when no
+            // account is stored, so the sign-in entry point lives here as the
+            // first item of the Profiles section. Once an account is active it
+            // is represented by its Profiles row, never by a separate card.
+            if (active.isLocal && active.name == ProfileManager.DEFAULT_LOCAL_NAME) {
+                SignedOutPrompt(
+                    onSignIn = {
+                        onDismiss()
+                        onSignIn()
+                    }
+                )
+            }
 
             Text(
                 text = stringResource(R.string.account_sheet_profiles_header),
@@ -237,15 +240,16 @@ fun AccountSheet(
 }
 
 /**
- * The compact identity card at the top of the sheet.
+ * The sign-in prompt shown when the app is running with no account (the
+ * always-present default local profile).
  *
- * Signed in: avatar, display name, @handle (or email), an expired-session
- * warning. Signed out (or on a device-only profile): a sign-in prompt that
- * funnels into the same login flow the settings screen uses.
+ * Shown only as the first item of the Profiles section while signed out. When
+ * a YouTube account is active it is represented by its own ProfileManagement
+ * row (avatar, name, handle, active checkmark, delete) - never also by this
+ * card, so an account is never rendered twice in this sheet.
  */
 @Composable
-private fun AccountHeader(
-    profile: Profile,
+private fun SignedOutPrompt(
     onSignIn: () -> Unit
 ) {
     Row(
@@ -256,67 +260,41 @@ private fun AccountHeader(
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfileAvatar(profile = profile, size = 56)
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.PersonOutline,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp)
+            )
+        }
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
-            if (profile.isLocal) {
-                Text(
-                    text = stringResource(R.string.account_sheet_signed_out_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = stringResource(R.string.account_sheet_signed_out_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            } else {
-                Text(
-                    text = profile.name.ifBlank { profile.handle ?: profile.email ?: "" }.ifBlank {
-                        stringResource(R.string.account_sheet_unknown_user)
-                    },
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                val subtitle = when {
-                    profile.expired -> stringResource(R.string.account_switcher_expired)
-                    !profile.handle.isNullOrBlank() -> profile.handle
-                    !profile.email.isNullOrBlank() -> profile.email
-                    else -> stringResource(R.string.account_sheet_local_profile)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (profile.expired) {
-                        Icon(
-                            imageVector = Icons.Outlined.ErrorOutline,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(Modifier.width(4.dp))
-                    }
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (profile.expired) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
+            Text(
+                text = stringResource(R.string.account_sheet_signed_out_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = stringResource(R.string.account_sheet_signed_out_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
-        if (profile.isLocal) {
-            Button(onClick = onSignIn) {
-                Text(stringResource(R.string.account_sheet_sign_in_cta))
-            }
+        Spacer(Modifier.width(12.dp))
+        Button(onClick = onSignIn) {
+            Text(stringResource(R.string.account_sheet_sign_in_cta))
         }
     }
 }
