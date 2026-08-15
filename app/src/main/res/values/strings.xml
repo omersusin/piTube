@@ -2086,6 +2086,9 @@
     <string name="recognition_tap_to_stop">Tap again to stop</string>
     <string name="recognition_processing">Identifying…</string>
     <string name="recognition_error_generic">Something went wrong. Try again.</string>
+    <string name="recognition_error_too_many_requests">Voice service is temporarily busy. Wait a moment and try again.</string>
+    <string name="recognition_error_language_not_supported">This language is not supported by the speech recognizer.</string>
+    <string name="recognition_error_language_unavailable">The on-device language model is not installed. Download it in device settings, then try again.</string>
     <string name="recognition_saved_and_will_retry">The recording was saved and will retry automatically when you are back online.</string>
     <string name="recognition_recording_saved">The recording was saved to the device.</string>
     <string name="recognition_retry">Try again</string>

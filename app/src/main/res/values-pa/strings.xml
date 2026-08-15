@@ -9,4 +9,7 @@
     <string name="recognition_voice_source_auto_subtitle">ਜਦੋਂ ਸੰਭਵ ਹੋਵੇ ਆਨਲਾਈਨ ਟ੍ਰਾਂਸਕ੍ਰਾਈਬ ਕਰੋ, ਨਹੀਂ ਤਾਂ ਡਿਵਾਈਸ ਰਿਕਗਨਾਈਜ਼ਰ ਵਰਤੋ</string>
     <string name="recognition_voice_source_device_only">ਸਿਰਫ਼ ਡਿਵਾਈਸ</string>
     <string name="recognition_voice_source_device_only_subtitle">ਹਮੇਸ਼ਾ ਡਿਵਾਈਸ ਉੱਤੇ ਮੌਜੂਦ ਸਪੀਚ ਰਿਕਗਨਾਈਜ਼ਰ ਵਰਤੋ</string>
+    <string name="recognition_error_too_many_requests">ਵੌਇਸ ਸੇਵਾ ਥੋੜ੍ਹੀ ਦੇਰ ਲਈ ਰੁੱਝੀ ਹੋਈ ਹੈ। ਕੁਝ ਪਲ ਉਡੀਕ ਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
+    <string name="recognition_error_language_not_supported">ਸਪੀਚ ਰਿਕਗਨਾਈਜ਼ਰ ਇਸ ਭਾਸ਼ਾ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦਾ।</string>
+    <string name="recognition_error_language_unavailable">ਡਿਵਾਈਸ ਉੱਤੇ ਮੌਜੂਦ ਭਾਸ਼ਾ ਮਾਡਲ ਸਥਾਪਤ ਨਹੀਂ ਹੈ। ਇਸਨੂੰ ਡਿਵਾਈਸ ਸੈਟਿੰਗਜ਼ ਵਿੱਚ ਡਾਊਨਲੋਡ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
 </resources>

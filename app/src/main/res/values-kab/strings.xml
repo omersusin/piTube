@@ -87,4 +87,7 @@
     <string name="recognition_voice_source_auto_subtitle">Yerr taɣect d tirra srid mi yezmer; ma ur yezmir ara, seqdec taragmilt n yibenk</string>
     <string name="recognition_voice_source_device_only">Yibenk kan</string>
     <string name="recognition_voice_source_device_only_subtitle">Seqdec daymen taragmilt n taɣect n yibenk</string>
+    <string name="recognition_error_too_many_requests">Aserwis n taɣect yettwaḥchen kan. Rǧu kra, syin ɛreḍ tikkelt-nniḍen.</string>
+    <string name="recognition_error_language_not_supported">Tutlayt-agi ur t-iteddaw ara umseqdec n taɣect.</string>
+    <string name="recognition_error_language_unavailable">Amaḍen n tutlayt n yibenk ur yettwasekles ara. Sader-it deg yiɣewwaṛen n yibenk, syin ɛreḍ tikkelt-nniḍen.</string>
 </resources>

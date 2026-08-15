@@ -1754,4 +1754,7 @@
     <string name="recognition_voice_source_auto_subtitle">Trascrivi online quando possibile, altrimenti usa il riconoscimento vocale del dispositivo</string>
     <string name="recognition_voice_source_device_only">Solo dispositivo</string>
     <string name="recognition_voice_source_device_only_subtitle">Usa sempre il riconoscimento vocale del dispositivo</string>
+    <string name="recognition_error_too_many_requests">Il servizio vocale è temporaneamente occupato. Attendi un momento e riprova.</string>
+    <string name="recognition_error_language_not_supported">Questa lingua non è supportata dal riconoscitore vocale.</string>
+    <string name="recognition_error_language_unavailable">Il modello linguistico del dispositivo non è installato. Scaricalo nelle impostazioni del dispositivo e poi riprova.</string>
 </resources>

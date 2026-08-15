@@ -1932,4 +1932,7 @@
     <string name="recognition_voice_source_auto_subtitle">Розшифровувати онлайн, коли це можливо, інакше використовувати розпізнавання на пристрої</string>
     <string name="recognition_voice_source_device_only">Лише пристрій</string>
     <string name="recognition_voice_source_device_only_subtitle">Завжди використовувати розпізнавання мови на пристрої</string>
+    <string name="recognition_error_too_many_requests">Голосова служба тимчасово зайнята. Зачекайте мить і спробуйте ще раз.</string>
+    <string name="recognition_error_language_not_supported">Ця мова не підтримується розпізнаванням мовлення.</string>
+    <string name="recognition_error_language_unavailable">Мовну модель на пристрої не встановлено. Завантажте її в налаштуваннях пристрою, а потім спробуйте ще раз.</string>
 </resources>

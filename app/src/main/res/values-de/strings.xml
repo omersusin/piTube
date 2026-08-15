@@ -1538,4 +1538,7 @@
     <string name="recognition_voice_source_auto_subtitle">Möglichst online transkribieren, andernfalls die Spracherkennung des Geräts verwenden</string>
     <string name="recognition_voice_source_device_only">Nur Gerät</string>
     <string name="recognition_voice_source_device_only_subtitle">Verwenden Sie immer die Spracherkennung des Geräts</string>
+    <string name="recognition_error_too_many_requests">Der Sprachdienst ist vorübergehend belegt. Warten Sie einen Moment und versuchen Sie es erneut.</string>
+    <string name="recognition_error_language_not_supported">Diese Sprache wird von der Spracherkennung nicht unterstützt.</string>
+    <string name="recognition_error_language_unavailable">Das Sprachmodell des Geräts ist nicht installiert. Laden Sie es in den Geräteeinstellungen herunter und versuchen Sie es dann erneut.</string>
 </resources>

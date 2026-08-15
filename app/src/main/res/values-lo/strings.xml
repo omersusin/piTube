@@ -5,4 +5,7 @@
     <string name="recognition_voice_source_auto_subtitle">ຖອດຄວາມອອນໄລນ໌ເມື່ອເປັນໄປໄດ້, ຖ້າບໍ່ດັ່ງນັ້ນໃຊ້ເຄື່ອງຮັບຮູ້ຂອງອຸປະກອນ</string>
     <string name="recognition_voice_source_device_only">ອຸປະກອນຢ່າງດຽວ</string>
     <string name="recognition_voice_source_device_only_subtitle">ໃຊ້ເຄື່ອງຮັບຮູ້ສຽງເວົ້າພາຍໃນອຸປະກອນສະເໝີ</string>
+    <string name="recognition_error_too_many_requests">ບໍລິການສຽງເວົ້າຫຍຸ້ງຢູ່ຊົ່ວຄາວ. ລໍຖ້າປັດຈຸບັນແລ້ວລອງໃໝ່.</string>
+    <string name="recognition_error_language_not_supported">ເຄື່ອງຮັບຮູ້ສຽງເວົ້າບໍ່ຮອງຮັບພາສານີ້.</string>
+    <string name="recognition_error_language_unavailable">ຕົວແບບພາສາພາຍໃນອຸປະກອນຍັງບໍ່ໄດ້ຕິດຕັ້ງ. ດາວໂຫຼດມັນໃນການຕັ້ງຄ່າອຸປະກອນ, ແລ້ວລອງໃໝ່.</string>
 </resources>

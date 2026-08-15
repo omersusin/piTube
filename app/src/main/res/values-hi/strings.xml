@@ -1108,4 +1108,7 @@
     <string name="recognition_voice_source_auto_subtitle">जब संभव हो ऑनलाइन ट्रांसक्राइब करें, अन्यथा डिवाइस रिकग्नाइज़र का उपयोग करें</string>
     <string name="recognition_voice_source_device_only">केवल डिवाइस</string>
     <string name="recognition_voice_source_device_only_subtitle">हमेशा डिवाइस पर मौजूद स्पीच रिकग्नाइज़र का उपयोग करें</string>
+    <string name="recognition_error_too_many_requests">वॉइस सेवा अभी कुछ समय के लिए व्यस्त है। थोड़ा इंतज़ार करके फिर से कोशिश करें।</string>
+    <string name="recognition_error_language_not_supported">यह भाषा स्पीच रिकग्नाइज़र द्वारा समर्थित नहीं है।</string>
+    <string name="recognition_error_language_unavailable">डिवाइस पर मौजूद भाषा मॉडल इंस्टॉल नहीं है। इसे डिवाइस सेटिंग्स से डाउनलोड करें, फिर दोबारा कोशिश करें।</string>
 </resources>

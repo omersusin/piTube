@@ -133,4 +133,7 @@
     <string name="recognition_voice_source_auto_subtitle">Транскрибуј онлајн када је могуће, у супротном користи препознавање на уређају</string>
     <string name="recognition_voice_source_device_only">Само уређај</string>
     <string name="recognition_voice_source_device_only_subtitle">Увек користите препознавање говора на уређају</string>
+    <string name="recognition_error_too_many_requests">Гласовна услуга је тренутно заузета. Сачекајте мало и покушајте поново.</string>
+    <string name="recognition_error_language_not_supported">Овај језик не подржава препознавање говора.</string>
+    <string name="recognition_error_language_unavailable">Језички модел на уређају није инсталиран. Преузмите га у подешавањима уређаја, а затим покушајте поново.</string>
 </resources>

@@ -9,6 +9,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
+import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.RecognitionFailureType
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.Locale
@@ -105,15 +106,24 @@ class OnDeviceVoiceRecognizer(
 
                                 override fun onError(error: Int) {
                                     val message: String =
-                                        when {
-                                            error == SpeechRecognizer.ERROR_NO_MATCH ||
-                                                error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected"
+                                        when (error) {
+                                            SpeechRecognizer.ERROR_TOO_MANY_REQUESTS ->
+                                                context.getString(R.string.recognition_error_too_many_requests)
 
-                                            error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT ||
-                                                error == SpeechRecognizer.ERROR_NETWORK -> "Speech recognition network error"
+                                            SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED ->
+                                                context.getString(R.string.recognition_error_language_not_supported)
 
-                                            error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Speech recognition is busy"
-                                            error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission missing"
+                                            SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE ->
+                                                context.getString(R.string.recognition_error_language_unavailable)
+
+                                            SpeechRecognizer.ERROR_NO_MATCH,
+                                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech detected"
+
+                                            SpeechRecognizer.ERROR_NETWORK_TIMEOUT,
+                                            SpeechRecognizer.ERROR_NETWORK -> "Speech recognition network error"
+
+                                            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Speech recognition is busy"
+                                            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission missing"
                                             else -> "Speech recognition error (code $error)"
                                         }
                                     Log.w("OnDeviceVoice", "SpeechRecognizer error=$error ($message)")
@@ -167,16 +177,28 @@ class OnDeviceVoiceRecognizer(
         }
     }
 
-    private fun createRecognizer(): SpeechRecognizer? =
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
-                    ?: SpeechRecognizer.createSpeechRecognizer(context)
-            } else {
-                SpeechRecognizer.createSpeechRecognizer(context)
-            }
+    private fun createRecognizer(): SpeechRecognizer? {
+    // Prefer a genuine on-device engine on Android 12+ (offline, no Google quota).
+    // The network recognizer (createSpeechRecognizer) streams to Google's cloud,
+    // which can rate-limit with ERROR_TOO_MANY_REQUESTS (code 10), so it is only
+    // used as a last resort and logged so the serving path is visible.
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
+        SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
+    ) {
+        return try {
+            SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
+                ?: SpeechRecognizer.createSpeechRecognizer(context)
         } catch (e: Exception) {
             Log.w("OnDeviceVoice", "create on-device recognizer failed", e)
-            SpeechRecognizer.createSpeechRecognizer(context)
+            null
         }
+    }
+    Log.w("OnDeviceVoice", "No on-device recognition available; falling back to network recognizer")
+    return try {
+        SpeechRecognizer.createSpeechRecognizer(context)
+    } catch (e: Exception) {
+        Log.w("OnDeviceVoice", "create network recognizer failed", e)
+        null
+    }
+}
 }

@@ -1764,4 +1764,7 @@
     <string name="recognition_voice_source_auto_subtitle">尽可能在线转写，否则使用设备识别器</string>
     <string name="recognition_voice_source_device_only">仅设备</string>
     <string name="recognition_voice_source_device_only_subtitle">始终使用设备端语音识别器</string>
+    <string name="recognition_error_too_many_requests">语音服务暂时繁忙，请稍等片刻后重试。</string>
+    <string name="recognition_error_language_not_supported">语音识别器不支持此语言。</string>
+    <string name="recognition_error_language_unavailable">设备端语言模型尚未安装。请在设备设置中下载后重试。</string>
 </resources>

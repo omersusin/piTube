@@ -1920,4 +1920,7 @@
     <string name="recognition_voice_source_auto_subtitle">Mümkün olduqda onlayn transkripsiya edin, əks halda cihazın tanıyıcısından istifadə edin</string>
     <string name="recognition_voice_source_device_only">Yalnız cihaz</string>
     <string name="recognition_voice_source_device_only_subtitle">Həmişə cihazdakı nitq tanıyıcısından istifadə edin</string>
+    <string name="recognition_error_too_many_requests">Səs xidməti müvəqqəti olaraq məşğuldur. Bir an gözləyin və yenidən cəhd edin.</string>
+    <string name="recognition_error_language_not_supported">Bu dil nitq tanıyıcısı tərəfindən dəstəklənmir.</string>
+    <string name="recognition_error_language_unavailable">Cihazdakı dil modeli quraşdırılmayıb. Onu cihaz parametrlərində endirin, sonra yenidən cəhd edin.</string>
 </resources>

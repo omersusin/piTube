@@ -5,4 +5,7 @@
     <string name="recognition_voice_source_auto_subtitle">可以就喺線上轉寫，唔得就用裝置嘅辨識器</string>
     <string name="recognition_voice_source_device_only">只用裝置</string>
     <string name="recognition_voice_source_device_only_subtitle">永遠用裝置入面嘅語音辨識器</string>
+    <string name="recognition_error_too_many_requests">語音服務暫時好忙，請等陣再試吓。</string>
+    <string name="recognition_error_language_not_supported">語音辨識器唔支援呢種語言。</string>
+    <string name="recognition_error_language_unavailable">裝置入面嘅語言模型未安裝。請喺裝置設定度下載之後再試吓。</string>
 </resources>

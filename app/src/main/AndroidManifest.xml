@@ -3,6 +3,14 @@
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
+    <!-- Required on API 30+ so package visibility lets the app bind
+         android.speech.RecognitionService (on-device SpeechRecognizer). -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />

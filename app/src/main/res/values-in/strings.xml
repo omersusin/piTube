@@ -1933,4 +1933,7 @@
     <string name="recognition_voice_source_auto_subtitle">Transkripsikan secara daring jika memungkinkan, jika tidak gunakan pengenal perangkat</string>
     <string name="recognition_voice_source_device_only">Hanya perangkat</string>
     <string name="recognition_voice_source_device_only_subtitle">Selalu gunakan pengenal ucapan pada perangkat</string>
+    <string name="recognition_error_too_many_requests">Layanan suara sedang sibuk sementara. Tunggu sejenak lalu coba lagi.</string>
+    <string name="recognition_error_language_not_supported">Bahasa ini tidak didukung oleh pengenal ucapan.</string>
+    <string name="recognition_error_language_unavailable">Model bahasa di perangkat tidak terpasang. Unduh di pengaturan perangkat, lalu coba lagi.</string>
 </resources>

@@ -139,4 +139,7 @@
     <string name="recognition_voice_source_auto_subtitle">Přepisovat online, když je to možné, jinak použít rozpoznávání na zařízení</string>
     <string name="recognition_voice_source_device_only">Pouze zařízení</string>
     <string name="recognition_voice_source_device_only_subtitle">Vždy použít rozpoznávání řeči na zařízení</string>
+    <string name="recognition_error_too_many_requests">Hlasová služba je dočasně zaneprázdněná. Počkejte chvíli a zkuste to znovu.</string>
+    <string name="recognition_error_language_not_supported">Tento jazyk rozpoznávání řeči nepodporuje.</string>
+    <string name="recognition_error_language_unavailable">Jazykový model pro zařízení není nainstalovaný. Stáhněte si ho v nastavení zařízení a poté to zkuste znovu.</string>
 </resources>

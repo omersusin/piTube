@@ -1948,4 +1948,7 @@
     <string name="recognition_voice_source_auto_subtitle">Расшифровывать онлайн, когда это возможно, иначе использовать распознавание на устройстве</string>
     <string name="recognition_voice_source_device_only">Только устройство</string>
     <string name="recognition_voice_source_device_only_subtitle">Всегда использовать распознавание речи на устройстве</string>
+    <string name="recognition_error_too_many_requests">Речевой сервис временно занят. Подождите немного и попробуйте снова.</string>
+    <string name="recognition_error_language_not_supported">Этот язык не поддерживается распознаванием речи.</string>
+    <string name="recognition_error_language_unavailable">Языковая модель на устройстве не установлена. Загрузите её в настройках устройства и попробуйте снова.</string>
 </resources>

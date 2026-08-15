@@ -8,4 +8,7 @@
     <string name="recognition_voice_source_auto_subtitle">できるだけオンラインで文字起こしし、それ以外の場合はデバイスの認識機能を使用します</string>
     <string name="recognition_voice_source_device_only">デバイスのみ</string>
     <string name="recognition_voice_source_device_only_subtitle">常にデバイス上の音声認識機能を使用します</string>
+    <string name="recognition_error_too_many_requests">音声サービスが一時的に混み合っています。しばらく待ってからもう一度お試しください。</string>
+    <string name="recognition_error_language_not_supported">この言語は音声認識機能でサポートされていません。</string>
+    <string name="recognition_error_language_unavailable">オンデバイスの言語モデルがインストールされていません。端末の設定でダウンロードしてから、もう一度お試しください。</string>
 </resources>

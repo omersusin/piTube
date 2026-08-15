@@ -301,4 +301,7 @@
     <string name="recognition_voice_source_auto_subtitle">Transcreva online sempre que possível; caso contrário, use o reconhecedor de voz do dispositivo</string>
     <string name="recognition_voice_source_device_only">Apenas no dispositivo</string>
     <string name="recognition_voice_source_device_only_subtitle">Use sempre o reconhecedor de voz do dispositivo</string>
+    <string name="recognition_error_too_many_requests">O serviço de voz está temporariamente ocupado. Aguarde um instante e tente novamente.</string>
+    <string name="recognition_error_language_not_supported">O reconhecedor de fala não suporta este idioma.</string>
+    <string name="recognition_error_language_unavailable">O modelo de idioma do dispositivo não está instalado. Descarregue-o nas definições do dispositivo e tente novamente.</string>
 </resources>

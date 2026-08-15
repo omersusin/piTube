@@ -312,4 +312,7 @@
     <string name="recognition_voice_source_auto_subtitle">Transkribeerige võrgus, kui võimalik, muidu kasutage seadme kõnetuvastust</string>
     <string name="recognition_voice_source_device_only">Ainult seade</string>
     <string name="recognition_voice_source_device_only_subtitle">Kasutage alati seadme kõnetuvastust</string>
+    <string name="recognition_error_too_many_requests">Kõneteenus on ajutiselt hõivatud. Oodake hetk ja proovige uuesti.</string>
+    <string name="recognition_error_language_not_supported">Kõnetuvastus ei toeta seda keelt.</string>
+    <string name="recognition_error_language_unavailable">Seadme keelemudel pole installitud. Laadige see alla seadme seadetes ja proovige uuesti.</string>
 </resources>

@@ -1984,4 +1984,7 @@
     <string name="recognition_voice_source_auto_subtitle">Transcrivez en ligne lorsque c\'est possible, sinon utilisez la reconnaissance vocale de l\'appareil</string>
     <string name="recognition_voice_source_device_only">Appareil uniquement</string>
     <string name="recognition_voice_source_device_only_subtitle">Utilisez toujours la reconnaissance vocale de l\'appareil</string>
+    <string name="recognition_error_too_many_requests">Le service vocal est temporairement occupé. Patientez un instant et réessayez.</string>
+    <string name="recognition_error_language_not_supported">Cette langue n\'est pas prise en charge par la reconnaissance vocale.</string>
+    <string name="recognition_error_language_unavailable">Le modèle de langue de l\'appareil n\'est pas installé. Téléchargez-le dans les paramètres de l\'appareil, puis réessayez.</string>
 </resources>

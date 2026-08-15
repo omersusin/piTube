@@ -2028,6 +2028,9 @@
     <string name="recognition_tap_to_stop">Durdurmak için tekrar dokunun</string>
     <string name="recognition_processing">Tanımlanıyor…</string>
     <string name="recognition_error_generic">Bir şeyler ters gitti. Tekrar deneyin.</string>
+    <string name="recognition_error_too_many_requests">Ses servisi şu anda meşgul. Bir dakika bekleyip tekrar deneyin.</string>
+    <string name="recognition_error_language_not_supported">Bu dil ses tanıyıcı tarafından desteklenmiyor.</string>
+    <string name="recognition_error_language_unavailable">Cihaz içi dil modeli yüklü değil. Cihaz ayarlarından indirip tekrar deneyin.</string>
     <string name="recognition_saved_and_will_retry">Kayıt saklandı; tekrar çevrimiçi olduğunuzda otomatik olarak yeniden denenecek.</string>
     <string name="recognition_recording_saved">Kayıt cihaza kaydedildi.</string>
     <string name="recognition_retry">Tekrar dene</string>
