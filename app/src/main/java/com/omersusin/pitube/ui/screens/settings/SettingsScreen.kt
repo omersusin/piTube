@@ -777,12 +777,6 @@ fun SettingsScreen(
                 item { SectionHeader(text = stringResource(R.string.settings_header_account)) }
                 item {
                     SettingsGroup {
-                        SettingsItem(
-                            icon = Icons.Outlined.SwapVert,
-                            title = stringResource(R.string.account_switcher_switch_account),
-                            subtitle = stringResource(R.string.account_switcher_switch_account_subtitle),
-                            onClick = { showAccountSwitcher = true },
-                        )
                         if (isGoogleSignedIn) {
                             Row(
                                 modifier = Modifier
@@ -882,6 +876,12 @@ fun SettingsScreen(
                                 onClick = onNavigateToGoogleLogin,
                             )
                         }
+                        SettingsItem(
+                            icon = Icons.Outlined.SwapVert,
+                            title = stringResource(R.string.account_switcher_switch_account),
+                            subtitle = stringResource(R.string.account_switcher_switch_account_subtitle),
+                            onClick = { showAccountSwitcher = true },
+                        )
                     }
                 }
 
