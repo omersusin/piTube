@@ -1884,8 +1884,6 @@
     
     <string name="toast_failed_to_merge_playlist">Oynatma listesi birleştirilemedi</string>
     <string name="notification_downloading">İndiriliyor: %1$s</string>
-    <string name="notification_download_complete">İndirme tamamlandı</string>
-    <string name="notification_download_failed">İndirme başarısız</string>
     <string name="notification_update_available">Güncelleme mevcut: %1$s</string>
     <string name="notification_tap_to_update">En son sürüme güncellemek için dokun.</string>
     <string name="notification_watch_later_reminder">Daha Sonra İzle hatırlatıcısı</string>
