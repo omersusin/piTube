@@ -5,6 +5,7 @@ import android.util.Log
 import com.omersusin.pitube.data.local.RecognitionPreferences
 import com.omersusin.pitube.data.local.RecognitionProvider
 import com.omersusin.pitube.data.local.RecognitionFailureType
+import com.omersusin.pitube.data.local.SttApiKeyStore
 import com.omersusin.pitube.data.local.SttProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -104,6 +105,22 @@ class RecognitionRepository(
                 if (cloudFailure != null) {
                     Log.w("STT", "On-device fallback also failed (${e.message}); surfacing cloud root cause")
                     throw cloudFailure
+                }
+                // Cihaz STT: the on-device engine (and its network fallback) failed.
+                // When a Groq key is configured, retry the request through Groq as a
+                // last resort so a device with an unusable system recognizer is never
+                // dead-ended — otherwise surface the recognizer error.
+                if (provider == SttProvider.CIHAZ &&
+                    !SttApiKeyStore(context).getApiKey(SttProvider.GROQ).isNullOrBlank()
+                ) {
+                    Log.w("STT", "On-device STT failed (${e.message}); falling back to Groq")
+                    if (interrupted()) throw CancellationException("Voice recognition cancelled")
+                    val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel, VOICE_STOP_AFTER_SILENCE_MS)
+                    if (interrupted()) throw CancellationException("Voice recognition cancelled")
+                    onProcessing()
+                    val groqTranscript = CloudSpeechToText.transcribe(context, SttProvider.GROQ, captured.wavBytes)
+                    Log.d("STT", "Voice served by Groq fallback after on-device STT failure")
+                    return@withContext groqTranscript to VoiceRecognitionSource.GROQ
                 }
                 throw e
             }
