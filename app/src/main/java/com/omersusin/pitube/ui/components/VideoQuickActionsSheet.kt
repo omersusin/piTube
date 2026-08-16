@@ -69,6 +69,7 @@ import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.data.model.needsCollaboratorResolution
 import com.omersusin.pitube.data.repository.VideoCollaboratorResolver
+import com.omersusin.pitube.ui.screens.player.components.DownloadSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,6 +141,7 @@ fun VideoQuickActionsBottomSheet(
 
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
     var showMediaInfo by remember { mutableStateOf(false) }
+    var showDownloadSheet by remember { mutableStateOf(false) }
 
     // Dialogs
     if (showAddToPlaylistDialog) {
@@ -156,6 +158,13 @@ fun VideoQuickActionsBottomSheet(
         MediaInfoDialog(
             video = video,
             onDismiss = { showMediaInfo = false },
+        )
+    }
+
+    if (showDownloadSheet) {
+        DownloadSheet(
+            video = video,
+            onDismiss = { showDownloadSheet = false },
         )
     }
 
@@ -526,7 +535,7 @@ fun VideoQuickActionsBottomSheet(
                                             if (onDownload != null) {
                                                 onDownload()
                                             } else {
-                                                viewModel.downloadVideo(video)
+                                                showDownloadSheet = true
                                             }
                                         }
                                         onDismiss()

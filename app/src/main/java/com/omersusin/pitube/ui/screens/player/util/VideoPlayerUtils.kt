@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
-import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.R
 import com.omersusin.pitube.player.stream.VideoCodecUtils
 import org.schabi.newpipe.extractor.stream.VideoStream
@@ -104,43 +103,6 @@ object VideoPlayerUtils {
                     } catch (_: Exception) { }
                 }
             }
-        }
-    }
-
-    fun startDownload(
-        context: Context,
-        video: Video,
-        url: String,
-        qualityLabel: String,
-        audioUrl: String? = null,
-        videoCodec: String? = null,
-        threads: Int? = null,
-        fallbackUrl: String? = null,
-        fallbackAudioUrl: String? = null,
-        fallbackCodec: String? = null,
-        fallbackQuality: String? = null
-    ) {
-        try {
-            promptStoragePermissionIfNeeded(context)
-
-            // Start the optimized parallel download service
-            com.omersusin.pitube.data.video.downloader.FlowDownloadService.startDownload(
-                context,
-                video,
-                url,
-                qualityLabel,
-                audioUrl,
-                videoCodec = videoCodec,
-                threads = threads,
-                fallbackUrl = fallbackUrl,
-                fallbackAudioUrl = fallbackAudioUrl,
-                fallbackCodec = fallbackCodec,
-                fallbackQuality = fallbackQuality
-            )
-
-            Toast.makeText(context, context.getString(R.string.ui_started_download, video.title), Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.ui_download_start_failed, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 }
