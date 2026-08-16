@@ -89,9 +89,6 @@ class OnDeviceVoiceRecognizer(
         /** Short pause allowed mid-speech before it may be considered done. */
         private const val POSSIBLY_COMPLETE_SILENCE_MS = 400L
 
-        /** How long the mic waits for the first word before giving up. */
-        private const val SPEAK_TIMEOUT_MS = 8_000L
-
         /** How long to wait after a busy/language teardown before retrying. */
         private const val RETRY_DELAY_MS = 400L
 
@@ -255,7 +252,16 @@ class OnDeviceVoiceRecognizer(
                             teardownPending()
                             watchdog?.let { mainHandler.removeCallbacks(it) }
                             mainHandler.postDelayed(
-                                { if (!settled && !cancelled) startSession(forceNetwork = true) },
+                                {
+                                    if (!settled && !cancelled) {
+                                        val recognizer = createNetwork()
+                                        if (recognizer == null) {
+                                            finishError(context.getString(R.string.recognition_error_unavailable))
+                                        } else {
+                                            proceedWithSession(recognizer, Engine.NETWORK)
+                                        }
+                                    }
+                                },
                                 delay,
                             )
                             return
@@ -467,7 +473,6 @@ class OnDeviceVoiceRecognizer(
                 RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
                 POSSIBLY_COMPLETE_SILENCE_MS,
             )
-            putExtra(RecognizerIntent.EXTRA_SPEAK_TIMEOUT, SPEAK_TIMEOUT_MS)
         }
 
     private fun createNetwork(): SpeechRecognizer? =
