@@ -169,7 +169,7 @@ object CloudSpeechToText {
                 .post(body)
                 .build()
 
-        client.newCall(request).execute().use { response ->
+        return client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
@@ -197,7 +197,7 @@ object CloudSpeechToText {
                 .post(bodyText.toRequestBody("application/json".toMediaType()))
                 .build()
 
-        client.newCall(request).execute().use { response ->
+        return client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
@@ -219,7 +219,7 @@ object CloudSpeechToText {
                 .post(wavBytes.toRequestBody("audio/wav".toMediaType()))
                 .build()
 
-        client.newCall(request).execute().use { response ->
+        return client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
@@ -248,7 +248,7 @@ object CloudSpeechToText {
                 .post(wavBytes.toRequestBody("audio/wav".toMediaType()))
                 .build()
 
-        client.newCall(request).execute().use { response ->
+        return client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
@@ -271,7 +271,7 @@ object CloudSpeechToText {
                 .post(form.toRequestBody("application/x-www-form-urlencoded".toMediaType()))
                 .build()
 
-        client.newCall(request).execute().use { response ->
+        return client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
