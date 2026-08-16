@@ -90,7 +90,6 @@ class FlowDownloadService : Service() {
         private const val TAG = "FlowDownloadService"
         const val CHANNEL_ID = "flow_downloads"
         const val NOTIFICATION_GROUP = "flow_download_group"
-        private const val FOREGROUND_NOTIFICATION_ID = 724
         private const val COMPLETE_NOTIFICATION_DISMISS_MS = 6000L
         private const val MAX_CONCURRENT_DOWNLOADS = 3
         
@@ -312,7 +311,7 @@ class FlowDownloadService : Service() {
                 val sabrDurationMs = intent.getLongExtra(EXTRA_SABR_DURATION_MS, 0)
 
                 Log.d(TAG, "onStartCommand: handleStartDownload for '$title', audioOnly=$audioOnly, codec=$videoCodec, sabr=${!sabrStreamingUrl.isNullOrEmpty()}")
-                startDataSyncForeground(createStartingNotification(title, videoId))
+                startDataSyncForeground(createStartingNotification(title, videoId), getNotificationId(videoId))
                 serviceScope.launch {
                     try {
                         handleStartDownload(
@@ -701,7 +700,7 @@ class FlowDownloadService : Service() {
                     }
 
                     val nmComplete = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    postCompleteNotification(nmComplete, videoId, mission)
+                    postTerminalNotification(nmComplete, videoId, mission, isComplete = true)
 
                     // Fetch and persist SponsorBlock segments inline (awaited) so it completes
                     // before the service's finally-block calls stopSelf() → onDestroy() → serviceScope.cancel().
@@ -744,7 +743,8 @@ class FlowDownloadService : Service() {
                     mission.error ?: getString(R.string.download_failed_try_again)
                 }
                 updateAllItemStatuses(videoId, DownloadItemStatus.FAILED)
-                updateNotification(mission, videoId)
+                val nmFailed = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                postTerminalNotification(nmFailed, videoId, mission, isComplete = false)
             }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
@@ -752,7 +752,8 @@ class FlowDownloadService : Service() {
             mission.status = MissionStatus.FAILED
             mission.error = getString(R.string.download_failed_try_again)
             updateAllItemStatuses(videoId, DownloadItemStatus.FAILED)
-            updateNotification(mission, videoId)
+            val nmFailed = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            postTerminalNotification(nmFailed, videoId, mission, isComplete = false)
         } finally {
             val currentStatus = activeMissions[videoId]?.status
             Log.d(TAG, "executeDownload: Cleanup for $videoId (status=$currentStatus)")
@@ -814,7 +815,8 @@ class FlowDownloadService : Service() {
             mission.status = MissionStatus.FAILED
             mission.error = mission.error ?: getString(R.string.download_url_expired)
             updateAllItemStatuses(videoId, DownloadItemStatus.FAILED)
-            updateNotification(mission, videoId)
+            val nmFailed = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            postTerminalNotification(nmFailed, videoId, mission, isComplete = false)
             stopServiceIfIdle()
             return
         }
@@ -1043,7 +1045,7 @@ class FlowDownloadService : Service() {
                     }
 
                     val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    postCompleteNotification(nm, videoId, mission)
+                    postTerminalNotification(nm, videoId, mission, isComplete = true)
 
                     try {
                         val segments = sponsorBlockRepository.getSegments(videoId)
@@ -1134,7 +1136,7 @@ class FlowDownloadService : Service() {
         Log.d(TAG, "handleResume: Resuming $videoId")
 
         val notification = createNotification(mission, videoId)
-        startDataSyncForeground(notification)
+        startDataSyncForeground(notification, getNotificationId(videoId))
 
         val previousJob = downloadJobs[videoId]
         val job = serviceScope.launch {
@@ -1270,10 +1272,10 @@ class FlowDownloadService : Service() {
             .build()
     }
 
-    private fun startDataSyncForeground(notification: android.app.Notification) {
+    private fun startDataSyncForeground(notification: android.app.Notification, id: Int) {
         ServiceCompat.startForeground(
             this,
-            FOREGROUND_NOTIFICATION_ID,
+            id,
             notification,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
@@ -1377,21 +1379,22 @@ class FlowDownloadService : Service() {
     }
 
     /**
-     * Posts the terminal "Download complete" notification and auto-dismisses it
+     * Posts the terminal notification (complete or failed) and auto-dismisses it
      * shortly after (the service scope dies with the service, so a Handler on
      * the main looper is used to outlive it). Never leaves a stale notification.
      */
-    private fun postCompleteNotification(
+    private fun postTerminalNotification(
         nm: NotificationManager,
         videoId: String,
-        mission: FlowDownloadMission
+        mission: FlowDownloadMission,
+        isComplete: Boolean
     ) {
-        nm.notify(getNotificationId(videoId), createNotification(mission, videoId, isComplete = true))
+        nm.notify(getNotificationId(videoId), createNotification(mission, videoId, isComplete = isComplete))
         Handler(Looper.getMainLooper()).postDelayed({
             try {
                 nm.cancel(getNotificationId(videoId))
             } catch (e: Exception) {
-                Log.w(TAG, "postCompleteNotification: dismiss failed (non-fatal)", e)
+                Log.w(TAG, "postTerminalNotification: dismiss failed (non-fatal)", e)
             }
         }, COMPLETE_NOTIFICATION_DISMISS_MS)
     }
@@ -1411,17 +1414,16 @@ class FlowDownloadService : Service() {
 
     private fun getNotificationId(videoId: String): Int {
         val hash = videoId.hashCode()
-        return when (hash) {
-            0 -> 1
-            FOREGROUND_NOTIFICATION_ID -> hash xor Int.MIN_VALUE
-            else -> hash
-        }
+        return if (hash == 0) 1 else hash
     }
 
     private fun stopServiceIfIdle() {
         mainHandler.post {
             if (activeMissions.isEmpty() && pendingDownloadStarts.get() == 0) {
-                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+                // DETACH (not REMOVE): the per-download notification is posted under
+                // getNotificationId(videoId) and is dismissed by its own delayed cancel
+                // (complete/failed) or immediately (cancel), so it must survive stopForeground.
+                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
                 stopSelf()
             }
         }
