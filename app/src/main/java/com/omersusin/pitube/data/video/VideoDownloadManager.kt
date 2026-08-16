@@ -319,11 +319,38 @@ class VideoDownloadManager @Inject constructor(
             }.map { toDownloadedVideo(it) }
         }
 
-    /** Save a new download with its items */
+    /**
+     * Save a new download with its items.
+     *
+     * This is an UPSERT keyed on `videoId` (the parent row uses `videoId` as its
+     * primary key). A re-download/fallback retry of the same video (e.g. the
+     * CDN-403 AV1 fallback path) must NOT crash on a SQLite PRIMARY KEY conflict —
+     * the pre-existing parent and child rows are removed first so the retry inserts
+     * cleanly, and the retried item reuses the previous savePath when the new path
+     * differs only by quality (so partial/old artifacts aren't stranded).
+     */
     suspend fun saveDownload(
         video: Video,
         items: List<DownloadItemEntity>
     ) {
+        val prevPath = downloadDao.getDownloadByVideoId(video.id)?.let {
+            downloadDao.getItemsByVideoId(video.id).firstOrNull()?.filePath
+        }
+
+        // Remove stale parent + children (FK CASCADE removes children).
+        try {
+            downloadDao.deleteDownload(video.id)
+        } catch (e: Exception) {
+            Log.w(TAG, "saveDownload: cleanup of prior rows failed (non-fatal)", e)
+        }
+
+        val effectiveItems =
+            if (prevPath != null && items.size == 1) {
+                listOf(items.first().copy(filePath = maybeReuseSavePath(prevPath, items.first().filePath)))
+            } else {
+                items
+            }
+
         downloadDao.insertDownload(
             DownloadEntity(
                 videoId = video.id,
@@ -334,7 +361,18 @@ class VideoDownloadManager @Inject constructor(
                 createdAt = System.currentTimeMillis()
             )
         )
-        downloadDao.insertItems(items)
+        downloadDao.insertItems(effectiveItems)
+    }
+
+    /** Reuse the prior savePath when the new file would land on the same format+extension. */
+    private fun maybeReuseSavePath(prevPath: String, newPath: String): String {
+        return try {
+            val prev = File(prevPath)
+            val next = File(newPath)
+            if (prev.extension.equals(next.extension, ignoreCase = true)) prevPath else newPath
+        } catch (e: Exception) {
+            newPath
+        }
     }
 
     /** Save download with a single muxed file (simplified for completed downloads) */
