@@ -224,11 +224,18 @@ fun DownloadSheet(
 
             when {
                 loading -> item {
-                    Box(
+                    Row(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
-                        contentAlignment = Alignment.Center,
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.loading_ellipsis),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
 
@@ -383,7 +390,6 @@ fun DownloadSheet(
                             }
                         }
                     }
-                }
 
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
