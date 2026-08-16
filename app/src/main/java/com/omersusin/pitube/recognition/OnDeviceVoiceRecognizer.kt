@@ -78,11 +78,9 @@ class OnDeviceVoiceRecognizer(
         var sessionRecognizer: SpeechRecognizer? = null
         var busyRetriesLeft = MAX_BUSY_RETRIES
 
-        val watchdog =
-            Runnable {
-                Log.w("STT", "OnDeviceVoice watchdog: no result within ${MAX_LISTEN_MS}ms")
-                finishError(context.getString(R.string.recognition_error_no_speech))
-            }
+        // Late-initialized: the watchdog references finishError() below, which in
+        // turn references this same Runnable to unschedule itself.
+        var watchdog: Runnable? = null
 
         fun destroyOnMain(r: SpeechRecognizer) {
             mainHandler.post { runCatching { r.cancel() }; runCatching { r.destroy() } }
@@ -91,7 +89,7 @@ class OnDeviceVoiceRecognizer(
         fun finishSuccess(text: String) {
             if (settled) return
             settled = true
-            mainHandler.removeCallbacks(watchdog)
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             sessionRecognizer?.let { destroyOnMain(it) }
             bound.set(false)
             current = null
@@ -102,12 +100,18 @@ class OnDeviceVoiceRecognizer(
         fun finishError(message: String, type: RecognitionFailureType = RecognitionFailureType.OTHER) {
             if (settled) return
             settled = true
-            mainHandler.removeCallbacks(watchdog)
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             sessionRecognizer?.let { destroyOnMain(it) }
             bound.set(false)
             current = null
             continuation.resumeWithException(RecognitionException(type, message))
         }
+
+        watchdog =
+            Runnable {
+                Log.w("STT", "OnDeviceVoice watchdog: no result within ${MAX_LISTEN_MS}ms")
+                finishError(context.getString(R.string.recognition_error_no_speech))
+            }
 
         fun startSession(forceNetwork: Boolean = false) {
             // Serialize: if a previous session's recognizer is still bound on the
@@ -186,7 +190,7 @@ class OnDeviceVoiceRecognizer(
                                         busyRetriesLeft -= 1
                                         Log.w("STT", "OnDeviceVoice busy; tearing down and retrying with network recognizer once")
                                         teardownPending()
-                                        mainHandler.removeCallbacks(watchdog)
+                                        watchdog?.let { mainHandler.removeCallbacks(it) }
                                         mainHandler.postDelayed(
                                             { startSession(forceNetwork = true) },
                                             BUSY_RETRY_DELAY_MS,
@@ -244,7 +248,7 @@ class OnDeviceVoiceRecognizer(
         mainHandler.post { startSession() }
 
         continuation.invokeOnCancellation {
-            mainHandler.removeCallbacks(watchdog)
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             mainHandler.post { teardownPending() }
         }
     }
