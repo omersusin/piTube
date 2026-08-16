@@ -2,6 +2,7 @@ package com.omersusin.pitube.recognition
 
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.os.SystemClock
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -24,12 +25,17 @@ class MicAudioCapturer(
     /**
      * Record until [durationMs] elapses or [interrupted] flips false, whichever
      * comes first. `interrupted` is polled between chunks so a second mic tap
-     * can stop an early. Returns captured PCM + WAV + levels.
+     * can stop an early. When [stopAfterSilenceMs] is non-zero and speech has
+     * been detected, recording also ends once that much silence has followed
+     * the last voice — so a spoken query is captured and transcribed as soon
+     * as the person finishes, instead of waiting out the full [durationMs].
+     * Returns captured PCM + WAV + levels.
      */
     fun record(
         durationMs: Long,
         interrupted: () -> Boolean = { false },
         onLevel: (Float) -> Unit = {},
+        stopAfterSilenceMs: Long = 0,
     ): CapturedAudio {
         val minBuffer = maxOf(
             AudioRecord.getMinBufferSize(
@@ -54,6 +60,15 @@ class MicAudioCapturer(
         val maxSamples = (durationMs * sampleRateHz / 1000).toInt()
         var totalSamples = 0
 
+        // Voice-activity early stop: remember the last moment speech was heard
+        // and end once [stopAfterSilenceMs] of quiet has followed it. An RMS
+        // floor filters out mic hiss and room noise; a run of voiced chunks
+        // decides "speech" so a single loud click doesn't count.
+        var lastVoiceElapsedMs = -1L
+        var voicedRuns = 0
+        val voicedThreshold = 0.02f
+        val voicedConfirmRun = 3
+
         record.startRecording()
         try {
             while (totalSamples < maxSamples && !interrupted()) {
@@ -72,6 +87,25 @@ class MicAudioCapturer(
                 levels.add(rms.coerceIn(0f, 1f))
                 onLevel(rms.coerceIn(0f, 1f))
                 totalSamples += samplesRead
+
+                if (stopAfterSilenceMs > 0) {
+                    val voiced = rms >= voicedThreshold
+                    if (voiced) {
+                        // A run of voiced chunks confirms real speech; a single
+                        // loud click shouldn't arm the timer.
+                        voicedRuns = (voicedRuns + 1).coerceAtMost(voicedConfirmRun)
+                        if (voicedRuns >= voicedConfirmRun) {
+                            lastVoiceElapsedMs = SystemClock.elapsedRealtime()
+                        }
+                    } else {
+                        voicedRuns = 0
+                        if (lastVoiceElapsedMs >= 0 &&
+                            SystemClock.elapsedRealtime() - lastVoiceElapsedMs >= stopAfterSilenceMs
+                        ) {
+                            break
+                        }
+                    }
+                }
             }
         } finally {
             runCatching { record.stop() }

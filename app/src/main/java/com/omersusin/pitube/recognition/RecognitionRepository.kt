@@ -44,6 +44,14 @@ class RecognitionRepository(
     companion object {
         const val VOICE_RECORDING_MS = 12_000L
         const val SONG_RECORDING_MS = 12_000L
+
+        /**
+         * After the person stops talking, end the voice capture this quickly
+         * instead of recording the full [VOICE_RECORDING_MS]. Long enough to
+         * survive a mid-sentence pause, short enough that a finished query is
+         * transcribed (and the modal resolves) almost immediately.
+         */
+        const val VOICE_STOP_AFTER_SILENCE_MS = 700L
     }
 
     /**
@@ -71,7 +79,7 @@ class RecognitionRepository(
         var cloudFailure: RecognitionException? = null
         if (provider.isCloud) {
             try {
-                val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel)
+                val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel, VOICE_STOP_AFTER_SILENCE_MS)
                 if (interrupted()) {
                     throw CancellationException("Voice recognition cancelled")
                 }

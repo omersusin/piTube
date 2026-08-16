@@ -50,6 +50,15 @@ class OnDeviceVoiceRecognizer(
         /** Hard cap so a stuck recognizer can never leave the UI hanging. */
         private const val MAX_LISTEN_MS = 20_000L
 
+        /** How many silent milliseconds after speech ends the session completes. */
+        private const val COMPLETE_SILENCE_MS = 900L
+
+        /** Short pause allowed mid-speech before it may be considered done. */
+        private const val POSSIBLY_COMPLETE_SILENCE_MS = 400L
+
+        /** How long the mic waits for the first word before giving up. */
+        private const val SPEAK_TIMEOUT_MS = 8_000L
+
         /** How long to wait after a busy teardown before retrying. */
         private const val BUSY_RETRY_DELAY_MS = 400L
 
@@ -72,6 +81,19 @@ class OnDeviceVoiceRecognizer(
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toLanguageTag())
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                // End the session shortly after the person stops talking instead of
+                // waiting out the recognizer's long default silence window. The
+                // on-device engine honors these; speak-timeout bounds how long the
+                // mic waits for the first word before giving up.
+                putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    COMPLETE_SILENCE_MS,
+                )
+                putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    POSSIBLY_COMPLETE_SILENCE_MS,
+                )
+                putExtra(RecognizerIntent.EXTRA_SPEAK_TIMEOUT, SPEAK_TIMEOUT_MS)
             }
 
         var settled = false
