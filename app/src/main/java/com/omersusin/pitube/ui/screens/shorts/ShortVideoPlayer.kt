@@ -1126,30 +1126,19 @@ internal fun ShortVideoPage(
         )
     }
 
-    // ── Download Dialog ──
+    // ── Download Sheet ──
     if (
         pageState.showDownloadDialog &&
         (pageState.currentStreamInfo != null || pageState.currentInnerTubeVideoFormats.isNotEmpty())
     ) {
-        if (settings.downloadDialogStyle == com.omersusin.pitube.data.local.DownloadDialogStyle.COMPACT) {
-            com.omersusin.pitube.ui.screens.player.components.DownloadQualityDialogCompact(
-                streamInfo = pageState.currentStreamInfo,
-                streamSizes = pageState.currentStreamSizes,
-                innerTubeVideoFormats = pageState.currentInnerTubeVideoFormats,
-                innerTubeAudioFormats = pageState.currentInnerTubeAudioFormats,
-                video = video,
-                onDismiss = { pageState.showDownloadDialog = false },
-            )
-        } else {
-            com.omersusin.pitube.ui.screens.player.components.DownloadQualityDialog(
-                streamInfo = pageState.currentStreamInfo,
-                streamSizes = pageState.currentStreamSizes,
-                innerTubeVideoFormats = pageState.currentInnerTubeVideoFormats,
-                innerTubeAudioFormats = pageState.currentInnerTubeAudioFormats,
-                video = video,
-                onDismiss = { pageState.showDownloadDialog = false },
-            )
-        }
+        com.omersusin.pitube.ui.screens.player.components.DownloadSheet(
+            streamInfo = pageState.currentStreamInfo,
+            streamSizes = pageState.currentStreamSizes,
+            innerTubeVideoFormats = pageState.currentInnerTubeVideoFormats,
+            innerTubeAudioFormats = pageState.currentInnerTubeAudioFormats,
+            video = video,
+            onDismiss = { pageState.showDownloadDialog = false },
+        )
     }
 }
 

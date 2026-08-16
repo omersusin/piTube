@@ -1,0 +1,699 @@
+package com.omersusin.pitube.ui.screens.player.components
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.rounded.GraphicEq
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.omersusin.pitube.R
+import com.omersusin.pitube.data.local.PlayerPreferences
+import com.omersusin.pitube.data.model.Video
+import com.omersusin.pitube.data.video.download.DownloadLauncher
+import com.omersusin.pitube.data.video.download.DownloadMode
+import com.omersusin.pitube.data.video.download.DownloadPlan
+import com.omersusin.pitube.data.video.download.DownloadPlanner
+import com.omersusin.pitube.player.stream.InnerTubeStreamBridge
+import com.omersusin.pitube.player.stream.InnerTubeVideoStreamExtractor
+import com.omersusin.pitube.player.stream.VideoCodecUtils
+import com.omersusin.pitube.ui.components.rememberFlowSheetState
+import com.omersusin.pitube.ui.screens.player.util.VideoPlayerUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.schabi.newpipe.extractor.stream.AudioStream
+import org.schabi.newpipe.extractor.stream.StreamInfo
+import org.schabi.newpipe.extractor.stream.VideoStream
+
+/**
+ * The single download surface (mandatory fix #1/#3/#6).
+ *
+ * Every "İndir" tap in the app opens this modal bottom sheet — the player
+ * dialog, the home-feed quick actions, Shorts, playlists. It shows two
+ * independently expandable accordion sections ("Video quality" / "Audio
+ * quality") built from the REAL stream data, never mixes the two lists, and
+ * only starts a download after the user confirms.
+ *
+ * Streams are passed in when the caller already has them (player screen);
+ * otherwise the sheet fetches them itself (home feed, Shorts).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DownloadSheet(
+    video: Video,
+    streamInfo: StreamInfo? = null,
+    innerTubeVideoFormats: List<com.omersusin.pitube.innertube.models.response.PlayerResponse.StreamingData.Format> = emptyList(),
+    innerTubeAudioFormats: List<com.omersusin.pitube.innertube.models.response.PlayerResponse.StreamingData.Format> = emptyList(),
+    streamSizes: Map<String, Long> = emptyMap(),
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val prefs = remember { PlayerPreferences(context) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val lastDownloadType by prefs.lastDownloadType.collectAsState(initial = null)
+    val lastDownloadHeight by prefs.lastDownloadHeight.collectAsState(initial = null)
+    val lastDownloadCodec by prefs.lastDownloadCodec.collectAsState(initial = null)
+    val lastDownloadAudioLabel by prefs.lastDownloadAudioLabel.collectAsState(initial = null)
+    val downloadThreads by prefs.downloadThreads.collectAsState(initial = 3)
+    val targetQuality by prefs.defaultDownloadQuality.collectAsState(initial = com.omersusin.pitube.data.local.VideoQuality.Q_720p)
+    val preferredAudioLanguage by prefs.preferredAudioLanguage.collectAsState(initial = "")
+
+    var mode by remember { mutableStateOf(DownloadMode.VIDEO) }
+    var videoAccordionExpanded by remember { mutableStateOf(true) }
+    var audioAccordionExpanded by remember { mutableStateOf(false) }
+    var selectedVideoKey by remember { mutableStateOf<String?>(null) }
+    var selectedAudioUrl by remember { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(false) }
+    var loadFailed by remember { mutableStateOf(false) }
+    var fetchedVideoFormats by remember { mutableStateOf<List<com.omersusin.pitube.innertube.models.response.PlayerResponse.StreamingData.Format>>(emptyList()) }
+    var fetchedAudioFormats by remember { mutableStateOf<List<com.omersusin.pitube.innertube.models.response.PlayerResponse.StreamingData.Format>>(emptyList()) }
+
+    val effectiveVideoFormats = innerTubeVideoFormats + fetchedVideoFormats
+    val effectiveAudioFormats = innerTubeAudioFormats + fetchedAudioFormats
+
+    val videoStreams = remember(effectiveVideoFormats, streamInfo) {
+        val converted = InnerTubeStreamBridge.convertVideoFormats(effectiveVideoFormats)
+        val extracted = streamInfo?.videoStreams?.filterIsInstance<VideoStream>().orEmpty() +
+            streamInfo?.videoOnlyStreams?.filterIsInstance<VideoStream>().orEmpty()
+        (converted + extracted).distinctBy { it.getContent() }
+    }
+    val audioStreams = remember(effectiveAudioFormats, streamInfo) {
+        val converted = InnerTubeStreamBridge.convertAudioFormats(effectiveAudioFormats)
+        val extracted = streamInfo?.audioStreams.orEmpty()
+        DownloadStreamHelpers.mergeAudioDownloadStreams(converted, extracted)
+            .distinctBy { it.getContent() }
+    }
+
+    val hasStreams = videoStreams.isNotEmpty() || audioStreams.isNotEmpty()
+
+    LaunchedEffect(video.id, hasStreams) {
+        if (hasStreams) return@LaunchedEffect
+        loading = true
+        loadFailed = false
+        try {
+            val result = withContext(Dispatchers.IO) {
+                kotlinx.coroutines.withTimeoutOrNull(10000L) {
+                    InnerTubeVideoStreamExtractor.extract(video.id)
+                }
+            }
+            if (result != null && (result.videoFormats.isNotEmpty() || result.audioFormats.isNotEmpty())) {
+                fetchedVideoFormats = result.videoFormats
+                fetchedAudioFormats = result.audioFormats
+            } else {
+                loadFailed = true
+            }
+        } catch (e: Exception) {
+            loadFailed = true
+        } finally {
+            loading = false
+        }
+    }
+
+    val plannerInput = remember(videoStreams, audioStreams, preferredAudioLanguage, targetQuality) {
+        DownloadPlanner.PlannerInput(
+            videoStreams = videoStreams,
+            audioStreams = audioStreams,
+            preferredAudioLanguage = preferredAudioLanguage.ifBlank { null },
+            targetHeight = targetQuality.height,
+        )
+    }
+
+    val distinctVideoStreams = remember(videoStreams) {
+        videoStreams
+            .distinctBy {
+                "${VideoPlayerUtils.qualityHeightFromStream(it)}_${VideoCodecUtils.codecKeyFromStream(it)}"
+            }
+            .sortedWith(
+                compareByDescending<VideoStream> { VideoPlayerUtils.qualityHeightFromStream(it) }
+                    .thenBy { DownloadPlanner.CODEC_PRIORITY[VideoCodecUtils.codecKeyFromStream(it)] ?: 99 },
+            )
+    }
+
+    // Default selection: last-used choice when it still exists, else planner default.
+    val defaultCandidate = remember(plannerInput, lastDownloadHeight, lastDownloadCodec) {
+        val lastMatch = plannerInput.allCandidates.firstOrNull {
+            it.height == lastDownloadHeight && it.codecKey == lastDownloadCodec
+        }
+        lastMatch ?: DownloadPlanner.defaultVideoPick(plannerInput)
+    }
+    val defaultAudio = remember(plannerInput, lastDownloadAudioLabel) {
+        val lastMatch = audioStreams.firstOrNull {
+            DownloadStreamHelpers.audioBitrateKbps(it).toString() == lastDownloadAudioLabel
+        }
+        lastMatch ?: DownloadPlanner.pickAudio(
+            plannerInput.audioStreams,
+            defaultCandidate?.codecKey ?: DownloadPlanner.CODEC_H264,
+            plannerInput.preferredAudioLanguage,
+        )
+    }
+
+    LaunchedEffect(defaultCandidate, defaultAudio, lastDownloadType) {
+        if (lastDownloadType == "AUDIO") mode = DownloadMode.AUDIO
+        selectedVideoKey = defaultCandidate?.let {
+            "${it.height}_${it.codecKey}"
+        }
+        selectedAudioUrl = defaultAudio?.getContent()?.takeIf { it.isNotBlank() }
+    }
+
+    val selectedCandidate = distinctVideoStreams.firstOrNull {
+        "${VideoPlayerUtils.qualityHeightFromStream(it)}_${VideoCodecUtils.codecKeyFromStream(it)}" == selectedVideoKey
+    }
+    val selectedAudio = audioStreams.firstOrNull { it.getContent() == selectedAudioUrl }
+    val selectedIsMuxed = selectedCandidate?.isVideoOnly == false
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
+        LazyColumn(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.88f)
+                    .navigationBarsPadding(),
+            contentPadding = PaddingValues(bottom = 16.dp),
+        ) {
+            item {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.download_video),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = video.title,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    // Video / Audio mode toggle
+                    SingleChoiceSegmentedButtonRow {
+                        SegmentedButton(
+                            selected = mode == DownloadMode.VIDEO,
+                            onClick = { mode = DownloadMode.VIDEO },
+                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        ) {
+                            Text(stringResource(R.string.download_mode_video))
+                        }
+                        SegmentedButton(
+                            selected = mode == DownloadMode.AUDIO,
+                            onClick = { mode = DownloadMode.AUDIO },
+                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        ) {
+                            Text(stringResource(R.string.download_mode_audio))
+                        }
+                    }
+                }
+            }
+
+            when {
+                loading -> item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                !hasStreams && loadFailed -> item {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.no_download_streams),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                onDismiss()
+                                coroutineScope.launch {
+                                    trySabrDownloadFromDialog(context, video)
+                                }
+                            },
+                        ) {
+                            Text(stringResource(R.string.ui_try_sabr_download))
+                        }
+                    }
+                }
+
+                else -> {
+                    if (mode == DownloadMode.VIDEO) {
+                        item {
+                            AccordionHeader(
+                                title = stringResource(R.string.download_section_video_quality),
+                                subtitle = selectedCandidate?.let {
+                                    "${VideoCodecUtils.codecLabelFromKey(VideoCodecUtils.codecKeyFromStream(it))} " +
+                                        "${VideoPlayerUtils.qualityHeightFromStream(it)}p"
+                                },
+                                expanded = videoAccordionExpanded,
+                                onToggle = { videoAccordionExpanded = !videoAccordionExpanded },
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = videoAccordionExpanded,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            item {
+                                Column {
+                                    if (distinctVideoStreams.isEmpty()) {
+                                        Text(
+                                            text = stringResource(R.string.no_download_streams),
+                                            modifier = Modifier.padding(16.dp),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    distinctVideoStreams.forEach { stream ->
+                                        val codecKey = VideoCodecUtils.codecKeyFromStream(stream)
+                                        val height = VideoPlayerUtils.qualityHeightFromStream(stream)
+                                        val key = "${height}_${codecKey}"
+                                        val isSelected = key == selectedVideoKey
+                                        VideoQualityRow(
+                                            stream = stream,
+                                            codecKey = codecKey,
+                                            height = height,
+                                            sizeInBytes = streamSizes[VideoPlayerUtils.streamSizeKey(height, codecKey)],
+                                            isSelected = isSelected,
+                                            onClick = {
+                                                selectedVideoKey = key
+                                                if (!stream.isVideoOnly) selectedAudioUrl = null
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        item {
+                            AccordionHeader(
+                                title = stringResource(R.string.download_section_audio_quality),
+                                subtitle = if (selectedIsMuxed) {
+                                    stringResource(R.string.download_audio_builtin)
+                                } else {
+                                    selectedAudio?.let {
+                                        "${DownloadStreamHelpers.audioFormatLabel(it)} " +
+                                            "${DownloadStreamHelpers.audioBitrateKbps(it)}kbps"
+                                    }
+                                },
+                                expanded = audioAccordionExpanded,
+                                onToggle = { audioAccordionExpanded = !audioAccordionExpanded },
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = audioAccordionExpanded,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            item {
+                                Column {
+                                    if (selectedIsMuxed) {
+                                        Text(
+                                            text = stringResource(R.string.download_audio_builtin_hint),
+                                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    if (audioStreams.isEmpty()) {
+                                        Text(
+                                            text = stringResource(R.string.no_download_streams),
+                                            modifier = Modifier.padding(16.dp),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    audioStreams.forEach { audio ->
+                                        AudioQualityRow(
+                                            audio = audio,
+                                            isSelected = audio.getContent() == selectedAudioUrl,
+                                            enabled = !selectedIsMuxed,
+                                            onClick = {
+                                                selectedAudioUrl = audio.getContent().takeIf { it.isNotBlank() }
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        item {
+                            AccordionHeader(
+                                title = stringResource(R.string.download_section_audio_quality),
+                                subtitle = selectedAudio?.let {
+                                    "${DownloadStreamHelpers.audioFormatLabel(it)} " +
+                                        "${DownloadStreamHelpers.audioBitrateKbps(it)}kbps"
+                                },
+                                expanded = audioAccordionExpanded,
+                                onToggle = { audioAccordionExpanded = !audioAccordionExpanded },
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = audioAccordionExpanded,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            item {
+                                Column {
+                                    if (audioStreams.isEmpty()) {
+                                        Text(
+                                            text = stringResource(R.string.no_download_streams),
+                                            modifier = Modifier.padding(16.dp),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    audioStreams.forEach { audio ->
+                                        AudioQualityRow(
+                                            audio = audio,
+                                            isSelected = audio.getContent() == selectedAudioUrl,
+                                            enabled = true,
+                                            onClick = {
+                                                selectedAudioUrl = audio.getContent().takeIf { it.isNotBlank() }
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                val plan = buildPlan(
+                                    video = video,
+                                    mode = mode,
+                                    plannerInput = plannerInput,
+                                    selectedCandidate = selectedCandidate,
+                                    selectedAudio = selectedAudio,
+                                    threads = downloadThreads,
+                                )
+                                if (plan != null) {
+                                    DownloadLauncher.start(context, plan)
+                                    onDismiss()
+                                }
+                            },
+                            enabled = canStart(mode, selectedCandidate, selectedAudio),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Download,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.download))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccordionHeader(
+    title: String,
+    subtitle: String?,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onToggle)
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Icon(
+            imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
+private fun VideoQualityRow(
+    stream: VideoStream,
+    codecKey: String,
+    height: Int,
+    sizeInBytes: Long?,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val codecLabel = VideoCodecUtils.codecLabelFromKey(codecKey)
+    val qualityLabel = "$codecLabel ${height}p"
+    val sizeText =
+        if (sizeInBytes != null && sizeInBytes > 0) {
+            String.format("~%.2f MB", sizeInBytes / (1024.0 * 1024.0))
+        } else {
+            null
+        }
+    val resBadge =
+        when {
+            height >= 2160 -> "4K"
+            height >= 1440 -> "2K"
+            height >= 1080 -> "HD"
+            else -> null
+        }
+
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color =
+            if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = qualityLabel,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = listOfNotNull(
+                        sizeText,
+                        if (stream.isVideoOnly) "Video only" else "Muxed",
+                    ).joinToString(" • "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (resBadge != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color =
+                        when (resBadge) {
+                            "4K" -> MaterialTheme.colorScheme.tertiary
+                            "2K" -> MaterialTheme.colorScheme.secondary
+                            else -> MaterialTheme.colorScheme.primary
+                        },
+                    shape = RoundedCornerShape(4.dp),
+                ) {
+                    Text(
+                        text = resBadge,
+                        color = MaterialTheme.colorScheme.surface,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AudioQualityRow(
+    audio: AudioStream,
+    isSelected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    val bitrate = DownloadStreamHelpers.audioBitrateKbps(audio)
+    val audioFormat = DownloadStreamHelpers.audioFormatLabel(audio)
+    val languageLabel = DownloadStreamHelpers.audioLanguageLabel(audio)
+
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(16.dp),
+        color =
+            if (isSelected) {
+                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(36.dp)
+                        .background(
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
+                            CircleShape,
+                        ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.GraphicEq,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "$audioFormat ${bitrate}kbps",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                if (languageLabel != null) {
+                    Text(
+                        text = languageLabel,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                )
+            }
+        }
+    }
+}
+
+private fun canStart(
+    mode: DownloadMode,
+    selectedCandidate: VideoStream?,
+    selectedAudio: AudioStream?,
+): Boolean = when (mode) {
+    DownloadMode.VIDEO -> selectedCandidate != null
+    DownloadMode.AUDIO -> selectedAudio != null
+}
+
+private fun buildPlan(
+    video: Video,
+    mode: DownloadMode,
+    plannerInput: DownloadPlanner.PlannerInput,
+    selectedCandidate: VideoStream?,
+    selectedAudio: AudioStream?,
+    threads: Int,
+): DownloadPlan? {
+    return when (mode) {
+        DownloadMode.VIDEO -> {
+            val candidate = plannerInput.allCandidates.firstOrNull {
+                it.stream.getContent() == selectedCandidate?.getContent()
+            } ?: return null
+            val plan = DownloadPlanner.videoPlan(video, plannerInput, candidate, threads)
+            // User-picked audio overrides the planner default (video-only only).
+            if (!candidate.isMuxed && selectedAudio != null) {
+                plan.copy(audioUrl = selectedAudio.getContent().takeIf { it.isNotBlank() })
+            } else {
+                plan
+            }
+        }
+
+        DownloadMode.AUDIO -> {
+            val audio = selectedAudio ?: return null
+            val url = audio.getContent().takeIf { it.isNotBlank() } ?: return null
+            DownloadPlan(
+                video = video,
+                mode = DownloadMode.AUDIO,
+                qualityLabel = "${DownloadStreamHelpers.audioBitrateKbps(audio)}kbps",
+                videoUrl = url,
+                audioExtension = DownloadStreamHelpers.audioFileExtension(audio),
+                audioMimeType = audio.format?.mimeType,
+                threads = threads,
+            )
+        }
+    }
+}

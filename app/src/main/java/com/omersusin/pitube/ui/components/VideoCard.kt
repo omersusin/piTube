@@ -195,6 +195,7 @@ fun VideoCardHorizontal(
 
     var showQuickActions by remember { mutableStateOf(false) }
     var showCollaborators by remember { mutableStateOf(false) }
+    var showDownloadSheet by remember { mutableStateOf(false) }
     val collaboratorItems = rememberCollaboratorItems(video)
     val displayChannelName = rememberCollaboratorChannelDisplayName(video.channelName, collaboratorItems)
     val cardContext = LocalContext.current
@@ -384,7 +385,15 @@ fun VideoCardHorizontal(
         VideoQuickActionsBottomSheet(
             video = video,
             onChannelClick = onChannelClick,
+            onDownload = { showDownloadSheet = true },
             onDismiss = { showQuickActions = false },
+        )
+    }
+
+    if (showDownloadSheet) {
+        com.omersusin.pitube.ui.screens.player.components.DownloadSheet(
+            video = video,
+            onDismiss = { showDownloadSheet = false },
         )
     }
 
@@ -409,6 +418,7 @@ fun VideoCardFullWidth(
 ) {
     var showQuickActions by remember { mutableStateOf(false) }
     var showCollaborators by remember { mutableStateOf(false) }
+    var showDownloadSheet by remember { mutableStateOf(false) }
     val collaboratorItems = rememberCollaboratorItems(video)
     val displayChannelName = rememberCollaboratorChannelDisplayName(video.channelName, collaboratorItems)
     val openChannelOrCollaborators = {
@@ -710,7 +720,15 @@ fun VideoCardFullWidth(
         VideoQuickActionsBottomSheet(
             video = video,
             onChannelClick = onChannelClick,
+            onDownload = { showDownloadSheet = true },
             onDismiss = { showQuickActions = false },
+        )
+    }
+
+    if (showDownloadSheet) {
+        com.omersusin.pitube.ui.screens.player.components.DownloadSheet(
+            video = video,
+            onDismiss = { showDownloadSheet = false },
         )
     }
 
@@ -737,6 +755,7 @@ fun CompactVideoCard(
 ) {
     var showQuickActions by remember { mutableStateOf(false) }
     var showCollaborators by remember { mutableStateOf(false) }
+    var showDownloadSheet by remember { mutableStateOf(false) }
     val collaboratorItems = rememberCollaboratorItems(video)
     val displayChannelName = rememberCollaboratorChannelDisplayName(video.channelName, collaboratorItems)
     val openChannelOrCollaborators = {
@@ -984,7 +1003,15 @@ fun CompactVideoCard(
         VideoQuickActionsBottomSheet(
             video = video,
             onChannelClick = onChannelClick,
+            onDownload = { showDownloadSheet = true },
             onDismiss = { showQuickActions = false },
+        )
+    }
+
+    if (showDownloadSheet) {
+        com.omersusin.pitube.ui.screens.player.components.DownloadSheet(
+            video = video,
+            onDismiss = { showDownloadSheet = false },
         )
     }
 
@@ -1394,6 +1421,7 @@ fun ShortsCard(
     trailingContent: (@Composable () -> Unit)? = null,
 ) {
     var showQuickActions by remember { mutableStateOf(false) }
+    var showDownloadSheet by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     Column(
         modifier =
@@ -1449,7 +1477,15 @@ fun ShortsCard(
         VideoQuickActionsBottomSheet(
             video = video,
             onChannelClick = null,
+            onDownload = { showDownloadSheet = true },
             onDismiss = { showQuickActions = false },
+        )
+    }
+
+    if (showDownloadSheet) {
+        com.omersusin.pitube.ui.screens.player.components.DownloadSheet(
+            video = video,
+            onDismiss = { showDownloadSheet = false },
         )
     }
 }

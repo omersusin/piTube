@@ -47,31 +47,16 @@ fun PlayerDialogsContainer(
         }
     }
 
-    // Download Quality Dialog
-    val downloadDialogStyle by playerPreferences.downloadDialogStyle.collectAsState(initial = null)
+    // Download bottom sheet (single surface for every download start)
     if (screenState.showDownloadDialog) {
-        when (downloadDialogStyle) {
-            com.omersusin.pitube.data.local.DownloadDialogStyle.COMPACT ->
-                DownloadQualityDialogCompact(
-                    streamInfo = uiState.streamInfo,
-                    streamSizes = uiState.streamSizes,
-                    innerTubeVideoFormats = uiState.innerTubeVideoFormats,
-                    innerTubeAudioFormats = uiState.innerTubeAudioFormats,
-                    video = video,
-                    currentPlayingHeight = playerState.effectiveQuality,
-                    onDismiss = { screenState.showDownloadDialog = false }
-                )
-            com.omersusin.pitube.data.local.DownloadDialogStyle.FULL ->
-                DownloadQualityDialog(
-                    streamInfo = uiState.streamInfo,
-                    streamSizes = uiState.streamSizes,
-                    innerTubeVideoFormats = uiState.innerTubeVideoFormats,
-                    innerTubeAudioFormats = uiState.innerTubeAudioFormats,
-                    video = video,
-                    onDismiss = { screenState.showDownloadDialog = false }
-                )
-            null -> { }
-        }
+        DownloadSheet(
+            streamInfo = uiState.streamInfo,
+            streamSizes = uiState.streamSizes,
+            innerTubeVideoFormats = uiState.innerTubeVideoFormats,
+            innerTubeAudioFormats = uiState.innerTubeAudioFormats,
+            video = video,
+            onDismiss = { screenState.showDownloadDialog = false }
+        )
     }
 
     val settingsInitialPage = when {

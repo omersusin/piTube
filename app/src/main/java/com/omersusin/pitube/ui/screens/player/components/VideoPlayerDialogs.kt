@@ -491,7 +491,7 @@ fun SubtitleStyleCustomizerDialog(
     }
 }
 
-private suspend fun trySabrDownloadFromDialog(
+internal suspend fun trySabrDownloadFromDialog(
     context: Context,
     video: Video,
 ) {

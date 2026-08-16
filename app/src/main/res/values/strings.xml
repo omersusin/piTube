@@ -1387,6 +1387,12 @@
     <string name="download_video">Download Video</string>
     <string name="select_quality">Select your preferred quality</string>
     <string name="no_download_streams">No download streams available</string>
+    <string name="download_mode_video">Video</string>
+    <string name="download_mode_audio">Audio</string>
+    <string name="download_section_video_quality">Video quality</string>
+    <string name="download_section_audio_quality">Audio quality</string>
+    <string name="download_audio_builtin">Built-in (muxed)</string>
+    <string name="download_audio_builtin_hint">Audio is already combined with this video quality.</string>
     <!-- Compact download dialog -->
     <string name="download_audio">Audio</string>
     <string name="download_title_label">Title</string>

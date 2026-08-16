@@ -26,7 +26,6 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.SmartDisplay
 import androidx.compose.material.icons.outlined.Subscriptions
-import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.ViewQuilt
@@ -115,7 +114,6 @@ fun ContentSettingsScreen(
         order = navTabOrder,
         visibility = navigationVisibility
     )
-    val downloadDialogStyle by preferences.downloadDialogStyle.collectAsState(initial = com.omersusin.pitube.data.local.DownloadDialogStyle.FULL)
     
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -199,59 +197,6 @@ fun ContentSettingsScreen(
                                 onClick = {
                                     coroutineScope.launch {
                                         preferences.setGridItemSize("SMALL")
-                                    }
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Download Menu Style Section
-            item {
-                SectionHeader(text = stringResource(R.string.download_menu_style_title))
-                SettingsGroup {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Outlined.ViewAgenda,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text(
-                                text = stringResource(R.string.download_menu_style_subtitle),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            GridSizeOption(
-                                title = stringResource(R.string.download_menu_style_classic),
-                                description = stringResource(R.string.download_menu_style_classic_desc),
-                                isSelected = downloadDialogStyle == com.omersusin.pitube.data.local.DownloadDialogStyle.FULL,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        preferences.setDownloadDialogStyle(com.omersusin.pitube.data.local.DownloadDialogStyle.FULL)
-                                    }
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                            GridSizeOption(
-                                title = stringResource(R.string.download_menu_style_compact),
-                                description = stringResource(R.string.download_menu_style_compact_desc),
-                                isSelected = downloadDialogStyle == com.omersusin.pitube.data.local.DownloadDialogStyle.COMPACT,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        preferences.setDownloadDialogStyle(com.omersusin.pitube.data.local.DownloadDialogStyle.COMPACT)
                                     }
                                 },
                                 modifier = Modifier.weight(1f)
