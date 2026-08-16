@@ -256,6 +256,7 @@ fun SearchScreen(
             SortType.VIEWS,
         )
     val selectedContentType = uiState.filters?.contentType ?: ContentType.ALL
+    val sharedVideoTitle = stringResource(R.string.shared_video)
 
     Column(
         modifier =
@@ -281,8 +282,8 @@ fun SearchScreen(
                         navigateToVideo(
                             Video(
                                 id = videoId,
-                                title = stringResource(R.string.shared_video),
-                                channelName = stringResource(R.string.shared_video),
+                                title = sharedVideoTitle,
+                                channelName = sharedVideoTitle,
                                 channelId = "",
                                 thumbnailUrl = "https://img.youtube.com/vi/$videoId/maxresdefault.jpg",
                                 duration = 0,
@@ -333,8 +334,8 @@ fun SearchScreen(
                         navigateToVideo(
                             Video(
                                 id = videoId,
-                                title = stringResource(R.string.shared_video),
-                                channelName = stringResource(R.string.shared_video),
+                                title = sharedVideoTitle,
+                                channelName = sharedVideoTitle,
                                 channelId = "",
                                 thumbnailUrl = "https://img.youtube.com/vi/$videoId/maxresdefault.jpg",
                                 duration = 0,

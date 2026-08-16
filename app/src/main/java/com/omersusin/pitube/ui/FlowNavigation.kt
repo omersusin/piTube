@@ -20,6 +20,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.omersusin.pitube.data.model.Video
+import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlaylistRepository
 import com.omersusin.pitube.player.GlobalPlayerState
 import com.omersusin.pitube.ui.components.PlayerSheetValue

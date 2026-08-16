@@ -50,7 +50,7 @@ data class RecognitionUiState(
 class RecognitionViewModel
     @Inject
     constructor(
-        @ApplicationContext context: Context,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val repository = RecognitionRepository(context)
 
