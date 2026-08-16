@@ -1236,9 +1236,16 @@
     <string name="section_incomplete_downloads">Tamamlanmamış indirmeler</string>
     <string name="section_completed">Tamamlandı</string>
     <string name="download_status_queued">Sırada</string>
+    <string name="download_status_downloading">İndiriliyor</string>
     <string name="download_status_paused">Duraklatıldı</string>
     <string name="download_status_failed">Başarısız</string>
     <string name="download_status_cancelled">İptal edildi</string>
+    <string name="downloads_selected_count">%1$d seçildi</string>
+    <string name="download_action_pause_all">Tümünü duraklat</string>
+    <string name="download_action_resume_all">Tümünü sürdür</string>
+    <string name="download_action_retry_selected">Seçilenleri tekrar dene</string>
+    <string name="download_action_delete_selected">Seçilenleri sil</string>
+    <string name="download_action_select">%1$s seç</string>
     <string name="remove_incomplete_downloads">Tamamlanmamış indirmeleri kaldır</string>
     <string name="remove_incomplete_downloads_message">%1$d duraklatılmış, başarısız veya kısmi indirme kaldırılsın mı? Tamamlanan indirmeler etkilenmez.</string>
     <string name="audio_track">Ses Parçası</string>

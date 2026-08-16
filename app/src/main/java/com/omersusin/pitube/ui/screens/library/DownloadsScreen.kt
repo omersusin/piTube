@@ -8,8 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,8 +19,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.*
@@ -65,6 +68,7 @@ fun DownloadsScreen(
     viewModel: DownloadsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val selectedIds by viewModel.selectedIds.collectAsState()
     var showRemoveIncompleteDialog by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
 
@@ -101,6 +105,8 @@ fun DownloadsScreen(
         viewModel.deleteVideoDownload(id)
     }
 
+    val selectionMode = selectedIds.isNotEmpty()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0.dp),
@@ -109,32 +115,105 @@ fun DownloadsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.close),
+                if (selectionMode) {
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = { viewModel.clearSelection() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.close),
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.downloads_selected_count, selectedIds.size),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
                         )
-                    }
-                    Text(
-                        text = stringResource(R.string.downloads_title),
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
-                    )
-                    if (uiState.incompleteDownloadCount > 0) {
-                        IconButton(onClick = { showRemoveIncompleteDialog = true }) {
+                        val canPause = selectedIds.any { id ->
+                            uiState.incompleteVideoDownloads.any {
+                                it.download.videoId == id &&
+                                    (it.overallStatus == DownloadItemStatus.PENDING ||
+                                        it.overallStatus == DownloadItemStatus.DOWNLOADING)
+                            }
+                        }
+                        val canResume = selectedIds.any { id ->
+                            uiState.incompleteVideoDownloads.any {
+                                it.download.videoId == id && it.overallStatus == DownloadItemStatus.PAUSED
+                            }
+                        }
+                        val canRetry = selectedIds.any { id ->
+                            uiState.incompleteVideoDownloads.any {
+                                it.download.videoId == id &&
+                                    (it.overallStatus == DownloadItemStatus.FAILED ||
+                                        it.overallStatus == DownloadItemStatus.CANCELLED)
+                            }
+                        }
+                        if (canPause) {
+                            IconButton(onClick = { viewModel.pauseSelected() }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Pause,
+                                    contentDescription = stringResource(R.string.download_action_pause_all),
+                                )
+                            }
+                        }
+                        if (canResume) {
+                            IconButton(onClick = { viewModel.resumeSelected() }) {
+                                Icon(
+                                    imageVector = Icons.Filled.PlayArrow,
+                                    contentDescription = stringResource(R.string.download_action_resume_all),
+                                )
+                            }
+                        }
+                        if (canRetry) {
+                            IconButton(onClick = { viewModel.retrySelected() }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Refresh,
+                                    contentDescription = stringResource(R.string.download_action_retry_selected),
+                                )
+                            }
+                        }
+                        IconButton(onClick = { viewModel.deleteSelected() }) {
                             Icon(
                                 imageVector = Icons.Outlined.Delete,
-                                contentDescription = stringResource(R.string.remove_incomplete_downloads),
+                                contentDescription = stringResource(R.string.download_action_delete_selected),
                             )
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.close),
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.downloads_title),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (uiState.incompleteDownloadCount > 0) {
+                            IconButton(onClick = { showRemoveIncompleteDialog = true }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = stringResource(R.string.remove_incomplete_downloads),
+                                )
+                            }
                         }
                     }
                 }
@@ -154,11 +233,14 @@ fun DownloadsScreen(
                 progressMap = uiState.downloadProgressMap,
                 mergingVideoIds = uiState.mergingVideoIds,
                 isRefreshing = uiState.isScanning,
+                selectedIds = selectedIds,
                 onRefresh = { viewModel.rescan() },
                 onVideoClick = { videos, index -> onVideoClick(videos, index) },
                 onDeleteClick = { id -> requestDelete(id) },
                 onPauseClick = { id -> viewModel.pauseVideoDownload(id) },
                 onResumeClick = { id -> viewModel.resumeVideoDownload(id) },
+                onRetryClick = { id -> viewModel.retryDownload(id) },
+                onToggleSelect = { id -> viewModel.toggleSelection(id) },
                 onHomeClick = onHomeClick,
             )
         }
@@ -207,11 +289,14 @@ private fun VideosDownloadsList(
     progressMap: Map<String, Float>,
     mergingVideoIds: Set<String>,
     isRefreshing: Boolean,
+    selectedIds: Set<String>,
     onRefresh: () -> Unit,
     onVideoClick: (List<DownloadedVideo>, Int) -> Unit,
     onDeleteClick: (String) -> Unit,
     onPauseClick: (String) -> Unit,
     onResumeClick: (String) -> Unit,
+    onRetryClick: (String) -> Unit,
+    onToggleSelect: (String) -> Unit,
     onHomeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -271,9 +356,13 @@ private fun VideosDownloadsList(
                             download = dl,
                             progressMap = progressMap,
                             isMerging = dl.download.videoId in mergingVideoIds,
+                            isSelected = dl.download.videoId in selectedIds,
+                            selectionMode = selectedIds.isNotEmpty(),
                             onPauseClick = { onPauseClick(dl.download.videoId) },
                             onResumeClick = { onResumeClick(dl.download.videoId) },
+                            onRetryClick = { onRetryClick(dl.download.videoId) },
                             onDeleteClick = { onDeleteClick(dl.download.videoId) },
+                            onToggleSelect = { onToggleSelect(dl.download.videoId) },
                             modifier =
                                 Modifier.animateItem(
                                     fadeInSpec = tween(300, easing = EaseOutCubic),
@@ -308,7 +397,16 @@ private fun VideosDownloadsList(
                 ) { index, video ->
                     VideoDownloadCard(
                         video = video,
-                        onClick = { onVideoClick(videos, index) },
+                        isSelected = video.video.id in selectedIds,
+                        selectionMode = selectedIds.isNotEmpty(),
+                        onClick = {
+                            if (selectedIds.isNotEmpty()) {
+                                onToggleSelect(video.video.id)
+                            } else {
+                                onVideoClick(videos, index)
+                            }
+                        },
+                        onLongClick = { onToggleSelect(video.video.id) },
                         onDeleteClick = { onDeleteClick(video.video.id) },
                         modifier =
                             Modifier.animateItem(
@@ -334,7 +432,10 @@ private fun VideosDownloadsList(
 @Composable
 private fun VideoDownloadCard(
     video: DownloadedVideo,
+    isSelected: Boolean,
+    selectionMode: Boolean,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -343,15 +444,39 @@ private fun VideoDownloadCard(
             R.string.cd_delete_download,
             video.video.title,
         )
+    val selectDesc =
+        stringResource(
+            R.string.download_action_select,
+            video.video.title,
+        )
+    var menuExpanded by remember { mutableStateOf(false) }
 
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick, role = Role.Button)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    role = Role.Button,
+                )
                 .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (selectionMode) {
+            Icon(
+                imageVector =
+                    if (isSelected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+                contentDescription = selectDesc,
+                tint =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                modifier = Modifier.padding(end = 12.dp),
+            )
+        }
         Box(
             modifier =
                 Modifier
@@ -419,21 +544,38 @@ private fun VideoDownloadCard(
             )
         }
 
-        IconButton(
-            onClick = onDeleteClick,
-            modifier =
-                Modifier.semantics {
-                    contentDescription = deleteDesc
-                },
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = null,
-                tint =
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                        .copy(alpha = 0.6f),
-                modifier = Modifier.size(20.dp),
-            )
+        Box {
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(R.string.more_options),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false },
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.open)) },
+                    onClick = {
+                        menuExpanded = false
+                        onClick()
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.delete)) },
+                    onClick = {
+                        menuExpanded = false
+                        onDeleteClick()
+                    },
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = deleteDesc
+                        },
+                )
+            }
         }
     }
 }
@@ -447,9 +589,13 @@ private fun ActiveVideoDownloadCard(
     download: DownloadWithItems,
     progressMap: Map<String, Float>,
     isMerging: Boolean,
+    isSelected: Boolean,
+    selectionMode: Boolean,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
+    onRetryClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onToggleSelect: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val progress = (progressMap[download.download.videoId] ?: download.progress).coerceIn(0f, 1f)
@@ -459,14 +605,44 @@ private fun ActiveVideoDownloadCard(
             R.string.cd_delete_download,
             download.download.title,
         )
+    val selectDesc =
+        stringResource(
+            R.string.download_action_select,
+            download.download.title,
+        )
+    val status = download.overallStatus
+    val isTerminal = status == DownloadItemStatus.FAILED || status == DownloadItemStatus.CANCELLED
+    val isPaused = status == DownloadItemStatus.PAUSED
+    var menuExpanded by remember { mutableStateOf(false) }
 
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {
+                        if (selectionMode) onToggleSelect() else Unit
+                    },
+                    onLongClick = onToggleSelect,
+                    role = Role.Button,
+                )
                 .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (selectionMode) {
+            Icon(
+                imageVector =
+                    if (isSelected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+                contentDescription = selectDesc,
+                tint =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                modifier = Modifier.padding(end = 12.dp),
+            )
+        }
         Box(
             modifier =
                 Modifier
@@ -541,12 +717,13 @@ private fun ActiveVideoDownloadCard(
             val statusText =
                 when {
                     isMerging -> {
-                        "Merging audio & video…"
+                        stringResource(R.string.download_merging_audio_video)
                     }
 
                     else -> {
-                        when (download.overallStatus) {
+                        when (status) {
                             DownloadItemStatus.PENDING -> stringResource(R.string.download_status_queued)
+                            DownloadItemStatus.DOWNLOADING -> "$pct% \u00b7 ${stringResource(R.string.download_status_downloading)}"
                             DownloadItemStatus.PAUSED -> "$pct% \u00b7 ${stringResource(R.string.download_status_paused)}"
                             DownloadItemStatus.FAILED -> stringResource(R.string.download_status_failed)
                             DownloadItemStatus.CANCELLED -> stringResource(R.string.download_status_cancelled)
@@ -561,8 +738,7 @@ private fun ActiveVideoDownloadCard(
             )
         }
 
-        if (!isMerging && download.overallStatus != DownloadItemStatus.FAILED && download.overallStatus != DownloadItemStatus.CANCELLED) {
-            val isPaused = download.overallStatus == DownloadItemStatus.PAUSED
+        if (!isMerging && !isTerminal) {
             IconButton(
                 onClick = if (isPaused) onResumeClick else onPauseClick,
             ) {
@@ -577,21 +753,58 @@ private fun ActiveVideoDownloadCard(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        } else if (!isMerging && isTerminal) {
+            IconButton(onClick = onRetryClick) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = stringResource(R.string.retry),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
         }
 
-        IconButton(
-            onClick = onDeleteClick,
-            modifier =
-                Modifier.semantics {
-                    contentDescription = deleteDesc
-                },
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                modifier = Modifier.size(20.dp),
-            )
+        Box {
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(R.string.more_options),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false },
+            ) {
+                if (!isTerminal) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(if (isPaused) R.string.resume else R.string.pause)) },
+                        onClick = {
+                            menuExpanded = false
+                            if (isPaused) onResumeClick() else onPauseClick()
+                        },
+                    )
+                } else {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.retry)) },
+                        onClick = {
+                            menuExpanded = false
+                            onRetryClick()
+                        },
+                    )
+                }
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.delete)) },
+                    onClick = {
+                        menuExpanded = false
+                        onDeleteClick()
+                    },
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = deleteDesc
+                        },
+                )
+            }
         }
     }
 }

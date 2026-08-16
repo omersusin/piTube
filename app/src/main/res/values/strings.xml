@@ -1413,9 +1413,16 @@
     <string name="section_incomplete_downloads">Incomplete downloads</string>
     <string name="section_completed">Completed</string>
     <string name="download_status_queued">Queued</string>
+    <string name="download_status_downloading">Downloading</string>
     <string name="download_status_paused">Paused</string>
     <string name="download_status_failed">Failed</string>
     <string name="download_status_cancelled">Cancelled</string>
+    <string name="downloads_selected_count">%1$d selected</string>
+    <string name="download_action_pause_all">Pause all</string>
+    <string name="download_action_resume_all">Resume all</string>
+    <string name="download_action_retry_selected">Retry selected</string>
+    <string name="download_action_delete_selected">Delete selected</string>
+    <string name="download_action_select">Select %1$s</string>
     <string name="remove_incomplete_downloads">Remove incomplete downloads</string>
     <string name="remove_incomplete_downloads_message">Remove %1$d paused, failed, or partial download(s)? Completed downloads will not be touched.</string>
     <string name="audio_track">Audio Track</string>
