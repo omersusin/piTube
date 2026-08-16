@@ -41,7 +41,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.AccountSwitcher
 import com.omersusin.pitube.data.local.ProfileManager
+import com.omersusin.pitube.ui.components.rememberFlowSheetState
 
 /**
  * The "You" sheet, opened from the bottom navigation's profile tab.
@@ -97,14 +97,14 @@ fun AccountSheet(
     val profiles by switcher.profiles.collectAsState()
     val activeId by switcher.activeProfileId.collectAsState()
     val active = profiles.firstOrNull { it.id == activeId } ?: switcher.active()
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberFlowSheetState()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = { BottomSheetDefaults.DragHandle() },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier
     ) {
         Column(

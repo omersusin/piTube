@@ -164,6 +164,8 @@ fun VideoQuickActionsBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
     ) {
         val configuration = androidx.compose.ui.platform.LocalConfiguration.current
         val maxHeight = configuration.screenHeightDp.dp * 0.65f

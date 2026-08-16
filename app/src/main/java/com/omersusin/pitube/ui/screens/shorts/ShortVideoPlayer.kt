@@ -1167,7 +1167,15 @@ private fun ShortsOptionsSheet(
     onSpeedClick: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberFlowSheetState()) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(
+            topStart = 28.dp,
+            topEnd = 28.dp
+        ),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
         Column(
             modifier =
                 Modifier
@@ -1429,7 +1437,15 @@ private fun ShortsSpeedSheet(
         remember(customSpeedsEnabled, customSpeedPresetsRaw) {
             playbackSpeedSliderPresets(customSpeedsEnabled, customSpeedPresetsRaw)
         }
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberFlowSheetState()) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(
+            topStart = 28.dp,
+            topEnd = 28.dp
+        ),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
         Column(
             modifier =
                 Modifier
@@ -1527,7 +1543,15 @@ private fun ShortsAudioTrackSheet(
     onTrackSelected: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberFlowSheetState()) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(
+            topStart = 28.dp,
+            topEnd = 28.dp
+        ),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
         Column(
             modifier =
                 Modifier
@@ -1618,7 +1642,15 @@ private fun ShortsQualitySheet(
     onDismiss: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberFlowSheetState()) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(
+            topStart = 28.dp,
+            topEnd = 28.dp
+        ),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
         Column(
             modifier =
                 Modifier

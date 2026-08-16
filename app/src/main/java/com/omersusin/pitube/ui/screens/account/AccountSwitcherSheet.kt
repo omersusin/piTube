@@ -41,7 +41,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,6 +61,7 @@ import coil3.compose.AsyncImage
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.AccountSwitcher
 import com.omersusin.pitube.data.local.Profile
+import com.omersusin.pitube.ui.components.rememberFlowSheetState
 
 /**
  * The profile switcher.
@@ -83,13 +83,13 @@ fun AccountSwitcherSheet(
 ) {
     val context = LocalContext.current
     val switcher = remember(context) { AccountSwitcher(context) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberFlowSheetState()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
         modifier = modifier
     ) {
         Column(

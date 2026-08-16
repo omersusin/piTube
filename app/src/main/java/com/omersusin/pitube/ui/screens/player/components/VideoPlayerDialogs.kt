@@ -424,7 +424,12 @@ fun SubtitleStyleCustomizerDialog(
     onDismiss: () -> Unit,
     onBack: (() -> Unit)? = null,
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberFlowSheetState()) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
         LazyColumn(
             modifier =
                 Modifier

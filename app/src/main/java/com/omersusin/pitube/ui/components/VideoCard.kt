@@ -67,6 +67,7 @@ import com.omersusin.pitube.data.model.distinctByNonBlankKey
 import com.omersusin.pitube.data.model.hasLikelyCollaborationByline
 import com.omersusin.pitube.data.model.needsCollaboratorResolution
 import com.omersusin.pitube.data.repository.VideoCollaboratorResolver
+import com.omersusin.pitube.ui.components.rememberFlowSheetState
 import com.omersusin.pitube.ui.theme.extendedColors
 import com.omersusin.pitube.utils.DateContext
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
@@ -1015,7 +1016,12 @@ fun CollaboratorsBottomSheet(
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberFlowSheetState(),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) {
         Column(
             modifier =
                 Modifier
