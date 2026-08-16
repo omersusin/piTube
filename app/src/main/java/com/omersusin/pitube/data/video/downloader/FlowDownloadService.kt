@@ -1293,10 +1293,12 @@ class FlowDownloadService : Service() {
     ): android.app.Notification {
         val progress = (mission.progress * 100).toInt()
         val contentText = when {
-            isComplete -> "Download complete"
-            isMuxing -> "Merging audio & video..."
-            mission.isFailed() -> mission.error ?: "Download failed"
-            mission.status == MissionStatus.PAUSED -> "Paused — ${mission.error ?: "tap to resume"}"
+            isComplete -> getString(R.string.notification_download_complete)
+            isMuxing -> getString(R.string.download_merging_audio_video)
+            mission.isFailed() -> mission.error ?: getString(R.string.notification_download_failed)
+            mission.status == MissionStatus.PAUSED -> mission.error?.let {
+                getString(R.string.notification_download_paused_error, it)
+            } ?: getString(R.string.notification_download_paused)
             else -> "$progress% • ${formatBytes(mission.downloadedBytes + mission.audioDownloadedBytes)} / ${formatBytes(mission.totalBytes + mission.audioTotalBytes)}"
         }
 

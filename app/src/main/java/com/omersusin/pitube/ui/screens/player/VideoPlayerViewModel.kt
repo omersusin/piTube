@@ -1632,7 +1632,7 @@ class VideoPlayerViewModel @Inject constructor(
                                 videoId = videoId,
                                 fallbackVideo = Video(
                                     id = videoId,
-                                    title = streamInfo.name ?: _uiState.value.cachedVideo?.title ?: "Live",
+                                    title = streamInfo.name ?: _uiState.value.cachedVideo?.title ?: context.getString(R.string.live),
                                     channelName = streamInfo.uploaderName ?: _uiState.value.cachedVideo?.channelName ?: "",
                                     channelId = streamInfo.uploaderUrl?.substringAfterLast("/")
                                         ?: _uiState.value.cachedVideo?.channelId ?: "",
@@ -1982,7 +1982,7 @@ class VideoPlayerViewModel @Inject constructor(
 
         val details = result.playerResponse.videoDetails
         val cached = _uiState.value.cachedVideo
-        val title = details?.title?.takeIf { it.isNotBlank() } ?: cached?.title ?: "Live"
+        val title = details?.title?.takeIf { it.isNotBlank() } ?: cached?.title ?: context.getString(R.string.live)
         val channel = details?.author?.takeIf { it.isNotBlank() } ?: cached?.channelName ?: ""
         val channelId = details?.channelId?.takeIf { it.isNotBlank() } ?: cached?.channelId ?: ""
         val thumbnail = details?.thumbnail?.thumbnails?.maxByOrNull { it.height ?: 0 }?.url

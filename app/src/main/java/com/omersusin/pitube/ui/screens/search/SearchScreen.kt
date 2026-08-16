@@ -281,8 +281,8 @@ fun SearchScreen(
                         navigateToVideo(
                             Video(
                                 id = videoId,
-                                title = "Shared Video",
-                                channelName = "Shared Video",
+                                title = stringResource(R.string.shared_video),
+                                channelName = stringResource(R.string.shared_video),
                                 channelId = "",
                                 thumbnailUrl = "https://img.youtube.com/vi/$videoId/maxresdefault.jpg",
                                 duration = 0,
@@ -333,8 +333,8 @@ fun SearchScreen(
                         navigateToVideo(
                             Video(
                                 id = videoId,
-                                title = "Shared Video",
-                                channelName = "Shared Video",
+                                title = stringResource(R.string.shared_video),
+                                channelName = stringResource(R.string.shared_video),
                                 channelId = "",
                                 thumbnailUrl = "https://img.youtube.com/vi/$videoId/maxresdefault.jpg",
                                 duration = 0,
@@ -1234,7 +1234,7 @@ private fun PagingFooter(
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
-                        "Loading more\u2026",
+                        stringResource(R.string.loading_more),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -1270,7 +1270,7 @@ private fun PagingFooter(
                 ) {
                     HorizontalDivider(Modifier.weight(1f))
                     Text(
-                        "End of results",
+                        stringResource(R.string.end_of_results),
                         style = MaterialTheme.typography.bodySmall,
                         color =
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(

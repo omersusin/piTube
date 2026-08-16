@@ -630,7 +630,7 @@ fun NavGraphBuilder.flowAppGraph(
                 }
             },
             onPlayPlaylist = { videos, index ->
-                playerViewModel.playPlaylist(videos, index, "Playlist")
+                playerViewModel.playPlaylist(videos, index, navController.context.getString(R.string.playlist))
             },
             onChannelClick = { channelId ->
                 navController.navigateToYoutubeChannel(channelId)
@@ -678,7 +678,7 @@ fun NavGraphBuilder.flowAppGraph(
             onBackClick = { navController.popBackStack() },
             onVideoClick = { videos, index ->
                 val videoList = videos.map { it.video }
-                playerViewModel.playPlaylist(videoList, index, "Downloads")
+                playerViewModel.playPlaylist(videoList, index, navController.context.getString(R.string.downloads_title))
                 GlobalPlayerState.setCurrentVideo(videoList[index])
             },
             onHomeClick = {
@@ -698,7 +698,7 @@ fun NavGraphBuilder.flowAppGraph(
                 val video = com.omersusin.pitube.data.model.Video(
                     id = com.omersusin.pitube.ui.screens.library.LocalMediaViewModel.localMediaId(item),
                     title = item.title,
-                    channelName = item.subtitle.ifBlank { "Local video" },
+                    channelName = item.subtitle.ifBlank { navController.context.getString(R.string.local_video) },
                     channelId = "local",
                     thumbnailUrl = item.contentUri,
                     duration = (item.durationMs / 1000).toInt(),

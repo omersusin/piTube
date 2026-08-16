@@ -350,6 +350,7 @@
     <string name="settings_header_content_playback">İçerik &amp; Yeniden Oynatma</string>
     <string name="settings_header_data_management">Veri Yönetimi</string>
     <string name="settings_header_about">Hakkında</string>
+    <string name="settings_header_account">Hesap</string>
     <string name="settings_header_translation">Çeviri</string>
     <string name="settings_item_translation">Çeviri</string>
     <string name="settings_item_translation_subtitle">Sağlayıcılar, API anahtarları, hedef dil</string>
@@ -1253,6 +1254,20 @@
     <string name="download_action_retry_selected">Seçilenleri tekrar dene</string>
     <string name="download_action_delete_selected">Seçilenleri sil</string>
     <string name="download_action_select">%1$s seç</string>
+    <string name="audio_only">Yalnızca ses</string>
+    <string name="shared_video">Paylaşılan Video</string>
+    <string name="end_of_results">Sonuçların sonu</string>
+    <string name="local_video">Yerel video</string>
+    <string name="live">Canlı</string>
+    <string name="version_format">Sürüm %1$s</string>
+    <string name="storage_permission_toast">İndirmeleri genel klasörlere kaydetmek için depolama erişimi ver (isteğe bağlı)</string>
+    <string name="playlist_downloading">İndiriliyor: %1$s</string>
+    <string name="playlist_queued_downloads">%1$d/%2$d indirme sıraya alındı</string>
+    <string name="playlist_queue_failed">Bu oynatma listesinden hiçbir indirme sıraya alınamadı</string>
+    <string name="notification_download_complete">İndirme tamamlandı</string>
+    <string name="notification_download_failed">İndirme başarısız</string>
+    <string name="notification_download_paused">Duraklatıldı — devam etmek için dokun</string>
+    <string name="notification_download_paused_error">Duraklatıldı — %1$s</string>
     <string name="remove_incomplete_downloads">Tamamlanmamış indirmeleri kaldır</string>
     <string name="remove_incomplete_downloads_message">%1$d duraklatılmış, başarısız veya kısmi indirme kaldırılsın mı? Tamamlanan indirmeler etkilenmez.</string>
     <string name="audio_track">Ses Parçası</string>
@@ -2056,6 +2071,7 @@
     <string name="recognition_fallback_save_retry">Sakla ve çevrimiçi yeniden dene</string>
     <string name="recognition_failure_no_internet">İnternet yok</string>
     <string name="recognition_failure_no_match">Eşleşme bulunamadı</string>
+    <string name="recognition_failure_no_match_saved">Eşleşme bulunamadı — kayıt saklandı</string>
     <string name="recognition_failure_other">Başka hata</string>
     <string name="notification_channel_recognition">Şarkı tanıma</string>
     <string name="notification_channel_recognition_description">Kalıcı Şarkı Tanıma bildirimiyle müzik tanıyın</string>

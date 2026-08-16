@@ -313,7 +313,7 @@ fun DownloadQualityDialog(
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Audio Only",
+                                text = stringResource(R.string.audio_only),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,

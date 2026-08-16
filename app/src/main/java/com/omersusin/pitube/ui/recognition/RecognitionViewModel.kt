@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.omersusin.pitube.R
+import com.omersusin.pitube.data.local.RecognitionFailureType
 import com.omersusin.pitube.recognition.RecognitionException
 import com.omersusin.pitube.recognition.RecognitionRepository
 import com.omersusin.pitube.recognition.SongRecognitionOutcome
@@ -137,7 +139,7 @@ class RecognitionViewModel
                     _uiState.update {
                         it.copy(
                             phase = RecognitionPhase.ERROR,
-                            message = e.message ?: "Recognition failed",
+                            message = e.message ?: context.getString(R.string.recognition_error_generic),
                         )
                     }
                 }
@@ -148,7 +150,7 @@ class RecognitionViewModel
                 _uiState.update {
                     it.copy(
                         phase = RecognitionPhase.ERROR,
-                        message = e.message ?: "Recognition failed",
+                        message = e.message ?: context.getString(R.string.recognition_error_generic),
                     )
                 }
             }
@@ -178,9 +180,9 @@ class RecognitionViewModel
                         it.copy(
                             phase = RecognitionPhase.ERROR,
                             message = if (outcome.recordingSaved) {
-                                "No match found — recording saved"
+                                context.getString(R.string.recognition_failure_no_match_saved)
                             } else {
-                                "No match found"
+                                context.getString(R.string.recognition_failure_no_match)
                             },
                             recordingSaved = outcome.recordingSaved,
                         )
@@ -191,7 +193,14 @@ class RecognitionViewModel
                     _uiState.update {
                         it.copy(
                             phase = RecognitionPhase.ERROR,
-                            message = outcome.message,
+                            message = when (outcome.type) {
+                                RecognitionFailureType.BAD_CONNECTION ->
+                                    context.getString(R.string.recognition_failure_no_internet)
+                                RecognitionFailureType.NO_MATCH ->
+                                    context.getString(R.string.recognition_failure_no_match)
+                                RecognitionFailureType.OTHER ->
+                                    context.getString(R.string.recognition_failure_other)
+                            },
                             recordingSaved = outcome.recordingSaved,
                             retryScheduled = outcome.retryScheduled,
                         )

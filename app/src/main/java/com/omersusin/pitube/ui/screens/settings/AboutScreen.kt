@@ -160,7 +160,7 @@ fun AboutScreen(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "v$versionName ($versionCode)",
+                        text = stringResource(R.string.version_format, "v$versionName ($versionCode)"),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
