@@ -15,6 +15,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.RecordVoiceOver
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,16 +37,18 @@ import kotlinx.coroutines.delay
 
 /**
  * Full-screen Voice/Song recognition modal (Google voice-search style): close
- * top-left, Voice/Song segmented pill, an amplitude-reactive talking face
- * (Voice) / morphing blob (Song) while listening, big mic button. Opened
- * directly from the center nav slot, the recognition notification and the
- * floating overlay button. Final results auto-submit as a piTube search.
+ * top-left, Voice/Song segmented pill + settings gear top-right, an
+ * amplitude-reactive talking face (Voice) / morphing blob (Song) while
+ * listening, big mic button. Opened from the Search screen's mic, the
+ * recognition notification and the floating overlay button. Final results
+ * auto-submit as a piTube search.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecognitionScreen(
     onDismiss: () -> Unit,
     onSearch: (String) -> Unit,
+    onOpenSettings: () -> Unit = {},
     viewModel: RecognitionViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -119,7 +122,12 @@ fun RecognitionScreen(
                     onModeChange = viewModel::setMode,
                 )
                 Spacer(Modifier.weight(1f))
-                Spacer(Modifier.width(48.dp))
+                IconButton(onClick = onOpenSettings) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = stringResource(R.string.settings),
+                    )
+                }
             }
 
             // ── Center content ─────────────────────────────────────────────────
@@ -395,10 +403,12 @@ private fun VoiceResultCard(
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = stringResource(
-                        if (source == VoiceRecognitionSource.PUTER) {
-                            R.string.recognition_source_puter
-                        } else {
-                            R.string.recognition_source_on_device
+                        when (source) {
+                            VoiceRecognitionSource.ON_DEVICE -> R.string.recognition_source_on_device
+                            VoiceRecognitionSource.GROQ -> R.string.recognition_source_groq
+                            VoiceRecognitionSource.IBM_WATSON -> R.string.recognition_source_ibm_watson
+                            VoiceRecognitionSource.AZURE -> R.string.recognition_source_azure
+                            VoiceRecognitionSource.GOOGLE_CLOUD -> R.string.recognition_source_google_cloud
                         },
                     ),
                     style = MaterialTheme.typography.labelSmall,

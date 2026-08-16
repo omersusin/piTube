@@ -5,7 +5,7 @@ import android.util.Log
 import com.omersusin.pitube.data.local.RecognitionPreferences
 import com.omersusin.pitube.data.local.RecognitionProvider
 import com.omersusin.pitube.data.local.RecognitionFailureType
-import com.omersusin.pitube.data.local.VoiceSourcePreference
+import com.omersusin.pitube.data.local.SttProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -14,9 +14,11 @@ import kotlinx.coroutines.withContext
 /**
  * Orchestrates both recognition modes:
  *
- * - Voice: Puter guest Whisper transcription first; falls back to the
- *   on-device `SpeechRecognizer` automatically ("which path served each
- *   request" is logged).
+ * - Voice: the selected STT provider (Cihaz STT by default — Android's
+ *   on-device `SpeechRecognizer`, zero configuration). The cloud providers
+ *   (Groq / IBM Watson / Azure / Google Cloud) each use the person's own API
+ *   key from Settings; if any of them fails the request falls back to Cihaz
+ *   STT for that attempt. "Which path served each request" is logged.
  *
  * - Song: records ~12 s, fingerprints it (Shazam format), sends it to the
  *   configured provider (Shazam default, then AudD/ACRCloud with the
@@ -38,44 +40,38 @@ class RecognitionRepository(
     /**
      * Picks and runs the voice path that will actually work:
      *
-     * 1. Puter guest whisper is used when a guest token can be obtained (a
-     *    no-key, no-login cloud transcription). The 12-second capture is
-     *    recorded and sent off as a WAV.
-     * 2. Otherwise the Android `SpeechRecognizer` runs the live listening
+     * 1. Cihaz STT: the on-device `SpeechRecognizer` runs the live listening
      *    session directly — its live RMS levels are forwarded through
-     *    [onLevel] so the talking face keeps animating on this path too.
+     *    [onLevel] so the talking face keeps animating.
+     * 2. Cloud STT (when selected in Settings): the 12-second capture is
+     *    recorded (levels forwarded live) and sent as a WAV to the provider.
+     *    On failure, the request automatically falls back to the on-device
+     *    recognizer so the person is never dead-ended.
      *
      * Both paths may throw [RecognitionException] (empty transcript, no
      * speech, recognizer unavailable, network failure). The caller decides
-     * whether to surface the error or retry.
+     * whether to surface the error or retry. The returned [VoiceRecognitionSource]
+     * records which service actually produced the transcript.
      */
     suspend fun recognizeVoice(
         interrupted: () -> Boolean = { false },
         onLevel: (Float) -> Unit = {},
     ): Pair<String, VoiceRecognitionSource> = withContext(Dispatchers.Default) {
-        val voiceSource = preferences.voiceSource.first()
-        val usePuter =
-            voiceSource == VoiceSourcePreference.AUTO && PuterSpeechToText.isGuestAuthAvailable()
-
-        if (usePuter) {
+        val provider = preferences.sttProvider.first()
+        if (provider.isCloud) {
             try {
                 val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel)
                 if (interrupted()) {
                     throw CancellationException("Voice recognition cancelled")
                 }
-                val transcript = PuterSpeechToText.transcribe(captured.wavBytes)
-                Log.d("Recognition", "Voice served by Puter (whisper-1)")
-                return@withContext transcript to VoiceRecognitionSource.PUTER
+                val transcript = CloudSpeechToText.transcribe(context, provider, captured.wavBytes)
+                Log.d("Recognition", "Voice served by cloud STT ($provider)")
+                return@withContext transcript to provider.toSource()
             } catch (e: RecognitionException) {
-                Log.w("Recognition", "Puter failed (${e.type}), falling back to on-device: ${e.message}")
+                Log.w("Recognition", "Cloud STT ($provider) failed (${e.type}), falling back to on-device: ${e.message}")
             }
         } else {
-            Log.d(
-                "Recognition",
-                "Using on-device speech recognizer (voiceSource=$voiceSource, puter=${
-                    if (voiceSource == VoiceSourcePreference.AUTO) "unavailable" else "disabled"
-                })",
-            )
+            Log.d("Recognition", "Using on-device speech recognizer (sttProvider=$provider)")
         }
         val transcript = OnDeviceVoiceRecognizer(context).listen(onLevel)
         transcript to VoiceRecognitionSource.ON_DEVICE

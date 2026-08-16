@@ -1533,11 +1533,6 @@
     <string name="sync_send_show_qr_hint">Das andere Gerät scannt es. Verwenden Sie diese Option, wenn das andere Gerät über eine Kamera verfügt.</string>
     <string name="sync_send_scan_hint">Verwenden Sie diese Option, um Daten an ein Gerät ohne Kamera (z. B. einen Desktop-Computer) zu senden, auf dem ein Empfangs-Code angezeigt wird.</string>
     <string name="sync_receive_scan_hint">Verwenden Sie diese Option, wenn dieses Gerät über eine Kamera verfügt und auf dem anderen Gerät ein Sendecode angezeigt wird.</string>
-<string name="settings_recognition_voice_source">Spracherkennung</string>
-    <string name="recognition_voice_source_auto">Online, Geräte-Fallback</string>
-    <string name="recognition_voice_source_auto_subtitle">Möglichst online transkribieren, andernfalls die Spracherkennung des Geräts verwenden</string>
-    <string name="recognition_voice_source_device_only">Nur Gerät</string>
-    <string name="recognition_voice_source_device_only_subtitle">Verwenden Sie immer die Spracherkennung des Geräts</string>
     <string name="recognition_error_too_many_requests">Der Sprachdienst ist vorübergehend belegt. Warten Sie einen Moment und versuchen Sie es erneut.</string>
     <string name="recognition_error_language_not_supported">Diese Sprache wird von der Spracherkennung nicht unterstützt.</string>
     <string name="recognition_error_language_unavailable">Das Sprachmodell des Geräts ist nicht installiert. Laden Sie es in den Geräteeinstellungen herunter und versuchen Sie es dann erneut.</string>

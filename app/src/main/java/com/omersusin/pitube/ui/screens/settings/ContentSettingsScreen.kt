@@ -78,8 +78,6 @@ fun ContentSettingsScreen(
     val isHomeShortsShelfEnabled by preferences.homeShortsShelfEnabled.collectAsState(initial = true)
     val isHomeNavigationEnabled by preferences.homeNavigationEnabled.collectAsState(initial = true)
     val isShortsNavigationEnabled by preferences.shortsNavigationEnabled.collectAsState(initial = true)
-    val isSearchNavigationEnabled by preferences.searchNavigationEnabled.collectAsState(initial = false)
-    val isCategoriesNavigationEnabled by preferences.categoriesNavigationEnabled.collectAsState(initial = false)
     val isContinueWatchingEnabled by preferences.continueWatchingEnabled.collectAsState(initial = true)
     val showRelatedVideos by preferences.showRelatedVideos.collectAsState(initial = true)
     
@@ -110,8 +108,6 @@ fun ContentSettingsScreen(
     val navigationVisibility = NavigationVisibility(
         home = isHomeNavigationEnabled,
         shorts = isShortsNavigationEnabled,
-        search = isSearchNavigationEnabled,
-        categories = isCategoriesNavigationEnabled
     )
     val visibleNavIndices = visibleNavTabIndices(navTabOrder, navigationVisibility)
     val resolvedDefaultNavTabIndex = resolveDefaultNavTabIndex(
@@ -711,8 +707,6 @@ private fun navTabLabel(index: Int): String = when (index) {
     0 -> stringResource(R.string.nav_home)
     1 -> stringResource(R.string.nav_shorts)
     4 -> stringResource(R.string.nav_library)
-    5 -> stringResource(R.string.nav_search)
-    6 -> stringResource(R.string.nav_explore)
     else -> stringResource(R.string.nav_home)
 }
 
@@ -722,8 +716,6 @@ private fun navTabIcon(index: Int): ImageVector = when (index) {
     1 -> ImageVector.vectorResource(id = R.drawable.ic_shorts)
     3 -> Icons.Outlined.Subscriptions
     4 -> Icons.Outlined.VideoLibrary
-    5 -> Icons.Outlined.Search
-    6 -> Icons.Outlined.Explore
     else -> Icons.Outlined.Home
 }
 

@@ -141,11 +141,6 @@
     <string name="play_mode_suggestion_body">මෙම වීඩියෝව මිනිත්තු 2කට වඩා අඩුය. විශේෂිත වාදකයකට මාරු වීමට ඔබ කැමතිද?</string>
     <string name="shorts_player">ශෝට්ස් ධාවකය</string>
     <string name="tab_videos">වීඩියෝ</string>
-    <string name="settings_recognition_voice_source">හඬ හඳුනාගැනීම</string>
-    <string name="recognition_voice_source_auto">මාර්ගගත, උපාංග විකල්පය</string>
-    <string name="recognition_voice_source_auto_subtitle">හැකි විට මාර්ගගතව පිටපත් කරන්න, එසේ නොමැති නම් උපාංගයේ හඳුනාගැනීමේ යන්ත්‍රය භාවිතා කරන්න</string>
-    <string name="recognition_voice_source_device_only">උපාංගය පමණක්</string>
-    <string name="recognition_voice_source_device_only_subtitle">සැමවිටම උපාංගයේ කථන හඳුනාගැනීමේ යන්ත්‍රය භාවිතා කරන්න</string>
     <string name="recognition_error_too_many_requests">හඬ සේවාව දැනට තාවකාලිකව කාර්යබහුලයි. මොහොතක් රැඳී සිට නැවත උත්සාහ කරන්න.</string>
     <string name="recognition_error_language_not_supported">කථන හඳුනාගැනීමේ යන්ත්‍රය මෙම භාෂාවට සහාය නොදක්වයි.</string>
     <string name="recognition_error_language_unavailable">උපාංගයේ භාෂා ආකෘතිය ස්ථාපනය කර නැත. එය උපාංග සැකසීම්වලින් බාගත කර, නැවත උත්සාහ කරන්න.</string>

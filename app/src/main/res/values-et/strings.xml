@@ -307,11 +307,6 @@
     <string name="settings_item_notifications">Teavituste eelistused</string>
     <string name="settings_item_notifications_subtitle">Halda piTube saadetavaid teavitusi</string>
     <string name="notif_settings_title">Teavituste eelistused</string>
-    <string name="settings_recognition_voice_source">Kõnetuvastus</string>
-    <string name="recognition_voice_source_auto">Võrgus, muidu seade</string>
-    <string name="recognition_voice_source_auto_subtitle">Transkribeerige võrgus, kui võimalik, muidu kasutage seadme kõnetuvastust</string>
-    <string name="recognition_voice_source_device_only">Ainult seade</string>
-    <string name="recognition_voice_source_device_only_subtitle">Kasutage alati seadme kõnetuvastust</string>
     <string name="recognition_error_too_many_requests">Kõneteenus on ajutiselt hõivatud. Oodake hetk ja proovige uuesti.</string>
     <string name="recognition_error_language_not_supported">Kõnetuvastus ei toeta seda keelt.</string>
     <string name="recognition_error_language_unavailable">Seadme keelemudel pole installitud. Laadige see alla seadme seadetes ja proovige uuesti.</string>

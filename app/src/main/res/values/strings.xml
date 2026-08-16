@@ -2051,14 +2051,33 @@
     <string name="translation_caption_note">Subtitles use YouTube\'s built-in translated captions when they are available for the target language.</string>
     <string name="translation_missing_key_hint" formatted="false">Translation is on, but %1$s needs an API key: add one above or pick a free provider and content stays in the original language.</string>
 
-    <!-- Voice & Song recognition (piTube center slot) -->
+    <!-- Voice & Song recognition -->
+    <string name="settings_header_speech_to_text">Speech to Text</string>
+    <string name="settings_stt_provider">Speech-to-text provider</string>
+    <string name="settings_stt_api_key">API key</string>
+    <string name="settings_stt_api_key_dialog_body">Enter your provider credentials. Stored securely on this device.</string>
+    <string name="stt_provider_cihaz">Cihaz STT</string>
+    <string name="stt_provider_cihaz_subtitle">Android\'s built-in recognizer. No setup needed.</string>
+    <string name="stt_provider_groq">Groq Cloud API</string>
+    <string name="stt_provider_groq_subtitle">Whisper Large V3 / Turbo, OpenAI-compatible endpoint</string>
+    <string name="stt_provider_ibm_watson">IBM Watson Speech to Text</string>
+    <string name="stt_provider_ibm_watson_subtitle">500 minutes/month free (IBM Cloud Lite)</string>
+    <string name="stt_provider_azure">Azure Speech</string>
+    <string name="stt_provider_azure_subtitle">5 hours/month free real-time transcription (F0)</string>
+    <string name="stt_provider_google_cloud">Google Cloud Speech-to-Text</string>
+    <string name="stt_provider_google_cloud_subtitle">60 minutes/month free (V1, recurring)</string>
+    <string name="stt_api_key_not_required">Not required — uses the device</string>
+    <string name="stt_api_key_missing">Enter an API key</string>
+    <string name="stt_azure_region">Azure region</string>
+    <string name="stt_azure_region_summary">Region: %1$s</string>
+    <string name="stt_ibm_instance_url">IBM Watson instance URL</string>
+    <string name="stt_ibm_url_summary">Instance: %1$s</string>
+    <string name="recognition_source_groq">Transcribed online (Groq)</string>
+    <string name="recognition_source_ibm_watson">Transcribed online (IBM Watson)</string>
+    <string name="recognition_source_azure">Transcribed online (Azure)</string>
+    <string name="recognition_source_google_cloud">Transcribed online (Google Cloud)</string>
     <string name="settings_header_recognition">Song Recognition</string>
     <string name="settings_recognition_provider">Provider</string>
-    <string name="settings_recognition_voice_source">Voice recognition</string>
-    <string name="recognition_voice_source_auto">Online, device fallback</string>
-    <string name="recognition_voice_source_auto_subtitle">Transcribe online when possible, otherwise use the device recognizer</string>
-    <string name="recognition_voice_source_device_only">Device only</string>
-    <string name="recognition_voice_source_device_only_subtitle">Always use the on-device speech recognizer</string>
     <string name="settings_recognition_fallback">After a failed match</string>
     <string name="settings_recognition_fallback_subtitle">Choose what to do with the recording</string>
     <string name="settings_recognition_notifications">Notifications</string>
@@ -2105,7 +2124,6 @@
     <string name="recognition_mode_voice">Voice</string>
     <string name="recognition_mode_song">Song</string>
     <string name="recognition_mic_content_description">Start recognition</string>
-    <string name="recognition_source_puter">Transcribed online (puter)</string>
     <string name="recognition_source_on_device">Transcribed on device</string>
     <string name="recognition_search_now">Search now</string>
     <string name="recognition_overlay_content_description">Open song recognition</string>

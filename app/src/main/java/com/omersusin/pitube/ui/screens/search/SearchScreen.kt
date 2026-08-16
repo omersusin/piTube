@@ -2,8 +2,6 @@
 
 package com.omersusin.pitube.ui.screens.search
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -66,6 +64,7 @@ fun SearchScreen(
     onChannelClick: (Channel) -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
     modifier: Modifier = Modifier,
+    onVoiceSearch: () -> Unit = {},
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -149,37 +148,6 @@ fun SearchScreen(
                 searchQuery = TextFieldValue(value, selection = TextRange(value.length))
             }
         }
-
-    val voiceSearchLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) { result ->
-            if (result.resultCode == android.app.Activity.RESULT_OK) {
-                val spokenText =
-                    result.data
-                        ?.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS)
-                        ?.firstOrNull()
-                if (!spokenText.isNullOrBlank()) {
-                    setSearchQueryToEnd(spokenText)
-                    dismissKeyboard()
-                    viewModel.search(spokenText)
-                }
-            }
-        }
-    val launchVoiceSearch: () -> Unit = {
-        val intent =
-            android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(
-                    android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                    android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
-                )
-                putExtra(android.speech.RecognizerIntent.EXTRA_PROMPT, "Speak to search…")
-            }
-        try {
-            voiceSearchLauncher.launch(intent)
-        } catch (_: android.content.ActivityNotFoundException) {
-        }
-    }
 
     val navigateToVideo: (Video) -> Unit =
         remember(dismissKeyboard, onVideoClick) {
@@ -334,7 +302,7 @@ fun SearchScreen(
                 liveSuggestions = emptyList()
                 viewModel.clearSearch()
             },
-            onVoiceSearch = launchVoiceSearch,
+            onVoiceSearch = onVoiceSearch,
             isSearchFocused = isSearchFocused,
             onFocusChange = { focused ->
                 if (isNavigatingAway) return@SearchBarRow

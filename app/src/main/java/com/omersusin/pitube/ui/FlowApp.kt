@@ -93,8 +93,6 @@ fun FlowApp(
     val preferences = remember { PlayerPreferences(context) }
     val isHomeNavigationEnabled by preferences.homeNavigationEnabled.collectAsState(initial = true)
     val isShortsNavigationEnabled by preferences.shortsNavigationEnabled.collectAsState(initial = true)
-    val isSearchNavigationEnabled by preferences.searchNavigationEnabled.collectAsState(initial = false)
-    val isCategoriesNavigationEnabled by preferences.categoriesNavigationEnabled.collectAsState(initial = false)
     val disableShortsPlayer by preferences.disableShortsPlayer.collectAsState(initial = false)
     val navTabOrder by preferences.navTabOrder.collectAsState(initial = com.omersusin.pitube.data.local.DEFAULT_NAV_TAB_ORDER)
     val defaultNavTabIndex by preferences.defaultNavTabIndex.collectAsState(initial = 0)
@@ -106,8 +104,6 @@ fun FlowApp(
         NavigationVisibility(
             home = isHomeNavigationEnabled,
             shorts = isShortsNavigationEnabled,
-            search = isSearchNavigationEnabled,
-            categories = isCategoriesNavigationEnabled,
         )
     val resolvedDefaultNavTabIndex =
         resolveDefaultNavTabIndex(
@@ -516,6 +512,9 @@ fun FlowApp(
                                 onSystemDarkThemeVariantChange = onSystemDarkThemeVariantChange,
                                 disableShortsPlayer = disableShortsPlayer,
                                 defaultStartRoute = defaultStartRoute,
+                                onOpenRecognitionModal = {
+                                    openRecognitionModal = true
+                                },
                                 bottomNavOverlayPadding = {
                                     if (showBottomNav.value && isNavScrolledVisible) {
                                         bottomNavContentHeightDp
@@ -548,8 +547,6 @@ fun FlowApp(
                     selectedIndex = selectedBottomNavIndex.intValue,
                     isHomeEnabled = isHomeNavigationEnabled,
                     isShortsEnabled = isShortsNavigationEnabled,
-                    isSearchEnabled = isSearchNavigationEnabled,
-                    isCategoriesEnabled = isCategoriesNavigationEnabled,
                     navOrder = navTabOrder,
                     accountAvatarUrl = activeProfile?.avatarUrl?.takeIf { !activeProfile.isLocal },
                     accountExpired = activeProfile?.expired == true,
@@ -558,12 +555,9 @@ fun FlowApp(
                         showAccountSheet = true
                     },
                     onItemSelected = { index ->
-                        // Center slot: Voice & Song recognition modal instead of
-                        // a navigating to the search tab.
-                        if (index == NAV_INDEX_SEARCH) {
-                            openRecognitionModal = true
-                            return@FloatingBottomNavBar
-                        }
+                        // The center slot is the Search tab: a normal route.
+                        // The recognition modal is opened from the mic icon
+                        // inside the Search screen's bar (see onOpenRecognitionModal).
                         val route = navRouteForIndex(index)
 
                         val activeRoute = navController.currentBackStackEntry?.destination?.route
@@ -687,6 +681,10 @@ fun FlowApp(
         if (openRecognitionModal) {
             com.omersusin.pitube.ui.recognition.RecognitionScreen(
                 onDismiss = { openRecognitionModal = false },
+                onOpenSettings = {
+                    openRecognitionModal = false
+                    navController.navigate("settings")
+                },
                 onSearch = { query ->
                     openRecognitionModal = false
                     if (currentRoute.value != "search") {

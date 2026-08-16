@@ -71,6 +71,11 @@ fun NavGraphBuilder.flowAppGraph(
     disableShortsPlayer: Boolean = false,
     defaultStartRoute: String = "home",
     /**
+     * Opens the Voice/Song recognition modal; wired to the mic icon in the
+     * Search screen's search bar (the only path to the modal from the UI).
+     */
+    onOpenRecognitionModal: () -> Unit = {},
+    /**
      * Read lazily inside the destination that needs it. Destination lambdas are captured once
      * when NavHost remembers the graph, so a by-value Dp here is frozen at graph-construction
      * time and never reflects the bar showing or hiding.
@@ -281,7 +286,8 @@ fun NavGraphBuilder.flowAppGraph(
             },
             onPlaylistClick = { playlist ->
                 navController.navigate("playlist/${playlist.id}")
-            }
+            },
+            onVoiceSearch = onOpenRecognitionModal,
         )
     }
 

@@ -1938,11 +1938,6 @@
     <string name="duration_hours_minutes">%1$d ساعة و %2$d دقيقة</string>
     <string name="duration_hours_short">%1$dساعة</string>
     <string name="duration_minutes_short">%1$dدقيقة</string>
-    <string name="settings_recognition_voice_source">التعرف على الصوت</string>
-    <string name="recognition_voice_source_auto">عبر الإنترنت، مع اللجوء إلى الجهاز</string>
-    <string name="recognition_voice_source_auto_subtitle">إجراء النسخ عبر الإنترنت عند الإمكان، وإلا استخدم أداة التعرف على الجهاز</string>
-    <string name="recognition_voice_source_device_only">الجهاز فقط</string>
-    <string name="recognition_voice_source_device_only_subtitle">استخدم دائمًا أداة التعرف على الكلام الموجودة على الجهاز</string>
     <string name="recognition_error_too_many_requests">خدمة الصوت مشغولة مؤقتًا. انتظر لحظة وحاول مرة أخرى.</string>
     <string name="recognition_error_language_not_supported">هذه اللغة لا يدعمها أداة التعرف على الكلام.</string>
     <string name="recognition_error_language_unavailable">نموذج اللغة على الجهاز غير مثبت. نزّله في إعدادات الجهاز، ثم حاول مرة أخرى.</string>

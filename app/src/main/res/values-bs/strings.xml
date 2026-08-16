@@ -415,11 +415,6 @@
     
     
     <string name="download_all">Preuzmi sve</string>
-    <string name="settings_recognition_voice_source">Prepoznavanje govora</string>
-    <string name="recognition_voice_source_auto">Online, inače uređaj</string>
-    <string name="recognition_voice_source_auto_subtitle">Transkribuj online kada je moguće, inače koristi prepoznavanje govora na uređaju</string>
-    <string name="recognition_voice_source_device_only">Samo uređaj</string>
-    <string name="recognition_voice_source_device_only_subtitle">Uvijek koristi prepoznavanje govora na uređaju</string>
     <string name="recognition_error_too_many_requests">Govorna usluga je trenutno zauzeta. Pričekajte malo i pokušajte ponovo.</string>
     <string name="recognition_error_language_not_supported">Ovaj jezik ne podržava prepoznavanje govora.</string>
     <string name="recognition_error_language_unavailable">Jezični model na uređaju nije instaliran. Preuzmite ga u postavkama uređaja, a zatim pokušajte ponovo.</string>

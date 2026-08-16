@@ -1991,14 +1991,33 @@
     <string name="translation_caption_note">Altyazılar, hedef dil için varsa YouTube\'un yerleşik çevrilmiş altyazılarını kullanır.</string>
     <string name="translation_missing_key_hint" formatted="false">Çeviri açık, ancak %1$s bir API anahtarı gerektiriyor: yukarıdan anahtar ekleyin veya ücretsiz bir sağlayıcı seçin; içerik özgün dilinde kalır.</string>
 
-    <!-- Voice & Song recognition (piTube center slot) -->
+    <!-- Voice & Song recognition -->
+    <string name="settings_header_speech_to_text">Sesten Yazıya</string>
+    <string name="settings_stt_provider">Sesten yazıya sağlayıcısı</string>
+    <string name="settings_stt_api_key">API anahtarı</string>
+    <string name="settings_stt_api_key_dialog_body">Sağlayıcı bilgilerinizi girin. Bu cihazda güvenli şekilde saklanır.</string>
+    <string name="stt_provider_cihaz">Cihaz STT</string>
+    <string name="stt_provider_cihaz_subtitle">Android\'in yerleşik tanıyıcısı. Kurulum gerekmez.</string>
+    <string name="stt_provider_groq">Groq Cloud API</string>
+    <string name="stt_provider_groq_subtitle">Whisper Large V3 / Turbo, OpenAI uyumlu uç nokta</string>
+    <string name="stt_provider_ibm_watson">IBM Watson Speech to Text</string>
+    <string name="stt_provider_ibm_watson_subtitle">Ayda 500 dakika ücretsiz (IBM Cloud Lite)</string>
+    <string name="stt_provider_azure">Azure Speech</string>
+    <string name="stt_provider_azure_subtitle">Ayda 5 saat ücretsiz canlı transkripsiyon (F0)</string>
+    <string name="stt_provider_google_cloud">Google Cloud Speech-to-Text</string>
+    <string name="stt_provider_google_cloud_subtitle">Ayda 60 dakika ücretsiz (V1, yinelenen)</string>
+    <string name="stt_api_key_not_required">Gerekmez — cihazı kullanır</string>
+    <string name="stt_api_key_missing">API anahtarı girin</string>
+    <string name="stt_azure_region">Azure bölgesi</string>
+    <string name="stt_azure_region_summary">Bölge: %1$s</string>
+    <string name="stt_ibm_instance_url">IBM Watson örnek URL\'si</string>
+    <string name="stt_ibm_url_summary">Örnek: %1$s</string>
+    <string name="recognition_source_groq">Çevrimiçi çevrildi (Groq)</string>
+    <string name="recognition_source_ibm_watson">Çevrimiçi çevrildi (IBM Watson)</string>
+    <string name="recognition_source_azure">Çevrimiçi çevrildi (Azure)</string>
+    <string name="recognition_source_google_cloud">Çevrimiçi çevrildi (Google Cloud)</string>
     <string name="settings_header_recognition">Şarkı Tanıma</string>
     <string name="settings_recognition_provider">Sağlayıcı</string>
-    <string name="settings_recognition_voice_source">Ses tanıma</string>
-    <string name="recognition_voice_source_auto">Çevrimiçi, cihaz yedeği</string>
-    <string name="recognition_voice_source_auto_subtitle">Mümkünse çevrimiçi çevir, aksi hâlde cihaz tanıyıcısını kullan</string>
-    <string name="recognition_voice_source_device_only">Yalnızca cihaz</string>
-    <string name="recognition_voice_source_device_only_subtitle">Her zaman cihaz içi konuşma tanıyıcısını kullan</string>
     <string name="settings_recognition_fallback">Eşleşme başarısız olursa</string>
     <string name="settings_recognition_fallback_subtitle">Kaydın ne olacağını seçin</string>
     <string name="settings_recognition_notifications">Bildirimler</string>
@@ -2039,7 +2058,6 @@
     <string name="recognition_mode_voice">Ses</string>
     <string name="recognition_mode_song">Şarkı</string>
     <string name="recognition_mic_content_description">Tanımayı başlat</string>
-    <string name="recognition_source_puter">Çevrimiçi çevrildi (puter)</string>
     <string name="recognition_source_on_device">Cihazda çevrildi</string>
     <string name="recognition_search_now">Şimdi ara</string>
     <string name="recognition_overlay_content_description">Şarkı tanımayı aç</string>

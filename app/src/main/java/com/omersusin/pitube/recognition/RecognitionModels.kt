@@ -60,9 +60,13 @@ data class CapturedAudio(
 
 /**
  * How a voice-mode transcript was obtained (for the debug log required by the
- * spec: which path served each request).
+ * spec: which path served each request). On-device is the zero-config default
+ * and the automatic fallback; the cloud providers are selected in Settings.
  */
 enum class VoiceRecognitionSource {
-    PUTER,
     ON_DEVICE,
+    GROQ,
+    IBM_WATSON,
+    AZURE,
+    GOOGLE_CLOUD,
 }

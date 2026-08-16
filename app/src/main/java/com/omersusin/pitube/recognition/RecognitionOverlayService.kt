@@ -8,10 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.IBinder
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -19,6 +22,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -63,8 +67,8 @@ class RecognitionOverlayService : Service() {
     private lateinit var preferences: RecognitionPreferences
     private var overlayView: View? = null
     private var dismissTargetView: View? = null
-    private var dismissTargetParams: WindowManager.LayoutParams? = null
     private var dismissTargetMagnetized = false
+    private var dismissScrimWindow: View? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var recognitionJob: Job? = null
@@ -198,14 +202,11 @@ class RecognitionOverlayService : Service() {
                         moved = true
                         params.x = initialX + (event.rawX - startX).toInt()
                         params.y = initialY + (event.rawY - startY).toInt()
-                        val target = dismissTargetParams
-                        if (target == null) {
+                        if (dismissTargetView == null) {
                             showDismissTarget()
                         } else {
                             val buttonW = view.width
                             val buttonH = view.height
-                            val targetCenterX = target.x + target.width / 2f
-                            val targetCenterY = target.y + target.height / 2f
                             val distance =
                                 kotlin.math.hypot(
                                     (params.x + buttonW / 2f) - targetCenterX,
@@ -218,14 +219,13 @@ class RecognitionOverlayService : Service() {
                                 updateDismissTarget()
                             }
                             if (dismissTargetMagnetized) {
-                                params.x = (targetCenterX - buttonW / 2f).toInt()
-                                params.y = (targetCenterY - buttonH / 2f).toInt()
+                                val cx = targetCenterX - buttonW / 2f
+                                val cy = targetCenterY - buttonH / 2f
+                                params.x = cx.toInt()
+                                params.y = cy.toInt()
                             }
                         }
                         runCatching {
-                            dismissTargetView?.let {
-                                windowManager.updateViewLayout(it, dismissTargetParams)
-                            }
                             windowManager.updateViewLayout(view, params)
                         }
                     }
@@ -412,58 +412,120 @@ class RecognitionOverlayService : Service() {
     }
 
     // ---- Dismiss target (drag onto the "X" to remove the button) ----
+    // Adapts Audile's DismissWindow: a bottom-half scrim fading to the surface
+    // color with a circular errorContainer stop, a large onErrorContainer close
+    // icon, a 0.8x scale when the button is magnetized, and haptic feedback on
+    // magnetize (see B4a). Drawn with Views since the overlay isn't Compose.
 
+    private var targetCenterX = 0f
+    private var targetCenterY = 0f
+    private var magnetizedHapticsPlayed = false
+
+    // Material 3 palette (dark theme, matching Audile's DismissWindow).
+    // errorContainer / onErrorContainer from the M3 default dark scheme.
+    private val dismissErrorContainer = 0xFF93000A.toInt()
+    private val dismissOnErrorContainer = 0xFFFFDAD6.toInt()
     private val magnetRadiusDp = 64f
+
+    private fun performHaptic() {
+        val vibrator =
+            (getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(12, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(12)
+        }
+    }
 
     private fun showDismissTarget() {
         if (dismissTargetView != null) return
         val density = resources.displayMetrics.density
-        val targetSize = (96f * density).toInt()
         val screenWidth = resources.displayMetrics.widthPixels
         val screenHeight = resources.displayMetrics.heightPixels
 
-        val view =
-            ImageView(this).apply {
-                setImageResource(R.drawable.ic_close)
-                contentDescription = getString(R.string.recognition_overlay_delete_description)
+        // Bottom-half scrim matching Audile: a gradient box (transparent at its
+        // top fading down to surface@0.6) anchored to the bottom of the screen.
+        val scrimHeight = (screenHeight / 2f).toInt()
+        val scrimSurface = 0x99151515.toInt() // surface #151515 at ~60% alpha
+        val scrimView =
+            FrameLayout(this).apply {
+                background =
+                    GradientDrawable(
+                        GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(Color.TRANSPARENT, scrimSurface),
+                    )
             }
-        view.background =
-            GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(0xCCD9342F.toInt())
-                setStroke(3.dpPx, 0xFFFFFFFF.toInt())
-            }
-
-        val params =
+        val scrimParams =
             WindowManager.LayoutParams(
-                targetSize,
-                targetSize,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                } else {
-                    WindowManager.LayoutParams.TYPE_PHONE
-                },
+                WindowManager.LayoutParams.MATCH_PARENT,
+                scrimHeight,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT,
             ).apply {
-                gravity = Gravity.TOP or Gravity.START
-                x = ((screenWidth - targetSize) / 2).coerceAtLeast(0)
-                y =
-                    ((screenHeight * 0.85f).toInt() + (72f * density).toInt())
-                        .coerceAtMost(screenHeight - targetSize)
+                gravity = Gravity.BOTTOM
             }
-        dismissTargetParams = params
+        runCatching { windowManager.addView(scrimView, scrimParams) }
+        dismissScrimWindow = scrimView
+
+        // The circle + close icon sits 64dp above the bottom (Audile: bottom=64dp,
+        // 80dp circle, 48dp icon).
+        val circleSize = (80f * density).toInt()
+        val iconSize = (48f * density).toInt()
+        val bottomPad = (64f * density).toInt()
+        val circle =
+            FrameLayout(this).apply {
+                val circleBg =
+                    GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(dismissErrorContainer)
+                    }
+                background = circleBg
+                val close =
+                    ImageView(context).apply {
+                        setImageResource(R.drawable.ic_close)
+                        setColorFilter(dismissOnErrorContainer)
+                        contentDescription =
+                            getString(R.string.recognition_overlay_delete_description)
+                        layoutParams =
+                            FrameLayout.LayoutParams(iconSize, iconSize, Gravity.CENTER)
+                    }
+                addView(close)
+            }
+        val circleParams =
+            WindowManager.LayoutParams(
+                circleSize,
+                circleSize,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                PixelFormat.TRANSLUCENT,
+            ).apply {
+                gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                y = bottomPad
+            }
+        runCatching { windowManager.addView(circle, circleParams) }
+
+        targetCenterX = (screenWidth / 2f)
+        targetCenterY = (screenHeight - bottomPad - circleSize / 2f)
+
         dismissTargetMagnetized = false
-        runCatching { windowManager.addView(view, params) }
-        dismissTargetView = view
+        magnetizedHapticsPlayed = false
+        dismissTargetView = circle
     }
 
     private fun updateDismissTarget() {
         val view = dismissTargetView ?: return
-        val scale = if (dismissTargetMagnetized) 1.15f else 1f
+        // Audile shrinks the container to 0.8x when the button magnets in.
+        val scale = if (dismissTargetMagnetized) 0.8f else 1f
         view.scaleX = scale
         view.scaleY = scale
+        if (dismissTargetMagnetized && !magnetizedHapticsPlayed) {
+            magnetizedHapticsPlayed = true
+            performHaptic()
+        }
     }
 
     private fun hideDismissTarget() {
@@ -471,8 +533,12 @@ class RecognitionOverlayService : Service() {
         if (view != null) {
             runCatching { windowManager.removeView(view) }
             dismissTargetView = null
-            dismissTargetParams = null
             dismissTargetMagnetized = false
+            magnetizedHapticsPlayed = false
+        }
+        dismissScrimWindow?.let {
+            runCatching { windowManager.removeView(it) }
+            dismissScrimWindow = null
         }
     }
 

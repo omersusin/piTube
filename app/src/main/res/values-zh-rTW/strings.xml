@@ -147,11 +147,6 @@
     <string name="go_to_channel">前往頻道</string>
     <string name="track_info">曲目詳情</string>
     <string name="track_info_subtitle">詳細的技術和社交指標</string>
-    <string name="settings_recognition_voice_source">語音辨識</string>
-    <string name="recognition_voice_source_auto">線上優先，裝置備援</string>
-    <string name="recognition_voice_source_auto_subtitle">盡可能在線上轉寫，否則使用裝置辨識器</string>
-    <string name="recognition_voice_source_device_only">僅用裝置</string>
-    <string name="recognition_voice_source_device_only_subtitle">一律使用裝置端語音辨識器</string>
     <string name="recognition_error_too_many_requests">語音服務暫時忙碌，請稍候片刻後再試。</string>
     <string name="recognition_error_language_not_supported">語音辨識器不支援此語言。</string>
     <string name="recognition_error_language_unavailable">尚未安裝裝置端語言模型。請在裝置設定中下載後再試。</string>

@@ -4,11 +4,14 @@ import com.omersusin.pitube.data.local.DEFAULT_NAV_TAB_ORDER
 import java.net.URI
 import java.net.URLEncoder
 
+/**
+ * Which reorderable destinations are shown in the bottom bar. Search (5) is a
+ * fixed center slot and Categories (6) is no longer a bar destination, so
+ * neither participates in the enable/reorder customization.
+ */
 internal data class NavigationVisibility(
     val home: Boolean = true,
     val shorts: Boolean = true,
-    val search: Boolean = false,
-    val categories: Boolean = false
 )
 
 internal fun visibleNavTabIndices(
@@ -19,8 +22,6 @@ internal fun visibleNavTabIndices(
         if (visibility.home) add(0)
         if (visibility.shorts) add(1)
         add(4)
-        if (visibility.search) add(5)
-        if (visibility.categories) add(6)
     }
     return (order + DEFAULT_NAV_TAB_ORDER).distinct().filter(enabled::contains)
 }
@@ -33,8 +34,6 @@ internal fun resolveDefaultNavTabIndex(
     val visible = visibleNavTabIndices(order, visibility)
     return preferredIndex.takeIf(visible::contains) ?: visible.first()
 }
-
-internal const val NAV_INDEX_SEARCH = 5
 
 internal fun navRouteForIndex(index: Int): String = when (index) {
     0 -> "home"

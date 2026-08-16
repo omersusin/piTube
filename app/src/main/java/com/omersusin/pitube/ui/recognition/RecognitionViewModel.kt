@@ -105,9 +105,9 @@ class RecognitionViewModel
 
         private suspend fun runVoice() {
             try {
-                // Recognizes on Puter whisper when a guest token is available,
-                // else falls straight into the Android on-device live session.
-                // Either way the live mic levels keep the talking face animating.
+                // Uses the selected STT provider (Cihaz STT by default), or a
+                // cloud provider with automatic on-device fallback. The live
+                // mic levels keep the talking face animating either way.
                 val (transcript, source) =
                     repository.recognizeVoice(
                         interrupted = { interrupted.value },

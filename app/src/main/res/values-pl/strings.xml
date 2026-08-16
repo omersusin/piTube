@@ -1697,11 +1697,6 @@
     <string name="sync_send_show_qr_hint">Zeskanuj to drugim urządzeniem. Użyj tej opcji, jeśli ma ono aparat.</string>
     <string name="notif_background_restricted_title">Działanie w tle jest ograniczone</string>
     
-    <string name="settings_recognition_voice_source">Rozpoznawanie mowy</string>
-    <string name="recognition_voice_source_auto">Online, awaryjnie urządzenie</string>
-    <string name="recognition_voice_source_auto_subtitle">Transkrybuj online, gdy to możliwe, w przeciwnym razie używaj rozpoznawania na urządzeniu</string>
-    <string name="recognition_voice_source_device_only">Tylko urządzenie</string>
-    <string name="recognition_voice_source_device_only_subtitle">Zawsze używaj rozpoznawania mowy na urządzeniu</string>
     <string name="recognition_error_too_many_requests">Usługa głosowa jest chwilowo zajęta. Zaczekaj chwilę i spróbuj ponownie.</string>
     <string name="recognition_error_language_not_supported">Ten język nie jest obsługiwany przez rozpoznawanie mowy.</string>
     <string name="recognition_error_language_unavailable">Model językowy na urządzeniu nie jest zainstalowany. Pobierz go w ustawieniach urządzenia, a następnie spróbuj ponownie.</string>

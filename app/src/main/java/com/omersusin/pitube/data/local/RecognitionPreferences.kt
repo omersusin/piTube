@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.omersusin.pitube.recognition.VoiceRecognitionSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -26,20 +27,35 @@ enum class RecognitionProvider(
 }
 
 /**
- * How voice recognition picks its engine. AUTO still uses the online Puter
- * whisper when a guest token can be obtained and falls back to the on-device
- * recognizer; DEVICE_ONLY always uses the Android `SpeechRecognizer`, which
- * needs Google speech services on the device.
+ * How voice recognition is performed. Cihaz STT uses Android's built-in
+ * `SpeechRecognizer` (zero-config default); the cloud providers each need the
+ * person's own API key entered in Settings and fall back to Cihaz STT on
+ * failure.
  */
-enum class VoiceSourcePreference(
+enum class SttProvider(
     val storedValue: String,
 ) {
-    AUTO("auto"),
-    DEVICE_ONLY("device_only");
+    CIHAZ("cihaz"),
+    GROQ("groq"),
+    IBM_WATSON("ibm_watson"),
+    AZURE("azure"),
+    GOOGLE_CLOUD("google_cloud");
+
+    val isCloud: Boolean
+        get() = this != CIHAZ
+
+    /** Maps to the [VoiceRecognitionSource] for the result card/log. */
+    fun toSource(): VoiceRecognitionSource = when (this) {
+        CIHAZ -> VoiceRecognitionSource.ON_DEVICE
+        GROQ -> VoiceRecognitionSource.GROQ
+        IBM_WATSON -> VoiceRecognitionSource.IBM_WATSON
+        AZURE -> VoiceRecognitionSource.AZURE
+        GOOGLE_CLOUD -> VoiceRecognitionSource.GOOGLE_CLOUD
+    }
 
     companion object {
-        fun fromStored(value: String?): VoiceSourcePreference =
-            entries.firstOrNull { it.storedValue == value } ?: AUTO
+        fun fromStored(value: String?): SttProvider =
+            entries.firstOrNull { it.storedValue == value } ?: CIHAZ
     }
 }
 
@@ -69,7 +85,7 @@ class RecognitionPreferences(context: Context) {
 
     private object Keys {
         val PROVIDER = stringPreferencesKey("recognition_provider")
-        val VOICE_SOURCE = stringPreferencesKey("recognition_voice_source")
+        val STT_PROVIDER = stringPreferencesKey("recognition_stt_provider")
         val FALLBACK_BAD_INTERNET = stringPreferencesKey("fallback_bad_internet")
         val FALLBACK_NO_MATCH = stringPreferencesKey("fallback_no_match")
         val FALLBACK_OTHER = stringPreferencesKey("fallback_other")
@@ -80,8 +96,8 @@ class RecognitionPreferences(context: Context) {
     val provider: Flow<RecognitionProvider> = context.recognitionPreferencesDataStore.data
         .map { RecognitionProvider.fromStored(it[Keys.PROVIDER]) }
 
-    val voiceSource: Flow<VoiceSourcePreference> = context.recognitionPreferencesDataStore.data
-        .map { VoiceSourcePreference.fromStored(it[Keys.VOICE_SOURCE]) }
+    val sttProvider: Flow<SttProvider> = context.recognitionPreferencesDataStore.data
+        .map { SttProvider.fromStored(it[Keys.STT_PROVIDER]) }
 
     val fallbackBadInternet: Flow<FallbackPolicy> = context.recognitionPreferencesDataStore.data
         .map { FallbackPolicy.fromStored(it[Keys.FALLBACK_BAD_INTERNET]) }
@@ -98,12 +114,12 @@ class RecognitionPreferences(context: Context) {
     val floatingButtonEnabled: Flow<Boolean> = context.recognitionPreferencesDataStore.data
         .map { it[Keys.FLOATING_BUTTON_ENABLED] ?: false }
 
-    suspend fun setProvider(value: RecognitionProvider) {
-        context.recognitionPreferencesDataStore.edit { it[Keys.PROVIDER] = value.storedValue }
+    suspend fun setSttProvider(value: SttProvider) {
+        context.recognitionPreferencesDataStore.edit { it[Keys.STT_PROVIDER] = value.storedValue }
     }
 
-    suspend fun setVoiceSource(value: VoiceSourcePreference) {
-        context.recognitionPreferencesDataStore.edit { it[Keys.VOICE_SOURCE] = value.storedValue }
+    suspend fun setProvider(value: RecognitionProvider) {
+        context.recognitionPreferencesDataStore.edit { it[Keys.PROVIDER] = value.storedValue }
     }
 
     suspend fun setFallbackBadInternet(value: FallbackPolicy) {

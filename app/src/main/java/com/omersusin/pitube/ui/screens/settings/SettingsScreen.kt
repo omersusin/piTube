@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -59,7 +60,8 @@ import com.omersusin.pitube.data.local.RecognitionPreferences
 import com.omersusin.pitube.data.local.RecognitionProvider
 import com.omersusin.pitube.data.local.RecognitionFailureType
 import com.omersusin.pitube.data.local.FallbackPolicy
-import com.omersusin.pitube.data.local.VoiceSourcePreference
+import com.omersusin.pitube.data.local.SttApiKeyStore
+import com.omersusin.pitube.data.local.SttProvider
 import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.recognition.RecognitionNotifier
 import com.omersusin.pitube.recognition.RecognitionOverlayService
@@ -123,7 +125,8 @@ fun SettingsScreen(
         mutableStateOf(Settings.canDrawOverlays(context))
     }
     var showRecognitionProviderDialog by remember { mutableStateOf(false) }
-    var showRecognitionVoiceSourceDialog by remember { mutableStateOf(false) }
+    var showSttProviderDialog by remember { mutableStateOf(false) }
+    var showSttApiKeyDialog by remember { mutableStateOf(false) }
     var showRecognitionFallbackDialog by remember { mutableStateOf(false) }
     var pendingNotificationPermission by remember { mutableStateOf(false) }
 
@@ -230,12 +233,31 @@ fun SettingsScreen(
             RecognitionProvider.AUDD -> stringResource(R.string.recognition_provider_audd)
             RecognitionProvider.ACRCLOUD -> stringResource(R.string.recognition_provider_acrcloud)
         }
-    val recognitionVoiceSource by recognitionPreferences.voiceSource
-        .collectAsStateWithLifecycle(initialValue = VoiceSourcePreference.AUTO)
-    val recognitionVoiceSourceLabel: String =
-        when (recognitionVoiceSource) {
-            VoiceSourcePreference.AUTO -> stringResource(R.string.recognition_voice_source_auto)
-            VoiceSourcePreference.DEVICE_ONLY -> stringResource(R.string.recognition_voice_source_device_only)
+    val sttProvider by recognitionPreferences.sttProvider
+        .collectAsStateWithLifecycle(initialValue = SttProvider.CIHAZ)
+    val sttApiKeys = remember { SttApiKeyStore(context) }
+    val sttProviderLabel: String =
+        when (sttProvider) {
+            SttProvider.CIHAZ -> stringResource(R.string.stt_provider_cihaz)
+            SttProvider.GROQ -> stringResource(R.string.stt_provider_groq)
+            SttProvider.IBM_WATSON -> stringResource(R.string.stt_provider_ibm_watson)
+            SttProvider.AZURE -> stringResource(R.string.stt_provider_azure)
+            SttProvider.GOOGLE_CLOUD -> stringResource(R.string.stt_provider_google_cloud)
+        }
+    val sttApiKeyLabel: String =
+        when (sttProvider) {
+            SttProvider.CIHAZ -> stringResource(R.string.stt_api_key_not_required)
+            SttProvider.AZURE -> {
+                val region = sttApiKeys.getAzureRegion()
+                val key = sttApiKeys.getApiKey(SttProvider.AZURE)
+                listOfNotNull(region?.let { stringResource(R.string.stt_azure_region_summary, it) }, key?.let { sttApiKeys.maskedKey(SttProvider.AZURE) }).joinToString(" · ")
+            }
+            SttProvider.IBM_WATSON -> {
+                val url = sttApiKeys.getIbmInstanceUrl()
+                val key = sttApiKeys.getApiKey(SttProvider.IBM_WATSON)
+                listOfNotNull(url?.let { stringResource(R.string.stt_ibm_url_summary, it) }, key?.let { sttApiKeys.maskedKey(SttProvider.IBM_WATSON) }).joinToString(" · ")
+            }
+            else -> sttApiKeys.maskedKey(sttProvider) ?: stringResource(R.string.stt_api_key_missing)
         }
     val recognitionFallbackBadInternet by recognitionPreferences.fallbackBadInternet
         .collectAsStateWithLifecycle(initialValue = FallbackPolicy.IGNORE)
@@ -557,17 +579,23 @@ fun SettingsScreen(
                 onNavigateToNotifications,
             ),
             SettingSearchEntry(
+                Icons.Outlined.RecordVoiceOver,
+                stringResource(R.string.settings_stt_provider),
+                sttProviderLabel,
+                secRecognition,
+            ) { showSttProviderDialog = true },
+            SettingSearchEntry(
+                Icons.Outlined.Key,
+                stringResource(R.string.settings_stt_api_key),
+                sttApiKeyLabel,
+                secRecognition,
+            ) { showSttApiKeyDialog = true },
+            SettingSearchEntry(
                 Icons.Outlined.MusicNote,
                 stringResource(R.string.settings_recognition_provider),
                 recognitionProviderLabel,
                 secRecognition,
             ) { showRecognitionProviderDialog = true },
-            SettingSearchEntry(
-                Icons.Outlined.RecordVoiceOver,
-                stringResource(R.string.settings_recognition_voice_source),
-                recognitionVoiceSourceLabel,
-                secRecognition,
-            ) { showRecognitionVoiceSourceDialog = true },
             SettingSearchEntry(
                 Icons.Outlined.CompareArrows,
                 stringResource(R.string.settings_recognition_fallback),
@@ -1073,6 +1101,34 @@ fun SettingsScreen(
                 }
 
                 // =================================================
+                // SPEECH TO TEXT
+                // =================================================
+                item { SectionHeader(text = stringResource(R.string.settings_header_speech_to_text)) }
+
+                item {
+                    SettingsGroup {
+                        SettingsItem(
+                            icon = Icons.Outlined.RecordVoiceOver,
+                            title = stringResource(R.string.settings_stt_provider),
+                            subtitle = sttProviderLabel,
+                            onClick = { showSttProviderDialog = true },
+                        )
+                        if (sttProvider.isCloud) {
+                            HorizontalDivider(
+                                Modifier.padding(start = 56.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            )
+                            SettingsItem(
+                                icon = Icons.Outlined.Key,
+                                title = stringResource(R.string.settings_stt_api_key),
+                                subtitle = sttApiKeyLabel,
+                                onClick = { showSttApiKeyDialog = true },
+                            )
+                        }
+                    }
+                }
+
+                // =================================================
                 // SONG RECOGNITION
                 // =================================================
                 item { SectionHeader(text = stringResource(R.string.settings_header_recognition)) }
@@ -1084,12 +1140,6 @@ fun SettingsScreen(
                             title = stringResource(R.string.settings_recognition_provider),
                             subtitle = recognitionProviderLabel,
                             onClick = { showRecognitionProviderDialog = true },
-                        )
-                        SettingsItem(
-                            icon = Icons.Outlined.RecordVoiceOver,
-                            title = stringResource(R.string.settings_recognition_voice_source),
-                            subtitle = recognitionVoiceSourceLabel,
-                            onClick = { showRecognitionVoiceSourceDialog = true },
                         )
                         SettingsItem(
                             icon = Icons.Outlined.CompareArrows,
@@ -1439,37 +1489,43 @@ fun SettingsScreen(
         )
     }
 
-    if (showRecognitionVoiceSourceDialog) {
+    if (showSttProviderDialog) {
         AlertDialog(
-            onDismissRequest = { showRecognitionVoiceSourceDialog = false },
-            title = { Text(stringResource(R.string.settings_recognition_voice_source)) },
+            onDismissRequest = { showSttProviderDialog = false },
+            title = { Text(stringResource(R.string.settings_stt_provider)) },
             text = {
                 Column {
-                    VoiceSourcePreference.entries.forEach { source ->
+                    SttProvider.entries.forEach { provider ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
                                 .clickable {
                                     coroutineScope.launch {
-                                        recognitionPreferences.setVoiceSource(source)
-                                        showRecognitionVoiceSourceDialog = false
+                                        recognitionPreferences.setSttProvider(provider)
+                                        showSttProviderDialog = false
                                     }
                                 }.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            RadioButton(selected = recognitionVoiceSource == source, onClick = null)
+                            RadioButton(selected = sttProvider == provider, onClick = null)
                             Spacer(Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    when (source) {
-                                        VoiceSourcePreference.AUTO -> stringResource(R.string.recognition_voice_source_auto)
-                                        VoiceSourcePreference.DEVICE_ONLY -> stringResource(R.string.recognition_voice_source_device_only)
+                                    when (provider) {
+                                        SttProvider.CIHAZ -> stringResource(R.string.stt_provider_cihaz)
+                                        SttProvider.GROQ -> stringResource(R.string.stt_provider_groq)
+                                        SttProvider.IBM_WATSON -> stringResource(R.string.stt_provider_ibm_watson)
+                                        SttProvider.AZURE -> stringResource(R.string.stt_provider_azure)
+                                        SttProvider.GOOGLE_CLOUD -> stringResource(R.string.stt_provider_google_cloud)
                                     },
                                 )
                                 Text(
-                                    when (source) {
-                                        VoiceSourcePreference.AUTO -> stringResource(R.string.recognition_voice_source_auto_subtitle)
-                                        VoiceSourcePreference.DEVICE_ONLY -> stringResource(R.string.recognition_voice_source_device_only_subtitle)
+                                    when (provider) {
+                                        SttProvider.CIHAZ -> stringResource(R.string.stt_provider_cihaz_subtitle)
+                                        SttProvider.GROQ -> stringResource(R.string.stt_provider_groq_subtitle)
+                                        SttProvider.IBM_WATSON -> stringResource(R.string.stt_provider_ibm_watson_subtitle)
+                                        SttProvider.AZURE -> stringResource(R.string.stt_provider_azure_subtitle)
+                                        SttProvider.GOOGLE_CLOUD -> stringResource(R.string.stt_provider_google_cloud_subtitle)
                                     },
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1481,7 +1537,79 @@ fun SettingsScreen(
             },
             confirmButton = {},
             dismissButton = {
-                TextButton(onClick = { showRecognitionVoiceSourceDialog = false }) {
+                TextButton(onClick = { showSttProviderDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    if (showSttApiKeyDialog) {
+        var apiKeyText by rememberSaveable { mutableStateOf(sttApiKeys.getApiKey(sttProvider).orEmpty()) }
+        var regionText by rememberSaveable {
+            mutableStateOf(if (sttProvider == SttProvider.AZURE) sttApiKeys.getAzureRegion().orEmpty() else "")
+        }
+        var urlText by rememberSaveable {
+            mutableStateOf(if (sttProvider == SttProvider.IBM_WATSON) sttApiKeys.getIbmInstanceUrl().orEmpty() else "")
+        }
+        AlertDialog(
+            onDismissRequest = { showSttApiKeyDialog = false },
+            title = { Text(stringResource(R.string.settings_stt_api_key)) },
+            text = {
+                Column {
+                    Text(
+                        stringResource(R.string.settings_stt_api_key_dialog_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = apiKeyText,
+                        onValueChange = { apiKeyText = it },
+                        label = { Text(stringResource(R.string.settings_stt_api_key)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    if (sttProvider == SttProvider.AZURE) {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = regionText,
+                            onValueChange = { regionText = it },
+                            label = { Text(stringResource(R.string.stt_azure_region)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    if (sttProvider == SttProvider.IBM_WATSON) {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = urlText,
+                            onValueChange = { urlText = it },
+                            label = { Text(stringResource(R.string.stt_ibm_instance_url)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        sttApiKeys.setApiKey(sttProvider, apiKeyText)
+                        if (sttProvider == SttProvider.AZURE) {
+                            sttApiKeys.setAzureRegion(regionText)
+                        }
+                        if (sttProvider == SttProvider.IBM_WATSON) {
+                            sttApiKeys.setIbmInstanceUrl(urlText)
+                        }
+                        showSttApiKeyDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.btn_save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSttApiKeyDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             },

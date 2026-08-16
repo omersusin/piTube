@@ -26,9 +26,10 @@ const val DEFAULT_PORTRAIT_SEEKBAR_PADDING_DP = 16
 const val MAX_PORTRAIT_SEEKBAR_PADDING_DP = 64
 const val DEFAULT_FULLSCREEN_SEEKBAR_PADDING_DP = 48
 const val MAX_FULLSCREEN_SEEKBAR_PADDING_DP = 120
-// Default nav tab order. The search slot is pinned to the center position so
-// the recognition modal sits exactly between Shorts and the library.
-val DEFAULT_NAV_TAB_ORDER = listOf(0, 1, 5, 4, 6)
+// Default nav tab order. Only Home, Shorts and Library are reorderable; the
+// search slot (5) is a fixed enlarged center item and Categories (6) is no
+// longer a bottom-bar destination.
+val DEFAULT_NAV_TAB_ORDER = listOf(0, 1, 4)
 
 private const val MAX_UNPLAYABLE_VIDEO_IDS = 300
 

@@ -21,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,13 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.ui.res.vectorResource
 import com.omersusin.pitube.R
-import com.omersusin.pitube.ui.NAV_INDEX_SEARCH
 
 private data class NavItemSpec(
     val index: Int,
@@ -45,12 +41,17 @@ private data class NavItemSpec(
 )
 
 /**
- * The "You" tab is a fixed slot at the end of the bar - never part of the
- * reorderable nav-order set, because it never navigates: it must not be
- * selectable as the default start tab or get buried in the overflow menu.
+ * The bottom bar is a fixed 5-slot layout:
+ *
+ *     [reorderable] [reorderable] [Search - larger] [reorderable] [Profile]
+ *
+ * The search slot is always present, enlarged and centered — it is the only
+ * search entry point in piTube and is not part of the reorder customization.
+ * The reorderable slots are Home/Shorts/Library (per the user's nav order and
+ * visibility prefs). Categories is no longer a bar destination and the "You"
+ * tab is a fixed slot at the end that never navigates, so it is never part of
+ * the reorderable set or the default-start-tab resolution.
  */
-
-private const val MAX_VISIBLE_NAV_ITEMS = 5
 
 @Composable
 fun FloatingBottomNavBar(
@@ -59,9 +60,7 @@ fun FloatingBottomNavBar(
     modifier: Modifier = Modifier,
     isHomeEnabled: Boolean = true,
     isShortsEnabled: Boolean = true,
-    isSearchEnabled: Boolean = false,
-    isCategoriesEnabled: Boolean = false,
-    navOrder: List<Int> = listOf(0, 1, 4, 5, 6),
+    navOrder: List<Int> = listOf(0, 1, 4),
     onAccountClick: () -> Unit = {},
     isAccountSelected: Boolean = false,
     accountAvatarUrl: String? = null,
@@ -69,34 +68,22 @@ fun FloatingBottomNavBar(
 ) {
     val shortsIcon = ImageVector.vectorResource(id = R.drawable.ic_shorts)
 
-    val enabledItems = remember(isHomeEnabled, isShortsEnabled, isSearchEnabled, isCategoriesEnabled, navOrder) {
+    val reorderableItems = remember(isHomeEnabled, isShortsEnabled, navOrder) {
         val items = buildList {
-            if (isHomeEnabled)      add(NavItemSpec(0, Icons.Filled.Home,          Icons.Outlined.Home,          R.string.nav_home))
-            if (isShortsEnabled)    add(NavItemSpec(1, shortsIcon,                shortsIcon,                   R.string.nav_shorts))
-            add(NavItemSpec(4, Icons.Filled.VideoLibrary,  Icons.Outlined.VideoLibrary,  R.string.nav_library))
-            if (isSearchEnabled)    add(NavItemSpec(5, Icons.Filled.Search,      Icons.Outlined.Search,        R.string.nav_search))
-            if (isCategoriesEnabled)add(NavItemSpec(6, Icons.Filled.Explore,     Icons.Outlined.Explore,       R.string.nav_explore))
+            if (isHomeEnabled)   add(NavItemSpec(0, Icons.Filled.Home,         Icons.Outlined.Home,         R.string.nav_home))
+            if (isShortsEnabled) add(NavItemSpec(1, shortsIcon,                shortsIcon,                    R.string.nav_shorts))
+            add(NavItemSpec(4, Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary, R.string.nav_library))
         }
         val order = navOrder.withIndex().associate { it.value to it.index }
         items.sortedBy { order[it.index] ?: Int.MAX_VALUE }
     }
+    val searchItem = NavItemSpec(5, Icons.Filled.Search, Icons.Outlined.Search, R.string.nav_search)
 
-    // One slot is always reserved for the account tab, so it can never end up
-    // in the overflow menu no matter how many navigation tabs are enabled.
-    val maxReorderableVisible = MAX_VISIBLE_NAV_ITEMS - 1
-
-    val visibleItems: List<NavItemSpec>
-    val overflowItems: List<NavItemSpec>
-    if (enabledItems.size <= maxReorderableVisible) {
-        visibleItems = enabledItems
-        overflowItems = emptyList()
-    } else {
-        visibleItems = enabledItems.take(maxReorderableVisible - 1)
-        overflowItems = enabledItems.drop(maxReorderableVisible - 1)
-    }
-
-    val isOverflowSelected = overflowItems.any { it.index == selectedIndex }
-    var showMoreMenu by remember { mutableStateOf(false) }
+    // Split the reorderable set around the fixed center search slot so the
+    // search icon always sits in the middle of the bar.
+    val leftCount = (reorderableItems.size + 1) / 2
+    val leftItems = reorderableItems.take(leftCount)
+    val rightItems = reorderableItems.drop(leftCount)
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -112,58 +99,34 @@ fun FloatingBottomNavBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            visibleItems.forEach { spec ->
+            leftItems.forEach { spec ->
                 BottomNavItem(
                     modifier = Modifier.weight(1f),
                     icon = if (selectedIndex == spec.index) spec.filledIcon else spec.outlinedIcon,
                     label = stringResource(spec.labelRes),
-                    enlarged = spec.index == NAV_INDEX_SEARCH,
                     selected = selectedIndex == spec.index,
                     onClick = { onItemSelected(spec.index) }
                 )
             }
 
-            if (overflowItems.isNotEmpty()) {
-                Box(modifier = Modifier.weight(1f)) {
-                    BottomNavItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        icon = if (isOverflowSelected) Icons.Filled.MoreHoriz else Icons.Outlined.MoreHoriz,
-                        label = stringResource(R.string.nav_more),
-                        selected = isOverflowSelected,
-                        onClick = { showMoreMenu = true }
-                    )
-                    DropdownMenu(
-                        expanded = showMoreMenu,
-                        onDismissRequest = { showMoreMenu = false },
-                        offset = DpOffset(x = 0.dp, y = (-8).dp)
-                    ) {
-                        overflowItems.forEach { spec ->
-                            val isSelected = selectedIndex == spec.index
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = stringResource(spec.labelRes),
-                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary
-                                                else MaterialTheme.colorScheme.onSurface
-                                    )
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = if (isSelected) spec.filledIcon else spec.outlinedIcon,
-                                        contentDescription = stringResource(spec.labelRes),
-                                        tint = if (isSelected) MaterialTheme.colorScheme.primary
-                                               else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                },
-                                onClick = {
-                                    showMoreMenu = false
-                                    onItemSelected(spec.index)
-                                }
-                            )
-                        }
-                    }
-                }
+            // Fixed, always-visible enlarged center search slot.
+            BottomNavItem(
+                modifier = Modifier.weight(1f),
+                icon = if (selectedIndex == searchItem.index) searchItem.filledIcon else searchItem.outlinedIcon,
+                label = stringResource(searchItem.labelRes),
+                selected = selectedIndex == searchItem.index,
+                enlarged = true,
+                onClick = { onItemSelected(searchItem.index) }
+            )
+
+            rightItems.forEach { spec ->
+                BottomNavItem(
+                    modifier = Modifier.weight(1f),
+                    icon = if (selectedIndex == spec.index) spec.filledIcon else spec.outlinedIcon,
+                    label = stringResource(spec.labelRes),
+                    selected = selectedIndex == spec.index,
+                    onClick = { onItemSelected(spec.index) }
+                )
             }
 
             // Fixed "You" tab, always last.
