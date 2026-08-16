@@ -1223,10 +1223,12 @@
     <string name="download_video">Videoyu İndir</string>
     <string name="select_quality">Tercih ettiğin kaliteyi seç</string>
     <string name="no_download_streams">Kullanılabilir indirme akışı yok</string>
-    <string name="download_mode_video">Video</string>
-    <string name="download_mode_audio">Ses</string>
     <string name="download_section_video_quality">Video kalitesi</string>
     <string name="download_section_audio_quality">Ses kalitesi</string>
+    <string name="download_audio_only">Yalnızca ses indir</string>
+    <string name="download_audio_only_hint">Video olmadan yalnızca ses dosyası kaydet</string>
+    <string name="download_stream_muxed">Birleşik</string>
+    <string name="download_stream_video_only">Yalnızca video</string>
     <string name="download_audio_builtin">Birleşik (muxed)</string>
     <string name="download_audio_builtin_hint">Ses bu video kalitesiyle zaten birleşik.</string>
     <string name="downloading_template">%1$s indiriliyor...</string>
