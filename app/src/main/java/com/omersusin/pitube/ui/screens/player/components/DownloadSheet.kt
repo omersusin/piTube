@@ -286,12 +286,12 @@ fun DownloadSheet(
                                 onToggle = { videoAccordionExpanded = !videoAccordionExpanded },
                             )
                         }
-                        AnimatedVisibility(
-                            visible = videoAccordionExpanded,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut(),
-                        ) {
-                            item {
+                        item {
+                            AnimatedVisibility(
+                                visible = videoAccordionExpanded,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut(),
+                            ) {
                                 Column {
                                     if (distinctVideoStreams.isEmpty()) {
                                         Text(
@@ -337,12 +337,12 @@ fun DownloadSheet(
                                 onToggle = { audioAccordionExpanded = !audioAccordionExpanded },
                             )
                         }
-                        AnimatedVisibility(
-                            visible = audioAccordionExpanded,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut(),
-                        ) {
-                            item {
+                        item {
+                            AnimatedVisibility(
+                                visible = audioAccordionExpanded,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut(),
+                            ) {
                                 Column {
                                     if (selectedIsMuxed) {
                                         Text(
@@ -385,12 +385,12 @@ fun DownloadSheet(
                                 onToggle = { audioAccordionExpanded = !audioAccordionExpanded },
                             )
                         }
-                        AnimatedVisibility(
-                            visible = audioAccordionExpanded,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut(),
-                        ) {
-                            item {
+                        item {
+                            AnimatedVisibility(
+                                visible = audioAccordionExpanded,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut(),
+                            ) {
                                 Column {
                                     if (audioStreams.isEmpty()) {
                                         Text(
