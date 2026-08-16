@@ -56,24 +56,40 @@ class RecognitionRepository(
     suspend fun recognizeVoice(
         interrupted: () -> Boolean = { false },
         onLevel: (Float) -> Unit = {},
+        onProcessing: () -> Unit = {},
     ): Pair<String, VoiceRecognitionSource> = withContext(Dispatchers.Default) {
         val provider = preferences.sttProvider.first()
+        var cloudFailure: RecognitionException? = null
         if (provider.isCloud) {
             try {
                 val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel)
                 if (interrupted()) {
                     throw CancellationException("Voice recognition cancelled")
                 }
+                onProcessing()
                 val transcript = CloudSpeechToText.transcribe(context, provider, captured.wavBytes)
-                Log.d("Recognition", "Voice served by cloud STT ($provider)")
+                Log.d("STT", "Voice served by cloud STT ($provider)")
                 return@withContext transcript to provider.toSource()
             } catch (e: RecognitionException) {
-                Log.w("Recognition", "Cloud STT ($provider) failed (${e.type}), falling back to on-device: ${e.message}")
+                cloudFailure = e
+                Log.w("STT", "Cloud STT ($provider) failed (${e.type}), trying on-device fallback: ${e.message}")
             }
         } else {
-            Log.d("Recognition", "Using on-device speech recognizer (sttProvider=$provider)")
+            Log.d("STT", "Using on-device speech recognizer (sttProvider=$provider)")
         }
-        val transcript = OnDeviceVoiceRecognizer(context).listen(onLevel)
+        val transcript =
+            try {
+                OnDeviceVoiceRecognizer(context).listen(onLevel)
+            } catch (e: RecognitionException) {
+                // If the cloud attempt failed too, surface the cloud error as the
+                // root cause so the UI shows e.g. "Groq: HTTP 401" rather than a
+                // generic busy/offline message from the fallback engine.
+                if (cloudFailure != null) {
+                    Log.w("STT", "On-device fallback also failed (${e.message}); surfacing cloud root cause")
+                    throw cloudFailure
+                }
+                throw e
+            }
         transcript to VoiceRecognitionSource.ON_DEVICE
     }
 

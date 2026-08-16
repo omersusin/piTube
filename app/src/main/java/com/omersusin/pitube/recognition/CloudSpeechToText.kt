@@ -103,6 +103,7 @@ object CloudSpeechToText {
         provider: SttProvider,
         wavBytes: ByteArray,
     ): String = withContext(Dispatchers.IO) {
+        Log.d(TAG, "transcribe: provider=$provider wavBytes=${wavBytes.size}")
         val keys = SttApiKeyStore(context)
         val apiKey = keys.getApiKey(provider)
         if (apiKey.isNullOrBlank()) {
@@ -171,6 +172,7 @@ object CloudSpeechToText {
 
         return client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
+                Log.w(TAG, "Groq HTTP ${response.code}: ${response.body?.string().orEmpty().take(300)}")
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
                     "Groq failed (HTTP ${response.code})",

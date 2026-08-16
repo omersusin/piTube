@@ -114,6 +114,9 @@ class RecognitionViewModel
                         onLevel = { level ->
                             _uiState.update { it.copy(levels = (it.levels + level).takeLast(40)) }
                         },
+                        onProcessing = {
+                            _uiState.update { it.copy(phase = RecognitionPhase.PROCESSING) }
+                        },
                     )
                 if (interrupted.value) {
                     _uiState.update { it.copy(phase = RecognitionPhase.IDLE) }
