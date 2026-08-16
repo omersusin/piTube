@@ -91,6 +91,7 @@ class FlowDownloadService : Service() {
         const val CHANNEL_ID = "flow_downloads"
         const val NOTIFICATION_GROUP = "flow_download_group"
         private const val FOREGROUND_NOTIFICATION_ID = 724
+        private const val COMPLETE_NOTIFICATION_DISMISS_MS = 6000L
         private const val MAX_CONCURRENT_DOWNLOADS = 3
         
         const val ACTION_START_DOWNLOAD = "com.omersusin.pitube.START_DOWNLOAD"
@@ -700,7 +701,7 @@ class FlowDownloadService : Service() {
                     }
 
                     val nmComplete = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    nmComplete.notify(getNotificationId(videoId), createNotification(mission, videoId, isComplete = true))
+                    postCompleteNotification(nmComplete, videoId, mission)
 
                     // Fetch and persist SponsorBlock segments inline (awaited) so it completes
                     // before the service's finally-block calls stopSelf() → onDestroy() → serviceScope.cancel().
@@ -1042,7 +1043,7 @@ class FlowDownloadService : Service() {
                     }
 
                     val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    nm.notify(getNotificationId(videoId), createNotification(mission, videoId, isComplete = true))
+                    postCompleteNotification(nm, videoId, mission)
 
                     try {
                         val segments = sponsorBlockRepository.getSegments(videoId)
@@ -1373,6 +1374,26 @@ class FlowDownloadService : Service() {
     ) {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(getNotificationId(videoId), createNotification(mission, videoId, isComplete, isMuxing))
+    }
+
+    /**
+     * Posts the terminal "Download complete" notification and auto-dismisses it
+     * shortly after (the service scope dies with the service, so a Handler on
+     * the main looper is used to outlive it). Never leaves a stale notification.
+     */
+    private fun postCompleteNotification(
+        nm: NotificationManager,
+        videoId: String,
+        mission: FlowDownloadMission
+    ) {
+        nm.notify(getNotificationId(videoId), createNotification(mission, videoId, isComplete = true))
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                nm.cancel(getNotificationId(videoId))
+            } catch (e: Exception) {
+                Log.w(TAG, "postCompleteNotification: dismiss failed (non-fatal)", e)
+            }
+        }, COMPLETE_NOTIFICATION_DISMISS_MS)
     }
 
     private fun createNotificationChannel() {

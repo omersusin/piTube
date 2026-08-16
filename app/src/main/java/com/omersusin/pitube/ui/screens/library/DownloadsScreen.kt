@@ -286,20 +286,20 @@ private fun VideosDownloadsList(
                                 ),
                         )
                     }
-                    if (videos.isNotEmpty()) {
-                        item(key = "section_completed") {
-                            Text(
-                                text = stringResource(R.string.section_completed),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier =
-                                    Modifier.padding(
-                                        horizontal = 16.dp,
-                                        vertical = 6.dp,
-                                    ),
-                            )
-                        }
+                }
+                if (videos.isNotEmpty()) {
+                    item(key = "section_completed") {
+                        Text(
+                            text = stringResource(R.string.section_completed),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier =
+                                Modifier.padding(
+                                    horizontal = 16.dp,
+                                    vertical = 6.dp,
+                                ),
+                        )
                     }
                 }
                 itemsIndexed(
