@@ -78,7 +78,8 @@ object DownloadPlanner {
         val candidates = input.allCandidates
         if (candidates.isEmpty()) return null
 
-        fun atOrBelowTarget(c: VideoCandidate) = c.height <= input.targetHeight
+        fun atOrBelowTarget(c: VideoCandidate) =
+            input.targetHeight <= 0 || c.height <= input.targetHeight
 
         val progressiveMp4 = candidates.filter { it.isMuxed && it.codecKey == CODEC_H264 && atOrBelowTarget(it) }
         if (progressiveMp4.isNotEmpty()) {
