@@ -31,6 +31,11 @@ import kotlin.coroutines.resumeWithException
  * avoids `ERROR_RECOGNIZER_BUSY`, which the singleton-bound recognition service
  * returns when a previous recognizer is still holding the session while a new
  * `startListening()` binds.
+ *
+ * Two guards make the failure mode visible instead of a misleading "busy":
+ * no recognition service on the device fails fast with the "unavailable"
+ * message, and a transient `ERROR_RECOGNIZER_BUSY` is retried once after a
+ * short teardown delay before the error is surfaced.
  */
 class OnDeviceVoiceRecognizer(
     private val context: Context,
@@ -44,6 +49,12 @@ class OnDeviceVoiceRecognizer(
     companion object {
         /** Hard cap so a stuck recognizer can never leave the UI hanging. */
         private const val MAX_LISTEN_MS = 20_000L
+
+        /** How long to wait after a busy teardown before retrying. */
+        private const val BUSY_RETRY_DELAY_MS = 400L
+
+        /** A transient busy is retried once, never infinitely. */
+        private const val MAX_BUSY_RETRIES = 1
     }
 
     /**
@@ -64,8 +75,14 @@ class OnDeviceVoiceRecognizer(
             }
 
         var settled = false
-        var watchdog: Runnable? = null
         var sessionRecognizer: SpeechRecognizer? = null
+        var busyRetriesLeft = MAX_BUSY_RETRIES
+
+        val watchdog =
+            Runnable {
+                Log.w("STT", "OnDeviceVoice watchdog: no result within ${MAX_LISTEN_MS}ms")
+                finishError(context.getString(R.string.recognition_error_no_speech))
+            }
 
         fun destroyOnMain(r: SpeechRecognizer) {
             mainHandler.post { runCatching { r.cancel() }; runCatching { r.destroy() } }
@@ -74,7 +91,7 @@ class OnDeviceVoiceRecognizer(
         fun finishSuccess(text: String) {
             if (settled) return
             settled = true
-            watchdog?.let { mainHandler.removeCallbacks(it) }
+            mainHandler.removeCallbacks(watchdog)
             sessionRecognizer?.let { destroyOnMain(it) }
             bound.set(false)
             current = null
@@ -85,30 +102,31 @@ class OnDeviceVoiceRecognizer(
         fun finishError(message: String, type: RecognitionFailureType = RecognitionFailureType.OTHER) {
             if (settled) return
             settled = true
-            watchdog?.let { mainHandler.removeCallbacks(it) }
+            mainHandler.removeCallbacks(watchdog)
             sessionRecognizer?.let { destroyOnMain(it) }
             bound.set(false)
             current = null
             continuation.resumeWithException(RecognitionException(type, message))
         }
 
-        watchdog =
-            Runnable {
-                Log.w("STT", "OnDeviceVoice watchdog: no result within ${MAX_LISTEN_MS}ms")
-                finishError(context.getString(R.string.recognition_error_no_speech))
-            }
-
-        mainHandler.post {
+        fun startSession(forceNetwork: Boolean = false) {
             // Serialize: if a previous session's recognizer is still bound on the
             // same looper, tear it down before creating a fresh one so the
             // recognition service is never handed two active sessions.
             teardownPending()
             if (bound.get()) {
                 Log.w("STT", "OnDeviceVoice already listening; dropping duplicate start")
-                return@post
+                return
+            }
+            // Fail fast when the device has no recognition service at all, instead
+            // of letting startListening surface a misleading "busy" later.
+            if (!SpeechRecognizer.isRecognitionAvailable(context)) {
+                Log.w("STT", "OnDeviceVoice no recognition service on this device")
+                finishError(context.getString(R.string.recognition_error_unavailable))
+                return
             }
             val created =
-                createRecognizer().also { created ->
+                createRecognizer(forceNetwork).also { created ->
                     if (created != null) {
                         sessionRecognizer = created
                         current = created
@@ -159,6 +177,22 @@ class OnDeviceVoiceRecognizer(
                                                 context.getString(R.string.recognition_error_generic) +
                                                     " (code $error)"
                                         }
+                                    // A transient busy (service briefly holds the session) is
+                                    // retried once after a full teardown. The retry uses the
+                                    // network recognizer: a device where the on-device engine is
+                                    // *advertised* but unusable (no model downloaded) can report
+                                    // busy forever, while the network recognizer actually works.
+                                    if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY && busyRetriesLeft > 0) {
+                                        busyRetriesLeft -= 1
+                                        Log.w("STT", "OnDeviceVoice busy; tearing down and retrying with network recognizer once")
+                                        teardownPending()
+                                        mainHandler.removeCallbacks(watchdog)
+                                        mainHandler.postDelayed(
+                                            { startSession(forceNetwork = true) },
+                                            BUSY_RETRY_DELAY_MS,
+                                        )
+                                        return
+                                    }
                                     Log.w("STT", "OnDeviceVoice SpeechRecognizer error=$error ($message)")
                                     finishError(message)
                                 }
@@ -191,7 +225,7 @@ class OnDeviceVoiceRecognizer(
             if (created == null) {
                 Log.w("STT", "OnDeviceVoice speech recognition unavailable")
                 finishError(context.getString(R.string.recognition_error_unavailable))
-                return@post
+                return
             }
 
             bound.set(true)
@@ -207,10 +241,22 @@ class OnDeviceVoiceRecognizer(
             }
         }
 
+        mainHandler.post { startSession() }
+
         continuation.invokeOnCancellation {
-            watchdog?.let { mainHandler.removeCallbacks(it) }
+            mainHandler.removeCallbacks(watchdog)
             mainHandler.post { teardownPending() }
         }
+    }
+
+    /**
+     * Cancels and destroys any recognizer currently bound to the main looper.
+     * Safe to call from any thread: the teardown is posted to the main thread.
+     * A cancelled session's continuation simply never resumes — the coroutine
+     * is already cancelled, so no state is left behind for the next session.
+     */
+    fun cancel() {
+        mainHandler.post { teardownPending() }
     }
 
     /**
@@ -226,12 +272,12 @@ class OnDeviceVoiceRecognizer(
         bound.set(false)
     }
 
-    private fun createRecognizer(): SpeechRecognizer? {
-        // Prefer a genuine on-device engine on Android 12+ (offline, no Google quota).
-        // The network recognizer (createSpeechRecognizer) streams to Google's cloud,
-        // which can rate-limit with ERROR_TOO_MANY_REQUESTS (code 10), so it is only
-        // used as a last resort and logged so the serving path is visible.
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
+    private fun createRecognizer(forceNetwork: Boolean = false): SpeechRecognizer? {
+        // A forced network attempt comes from the busy-retry path: a device where
+        // the on-device engine is configured but unusable needs the network
+        // recognizer instead, so on-device preference is bypassed.
+        if (!forceNetwork &&
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
             SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
         ) {
             return try {

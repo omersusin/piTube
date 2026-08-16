@@ -680,12 +680,17 @@ fun FlowApp(
         // the root so it can start listening immediately, above the player.
         if (openRecognitionModal) {
             com.omersusin.pitube.ui.recognition.RecognitionScreen(
-                onDismiss = { openRecognitionModal = false },
+                onDismiss = {
+                    recognitionViewModel.reset()
+                    openRecognitionModal = false
+                },
                 onOpenSettings = {
+                    recognitionViewModel.reset()
                     openRecognitionModal = false
                     navController.navigate("settings")
                 },
                 onSearch = { query ->
+                    recognitionViewModel.reset()
                     openRecognitionModal = false
                     if (currentRoute.value != "search") {
                         navController.navigate("search") {

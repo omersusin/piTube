@@ -99,7 +99,7 @@ class RecognitionViewModel
 
         fun stopListening() {
             interrupted.value = true
-            repository.stopRecording()
+            repository.stopVoiceRecognition()
             listeningJob?.cancel()
         }
 
@@ -202,7 +202,11 @@ class RecognitionViewModel
 
         fun reset() {
             interrupted.value = true
-            repository.stopRecording()
+            repository.stopVoiceRecognition()
+            // Cancel the in-flight listening job: without it the old session's
+            // recognizer stays bound while the fresh session opens, which is the
+            // `ERROR_RECOGNIZER_BUSY` reopen leak.
+            listeningJob?.cancel()
             _uiState.value = RecognitionUiState(mode = _uiState.value.mode)
         }
     }

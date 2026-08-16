@@ -32,6 +32,15 @@ class RecognitionRepository(
     private val preferences = RecognitionPreferences(context)
     private val capturer = MicAudioCapturer()
 
+    /**
+     * The single on-device recognizer, held for the process and reused across
+     * voice sessions. Ownership is what lets us serialize/tear down: a fresh
+     * recognizer per call can never cooperate with a previous session that is
+     * still bound to the recognition service, which is how
+     * `ERROR_RECOGNIZER_BUSY` leaks across reopen.
+     */
+    private val voiceRecognizer = OnDeviceVoiceRecognizer(context)
+
     companion object {
         const val VOICE_RECORDING_MS = 12_000L
         const val SONG_RECORDING_MS = 12_000L
@@ -79,7 +88,7 @@ class RecognitionRepository(
         }
         val transcript =
             try {
-                OnDeviceVoiceRecognizer(context).listen(onLevel)
+                voiceRecognizer.listen(onLevel)
             } catch (e: RecognitionException) {
                 // If the cloud attempt failed too, surface the cloud error as the
                 // root cause so the UI shows e.g. "Groq: HTTP 401" rather than a
@@ -165,5 +174,17 @@ class RecognitionRepository(
 
     fun stopRecording() {
         capturer.stop()
+    }
+
+    /**
+     * Stops the recording and tears down any in-flight on-device recognizer so
+     * no session is left bound to the recognition service. Call this whenever
+     * a voice session is cancelled, dismissed or restarted — otherwise the next
+     * session binds while the old one still owns the service and gets
+     * `ERROR_RECOGNIZER_BUSY`.
+     */
+    fun stopVoiceRecognition() {
+        stopRecording()
+        voiceRecognizer.cancel()
     }
 }

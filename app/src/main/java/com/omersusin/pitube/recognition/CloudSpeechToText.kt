@@ -16,6 +16,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Base64
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
@@ -36,6 +37,15 @@ object CloudSpeechToText {
     private const val TAG = "CloudSTT"
 
     private val json = Json { ignoreUnknownKeys = true }
+
+    /**
+     * The recognizer language the cloud providers should use. Comes from the
+     * device locale so a Turkish speaker gets Turkish STT instead of being
+     * forced to English (which returns empty transcripts for non-English
+     * speech). Each provider has its own naming convention — see the per-call
+     * formatters below.
+     */
+    private val locale = Locale.getDefault()
 
     private val client =
         OkHttpClient.Builder()
@@ -159,7 +169,10 @@ object CloudSpeechToText {
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("model", "whisper-large-v3-turbo")
                 .addFormDataPart("response_format", "json")
-                .addFormDataPart("language", "en")
+                // ISO-639-1, e.g. "tr" for a Turkish device. Groq's Whisper
+                // auto-detects when omitted, but an explicit hint avoids
+                // mis-detection on short clips; never force English.
+                .addFormDataPart("language", groqLanguage())
                 .addFormDataPart("file", "sample.wav", wavBytes.toRequestBody("audio/wav".toMediaType()))
                 .build()
 
@@ -188,6 +201,7 @@ object CloudSpeechToText {
             json.encodeToString(
                 GoogleRequestBody.serializer(),
                 GoogleRequestBody(
+                    config = GoogleRequestConfig(languageCode = googleLanguage()),
                     audio = GoogleRequestAudio(content = Base64.getEncoder().encodeToString(wavBytes)),
                 ),
             )
@@ -215,7 +229,7 @@ object CloudSpeechToText {
     private fun transcribeAzure(apiKey: String, region: String, wavBytes: ByteArray): String {
         val request =
             Request.Builder()
-                .url("https://$region.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US&format=detailed")
+                .url("https://$region.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${azureLanguage()}&format=detailed")
                 .header("Ocp-Apim-Subscription-Key", apiKey)
                 .header("Content-Type", "audio/wav")
                 .post(wavBytes.toRequestBody("audio/wav".toMediaType()))
@@ -244,7 +258,7 @@ object CloudSpeechToText {
 
         val request =
             Request.Builder()
-                .url("$instanceUrl/v1/recognize?model=en-US_BroadbandModel")
+                .url("$instanceUrl/v1/recognize?model=${ibmModel()}")
                 .header("Authorization", "Bearer $token")
                 .header("Content-Type", "audio/wav")
                 .post(wavBytes.toRequestBody("audio/wav".toMediaType()))
@@ -285,6 +299,24 @@ object CloudSpeechToText {
                 throw RecognitionException(RecognitionFailureType.OTHER, "IBM Watson auth: no token")
             }
             token
+        }
+    }
+
+    /** Groq's Whisper `language` is ISO-639-1 (e.g. "tr"); English fallback. */
+    private fun groqLanguage(): String = locale.language.takeUnless { it.isBlank() } ?: "en"
+
+    /** Google & Azure expect a full BCP-47 tag (e.g. "tr-TR"); English fallback. */
+    private fun googleLanguage(): String = locale.toLanguageTag().takeUnless { it.isBlank() } ?: "en-US"
+
+    private fun azureLanguage(): String = googleLanguage()
+
+    /** IBM model names are "<lang>-<COUNTRY>_BroadbandModel" (e.g. "tr-TR_BroadbandModel"). */
+    private fun ibmModel(): String {
+        val base = azureLanguage()
+        return if (base.contains("-")) {
+            "${base}_BroadbandModel"
+        } else {
+            "$base-US_BroadbandModel"
         }
     }
 
