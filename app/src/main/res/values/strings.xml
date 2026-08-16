@@ -93,6 +93,12 @@
     <string name="repeat">Repeat</string>
     
     <string name="error_occurred">An error occurred</string>
+    <string name="search_failed">Search failed</string>
+    <string name="empty_results_title">No results found</string>
+    <string name="empty_results_body">Try a different search or check your connection</string>
+    <string name="empty_feed_title">Nothing here yet</string>
+    <string name="empty_feed_body">Your feed is empty. Try refreshing or check back later.</string>
+    <string name="loading_more">Loading more…</string>
     
     <string name="autoplay">Autoplay</string>
     <string name="move_up">Move up</string>

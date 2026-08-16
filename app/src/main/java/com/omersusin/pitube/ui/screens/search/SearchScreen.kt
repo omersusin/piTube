@@ -399,6 +399,10 @@ fun SearchScreen(
                 pagingItems.loadState.refresh is LoadState.Loading
             val isInitialError =
                 pagingItems.loadState.refresh is LoadState.Error && pagingItems.itemCount == 0
+            val isEmptyResults =
+                pagingItems.loadState.refresh is LoadState.NotLoading &&
+                    pagingItems.itemCount == 0 &&
+                    !isInitialLoading
 
             BoxWithConstraints(modifier = Modifier.weight(1f)) {
                 val responsiveColumns =
@@ -428,8 +432,19 @@ fun SearchScreen(
                         val err =
                             (pagingItems.loadState.refresh as LoadState.Error).error
                         SearchErrorState(
-                            message = err.localizedMessage ?: "Search failed",
+                            message = err.localizedMessage ?: stringResource(R.string.search_failed),
                             onRetry = pagingItems::retry,
+                        )
+                    }
+
+                    isEmptyResults -> {
+                        EmptyState(
+                            icon = Icons.Outlined.SearchOff,
+                            title = stringResource(R.string.empty_results_title),
+                            body = stringResource(R.string.empty_results_body),
+                            actionLabel = stringResource(R.string.retry),
+                            onAction = pagingItems::retry,
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
 

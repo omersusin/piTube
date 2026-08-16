@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,6 +36,7 @@ import com.omersusin.pitube.R
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.data.repository.YouTubeRepository.TrendingCategory
 import com.omersusin.pitube.ui.components.ContentFilterChip
+import com.omersusin.pitube.ui.components.EmptyState
 import com.omersusin.pitube.ui.components.ShimmerGridVideoCard
 import com.omersusin.pitube.ui.components.ShimmerVideoCardFullWidth
 import com.omersusin.pitube.ui.components.ShimmerVideoCardHorizontal
@@ -149,6 +151,16 @@ fun CategoriesScreen(
                         ErrorContent(
                             message = uiState.error!!,
                             onRetry = { viewModel.refresh() }
+                        )
+                    }
+                    uiState.videos.isEmpty() -> {
+                        EmptyState(
+                            icon = Icons.Outlined.VideoLibrary,
+                            title = stringResource(R.string.empty_results_title),
+                            body = stringResource(R.string.empty_results_body),
+                            actionLabel = stringResource(R.string.retry),
+                            onAction = { viewModel.refresh() },
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                     else -> {
@@ -333,15 +345,22 @@ private fun GridContent(
 
         if (canLoadMore) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    contentAlignment = Alignment.Center
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.loading_more),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -387,15 +406,22 @@ private fun ListContent(
 
         if (canLoadMore) {
             item {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    contentAlignment = Alignment.Center
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.loading_more),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

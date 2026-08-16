@@ -56,6 +56,13 @@
     <string name="repeat">Tekrarla</string>
     
     <string name="error_occurred">Bir hata oluştu</string>
+    <string name="search_failed">Arama başarısız</string>
+    <string name="empty_results_title">Sonuç bulunamadı</string>
+    <string name="empty_results_body">Farklı bir arama dene veya bağlantını kontrol et</string>
+    <string name="empty_feed_title">Henüz bir şey yok</string>
+    <string name="empty_feed_body">Akışın boş. Yenilemeyi dene veya daha sonra tekrar bak.</string>
+    <string name="loading_more">Daha fazla yükleniyor…</string>
+    <string name="load_failed">Yükleme başarısız</string>
     <string name="autoplay">Otomatik oynatma</string>
     <string name="move_down">Aşağıya taşı</string>
     <string name="move_up">Yukarıya taşı</string>

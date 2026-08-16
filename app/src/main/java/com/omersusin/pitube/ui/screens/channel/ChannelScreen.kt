@@ -50,8 +50,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -1317,11 +1317,31 @@ private fun LazyListScope.shortsContent(
     pagingItems: LazyPagingItems<Video>?,
     onShortClick: (String) -> Unit,
 ) {
-    if (pagingItems == null ||
-        (pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount == 0)
-    ) {
+    if (pagingItems == null) {
         item { EmptyState(message = stringResource(R.string.error_no_shorts_found)) }
         return
+    }
+    val refresh = pagingItems.loadState.refresh
+    when {
+        refresh is LoadState.Loading -> {
+            item { LoadingMoreRow() }
+            return
+        }
+
+        refresh is LoadState.Error -> {
+            item {
+                ChannelPagingErrorRow(
+                    message = (refresh.error as? Exception)?.localizedMessage ?: stringResource(R.string.error_occurred),
+                    onRetry = pagingItems::retry,
+                )
+            }
+            return
+        }
+
+        refresh is LoadState.NotLoading && pagingItems.itemCount == 0 -> {
+            item { EmptyState(message = stringResource(R.string.error_no_shorts_found)) }
+            return
+        }
     }
     val count = pagingItems.itemCount
     val rowCount = (count + 1) / 2
@@ -1344,6 +1364,14 @@ private fun LazyListScope.shortsContent(
                     }
                 }
             }
+        }
+    }
+    if (pagingItems.loadState.append is LoadState.Error) {
+        item {
+            ChannelPagingErrorRow(
+                message = stringResource(R.string.load_failed),
+                onRetry = pagingItems::retry,
+            )
         }
     }
 }
@@ -1396,15 +1424,43 @@ private fun LazyListScope.playlistsContent(
     pagingItems: LazyPagingItems<com.omersusin.pitube.data.model.Playlist>?,
     onPlaylistClick: (String) -> Unit,
 ) {
-    if (pagingItems == null ||
-        (pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount == 0)
-    ) {
+    if (pagingItems == null) {
         item { EmptyState(message = stringResource(R.string.error_no_playlists_found)) }
         return
+    }
+    val refresh = pagingItems.loadState.refresh
+    when {
+        refresh is LoadState.Loading -> {
+            item { LoadingMoreRow() }
+            return
+        }
+
+        refresh is LoadState.Error -> {
+            item {
+                ChannelPagingErrorRow(
+                    message = (refresh.error as? Exception)?.localizedMessage ?: stringResource(R.string.error_occurred),
+                    onRetry = pagingItems::retry,
+                )
+            }
+            return
+        }
+
+        refresh is LoadState.NotLoading && pagingItems.itemCount == 0 -> {
+            item { EmptyState(message = stringResource(R.string.error_no_playlists_found)) }
+            return
+        }
     }
     items(count = pagingItems.itemCount, key = pagingItems.itemKey { it.id }) { index ->
         pagingItems[index]?.let { playlist ->
             PlaylistCard(playlist = playlist, onClick = { onPlaylistClick(playlist.id) })
+        }
+    }
+    if (pagingItems.loadState.append is LoadState.Error) {
+        item {
+            ChannelPagingErrorRow(
+                message = stringResource(R.string.load_failed),
+                onRetry = pagingItems::retry,
+            )
         }
     }
 }
@@ -1420,6 +1476,32 @@ private fun LoadingMoreRow() {
         horizontalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator(modifier = Modifier.size(24.dp))
+    }
+}
+
+@Composable
+private fun ChannelPagingErrorRow(
+    message: String,
+    onRetry: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        OutlinedButton(onClick = onRetry) {
+            Text(stringResource(R.string.retry))
+        }
     }
 }
 

@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.SmartDisplay
+import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -280,6 +281,17 @@ fun HomeScreen(
                     )
                 }
 
+                uiState.videos.isEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Outlined.VideoLibrary,
+                        title = stringResource(R.string.empty_feed_title),
+                        body = stringResource(R.string.empty_feed_body),
+                        actionLabel = stringResource(R.string.retry),
+                        onAction = { viewModel.refreshFeed() },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+
                 else -> {
                     LazyVerticalGrid(
                         columns = gridCells,
@@ -409,15 +421,22 @@ fun HomeScreen(
                                 key = "loading_indicator",
                                 span = { GridItemSpan(maxLineSpan) }
                             ) {
-                                Box(
+                                Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(24.dp),
-                                    contentAlignment = Alignment.Center
+                                        .padding(vertical = 24.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     CircularProgressIndicator(
-                                        modifier = Modifier.size(32.dp),
+                                        modifier = Modifier.size(24.dp),
                                         strokeWidth = 3.dp
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = stringResource(R.string.loading_more),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }

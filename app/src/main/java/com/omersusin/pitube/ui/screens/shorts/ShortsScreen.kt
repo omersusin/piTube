@@ -9,6 +9,7 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +27,7 @@ import com.omersusin.pitube.data.model.ShortVideo
 import com.omersusin.pitube.data.model.toVideo
 import com.omersusin.pitube.player.shorts.ShortsPlayerPool
 import com.omersusin.pitube.ui.components.CommentSortFilter
+import com.omersusin.pitube.ui.components.EmptyState
 import com.omersusin.pitube.ui.components.FlowCommentsBottomSheet
 import com.omersusin.pitube.ui.components.FlowDescriptionBottomSheet
 import com.omersusin.pitube.ui.components.sortCommentsByFilter
@@ -144,6 +146,17 @@ fun ShortsScreen(
                 ShortsErrorState(
                     error = uiState.error,
                     onRetry = { viewModel.loadShorts() },
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+
+            uiState.shorts.isEmpty() -> {
+                EmptyState(
+                    icon = Icons.Outlined.VideoLibrary,
+                    title = stringResource(R.string.empty_results_title),
+                    body = stringResource(R.string.empty_results_body),
+                    actionLabel = stringResource(R.string.retry),
+                    onAction = { viewModel.loadShorts() },
                     modifier = Modifier.align(Alignment.Center),
                 )
             }
