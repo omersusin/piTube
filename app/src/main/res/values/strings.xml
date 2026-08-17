@@ -1986,6 +1986,8 @@
     <string name="settings_google_sync_now">Sync now</string>
     <string name="settings_google_sync_result">Synced: %1$d liked videos, %2$d playlists, %3$d channels</string>
     <string name="settings_google_sync_error">Sync failed: %1$s</string>
+    <string name="settings_google_sync_partial">Sync finished partially — YouTube only returned part of your library. The counts above are what was loaded so far.</string>
+    <string name="toast_subscribe_write_failed">Could not update your YouTube subscription. The change was undone.</string>
     <string name="cookie_paste_title">Session Cookies</string>
     <string name="cookie_paste_subtitle">Sign in by pasting a browser session</string>
     <string name="cookie_paste_clipboard">Paste from clipboard</string>

@@ -2180,6 +2180,8 @@
     <string name="settings_google_sign_in_subtitle">Aboneliklerinize ve akışınıza erişin</string>
     <string name="settings_google_sign_out">Oturumu kapat</string>
     <string name="settings_google_sync_error">Senkronizasyon başarısız: %1$s</string>
+    <string name="settings_google_sync_partial">Eşitleme kısmen tamamlandı — YouTube kitaplığının yalnızca bir kısmını döndürdü. Yukarıdaki sayılar şimdiye dek yüklenenlerdir.</string>
+    <string name="toast_subscribe_write_failed">YouTube aboneliğiniz güncellenemedi. Değişiklik geri alındı.</string>
     <string name="settings_google_sync_now">Şimdi senkronize et</string>
     <string name="settings_google_sync_result">Senkronize edildi: %1$d beğenilen video, %2$d çalma listesi, %3$d kanal</string>
     <string name="settings_google_sync_subtitle">Gerçek aboneliklerinizi ve akışınızı senkronize edin</string>

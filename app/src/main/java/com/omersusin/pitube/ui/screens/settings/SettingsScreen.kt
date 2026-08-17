@@ -299,16 +299,24 @@ fun SettingsScreen(
         isSyncingLibrary = false
         librarySyncResultText = when {
             result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
+            result.sessionExpired -> context.getString(R.string.account_switcher_expired)
             !result.error.isNullOrBlank() -> context.getString(
                 R.string.settings_google_sync_error,
                 result.error
             )
-            else -> context.getString(
-                R.string.settings_google_sync_result,
-                result.likedVideos,
-                result.playlists,
-                result.subscribedChannels
-            )
+            else -> {
+                val base = context.getString(
+                    R.string.settings_google_sync_result,
+                    result.likedVideos,
+                    result.playlists,
+                    result.subscribedChannels
+                )
+                if (result.partial) {
+                    "$base\n${context.getString(R.string.settings_google_sync_partial)}"
+                } else {
+                    base
+                }
+            }
         }
     }
 

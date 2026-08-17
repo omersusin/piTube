@@ -12,12 +12,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
-/** Counts of what a sync pass actually pulled in, shown to the user after a manual refresh. */
+/** Counts of what a sync pass actually applied locally, shown to the user after a manual refresh. */
 data class LibrarySyncResult(
     val likedVideos: Int = 0,
     val playlists: Int = 0,
     val subscribedChannels: Int = 0,
     val notLoggedIn: Boolean = false,
+    /** YouTube only returned part of the library (page cap hit) — counts are a lower bound. */
+    val partial: Boolean = false,
+    /** The account answered as signed-out: a dead session, not an empty library. */
+    val sessionExpired: Boolean = false,
     val error: String? = null,
 )
 
@@ -33,6 +37,11 @@ data class LibrarySyncResult(
  * This is strictly read/import: it only copies data from the account into Flow's local
  * database. It never writes back to the real YouTube account (no like/subscribe calls
  * are sent to Google), so re-running it is always safe.
+ *
+ * The reported counts are the number of items actually applied to the local stores
+ * (not raw parser output), so "0 channels" means nothing landed locally — and when
+ * YouTube answers as signed-out or the crawl is truncated, the result carries an
+ * explicit flag instead of silently persisting fake numbers.
  */
 object YouTubeLibrarySync {
 
@@ -49,6 +58,8 @@ object YouTubeLibrarySync {
         var likedVideos = 0
         var playlists = 0
         var channels = 0
+        var partial = false
+        var sessionExpired = false
 
         val firstError = java.util.concurrent.atomic.AtomicReference<String?>(null)
         coroutineScope {
@@ -61,11 +72,22 @@ object YouTubeLibrarySync {
                     .onFailure { Log.w(TAG, "Playlist sync failed", it); firstError.compareAndSet(null, it.message) }
             }
             launch {
-                runCatching { channels = syncSubscriptions(context) }
-                    .onFailure { Log.w(TAG, "Subscription sync failed", it); firstError.compareAndSet(null, it.message) }
+                runCatching {
+                    val outcome = syncSubscriptions(context)
+                    if (outcome.failed) {
+                        firstError.compareAndSet(null, "subscription crawl failed")
+                    }
+                    channels = outcome.applied
+                    partial = !outcome.complete
+                    sessionExpired = outcome.sessionExpired
+                }.onFailure { Log.w(TAG, "Subscription sync failed", it); firstError.compareAndSet(null, it.message) }
             }
         }
 
+        if (sessionExpired) {
+            Log.w(TAG, "Account sync hit a signed-out session — counts not persisted")
+            firstError.compareAndSet(null, "session expired")
+        }
         if (likedVideos == 0 && playlists == 0 && channels == 0 && !firstError.get().isNullOrBlank()) {
             Log.w(TAG, "Account sync returned all-zero with error: ${firstError.get()}")
         }
@@ -75,12 +97,20 @@ object YouTubeLibrarySync {
             PlayerPreferences(context).setYoutubeLibrarySyncCounts(likedVideos, playlists, channels)
         }
 
-        return LibrarySyncResult(likedVideos, playlists, channels, error = firstError.get())
+        return LibrarySyncResult(
+            likedVideos = likedVideos,
+            playlists = playlists,
+            subscribedChannels = channels,
+            partial = partial && firstError.get().isNullOrBlank(),
+            sessionExpired = sessionExpired,
+            error = firstError.get(),
+        )
     }
 
     private suspend fun syncLikedVideos(context: Context): Int {
         val repository = LikedVideosRepository.getInstance(context)
         val videos = YouTube.webPlaylistVideos("LL").getOrNull().orEmpty()
+        var applied = 0
         videos.forEach { video ->
             runCatching {
                 repository.likeVideo(
@@ -92,9 +122,9 @@ object YouTubeLibrarySync {
                         isMusic = false
                     )
                 )
-            }
+            }.onSuccess { applied++ }
         }
-        return videos.size
+        return applied
     }
 
     private suspend fun syncPlaylists(context: Context): Int {
@@ -102,7 +132,7 @@ object YouTubeLibrarySync {
         val remotePlaylists = YouTube.webUserPlaylists().getOrNull().orEmpty()
         val semaphore = Semaphore(PLAYLIST_FETCH_CONCURRENCY)
 
-        coroutineScope {
+        val appliedCounts = coroutineScope {
             remotePlaylists.map { playlist ->
                 async {
                     semaphore.withPermit {
@@ -117,20 +147,35 @@ object YouTubeLibrarySync {
                             if (videos.isNotEmpty()) {
                                 playlistRepository.syncSavedPlaylistVideos(playlist.id, videos.map { it.toSyncVideo() })
                             }
-                        }.onFailure { Log.w(TAG, "Failed syncing playlist ${playlist.id}", it) }
+                            1
+                        }.onFailure { Log.w(TAG, "Failed syncing playlist ${playlist.id}", it); 0 }
                     }
                 }
             }.awaitAll()
         }
 
-        return remotePlaylists.size
+        return appliedCounts.sum()
     }
 
-    private suspend fun syncSubscriptions(context: Context): Int {
+    private data class SubscriptionsSyncOutcome(
+        val applied: Int,
+        val complete: Boolean,
+        val sessionExpired: Boolean,
+        val failed: Boolean = false,
+    )
+
+    private suspend fun syncSubscriptions(context: Context): SubscriptionsSyncOutcome {
         val repository = SubscriptionRepository.getInstance(context)
         val crawl = YouTube.webSubscribedChannels().getOrNull()
-        val channels = crawl?.channels.orEmpty()
+            ?: return SubscriptionsSyncOutcome(0, complete = false, sessionExpired = false, failed = true)
+        // A dead session answers the browse anonymously — that is a re-login
+        // problem, never "the account has 0 channels".
+        if (crawl.sessionExpired) {
+            return SubscriptionsSyncOutcome(0, complete = false, sessionExpired = true)
+        }
+        val channels = crawl.channels
         val remoteIds = channels.mapTo(HashSet()) { it.id }
+        var applied = 0
         channels.forEach { channel ->
             runCatching {
                 repository.subscribe(
@@ -141,24 +186,25 @@ object YouTubeLibrarySync {
                         isMusic = false
                     )
                 )
-            }
+            }.onSuccess { applied++ }
         }
         // The account is authoritative: drop local-only rows that are NOT in the
         // remote list. Without this, recommendation-shelf channels that slipped
         // into the local library before the parser scoping fix would stay
         // "subscribed" forever and drown out real subscriptions in the feed.
         // The prune only runs when the crawl exhausted its continuation tokens
-        // (complete) and returned a plausible number of channels — a truncated
-        // or rate-limited fetch must never be treated as authoritative, or a
-        // large account would lose most of its channels in one sync.
-        if (crawl?.complete == true && channels.size >= 10) {
+        // (complete) and every fetched channel applied cleanly — a truncated,
+        // rate-limited or partially-failed fetch must never be treated as
+        // authoritative, or a large account would lose most of its channels in
+        // one sync.
+        if (crawl.complete && channels.size >= 10 && applied == channels.size) {
             runCatching {
                 repository.getAllSubscriptionIds()
                     .filter { it !in remoteIds }
                     .forEach { repository.unsubscribe(it) }
             }
         }
-        return channels.size
+        return SubscriptionsSyncOutcome(applied, crawl.complete, sessionExpired = false)
     }
 
     /** Incremental like-refresh used right after an in-app like/unlike. */

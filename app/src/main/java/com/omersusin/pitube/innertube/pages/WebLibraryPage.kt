@@ -26,10 +26,16 @@ data class RemoteChannel(
  * callers use it to decide whether pruning the local library is safe (a
  * truncated crawl must never be treated as the authoritative subscription
  * list, or large accounts would lose most of their channels).
+ *
+ * [sessionExpired] is true when the response body itself proves YouTube
+ * answered as signed-out (`loggedIn: false` / `logged_in: 0`): that is a dead
+ * session, not an empty subscription list, and callers must never treat it
+ * as an authoritative empty crawl.
  */
 data class RemoteChannelCrawl(
     val channels: List<RemoteChannel>,
     val complete: Boolean,
+    val sessionExpired: Boolean = false,
 )
 
 data class RemotePlaylist(
@@ -47,57 +53,79 @@ data class RemotePlaylistVideo(
     val thumbnail: String = "",
 )
 
-/** Channels from the signed FEchannels /browse (channelRenderer items). */
+/** Channels from the signed FEchannels /browse (channelRenderer + gridChannelRenderer items). */
 internal fun JsonElement.toRemoteChannels(): List<RemoteChannel> {
     val renderers = mutableListOf<JsonObject>()
     findChannelRenderersInSubscriptionGrids(this, renderers)
     return renderers.mapNotNull { renderer ->
-        val channelId = renderer["channelId"].stringOrNull()
-            ?.takeIf { it.startsWith("UC") && it.length > 10 } ?: return@mapNotNull null
-        val name = renderer["title"].youtubeText()
-            ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-        val thumbs = renderer["thumbnail"].objectOrNull()
-            ?.get("thumbnails").arrayOrNull().orEmpty()
-        val avatarUrl = thumbs.lastOrNull()?.objectOrNull()
-            ?.get("url").stringOrNull()?.takeIf { it.isNotBlank() }
-            ?.let { if (it.startsWith("//")) "https:$it" else it }
-        RemoteChannel(
-            id = channelId,
-            name = name,
-            thumbnail = avatarUrl.orEmpty(),
-        )
+        if (renderer["contentType"]?.stringOrNull() == "LOCKUP_CONTENT_TYPE_CHANNEL") {
+            // Modern lockup-based channel item: contentId / metadata.title /
+            // decorated avatar (same shape piTube already parses for
+            // playlist-video lockups).
+            val channelId = renderer["contentId"].stringOrNull()
+                ?.takeIf { it.startsWith("UC") && it.length > 10 } ?: return@mapNotNull null
+            val metadata = renderer["metadata"].objectOrNull()
+                ?.get("lockupMetadataViewModel").objectOrNull()
+            val name = metadata?.get("title").objectOrNull()
+                ?.get("content").stringOrNull()
+                ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val avatarUrl = metadata?.get("image").objectOrNull()
+                ?.get("decoratedAvatarViewModel").objectOrNull()
+                ?.get("avatar").objectOrNull()
+                ?.get("avatarViewModel").objectOrNull()
+                ?.get("image").objectOrNull()
+                ?.get("sources").arrayOrNull()
+                ?.maxByOrNull { ((it.objectOrNull()?.get("width")) as? JsonPrimitive)?.intOrNull ?: 0 }
+                ?.objectOrNull()
+                ?.get("url").stringOrNull()
+                ?.takeIf { it.isNotBlank() }
+                ?.let { if (it.startsWith("//")) "https:$it" else it }
+                .orEmpty()
+            RemoteChannel(id = channelId, name = name, thumbnail = avatarUrl)
+        } else {
+            // channelRenderer and gridChannelRenderer share the identical inner
+            // shape (Invidious, ViewTube, yt-dlp and YouTube.js all treat them
+            // as one parser): channelId / title / thumbnail.
+            val channelId = renderer["channelId"].stringOrNull()
+                ?.takeIf { it.startsWith("UC") && it.length > 10 } ?: return@mapNotNull null
+            val name = renderer["title"].youtubeText()
+                ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val thumbs = renderer["thumbnail"].objectOrNull()
+                ?.get("thumbnails").arrayOrNull().orEmpty()
+            val avatarUrl = thumbs.lastOrNull()?.objectOrNull()
+                ?.get("url").stringOrNull()?.takeIf { it.isNotBlank() }
+                ?.let { if (it.startsWith("//")) "https:$it" else it }
+            RemoteChannel(
+                id = channelId,
+                name = name,
+                thumbnail = avatarUrl.orEmpty(),
+            )
+        }
     }.distinctBy { it.id }
 }
 
 /**
- * Collects only the `channelRenderer` items that represent *your* subscription
- * grid, skipping recommendation shelves. FEchannels can mix the subscribed
- * channels grid with "channels you may like" shelves whose channelRenderers
- * must never be imported as subscriptions — walking the whole tree (as
+ * Collects only the channel items that represent *your* subscription grid,
+ * skipping recommendation shelves. FEchannels can mix the subscribed channels
+ * grid with "channels you may like" shelves whose channel renderers must
+ * never be imported as subscriptions — walking the whole tree (as
  * [findObjectsByKey] does) wrote those back into the local library in earlier
  * builds, which is how channels the user never subscribed to appeared as
- * subscribed. Channel renderers are only accepted when they live inside a
- * grid-ish container (`gridRenderer` / `channelListRowRenderer` / a direct
- * `channelRenderer` item) rather than a shelf (`shelfRenderer`,
- * `horizontalListRenderer`, `expandedShelfContentsRenderer`).
+ * subscribed. Channel items are collected from `channelRenderer`,
+ * `gridChannelRenderer` (identical shape) and channel lockupViewModels, and
+ * any item that sits inside a shelf container is skipped by not descending
+ * into shelves at all.
  */
 private fun findChannelRenderersInSubscriptionGrids(node: JsonElement?, results: MutableList<JsonObject>) {
     when (node) {
         is JsonObject -> {
-            val inlineChannel = node["channelRenderer"].objectOrNull()
-            if (inlineChannel != null) {
-                results.add(inlineChannel)
-            }
-            val grid = node["gridRenderer"].objectOrNull()
-            if (grid != null) {
-                grid.findChannelRenderersInSubscriptionGrids(results)
-            }
-            val row = node["channelListRowRenderer"].objectOrNull()
-            if (row != null) {
-                row.findChannelRenderersInSubscriptionGrids(results)
-            }
+            node["channelRenderer"].objectOrNull()?.let { results.add(it) }
+            node["gridChannelRenderer"].objectOrNull()?.let { results.add(it) }
+            node["lockupViewModel"].objectOrNull()?.let { results.add(it) }
             // Skip any shelf container entirely: this is where YouTube hides
             // "related / you might like" channels on the subscriptions page.
+            // Only the subtree below a shelf key is skipped — a sibling grid
+            // sharing an ancestor must still be walked.
             val hasShelf = listOf(
                 "shelfRenderer",
                 "horizontalListRenderer",
@@ -116,10 +144,6 @@ private fun findChannelRenderersInSubscriptionGrids(node: JsonElement?, results:
         }
         else -> Unit
     }
-}
-
-private fun JsonObject.findChannelRenderersInSubscriptionGrids(results: MutableList<JsonObject>) {
-    findChannelRenderersInSubscriptionGrids(this, results)
 }
 
 /** First continuation token of a browse response (richGrid/continuation items). */

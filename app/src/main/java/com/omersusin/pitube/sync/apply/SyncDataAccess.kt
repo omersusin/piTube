@@ -3,8 +3,8 @@ package com.omersusin.pitube.sync.apply
 import android.content.Context
 import com.omersusin.pitube.data.local.LikedVideosRepository
 import com.omersusin.pitube.data.local.PlayerPreferences
+import com.omersusin.pitube.data.local.SubscriptionRepository
 import com.omersusin.pitube.data.local.dao.PlaylistDao
-import com.omersusin.pitube.data.local.dao.SubscriptionGroupDao
 import com.omersusin.pitube.data.local.dao.VideoDao
 import com.omersusin.pitube.data.local.dao.WatchHistoryDao
 import com.omersusin.pitube.sync.canonical.CanonicalLike
@@ -15,7 +15,6 @@ import com.omersusin.pitube.sync.canonical.CanonicalWatchHistory
 import com.omersusin.pitube.sync.mapping.LikesMapper
 import com.omersusin.pitube.sync.mapping.PlaylistMapper
 import com.omersusin.pitube.sync.mapping.SettingsMapper
-import com.omersusin.pitube.sync.mapping.SubscriptionsMapper
 import com.omersusin.pitube.sync.mapping.WatchHistoryMapper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -34,10 +33,10 @@ class SyncDataAccess @Inject constructor(
     private val watchHistoryDao: WatchHistoryDao,
     private val playlistDao: PlaylistDao,
     private val videoDao: VideoDao,
-    private val subscriptionGroupDao: SubscriptionGroupDao,
 ) {
     private val likedVideos: LikedVideosRepository by lazy { LikedVideosRepository.getInstance(context) }
     private val playerPrefs: PlayerPreferences by lazy { PlayerPreferences(context) }
+    private val subscriptionRepository: SubscriptionRepository by lazy { SubscriptionRepository.getInstance(context) }
 
     // --- watch history ---
 
@@ -76,13 +75,41 @@ class SyncDataAccess @Inject constructor(
 
     // --- subscriptions ---
 
-    suspend fun readSubscriptions(hlc: String): List<CanonicalSubscriptionGroup> =
-        subscriptionGroupDao.getAllGroupsOnce().map { SubscriptionsMapper.toCanonical(it, hlc) }
+    // The real subscription list lives in SubscriptionRepository (per-profile
+    // DataStore); the vestigial subscription_groups Room table is never written
+    // by the UI. Export one synthetic "Subscriptions" group so device-to-device
+    // sync carries the actual channels instead of an always-empty table.
+    suspend fun readSubscriptions(hlc: String): List<CanonicalSubscriptionGroup> {
+        val channelIds = subscriptionRepository.getAllSubscriptionIds()
+        if (channelIds.isEmpty()) return emptyList()
+        return listOf(
+            CanonicalSubscriptionGroup(
+                name = "Subscriptions",
+                channelIds = channelIds.toSortedSet().toList(),
+                sortOrder = 0,
+                hlc = hlc,
+            )
+        )
+    }
 
     suspend fun writeSubscriptions(merged: List<CanonicalSubscriptionGroup>) {
-        val toUpsert = merged.filter { !it.deleted }.map { SubscriptionsMapper.toEntity(it) }
-        if (toUpsert.isNotEmpty()) subscriptionGroupDao.insertAll(toUpsert)
-        for (g in merged) if (g.deleted) subscriptionGroupDao.deleteGroup(g.name)
+        val existing = subscriptionRepository.getAllSubscriptionIds()
+        for (group in merged) {
+            if (group.deleted) {
+                for (id in group.channelIds) subscriptionRepository.unsubscribe(id)
+                continue
+            }
+            for (id in group.channelIds) {
+                if (id.isBlank() || id in existing) continue
+                subscriptionRepository.subscribe(
+                    com.omersusin.pitube.data.local.ChannelSubscription(
+                        channelId = id,
+                        channelName = "",
+                        channelThumbnail = "",
+                    )
+                )
+            }
+        }
     }
 
     // --- playlists ---
