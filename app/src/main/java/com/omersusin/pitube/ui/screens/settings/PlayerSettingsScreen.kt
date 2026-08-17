@@ -151,6 +151,7 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
     val crossfadeEnabled by playerPreferences.crossfadeEnabled.collectAsState(initial = false)
     val crossfadeDurationSeconds by playerPreferences.crossfadeDurationSeconds.collectAsState(initial = 4)
     var showCrossfadeDurationDialog by remember { mutableStateOf(false) }
+    val radioModeEnabled by playerPreferences.radioModeEnabled.collectAsState(initial = false)
     val autoplayCountdownSeconds by playerPreferences.autoplayCountdownSeconds.collectAsState(initial = 0)
     val skipSilenceEnabled by playerPreferences.skipSilenceEnabled.collectAsState(initial = false)
     val manualPipButtonEnabled by playerPreferences.manualPipButtonEnabled.collectAsState(initial = true)
@@ -429,6 +430,18 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                             onClick = { showCrossfadeDurationDialog = true },
                         )
                     }
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.Radio,
+                        title = stringResource(R.string.player_settings_radio_mode),
+                        subtitle = stringResource(R.string.player_settings_radio_mode_subtitle),
+                        checked = radioModeEnabled,
+                        onCheckedChange = {
+                            coroutineScope.launch {
+                                playerPreferences.setRadioModeEnabled(it)
+                            }
+                        },
+                    )
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsClickItem(
                         icon = Icons.Outlined.Timer,

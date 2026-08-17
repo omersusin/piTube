@@ -204,6 +204,11 @@ class EnhancedPlayerManager private constructor() {
     private var crossfadeJob: Job? = null
     private var crossfadeEnabled: Boolean = false
     private var crossfadeDurationMs: Long = 4_000L
+
+    private var radioModeEnabled: Boolean = false
+    private val radioSeededSourceIds = mutableSetOf<String>()
+    private val _radioNeedsMoreEvents = MutableSharedFlow<Video>(extraBufferCapacity = 4)
+    val radioNeedsMoreEvents: SharedFlow<Video> = _radioNeedsMoreEvents.asSharedFlow()
     private var advanceWakeLock: PowerManager.WakeLock? = null
 
     private fun isOnMainThread(): Boolean = Looper.myLooper() == Looper.getMainLooper()
@@ -723,6 +728,15 @@ class EnhancedPlayerManager private constructor() {
         scope.launch {
             prefs.crossfadeDurationSeconds.collect { seconds ->
                 crossfadeDurationMs = seconds.coerceIn(1, 10) * 1_000L
+            }
+        }
+
+        scope.launch {
+            prefs.radioModeEnabled.collect { isEnabled ->
+                radioModeEnabled = isEnabled
+                if (isEnabled && autoplayCandidates.isEmpty()) {
+                    requestRadioSeeds()
+                }
             }
         }
 
@@ -1790,6 +1804,7 @@ class EnhancedPlayerManager private constructor() {
         val nextVideo =
             autoplayCandidates.firstOrNull() ?: run {
                 autoNextLog("playNextAutoplayCandidate no candidate")
+                if (radioModeEnabled) requestRadioSeeds()
                 return false
             }
 
@@ -1797,6 +1812,60 @@ class EnhancedPlayerManager private constructor() {
         autoplayCandidates = autoplayCandidates.drop(1)
         playVideoFromServiceLayer(nextVideo, reason = "related-autoplay")
         return true
+    }
+
+    /**
+     * Radio mode: when the queue and the related-autoplay candidates run dry,
+     * ask the app layer for a fresh batch of related videos (one request per
+     * source video) and append them so playback never ends.
+     */
+    private fun requestRadioSeeds() {
+        val current = GlobalPlayerState.currentVideo.value ?: return
+        if (!radioSeededSourceIds.add(current.id)) {
+            autoNextLog("radio already seeded for ${current.id}")
+            return
+        }
+        autoNextLog("radio requesting seeds for ${current.id}")
+        _radioNeedsMoreEvents.tryEmit(current)
+    }
+
+    /**
+     * Append radio videos to the queue end. Deduplicated against the current
+     * queue; also fed into the autoplay candidates so the transition happens
+     * through the same path as related-video autoplay.
+     */
+    fun appendRadioVideos(sourceVideoId: String, videos: List<Video>) {
+        if (!isOnMainThread()) {
+            mainHandler.post { appendRadioVideos(sourceVideoId, videos) }
+            return
+        }
+        if (!radioModeEnabled) {
+            autoNextLog("appendRadioVideos ignored — radio off")
+            return
+        }
+        val existingIds = playbackQueue.mapTo(HashSet()) { it.id }
+        val fresh = videos.filter { it.id.isNotBlank() && existingIds.add(it.id) }
+        if (fresh.isEmpty()) {
+            autoNextLog("appendRadioVideos nothing fresh")
+            radioSeededSourceIds.remove(sourceVideoId)
+            return
+        }
+        autoNextLog("appendRadioVideos +${fresh.size} from $sourceVideoId")
+        playbackQueue = playbackQueue + fresh
+        originalPlaybackQueue = originalPlaybackQueue + fresh
+        _queueVideos.value = playbackQueue
+        autoplayCandidates = autoplayCandidates + fresh
+        updateQueueState()
+
+        // The current video likely already ended while the fetch was in
+        // flight — resume playback with the first radio item unless the user
+        // moved on to something else in the meantime.
+        val state = player?.playbackState
+        val stillOnSource = GlobalPlayerState.currentVideo.value?.id == sourceVideoId
+        if (stillOnSource && (state == Player.STATE_ENDED || state == Player.STATE_IDLE)) {
+            autoNextLog("appendRadioVideos resuming playback with ${fresh.first().id}")
+            playVideoFromServiceLayer(fresh.first(), reason = "radio-resume")
+        }
     }
 
     // ===== Autoplay countdown (delay before switching to the next video) =====

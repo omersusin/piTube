@@ -325,6 +325,23 @@ class VideoPlayerViewModel @Inject constructor(
                 }
             }
         }
+        // Radio mode: when the queue and autoplay candidates run dry, fetch a
+        // fresh batch of related videos for the current one so playback never
+        // ends (one in-flight seed at a time, deduped per source video by the
+        // manager).
+        viewModelScope.launch {
+            EnhancedPlayerManager.getInstance().radioNeedsMoreEvents.collect { video ->
+                if (radioSeedJob?.isActive == true) return@collect
+                radioSeedJob = viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                    val related = runCatching { repository.getRelatedVideos(video.id) }
+                        .getOrDefault(emptyList())
+                    if (related.isNotEmpty()) {
+                        EnhancedPlayerManager.getInstance().appendRadioVideos(video.id, related)
+                    }
+                }
+            }
+        }
+
         // Re-fetch streams whenever an expired URL is detected (HTTP 403/410 "data changed")
         viewModelScope.launch {
             EnhancedPlayerManager.getInstance().streamExpiredEvent.collect {
@@ -2794,6 +2811,7 @@ class VideoPlayerViewModel @Inject constructor(
     }
 
     private var historyReportJob: kotlinx.coroutines.Job? = null
+    private var radioSeedJob: kotlinx.coroutines.Job? = null
     private var historyVideoId: String? = null
     private var historyCpn: String? = null
     private var historyTracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking? = null

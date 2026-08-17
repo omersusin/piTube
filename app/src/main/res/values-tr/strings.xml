@@ -1611,6 +1611,8 @@
     <string name="player_settings_crossfade_subtitle">Kuyruk öğeleri arasında sesi yumuşakça geçir</string>
     <string name="player_settings_crossfade_duration">Crossfade süresi</string>
     <string name="player_settings_crossfade_duration_seconds_template">%1$d saniye</string>
+    <string name="player_settings_radio_mode">Radyo modu</string>
+    <string name="player_settings_radio_mode_subtitle">Kuyruk bitince ilgili videoları sonsuza dek oynat</string>
     <string name="player_settings_queue_autoplay_subtitle">Oynatma listesindeki veya Daha Sonra İzle kuyruğundaki sonraki videoyu otomatik olarak oynat. Kapalıyken de elle sonraki videoya geçebilirsin.</string>
     <string name="player_settings_autoplay_countdown_title">Otomatik oynatma gecikmesi</string>
     <string name="player_settings_autoplay_countdown_none">Yok (hemen geç)</string>

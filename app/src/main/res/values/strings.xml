@@ -787,6 +787,8 @@
     <string name="player_settings_crossfade_subtitle">Softly fade the volume between queue items</string>
     <string name="player_settings_crossfade_duration">Crossfade duration</string>
     <string name="player_settings_crossfade_duration_seconds_template">%1$d seconds</string>
+    <string name="player_settings_radio_mode">Radio mode</string>
+    <string name="player_settings_radio_mode_subtitle">Keep playing related videos forever when the queue ends</string>
     <string name="player_settings_queue_autoplay_subtitle">Automatically play the next video in a playlist or Watch Later queue. When off, you can still skip manually.</string>
     <string name="player_settings_autoplay_countdown_title">Autoplay delay</string>
     <string name="player_settings_autoplay_countdown_none">None (switch immediately)</string>

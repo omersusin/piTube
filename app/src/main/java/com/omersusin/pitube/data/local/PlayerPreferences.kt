@@ -69,6 +69,7 @@ class PlayerPreferences(context: Context) {
         val HISTORY_DEFAULT_RANGE = stringPreferencesKey("history_default_range")
         val CROSSFADE_ENABLED = booleanPreferencesKey("crossfade_enabled")
         val CROSSFADE_DURATION_SECONDS = intPreferencesKey("crossfade_duration_seconds")
+        val RADIO_MODE_ENABLED = booleanPreferencesKey("radio_mode_enabled")
         val AUTOPLAY_COUNTDOWN_SECONDS = intPreferencesKey("autoplay_countdown_seconds")
         val SHOW_CONTROLS_WHILE_LOADING = booleanPreferencesKey("show_controls_while_loading")
         val VIDEO_LOOP_ENABLED = booleanPreferencesKey("video_loop_enabled")
@@ -978,6 +979,19 @@ class PlayerPreferences(context: Context) {
     suspend fun setCrossfadeDurationSeconds(seconds: Int) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.CROSSFADE_DURATION_SECONDS] = seconds.coerceIn(1, 10)
+        }
+    }
+
+    // Radio mode: when the queue + autoplay candidates run dry, related videos
+    // are fetched endlessly so playback never stops.
+    val radioModeEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.RADIO_MODE_ENABLED] ?: false
+        }
+
+    suspend fun setRadioModeEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.RADIO_MODE_ENABLED] = enabled
         }
     }
 
