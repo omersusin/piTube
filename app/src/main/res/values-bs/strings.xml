@@ -541,7 +541,7 @@
     <string name="settings_item_export_data_subtitle">Napravite sigurnosnu kopiju svojih podataka</string>
     <string name="settings_item_import_data">Uvoz podataka</string>
     <string name="settings_item_import_data_subtitle">Obnovite iz sigurnosne kopije ili uvezite iz drugih aplikacija</string>
-    <string name="settings_reset_brain_body">Ovo će potpuno obrisati vaš profil interesa \\'Flow Brain\\'.\n\n• Sve naučene teme će biti zaboravljene.\n• Osobine ličnosti će biti resetovane na neutralno.\n• Preporuke će se vratiti na zadane vrijednosti.\n\nOva radnja se ne može poništiti.</string>
+    <string name="settings_reset_brain_body">Ovo će potpuno obrisati vaš profil interesa \'Flow Brain\'.\n\n• Sve naučene teme će biti zaboravljene.\n• Osobine ličnosti će biti resetovane na neutralno.\n• Preporuke će se vratiti na zadane vrijednosti.\n\nOva radnja se ne može poništiti.</string>
     <string name="settings_reset_brain_title">Resetiraj osobinu Flow-a?</string>
     <string name="settings_reset_everything">Resetuj sve</string>
     <string name="settings_view_analytics">Pregled analitike</string>
@@ -715,7 +715,7 @@
     <string name="buffer_settings_header_custom">Ručna konfiguracija</string>
     <string name="buffer_settings_header_profile">Profil performansi</string>
     <string name="buffer_settings_title">Postavke bafera</string>
-    <string name="buffer_switch_to_custom">Prebacite se na \\'Prilagođeno\\' da omogućite klizače.</string>
+    <string name="buffer_switch_to_custom">Prebacite se na \'Prilagođeno\' da omogućite klizače.</string>
     <string name="cache_size_100mb">100 MB</string>
     <string name="cache_size_200mb">200 MB</string>
     <string name="cache_size_500mb">500 MB (podrazumevano)</string>
@@ -851,7 +851,7 @@
     <string name="delete_after_days_template">Izbriši nakon %1$d dana</string>
     <string name="delete_older_than_template">Izbriši pretrage starije od %1$d dana</string>
     <string name="delete_playlist_action">Izbriši sve svoje plejliste</string>
-    <string name="delete_playlist_dialog_text">This will permanently delete \\'%1$s\\' and all its videos.</string>
+    <string name="delete_playlist_dialog_text">This will permanently delete \'%1$s\' and all its videos.</string>
     <string name="delete_playlist_dialog_title">Izbrisati plejlistu?</string>
     <string name="delete_searches_older_than">Izbriši pretrage starije od:</string>
     <string name="delete_selected">Izbriši odabrano</string>

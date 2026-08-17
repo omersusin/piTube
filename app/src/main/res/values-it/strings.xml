@@ -1723,7 +1723,7 @@
     <string name="subtitle_position_template">Posizione: %1$d</string>
     <string name="subtitle_text_color">Colore del testo</string>
     <string name="subtitle_background_color">Colore dello sfondo</string>
-    <string name="subtitle_background_opacity_template">Opacità dello sfondo: %1$d</string>
+    <string name="subtitle_background_opacity_template">Opacità dello sfondo: %1$d%%</string>
     <string name="subtitle_bold_text">Testo grassetto</string>
     <string name="subtitle_reset_default">Reimposta a predefiniti</string>
     

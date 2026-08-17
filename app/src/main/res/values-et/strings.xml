@@ -1573,7 +1573,7 @@
     <string name="sync_try_again">Proovi uuesti</string>
     <string name="tab_posts">Postitused</string>
     <string name="template_bass_boost">Bassivõimendus: %1$d dB</string>
-    <string name="template_freq">%1$d dB HPSPLIT23K V0PLIT23K %1$d</string>
+    <string name="template_freq">%1$dHz</string>
     <string name="template_gain">eelvõimendi: %1$.1f dB</string>
     <string name="template_preamp">%1$.1f</string>
     <string name="template_q">%1$.1f</string>

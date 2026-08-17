@@ -384,7 +384,7 @@
     <string name="dislikes">唔鍾意</string>
     <string name="dismiss">解僱</string>
     <string name="dlna_cast_to_device">投放到裝置</string>
-    <string name="dlna_no_devices">喺呢個網絡上面搵唔到 DLNA/UPnP 渲染器。 \ n \ n 確保你部電視或者媒體播放器（ VLC 、 Kodi 等）喺同一個 Wi-Fi 網絡上面，同埋啟用咗媒體渲染器模式。</string>
+    <string name="dlna_no_devices">喺呢個網絡上面搵唔到 DLNA/UPnP 渲染器。 \n\n確保你部電視或者媒體播放器（ VLC 、 Kodi 等）喺同一個 Wi-Fi 網絡上面，同埋啟用咗媒體渲染器模式。</string>
     <string name="dlna_now_casting">而家鑄造： %1$s</string>
     <string name="dlna_searching">搵緊 DLNA 裝置⋯</string>
     <string name="dlna_stop_casting">停止投擲</string>
@@ -466,7 +466,7 @@
     <string name="empty_feed_title">呢度仲未有嘢</string>
     <string name="empty_liked">冇讚好</string>
     <string name="empty_liked_body">你鍾意嘅內容會喺呢度出現</string>
-    <string name="empty_offline_body">你下載嘅 %1$s 會顯示喺呢度。 \ n 即使冇互聯網，都可以享受你嘅內容。</string>
+    <string name="empty_offline_body">你下載嘅 %1$s 會顯示喺呢度。 \n即使冇互聯網，都可以享受你嘅內容。</string>
     <string name="empty_offline_title">離線 %1$s</string>
     <string name="empty_results_body">試下用唔同嘅搜尋方法或者檢查你嘅連線</string>
     <string name="empty_results_title">搵唔到結果</string>
@@ -658,7 +658,7 @@
     <string name="login_tab_webview">瀏覽器登入</string>
     <string name="login_title">登入 YouTube</string>
     <string name="login_token_description">喺登入咗嘅瀏覽器貼上工作階段憑證或者 Cookie ，就可以喺唔使 Google 嵌入式瀏覽器封鎖嘅情況下登入。你可以喺其他應用程式匯出佢，或者用以下步驟。</string>
-    <string name="login_token_field_hint">SID = … ； SAPISID = ... \ 或 \ n * * * 數據同步 ID * * * = ... \ n * * * 帳戶名稱 * * * = ...</string>
+    <string name="login_token_field_hint">SID = … ； SAPISID = ... \n或\n* * * 數據同步 ID * * * = ... \n* * * 帳戶名稱 * * * = ...</string>
     <string name="login_token_field_label">令牌或曲奇</string>
     <string name="logout_button">登出</string>
     <string name="logs_copied">複製咗嘅記錄</string>
@@ -1279,7 +1279,7 @@
     <string name="stt_provider_ibm_watson_subtitle">500 分鐘 / 月免費（ IBM 雲端精簡版）</string>
     <string name="subscribe">訂閱</string>
     <string name="subscribed">已訂閱</string>
-    <string name="subscribed_to">已訂閱 % s</string>
+    <string name="subscribed_to">已訂閱 %s</string>
     <string name="subscribers">用户</string>
     <string name="subscribers_count_template">%1$s 用户</string>
     <string name="subtitle_auto_generated_template">%1$s （ %2$s ）</string>
@@ -1288,7 +1288,7 @@
     <string name="subtitle_bold_text">粗体文字</string>
     <string name="subtitle_customization_title">Subtitle Customization</string>
     <string name="subtitle_font_size_template">Font Size: %1$d</string>
-    <string name="subtitle_position_template">字幕自定义 %1$d 字幕位置： %1$d</string>
+    <string name="subtitle_position_template">字幕位置： %1$d</string>
     <string name="subtitle_preview_text">預覽字幕文字</string>
     <string name="subtitle_reset_default">重設為預設</string>
     <string name="subtitle_style">字幕樣式</string>
@@ -1451,7 +1451,7 @@
     <string name="toast_unsubscribed_from">未訂閱 %1$s</string>
     <string name="tools_subtitle">設定提醒嚟平衡你嘅觀看習慣</string>
     <string name="tools_to_manage_time">管理你嘅時間嘅工具</string>
-    <string name="total_hours_template">總計： % s 小時</string>
+    <string name="total_hours_template">總計： %s 小時</string>
     <string name="total_space_template">總計： %1$s</string>
     <string name="track_info">追蹤資訊</string>
     <string name="track_info_subtitle">詳細嘅技術同社交指標</string>

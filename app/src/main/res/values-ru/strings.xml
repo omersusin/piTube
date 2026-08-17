@@ -98,7 +98,7 @@
     <string name="tab_videos">Видео</string>
     
     <string name="empty_offline_title">%1$s офлайн</string>
-    <string name="empty_offline_body">Здесь появятся ваши загрузки.\nНаслаждайтесь контентом даже без интернета.</string>
+    <string name="empty_offline_body">Ваши загруженные %1$s появятся здесь.\nНаслаждайтесь контентом даже без интернета.</string>
     <string name="action_go_to_home">На главную</string>
     <string name="action_delete">Удалить</string>
     <string name="downloads_title">Загрузки</string>

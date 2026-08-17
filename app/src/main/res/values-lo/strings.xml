@@ -186,7 +186,7 @@
     <string name="buffer_settings_header_custom">ການຕັ້ງຄ່າຄູ່ມື</string>
     <string name="buffer_settings_header_profile">ໂປຣໄຟລ໌ປະສິດທິພາບ</string>
     <string name="buffer_settings_title">Buffer Settings</string>
-    <string name="buffer_switch_to_custom">ປ່ຽນເປັນ \\'Custom\\' ເພື່ອເປີດໃຊ້ sliders.</string>
+    <string name="buffer_switch_to_custom">ປ່ຽນເປັນ \'Custom\' ເພື່ອເປີດໃຊ້ sliders.</string>
     <string name="cache_size_100mb">100 MB</string>
     <string name="cache_size_200mb">200 MB</string>
     <string name="cache_size_500mb">500 MB (ຄ່າເລີ່ມຕົ້ນ)</string>
@@ -359,7 +359,7 @@
     <string name="delete_comment_confirm">ລຶບຄຳເຫັນນີ້ບໍ? ອັນນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.</string>
     <string name="delete_older_than_template">ລຶບການຊອກຫາທີ່ເກົ່າກວ່າ %1$d ມື້</string>
     <string name="delete_playlist_action">ລຶບລາຍການຫຼິ້ນ</string>
-    <string name="delete_playlist_dialog_text">ອັນນີ້ຈະລຶບ \\'%1$s \\' ແລະວິດີໂອທັງໝົດຂອງມັນອອກຖາວອນ.</string>
+    <string name="delete_playlist_dialog_text">ອັນນີ້ຈະລຶບ \'%1$s \' ແລະວິດີໂອທັງໝົດຂອງມັນອອກຖາວອນ.</string>
     <string name="delete_playlist_dialog_title">ລຶບລາຍການຫຼິ້ນອອກບໍ?</string>
     <string name="delete_searches_older_than">ລຶບການຊອກຫາທີ່ເກົ່າກວ່າ:</string>
     <string name="delete_selected">ລຶບທີ່ເລືອກ</string>
@@ -1373,7 +1373,7 @@
     <string name="template_q">%1$.1f</string>
     <string name="thank_you_support_message">ຂໍຂອບໃຈສໍາລັບການສະຫນັບສະຫນູນຂອງທ່ານ! ❤️</string>
     <string name="theme_desc_arctic">Frozen clarity</string>
-    <string name="theme_desc_classic_dark">piTube\'s original palette</string>
+    <string name="theme_desc_classic_dark">piTube's original palette</string>
     <string name="theme_desc_cosmic_void">ຄວາມມືດອັນເປັນນິດ</string>
     <string name="theme_desc_cream_paper">Warm &amp; cozy</string>
     <string name="theme_desc_crimson">ທີ່ມີຄວາມອົບອຸ່ນ ແລະສະດວກສະບາຍ</string>

@@ -948,7 +948,7 @@
     <string name="buffer_desc_datasaver">Minimizar o uso de dados com buffers menores (mínimo de 12s)</string>
     <string name="buffer_profile_custom_desc">Configurar manualmente os tamanhos dos buffers</string>
     <string name="buffer_custom_mode_desc">Ajustar manualmente os tamanhos dos buffers. Valores mais altos evitam interrupções, mas podem atrasar o início da reprodução.</string>
-    <string name="buffer_switch_to_custom">Alterne para \'Personalizado\' para ativar os controles deslizantes.</string>
+    <string name="buffer_switch_to_custom">Alterne para 'Personalizado' para ativar os controles deslizantes.</string>
     <string name="buffer_label_min">Buffer mínimo: %1$ds</string>
     <string name="buffer_label_playback">Iniciar reprodução: %1$ds</string>
     <string name="buffer_label_rebuffer">Retomar após Rebuffer: %1$ds</string>
@@ -1187,7 +1187,7 @@
     <string name="playlist_empty_title">Esta lista de reprodução está vazia</string>
     <string name="playlist_empty_desc">Adicione vídeos do reprodutor de vídeo.\npara criar sua playlist</string>
     <string name="delete_playlist_dialog_title">Excluir lista de reprodução?</string>
-    <string name="delete_playlist_dialog_text">Isso excluirá permanentemente \'%1$s\' e todos os seus vídeos.</string>
+    <string name="delete_playlist_dialog_text">Isso excluirá permanentemente '%1$s' e todos os seus vídeos.</string>
     <string name="playlist_metadata_private_template">Lista de reprodução • Privada • %1$d vídeos</string>
     <string name="playlist_metadata_public_template">Lista de reprodução • Pública • %1$d vídeos</string>
     <string name="playlist_sort_options">Opções de classificação da lista de reprodução</string>
@@ -1765,7 +1765,7 @@
     <string name="login_tab_token">Colar token/cookie</string>
     <string name="login_tab_webview">Login do navegador</string>
     <string name="login_title">Faça login no YouTube</string>
-    <string name="login_token_description">Paste a session token or cookie from a signed-in browser to sign in without Google\\'s embedded-browser block. You can export it from another app, or use the steps below.</string>
+    <string name="login_token_description">Paste a session token or cookie from a signed-in browser to sign in without Google\'s embedded-browser block. You can export it from another app, or use the steps below.</string>
     <string name="login_token_field_hint">SID=...; SAPISID=...\nor\n***ID DATASYNC*** =...\n***NOME DA CONTA*** =...</string>
     <string name="login_token_field_label">Token ou cookie</string>
     <string name="logout_button">Sair</string>
@@ -1862,7 +1862,7 @@
     <string name="recognition_overlay_done_description">Música encontrada — toque para pesquisar</string>
     <string name="recognition_overlay_failed_description">Falha no reconhecimento — toque para tentar novamente</string>
     <string name="recognition_overlay_foreground_title">Reconhecimento de música</string>
-    <string name="recognition_overlay_not_recording">Couldn\\'t start recording. Open piTube to allow the microphone.</string>
+    <string name="recognition_overlay_not_recording">Couldn\'t start recording. Open piTube to allow the microphone.</string>
     <string name="recognition_overlay_recognizing_description">Identificando a música… toque para cancelar</string>
     <string name="recognition_processing">Identificando…</string>
     <string name="recognition_provider_acrcloud">ACRCloud</string>
@@ -1934,7 +1934,7 @@
     <string name="stt_provider_azure">Discurso Azure</string>
     <string name="stt_provider_azure_subtitle">5 horas/mês de transcrição gratuita em tempo real (F0)</string>
     <string name="stt_provider_cihaz">Cihaz STT</string>
-    <string name="stt_provider_cihaz_subtitle">Android\\'s built-in recognizer. No setup needed.</string>
+    <string name="stt_provider_cihaz_subtitle">Android\'s built-in recognizer. No setup needed.</string>
     <string name="stt_provider_google_cloud">Conversão de fala em texto do Google Cloud</string>
     <string name="stt_provider_google_cloud_subtitle">60 minutos/mês grátis (V1, recorrente)</string>
     <string name="stt_provider_groq">API Groq Cloud</string>
@@ -1962,7 +1962,7 @@
     <string name="translation_base_url_default">Padrão</string>
     <string name="translation_base_url_dialog_title">URL base personalizada</string>
     <string name="translation_base_url_row">URL base</string>
-    <string name="translation_caption_note">Subtitles use YouTube\\'s built-in translated captions when they are available for the target language.</string>
+    <string name="translation_caption_note">Subtitles use YouTube\'s built-in translated captions when they are available for the target language.</string>
     <string name="translation_missing_key_hint">A tradução está ativada, mas o %1$s precisa de uma chave API: adicione uma acima ou escolha um provedor gratuito e o conteúdo permanecerá no idioma original.</string>
     <string name="translation_mode_dual">Original + tradução</string>
     <string name="translation_mode_dual_subtitle">Mostrar os dois juntos</string>
@@ -1986,7 +1986,7 @@
     <string name="translation_test_row_subtitle">Execute um exemplo de tradução</string>
     <string name="translation_test_success">Amostra traduzida</string>
     <string name="translation_toggle_captions">Legendas e legendas</string>
-    <string name="translation_toggle_captions_subtitle">Uses YouTube\\'s native caption translation</string>
+    <string name="translation_toggle_captions_subtitle">Uses YouTube\'s native caption translation</string>
     <string name="translation_toggle_channel_names">Nomes de canais</string>
     <string name="translation_toggle_comments">Comentários</string>
     <string name="translation_toggle_descriptions">Descrições dos vídeos</string>

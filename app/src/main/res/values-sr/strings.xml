@@ -525,7 +525,7 @@
     <string name="diagnostics_title">Дијагностика</string>
     <string name="dismiss">Одбаци</string>
     <string name="dlna_cast_to_device">Пребаци на уређај</string>
-    <string name="dlna_no_devices">На овој мрежи нису пронађени ДЛНА/УПнП рендерери.\н\нУверите се да је ваш ТВ или медија плејер (ВЛЦ, Коди, итд.) на истој Ви-Фи мрежи и да је режим приказивања медија омогућен.</string>
+    <string name="dlna_no_devices">На овој мрежи нису пронађени ДЛНА/УПнП рендерери.\n\nУверите се да је ваш ТВ или медија плејер (ВЛЦ, Коди, итд.) на истој Ви-Фи мрежи и да је режим приказивања медија омогућен.</string>
     <string name="dlna_now_casting">Now casting: %1$s</string>
     <string name="dlna_searching">Тражење ДЛНА уређаја...</string>
     <string name="dlna_stop_casting">Стоп Цастинг</string>
@@ -763,7 +763,7 @@
     <string name="login_tab_webview">Пријављивање из претраживача</string>
     <string name="login_title">Пријавите се на ИоуТубе</string>
     <string name="login_token_description">Налепите токен сесије или колачић из прегледача на који сте пријављени да бисте се пријавили без Гоогле-овог блока уграђеног прегледача. Можете га извести из друге апликације или користити доленаведене кораке.</string>
-    <string name="login_token_field_hint">СИД=...; САПИСИД=...\н\н***ИДАТАСИНЦ ИД*** =...\н***НАЗИВ НАЛОГА*** =...</string>
+    <string name="login_token_field_hint">СИД=...; САПИСИД=...\n\n***ИДАТАСИНЦ ИД*** =...\n***НАЗИВ НАЛОГА*** =...</string>
     <string name="login_token_field_label">Токен или колачић</string>
     <string name="logout_button">Одјавите се</string>
     <string name="loop_video">Лооп видео</string>
@@ -963,7 +963,7 @@
     <string name="player_settings_dearrow_subtitle">Замените наслове и сличице за мамце за кликове са алтернативама заједнице</string>
     <string name="player_settings_display">Дисплаи</string>
     <string name="player_settings_double_tap_seek">Двапут додирните Трајање тражења</string>
-    <string name="player_settings_double_tap_seek_subtitle_template">%дс по страни двапут додирните</string>
+    <string name="player_settings_double_tap_seek_subtitle_template">%ds по страни двоструки додир</string>
     <string name="player_settings_header_audio">Аудио</string>
     <string name="player_settings_header_gestures">Гестови</string>
     <string name="player_settings_header_video">Видео</string>
@@ -1023,7 +1023,7 @@
     <string name="playlist_creation_menu_close">Затворите мени за креирање плејлисте</string>
     <string name="playlist_creation_menu_open">Креирајте плејлисту</string>
     <string name="playlist_downloading">Downloading: %1$s</string>
-    <string name="playlist_empty_desc">Додајте видео снимке из видео плејера\нда бисте направили своју плејлисту</string>
+    <string name="playlist_empty_desc">Додајте видео снимке из видео плејера\nда бисте направили своју плејлисту</string>
     <string name="playlist_empty_title">Ова плејлиста је празна</string>
     <string name="playlist_filter_owned">У власништву</string>
     <string name="playlist_metadata_private_template">Playlist • Private • %1$d videos</string>
@@ -1523,7 +1523,7 @@
     <string name="toast_unsubscribed_from">Unsubscribed from %1$s</string>
     <string name="tools_subtitle">Подесите подсетнике да бисте уравнотежили своје навике гледања</string>
     <string name="tools_to_manage_time">Алати за управљање временом</string>
-    <string name="total_hours_template">Укупно: %с сати</string>
+    <string name="total_hours_template">Укупно: %s сати</string>
     <string name="total_space_template">Total: %1$s</string>
     <string name="translation_api_key_not_set">Није постављено</string>
     <string name="translation_api_key_required_hint">Обавезно - додајте кључ за коришћење овог провајдера</string>

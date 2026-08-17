@@ -2018,7 +2018,7 @@
     <string name="login_tab_token">토큰/쿠키 붙여넣기</string>
     <string name="login_tab_webview">브라우저 로그인</string>
     <string name="login_title">YouTube에 로그인</string>
-    <string name="login_token_description">Google\의 내장 브라우저 차단 없이 로그인하려면 로그인된 브라우저에서 세션 토큰이나 쿠키를 붙여넣으세요. 다른 앱에서 내보내거나 아래 단계를 사용할 수 있습니다.</string>
+    <string name="login_token_description">Google의 내장 브라우저 차단 없이 로그인하려면 로그인된 브라우저에서 세션 토큰이나 쿠키를 붙여넣으세요. 다른 앱에서 내보내거나 아래 단계를 사용할 수 있습니다.</string>
     <string name="login_token_field_hint">SID=...; SAPISID=...\nor\n***DATASYNC ID*** =...\n***계정 이름*** =...</string>
     <string name="login_token_field_label">토큰 또는 쿠키</string>
     <string name="logout_button">로그아웃</string>
@@ -2136,7 +2136,7 @@
     <string name="stt_provider_azure">푸른 연설</string>
     <string name="stt_provider_azure_subtitle">월 5시간 무료 실시간 전사(F0)</string>
     <string name="stt_provider_cihaz">시하즈 STT</string>
-    <string name="stt_provider_cihaz_subtitle">Android\에 내장된 인식기입니다. 설정이 필요하지 않습니다.</string>
+    <string name="stt_provider_cihaz_subtitle">Android에 내장된 인식기입니다. 설정이 필요하지 않습니다.</string>
     <string name="stt_provider_google_cloud">Google Cloud 음성 텍스트 변환</string>
     <string name="stt_provider_google_cloud_subtitle">월 60분 무료(V1, 반복)</string>
     <string name="stt_provider_groq">Groq 클라우드 API</string>
@@ -2175,7 +2175,7 @@
     <string name="translation_test_row_subtitle">샘플 번역 실행</string>
     <string name="translation_test_success">샘플 번역됨</string>
     <string name="translation_toggle_captions">자막 및 캡션</string>
-    <string name="translation_toggle_captions_subtitle">YouTube\의 기본 캡션 번역을 사용합니다</string>
+    <string name="translation_toggle_captions_subtitle">YouTube의 기본 캡션 번역을 사용합니다</string>
     <string name="translation_toggle_channel_names">채널 이름</string>
     <string name="translation_toggle_comments">댓글</string>
     <string name="translation_toggle_descriptions">동영상 설명</string>

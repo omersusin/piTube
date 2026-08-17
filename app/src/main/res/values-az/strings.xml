@@ -2018,7 +2018,7 @@
     <string name="login_tab_token">Token / kuki yapışdırın</string>
     <string name="login_tab_webview">Brauzerə giriş</string>
     <string name="login_title">YouTube-a daxil olun</string>
-    <string name="login_token_description">Google\'un daxil edilmiş brauzer bloku olmadan daxil olmaq üçün daxil olmuş brauzerdən sessiya nişanı və ya kuki yapışdırın. Siz onu başqa proqramdan ixrac edə və ya aşağıdakı addımlardan istifadə edə bilərsiniz.</string>
+    <string name="login_token_description">Google'un daxil edilmiş brauzer bloku olmadan daxil olmaq üçün daxil olmuş brauzerdən sessiya nişanı və ya kuki yapışdırın. Siz onu başqa proqramdan ixrac edə və ya aşağıdakı addımlardan istifadə edə bilərsiniz.</string>
     <string name="login_token_field_hint">SID=...; SAPISID=...\nvə ya\n***DATASYNC ID*** =...\n***HESAB ADI*** =...</string>
     <string name="login_token_field_label">Token və ya kuki</string>
     <string name="logout_button">Çıx</string>
@@ -2151,7 +2151,7 @@
     <string name="translation_base_url_default">Defolt</string>
     <string name="translation_base_url_dialog_title">Fərdi əsas URL</string>
     <string name="translation_base_url_row">Əsas URL</string>
-    <string name="translation_caption_note">Subtitrlər hədəf dil üçün əlçatan olduqda YouTube\'un daxili tərcümə edilmiş başlıqlarından istifadə edir.</string>
+    <string name="translation_caption_note">Subtitrlər hədəf dil üçün əlçatan olduqda YouTube'un daxili tərcümə edilmiş başlıqlarından istifadə edir.</string>
     <string name="translation_missing_key_hint">Tərcümə aktivdir, lakin %1$s üçün API açarı lazımdır: yuxarıda birini əlavə edin və ya pulsuz provayder seçin və məzmun orijinal dildə qalacaq.</string>
     <string name="translation_mode_dual">Orijinal + tərcümə</string>
     <string name="translation_mode_dual_subtitle">Hər ikisini birlikdə göstər</string>
@@ -2175,7 +2175,7 @@
     <string name="translation_test_row_subtitle">Nümunə tərcüməsi</string>
     <string name="translation_test_success">Nümunə tərcümə</string>
     <string name="translation_toggle_captions">Altyazılar və başlıqlar</string>
-    <string name="translation_toggle_captions_subtitle">YouTube\'un yerli altyazı tərcüməsindən istifadə edir</string>
+    <string name="translation_toggle_captions_subtitle">YouTube'un yerli altyazı tərcüməsindən istifadə edir</string>
     <string name="translation_toggle_channel_names">Kanal adları</string>
     <string name="translation_toggle_comments">Şərhlər</string>
     <string name="translation_toggle_descriptions">Video təsvirləri</string>

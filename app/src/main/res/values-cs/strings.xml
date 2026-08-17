@@ -102,10 +102,10 @@
     
     
     <string name="channel_error_log_clip_label">Záznam chyb průtokového kanálu</string>
-    <string name="channel_and_more_template">A další</string>
-    <string name="local_media_empty_title">Není nalezeno</string>
+    <string name="channel_and_more_template">%1$s a %2$d další</string>
+    <string name="local_media_empty_title">Nenalezen žádný %1$s</string>
     <string name="local_media_permission_body">Povolte přístup k médiím, aby piTube mohl vyhledávat a přehrávat místní videa a hudbu.</string>
-    <string name="download_all_confirmation">Stáhnout všechna videa? To může zabrat značné množství úložného prostoru.</string>
+    <string name="download_all_confirmation">Stáhnout všech %1$d videí? Může to zabrat značné množství úložného prostoru.</string>
     
     <string name="lyrics">karaoke</string>
     
@@ -412,7 +412,7 @@
     <string name="comments">Komentáře</string>
     <string name="community_post_image_content_description">Načíst obrázek komunitního příspěvku</string>
     <string name="community_posts_empty">Nalezen</string>
-    <string name="community_posts_load_failed">příspěvek z komunity PLIT2 Žádné příspěvky komunity\</string>
+    <string name="community_posts_load_failed">příspěvek z komunity PLIT2 Žádné příspěvky komunity</string>
     <string name="concurrent_threads_title">Souběžná vlákna</string>
     <string name="confirm">Potvrdit</string>
     <string name="content_settings_grid_big_desc">Větší náhledy</string>
@@ -772,7 +772,7 @@
     <string name="login_tab_token">Vložit token / cookie</string>
     <string name="login_tab_webview">Přihlášení do prohlížeče</string>
     <string name="login_title">Přihlásit se na YouTube</string>
-    <string name="login_token_description">Vložením tokenu relace nebo souboru cookie se můžete přihlásit do blokovaného přihlášení pomocí Google\ Můžete jej exportovat z jiné aplikace nebo použít níže uvedený postup.</string>
+    <string name="login_token_description">Vložením tokenu relace nebo souboru cookie se můžete přihlásit do blokovaného přihlášení pomocí Google. Můžete jej exportovat z jiné aplikace nebo použít níže uvedený postup.</string>
     <string name="login_token_field_hint">SID=...; SAPISID=...\nor\n***IDATASYNC ID*** =...\n***NÁZEV ÚČTU*** =...</string>
     <string name="login_token_field_label">Token nebo cookie</string>
     <string name="logout_button">Odhlásit</string>

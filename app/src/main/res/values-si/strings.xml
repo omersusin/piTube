@@ -1538,7 +1538,7 @@
     <string name="toast_unsubscribed_from">%1$s</string>
     <string name="tools_subtitle">වෙතින් දායක නොවීම ඔබගේ නැරඹීමේ පුරුදු සමතුලිත කිරීමට සිහිකැඳවීම් සකසන්න</string>
     <string name="tools_to_manage_time">ඔබගේ කාලය කළමනාකරණය කිරීමට මෙවලම්</string>
-    <string name="total_hours_template">එකතුව: V0X</string>
+    <string name="total_hours_template">එකතුව: %s පැය</string>
     <string name="total_space_template">Total: %1$s</string>
     <string name="track_info">ලුහුබැඳීමේ තොරතුරු</string>
     <string name="track_info_subtitle">සවිස්තරාත්මක තාක්ෂණික සහ සමාජීය ප්‍රමිතික</string>

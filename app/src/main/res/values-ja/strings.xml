@@ -571,7 +571,7 @@
     <string name="sync_progress_fraction">%1$d / %2$d</string>
     <string name="sync_qr_content_description">QR コードを同期</string>
     <string name="sync_qr_network_note">両方のデバイスが同じ Wi-Fi (または 1 つのデバイスのホットスポット) 上にある必要があります。 piTube がファイアウォールを通過できるようにする必要がある場合があります。</string>
-    <string name="sync_qr_scan_on_target_receiving">Scan this on the device you\\'re receiving from</string>
+    <string name="sync_qr_scan_on_target_receiving">Scan this on the device you\'re receiving from</string>
     <string name="sync_qr_scan_on_target_sending">から受信しているデバイスでこれをスキャンしてください。送信先のデバイスでこれをスキャンしてください</string>
     <string name="sync_receive_from_device">デバイスから受信</string>
     <string name="sync_receive_scan_hint">このデバイスにカメラがあり、もう一方のデバイスに送信コードが表示されている場合は、これを使用します。</string>

@@ -694,7 +694,7 @@
     <string name="buffer_desc_datasaver">Minimalkan penggunaan data dengan buffer lebih kecil (min 12d)</string>
     <string name="buffer_profile_custom_desc">Konfigurasikan ukuran buffer secara manual</string>
     <string name="buffer_custom_mode_desc">Sesuaikan ukuran buffer secara manual. Nilai lebih tinggi mencegah gangguan tetapi dapat menunda mulai pemutaran.</string>
-    <string name="buffer_switch_to_custom">Beralih ke \'Kustom\' untuk mengaktifkan slider.</string>
+    <string name="buffer_switch_to_custom">Beralih ke 'Kustom' untuk mengaktifkan slider.</string>
     <string name="buffer_label_min">Buffer Min: %1$dd</string>
     <string name="buffer_label_max">Buffer Maks: %1$dd</string>
     <string name="buffer_label_playback">Mulai Pemutaran: %1$dd</string>
@@ -924,7 +924,7 @@
     <string name="playlist_empty_title">Daftar putar ini kosong</string>
     <string name="playlist_empty_desc">Tambahkan video dari pemutar video\nuntuk membangun daftar putar Anda</string>
     <string name="delete_playlist_dialog_title">Hapus daftar putar?</string>
-    <string name="delete_playlist_dialog_text">Ini akan menghapus secara permanen \'%1$s\' beserta semua videonya.</string>
+    <string name="delete_playlist_dialog_text">Ini akan menghapus secara permanen '%1$s' beserta semua videonya.</string>
     <string name="playlist_metadata_private_template">"Daftar putar -  Pribadi -  %1$d video"</string>
     <string name="playlist_metadata_public_template">"Daftar putar -  Publik -  %1$d video"</string>
     <string name="welcome_to_flow">Selamat Datang di piTube</string>

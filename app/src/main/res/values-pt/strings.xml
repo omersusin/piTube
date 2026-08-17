@@ -472,7 +472,7 @@
     <string name="buffer_settings_header_custom">Perfil de desempenho do</string>
     <string name="buffer_settings_header_profile">Configurações do buffer</string>
     <string name="buffer_settings_title">Buffer Settings</string>
-    <string name="buffer_switch_to_custom">Mude para \\'Personalizado\\' para ativar os controlos deslizantes.</string>
+    <string name="buffer_switch_to_custom">Mude para \'Personalizado\' para ativar os controlos deslizantes.</string>
     <string name="cache_size_100mb">100 MB</string>
     <string name="cache_size_200mb">200 MB</string>
     <string name="cache_size_500mb">500 MB (padrão)</string>
@@ -612,7 +612,7 @@
     <string name="delete_after_days_template">Apagar após dias %1$d</string>
     <string name="delete_older_than_template">Apagar pesquisas anteriores a dias %1$d</string>
     <string name="delete_playlist_action">Apagar lista de reprodução</string>
-    <string name="delete_playlist_dialog_text">Isto apagará permanentemente \\'%1$s\\' e todos os seus vídeos.</string>
+    <string name="delete_playlist_dialog_text">Isto apagará permanentemente \'%1$s\' e todos os seus vídeos.</string>
     <string name="delete_playlist_dialog_title">Apagar lista de reprodução?</string>
     <string name="delete_searches_older_than">Apagar pesquisas anteriores a:</string>
     <string name="delete_selected">Apagar</string>
@@ -1077,7 +1077,8 @@
     <string name="player_unlock_controls">Desbloquear controlos</string>
     <string name="playlist">Lista de reprodução</string>
     <string name="playlist_downloading">Descarregar: %1$s</string>
-    <string name="playlist_empty_desc">Adicionar vídeos do leitor de vídeo\para criar a sua lista de reprodução</string>
+    <string name="playlist_empty_desc">Adicionar vídeos do leitor de vídeo
+para criar a sua lista de reprodução</string>
     <string name="playlist_empty_title">Esta lista de reprodução está vazia</string>
     <string name="playlist_filter_owned">Lista de reprodução</string>
     <string name="playlist_metadata_private_template">de sua propriedade • Privada • Vídeos %1$d Lista de reprodução</string>
