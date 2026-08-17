@@ -67,7 +67,7 @@
     <string name="app_icon_apply_toast">ਆਈਕਨ ਅੱਪਡੇਟ ਕੀਤਾ ਗਿਆ - ਤੁਹਾਡਾ ਲਾਂਚਰ</string>
     <string name="app_icon_picker_subtitle">ਨੂੰ ਤਾਜ਼ਾ ਕਰੇਗਾ ਇੱਕ ਲਾਂਚਰ ਆਈਕਨ ਸ਼ੈਲੀ ਚੁਣੋ। ਤਬਦੀਲੀ ਤੁਰੰਤ ਲਾਗੂ ਹੁੰਦੀ ਹੈ ਅਤੇ ਲਾਂਚਰ ਥੋੜ੍ਹੇ ਸਮੇਂ ਲਈ ਰਿਫ੍ਰੈਸ਼ ਹੋ ਜਾਵੇਗਾ।</string>
     <string name="app_icon_picker_warning">ਧਿਆਨ ਦਿਓ: ਆਈਕਨਾਂ ਨੂੰ ਬਦਲਣ ਲਈ ਇੱਕ Android ਸਿਸਟਮ ਵਿਧੀ ਦੀ ਵਰਤੋਂ ਕੀਤੀ ਜਾਂਦੀ ਹੈ ਜੋ ਤੁਹਾਡੀ ਹੋਮ ਸਕ੍ਰੀਨ ਤੋਂ ਐਪ ਸ਼ਾਰਟਕੱਟ ਨੂੰ ਸੰਖੇਪ ਵਿੱਚ ਹਟਾ ਸਕਦੀ ਹੈ। ਲੋੜ ਪੈਣ \'ਤੇ ਇਸਨੂੰ ਵਾਪਸ ਜੋੜਨ ਲਈ ਲਾਂਚਰ ਨੂੰ ਦੇਰ ਤੱਕ ਦਬਾਓ।</string>
-    <string name="app_name_uppercase">piTube</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">ਲਾਗੂ ਕੀਤਾ ਗਿਆ: %1$s</string>
     <string name="appearance_category_custom">ਕਸਟਮ</string>
     <string name="appearance_category_dark">ਗੂੜ੍ਹਾ</string>

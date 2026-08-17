@@ -206,7 +206,7 @@
     <string name="views_template">%1$s görüntüleme</string>
     <string name="artist">Sanatçı</string>
     <string name="playlist">Oynatma listesi</string>
-    <string name="app_name_uppercase">UYGULAMA</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="videos_count_template">%1$d video</string>
     

@@ -678,8 +678,8 @@
     <string name="app_icon_apply_toast">アイコンが更新されました - ランチャーが更新されます</string>
     <string name="app_icon_picker_subtitle">ランチャーアイコンのスタイルを選択します。変更はすぐに有効になり、ランチャーが短時間更新されます。</string>
     <string name="app_icon_picker_warning">注意: アイコンを切り替えると、Android システムのメカニズムが使用され、ホーム画面からアプリのショートカットが一時的に削除される場合があります。必要に応じて、ランチャーを長押しして再度追加します。</string>
-    <string name="app_name">アプリトークン</string>
-    <string name="app_name_uppercase">アプリトークン</string>
+    <string name="app_name">piTube</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">適用: %1$s</string>
     <string name="appearance_category_custom">カスタム</string>
     <string name="appearance_category_dark">暗い</string>

@@ -238,7 +238,7 @@
     <string name="app_icon_apply_toast">aktualizována – váš spouštěč se obnoví</string>
     <string name="app_icon_picker_subtitle">Vyberte styl ikony spouštěče. Změna se projeví okamžitě a spouštěč se krátce obnoví.</string>
     <string name="app_icon_picker_warning">Upozornění: přepínání ikon využívá systémový mechanismus Android, který může nakrátko odstranit zástupce aplikace z vaší domovské obrazovky. Dlouhým stisknutím spouštěče jej v případě potřeby přidejte zpět.</string>
-    <string name="app_name_uppercase">piTube</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">Použito: %1$s</string>
     <string name="appearance_category_custom">Vlastní</string>
     <string name="appearance_category_dark">Tmavá</string>

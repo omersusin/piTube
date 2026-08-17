@@ -249,7 +249,7 @@
     <string name="app_icon_apply_toast">නිරූපකය යාවත්කාලීන කරන ලදී - ඔබේ දියත් කිරීම</string>
     <string name="app_icon_picker_subtitle">refresh කරනු ඇත දියත් කිරීමේ නිරූපක විලාසයක් තෝරන්න. වෙනස් කිරීම වහාම ක්රියාත්මක වන අතර දියත් කිරීම කෙටියෙන් නැවුම් වනු ඇත.</string>
     <string name="app_icon_picker_warning">පෙරවදන: අයිකන මාරු කිරීම ඔබගේ මුල් තිරයෙන් යෙදුම් කෙටිමඟ කෙටියෙන් ඉවත් කළ හැකි Android පද්ධති යාන්ත්‍රණයක් භාවිත කරයි. අවශ්‍ය නම් එය නැවත එක් කිරීමට දියත් කිරීම දිගු වේලාවක් ඔබන්න.</string>
-    <string name="app_name_uppercase">piTube</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">යෙදී ඇත: %1$s</string>
     <string name="appearance_category_custom">අභිරුචි</string>
     <string name="appearance_category_dark">අඳුරු</string>

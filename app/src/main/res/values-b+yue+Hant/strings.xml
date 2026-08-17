@@ -63,8 +63,8 @@
     <string name="app_icon_apply_toast">圖示更新咗 - 你嘅啟動器會重新整理</string>
     <string name="app_icon_picker_subtitle">揀個啟動器圖示樣式。呢個變動會即刻生效，啟動器會短暫刷新。</string>
     <string name="app_icon_picker_warning">請注意：切換圖示會用 Android 系統機制，可能會喺主畫面短暫移除應用程式捷徑。如果需要，長按啟動器就可以加返佢。</string>
-    <string name="app_name">阿普托肯</string>
-    <string name="app_name_uppercase">阿普托肯</string>
+    <string name="app_name">piTube</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">應用咗： %1$s</string>
     <string name="appearance_category_custom">習俗</string>
     <string name="appearance_category_dark">黑暗</string>

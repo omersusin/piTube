@@ -64,7 +64,7 @@
     <string name="app_icon_picker_subtitle">ເລືອກຮູບແບບໄອຄອນ launcher. ການປ່ຽນແປງຈະມີຜົນໃນທັນທີ ແລະຕົວເປີດໃຊ້ຈະໂຫຼດຂໍ້ມູນຄືນໃໝ່ໄລຍະສັ້ນໆ.</string>
     <string name="app_icon_picker_warning">ແຈ້ງເຕືອນ: ການສະຫຼັບໄອຄອນໃຊ້ກົນໄກຂອງລະບົບ Android ທີ່ອາດຈະເອົາທາງລັດແອັບອອກຈາກໜ້າຈໍຫຼັກຂອງທ່ານໂດຍຫຍໍ້. ກົດປຸ່ມ launcher ຄ້າງໄວ້ເພື່ອເພີ່ມມັນຄືນຖ້າຈໍາເປັນ.</string>
     <string name="app_name">piTube</string>
-    <string name="app_name_uppercase">piTube</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">ນຳໃຊ້: %1$s</string>
     <string name="appearance_category_custom">Custom</string>
     <string name="appearance_category_dark">Dark</string>

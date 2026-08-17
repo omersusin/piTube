@@ -355,7 +355,7 @@
     <string name="app_icon_apply_toast">Ícone atualizado - o seu iniciador irá atualizar</string>
     <string name="app_icon_picker_subtitle">Escolha um estilo de ícone do iniciador. A alteração entra em vigor imediatamente e o iniciador será atualizado brevemente.</string>
     <string name="app_icon_picker_warning">Atenção: a troca de ícones utiliza um motor do sistema Android que pode remover brevemente o atalho da aplicação do ecrã inicial. Mantenha pressionado o iniciador para o voltar a adicionar, se necessário.</string>
-    <string name="app_name_uppercase">piTube</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">Aplicado: %1$s</string>
     <string name="appearance_category_custom">Personalizado</string>
     <string name="appearance_category_dark">Escuro</string>

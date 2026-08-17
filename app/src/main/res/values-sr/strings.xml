@@ -225,7 +225,7 @@
     <string name="app_icon_apply_toast">Икона је ажурирана - ваш покретач ће се освежити</string>
     <string name="app_icon_picker_subtitle">Изаберите стил иконе покретача. Промена ступа на снагу одмах и покретач ће се накратко освежити.</string>
     <string name="app_icon_picker_warning">Пажња: пребацивање икона користи механизам Андроид система који може накратко уклонити пречицу апликације са вашег почетног екрана. Дуго притисните покретач да бисте га вратили ако је потребно.</string>
-    <string name="app_name_uppercase">АППТОКЕН</string>
+    <string name="app_name_uppercase">PITUBE</string>
     <string name="appearance_applied_toast">Applied: %1$s</string>
     <string name="appearance_category_custom">Цустом</string>
     <string name="appearance_category_dark">Дарк</string>
