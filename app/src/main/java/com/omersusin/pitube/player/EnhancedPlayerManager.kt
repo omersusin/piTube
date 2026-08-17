@@ -200,6 +200,10 @@ class EnhancedPlayerManager private constructor() {
     private var pendingReloadJob: Job? = null
 
     private var queuePersistenceJob: Job? = null
+
+    private var crossfadeJob: Job? = null
+    private var crossfadeEnabled: Boolean = false
+    private var crossfadeDurationMs: Long = 4_000L
     private var advanceWakeLock: PowerManager.WakeLock? = null
 
     private fun isOnMainThread(): Boolean = Looper.myLooper() == Looper.getMainLooper()
@@ -711,6 +715,18 @@ class EnhancedPlayerManager private constructor() {
         }
 
         scope.launch {
+            prefs.crossfadeEnabled.collect { isEnabled ->
+                crossfadeEnabled = isEnabled
+            }
+        }
+
+        scope.launch {
+            prefs.crossfadeDurationSeconds.collect { seconds ->
+                crossfadeDurationMs = seconds.coerceIn(1, 10) * 1_000L
+            }
+        }
+
+        scope.launch {
             prefs.autoplayCountdownSeconds.collect { seconds ->
                 val previousSeconds = autoplayCountdownSeconds
                 autoplayCountdownSeconds = seconds
@@ -1113,6 +1129,8 @@ class EnhancedPlayerManager private constructor() {
 
     private fun resetPlaybackStateForNewVideo(videoId: String) {
         clearAutoplayCountdownInternal()
+        crossfadeJob?.cancel()
+        player?.volume = 1f
         currentVideoId = videoId
         liveQualityHeights = emptyList()
         pendingLiveQualityHeight = 0
@@ -1597,6 +1615,18 @@ class EnhancedPlayerManager private constructor() {
         video: Video,
         loadStreamsInPlayer: Boolean,
     ) {
+        // Crossfade: dip to silence at the switch and ramp the new video in
+        // over the configured duration once it starts playing.
+        val fadeMs =
+            if (crossfadeEnabled && player != null) {
+                crossfadeDurationMs.coerceIn(400L, 10_000L)
+            } else {
+                0L
+            }
+        if (fadeMs > 0L) {
+            crossfadeJob?.cancel()
+        }
+
         // Reset player state for new video
         resetPlaybackStateForNewVideo(video.id)
 
@@ -1616,7 +1646,29 @@ class EnhancedPlayerManager private constructor() {
             thumbnail = video.thumbnailUrl,
         )
         if (loadStreamsInPlayer) {
+            if (fadeMs > 0L) {
+                player?.volume = 0f
+            }
             playVideoFromServiceLayer(video, reason = "queue-advance")
+            if (fadeMs > 0L) {
+                player?.volume = 0f
+                crossfadeJob = scope.launch {
+                    try {
+                        withTimeoutOrNull(20_000L) {
+                            _playerState.first { it.currentVideoId == video.id && it.isPlaying }
+                        }
+                        val steps = 20
+                        val stepMs = (fadeMs / steps).coerceAtLeast(20L)
+                        repeat(steps) { step ->
+                            player?.volume = ((step + 1) / steps.toFloat()).coerceAtMost(1f)
+                            delay(stepMs)
+                        }
+                        player?.volume = 1f
+                    } catch (_: Exception) {
+                        player?.volume = 1f
+                    }
+                }
+            }
         }
     }
 

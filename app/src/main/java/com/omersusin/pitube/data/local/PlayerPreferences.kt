@@ -67,6 +67,8 @@ class PlayerPreferences(context: Context) {
         val QUEUE_AUTOPLAY_ENABLED = booleanPreferencesKey("queue_autoplay_enabled")
         val QUEUE_SWIPE_TO_REMOVE_ENABLED = booleanPreferencesKey("queue_swipe_to_remove_enabled")
         val HISTORY_DEFAULT_RANGE = stringPreferencesKey("history_default_range")
+        val CROSSFADE_ENABLED = booleanPreferencesKey("crossfade_enabled")
+        val CROSSFADE_DURATION_SECONDS = intPreferencesKey("crossfade_duration_seconds")
         val AUTOPLAY_COUNTDOWN_SECONDS = intPreferencesKey("autoplay_countdown_seconds")
         val SHOW_CONTROLS_WHILE_LOADING = booleanPreferencesKey("show_controls_while_loading")
         val VIDEO_LOOP_ENABLED = booleanPreferencesKey("video_loop_enabled")
@@ -952,6 +954,30 @@ class PlayerPreferences(context: Context) {
     suspend fun setHistoryDefaultRange(range: String) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.HISTORY_DEFAULT_RANGE] = range
+        }
+    }
+
+    // Crossfade between queue items: dip to silence at the switch and ramp the
+    // new video in over [crossfadeDurationSeconds].
+    val crossfadeEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.CROSSFADE_ENABLED] ?: false
+        }
+
+    suspend fun setCrossfadeEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.CROSSFADE_ENABLED] = enabled
+        }
+    }
+
+    val crossfadeDurationSeconds: Flow<Int> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            (preferences[Keys.CROSSFADE_DURATION_SECONDS] ?: 4).coerceIn(1, 10)
+        }
+
+    suspend fun setCrossfadeDurationSeconds(seconds: Int) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.CROSSFADE_DURATION_SECONDS] = seconds.coerceIn(1, 10)
         }
     }
 

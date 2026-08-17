@@ -148,6 +148,9 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
     val autoplayEnabled by playerPreferences.autoplayEnabled.collectAsState(initial = true)
     val queueAutoplayEnabled by playerPreferences.queueAutoplayEnabled.collectAsState(initial = true)
     val queueSwipeToRemoveEnabled by playerPreferences.queueSwipeToRemoveEnabled.collectAsState(initial = true)
+    val crossfadeEnabled by playerPreferences.crossfadeEnabled.collectAsState(initial = false)
+    val crossfadeDurationSeconds by playerPreferences.crossfadeDurationSeconds.collectAsState(initial = 4)
+    var showCrossfadeDurationDialog by remember { mutableStateOf(false) }
     val autoplayCountdownSeconds by playerPreferences.autoplayCountdownSeconds.collectAsState(initial = 0)
     val skipSilenceEnabled by playerPreferences.skipSilenceEnabled.collectAsState(initial = false)
     val manualPipButtonEnabled by playerPreferences.manualPipButtonEnabled.collectAsState(initial = true)
@@ -402,6 +405,30 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                             }
                         },
                     )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.GraphicEq,
+                        title = stringResource(R.string.player_settings_crossfade),
+                        subtitle = stringResource(R.string.player_settings_crossfade_subtitle),
+                        checked = crossfadeEnabled,
+                        onCheckedChange = {
+                            coroutineScope.launch {
+                                playerPreferences.setCrossfadeEnabled(it)
+                            }
+                        },
+                    )
+                    if (crossfadeEnabled) {
+                        HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        SettingsClickItem(
+                            icon = Icons.Outlined.Timer,
+                            title = stringResource(R.string.player_settings_crossfade_duration),
+                            subtitle = stringResource(
+                                R.string.player_settings_crossfade_duration_seconds_template,
+                                crossfadeDurationSeconds,
+                            ),
+                            onClick = { showCrossfadeDurationDialog = true },
+                        )
+                    }
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsClickItem(
                         icon = Icons.Outlined.Timer,
@@ -849,6 +876,54 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
             },
             confirmButton = {
                 TextButton(onClick = { showShortsPlaybackModeDialog = false }) {
+                    Text(stringResource(R.string.btn_close))
+                }
+            },
+        )
+    }
+
+    if (showCrossfadeDurationDialog) {
+        AlertDialog(
+            onDismissRequest = { showCrossfadeDurationDialog = false },
+            title = {
+                Text(
+                    stringResource(R.string.player_settings_crossfade_duration),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+            },
+            text = {
+                Column {
+                    listOf(2, 4, 6, 8, 10).forEach { seconds ->
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        coroutineScope.launch {
+                                            playerPreferences.setCrossfadeDurationSeconds(seconds)
+                                        }
+                                        showCrossfadeDurationDialog = false
+                                    }.padding(vertical = 12.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = crossfadeDurationSeconds == seconds,
+                                onClick = null,
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(
+                                    R.string.player_settings_crossfade_duration_seconds_template,
+                                    seconds,
+                                ),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCrossfadeDurationDialog = false }) {
                     Text(stringResource(R.string.btn_close))
                 }
             },
