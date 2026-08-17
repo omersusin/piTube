@@ -148,7 +148,8 @@ object YouTubeLibrarySync {
                                 playlistRepository.syncSavedPlaylistVideos(playlist.id, videos.map { it.toSyncVideo() })
                             }
                             1
-                        }.onFailure { Log.w(TAG, "Failed syncing playlist ${playlist.id}", it); 0 }
+                        }.onFailure { Log.w(TAG, "Failed syncing playlist ${playlist.id}", it) }
+                            .getOrDefault(0)
                     }
                 }
             }.awaitAll()
