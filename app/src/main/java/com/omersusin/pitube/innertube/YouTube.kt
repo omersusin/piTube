@@ -1201,7 +1201,7 @@ object YouTube {
                     ?: 0f
             // YouTube's own advertised heartbeat schedule for watchtime flushes.
             val scheduledFlushes = tracking["videostatsScheduledFlushWalltimeSeconds"]?.jsonArray
-                ?.mapNotNull { it.jsonPrimitive.contentOrNull.toLongOrNull() }
+                ?.mapNotNull { it.jsonPrimitive.contentOrNull?.toLongOrNull() }
                 .orEmpty()
             val defaultFlush = tracking["videostatsDefaultFlushIntervalSeconds"]
                 ?.jsonPrimitive?.contentOrNull?.toLongOrNull()

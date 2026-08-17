@@ -2,6 +2,7 @@ package com.omersusin.pitube.ui.screens.player
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.omersusin.pitube.data.local.*
@@ -2861,7 +2862,7 @@ class VideoPlayerViewModel @Inject constructor(
                     val baseSeconds = if (heartbeatIndex < scheduled.size) {
                         scheduled[heartbeatIndex] - if (heartbeatIndex == 0) 0L else scheduled[heartbeatIndex - 1]
                     } else {
-                        (defaultFlush * (0.85 + kotlin.random.Random.nextDouble() * 0.3))
+                        defaultFlush.toDouble() * (0.85 + kotlin.random.Random.nextDouble() * 0.3)
                     }
                     (baseSeconds * 1_000L).toLong().coerceAtLeast(2_000L)
                 }
@@ -3129,7 +3130,12 @@ class VideoPlayerViewModel @Inject constructor(
                 )
             )
             _uiState.value = _uiState.value.copy(likeState = "LIKED")
-            accountActions.setLikeStatus(videoId, "LIKE")
+            val applied = accountActions.setLikeStatus(videoId, "LIKE")
+            if (!applied) {
+                likedVideosRepository.removeLikeState(videoId)
+                _uiState.value = _uiState.value.copy(likeState = null)
+                Toast.makeText(context, context.getString(R.string.toast_like_write_failed), Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -3137,15 +3143,46 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             likedVideosRepository.dislikeVideo(videoId)
             _uiState.value = _uiState.value.copy(likeState = "DISLIKED")
-            accountActions.setLikeStatus(videoId, "DISLIKE")
+            val applied = accountActions.setLikeStatus(videoId, "DISLIKE")
+            if (!applied) {
+                likedVideosRepository.removeLikeState(videoId)
+                _uiState.value = _uiState.value.copy(likeState = null)
+                Toast.makeText(context, context.getString(R.string.toast_like_write_failed), Toast.LENGTH_LONG).show()
+            }
         }
     }
     
     fun removeLikeState(videoId: String) {
         viewModelScope.launch {
+            val previous = _uiState.value.likeState
             likedVideosRepository.removeLikeState(videoId)
             _uiState.value = _uiState.value.copy(likeState = null)
-            accountActions.setLikeStatus(videoId, null)
+            val applied = accountActions.setLikeStatus(videoId, null)
+            if (!applied) {
+                // YouTube did not apply the clear — restore the previous state
+                // so the button and the account agree.
+                val cached = _uiState.value.cachedVideo
+                when (previous) {
+                    "LIKED" -> {
+                        if (cached != null) {
+                            likedVideosRepository.likeVideo(
+                                LikedVideoInfo(
+                                    videoId = videoId,
+                                    title = cached.title,
+                                    thumbnail = cached.thumbnailUrl,
+                                    channelName = cached.channelName
+                                )
+                            )
+                        }
+                        _uiState.value = _uiState.value.copy(likeState = "LIKED")
+                    }
+                    "DISLIKED" -> {
+                        likedVideosRepository.dislikeVideo(videoId)
+                        _uiState.value = _uiState.value.copy(likeState = "DISLIKED")
+                    }
+                }
+                Toast.makeText(context, context.getString(R.string.toast_like_write_failed), Toast.LENGTH_LONG).show()
+            }
         }
     }
     
