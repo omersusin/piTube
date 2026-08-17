@@ -970,11 +970,19 @@ object YouTube {
      * re-fetching the player and minting a brand-new baseUrl per ping) is how
      * yt-dlp/youthub/YouTube.js make partial pings accumulate into one history
      * entry: the same `plid`/`rid`/session and a progressing `st`→`et` window.
+     *
+     * [scheduledFlushSeconds]/[defaultFlushSeconds] are YouTube's own advertised
+     * watchtime heartbeat cadence from the player response
+     * (`videostatsScheduledFlushWalltimeSeconds` = 10/20/30 s, then
+     * `videostatsDefaultFlushIntervalSeconds` = 40 s) — the reporter follows
+     * them so in-progress updates land as promptly as the official player's.
      */
     class PlaybackTracking(
         val playbackUrl: String,
         val watchtimeUrl: String?,
         val lengthSeconds: Float,
+        val scheduledFlushSeconds: List<Long> = emptyList(),
+        val defaultFlushSeconds: Long = 40L,
     )
 
     /**
@@ -1019,9 +1027,36 @@ object YouTube {
         previousPositionMs: Long = 0L,
         final: Boolean = false,
         relativeTimeSeconds: Long = 0L,
+        paused: Boolean = false,
+        fmt: Int? = null,
+        rtn: Long = 0L,
     ): Result<Boolean> = runCatching {
-        if (cookie.isNullOrBlank()) return@runCatching false
-        val tracking = tracking ?: signedPlaybackTracking(videoId, cpn) ?: return@runCatching false
+        val status = reportVideoPlaybackStatus(
+            videoId, positionMs, cpn, tracking, previousPositionMs,
+            final, relativeTimeSeconds, paused, fmt, rtn,
+        )
+        status in 200..299
+    }
+
+    /**
+     * Like [reportVideoPlayback] but returns the beacon HTTP status so callers
+     * can distinguish success (2xx) from throttling (429) and a dead session
+     * (401/403) instead of a plain boolean.
+     */
+    suspend fun reportVideoPlaybackStatus(
+        videoId: String,
+        positionMs: Long = 0L,
+        cpn: String = generateCpn(),
+        tracking: PlaybackTracking? = null,
+        previousPositionMs: Long = 0L,
+        final: Boolean = false,
+        relativeTimeSeconds: Long = 0L,
+        paused: Boolean = false,
+        fmt: Int? = null,
+        rtn: Long = 0L,
+    ): Int {
+        if (cookie.isNullOrBlank()) return 0
+        val tracking = tracking ?: signedPlaybackTracking(videoId, cpn) ?: return 0
 
         val playbackUrl = tracking.playbackUrl
         val watchtimeUrl = tracking.watchtimeUrl
@@ -1040,12 +1075,20 @@ object YouTube {
         val stSeconds = (previousPositionMs / 1000L).coerceAtLeast(0L)
         val referer = "https://www.youtube.com/watch?v=$videoId"
 
-        var reported = pingStats(playbackUrl, cpn, cmt, watchtime = false, stSeconds = stSeconds, final = final, referer = referer, relativeTimeSeconds = relativeTimeSeconds)
+        val playbackStatus = pingStats(playbackUrl, cpn, cmt, watchtime = false, stSeconds = stSeconds, final = final, referer = referer, relativeTimeSeconds = relativeTimeSeconds, paused = paused, fmt = fmt, rtn = rtn)
+        var status = playbackStatus
         if (watchtimeUrl != null) {
-            val watchtimeReported = pingStats(watchtimeUrl, cpn, cmt, watchtime = true, stSeconds = stSeconds, final = final, referer = referer, relativeTimeSeconds = relativeTimeSeconds)
-            reported = reported || watchtimeReported
+            val watchtimeStatus = pingStats(watchtimeUrl, cpn, cmt, watchtime = true, stSeconds = stSeconds, final = final, referer = referer, relativeTimeSeconds = relativeTimeSeconds, paused = paused, fmt = fmt, rtn = rtn)
+            // Prefer a success from either beacon; keep the more informative
+            // failure status (429/401) over a plain transport failure (0).
+            status = when {
+                status in 200..299 -> status
+                watchtimeStatus in 200..299 -> watchtimeStatus
+                watchtimeStatus == 429 || watchtimeStatus == 401 || watchtimeStatus == 403 -> watchtimeStatus
+                else -> status
+            }
         }
-        reported
+        return status
     }
 
     /** Fires one videostats beacon and interprets its HTTP status. */
@@ -1058,24 +1101,39 @@ object YouTube {
         final: Boolean,
         referer: String,
         relativeTimeSeconds: Long = 0L,
-    ): Boolean {
+        paused: Boolean = false,
+        fmt: Int? = null,
+        rtn: Long = 0L,
+    ): Int {
         val status = innerTube.videoStatsPing(
-            url = withVideoStatsParams(url, cpn, cmtSeconds, watchtime = watchtime, stSeconds = stSeconds, final = final, relativeTimeSeconds = relativeTimeSeconds),
+            url = withVideoStatsParams(
+                url, cpn, cmtSeconds,
+                watchtime = watchtime,
+                stSeconds = stSeconds,
+                final = final,
+                relativeTimeSeconds = relativeTimeSeconds,
+                paused = paused,
+                fmt = fmt,
+                rtn = rtn,
+            ),
             referer = referer,
         )
         return when {
-            status in 200..299 -> true
+            status in 200..299 -> {
+                Log.d("YouTube", "Watch-history beacon OK ($status, watchtime=$watchtime, cmt=${cmtSeconds}s)")
+                status
+            }
             status == 401 || status == 403 -> {
                 Log.w("YouTube", "Watch-history beacon rejected ($status) — session cookie dead, request re-auth")
-                false
+                status
             }
             status == 429 -> {
                 Log.w("YouTube", "Watch-history beacon throttled (429) — backing off")
-                false
+                status
             }
             else -> {
                 Log.w("YouTube", "Watch-history beacon failed with HTTP $status")
-                false
+                status
             }
         }
     }
@@ -1106,6 +1164,10 @@ object YouTube {
                                 buildJsonObject {
                                     if (sts != null) put("signatureTimestamp", JsonPrimitive(sts))
                                     put("referer", JsonPrimitive("https://www.youtube.com/watch?v=$videoId"))
+                                    // Without el the mint context counts as a
+                                    // Shorts view and the beacon pair attributes
+                                    // to the wrong surface (yt-dlp does the same).
+                                    put("el", JsonPrimitive("detailpage"))
                                     put("vis", JsonPrimitive(0))
                                     put("splay", JsonPrimitive(false))
                                     put("lactMilliseconds", JsonPrimitive("-1"))
@@ -1137,7 +1199,14 @@ object YouTube {
                     ?.get("lengthSeconds")?.jsonPrimitive?.contentOrNull
                     ?.toFloatOrNull()
                     ?: 0f
-            return PlaybackTracking(playback, watchtime, length)
+            // YouTube's own advertised heartbeat schedule for watchtime flushes.
+            val scheduledFlushes = tracking["videostatsScheduledFlushWalltimeSeconds"]?.jsonArray
+                ?.mapNotNull { it.jsonPrimitive.contentOrNull.toLongOrNull() }
+                .orEmpty()
+            val defaultFlush = tracking["videostatsDefaultFlushIntervalSeconds"]
+                ?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+                ?: 40L
+            return PlaybackTracking(playback, watchtime, length, scheduledFlushes, defaultFlush)
         }
 
         // Attempt 1: signed WEB player request with signature timestamp and
@@ -1191,6 +1260,9 @@ object YouTube {
         stSeconds: Long = 0L,
         final: Boolean = false,
         relativeTimeSeconds: Long = 0L,
+        paused: Boolean = false,
+        fmt: Int? = null,
+        rtn: Long = 0L,
     ): String {
         val suffix = buildString {
             append(if ('?' in baseUrl) "&" else "?")
@@ -1207,7 +1279,19 @@ object YouTube {
             if (relativeTimeSeconds > 0L) {
                 append("&rt=$relativeTimeSeconds")
             }
-            append(if (final) "&state=ended" else "&state=playing")
+            // Start-ping signal: the played format and the ping sequence number
+            // (YouTube.js sends fmt=251 + rtn=0 on its playback-URL ping).
+            if (fmt != null) append("&fmt=$fmt")
+            if (rtn >= 0L && !watchtime) append("&rtn=$rtn")
+            when {
+                final -> {
+                    append("&state=ended")
+                    // YouTube.js-style commit marker on the last watchtime ping.
+                    if (watchtime) append("&final=1")
+                }
+                paused -> append("&state=paused")
+                else -> append("&state=playing")
+            }
         }
         return baseUrl + suffix
     }

@@ -1211,10 +1211,33 @@ class YouTubeRepository
             previousPositionMs: Long = 0L,
             final: Boolean = false,
             relativeTimeSeconds: Long = 0L,
+            paused: Boolean = false,
         ): Boolean =
+            reportVideoPlaybackStatus(
+                videoId, positionMs, cpn, tracking, previousPositionMs,
+                final, relativeTimeSeconds, paused,
+            ) in 200..299
+
+        /**
+         * Like [reportVideoPlayback] but returns the beacon HTTP status so the
+         * player reporter can back off on 429 and stop on a dead session
+         * (401/403) instead of treating every failure the same.
+         */
+        suspend fun reportVideoPlaybackStatus(
+            videoId: String,
+            positionMs: Long = 0L,
+            cpn: String = com.omersusin.pitube.innertube.YouTube.newCpn(),
+            tracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking? = null,
+            previousPositionMs: Long = 0L,
+            final: Boolean = false,
+            relativeTimeSeconds: Long = 0L,
+            paused: Boolean = false,
+            fmt: Int? = null,
+            rtn: Long = 0L,
+        ): Int =
             withContext(Dispatchers.IO) {
-                if (!isSignedIn) return@withContext false
-                YouTube.reportVideoPlayback(
+                if (!isSignedIn) return@withContext 0
+                com.omersusin.pitube.innertube.YouTube.reportVideoPlaybackStatus(
                     videoId,
                     positionMs,
                     cpn,
@@ -1222,7 +1245,10 @@ class YouTubeRepository
                     previousPositionMs,
                     final,
                     relativeTimeSeconds,
-                ).getOrDefault(false)
+                    paused,
+                    fmt,
+                    rtn,
+                )
             }
 
         /**

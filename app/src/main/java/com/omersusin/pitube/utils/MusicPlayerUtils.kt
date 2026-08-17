@@ -116,6 +116,14 @@ object MusicPlayerUtils {
         com.omersusin.pitube.utils.cipher.CipherDeobfuscator.invalidateSignatureTimestamp()
     }
 
+    /**
+     * The already-resolved playback result for [videoId], when it is still in
+     * the in-memory cache. Used by the watch-history reporter to read the
+     * played format's itag without issuing any network call.
+     */
+    fun cachedPlaybackData(videoId: String): Result<PlaybackData>? =
+        resultCache[videoId]?.result
+
     fun clearPlaybackCache() {
         resultCache.clear()
         Log.d(TAG, "Cleared all cached playback results")

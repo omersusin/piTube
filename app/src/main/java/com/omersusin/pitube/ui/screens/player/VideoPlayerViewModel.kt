@@ -265,6 +265,9 @@ class VideoPlayerViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopLiveChat()
+        // Final history beacon must survive this ViewModel's death: run it on
+        // the application scope, not viewModelScope (already cancelled here).
+        stopHistoryReport(com.omersusin.pitube.utils.HistoryReportScope.scope)
     }
 
     val downloadedVideoIds = videoDownloadManager.downloadedVideos
@@ -2767,18 +2770,59 @@ class VideoPlayerViewModel @Inject constructor(
     private var historyTracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking? = null
     private var historySessionStartMs = 0L
 
+    /** Minimum real watch progress before any beacon fires (youthub MIN_WATCH_FOR_STATS). */
+    private val MIN_WATCH_FOR_STATS_MS = 8_000L
+
     /**
      * Periodically reports the live playback position to the signed-in
-     * account's real YouTube history (every ~20 s while playing). This is what
-     * makes a partially-watched video appear in official YouTube history as
-     * in-progress/"continue watching" — matching how YouTube's own clients and
-     * yt-dlp behave. A new video cancels the previous reporter and arms it for
+     * account's real YouTube history. This is what makes a partially-watched
+     * video appear in official YouTube history as in-progress/"continue
+     * watching" — matching how YouTube's own clients and yt-dlp behave.
+     *
+     * Cadence follows YouTube's own advertised schedule from the player
+     * response (10/20/30 s, then every ~40 s ± 15 % jitter), the start ping
+     * fires within a second of real playback, a play→pause transition sends a
+     * `state=paused` beacon immediately, and every exit path sends a final
+     * `state=ended` beacon so the entry commits instead of hanging "in
+     * progress". A new video cancels the previous reporter and arms it for
      * the new one (a queue that auto-advances keeps its own history entry).
      */
     fun startHistoryReport(video: com.omersusin.pitube.data.model.Video) {
         if (isLocalMediaId(video.id)) return
         if (video.id.isBlank()) return
+        // Starting a different video abandons the previous session: commit it
+        // as in-progress with a final beacon first (running on the application
+        // scope so it survives any ViewModel churn), exactly like clearVideo.
+        val previousVideoId = historyVideoId
+        val previousCpn = historyCpn
+        val previousTracking = historyTracking
         historyReportJob?.cancel()
+        if (previousVideoId != null && previousCpn != null && previousVideoId != video.id) {
+            val abandonedPosition =
+                EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
+            if (abandonedPosition >= MIN_WATCH_FOR_STATS_MS) {
+                val sessionStart = historySessionStartMs
+                com.omersusin.pitube.utils.HistoryReportScope.scope.launch {
+                    try {
+                        val minted = previousTracking ?: repository.getPlaybackTracking(previousVideoId, previousCpn)
+                        val status = repository.reportVideoPlaybackStatus(
+                            videoId = previousVideoId,
+                            positionMs = abandonedPosition,
+                            cpn = previousCpn,
+                            tracking = minted,
+                            previousPositionMs = abandonedPosition,
+                            final = true,
+                            relativeTimeSeconds = (System.currentTimeMillis() - sessionStart) / 1000L,
+                        )
+                        if (status in 200..299) {
+                            Log.d("VideoPlayerViewModel", "Abandoned-video final beacon committed for $previousVideoId")
+                        }
+                    } catch (e: Exception) {
+                        Log.w("VideoPlayerViewModel", "Abandoned-video final report failed for $previousVideoId", e)
+                    }
+                }
+            }
+        }
         // One cpn per playback session: YouTube treats every ping with the
         // same cpn as one continuous watch of the video.
         val cpn = com.omersusin.pitube.innertube.YouTube.newCpn()
@@ -2793,120 +2837,207 @@ class VideoPlayerViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Main) {
                 var lastReportedMs = -1L
                 var lastWasPlaying = false
-                // First ping fires almost immediately (a second in) so the video
-                // shows up in official history right away instead of only after
-                // ~30-40s of playback; only subsequent pings are throttled.
+                // First ping fires almost immediately so the video shows up in
+                // official history right away; the fast 1 s retry keeps it
+                // prompt even when playback was still buffering at the 1 s mark.
                 var firstReportPending = true
-                while (isActive) {
-                    delay(if (firstReportPending) 1_000L else 15_000L)
+                // YouTube's heartbeat schedule: wall-clock 10/20/30 s from the
+                // player response, then the default interval with ±15 % jitter.
+                var heartbeatIndex = 0
+                var consecutiveThrottles = 0
+                var throttledSkipsRemaining = 0L
+                var playbackPingCount = 0L
+                var sessionDead = false
+
+                fun nextDelayMs(tracking: com.omersusin.pitube.innertube.YouTube.PlaybackTracking?): Long {
+                    if (firstReportPending) return 1_000L
+                    if (throttledSkipsRemaining > 0L) {
+                        throttledSkipsRemaining--
+                        return 5_000L
+                    }
+                    val scheduled = tracking?.scheduledFlushSeconds?.takeIf { it.isNotEmpty() }
+                        ?: listOf(10L, 20L, 30L)
+                    val defaultFlush = tracking?.defaultFlushSeconds?.takeIf { it > 0L } ?: 40L
+                    val baseSeconds = if (heartbeatIndex < scheduled.size) {
+                        scheduled[heartbeatIndex] - if (heartbeatIndex == 0) 0L else scheduled[heartbeatIndex - 1]
+                    } else {
+                        (defaultFlush * (0.85 + kotlin.random.Random.nextDouble() * 0.3))
+                    }
+                    (baseSeconds * 1_000L).toLong().coerceAtLeast(2_000L)
+                }
+
+                fun relativeTimeSeconds(): Long =
+                    (System.currentTimeMillis() - historySessionStartMs) / 1000L
+
+                suspend fun firePing(
+                    position: Long,
+                    previousMs: Long,
+                    final: Boolean,
+                    paused: Boolean,
+                ): Int {
+                    if (historyTracking == null) {
+                        // Bound the mint so a slow/bot-walled player request can
+                        // never stall the heartbeat loop; a failed mint simply
+                        // skips this beat and retries on the next one.
+                        historyTracking = withTimeoutOrNull(15_000L) {
+                            repository.getPlaybackTracking(video.id, cpn)
+                        }
+                        if (historyTracking == null) return 0
+                    }
+                    val status = repository.reportVideoPlaybackStatus(
+                        videoId = video.id,
+                        positionMs = position,
+                        cpn = cpn,
+                        tracking = historyTracking,
+                        previousPositionMs = previousMs,
+                        final = final,
+                        relativeTimeSeconds = relativeTimeSeconds(),
+                        paused = paused,
+                        fmt = currentPlaybackItag(),
+                        rtn = playbackPingCount,
+                    )
+                    if (!final) playbackPingCount++
+                    return status
+                }
+
+                suspend fun handleStatus(status: Int, what: String): Boolean {
+                    return when {
+                        status == 0 -> {
+                            Log.d("VideoPlayerViewModel", "YouTube history $what skipped (no tracking minted yet) for ${video.id}")
+                            false
+                        }
+                        status in 200..299 -> {
+                            consecutiveThrottles = 0
+                            throttledSkipsRemaining = 0L
+                            Log.d("VideoPlayerViewModel", "YouTube history $what OK (${video.id})")
+                            true
+                        }
+                        status == 429 -> {
+                            consecutiveThrottles++
+                            throttledSkipsRemaining = (1L shl consecutiveThrottles.coerceAtMost(4)) - 1L
+                            Log.w("VideoPlayerViewModel", "YouTube history throttled (429), skipping ${throttledSkipsRemaining + 1} beats")
+                            false
+                        }
+                        status == 401 || status == 403 -> {
+                            Log.w("VideoPlayerViewModel", "YouTube history session dead ($status) — reporter stopped for ${video.id}")
+                            sessionDead = true
+                            false
+                        }
+                        else -> {
+                            Log.w("VideoPlayerViewModel", "YouTube history $what failed (HTTP $status) for ${video.id}")
+                            false
+                        }
+                    }
+                }
+
+                suspend fun fireFinalPing(finalPosition: Long, previousMs: Long) {
+                    if (finalPosition < MIN_WATCH_FOR_STATS_MS) return
+                    try {
+                        val status = firePing(finalPosition, previousMs, final = true, paused = false)
+                        handleStatus(status, "final report")
+                    } catch (e: Exception) {
+                        Log.w("VideoPlayerViewModel", "Final history report failed for ${video.id}", e)
+                    }
+                }
+
+                while (isActive && !sessionDead) {
+                    delay(nextDelayMs(historyTracking))
                     // Media3 forbids touching the player off the main thread;
                     // isPlaying/hasEnded come from the thread-safe state flow.
                     val playerState = EnhancedPlayerManager.getInstance().playerState.value
-                    // A queue/auto-next moved to a different video: re-arm the
-                    // reporter so multi-video sessions each get their own entry.
+                    val position = EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
+                    // A queue/auto-next moved to a different video: commit the
+                    // current one as in-progress, then re-arm the reporter so
+                    // multi-video sessions each get their own entry. The player
+                    // position may already belong to the next video, so take
+                    // the larger of it and the last reported progress.
                     val currentVideo = com.omersusin.pitube.player.GlobalPlayerState.currentVideo.value
                     if (currentVideo != null && currentVideo.id != video.id) {
+                        fireFinalPing(maxOf(position, lastReportedMs.coerceAtLeast(0L)), lastReportedMs.coerceAtLeast(0L))
+                        // Clear the session state so the re-arm below does not
+                        // treat the new video as an abandonment of this one
+                        // (the final beacon was already fired here).
+                        historyVideoId = null
+                        historyCpn = null
+                        historyTracking = null
                         startHistoryReport(currentVideo)
                         return@launch
                     }
-                    val position = EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
                     if (playerState.hasEnded) {
                         // Video finished: commit the entry as fully watched
                         // (final beacon at the full duration with state=ended).
                         val finalMs =
-                            EnhancedPlayerManager.getInstance().getPlayer()?.duration?.coerceAtLeast(0L) ?: 0L
+                            EnhancedPlayerManager.getInstance().getPlayer()?.duration?.coerceAtLeast(0L) ?: position
                         if (finalMs > 0L) {
-                            try {
-                                val tracking = historyTracking ?: repository.getPlaybackTracking(video.id, cpn)
-                                historyTracking = tracking
-                                repository.reportVideoPlayback(
-                                    video.id,
-                                    finalMs,
-                                    cpn,
-                                    tracking,
-                                    lastReportedMs.coerceAtLeast(0L),
-                                    final = true,
-                                    relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
-                                )
-                            } catch (e: Exception) {
-                                Log.w("VideoPlayerViewModel", "Final history report failed for ${video.id}", e)
-                            }
+                            fireFinalPing(finalMs, lastReportedMs.coerceAtLeast(0L))
                         }
                         historyVideoId = null
                         historyCpn = null
                         historyTracking = null
                         break
                     }
-                    // First report: fire as soon as playback has started (position
-                    // past one second) with st=0, so the entry exists immediately.
-                    if (firstReportPending && position >= 1_000L) {
+                    // Start ping: fire as soon as playback is actually running
+                    // (or real position exists), with st=0, fmt + rtn=0, so the
+                    // entry exists immediately.
+                    if (firstReportPending && (playerState.isPlaying || position >= 1_000L)) {
                         firstReportPending = false
                         lastReportedMs = position
                         lastWasPlaying = playerState.isPlaying
                         try {
-                            val tracking = historyTracking ?: repository.getPlaybackTracking(video.id, cpn)
-                            historyTracking = tracking
-                            val reported =
-                                repository.reportVideoPlayback(
-                                    video.id,
-                                    position,
-                                    cpn,
-                                    tracking,
-                                    previousPositionMs = 0L,
-                                    relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
-                                )
-                            if (reported) {
-                                Log.d("VideoPlayerViewModel", "YouTube history started for ${video.id} at ${position}ms")
-                            }
+                            handleStatus(firePing(position, previousMs = 0L, final = false, paused = false), "start report")
                         } catch (e: Exception) {
                             Log.w("VideoPlayerViewModel", "Initial history report failed for ${video.id}", e)
                         }
+                        heartbeatIndex++
                         continue
                     }
-                    // Report real (partial) positions. Throttle to ~20s of
-                    // progress while playing; also report immediately on a
-                    // play → pause transition so a video paused or left before
-                    // the end shows up as in-progress in official YouTube
-                    // history (not missing, not fully watched).
+                    // Heartbeats: real progress pings on YouTube's cadence;
+                    // also report immediately on a play→pause transition
+                    // (state=paused) so a video paused or left before the end
+                    // shows up as in-progress, not missing or fully watched.
                     val isTransitionToPause = lastWasPlaying && !playerState.isPlaying
-                    if (position > 5_000L &&
-                        (position - lastReportedMs >= 20_000L || isTransitionToPause) &&
-                        position != lastReportedMs
+                    if (position != lastReportedMs &&
+                        (position >= MIN_WATCH_FOR_STATS_MS || isTransitionToPause)
                     ) {
                         val previousMs = lastReportedMs.coerceAtLeast(0L)
                         lastReportedMs = position
                         try {
-                            val tracking = historyTracking ?: repository.getPlaybackTracking(video.id, cpn)
-                            historyTracking = tracking
-                            val reported =
-                                repository.reportVideoPlayback(
-                                    video.id,
-                                    position,
-                                    cpn,
-                                    tracking,
-                                    previousMs,
-                                    relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
-                                )
-                            if (reported) {
-                                Log.d("VideoPlayerViewModel", "YouTube history reported at ${position}ms for ${video.id}")
-                            }
+                            handleStatus(
+                                firePing(position, previousMs, final = false, paused = isTransitionToPause),
+                                "heartbeat",
+                            )
                         } catch (e: Exception) {
                             Log.w("VideoPlayerViewModel", "History report failed for ${video.id}", e)
                         }
-                    } else if (position < 5_000L) {
-                        lastReportedMs = position
+                        heartbeatIndex++
                     }
                     lastWasPlaying = playerState.isPlaying
                 }
             }
     }
 
+    /** The itag of the format currently being played, when known (fmt param). */
+    private fun currentPlaybackItag(): Int? =
+        runCatching {
+            com.omersusin.pitube.utils.MusicPlayerUtils.cachedPlaybackData(_uiState.value.cachedVideo?.id.orEmpty())
+                ?.getOrNull()
+                ?.format
+                ?.itag
+        }.getOrNull()
+
     fun stopHistoryReport() {
+        stopHistoryReport(com.omersusin.pitube.utils.HistoryReportScope.scope)
+    }
+
+    fun stopHistoryReport(launchScope: kotlinx.coroutines.CoroutineScope) {
         historyReportJob?.cancel()
         historyReportJob = null
         // Best-effort final beacon: a video abandoned before the end (left the
         // player / switched away) should still appear as in-progress in the
-        // official YouTube history, not missing or fully watched.
+        // official YouTube history, not missing or fully watched. Launched in
+        // the caller-provided scope: from onCleared() that must be an
+        // application scope, because viewModelScope is already cancelled there
+        // and the final ping would otherwise be dropped with the ViewModel.
         val videoId = historyVideoId
         val cpn = historyCpn
         val tracking = historyTracking
@@ -2916,19 +3047,24 @@ class VideoPlayerViewModel @Inject constructor(
             historyTracking = null
             val finalMs =
                 EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
-            if (finalMs > 5_000L) {
-                viewModelScope.launch {
+            if (finalMs >= MIN_WATCH_FOR_STATS_MS) {
+                launchScope.launch {
                     try {
                         val minted = tracking ?: repository.getPlaybackTracking(videoId, cpn)
-                        repository.reportVideoPlayback(
-                            videoId,
-                            finalMs,
-                            cpn,
-                            minted,
-                            finalMs.coerceAtLeast(0L),
+                        val status = repository.reportVideoPlaybackStatus(
+                            videoId = videoId,
+                            positionMs = finalMs,
+                            cpn = cpn,
+                            tracking = minted,
+                            previousPositionMs = finalMs.coerceAtLeast(0L),
                             final = true,
                             relativeTimeSeconds = (System.currentTimeMillis() - historySessionStartMs) / 1000L,
                         )
+                        if (status in 200..299) {
+                            Log.d("VideoPlayerViewModel", "Final history beacon committed for $videoId at ${finalMs}ms")
+                        } else {
+                            Log.w("VideoPlayerViewModel", "Final history beacon failed (HTTP $status) for $videoId")
+                        }
                     } catch (e: Exception) {
                         Log.w("VideoPlayerViewModel", "Final history report failed for $videoId", e)
                     }
