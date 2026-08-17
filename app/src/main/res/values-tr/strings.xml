@@ -1613,6 +1613,13 @@
     <string name="player_settings_crossfade_duration_seconds_template">%1$d saniye</string>
     <string name="player_settings_radio_mode">Radyo modu</string>
     <string name="player_settings_radio_mode_subtitle">Kuyruk bitince ilgili videoları sonsuza dek oynat</string>
+    <string name="notif_settings_playback_buttons_header">Oynatma bildirimi butonları</string>
+    <string name="notif_button_like">Beğen butonu</string>
+    <string name="notif_button_like_subtitle">Oynatma bildiriminde beğen düğmesi göster</string>
+    <string name="notif_button_dislike">Beğenme butonu</string>
+    <string name="notif_button_dislike_subtitle">Oynatma bildiriminde beğenmeme düğmesi göster</string>
+    <string name="notif_button_radio">Radyo butonu</string>
+    <string name="notif_button_radio_subtitle">Oynatma bildiriminde radyo modu düğmesi göster</string>
     <string name="player_settings_queue_autoplay_subtitle">Oynatma listesindeki veya Daha Sonra İzle kuyruğundaki sonraki videoyu otomatik olarak oynat. Kapalıyken de elle sonraki videoya geçebilirsin.</string>
     <string name="player_settings_autoplay_countdown_title">Otomatik oynatma gecikmesi</string>
     <string name="player_settings_autoplay_countdown_none">Yok (hemen geç)</string>

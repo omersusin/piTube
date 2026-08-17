@@ -70,6 +70,9 @@ class PlayerPreferences(context: Context) {
         val CROSSFADE_ENABLED = booleanPreferencesKey("crossfade_enabled")
         val CROSSFADE_DURATION_SECONDS = intPreferencesKey("crossfade_duration_seconds")
         val RADIO_MODE_ENABLED = booleanPreferencesKey("radio_mode_enabled")
+        val NOTIFICATION_ACTION_LIKE = booleanPreferencesKey("notification_action_like")
+        val NOTIFICATION_ACTION_DISLIKE = booleanPreferencesKey("notification_action_dislike")
+        val NOTIFICATION_ACTION_RADIO = booleanPreferencesKey("notification_action_radio")
         val AUTOPLAY_COUNTDOWN_SECONDS = intPreferencesKey("autoplay_countdown_seconds")
         val SHOW_CONTROLS_WHILE_LOADING = booleanPreferencesKey("show_controls_while_loading")
         val VIDEO_LOOP_ENABLED = booleanPreferencesKey("video_loop_enabled")
@@ -992,6 +995,40 @@ class PlayerPreferences(context: Context) {
     suspend fun setRadioModeEnabled(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.RADIO_MODE_ENABLED] = enabled
+        }
+    }
+
+    // Custom playback-notification buttons (like / dislike / radio).
+    val notificationActionLike: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.NOTIFICATION_ACTION_LIKE] ?: false
+        }
+
+    suspend fun setNotificationActionLike(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.NOTIFICATION_ACTION_LIKE] = enabled
+        }
+    }
+
+    val notificationActionDislike: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.NOTIFICATION_ACTION_DISLIKE] ?: false
+        }
+
+    suspend fun setNotificationActionDislike(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.NOTIFICATION_ACTION_DISLIKE] = enabled
+        }
+    }
+
+    val notificationActionRadio: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.NOTIFICATION_ACTION_RADIO] ?: false
+        }
+
+    suspend fun setNotificationActionRadio(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.NOTIFICATION_ACTION_RADIO] = enabled
         }
     }
 

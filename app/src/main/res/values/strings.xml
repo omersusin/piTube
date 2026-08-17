@@ -789,6 +789,13 @@
     <string name="player_settings_crossfade_duration_seconds_template">%1$d seconds</string>
     <string name="player_settings_radio_mode">Radio mode</string>
     <string name="player_settings_radio_mode_subtitle">Keep playing related videos forever when the queue ends</string>
+    <string name="notif_settings_playback_buttons_header">Playback notification buttons</string>
+    <string name="notif_button_like">Like button</string>
+    <string name="notif_button_like_subtitle">Show a like toggle on the playback notification</string>
+    <string name="notif_button_dislike">Dislike button</string>
+    <string name="notif_button_dislike_subtitle">Show a dislike toggle on the playback notification</string>
+    <string name="notif_button_radio">Radio button</string>
+    <string name="notif_button_radio_subtitle">Show a radio-mode toggle on the playback notification</string>
     <string name="player_settings_queue_autoplay_subtitle">Automatically play the next video in a playlist or Watch Later queue. When off, you can still skip manually.</string>
     <string name="player_settings_autoplay_countdown_title">Autoplay delay</string>
     <string name="player_settings_autoplay_countdown_none">None (switch immediately)</string>

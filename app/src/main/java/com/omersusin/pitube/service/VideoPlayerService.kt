@@ -25,6 +25,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @UnstableApi
@@ -34,6 +35,9 @@ class VideoPlayerService : MediaSessionService() {
         private const val LOCK_RELEASE_DELAY_MS = 30_000L
         const val ACTION_SHOW_POPUP = "com.omersusin.pitube.action.SHOW_POPUP_PLAYER"
         const val ACTION_HIDE_POPUP = "com.omersusin.pitube.action.HIDE_POPUP_PLAYER"
+        const val ACTION_NOTIF_TOGGLE_LIKE = "com.omersusin.pitube.action.NOTIF_TOGGLE_LIKE"
+        const val ACTION_NOTIF_TOGGLE_DISLIKE = "com.omersusin.pitube.action.NOTIF_TOGGLE_DISLIKE"
+        const val ACTION_NOTIF_TOGGLE_RADIO = "com.omersusin.pitube.action.NOTIF_TOGGLE_RADIO"
 
         const val EXTRA_VIDEO_ID = "video_id"
         const val EXTRA_VIDEO_TITLE = "video_title"
@@ -48,6 +52,8 @@ class VideoPlayerService : MediaSessionService() {
 
     private var lockReleaseJob: Job? = null
     private var popupPlayerWindow: PopupPlayerWindow? = null
+
+    private var playbackNotificationProvider: PlaybackNotificationProvider? = null
 
     private fun serviceSnapshot(): String {
         val player = EnhancedPlayerManager.getInstance().getPlayer()
@@ -84,7 +90,37 @@ class VideoPlayerService : MediaSessionService() {
                 .setNotificationId(NotificationHelper.NOTIFICATION_PLAYBACK)
                 .build()
                 .apply { setSmallIcon(R.drawable.ic_notification_logo) }
-        setMediaNotificationProvider(notificationProvider)
+        val wrappedProvider = PlaybackNotificationProvider(this, notificationProvider)
+        playbackNotificationProvider = wrappedProvider
+        setMediaNotificationProvider(wrappedProvider)
+
+        // Keep the custom notification buttons in sync with the settings.
+        val prefs = com.omersusin.pitube.data.local.PlayerPreferences(this)
+        serviceScope.launch {
+            kotlinx.coroutines.flow.combine(
+                prefs.notificationActionLike,
+                prefs.notificationActionDislike,
+                prefs.notificationActionRadio,
+            ) { like, dislike, radio -> Triple(like, dislike, radio) }
+                .collect { (like, dislike, radio) ->
+                    val provider = wrappedProvider
+                    val changed =
+                        provider.showLike != like ||
+                            provider.showDislike != dislike ||
+                            provider.showRadio != radio
+                    provider.showLike = like
+                    provider.showDislike = dislike
+                    provider.showRadio = radio
+                    if (changed) {
+                        runCatching {
+                            EnhancedPlayerManager.getInstance()
+                                .getVideoMediaSession()
+                                ?.mediaNotificationManager
+                                ?.invalidateNotification()
+                        }
+                    }
+                }
+        }
         recordForegroundStartFailures("video-service")
 
         FlowCrashHandler.recordPhase("video-service", "onCreate")
@@ -134,6 +170,13 @@ class VideoPlayerService : MediaSessionService() {
         when (intent?.action) {
             ACTION_SHOW_POPUP -> showPopupPlayer()
             ACTION_HIDE_POPUP -> popupPlayerWindow?.dismiss()
+            ACTION_NOTIF_TOGGLE_LIKE -> serviceScope.launch { toggleLikeDislike(like = true) }
+            ACTION_NOTIF_TOGGLE_DISLIKE -> serviceScope.launch { toggleLikeDislike(like = false) }
+            ACTION_NOTIF_TOGGLE_RADIO -> serviceScope.launch {
+                val prefs = com.omersusin.pitube.data.local.PlayerPreferences(this@VideoPlayerService)
+                prefs.setRadioModeEnabled(!prefs.radioModeEnabled.first())
+                refreshPlaybackNotification()
+            }
         }
 
         updateLocks(isPlaybackActiveForLocks())
@@ -225,6 +268,48 @@ class VideoPlayerService : MediaSessionService() {
             if (wifiLock?.isHeld == true) wifiLock?.release()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to release wifi lock", e)
+        }
+    }
+
+    /** Like/dislike the currently playing video from a notification button. */
+    private suspend fun toggleLikeDislike(like: Boolean) {
+        val video = GlobalPlayerState.currentVideo.value ?: return
+        val likedRepo = com.omersusin.pitube.data.local.LikedVideosRepository.getInstance(this)
+        val accountActions = com.omersusin.pitube.data.local.AccountActions(this)
+        val currentState = likedRepo.getLikeState(video.id).first()
+        if (like) {
+            if (currentState == "LIKED") {
+                likedRepo.removeLikeState(video.id)
+                accountActions.setLikeStatus(video.id, null)
+            } else {
+                likedRepo.likeVideo(
+                    com.omersusin.pitube.data.local.LikedVideoInfo(
+                        videoId = video.id,
+                        title = video.title,
+                        thumbnail = video.thumbnailUrl,
+                        channelName = video.channelName,
+                    )
+                )
+                accountActions.setLikeStatus(video.id, "LIKE")
+            }
+        } else {
+            if (currentState == "DISLIKED") {
+                likedRepo.removeLikeState(video.id)
+                accountActions.setLikeStatus(video.id, null)
+            } else {
+                likedRepo.dislikeVideo(video.id)
+                accountActions.setLikeStatus(video.id, "DISLIKE")
+            }
+        }
+        refreshPlaybackNotification()
+    }
+
+    private fun refreshPlaybackNotification() {
+        runCatching {
+            EnhancedPlayerManager.getInstance()
+                .getVideoMediaSession()
+                ?.mediaNotificationManager
+                ?.invalidateNotification()
         }
     }
 }

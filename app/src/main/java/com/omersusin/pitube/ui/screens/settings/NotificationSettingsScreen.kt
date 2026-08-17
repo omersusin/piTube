@@ -23,8 +23,11 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material.icons.outlined.Radio
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Subscriptions
+import androidx.compose.material.icons.outlined.ThumbDown
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +72,9 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
     val notifReminders by prefs.notifRemindersEnabled.collectAsState(initial = true)
     val notifUpdates by prefs.notifUpdatesEnabled.collectAsState(initial = true)
     val notifGeneral by prefs.notifGeneralEnabled.collectAsState(initial = true)
+    val notifActionLike by prefs.notificationActionLike.collectAsState(initial = false)
+    val notifActionDislike by prefs.notificationActionDislike.collectAsState(initial = false)
+    val notifActionRadio by prefs.notificationActionRadio.collectAsState(initial = false)
 
     var backgroundWorkAllowed by remember {
         mutableStateOf(BackgroundWorkPolicy.isBackgroundWorkUnrestricted(context))
@@ -143,6 +149,41 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
                             onClick = { BackgroundWorkPolicy.requestUnrestrictedBackgroundWork(context) },
                         )
                     }
+                }
+            }
+
+            item {
+                SectionHeader(text = stringResource(R.string.notif_settings_playback_buttons_header))
+                SettingsGroup {
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.ThumbUp,
+                        title = stringResource(R.string.notif_button_like),
+                        subtitle = stringResource(R.string.notif_button_like_subtitle),
+                        checked = notifActionLike,
+                        onCheckedChange = { enabled ->
+                            coroutineScope.launch { prefs.setNotificationActionLike(enabled) }
+                        },
+                    )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.ThumbDown,
+                        title = stringResource(R.string.notif_button_dislike),
+                        subtitle = stringResource(R.string.notif_button_dislike_subtitle),
+                        checked = notifActionDislike,
+                        onCheckedChange = { enabled ->
+                            coroutineScope.launch { prefs.setNotificationActionDislike(enabled) }
+                        },
+                    )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.Radio,
+                        title = stringResource(R.string.notif_button_radio),
+                        subtitle = stringResource(R.string.notif_button_radio_subtitle),
+                        checked = notifActionRadio,
+                        onCheckedChange = { enabled ->
+                            coroutineScope.launch { prefs.setNotificationActionRadio(enabled) }
+                        },
+                    )
                 }
             }
 
