@@ -357,7 +357,7 @@
     <string name="buffer_settings_header_custom">Manuální konfigurace</string>
     <string name="buffer_settings_header_profile">Profil výkonu</string>
     <string name="buffer_settings_title">Nastavení vyrovnávací paměti</string>
-    <string name="buffer_switch_to_custom">Přepnutím na \\'Vlastní\\' povolíte posuvníky.</string>
+    <string name="buffer_switch_to_custom">Přepnutím na \'Vlastní\' povolíte posuvníky.</string>
     <string name="cache_size_100mb">100 MB</string>
     <string name="cache_size_200mb">200 MB</string>
     <string name="cache_size_500mb">500 MB (výchozí)</string>
@@ -518,7 +518,7 @@
     <string name="delete_comment_confirm">Smazat tento komentář? Toto nelze vrátit zpět.</string>
     <string name="delete_older_than_template">Smazat vyhledávání starší než %1$d dní</string>
     <string name="delete_playlist_action">Smazat seznam stop</string>
-    <string name="delete_playlist_dialog_text">Touto akcí trvale smažete \\' %1$s \\' a všechna jeho videa.</string>
+    <string name="delete_playlist_dialog_text">Touto akcí trvale smažete \' %1$s \' a všechna jeho videa.</string>
     <string name="delete_playlist_dialog_title">Smazat seznam skladeb?</string>
     <string name="delete_searches_older_than">Smazat vyhledávání starší než:</string>
     <string name="delete_selected">Smazat vybrané</string>

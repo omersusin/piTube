@@ -346,7 +346,7 @@
     <string name="buffer_settings_header_custom">Ручна конфигурација</string>
     <string name="buffer_settings_header_profile">Перформанце Профиле</string>
     <string name="buffer_settings_title">Подешавања бафера</string>
-    <string name="buffer_switch_to_custom">Пребаците се на \\'Прилагођено\\' да бисте омогућили клизаче.</string>
+    <string name="buffer_switch_to_custom">Пребаците се на \'Прилагођено\' да бисте омогућили клизаче.</string>
     <string name="cache_size_100mb">100 МБ</string>
     <string name="cache_size_200mb">200 МБ</string>
     <string name="cache_size_500mb">500 МБ (подразумевано)</string>
@@ -502,7 +502,7 @@
     <string name="delete_comment_confirm">Избрисати овај коментар? Ово се не може поништити.</string>
     <string name="delete_older_than_template">Delete searches older than %1$d days</string>
     <string name="delete_playlist_action">Избриши плејлисту</string>
-    <string name="delete_playlist_dialog_text">This will permanently delete \\'%1$s\\' and all its videos.</string>
+    <string name="delete_playlist_dialog_text">This will permanently delete \'%1$s\' and all its videos.</string>
     <string name="delete_playlist_dialog_title">Избрисати плејлисту?</string>
     <string name="delete_searches_older_than">Избришите претраге старије од:</string>
     <string name="delete_selected">Избриши изабрано</string>

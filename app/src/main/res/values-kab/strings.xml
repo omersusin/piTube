@@ -774,7 +774,7 @@
     <string name="buffer_desc_datasaver">Semmes imaṭen s yibuffers imeẓyanen (12s min)</string>
     <string name="buffer_profile_custom_desc">Sesiwel s ufus tiddiwin n ibuffers</string>
     <string name="buffer_custom_mode_desc">Sesiwel s ufus tiddiwin n ibuffers. Azalen imeqqranen ur ssekkjen ara neyḥal maca zemren ad sseqren tabdart n uɣuri.</string>
-    <string name="buffer_switch_to_custom">Senqel ɣer 'Custom' akken ad tremdeḍ islaydar.</string>
+    <string name="buffer_switch_to_custom">Senqel ɣer \'Custom\' akken ad tremdeḍ islaydar.</string>
     <string name="buffer_label_min">Buffer Ameẓyan: %1$ds</string>
     <string name="buffer_label_max">Buffer Amqran: %1$ds</string>
     <string name="buffer_label_playback">Tabdart n Uɣuri: %1$ds</string>
@@ -967,7 +967,7 @@
     <string name="playlist_empty_title">Umuɣ-agi d ilem</string>
     <string name="playlist_empty_desc">Rnu tividyutin seg umurar n tavidyut\nakken ad tebnuḍ umuɣ-inek</string>
     <string name="delete_playlist_dialog_title">Kkes umuɣ?</string>
-    <string name="delete_playlist_dialog_text">Ayagi ad yekkes s wayyur '%1$s' d akk tividyutin-is.</string>
+    <string name="delete_playlist_dialog_text">Ayagi ad yekkes s wayyur \'%1$s\' d akk tividyutin-is.</string>
     <string name="playlist_metadata_private_template">Umuɣ • Privé • %1$d n tividyutin</string>
     <string name="playlist_metadata_public_template">Umuɣ • Agdudan • %1$d n tividyutin</string>
     <string name="playlist_sort_options">Ixtiyar n uslelled n umuɣ</string>

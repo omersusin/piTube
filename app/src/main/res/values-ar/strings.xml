@@ -446,7 +446,7 @@
     <string name="buffer_desc_datasaver">قلل من استخدام البيانات باستخدام مخازن مؤقتة أصغر (12 ثانية كحد أدنى)</string>
     <string name="buffer_profile_custom_desc">قم بضبط أحجام المخزن المؤقت يدويًا</string>
     <string name="buffer_custom_mode_desc">اضبط أحجام المخزن المؤقت يدويًا. القيم الأعلى تمنع التوقف المفاجئ ولكنها قد تؤخر بدء التشغيل.</string>
-    <string name="buffer_switch_to_custom">قم بالتبديل إلى 'مخصص' لتمكين أشرطة التمرير.</string>
+    <string name="buffer_switch_to_custom">قم بالتبديل إلى \'مخصص\' لتمكين أشرطة التمرير.</string>
     <string name="buffer_label_min">أقل تخزين مؤقت: %1$ds</string>
     <string name="buffer_label_max">أقصي تخزين مؤقت: %1$ds</string>
     <string name="buffer_label_rebuffer">استئناف بعد إعادة التخزين المؤقت: %1$ds</string>
@@ -664,7 +664,7 @@
     <string name="playlist_empty_title">قائمة التشغيل هذه فارغة</string>
     <string name="playlist_empty_desc">أضف مقاطع الفيديو من مشغل الفيديو\nلإنشاء قائمة التشغيل الخاصة بك</string>
     <string name="delete_playlist_dialog_title">هل تريد حذف قائمة التشغيل؟</string>
-    <string name="delete_playlist_dialog_text">سيؤدي هذا إلى حذف '%1$s' وجميع مقاطع الفيديو فيه بشكل دائم.</string>
+    <string name="delete_playlist_dialog_text">سيؤدي هذا إلى حذف \'%1$s\' وجميع مقاطع الفيديو فيه بشكل دائم.</string>
     <string name="playlist_metadata_private_template">قائمة تشغيل • خاصة • فيديوهات %1$d</string>
     <string name="playlist_metadata_public_template">‎قائمة تشغيل • عامة • فيديوهات %1$d</string>
     <string name="welcome_to_flow">مرحبا بك في piTube</string>

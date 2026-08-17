@@ -718,7 +718,7 @@
     <string name="buffer_desc_aggressive">Priorizar el inicio rápido de la reproducción (10 s min, 30 s max)</string>
     <string name="buffer_label_min">Búfer mínimo: %1$ds</string>
     <string name="buffer_label_playback">Iniciar reproducción: %1$ds</string>
-    <string name="buffer_switch_to_custom">Cambie a 'Personalizado' para habilitar los controles deslizantes.</string>
+    <string name="buffer_switch_to_custom">Cambie a \'Personalizado\' para habilitar los controles deslizantes.</string>
     <string name="cache_size_header">Tamaño de caché de medios</string>
     <string name="cache_size_100mb">100 megas</string>
     <string name="cache_size_desc">Espacio máximo en disco utilizado para almacenar en caché datos de vídeo y audio. Entra en vigor después de reiniciar la aplicación.</string>
@@ -914,7 +914,7 @@
     <string name="make_public_action">Promulgar</string>
     <string name="playlist_empty_title">Esta lista de reproducción está vacía</string>
     <string name="delete_playlist_dialog_title">¿Eliminar lista de reproducción?</string>
-    <string name="delete_playlist_dialog_text">Esto eliminará permanentemente '%1$s' y todos sus videos.</string>
+    <string name="delete_playlist_dialog_text">Esto eliminará permanentemente \'%1$s\' y todos sus videos.</string>
     <string name="playlist_metadata_private_template">Lista de reproducción • Privada • %1$d vídeos</string>
     <string name="playlist_metadata_public_template">Lista de reproducción • Pública • %1$d vídeos</string>
     <string name="welcome_to_flow">Bienvenido a Fluir</string>
@@ -1888,7 +1888,7 @@
     <string name="error_remote_playback">Error en la reproducción remota. Vuelve a intentarlo.</string>
     <string name="error_playback_permission_denied">Permiso de reproducción denegado. Inténtalo de nuevo.</string>
     <string name="error_insecure_stream_blocked">Transmisión no segura bloqueada por la política del dispositivo.</string>
-    <string name="error_expiring_stream_urls">No se pudo reproducir - las URL's de transmisión siguen caducando.</string>
+    <string name="error_expiring_stream_urls">No se pudo reproducir - las URL\'s de transmisión siguen caducando.</string>
     <string name="error_playback_device">Error del dispositivo de reproducción: %1$s</string>
     <string name="error_content_protection">Error de protección de contenido: %1$s</string>
     <string name="error_playback_stopped">La reproducción se ha detenido debido a un error crítico</string>

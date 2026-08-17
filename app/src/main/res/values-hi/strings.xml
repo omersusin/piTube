@@ -575,7 +575,7 @@
     <string name="buffer_desc_datasaver">छोटे बफर के साथ डेटा उपयोग कम करें (12s न्यूनतम)</string>
     <string name="buffer_profile_custom_desc">बफर आकार मैन्युअल रूप से कॉन्फ़िगर करें</string>
     <string name="buffer_custom_mode_desc">बफर आकार मैन्युअल रूप से समायोजित करें। उच्च मान रुकावट को रोकते हैं लेकिन प्लेबैक प्रारंभ में देरी कर सकते हैं।</string>
-    <string name="buffer_switch_to_custom">स्लाइडर सक्षम करने के लिए 'कस्टम' पर स्विच करें।</string>
+    <string name="buffer_switch_to_custom">स्लाइडर सक्षम करने के लिए \'कस्टम\' पर स्विच करें।</string>
     <string name="buffer_label_min">न्यूनतम बफर: %1$ds</string>
     <string name="buffer_label_max">अधिकतम बफर: %1$ds</string>
     <string name="buffer_label_playback">प्लेबैक प्रारंभ: %1$ds</string>
@@ -788,7 +788,7 @@
     <string name="playlist_empty_title">यह प्लेलिस्ट खाली है</string>
     <string name="playlist_empty_desc">अपनी प्लेलिस्ट बनाने के लिए\nवीडियो प्लेयर से वीडियो जोड़ें</string>
     <string name="delete_playlist_dialog_title">प्लेलिस्ट हटाएँ?</string>
-    <string name="delete_playlist_dialog_text">यह '%1$s' और उसके सभी वीडियो को स्थायी रूप से हटा देगा।</string>
+    <string name="delete_playlist_dialog_text">यह \'%1$s\' और उसके सभी वीडियो को स्थायी रूप से हटा देगा।</string>
     <string name="playlist_metadata_private_template">प्लेलिस्ट • निजी • %1$d वीडियो</string>
     <string name="playlist_metadata_public_template">प्लेलिस्ट • पब्लिक • %1$d वीडियोज</string>
     <string name="welcome_to_flow">फ्लो में आपका स्वागत है</string>
@@ -1051,7 +1051,7 @@
     
     
     <string name="player_settings_queue_autoplay">कतारबद्ध वीडियो ऑटोप्ले करें</string>
-    <string name="player_settings_queue_autoplay_subtitle">प्लेलिस्ट या 'बाद में देखें' कतार में अगला वीडियो स्वचालित रूप से चलाएं। बंद होने पर भी, आप मैन्युअली स्किप कर सकते हैं।</string>
+    <string name="player_settings_queue_autoplay_subtitle">प्लेलिस्ट या \'बाद में देखें\' कतार में अगला वीडियो स्वचालित रूप से चलाएं। बंद होने पर भी, आप मैन्युअली स्किप कर सकते हैं।</string>
     <string name="player_settings_autoplay_countdown_title">ऑटोप्ले डिलेअ</string>
     <string name="player_settings_autoplay_countdown_none">कोई नहीं (तुरंत स्विच करें)</string>
     <string name="player_settings_autoplay_countdown_seconds_template">%1$d सेकंड</string>
@@ -1061,7 +1061,7 @@
     <string name="autoplay_countdown_cancel">रद्द करें</string>
     <string name="autoplay_countdown_restart">पुनः आरंभ करें</string>
     <string name="autoplay_countdown_play_now">अभी चलाएं</string>
-    <string name="remove_selected_watch_later_text">इन्हें 'बाद में देखें' से हटा दिया जाएगा।</string>
+    <string name="remove_selected_watch_later_text">इन्हें \'बाद में देखें\' से हटा दिया जाएगा।</string>
     <string name="copy_logs">लॉग कॉपी करें</string>
     <string name="logs_copied">लॉग कॉपी</string>
     <string name="logs_copy_failed">लॉग कॉपी नहीं कर सका</string>

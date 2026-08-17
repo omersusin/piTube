@@ -886,7 +886,7 @@
     <string name="buffer_desc_datasaver">Giảm dữ liệu với bộ đệm nhỏ hơn (tối thiểu 12s)</string>
     <string name="buffer_profile_custom_desc">Cấu hình thủ công kích thước bộ đệm</string>
     <string name="buffer_custom_mode_desc">Điều chỉnh kích thước bộ đệm thủ công. Giá trị cao hơn ngăn giật nhưng có thể trễ phát.</string>
-    <string name="buffer_switch_to_custom">Chuyển sang 'Tùy chỉnh' để bật thanh trượt.</string>
+    <string name="buffer_switch_to_custom">Chuyển sang \'Tùy chỉnh\' để bật thanh trượt.</string>
     <string name="buffer_label_min">Đệm tối thiểu: %1$ds</string>
     <string name="buffer_label_max">Đệm tối đa: %1$ds</string>
     <string name="buffer_label_playback">Bắt đầu phát: %1$ds</string>
@@ -1155,7 +1155,7 @@
     <string name="playlist_empty_title">Danh sách trống</string>
     <string name="playlist_empty_desc">Thêm video từ trình phát\nto build your playlist</string>
     <string name="delete_playlist_dialog_title">Xóa danh sách phát?</string>
-    <string name="delete_playlist_dialog_text">Thao tác này xóa vĩnh viễn '%1$s' và tất cả video trong đó.</string>
+    <string name="delete_playlist_dialog_text">Thao tác này xóa vĩnh viễn \'%1$s\' và tất cả video trong đó.</string>
     <string name="playlist_metadata_private_template">Danh sách phát • Riêng tư • %1$d video</string>
     <string name="playlist_metadata_public_template">Danh sách phát • Công khai • %1$d video</string>
     <string name="playlist_sort_options">Tùy chọn sắp xếp</string>

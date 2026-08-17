@@ -408,7 +408,7 @@
     <string name="theme_desc_system_default">Синхронізувати з темою пристрою</string>
     <string name="theme_name_pure_light">Чисте світло</string>
     
-    <string name="theme_name_mint_fresh">Свіжа м'ята</string>
+    <string name="theme_name_mint_fresh">Свіжа м\'ята</string>
     <string name="theme_desc_mint_fresh">Крута й освіжаюча</string>
     <string name="theme_name_rose_petal">Пелюстка троянди</string>
     <string name="theme_desc_rose_petal">Тепла й ніжна</string>
@@ -1522,7 +1522,7 @@
     
     <string name="player_settings_display">Дисплей</string>
     <string name="player_settings_ambient_mode">Ambient режим</string>
-    <string name="player_settings_ambient_mode_subtitle">Заповнює \"чорні смуги\" навколо відео м'яким світінням кольором відео</string>
+    <string name="player_settings_ambient_mode_subtitle">Заповнює \"чорні смуги\" навколо відео м\'яким світінням кольором відео</string>
     <string name="player_appearance_shorts_ui_title">Інтерфейс програвача shorts</string>
     <string name="player_appearance_shorts_ui_subtitle">Виберіть, яка частина накладання Shorts має бути видимою</string>
     <string name="shorts_player_ui_default">Стандартне</string>
@@ -1542,11 +1542,11 @@
     <string name="sync_collection_settings">Налаштування</string>
     
     <string name="sync_preparing">Підготовка…</string>
-    <string name="sync_connecting">З'єднання…</string>
+    <string name="sync_connecting">З\'єднання…</string>
     <string name="sync_intro">Синхронізуйте вашу бібліотеку, історію, лайки, налаштування та профіль рекомендацій з іншим пристроєм у вашій мережі Wi-Fi. Жодні данні не виходять за межі вашої мережі.</string>
     <string name="sync_send_to_device">Надіслати на пристрій</string>
     <string name="sync_receive_from_device">Отримати з пристрою</string>
-    <string name="sync_pairing_title">Як з'єднати пристрої?</string>
+    <string name="sync_pairing_title">Як з\'єднати пристрої?</string>
     <string name="sync_show_qr_here">Показати QR код</string>
     <string name="sync_scan_other_qr">Зіскануйте QR код на іншому пристрої</string>
     <string name="sync_send_show_qr_hint">Інший пристрій сканує цей код. Використовуйте цей спосіб, якщо на іншому пристрої є камера.</string>
@@ -1568,11 +1568,11 @@
     <string name="sync_sas_body">Перш ніж продовжити, переконайтеся, що цей 6-значний код збігається на обох пристроях.</string>
     <string name="sync_sas_differ">Коди різні</string>
     <string name="sync_sas_match">Коди однакові</string>
-    <string name="sync_consent_title">Об'єднати вхідні дані?</string>
-    <string name="sync_consent_note">Перед об'єднанням буде створено резервну копію для безпеки. Сам процес є безконфліктним — дані не перезаписуються й не дублюються.</string>
+    <string name="sync_consent_title">Об\'єднати вхідні дані?</string>
+    <string name="sync_consent_note">Перед об\'єднанням буде створено резервну копію для безпеки. Сам процес є безконфліктним — дані не перезаписуються й не дублюються.</string>
     <string name="sync_bullet_item">• %1$s</string>
     <string name="sync_decline">Відхилити</string>
-    <string name="sync_merge">Об'єднати</string>
+    <string name="sync_merge">Об\'єднати</string>
     <string name="sync_transferring">Синхронізація %1$s…</string>
     <string name="sync_progress_fraction">%1$d / %2$d</string>
     <string name="sync_complete">Синхронізація завершилась🎉</string>
@@ -1844,7 +1844,7 @@
     
     
     
-    <string name="toast_failed_to_merge_playlist">Не вдалося об'єднати список</string>
+    <string name="toast_failed_to_merge_playlist">Не вдалося об\'єднати список</string>
     <string name="notification_downloading">Завантаження: %1$s</string>
     <string name="notification_download_complete">Завантаження завершено</string>
     <string name="notification_download_failed">Завантаження не вдалося</string>
@@ -2098,7 +2098,7 @@
     <string name="recognition_voice_hint">Торкніться мікрофона та скажіть, що ви хочете знайти</string>
     <string name="refresh_notifications">Оновити сповіщення</string>
     <string name="replying_to_template">Відповідь %1$s</string>
-    <string name="sb_category_poi_highlight">Пам'ятка</string>
+    <string name="sb_category_poi_highlight">Пам\'ятка</string>
     <string name="search_failed">Пошук не вдалося</string>
     <string name="settings_google_account_signed_in">Увійшов</string>
     <string name="settings_google_login_retry">Повторити</string>

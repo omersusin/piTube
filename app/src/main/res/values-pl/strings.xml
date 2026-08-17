@@ -334,7 +334,7 @@
     <string name="notif_type_downloads">Status Pobierania</string>
     <string name="notif_type_downloads_subtitle">Alerty postępu, ukończenia i niepowodzeń</string>
     <string name="notif_type_reminders">Powiadomienia Czasu Ekranowego</string>
-    <string name="notif_type_reminders_subtitle">Przypomnienia 'Czas spać' oraz 'Czas na przerwę' od Zarządzania Czasem</string>
+    <string name="notif_type_reminders_subtitle">Przypomnienia \'Czas spać\' oraz \'Czas na przerwę\' od Zarządzania Czasem</string>
     <string name="notif_type_updates">Aktualizacje Aplikacji</string>
     <string name="notif_type_updates_subtitle">Otrzymaj powiadomienie, gdy nowa wersja aplikacji piTube będzie dostępna</string>
     <string name="notif_type_general">Ogólne Powiadomienia</string>

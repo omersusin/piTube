@@ -189,7 +189,7 @@
     <string name="buffer_settings_header_custom">ਮੈਨੁਅਲ ਕੌਂਫਿਗਰੇਸ਼ਨ</string>
     <string name="buffer_settings_header_profile">ਪ੍ਰਦਰਸ਼ਨ ਪ੍ਰੋਫਾਈਲ</string>
     <string name="buffer_settings_title">ਬਫਰ ਸੈਟਿੰਗਾਂ</string>
-    <string name="buffer_switch_to_custom">ਸਲਾਈਡਰਾਂ ਨੂੰ ਸਮਰੱਥ ਕਰਨ ਲਈ \\'ਕਸਟਮ\\' \'ਤੇ ਸਵਿਚ ਕਰੋ।</string>
+    <string name="buffer_switch_to_custom">ਸਲਾਈਡਰਾਂ ਨੂੰ ਸਮਰੱਥ ਕਰਨ ਲਈ \'ਕਸਟਮ\' \'ਤੇ ਸਵਿਚ ਕਰੋ।</string>
     <string name="cache_size_100mb">100 MB</string>
     <string name="cache_size_200mb">200 MB</string>
     <string name="cache_size_500mb">500 MB (ਡਿਫਾਲਟ)</string>
@@ -362,7 +362,7 @@
     <string name="delete_comment_confirm">ਕੀ ਇਸ ਟਿੱਪਣੀ ਨੂੰ ਮਿਟਾਉਣਾ ਹੈ? ਇਸ ਨੂੰ ਅਣਕੀਤਾ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।</string>
     <string name="delete_older_than_template">%1$d ਦਿਨਾਂ ਤੋਂ ਪੁਰਾਣੀਆਂ ਖੋਜਾਂ ਨੂੰ ਮਿਟਾਓ</string>
     <string name="delete_playlist_action">ਪਲੇਲਿਸਟ ਮਿਟਾਓ</string>
-    <string name="delete_playlist_dialog_text">ਇਹ \\' %1$s \\' ਅਤੇ ਇਸਦੇ ਸਾਰੇ ਵੀਡੀਓ ਨੂੰ ਸਥਾਈ ਤੌਰ \'ਤੇ ਮਿਟਾ ਦੇਵੇਗਾ। ਕੀ</string>
+    <string name="delete_playlist_dialog_text">ਇਹ \' %1$s \' ਅਤੇ ਇਸਦੇ ਸਾਰੇ ਵੀਡੀਓ ਨੂੰ ਸਥਾਈ ਤੌਰ \'ਤੇ ਮਿਟਾ ਦੇਵੇਗਾ। ਕੀ</string>
     <string name="delete_playlist_dialog_title">ਪਲੇਲਿਸਟ ਨੂੰ ਮਿਟਾਉਣਾ ਹੈ?</string>
     <string name="delete_searches_older_than">ਇਸ ਤੋਂ ਪੁਰਾਣੀਆਂ ਖੋਜਾਂ ਨੂੰ ਮਿਟਾਓ:</string>
     <string name="delete_selected">ਚੁਣੇ ਗਏ</string>

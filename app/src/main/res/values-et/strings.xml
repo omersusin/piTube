@@ -344,8 +344,8 @@
     <string name="group_name_label">Grupi nimi</string>
     <string name="i_like_this">Tahaks veel selliseid</string>
     <string name="i_like_this_toast">Selge lugu! Näed veel sarnast sisu.</string>
-    <string name="import_newpipe_backup">Impordi NewPipe\\'i varukoopia</string>
-    <string name="importing_from_backup">Impordin tellimusi NewPipe\\'i varukoopiast…</string>
+    <string name="import_newpipe_backup">Impordi NewPipe\'i varukoopia</string>
+    <string name="importing_from_backup">Impordin tellimusi NewPipe\'i varukoopiast…</string>
     <string name="library_music_playlists_label">Muusika esitusloendid</string>
     <string name="library_music_playlists_subtitle">Sinu muusiakogud</string>
     <string name="library_section_header">Sinu sisu</string>
@@ -582,7 +582,7 @@
     <string name="buffer_settings_header_custom">käsitsi konfigureerimine</string>
     <string name="buffer_settings_header_profile">jõudlusprofiil</string>
     <string name="buffer_settings_title">puhvri sätted</string>
-    <string name="buffer_switch_to_custom">Lülitage liugurite lubamiseks valikule \\'Kohandatud\\'.</string>
+    <string name="buffer_switch_to_custom">Lülitage liugurite lubamiseks valikule \'Kohandatud\'.</string>
     <string name="cache_size_100mb">100 MB</string>
     <string name="cache_size_200mb">200 MB</string>
     <string name="cache_size_500mb">500 MB (vaikeseade)</string>
@@ -721,7 +721,7 @@
     <string name="delete_after_days_template">Kustuta pärast %1$d päeva</string>
     <string name="delete_older_than_template">Kustuta otsingud, mis on vanemad kui %1$d päeva</string>
     <string name="delete_playlist_action">Kustuta esitusloend</string>
-    <string name="delete_playlist_dialog_text">See kustutab jäädavalt \\' %1$s \\' ja kõik selle videod.</string>
+    <string name="delete_playlist_dialog_text">See kustutab jäädavalt \' %1$s \' ja kõik selle videod.</string>
     <string name="delete_playlist_dialog_title">Kas kustutada esitusloend?</string>
     <string name="delete_searches_older_than">Kustutage otsingud, mis on vanemad kui:</string>
     <string name="delete_selected">Kustuta valitud</string>

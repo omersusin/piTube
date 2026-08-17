@@ -16,7 +16,7 @@
     
     
     <string name="library_liked_videos_label">Beğenilen Videolar</string>
-    <string name="library_saved_shorts_label">Kaydedilen Shorts'lar</string>
+    <string name="library_saved_shorts_label">Kaydedilen Shorts\'lar</string>
     <string name="library_watch_later_label">Daha Sonra İzle</string>
     <string name="library_downloads_label">İndirmeler</string>
     <string name="library_settings_data_header"><![CDATA[Ayarlar ve Veriler]]></string>
@@ -147,7 +147,7 @@
     <string name="playlist_description_optional">Açıklama (isteğe bağlı)</string>
     <string name="save_to_playlist">Oynatma listesine kaydet</string>
     <string name="empty_offline_body">İndirdiğin %1$s burada görünecek.\nİnternetin olmasa bile içeriğinin keyfini çıkar.</string>
-    <string name="watch_later_unsave">Daha Sonra İzle'den Kaldır</string>
+    <string name="watch_later_unsave">Daha Sonra İzle\'den Kaldır</string>
     <string name="mark_as_watched_toast">İzlendi olarak işaretlendi — önerilerin gelişecek!</string>
     <string name="go_to_channel">Kanala git</string>
     <string name="track_info">Parça Bilgisi</string>
@@ -188,7 +188,7 @@
     <string name="new_update_available">Yeni Güncelleme Mevcut</string>
     <string name="update_available_template">%1$s kullanıma hazır</string>
     <string name="release_notes">SÜRÜM NOTLARI</string>
-    <string name="update_flow">piTube'u Güncelle</string>
+    <string name="update_flow">piTube\'u Güncelle</string>
     <string name="maybe_later">Belki daha sonra</string>
     <string name="nav_home">Ana sayfa</string>
     <string name="nav_shorts">Şort</string>
@@ -320,7 +320,7 @@
     
     
     <string name="play_all">Hepsini oynat</string>
-    <string name="remove_from_watch_later">Daha Sonra İzle'den kaldır</string>
+    <string name="remove_from_watch_later">Daha Sonra İzle\'den kaldır</string>
     
     
     
@@ -356,14 +356,14 @@
     <string name="settings_item_translation_subtitle">Sağlayıcılar, API anahtarları, hedef dil</string>
     <string name="settings_header_notifications">Bildirimler</string>
     <string name="settings_item_notifications">Bildirim Tercihleri</string>
-    <string name="settings_item_notifications_subtitle">piTube'un hangi bildirimleri göndereceğini yönet</string>
+    <string name="settings_item_notifications_subtitle">piTube\'un hangi bildirimleri göndereceğini yönet</string>
     <string name="notif_settings_title">Bildirim Tercihleri</string>
     <string name="notif_type_downloads">İndirme Bildirimleri</string>
     <string name="notif_type_downloads_subtitle">İlerleme, tamamlanma ve hata uyarıları</string>
     <string name="notif_type_reminders">Ekran Süresi Hatırlatıcısı</string>
     <string name="notif_type_reminders_subtitle">Uyku vakti ve mola hatırlatıcıları</string>
     <string name="notif_type_updates">Uygulama Güncellemesi</string>
-    <string name="notif_type_updates_subtitle">piTube'un yeni sürümü geldiğinde bildirim al</string>
+    <string name="notif_type_updates_subtitle">piTube\'un yeni sürümü geldiğinde bildirim al</string>
     <string name="notif_type_general">Genel Bildirimler</string>
     <string name="notif_system_settings">Sistem Bildirimleri Ayarları</string>
     <string name="notif_system_settings_subtitle">Kanal başı ayarlar için Android İzinlerini Aç</string>
@@ -382,7 +382,7 @@
     
     <string name="notif_type_general_subtitle">Çeşitli uygulama bildirimleri ve duyuruları</string>
     <string name="notif_master_toggle">Bildirimleri etkinleştir</string>
-    <string name="notif_master_toggle_subtitle">Bildirim denetimleri ve uyarılar için piTube'un arka planda çalışmasına izin ver</string>
+    <string name="notif_master_toggle_subtitle">Bildirim denetimleri ve uyarılar için piTube\'un arka planda çalışmasına izin ver</string>
     <string name="settings_item_app_icon_subtitle">Başlatıcı simgesini özelleştir</string>
     <string name="settings_item_content_display">İçerik Görüntüleme</string>
     <string name="settings_item_content_display_subtitle">Izgara boyutu, önizlemeler, düzen</string>
@@ -402,7 +402,7 @@
     <string name="btn_close">Kapat</string>
     <string name="loading_shorts">Shorts yükleniyor…</string>
     <string name="error_short_load">Bir hata oluştu</string>
-    <string name="share_short_template">Bu Shorts'a bir göz at: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Bu Shorts\'a bir göz at: https://youtu.be/%1$s</string>
     <string name="speed_2x">2x Hız</string>
     <string name="cd_liked">Beğenildi</string>
     <string name="cd_pause">Duraklat</string>
@@ -523,7 +523,7 @@
     <string name="settings_item_about_flow">piTube Hakkında</string>
     <string name="settings_item_about_flow_subtitle">Sürüm, Lisans, Katkıda bulunanlar</string>
     <string name="settings_item_support">Destek &amp; Bağış</string>
-    <string name="settings_item_support_subtitle">piTube'un geliştirilmesine katkıda bulunun</string>
+    <string name="settings_item_support_subtitle">piTube\'un geliştirilmesine katkıda bulunun</string>
     <string name="settings_region_dialog_title">Bölge Seç</string>
     <string name="settings_language_dialog_title">Uygulama Dilini Seç</string>
     <string name="settings_language_system_default">Sistem Varsayılanı</string>
@@ -714,7 +714,7 @@
     
     
     <string name="content_settings_home_feed_disabled_title">Ana Sayfa Akışı Devre Dışı</string>
-    <string name="content_settings_home_feed_disabled_body">Kişiselleştirilmiş öneriler devre dışı bırakılmıştır. Bunu İçerik Ayarları'ndan yeniden etkinleştirebilirsin.</string>
+    <string name="content_settings_home_feed_disabled_body">Kişiselleştirilmiş öneriler devre dışı bırakılmıştır. Bunu İçerik Ayarları\'ndan yeniden etkinleştirebilirsin.</string>
     <string name="content_settings_header_player">Video Oynatıcı</string>
     <string name="content_settings_related_card_style_title">İlgili Video Kartı Stili</string>
     <string name="content_settings_related_card_style_subtitle">İlgili videoların oynatıcı panelinde nasıl görüneceğini seç</string>
@@ -796,7 +796,7 @@
     <string name="player_settings_shorts_background_play_subtitle">Uygulama arka plandayken Shorts oynatmayı sürdür</string>
     <string name="player_settings_shorts_playback_mode_title">Shorts Oynatma Modu</string>
     <string name="player_settings_shorts_playback_mode_loop">Döngü (mevcut videoyu tekrarla)</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Sonrakini Otomatik Oynat (bir sonraki Shorts'a geç)</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Sonrakini Otomatik Oynat (bir sonraki Shorts\'a geç)</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">Belirlenen süre sonrası otomatik kaydırma</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">Her %1$d saniyede bir otomatik kaydır</string>
     <string name="player_settings_shorts_playback_mode_dialog_title">Shorts Oynatma Modu</string>
@@ -840,8 +840,8 @@
     <string name="sb_settings_subtitle">Kategori eylemleri, DeArrow kontrolleri ve beğenmeme sayısı ayarları</string>
     <string name="sb_settings_general_header">Genel</string>
     <string name="sb_segments_header">SponsorBlock Eylemleri</string>
-    <string name="sb_contribute_header">SponsorBlock'a Katkıda Bulun</string>
-    <string name="sb_contribute_toggle_title">SponsorBlock'a Katkıda Bulun</string>
+    <string name="sb_contribute_header">SponsorBlock\'a Katkıda Bulun</string>
+    <string name="sb_contribute_toggle_title">SponsorBlock\'a Katkıda Bulun</string>
     <string name="sb_contribute_toggle_subtitle">Oynatıcıda yeni bölümler oluşturmaya yarayan bir tuş göster</string>
     <string name="sb_user_id_not_set">Kullanıcı kimliği ayarlamak veya oluşturmak için dokun</string>
     <string name="sb_user_id_title">SponsorBlock Kullanıcı Kimliği</string>
@@ -911,7 +911,7 @@
     <string name="buffer_desc_datasaver">Daha küçük arabelleklerle veri kullanımını en aza indir (min. 12 sn.)</string>
     <string name="buffer_profile_custom_desc">Arabellek boyutlarını manuel olarak yapılandır</string>
     <string name="buffer_custom_mode_desc">Arabellek boyutlarını manuel olarak ayarla. Daha yüksek değerler takılmayı önler ancak oynatmanın başlamasını geciktirebilir.</string>
-    <string name="buffer_switch_to_custom">Kaydırıcıları etkinleştirmek için 'Manuel' seçeneğine geç.</string>
+    <string name="buffer_switch_to_custom">Kaydırıcıları etkinleştirmek için \'Manuel\' seçeneğine geç.</string>
     <string name="buffer_label_min">Min. Arabellek: %1$d saniye</string>
     <string name="buffer_label_max">Maks. Arabellek: %1$d saniye</string>
     <string name="buffer_label_playback">Oynatmayı Başlat: %1$d saniye</string>
@@ -967,9 +967,9 @@
     <string name="select_threads_count_desc">İş parçacığı sayısını seç (1-8):</string>
     <string name="threads_count_label">%1$d iş parçacığı</string>
     <string name="support_donations_title">Destek &amp; Bağışlar</string>
-    <string name="support_flow_dev_title">piTube'un Geliştirilmesine Destek Olun</string>
-    <string name="support_flow_dev_desc">piTube'u yararlı buluyorsan ve projenin geliştirilmesine destek olmak istiyorsan, Patreon üzerinden destek verebilir veya aşağıdaki kripto adreslerine bağışta bulunabilirsin. Desteğin, projenin devam etmesine önayak olur!</string>
-    <string name="support_flow_patreon">Patreon'da piTube'u destekle</string>
+    <string name="support_flow_dev_title">piTube\'un Geliştirilmesine Destek Olun</string>
+    <string name="support_flow_dev_desc">piTube\'u yararlı buluyorsan ve projenin geliştirilmesine destek olmak istiyorsan, Patreon üzerinden destek verebilir veya aşağıdaki kripto adreslerine bağışta bulunabilirsin. Desteğin, projenin devam etmesine önayak olur!</string>
+    <string name="support_flow_patreon">Patreon\'da piTube\'u destekle</string>
     <string name="thank_you_support_message">❤️ Desteğin için teşekkürler! ❤️</string>
     <string name="address_copied_toast">Adres panoya kopyalandı</string>
     <string name="donation_address_clip_label">Bağış Adresi</string>
@@ -980,7 +980,7 @@
     <string name="newpipe_extractor_subtitle">Çekirdek çıkarma kütüphanesi</string>
     <string name="about_license">Lisans</string>
     <string name="about_changelog">Sürüm Notları</string>
-    <string name="whats_new_in_flow">piTube'daki yenilikler</string>
+    <string name="whats_new_in_flow">piTube\'daki yenilikler</string>
     <string name="about_device_info">Cihaz Bilgisi</string>
     <string name="gnu_license_full_title">GNU Genel Kamu Lisansı</string>
     <string name="loading_ellipsis">Yükleniyor...</string>
@@ -993,7 +993,7 @@
     <string name="model_label">Modeli: %1$s</string>
     <string name="board_label">Anakart: %1$s</string>
     <string name="arch_label">Mimari: %1$s</string>
-    <string name="android_sdk_label">Android SDK'sı: %1$s</string>
+    <string name="android_sdk_label">Android SDK\'sı: %1$s</string>
     <string name="os_label">İşletim Sistemi: Android %1$s</string>
     <string name="density_label">Piksel Yoğunluğu: %1$s</string>
     <string name="about_title">Hakkında</string>
@@ -1020,7 +1020,7 @@
     <string name="playlist_empty_title">Bu oynatma listesi boş</string>
     <string name="playlist_empty_desc">Oynatıcıdan videolar ekleyerek\noynatma listeni oluştur</string>
     <string name="delete_playlist_dialog_title">Oynatma listesi silinsin mi?</string>
-    <string name="delete_playlist_dialog_text">Bu işlem, '%1$s' oynatma listesini ve içindeki tüm videoları kalıcı olarak silecek.</string>
+    <string name="delete_playlist_dialog_text">Bu işlem, \'%1$s\' oynatma listesini ve içindeki tüm videoları kalıcı olarak silecek.</string>
     <string name="playlist_metadata_private_template">Oynatma Listesi • Gizli • %1$d video</string>
     <string name="playlist_metadata_public_template">Oynatma Listesi • Herkese Açık • %1$d video</string>
     <string name="playlist_sort_options">Oynatma listesi sıralama seçenekleri</string>
@@ -1033,7 +1033,7 @@
     <string name="remove_selected_videos_title">%1$d video kaldırılsın mı?</string>
     <string name="remove_selected_playlist_text">Bu oynatma listesinden kaldırılacaklar.</string>
     <string name="remove_selected_watch_later_text">Daha sonra izle listesinden kaldırılacaklar.</string>
-    <string name="welcome_to_flow">piTube'a Hoş Geldin</string>
+    <string name="welcome_to_flow">piTube\'a Hoş Geldin</string>
     
     
     
@@ -1281,7 +1281,7 @@
     <string name="done">Bitti</string>
     <string name="playlist_queue">Oynatma listesi sırası</string>
     <string name="next_up">Sıradaki</string>
-    <string name="cast_to_tv">TV'ye yayınla</string>
+    <string name="cast_to_tv">TV\'ye yayınla</string>
     
     <string name="cast_connected">Yayınlanıyor</string>
     
@@ -1297,15 +1297,15 @@
     <string name="error_geo_restricted">Bölgenizde kullanılamıyor</string>
     <string name="error_geo_restricted_hint">İçerik sahibi bu videoyu ülkende kısıtladı. Bir VPN kullanmayı dene.</string>
     <string name="error_paid_content">Ücretli / kiralık içerik</string>
-    <string name="error_paid_content_hint">Bu video YouTube'da satın alma veya kiralama işlemi gerektirir.</string>
+    <string name="error_paid_content_hint">Bu video YouTube\'da satın alma veya kiralama işlemi gerektirir.</string>
     <string name="error_yt_music_premium">YouTube Music Premium içeriği</string>
     <string name="error_yt_music_premium_hint">Bu parça yalnızca YouTube Music Premium abonelerine açıktır.</string>
     <string name="error_channel_terminated">Kanal kapatıldı</string>
-    <string name="error_channel_terminated_hint">Bu kanal artık YouTube'da mevcut değil.</string>
+    <string name="error_channel_terminated_hint">Bu kanal artık YouTube\'da mevcut değil.</string>
     <string name="error_not_available">Video kullanılamıyor</string>
     <string name="error_not_available_hint">Bu video silinmiş, gizliye alınmış veya YouTube tarafından kaldırılmış olabilir.</string>
     <string name="error_not_supported">İçerik türü desteklenmiyor</string>
-    <string name="error_not_supported_hint">Bu format veya içerik türü piTube'da oynatılamaz.</string>
+    <string name="error_not_supported_hint">Bu format veya içerik türü piTube\'da oynatılamaz.</string>
     <string name="error_no_internet">İnternet bağlantısı yok</string>
     <string name="error_no_internet_hint">Wi-Fi veya mobil verini kontrol edip tekrar dene.</string>
     <string name="error_timeout">Bağlantı zaman aşımına uğradı</string>
@@ -1313,7 +1313,7 @@
     <string name="error_network">Ağ hatası</string>
     <string name="error_network_hint">Bir ağ sorunu videonun yüklenmesini engelledi. Bağlantını kontrol edip tekrar dene.</string>
     <string name="error_captcha">YouTube CAPTCHA gerekli</string>
-    <string name="error_captcha_hint">YouTube bot doğrulaması istiyor. Lütfen tarayıcıda YouTube'u açıp CAPTCHA'yı çöz ve tekrar dene.</string>
+    <string name="error_captcha_hint">YouTube bot doğrulaması istiyor. Lütfen tarayıcıda YouTube\'u açıp CAPTCHA\'yı çöz ve tekrar dene.</string>
     <string name="error_http_forbidden">Erişim reddedildi (403)</string>
     <string name="error_http_forbidden_hint">YouTube bu akışı sunmayı reddetti. Video bağlantısının süresi dolmuş olabilir — yeniden yüklemeyi dene.</string>
     <string name="error_http_general">HTTP hatası %1$s</string>
@@ -1503,8 +1503,8 @@
     <string name="player_appearance_long_press_speed_disabled">Devre dışı</string>
     <string name="player_settings_video_codec">Varsayılan Video Kodeği</string>
     <string name="player_settings_video_codec_dialog_title">Varsayılan Video Kodeği</string>
-    <string name="player_settings_video_codec_auto_desc">Uygulamanın seçmesine izin ver (H.264'ü tercih eder)</string>
-    <string name="donation_prompt_title">piTube'dan keyif alıyor musunuz?</string>
+    <string name="player_settings_video_codec_auto_desc">Uygulamanın seçmesine izin ver (H.264\'ü tercih eder)</string>
+    <string name="donation_prompt_title">piTube\'dan keyif alıyor musunuz?</string>
     <string name="donation_prompt_methods">Patreon · Bitcoin · Ethereum · Solana · USDT · Monero</string>
     <string name="donation_prompt_support">Geliştirmeyi destekle</string>
     <string name="donation_prompt_later">Belki sonra</string>
@@ -1519,7 +1519,7 @@
     <string name="local_media_empty_title">%1$s Bulunamadı</string>
     <string name="local_media_empty_body">Cihazındaki video ve müzikler burada görünecek.</string>
     <string name="local_media_permission_title">İzin gerekiyor</string>
-    <string name="local_media_permission_body">piTube'un cihazındaki müzik ve videolara erişmesine izin ver.</string>
+    <string name="local_media_permission_body">piTube\'un cihazındaki müzik ve videolara erişmesine izin ver.</string>
     <string name="local_media_grant">Erişim izni ver</string>
     <string name="history_tab_local_videos">Yerel videolar</string>
     
@@ -1736,7 +1736,7 @@
     <string name="sync_qr_scan_on_target_receiving">Bunu veri alacağın cihazda tara</string>
     <string name="sync_confirmation_code">Doğrulama kodu: %1$s</string>
     <string name="sync_expires_in">%1$d sn. içinde geçersiz olacak</string>
-    <string name="sync_qr_network_note">İki cihaz da aynı Wi-Fi ağına veya cihazlardan birinin erişim noktasına bağlı olmalıdır. Güvenlik duvarında piTube'a izin vermen gerekebilir.</string>
+    <string name="sync_qr_network_note">İki cihaz da aynı Wi-Fi ağına veya cihazlardan birinin erişim noktasına bağlı olmalıdır. Güvenlik duvarında piTube\'a izin vermen gerekebilir.</string>
     <string name="sync_sas_title">Kodlar eşleşiyor mu?</string>
     <string name="sync_sas_body">Devam etmeden önce bu 6 haneli kodun iki cihazda da aynı olduğunu doğrula.</string>
     <string name="sync_sas_differ">Eşleşmiyor</string>
@@ -1773,7 +1773,7 @@
     
     
     
-    <string name="search_in_flow">piTube'da ara</string>
+    <string name="search_in_flow">piTube\'da ara</string>
     
     
     
@@ -1782,7 +1782,7 @@
     
     
     <string name="widget_quick_actions_label">Hızlı işlemler</string>
-    <string name="widget_quick_actions_description">piTube'da ara veya indirmelere, geçmişe ya da müzik tanımaya hızla git</string>
+    <string name="widget_quick_actions_description">piTube\'da ara veya indirmelere, geçmişe ya da müzik tanımaya hızla git</string>
     
     
     
@@ -1804,7 +1804,7 @@
     <string name="widget_open_history">Geçmişi aç</string>
     <string name="widget_no_recent">İzlediğin videolar burada görünecek</string>
     <string name="widget_no_downloads">İndirmelerin burada görünecek</string>
-    <string name="ui_open_in_youtube">YouTube'da aç</string>
+    <string name="ui_open_in_youtube">YouTube\'da aç</string>
     <string name="ui_playback_error">Oynatma hatası</string>
     <string name="ui_replay">Yeniden oynat</string>
     <string name="ui_skip_back_10_seconds">10 saniye geri sar</string>
@@ -1846,7 +1846,7 @@
     
     
     
-    <string name="update_download_prompt">piTube'un yeni bir sürümü mevcut (%1$s). En son APK indirilsin mi?</string>
+    <string name="update_download_prompt">piTube\'un yeni bir sürümü mevcut (%1$s). En son APK indirilsin mi?</string>
     
     <string name="ui_playlist_empty">Oynatma listesi boş</string>
     <string name="ui_downloading_videos">%1$d video indiriliyor…</string>
@@ -1858,8 +1858,8 @@
     <string name="ui_download_start_failed">İndirme başlatılamadı: %1$s</string>
     <string name="toast_unsubscribed_from">%1$s aboneliğinden çıkıldı</string>
     <string name="toast_subscribed_to">%1$s kanalına abone olundu</string>
-    <string name="toast_removed_from_watch_later">Daha Sonra İzle'den kaldırıldı</string>
-    <string name="toast_added_to_watch_later">Daha Sonra İzle'ye eklendi</string>
+    <string name="toast_removed_from_watch_later">Daha Sonra İzle\'den kaldırıldı</string>
+    <string name="toast_added_to_watch_later">Daha Sonra İzle\'ye eklendi</string>
     <string name="toast_fetching_download_links">İndirme bağlantıları alınıyor…</string>
     <string name="toast_download_started">İndirme başlatıldı: %1$s</string>
     <string name="toast_trying_sabr_download">SABR indirmesi deneniyor…</string>
@@ -1971,13 +1971,13 @@
     <string name="cookie_paste_step_5">İstek Başlıkları altında "cookie" değerine sağ tıklayıp Değeri kopyala seçin</string>
     <string name="cookie_paste_step_6">Bu cihaza gönderin ve yukarıya yapıştırın</string>
     <string name="cookie_paste_security_title">Bunu şifre gibi koruyun</string>
-    <string name="cookie_paste_security_body">Bu çerezler Google hesabınıza tam erişim sağlar ve iki adımlı doğrulamayı baypas eder. piTube bunları bu cihazda şifreli şekilde saklar ve yalnızca YouTube'a gönderir. Asla paylaşmayın.</string>
+    <string name="cookie_paste_security_body">Bu çerezler Google hesabınıza tam erişim sağlar ve iki adımlı doğrulamayı baypas eder. piTube bunları bu cihazda şifreli şekilde saklar ve yalnızca YouTube\'a gönderir. Asla paylaşmayın.</string>
     <string name="cookie_paste_sign_in">Giriş yap</string>
     <string name="cookie_paste_cancel">İptal</string>
     <string name="account_switcher_expired">Oturum süresi doldu - yeniden bağlanmak için dokunun</string>
     <string name="login_tab_token">Token / çerez yapıştır</string>
     <string name="login_tab_webview">Tarayıcı girişi</string>
-    <string name="login_token_description">Oturum açmak için tarayıcıda oturum açılmış bir oturum token'ını veya çerezini yapıştırın; Google'ın yerleşik tarayıcı engelini aşmanın en güvenilir yolu budur. Başka bir uygulamadan dışa aktarabilir veya aşağıdaki adımları kullanabilirsiniz.</string>
+    <string name="login_token_description">Oturum açmak için tarayıcıda oturum açılmış bir oturum token\'ını veya çerezini yapıştırın; Google\'ın yerleşik tarayıcı engelini aşmanın en güvenilir yolu budur. Başka bir uygulamadan dışa aktarabilir veya aşağıdaki adımları kullanabilirsiniz.</string>
     <string name="login_token_field_label">Token veya çerez</string>
     <string name="login_token_field_hint">SID=...; SAPISID=...\nveya\n***DATASYNC ID*** =...\n***ACCOUNT NAME*** =...</string>
     <string name="nav_you">Sen</string>
@@ -2018,12 +2018,12 @@
     <string name="translation_toggle_master">İçeriği çevir</string>
     <string name="translation_toggle_titles">Video başlıkları</string>
     <string name="translation_toggle_captions">Altyazılar</string>
-    <string name="translation_toggle_captions_subtitle">YouTube'un yerleşik altyazı çevirisini kullanır</string>
+    <string name="translation_toggle_captions_subtitle">YouTube\'un yerleşik altyazı çevirisini kullanır</string>
     <string name="translation_toggle_descriptions">Video açıklamaları</string>
     <string name="translation_toggle_comments">Yorumlar</string>
     <string name="translation_toggle_channel_names">Kanal adları</string>
     <string name="translation_toggle_playlist_titles">Oynatma listesi başlıkları</string>
-    <string name="translation_caption_note">Altyazılar, hedef dil için varsa YouTube'un yerleşik çevrilmiş altyazılarını kullanır.</string>
+    <string name="translation_caption_note">Altyazılar, hedef dil için varsa YouTube\'un yerleşik çevrilmiş altyazılarını kullanır.</string>
     <string name="translation_missing_key_hint" formatted="false">Çeviri açık, ancak %1$s bir API anahtarı gerektiriyor: yukarıdan anahtar ekleyin veya ücretsiz bir sağlayıcı seçin; içerik özgün dilinde kalır.</string>
 
     <!-- Voice & Song recognition -->
@@ -2032,8 +2032,8 @@
     <string name="settings_stt_api_key">API anahtarı</string>
     <string name="settings_stt_api_key_dialog_body">Sağlayıcı bilgilerinizi girin. Bu cihazda güvenli şekilde saklanır.</string>
     <string name="stt_provider_cihaz">Cihaz STT</string>
-    <string name="stt_provider_cihaz_subtitle">Android'in yerleşik tanıyıcısı. Kurulum gerekmez.</string>
-    <string name="stt_provider_groq">Groq Bulut API'si</string>
+    <string name="stt_provider_cihaz_subtitle">Android\'in yerleşik tanıyıcısı. Kurulum gerekmez.</string>
+    <string name="stt_provider_groq">Groq Bulut API\'si</string>
     <string name="stt_provider_groq_subtitle">Whisper Large V3 / Turbo, OpenAI uyumlu uç nokta</string>
     <string name="stt_provider_ibm_watson">IBM Watson Konuşmadan Metne</string>
     <string name="stt_provider_ibm_watson_subtitle">Ayda 500 dakika ücretsiz (IBM Cloud Lite)</string>
@@ -2045,7 +2045,7 @@
     <string name="stt_api_key_missing">API anahtarı girin</string>
     <string name="stt_azure_region">Azure bölgesi</string>
     <string name="stt_azure_region_summary">Bölge: %1$s</string>
-    <string name="stt_ibm_instance_url">IBM Watson örnek URL'si</string>
+    <string name="stt_ibm_instance_url">IBM Watson örnek URL\'si</string>
     <string name="stt_ibm_url_summary">Örnek: %1$s</string>
     <string name="recognition_source_groq">Çevrimiçi çevrildi (Groq)</string>
     <string name="recognition_source_ibm_watson">Çevrimiçi çevrildi (IBM Watson)</string>
@@ -2113,9 +2113,9 @@
     <string name="account_switcher_remove_confirm">Kaldır</string>
     <string name="account_switcher_remove_local_body">Abonelikleri ve gizlenen önerileri silinir. Çalma listeleri, beğenilen şarkılar ve indirmeler paylaşıldığı için kalır.</string>
     <string name="account_switcher_remove_title">%1$s kaldırılsın mı?</string>
-    <string name="account_switcher_remove_youtube_body">Bu hesabın bu cihazdaki oturumunu kapatır ve abonelikleri ile gizlenen önerilerini siler. YouTube'un kendisinde hiçbir şey değişmez.</string>
+    <string name="account_switcher_remove_youtube_body">Bu hesabın bu cihazdaki oturumunu kapatır ve abonelikleri ile gizlenen önerilerini siler. YouTube\'un kendisinde hiçbir şey değişmez.</string>
     <string name="account_switcher_sign_out">Oturumu kapat</string>
-    <string name="account_switcher_sign_out_last_body">Hesap bu cihazdan bağlantısı kesildi. Abonelikleriniz ve gizlenen önerileriniz kalır, YouTube'da hiçbir şey değişmez.</string>
+    <string name="account_switcher_sign_out_last_body">Hesap bu cihazdan bağlantısı kesildi. Abonelikleriniz ve gizlenen önerileriniz kalır, YouTube\'da hiçbir şey değişmez.</string>
     <string name="account_switcher_sign_out_title">%1$s oturumu kapatılsın mı?</string>
     <string name="account_switcher_subtitle">Abonelikler ve gizlenen öneriler her profil için ayrı tutulur. Çalma listeleri, beğenilen şarkılar ve indirmeler paylaşılır.</string>
     <string name="account_switcher_switch_account">Hesap değiştir</string>
@@ -2140,10 +2140,10 @@
     <string name="empty_saved_shorts">Henüz kayıtlı shorts yok</string>
     <string name="equalizer">Ekolayzer</string>
     <string name="hearted_by_creator">Oluşturucu tarafından beğenildi</string>
-    <string name="history_sync_youtube">YouTube'dan senkronize et</string>
+    <string name="history_sync_youtube">YouTube\'dan senkronize et</string>
     <string name="label_preset_name">Ön ayar adı</string>
     <string name="login_signed_in">Oturum açıldı</string>
-    <string name="login_title">YouTube'da oturum aç</string>
+    <string name="login_title">YouTube\'da oturum aç</string>
     <string name="logout_button">Oturumu kapat</string>
     <string name="lyrics_synced">Senkronize</string>
     <string name="merge_playlist_dialog_title">Tüm şarkıları şuraya ekle…</string>
@@ -2166,7 +2166,7 @@
     <string name="recognition_overlay_done_description">Şarkı bulundu — aramak için dokunun</string>
     <string name="recognition_overlay_failed_description">Tanıma başarısız — tekrar denemek için dokunun</string>
     <string name="recognition_overlay_foreground_title">Şarkı Tanıma</string>
-    <string name="recognition_overlay_not_recording">Kayıt başlatılamadı. Mikrofona izin vermek için piTube'u açın.</string>
+    <string name="recognition_overlay_not_recording">Kayıt başlatılamadı. Mikrofona izin vermek için piTube\'u açın.</string>
     <string name="recognition_overlay_recognizing_description">Şarkı tanımlanıyor… iptal etmek için dokunun</string>
     <string name="remove_from_queue">Kuyruktan kaldır</string>
     <string name="remove_from_queue_confirmation">Bu videoyu kuyruktan kaldırmak istediğinize emin misiniz?</string>
@@ -2175,7 +2175,7 @@
     <string name="sb_category_poi_highlight">İlgi noktası</string>
     <string name="settings_google_account_signed_in">Oturum açıldı</string>
     <string name="settings_google_login_retry">Yeniden dene</string>
-    <string name="settings_google_login_title">Google'da oturum aç</string>
+    <string name="settings_google_login_title">Google\'da oturum aç</string>
     <string name="settings_google_sign_in">Google ile oturum aç</string>
     <string name="settings_google_sign_in_subtitle">Aboneliklerinize ve akışınıza erişin</string>
     <string name="settings_google_sign_out">Oturumu kapat</string>

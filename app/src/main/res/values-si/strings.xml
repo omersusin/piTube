@@ -368,7 +368,7 @@
     <string name="buffer_settings_header_custom">අත්පොත වින්‍යාස කිරීම</string>
     <string name="buffer_settings_header_profile">කාර්ය සාධන පැතිකඩ</string>
     <string name="buffer_settings_title">බෆර සැකසීම්</string>
-    <string name="buffer_switch_to_custom">ස්ලයිඩර සබල කිරීමට \\'අභිරුචි\\' වෙත මාරු වන්න.</string>
+    <string name="buffer_switch_to_custom">ස්ලයිඩර සබල කිරීමට \'අභිරුචි\' වෙත මාරු වන්න.</string>
     <string name="cache_size_100mb">100 MB</string>
     <string name="cache_size_200mb">200 MB</string>
     <string name="cache_size_500mb">500 MB (පෙරනිමි)</string>
@@ -529,7 +529,7 @@
     <string name="delete_comment_confirm">මෙම අදහස මකන්නද? මෙය ආපසු හැරවිය නොහැක.</string>
     <string name="delete_older_than_template">%1$d දිනට වඩා පැරණි සෙවීම් මකන්න</string>
     <string name="delete_playlist_action">ධාවන ලැයිස්තුව මකන්න</string>
-    <string name="delete_playlist_dialog_text">මෙය \\' %1$s \\' සහ එහි සියලුම වීඩියෝ ස්ථිරවම මකනු ඇත.</string>
+    <string name="delete_playlist_dialog_text">මෙය \' %1$s \' සහ එහි සියලුම වීඩියෝ ස්ථිරවම මකනු ඇත.</string>
     <string name="delete_playlist_dialog_title">ධාවන ලැයිස්තුව මකන්නද?</string>
     <string name="delete_searches_older_than">වඩා පැරණි සෙවීම් මකන්න:</string>
     <string name="delete_selected">මකන්න තෝරාගත්</string>
