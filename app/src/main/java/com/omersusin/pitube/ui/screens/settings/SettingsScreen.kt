@@ -91,6 +91,7 @@ fun SettingsScreen(
     onNavigateToVideoQuality: () -> Unit,
     onNavigateToShortsQuality: () -> Unit,
     onNavigateToContentSettings: () -> Unit,
+    onNavigateToSubscriptionTransfer: () -> Unit,
     onNavigateToDateTimeSettings: () -> Unit,
     onNavigateToBufferSettings: () -> Unit,
     onNavigateToSearchHistory: () -> Unit,
@@ -516,6 +517,7 @@ fun SettingsScreen(
                 stringResource(R.string.settings_item_content_display_subtitle),
                 secAppearance,
                 onNavigateToContentSettings,
+                onNavigateToSubscriptionTransfer,
             ),
             SettingSearchEntry(
                 Icons.Outlined.Schedule,
@@ -962,6 +964,16 @@ fun SettingsScreen(
                             title = stringResource(R.string.settings_item_player_appearance),
                             subtitle = stringResource(R.string.settings_item_player_appearance_subtitle),
                             onClick = onNavigateToPlayerAppearance,
+                        )
+                        HorizontalDivider(
+                            Modifier.padding(start = 56.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        )
+                        SettingsItem(
+                            icon = Icons.Outlined.SwapHoriz,
+                            title = stringResource(R.string.settings_item_subscription_transfer),
+                            subtitle = stringResource(R.string.settings_item_subscription_transfer_subtitle),
+                            onClick = onNavigateToSubscriptionTransfer,
                         )
                         HorizontalDivider(
                             Modifier.padding(start = 56.dp),

@@ -328,6 +328,7 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToVideoQuality = { navController.navigate("settings/video_quality") },
             onNavigateToShortsQuality = { navController.navigate("settings/shorts_quality") },
             onNavigateToContentSettings = { navController.navigate("settings/content") },
+            onNavigateToSubscriptionTransfer = { navController.navigate("settings/subscriptions_transfer") },
             onNavigateToDateTimeSettings = { navController.navigate("settings/datetime") },
             onNavigateToBufferSettings = { navController.navigate("settings/buffer") },
             onNavigateToSearchHistory = { navController.navigate("settings/search_history") },
@@ -419,6 +420,14 @@ fun NavGraphBuilder.flowAppGraph(
         currentRoute.value = "settings/content"
         showBottomNav.value = false
         com.omersusin.pitube.ui.screens.settings.ContentSettingsScreen(
+            onBackClick = { navController.popBackStack() }
+        )
+    }
+
+    composable("settings/subscriptions_transfer") {
+        currentRoute.value = "settings/subscriptions_transfer"
+        showBottomNav.value = false
+        com.omersusin.pitube.ui.screens.settings.SubscriptionTransferScreen(
             onBackClick = { navController.popBackStack() }
         )
     }
