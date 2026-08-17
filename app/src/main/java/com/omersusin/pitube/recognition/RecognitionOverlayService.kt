@@ -428,13 +428,17 @@ class RecognitionOverlayService : Service() {
     private val magnetRadiusDp = 64f
 
     private fun performHaptic() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED) return
         val vibrator =
             (getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(12, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            @Suppress("DEPRECATION")
-            vibrator.vibrate(12)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(12, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(12)
+            }
+        } catch (_: SecurityException) {
         }
     }
 
