@@ -2146,6 +2146,14 @@
     <string name="toast_subscribe_write_failed">YouTube aboneliğiniz güncellenemedi. Değişiklik geri alındı.</string>
     <string name="toast_like_write_failed">YouTube\'daki değerlendirmeniz güncellenemedi. Değişiklik geri alındı.</string>
     <string name="toast_watch_later_write_failed">YouTube\'daki Daha Sonra İzle güncellenemedi. Değişiklik geri alındı.</string>
+    <string name="not_interested">İlgilenmiyorum</string>
+    <string name="not_interested_toast">Video gizlendi — bir daha görünmeyecek</string>
+    <string name="dismissed_content_manage_blocked">Engellenen kanallar (%1$d)</string>
+    <string name="dismissed_content_manage_hidden">Gizlenen videolar (%1$d)</string>
+    <string name="hidden_videos_header">Gizlenen videolar</string>
+    <string name="hidden_videos_empty">Gizlenen video yok.</string>
+    <string name="hidden_video_unhide">Geri getir</string>
+    <string name="hidden_videos_clear_all">Tümünü temizle</string>
     <string name="settings_google_sync_now">Şimdi senkronize et</string>
     <string name="settings_google_sync_result">Senkronize edildi: %1$d beğenilen video, %2$d çalma listesi, %3$d kanal</string>
     <string name="settings_google_sync_subtitle">Gerçek aboneliklerinizi ve akışınızı senkronize edin</string>

@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
@@ -54,6 +56,7 @@ import com.omersusin.pitube.data.model.Video
 fun LikesScreen(
     onVideoClick: (Video) -> Unit,
     onBackClick: () -> Unit,
+    onPlayQueue: (List<Video>, Int) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     viewModel: LikedVideosViewModel = hiltViewModel(),
 ) {
@@ -85,6 +88,21 @@ fun LikesScreen(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f),
                     )
+                    if (uiState.likedVideos.isNotEmpty()) {
+                        IconButton(
+                            onClick = { onPlayQueue(uiState.likedVideos.map { it.toVideo() }, 0) },
+                        ) {
+                            Icon(Icons.Default.PlayArrow, contentDescription = stringResource(R.string.play_all))
+                        }
+                        IconButton(
+                            onClick = {
+                                val shuffled = uiState.likedVideos.map { it.toVideo() }.shuffled()
+                                if (shuffled.isNotEmpty()) onPlayQueue(shuffled, 0)
+                            },
+                        ) {
+                            Icon(Icons.Default.Shuffle, contentDescription = stringResource(R.string.shuffle))
+                        }
+                    }
                 }
             }
         },

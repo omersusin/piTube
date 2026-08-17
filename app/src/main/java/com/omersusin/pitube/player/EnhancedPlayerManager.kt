@@ -77,6 +77,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -195,6 +198,8 @@ class EnhancedPlayerManager private constructor() {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val mainHandler = Handler(Looper.getMainLooper())
     private var pendingReloadJob: Job? = null
+
+    private var queuePersistenceJob: Job? = null
     private var advanceWakeLock: PowerManager.WakeLock? = null
 
     private fun isOnMainThread(): Boolean = Looper.myLooper() == Looper.getMainLooper()
@@ -437,6 +442,61 @@ class EnhancedPlayerManager private constructor() {
             initializeVideoMediaSession(context)
             Log.d(TAG, "Player initialized")
         }
+        startQueuePersistence()
+    }
+
+    /**
+     * Persist the queue + current index (debounced) so the session survives
+     * process death and is restored by [restoreQueue] on the next app start.
+     */
+    private fun startQueuePersistence() {
+        if (queuePersistenceJob?.isActive == true) return
+        queuePersistenceJob = scope.launch {
+            combine(_queueVideos, currentQueueIndexFlow) { videos, index -> videos to index }
+                .debounce(5_000L)
+                .distinctUntilChanged()
+                .collect { (videos, index) ->
+                    val context = appContext ?: return@collect
+                    if (videos.isNotEmpty()) {
+                        QueuePersistence.save(context, index, videos, queueTitle)
+                    }
+                }
+        }
+    }
+
+    /**
+     * Restore a persisted queue into memory WITHOUT starting playback.
+     * Returns the restored current video, or null when nothing was restored
+     * (no snapshot, playback already active, or an existing queue). The
+     * caller decides whether to surface it (e.g. re-show the mini-player).
+     */
+    fun restoreQueue(videos: List<Video>, startIndex: Int, title: String? = null): Video? {
+        if (!isOnMainThread()) {
+            autoNextLog("restoreQueue posted to main size=${videos.size} from=${Thread.currentThread().name}")
+            mainHandler.post { restoreQueue(videos, startIndex, title) }
+            return null
+        }
+        if (videos.isEmpty()) return null
+        val active = player
+        if (active != null && active.playbackState != Player.STATE_IDLE) return null
+        if (playbackQueue.isNotEmpty()) return null
+
+        val normalizedStart = startIndex.coerceIn(0, videos.lastIndex)
+        originalPlaybackQueue = videos
+        val orderedQueue =
+            if (queueShuffleEnabled && videos.size > 1) {
+                PlaylistQueueOrder.shuffleFromCurrent(videos, normalizedStart)
+            } else {
+                ReorderedQueue(videos, normalizedStart)
+            }
+        playbackQueue = orderedQueue.items
+        currentQueueIndex = orderedQueue.currentIndex
+        queueTitle = title
+        _queueVideos.value = videos
+        currentQueueIndexFlow.value = currentQueueIndex
+        updateQueueState()
+        autoNextLog("restoreQueue size=${videos.size} current=$currentQueueIndex")
+        return playbackQueue.getOrNull(currentQueueIndex)
     }
 
     /**

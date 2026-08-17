@@ -93,6 +93,8 @@ fun ContentSettingsScreen(
     var showWatchedThresholdDialog by remember { mutableStateOf(false) }
     val blockedChannelIds by preferences.blockedChannelIds.collectAsState(initial = emptySet())
     var showBlockedChannelsDialog by remember { mutableStateOf(false) }
+    val hiddenVideoIds by preferences.hiddenVideoIds.collectAsState(initial = emptySet())
+    var showHiddenVideosDialog by remember { mutableStateOf(false) }
     val bottomNavHideOnScroll by preferences.bottomNavHideOnScroll.collectAsState(initial = true)
     val shareWithoutText by preferences.shareWithoutText.collectAsState(initial = false)
     val disableShortsPlayer by preferences.disableShortsPlayer.collectAsState(initial = false)
@@ -303,6 +305,19 @@ fun ContentSettingsScreen(
                             }
                         }
                     )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        DismissedContentRow(
+                            icon = Icons.Outlined.Block,
+                            title = stringResource(R.string.dismissed_content_manage_blocked, blockedChannelIds.size),
+                            onClick = { showBlockedChannelsDialog = true },
+                        )
+                        DismissedContentRow(
+                            icon = Icons.Outlined.VisibilityOff,
+                            title = stringResource(R.string.dismissed_content_manage_hidden, hiddenVideoIds.size),
+                            onClick = { showHiddenVideosDialog = true },
+                        )
+                    }
                 }
             }
 
@@ -568,6 +583,80 @@ fun ContentSettingsScreen(
             }
         )
     }
+
+    if (showHiddenVideosDialog) {
+        AlertDialog(
+            onDismissRequest = { showHiddenVideosDialog = false },
+            title = {
+                Text(
+                    stringResource(R.string.hidden_videos_header),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {
+                if (hiddenVideoIds.isEmpty()) {
+                    Text(
+                        stringResource(R.string.hidden_videos_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 360.dp)
+                    ) {
+                        hiddenVideoIds.forEach { videoId ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = videoId,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                TextButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            preferences.removeHiddenVideo(videoId)
+                                        }
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.hidden_video_unhide))
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showHiddenVideosDialog = false }) {
+                    Text(stringResource(R.string.btn_close))
+                }
+            },
+            dismissButton = {
+                if (hiddenVideoIds.isNotEmpty()) {
+                    TextButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                hiddenVideoIds.forEach { preferences.removeHiddenVideo(it) }
+                            }
+                        }
+                    ) {
+                        Text(
+                            stringResource(R.string.hidden_videos_clear_all),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+        )
+    }
 }
 
 
@@ -769,5 +858,33 @@ private fun GridSizeOption(
                 lineHeight = 14.sp
             )
         }
+    }
+}
+
+@Composable
+private fun DismissedContentRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(vertical = 12.dp),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(24.dp),
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+        )
     }
 }

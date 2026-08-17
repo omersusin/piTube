@@ -342,6 +342,12 @@ class HomeViewModel @Inject constructor(
 
     private val unplayableVideoIds = MutableStateFlow<Set<String>>(emptySet())
 
+    /** Videos marked "Not interested" — always filtered from every lane. */
+    private val hiddenVideoIds = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Channels marked "Don't recommend channel" — always filtered from every lane. */
+    private val blockedChannelIds = MutableStateFlow<Set<String>>(emptySet())
+
     private val discoveryPrefs by lazy {
         appContext.getSharedPreferences("home_feed_rotation", Context.MODE_PRIVATE)
     }
@@ -465,6 +471,27 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
+        // "Not interested" and "Don't recommend channel" — kept in memory for
+        // the live blend and applied to every lane on the next refresh.
+        viewModelScope.launch(PerformanceDispatcher.diskIO) {
+            combine(playerPreferences.hiddenVideoIds, playerPreferences.blockedChannelIds) { hidden, blocked ->
+                hidden to blocked
+            }
+                .distinctUntilChanged()
+                .collect { (hidden, blocked) ->
+                    hiddenVideoIds.value = hidden
+                    blockedChannelIds.value = blocked
+                    _uiState.update { state ->
+                        val videos = state.videos.filterSuppressed(hidden, blocked)
+                        val shorts = state.shorts.filterSuppressed(hidden, blocked)
+                        if (videos != state.videos || shorts != state.shorts) {
+                            HomeFeedCache.update(videos, shorts)
+                        }
+                        state.copy(videos = videos, shorts = shorts)
+                    }
+                }
+        }
+
         viewModelScope.launch {
             FeedInvalidationBus.events.collect { event ->
                 when (event) {
@@ -488,6 +515,18 @@ class HomeViewModel @Inject constructor(
                         shortsRepository.evictChannel(event.channelId)
                     }
                     is FeedInvalidationBus.Event.MarkedWatched -> {
+                        HomeFeedCache.filterOut(videoId = event.videoId)
+                        viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                            persistentHomeFeedCache.deleteVideo(event.videoId)
+                        }
+                        _uiState.update { state ->
+                            state.copy(
+                                videos = state.videos.filter { it.id != event.videoId },
+                                shorts = state.shorts.filter { it.id != event.videoId }
+                            )
+                        }
+                    }
+                    is FeedInvalidationBus.Event.VideoHidden -> {
                         HomeFeedCache.filterOut(videoId = event.videoId)
                         viewModelScope.launch(PerformanceDispatcher.networkIO) {
                             persistentHomeFeedCache.deleteVideo(event.videoId)
@@ -626,7 +665,7 @@ class HomeViewModel @Inject constructor(
                 val shorts = shortsRepository.getHomeFeedShorts().map { it.toVideo() }
                 if (shorts.isNotEmpty()) {
                     _uiState.update {
-                        it.copy(shorts = shorts.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value))
+                        it.copy(shorts = shorts.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value))
                     }
                 }
             } catch (e: Exception) {
@@ -638,7 +677,9 @@ class HomeViewModel @Inject constructor(
     private suspend fun cacheFilters(): HomeFeedCacheFilters =
         HomeFeedCacheFilters(
             watchedVideoIds = watchedVideoIds.value,
-            blockedChannelIds = playerPreferences.blockedChannelIds.first(),
+            suppressedVideoIds = hiddenVideoIds.value,
+            suppressedChannelIds = blockedChannelIds.value,
+            blockedChannelIds = blockedChannelIds.value,
         )
 
     private fun hydratePersistentHomeFeed() {
@@ -651,7 +692,7 @@ class HomeViewModel @Inject constructor(
 
             _uiState.update { state ->
                 if (state.videos.isNotEmpty()) return@update state
-                val videos = hydratedCached.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value)
+                val videos = hydratedCached.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value)
                 HomeFeedCache.update(videos, state.shorts)
                 state.copy(
                     videos = videos,
@@ -724,7 +765,7 @@ class HomeViewModel @Inject constructor(
                             }
                             .orEmpty()
                             .filterSignedValid()
-                            .filterWatched(watchedVideoIds.value)
+                            .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                             .filterUnplayable(unplayableVideoIds.value)
                             .filterRecentHomeSuggestion(System.currentTimeMillis())
                     } ?: emptyList()
@@ -812,7 +853,7 @@ class HomeViewModel @Inject constructor(
                         if (quickFeed.isNotEmpty()) {
                             _uiState.update { state ->
                                 state.copy(
-                                    videos = quickFeed.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value),
+                                    videos = quickFeed.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value),
                                     isLoading = true,
                                     isFlowFeed = true
                                 )
@@ -856,7 +897,7 @@ class HomeViewModel @Inject constructor(
 
                 val feedShorts = (rawSubs.extractShorts() + rawDiscovery.extractShorts() + rawViral.extractShorts())
                     .distinctBy { it.id }
-                    .filterWatched(watchedVideoIds.value)
+                    .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                     .filterUnplayable(unplayableVideoIds.value)
                     .filterRecentHomeSuggestion(now)
                 if (feedShorts.isNotEmpty() && playerPreferences.homeShortsShelfEnabled.first()) {
@@ -948,7 +989,7 @@ class HomeViewModel @Inject constructor(
                     cacheCandidates(FeedSource.VIRAL, bestViral, renderedIds)
                 var visibleFeed = emptyList<Video>()
                 _uiState.update { state ->
-                    visibleFeed = spacedMix.filterWatched(watchedVideoIds.value).filterUnplayable(unplayableVideoIds.value)
+                    visibleFeed = spacedMix.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value)
                     state.copy(
                         videos = visibleFeed,
                         isLoading = false,
@@ -1000,7 +1041,7 @@ class HomeViewModel @Inject constructor(
                                 _uiState.update { state ->
                                     val currentIds = state.videos.map { it.id }.toHashSet()
                                     val uniqueNew = wave2Ranked
-                                        .filterWatched(watchedVideoIds.value)
+                                        .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                                         .filterUnplayable(unplayableVideoIds.value)
                                         .filter { !currentIds.contains(it.id) }
                                         .distinctBy { it.channelId }
@@ -1119,7 +1160,7 @@ class HomeViewModel @Inject constructor(
 
                 // Extract shorts for shelf
                 val moreShorts = rawVideos.extractShorts()
-                    .filterWatched(watchedVideoIds.value)
+                    .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                     .filterUnplayable(unplayableVideoIds.value)
                     .filterRecentHomeSuggestion(now)
                 if (moreShorts.isNotEmpty() && playerPreferences.homeShortsShelfEnabled.first()) {
@@ -1129,7 +1170,7 @@ class HomeViewModel @Inject constructor(
                 }
                 
                 val newVideos = rawVideos.filterValid()
-                    .filterWatched(watchedVideoIds.value)
+                    .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                     .filterUnplayable(unplayableVideoIds.value)
                     .filterRecentHomeSuggestion(now)
 
@@ -1182,7 +1223,7 @@ class HomeViewModel @Inject constructor(
             if (!homePrefetchQueue.isCurrent(generation)) return@update state
             val existingVideoIds = state.videos.mapTo(HashSet()) { it.id }
             appendedPage = page
-                .filterWatched(watchedVideoIds.value)
+                .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                 .filterUnplayable(unplayableVideoIds.value)
                 .filterNot { it.id in existingVideoIds }
             if (appendedPage.isEmpty()) return@update state
@@ -1425,6 +1466,22 @@ class HomeViewModel @Inject constructor(
     private fun List<Video>.filterWatched(watchedIds: Set<String>): List<Video> {
         if (watchedIds.isEmpty()) return this
         return this.filter { !watchedIds.contains(it.id) }
+    }
+
+    /**
+     * Remove videos the user marked "Not interested" and every video from
+     * channels marked "Don't recommend channel" — applied to every lane so
+     * dismissed content can never resurface on the next refresh.
+     */
+    private fun List<Video>.filterSuppressed(
+        hiddenIds: Set<String>,
+        blockedIds: Set<String>
+    ): List<Video> {
+        if (hiddenIds.isEmpty() && blockedIds.isEmpty()) return this
+        return this.filter { video ->
+            video.id !in hiddenIds &&
+                (video.channelId.isBlank() || video.channelId !in blockedIds)
+        }
     }
 
     /**

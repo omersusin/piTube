@@ -37,6 +37,7 @@ import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -442,6 +443,22 @@ fun VideoQuickActionsBottomSheet(
                                     title = { Text(stringResource(R.string.mark_as_watched)) },
                                     onClick = {
                                         viewModel.markAsWatched(video)
+                                    },
+                                ),
+                            )
+                            add(
+                                FlowMenuItemData(
+                                    icon = {
+                                        Icon(
+                                            Icons.Outlined.VisibilityOff,
+                                            null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    },
+                                    title = { Text(stringResource(R.string.not_interested)) },
+                                    onClick = {
+                                        viewModel.markNotInterested(video)
+                                        onDismiss()
                                     },
                                 ),
                             )

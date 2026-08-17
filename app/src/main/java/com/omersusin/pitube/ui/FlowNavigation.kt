@@ -599,7 +599,10 @@ fun NavGraphBuilder.flowAppGraph(
             onVideoClick = { video ->
                 navController.navigate("player/${video.id}")
             },
-            onBackClick = { navController.popBackStack() }
+            onBackClick = { navController.popBackStack() },
+            onPlayQueue = { videos, startIndex ->
+                playerViewModel.playPlaylist(videos, startIndex)
+            },
         )
     }
 

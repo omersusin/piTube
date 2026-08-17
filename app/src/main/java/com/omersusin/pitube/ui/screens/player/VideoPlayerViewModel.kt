@@ -154,6 +154,8 @@ class VideoPlayerViewModel @Inject constructor(
         const val LIVE_CHAT_MIN_DRIP_MS = 90L
         const val LIVE_CHAT_MAX_DRIP_MS = 250L
         const val SECONDARY_CONTENT_STARTUP_TIMEOUT_MS = 20_000L
+        /** Restore the persisted queue session only when it was saved within the last 7 days. */
+        const val QUEUE_RESTORE_WINDOW_MS = 7L * 24L * 60L * 60L * 1000L
     }
 
     private val _canGoPrevious = MutableStateFlow(false)
@@ -297,6 +299,32 @@ class VideoPlayerViewModel @Inject constructor(
     }
     
     init {
+        // Restore the persisted queue session (without auto-playing) so the
+        // "Now playing" queue and mini-player survive process death: the last
+        // video reappears in the mini-player and tapping play resumes it.
+        if (_uiState.value.cachedVideo == null && GlobalPlayerState.currentVideo.value == null) {
+            val snapshot = com.omersusin.pitube.player.QueuePersistence.load(context)
+            if (snapshot != null && snapshot.items.isNotEmpty() &&
+                (System.currentTimeMillis() - snapshot.savedAtMs) < QUEUE_RESTORE_WINDOW_MS
+            ) {
+                val videos = snapshot.items.map { it.toVideo() }
+                val restored = EnhancedPlayerManager.getInstance()
+                    .restoreQueue(videos, snapshot.index.coerceIn(0, videos.lastIndex), snapshot.title)
+                if (restored != null) {
+                    GlobalPlayerState.setCurrentVideo(restored)
+                    _uiState.update {
+                        it.copy(
+                            cachedVideo = restored,
+                            queueTitle = snapshot.title,
+                            // Collapse to the mini-player instead of expanding
+                            // the full player right on app start.
+                            isRestoredSession = true,
+                        )
+                    }
+                    Log.d("VideoPlayerViewModel", "Restored persisted queue: ${videos.size} items, current=${restored.id}")
+                }
+            }
+        }
         // Re-fetch streams whenever an expired URL is detected (HTTP 403/410 "data changed")
         viewModelScope.launch {
             EnhancedPlayerManager.getInstance().streamExpiredEvent.collect {

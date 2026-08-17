@@ -303,6 +303,7 @@ class PlayerPreferences(context: Context) {
 
         // Channel blocking: channel IDs the user never wants to see again.
         val BLOCKED_CHANNEL_IDS = stringSetPreferencesKey("blocked_channel_ids")
+        val HIDDEN_VIDEO_IDS = stringSetPreferencesKey("hidden_video_ids")
 
         // Remembered default channel tab per channel ("channelId|tabIndex")
         val CHANNEL_DEFAULT_TABS = stringSetPreferencesKey("channel_default_tabs")
@@ -1711,6 +1712,28 @@ class PlayerPreferences(context: Context) {
         context.playerPreferencesDataStore.edit { preferences ->
             val current = preferences[Keys.BLOCKED_CHANNEL_IDS].orEmpty()
             preferences[Keys.BLOCKED_CHANNEL_IDS] = current - channelId
+        }
+    }
+
+    /** Videos the user marked "Not interested" — never shown in feeds again. */
+    val hiddenVideoIds: Flow<Set<String>> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.HIDDEN_VIDEO_IDS].orEmpty()
+        }
+
+    suspend fun addHiddenVideo(videoId: String) {
+        if (videoId.isBlank()) return
+        context.playerPreferencesDataStore.edit { preferences ->
+            val current = preferences[Keys.HIDDEN_VIDEO_IDS].orEmpty()
+            preferences[Keys.HIDDEN_VIDEO_IDS] = current + videoId
+        }
+    }
+
+    suspend fun removeHiddenVideo(videoId: String) {
+        if (videoId.isBlank()) return
+        context.playerPreferencesDataStore.edit { preferences ->
+            val current = preferences[Keys.HIDDEN_VIDEO_IDS].orEmpty()
+            preferences[Keys.HIDDEN_VIDEO_IDS] = current - videoId
         }
     }
 

@@ -38,6 +38,7 @@ object FeedInvalidationBus {
     sealed class Event {
         data class ChannelBlocked(val channelId: String, val videoId: String) : Event()
         data class MarkedWatched(val videoId: String) : Event()
+        data class VideoHidden(val videoId: String) : Event()
     }
 
     private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 8)
@@ -257,6 +258,31 @@ class QuickActionsViewModel @Inject constructor(
                 Toast.makeText(
                     context,
                     context.getString(com.omersusin.pitube.R.string.mark_as_watched_toast),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } catch (e: Exception) {
+                Toast.makeText(
+                    context,
+                    context.getString(com.omersusin.pitube.R.string.quick_actions_error_template, e.message),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    /**
+     * Mark a video as "Not interested" — it is removed from every feed lane
+     * immediately and never appears again (stored in the same preferences as
+     * blocked channels; the Content settings screen can undo it).
+     */
+    fun markNotInterested(video: Video) {
+        viewModelScope.launch {
+            try {
+                playerPreferences.addHiddenVideo(video.id)
+                FeedInvalidationBus.emit(FeedInvalidationBus.Event.VideoHidden(video.id))
+                Toast.makeText(
+                    context,
+                    context.getString(com.omersusin.pitube.R.string.not_interested_toast),
                     Toast.LENGTH_SHORT
                 ).show()
             } catch (e: Exception) {
