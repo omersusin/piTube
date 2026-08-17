@@ -24,6 +24,7 @@ import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.Video
+import com.omersusin.pitube.utils.ChannelIdResolver
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import com.omersusin.pitube.player.SleepTimerManager
 import com.omersusin.pitube.ui.components.FlowChaptersBottomSheet
@@ -202,7 +203,7 @@ fun PlayerBottomSheetsContainer(
                         id = streamInfo.id ?: video.id,
                         title = streamInfo.name ?: video.title,
                         channelName = streamInfo.uploaderName ?: video.channelName,
-                        channelId = streamInfo.uploaderUrl?.substringAfterLast("/") ?: video.channelId,
+                        channelId = ChannelIdResolver.resolve(video.channelId, streamInfo.uploaderUrl),
                         thumbnailUrl = streamInfo.thumbnails.maxByOrNull { it.height }?.url ?: video.thumbnailUrl,
                         duration = streamInfo.duration.toInt(),
                         viewCount = streamInfo.viewCount,

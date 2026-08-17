@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
+import com.omersusin.pitube.utils.ChannelIdResolver
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import com.omersusin.pitube.player.GlobalPlayerState
 import com.omersusin.pitube.player.SleepTimerManager
@@ -270,7 +271,7 @@ fun FlowApp(
                     id = streamInfo.id,
                     title = streamInfo.name ?: "",
                     channelName = streamInfo.uploaderName ?: "",
-                    channelId = streamInfo.uploaderUrl?.substringAfterLast("/") ?: "",
+                    channelId = ChannelIdResolver.resolve(null, streamInfo.uploaderUrl),
                     thumbnailUrl = streamInfo.thumbnails.maxByOrNull { it.height }?.url ?: "",
                     duration = streamInfo.duration.toInt(),
                     viewCount = streamInfo.viewCount,

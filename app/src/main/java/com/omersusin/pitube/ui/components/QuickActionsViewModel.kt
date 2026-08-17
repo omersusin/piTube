@@ -95,8 +95,22 @@ class QuickActionsViewModel @Inject constructor(
                 if (isCurrentlySubscribed) {
                     subscriptionRepository.unsubscribe(channelId)
                     _subscribedChannelIds.update { it - channelId }
+                    val applied =
+                        com.omersusin.pitube.data.local.AccountActions(context)
+                            .setSubscribed(channelId, false)
+                    if (!applied) {
+                        subscriptionRepository.subscribe(
+                            com.omersusin.pitube.data.local.ChannelSubscription(
+                                channelId = channelId,
+                                channelName = channelName,
+                                channelThumbnail = channelThumbnail
+                            )
+                        )
+                        _subscribedChannelIds.update { it + channelId }
+                        Toast.makeText(context, context.getString(R.string.toast_subscribe_write_failed), Toast.LENGTH_LONG).show()
+                        return@launch
+                    }
                     Toast.makeText(context, context.getString(R.string.toast_unsubscribed_from, channelName), Toast.LENGTH_SHORT).show()
-                    com.omersusin.pitube.data.local.AccountActions(context).setSubscribed(channelId, false)
                 } else {
                     val resolvedThumbnail = channelThumbnail
                         .takeUnless { ThumbnailUrlResolver.isYoutubeVideoThumbnail(it) }
@@ -105,7 +119,7 @@ class QuickActionsViewModel @Inject constructor(
                             repository.fetchChannelAvatarById(channelId)
                         }
                     subscriptionRepository.subscribe(
-                        ChannelSubscription(
+                        com.omersusin.pitube.data.local.ChannelSubscription(
                             channelId = channelId,
                             channelName = channelName,
                             channelThumbnail = resolvedThumbnail,
@@ -113,8 +127,16 @@ class QuickActionsViewModel @Inject constructor(
                         )
                     )
                     _subscribedChannelIds.update { it + channelId }
+                    val applied =
+                        com.omersusin.pitube.data.local.AccountActions(context)
+                            .setSubscribed(channelId, true)
+                    if (!applied) {
+                        subscriptionRepository.unsubscribe(channelId)
+                        _subscribedChannelIds.update { it - channelId }
+                        Toast.makeText(context, context.getString(R.string.toast_subscribe_write_failed), Toast.LENGTH_LONG).show()
+                        return@launch
+                    }
                     Toast.makeText(context, context.getString(R.string.toast_subscribed_to, channelName), Toast.LENGTH_SHORT).show()
-                    com.omersusin.pitube.data.local.AccountActions(context).setSubscribed(channelId, true)
                 }
             } catch (e: Exception) {
                 Toast.makeText(

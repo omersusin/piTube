@@ -92,6 +92,54 @@ class SubscriptionRepository private constructor(
     }
 
     /**
+     * Copy subscriptions from a previous profile into the currently active
+     * one. Used when the user signs into YouTube for the first time: the
+     * device's subscriptions live under the local profile's namespace, and
+     * without a copy every followed channel would flip back to "Subscribe"
+     * the moment the fresh YouTube profile becomes active.
+     *
+     * Rows that already exist in the target are never overwritten; the source
+     * rows are left in place. Idempotent and safe to call repeatedly.
+     */
+    suspend fun migrateSubscriptionsFromProfile(sourceProfileId: String) {
+        if (sourceProfileId.isBlank()) return
+        context.subscriptionsDataStore.edit { preferences ->
+            val targetProfileId = profileManager.activeProfileId.value
+            if (targetProfileId.isBlank() || targetProfileId == sourceProfileId) return@edit
+
+            val prefix = "$sourceProfileId|"
+            val sourceRows = preferences.asMap().entries.mapNotNull { (key, value) ->
+                val name = key.name
+                if (!name.startsWith(prefix)) return@mapNotNull null
+                val channelId = name.removePrefix(prefix).takeIf { it.startsWith("channel_") }
+                    ?.removePrefix("channel_")
+                    ?.takeIf { it.isNotBlank() }
+                    ?: return@mapNotNull null
+                val data = value as? String ?: return@mapNotNull null
+                if (data.isBlank()) null else channelId to data
+            }
+            if (sourceRows.isEmpty()) return@edit
+
+            val migratedIds = mutableSetOf<String>()
+            sourceRows.forEach { (channelId, data) ->
+                val targetKey = channelKey(targetProfileId, channelId)
+                if (preferences[targetKey] == null) {
+                    preferences[targetKey] = data
+                    migratedIds += channelId
+                }
+            }
+            if (migratedIds.isEmpty()) return@edit
+
+            val sourceOrder = preferences[orderKey(sourceProfileId)]
+                .orEmpty().split(",").filter { it.isNotEmpty() }
+            val targetOrder = preferences[orderKey(targetProfileId)]
+                .orEmpty().split(",").filter { it.isNotEmpty() }
+            val mergedOrder = (sourceOrder.filter { it in migratedIds } + targetOrder).distinct()
+            preferences[orderKey(targetProfileId)] = mergedOrder.joinToString(",")
+        }
+    }
+
+    /**
      * Subscribe to a channel
      */
     suspend fun subscribe(channel: ChannelSubscription) {

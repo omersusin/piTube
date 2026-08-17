@@ -141,10 +141,21 @@ class AccountSwitcher(context: Context) {
         datasyncId: String? = null,
         poToken: String? = null
     ): Profile {
+        val previous = profileManager.active()
         val profile = profileManager.addYouTubeProfile(
             cookies, name, handle, avatarUrl, email, datasyncId, poToken
         )
         if (!switchTo(profile.id)) invalidateForProfileChange()
+        // First sign-in: carry the device profile's subscriptions over so
+        // followed channels keep showing "Subscribed" under the new account.
+        if (previous.isLocal) {
+            backgroundScope.launch {
+                runCatching {
+                    SubscriptionRepository.getInstance(appContext)
+                        .migrateSubscriptionsFromProfile(previous.id)
+                }
+            }
+        }
         return profile
     }
 

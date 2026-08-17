@@ -24,6 +24,7 @@ import com.omersusin.pitube.player.state.EnhancedPlayerState
 import com.omersusin.pitube.ui.screens.player.VideoPlayerUiState
 import com.omersusin.pitube.ui.screens.player.VideoPlayerViewModel
 import com.omersusin.pitube.ui.screens.player.state.PlayerScreenState
+import com.omersusin.pitube.utils.ChannelIdResolver
 import kotlinx.coroutines.delay
 import android.view.OrientationEventListener
 import android.widget.Toast
@@ -377,7 +378,7 @@ fun WatchProgressSaveEffect(
         delay(3000)
         val streamInfo = currentUi.streamInfo
         if (currentUi.isCurrentLiveStream()) return@LaunchedEffect
-        val channelId = streamInfo?.uploaderUrl?.substringAfterLast("/") ?: video.channelId
+        val channelId = ChannelIdResolver.resolve(video.channelId, streamInfo?.uploaderUrl)
         val channelName = resolveHistoryChannelName(video, streamInfo?.uploaderName)
         val thumbnailUrl = streamInfo?.thumbnails?.maxByOrNull { it.height }?.url
             ?: video.thumbnailUrl.takeIf { it.isNotEmpty() }
@@ -403,7 +404,7 @@ fun WatchProgressSaveEffect(
             delay(10000)
             val streamInfo = currentUi.streamInfo
             if (currentUi.isCurrentLiveStream()) continue
-            val channelId = streamInfo?.uploaderUrl?.substringAfterLast("/") ?: video.channelId
+            val channelId = ChannelIdResolver.resolve(video.channelId, streamInfo?.uploaderUrl)
             val channelName = resolveHistoryChannelName(video, streamInfo?.uploaderName)
             val thumbnailUrl = streamInfo?.thumbnails?.maxByOrNull { it.height }?.url
                 ?: video.thumbnailUrl.takeIf { it.isNotEmpty() }
@@ -746,7 +747,7 @@ fun SubscriptionAndLikeEffect(
 ) {
     LaunchedEffect(uiState.streamInfo) {
         uiState.streamInfo?.let { streamInfo ->
-            val channelId = streamInfo.uploaderUrl?.substringAfterLast("/") ?: ""
+            val channelId = ChannelIdResolver.resolve(uiState.cachedVideo?.channelId, streamInfo.uploaderUrl)
             if (channelId.isNotEmpty()) {
                 viewModel.loadSubscriptionAndLikeState(channelId, videoId)
             }

@@ -24,6 +24,7 @@ import com.omersusin.pitube.player.PlaybackStartupPolicy
 import com.omersusin.pitube.player.PlayerChannelMetadataPolicy
 import com.omersusin.pitube.player.PlayerRelatedVideosPolicy
 import com.omersusin.pitube.player.awaitFirstPlaybackResolver
+import com.omersusin.pitube.utils.ChannelIdResolver
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import com.omersusin.pitube.utils.distinctBestImageUrls
 import com.omersusin.pitube.player.quality.QualityManager
@@ -1634,8 +1635,10 @@ class VideoPlayerViewModel @Inject constructor(
                                     id = videoId,
                                     title = streamInfo.name ?: _uiState.value.cachedVideo?.title ?: context.getString(R.string.live),
                                     channelName = streamInfo.uploaderName ?: _uiState.value.cachedVideo?.channelName ?: "",
-                                    channelId = streamInfo.uploaderUrl?.substringAfterLast("/")
-                                        ?: _uiState.value.cachedVideo?.channelId ?: "",
+                                    channelId = ChannelIdResolver.resolve(
+                                        _uiState.value.cachedVideo?.channelId,
+                                        streamInfo.uploaderUrl
+                                    ),
                                     thumbnailUrl = streamInfo.thumbnails.maxByOrNull { it.height }?.url
                                         ?: _uiState.value.cachedVideo?.thumbnailUrl
                                         ?: ThumbnailUrlResolver.normalizeVideoThumbnail(videoId, null),
@@ -2940,7 +2943,17 @@ class VideoPlayerViewModel @Inject constructor(
             if (isSubscribed) {
                 subscriptionRepository.unsubscribe(channelId)
                 _uiState.value = _uiState.value.copy(isSubscribed = false)
-                accountActions.setSubscribed(channelId, false)
+                val applied = accountActions.setSubscribed(channelId, false)
+                if (!applied) {
+                    subscriptionRepository.subscribe(
+                        ChannelSubscription(
+                            channelId = channelId,
+                            channelName = channelName,
+                            channelThumbnail = channelThumbnail
+                        )
+                    )
+                    _uiState.value = _uiState.value.copy(isSubscribed = true)
+                }
             } else {
                 subscriptionRepository.subscribe(
                     ChannelSubscription(
@@ -2950,7 +2963,11 @@ class VideoPlayerViewModel @Inject constructor(
                     )
                 )
                 _uiState.value = _uiState.value.copy(isSubscribed = true)
-                accountActions.setSubscribed(channelId, true)
+                val applied = accountActions.setSubscribed(channelId, true)
+                if (!applied) {
+                    subscriptionRepository.unsubscribe(channelId)
+                    _uiState.value = _uiState.value.copy(isSubscribed = false)
+                }
             }
         }
     }

@@ -365,7 +365,22 @@ class ChannelViewModel
                 if (state.isSubscribed) {
                     // Unsubscribe
                     subscriptionRepository.unsubscribe(channelId)
-                    com.omersusin.pitube.data.local.AccountActions(appContext).setSubscribed(channelId, false)
+                    val applied =
+                        com.omersusin.pitube.data.local.AccountActions(appContext)
+                            .setSubscribed(channelId, false)
+                    if (!applied) {
+                        // YouTube did not apply the write — restore the row so
+                        // the button state matches the real account.
+                        subscriptionRepository.subscribe(
+                            ChannelSubscription(
+                                channelId = channelId,
+                                channelName = channelName,
+                                channelThumbnail = channelThumbnail,
+                                subscribedAt = System.currentTimeMillis(),
+                            )
+                        )
+                        subscriptionWriteFailedMessage()
+                    }
                 } else {
                     // Subscribe
                     val subscription =
@@ -376,7 +391,13 @@ class ChannelViewModel
                             subscribedAt = System.currentTimeMillis(),
                         )
                     subscriptionRepository.subscribe(subscription)
-                    com.omersusin.pitube.data.local.AccountActions(appContext).setSubscribed(channelId, true)
+                    val applied =
+                        com.omersusin.pitube.data.local.AccountActions(appContext)
+                            .setSubscribed(channelId, true)
+                    if (!applied) {
+                        subscriptionRepository.unsubscribe(channelId)
+                        subscriptionWriteFailedMessage()
+                    }
                 }
             }
         }
@@ -385,9 +406,35 @@ class ChannelViewModel
             viewModelScope.launch(PerformanceDispatcher.diskIO) {
                 val state = _uiState.value
                 val channelId = state.channelId ?: return@launch
+                val channelInfo = state.channelInfo
                 subscriptionRepository.unsubscribe(channelId)
-                com.omersusin.pitube.data.local.AccountActions(appContext).setSubscribed(channelId, false)
+                val applied =
+                    com.omersusin.pitube.data.local.AccountActions(appContext)
+                        .setSubscribed(channelId, false)
+                if (!applied && channelInfo != null) {
+                    subscriptionRepository.subscribe(
+                        ChannelSubscription(
+                            channelId = channelId,
+                            channelName = channelInfo.name,
+                            channelThumbnail = channelInfo.avatars.firstOrNull()?.url ?: "",
+                            subscribedAt = System.currentTimeMillis(),
+                        )
+                    )
+                    subscriptionWriteFailedMessage()
+                }
             }
+        }
+
+        private fun subscriptionWriteFailedMessage() {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(subscriptionError = appContext.getString(R.string.toast_subscribe_write_failed))
+                }
+            }
+        }
+
+        fun clearSubscriptionError() {
+            _uiState.update { it.copy(subscriptionError = null) }
         }
 
         fun setNotificationState(enabled: Boolean) {
@@ -766,6 +813,8 @@ data class ChannelUiState(
     val videosError: String? = null,
     val isSubscribed: Boolean = false,
     val isNotificationsEnabled: Boolean = false,
+    /** One-shot friendly error when the YouTube account write failed and the state was rolled back. */
+    val subscriptionError: String? = null,
     val selectedTab: Int = 0, // 0: Videos, 1: Shorts, 2: Live, 3: Playlists, 4: Posts, 5: About
     // ── Channel search ──────────────────────────────────────────────────────
     val searchActive: Boolean = false,

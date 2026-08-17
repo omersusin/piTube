@@ -3,6 +3,7 @@ package com.omersusin.pitube.data.local
 import android.content.Context
 import android.util.Log
 import com.omersusin.pitube.innertube.YouTube
+import com.omersusin.pitube.utils.ChannelIdResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,8 +16,13 @@ import kotlinx.coroutines.launch
  * real Google account so the app matches official YouTube. This is the one
  * place that knows how to write back: [YouTube.setLikeStatus] and
  * [YouTube.setSubscribed] are both signed InnerTube calls that fail silently
- * when signed out, and both callers already wrote the optimistic local state,
- * so a failed network write never rolls a working device state back.
+ * when signed out, and both callers already wrote the optimistic local state.
+ *
+ * [setSubscribed] reports whether YouTube applied the write, so callers can
+ * roll their optimistic state back and show a friendly error when the account
+ * write silently no-ops (the endpoint answers HTTP 200 even when it did not
+ * act). When the device is signed out the write is correctly skipped and the
+ * local state stands on its own.
  *
  * On a successful subscribe the subscriptions feed is refreshed in the
  * background so the new channel's uploads appear immediately (dynamic sync);
@@ -58,23 +64,32 @@ class AccountActions(context: Context) {
     }
 
     /**
-     * Subscribe / unsubscribe a channel on the account. On success the local
-     * subscriptions feed is re-pulled so the change shows immediately.
+     * Subscribe / unsubscribe a channel on the account.
+     *
+     * Returns true when the remote write was applied (or was correctly
+     * skipped because the device is signed out / the id is not canonical) and
+     * false when the write was attempted but YouTube did not apply it — the
+     * caller uses the result to roll its optimistic local state back and show
+     * a friendly error. On success the local subscriptions feed is re-pulled
+     * so the change shows immediately.
      */
-    fun setSubscribed(channelId: String, subscribe: Boolean) {
-        if (!canWriteBack() || channelId.isBlank()) return
-        backgroundScope.launch {
-            YouTube.setSubscribed(channelId, subscribe)
-                .onFailure { Log.w("AccountActions", "setSubscribed failed for $channelId", it) }
-                .onSuccess { ok ->
-                    if (ok) {
-                        backgroundScope.launch {
-                            runCatching { YouTubeLibrarySync.syncSubscriptionsOnly(appContext) }
-                                .onFailure { Log.w("AccountActions", "post-subscribe refresh failed", it) }
-                        }
+    suspend fun setSubscribed(channelId: String, subscribe: Boolean): Boolean {
+        if (!canWriteBack() || channelId.isBlank()) return true
+        if (!ChannelIdResolver.isCanonical(channelId)) {
+            Log.w("AccountActions", "setSubscribed: skipping remote write for non-canonical id '$channelId'")
+            return false
+        }
+        return YouTube.setSubscribed(channelId, subscribe)
+            .onFailure { Log.w("AccountActions", "setSubscribed failed for $channelId", it) }
+            .getOrDefault(false)
+            .also { ok ->
+                if (ok) {
+                    backgroundScope.launch {
+                        runCatching { YouTubeLibrarySync.syncSubscriptionsOnly(appContext) }
+                            .onFailure { Log.w("AccountActions", "post-subscribe refresh failed", it) }
                     }
                 }
-        }
+            }
     }
 
     /**

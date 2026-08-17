@@ -37,6 +37,7 @@ import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.data.model.needsCollaboratorResolution
 import com.omersusin.pitube.data.repository.VideoCollaboratorResolver
 import com.omersusin.pitube.player.EnhancedPlayerManager
+import com.omersusin.pitube.utils.ChannelIdResolver
 import com.omersusin.pitube.ui.components.rememberDeArrowResult
 import com.omersusin.pitube.ui.components.CommentsPreview
 import com.omersusin.pitube.ui.components.CompactVideoCard
@@ -109,7 +110,7 @@ fun VideoInfoContent(
                 id = streamInfo.id ?: video.id,
                 title = resolvedVideoTitle,
                 channelName = streamInfo.uploaderName ?: video.channelName,
-                channelId = streamInfo.uploaderUrl?.substringAfterLast("/") ?: video.channelId,
+                channelId = ChannelIdResolver.resolve(video.channelId, streamInfo.uploaderUrl),
                 thumbnailUrl = streamInfo.thumbnails.maxByOrNull { it.height }?.url ?: video.thumbnailUrl,
                 duration = streamInfo.duration.toInt(),
                 viewCount = streamInfo.viewCount,
@@ -273,7 +274,7 @@ fun VideoInfoContent(
         },
         onSubscribeClick = {
             uiState.streamInfo?.let { streamInfo ->
-                val channelIdSafe = streamInfo.uploaderUrl?.substringAfterLast("/") ?: video.channelId
+                val channelIdSafe = ChannelIdResolver.resolve(video.channelId, streamInfo.uploaderUrl)
                 val channelNameSafe = streamInfo.uploaderName ?: video.channelName
                 // Use the fetched channel avatar URL if available, otherwise fallback to existing video thumbnail as last resort 
                 // but checking for uploaderUrl is wrong as it is a web link.
@@ -302,7 +303,7 @@ fun VideoInfoContent(
         },
         onUnsubscribeClick = {
             uiState.streamInfo?.let { streamInfo ->
-                val channelIdSafe = streamInfo.uploaderUrl?.substringAfterLast("/") ?: video.channelId
+                val channelIdSafe = ChannelIdResolver.resolve(video.channelId, streamInfo.uploaderUrl)
                 val channelNameSafe = streamInfo.uploaderName ?: video.channelName
                 val channelThumbSafe = uiState.channelAvatarUrl?.takeIf { it.isNotEmpty() }
                     ?: video.channelThumbnailUrl?.takeIf { it.isNotEmpty() }
@@ -316,12 +317,12 @@ fun VideoInfoContent(
             }
         },
         onNotificationChange = { enabled ->
-            val channelIdSafe = uiState.streamInfo?.uploaderUrl?.substringAfterLast("/") ?: video.channelId
+            val channelIdSafe = ChannelIdResolver.resolve(video.channelId, uiState.streamInfo?.uploaderUrl)
             viewModel.setNotificationEnabled(channelIdSafe, enabled)
         },
         onChannelClick = {
             uiState.streamInfo?.let { streamInfo ->
-                val channelIdSafe = streamInfo.uploaderUrl?.substringAfterLast("/") ?: video.channelId
+                val channelIdSafe = ChannelIdResolver.resolve(video.channelId, streamInfo.uploaderUrl)
                 onChannelClick(channelIdSafe)
             } ?: onChannelClick(video.channelId)
         },
@@ -466,7 +467,7 @@ fun createCompleteVideo(
             id = streamInfo.id ?: video.id,
             title = streamInfo.name ?: video.title,
             channelName = streamInfo.uploaderName ?: video.channelName,
-            channelId = streamInfo.uploaderUrl?.substringAfterLast("/") ?: video.channelId,
+            channelId = ChannelIdResolver.resolve(video.channelId, streamInfo.uploaderUrl),
             thumbnailUrl = streamInfo.thumbnails.maxByOrNull { it.height }?.url ?: video.thumbnailUrl,
             duration = streamInfo.duration.toInt(),
             viewCount = streamInfo.viewCount,

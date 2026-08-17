@@ -419,6 +419,18 @@ class ShortsViewModel @Inject constructor(
         
         if (isSubscribed) {
             subscriptionRepository.unsubscribe(channelId)
+            val applied =
+                com.omersusin.pitube.data.local.AccountActions(context)
+                    .setSubscribed(channelId, false)
+            if (!applied) {
+                subscriptionRepository.subscribe(
+                    com.omersusin.pitube.data.local.ChannelSubscription(
+                        channelId = channelId,
+                        channelName = channelName,
+                        channelThumbnail = channelThumbnail
+                    )
+                )
+            }
         } else {
             subscriptionRepository.subscribe(
                 com.omersusin.pitube.data.local.ChannelSubscription(
@@ -427,9 +439,13 @@ class ShortsViewModel @Inject constructor(
                     channelThumbnail = channelThumbnail
                 )
             )
+            val applied =
+                com.omersusin.pitube.data.local.AccountActions(context)
+                    .setSubscribed(channelId, true)
+            if (!applied) {
+                subscriptionRepository.unsubscribe(channelId)
+            }
         }
-        com.omersusin.pitube.data.local.AccountActions(context)
-            .setSubscribed(channelId, !isSubscribed)
     }
     
     fun toggleSaveShort(short: ShortVideo) {

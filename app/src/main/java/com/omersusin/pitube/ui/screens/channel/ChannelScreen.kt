@@ -2,6 +2,7 @@ package com.omersusin.pitube.ui.screens.channel
 
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -157,6 +158,14 @@ fun ChannelScreen(
     val playlistsLazyPagingItems = playlistsPagingFlow?.collectAsLazyPagingItems()
 
     LaunchedEffect(channelUrl) { viewModel.loadChannel(channelUrl) }
+
+    // One-shot subscription write failure: show it and clear so it never re-shows.
+    LaunchedEffect(uiState.subscriptionError) {
+        uiState.subscriptionError?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.clearSubscriptionError()
+        }
+    }
 
     var showCollapsedChannelTitle by remember(channelUrl) { mutableStateOf(false) }
     val collapsedChannelTitle = uiState.channelInfo?.name.orEmpty()

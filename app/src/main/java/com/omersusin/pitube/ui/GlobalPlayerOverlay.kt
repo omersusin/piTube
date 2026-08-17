@@ -62,6 +62,7 @@ import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.local.SponsorBlockAction
 import com.omersusin.pitube.data.model.Video
+import com.omersusin.pitube.utils.ChannelIdResolver
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import com.omersusin.pitube.player.GlobalPlayerState
 import com.omersusin.pitube.player.PictureInPictureHelper
@@ -626,7 +627,7 @@ fun GlobalPlayerOverlay(
     DisposableEffect(video.id) {
         onDispose {
             val streamInfo = playerUiState.streamInfo
-            val channelId = streamInfo?.uploaderUrl?.substringAfterLast("/") ?: video.channelId
+            val channelId = ChannelIdResolver.resolve(video.channelId, streamInfo?.uploaderUrl)
             val channelName = streamInfo?.uploaderName ?: video.channelName
             val thumbnailUrl =
                 streamInfo?.thumbnails?.maxByOrNull { it.height }?.url

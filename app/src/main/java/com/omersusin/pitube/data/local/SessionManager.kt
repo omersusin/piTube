@@ -97,10 +97,23 @@ class SessionManager(private val context: Context) {
         // account already in the roster is refreshed in place via datasyncId
         // dedupe inside addYouTubeProfile, and a brand-new account becomes a
         // new row - the active account's cookies are never overwritten.
+        val previous = profileManager.active()
         val profile = profileManager.addYouTubeProfile(cookies)
         profileManager.setActive(profile.id)
         runCatching { runMirror { it.refreshYoutubeCookie(cookies) } }
         setSessionExpired(false)
+        // First sign-in: carry the device profile's subscriptions over so
+        // followed channels keep showing "Subscribed" under the new account.
+        if (previous.isLocal) {
+            runCatching {
+                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                    runCatching {
+                        SubscriptionRepository.getInstance(appContext)
+                            .migrateSubscriptionsFromProfile(previous.id)
+                    }
+                }
+            }
+        }
     }
 
     /** Get the active profile's stored session cookies. */
