@@ -1,12 +1,11 @@
 package com.omersusin.pitube.service
 
-import android.content.Intent
-import android.os.Bundle
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
-import androidx.core.app.NotificationCompat
-import androidx.core.graphics.drawable.IconCompat
+import android.content.Intent
+import android.graphics.drawable.Icon
+import android.os.Bundle
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaNotification
 import androidx.media3.session.MediaSession
@@ -17,11 +16,8 @@ import com.omersusin.pitube.R
  * Wraps media3's default playback notification and appends the user-selected
  * custom action buttons (like / dislike / radio, RiMusic-style). The delegate
  * keeps building the standard MediaStyle notification; this provider only
- * attaches the extra actions and forwards everything else.
- *
- * The extra actions go through [MediaNotification.ActionFactory.createCustomAction]
- * so media3 routes them to [handleCustomCommand] (this provider) and lays them
- * out in the notification like any other media button.
+ * attaches the extra actions (plain platform actions routed straight to
+ * [VideoPlayerService]) and forwards everything else.
  */
 class PlaybackNotificationProvider(
     private val context: Context,
@@ -32,11 +28,24 @@ class PlaybackNotificationProvider(
     @Volatile var showDislike: Boolean = false
     @Volatile var showRadio: Boolean = false
 
-    companion object {
-        const val ACTION_TOGGLE_LIKE = "com.omersusin.pitube.notification.TOGGLE_LIKE"
-        const val ACTION_TOGGLE_DISLIKE = "com.omersusin.pitube.notification.TOGGLE_DISLIKE"
-        const val ACTION_TOGGLE_RADIO = "com.omersusin.pitube.notification.TOGGLE_RADIO"
-    }
+    private fun customAction(code: Int, title: String, iconRes: Int): Notification.Action =
+        Notification.Action.Builder(
+            Icon.createWithResource(context, iconRes),
+            title,
+            PendingIntent.getService(
+                context,
+                code,
+                Intent(context, VideoPlayerService::class.java)
+                    .setAction(
+                        when (code) {
+                            101 -> VideoPlayerService.ACTION_NOTIF_TOGGLE_LIKE
+                            102 -> VideoPlayerService.ACTION_NOTIF_TOGGLE_DISLIKE
+                            else -> VideoPlayerService.ACTION_NOTIF_TOGGLE_RADIO
+                        },
+                    ),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ),
+        ).build()
 
     override fun createNotification(
         mediaSession: MediaSession,
@@ -51,71 +60,31 @@ class PlaybackNotificationProvider(
             onNotificationChangedCallback,
         )
         val notification = built.notification
-        val extras = mutableListOf<NotificationCompat.Action>()
+        val combined = mutableListOf<Notification.Action>()
+        notification.actions.orEmpty().forEach { combined += it }
         if (showLike) {
-            extras += actionFactory.createCustomAction(
-                mediaSession,
-                IconCompat.createWithResource(context, R.drawable.ic_notif_like),
-                context.getString(R.string.like),
-                ACTION_TOGGLE_LIKE,
-                Bundle.EMPTY,
-            )
+            combined += customAction(101, context.getString(R.string.like), R.drawable.ic_notif_like)
         }
         if (showDislike) {
-            extras += actionFactory.createCustomAction(
-                mediaSession,
-                IconCompat.createWithResource(context, R.drawable.ic_notif_dislike),
-                context.getString(R.string.action_dislike),
-                ACTION_TOGGLE_DISLIKE,
-                Bundle.EMPTY,
-            )
+            combined += customAction(102, context.getString(R.string.action_dislike), R.drawable.ic_notif_dislike)
         }
         if (showRadio) {
-            extras += actionFactory.createCustomAction(
-                mediaSession,
-                IconCompat.createWithResource(context, R.drawable.ic_notif_radio),
-                context.getString(R.string.player_settings_radio_mode),
-                ACTION_TOGGLE_RADIO,
-                Bundle.EMPTY,
-            )
+            combined += customAction(103, context.getString(R.string.player_settings_radio_mode), R.drawable.ic_notif_radio)
         }
-        if (extras.isNotEmpty()) {
-            val combined = mutableListOf<Notification.Action>()
-            notification.actions.orEmpty().forEach { combined += it }
-            extras.forEach { combined += it }
-            notification.actions = combined.toTypedArray()
-        }
-        return MediaNotification(built.notificationId, notification)
+        // Rebuild through the Builder: `Notification.actions` is read-only on
+        // newer API levels, but setActions copies every other field.
+        val rebuilt =
+            Notification.Builder(context, notification)
+                .setActions(*combined.toTypedArray())
+                .build()
+        return MediaNotification(built.notificationId, rebuilt)
     }
 
     override fun handleCustomCommand(
         session: MediaSession,
         action: String,
         extras: Bundle,
-    ): Boolean {
-        val context = context
-        when (action) {
-            ACTION_TOGGLE_LIKE -> {
-                val intent = Intent(context, VideoPlayerService::class.java)
-                    .setAction(VideoPlayerService.ACTION_NOTIF_TOGGLE_LIKE)
-                runCatching { context.startService(intent) }
-                return true
-            }
-            ACTION_TOGGLE_DISLIKE -> {
-                val intent = Intent(context, VideoPlayerService::class.java)
-                    .setAction(VideoPlayerService.ACTION_NOTIF_TOGGLE_DISLIKE)
-                runCatching { context.startService(intent) }
-                return true
-            }
-            ACTION_TOGGLE_RADIO -> {
-                val intent = Intent(context, VideoPlayerService::class.java)
-                    .setAction(VideoPlayerService.ACTION_NOTIF_TOGGLE_RADIO)
-                runCatching { context.startService(intent) }
-                return true
-            }
-        }
-        return delegate.handleCustomCommand(session, action, extras)
-    }
+    ): Boolean = delegate.handleCustomCommand(session, action, extras)
 
     override fun getNotificationChannelInfo(): MediaNotification.Provider.NotificationChannelInfo =
         delegate.getNotificationChannelInfo()
