@@ -155,7 +155,8 @@ fun TimeManagementScreen(
             // Bedtime Reminder
             ReminderCard(
                 icon = Icons.Outlined.Bedtime,
-                iconTint = Color(0xFF5C6BC0),
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 title = stringResource(R.string.bedtime_reminder_title),
                 subtitle = stringResource(R.string.bedtime_reminder_subtitle),
                 enabled = uiState.bedtimeReminderEnabled,
@@ -202,7 +203,8 @@ fun TimeManagementScreen(
             // Break Reminder
             ReminderCard(
                 icon = Icons.Outlined.FreeBreakfast,
-                iconTint = Color(0xFFE57373),
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                 title = stringResource(R.string.break_reminder_title),
                 subtitle = stringResource(R.string.break_reminder_subtitle),
                 enabled = uiState.breakReminderEnabled,
@@ -712,7 +714,8 @@ private fun ToolsSectionHeader() {
 @Composable
 private fun ReminderCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    iconTint: Color,
+    containerColor: Color,
+    contentColor: Color,
     title: String,
     subtitle: String,
     enabled: Boolean,
@@ -739,13 +742,13 @@ private fun ReminderCard(
                         Modifier
                             .size(44.dp)
                             .clip(RoundedCornerShape(14.dp))
-                            .background(iconTint.copy(alpha = if (enabled) 0.15f else 0.08f)),
+                            .background(containerColor.copy(alpha = if (enabled) 1f else 0.5f)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         icon,
                         null,
-                        tint = if (enabled) iconTint else iconTint.copy(alpha = 0.5f),
+                        tint = if (enabled) contentColor else contentColor.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp),
                     )
                 }

@@ -13,9 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.graphics.ColorUtils
 
 enum class ThemeMode {
     LIGHT, DARK, OLED, SYSTEM, LAVENDER_MIST, OCEAN_BLUE, FOREST_GREEN, SUNSET_ORANGE, PURPLE_NEBULA, MIDNIGHT_BLACK,
@@ -102,11 +100,10 @@ private fun Color.adjust(
     lightnessFactor: Float = 1.0f,
     lightnessOverride: Float? = null
 ): Color {
-    val hsl = FloatArray(3)
-    ColorUtils.colorToHSL(this.toArgb(), hsl)
+    val hsl = this.toHsl()
     hsl[1] = (hsl[1] * saturationFactor).coerceIn(0.0f, 1.0f)
     hsl[2] = lightnessOverride ?: (hsl[2] * lightnessFactor).coerceIn(0.0f, 1.0f)
-    return Color(ColorUtils.HSLToColor(hsl))
+    return hslToColor(hsl[0], hsl[1], hsl[2])
 }
 
 fun ColorScheme.complete(isDark: Boolean, isOled: Boolean = false): ColorScheme {
@@ -133,10 +130,9 @@ fun ColorScheme.complete(isDark: Boolean, isOled: Boolean = false): ColorScheme 
     }
 
     val tertiaryColor = if (tertiary == Color.Unspecified || tertiary == primary) {
-        val hsl = FloatArray(3)
-        ColorUtils.colorToHSL(primary.toArgb(), hsl)
+        val hsl = primary.toHsl()
         hsl[0] = (hsl[0] + 60f) % 360f // Shift by 60 degrees for analogous/complementary balance
-        Color(ColorUtils.HSLToColor(hsl))
+        hslToColor(hsl[0], hsl[1], hsl[2])
     } else {
         tertiary
     }
@@ -631,11 +627,11 @@ private fun ColorScheme.withVariant(
     val base = if (isDark) {
         darkColorScheme(
             primary = primary,
-            onPrimary = if (ColorUtils.calculateLuminance(primary.toArgb()) > 0.45) Color.Black else Color.White,
+            onPrimary = if (primary.relativeLuminance() > 0.45f) Color.Black else Color.White,
             secondary = secondary,
-            onSecondary = if (ColorUtils.calculateLuminance(secondary.toArgb()) > 0.45) Color.Black else Color.White,
+            onSecondary = if (secondary.relativeLuminance() > 0.45f) Color.Black else Color.White,
             tertiary = tertiary,
-            onTertiary = if (ColorUtils.calculateLuminance(tertiary.toArgb()) > 0.45) Color.Black else Color.White,
+            onTertiary = if (tertiary.relativeLuminance() > 0.45f) Color.Black else Color.White,
             background = if (isAmoled) Color.Black else primary.adjust(saturationFactor = 0.12f, lightnessOverride = 0.055f),
             onBackground = Color(0xFFE6E1E5),
             surface = if (isAmoled) Color.Black else primary.adjust(saturationFactor = 0.10f, lightnessOverride = 0.08f),
@@ -732,67 +728,91 @@ fun resolveFlowColorScheme(
     } else {
         themeVariant
     }
-    val baseColorScheme = when (effectiveThemeMode) {
-        ThemeMode.LIGHT -> LightColorScheme
-        ThemeMode.DARK -> when (effectiveVariant) {
-            ThemeVariant.LIGHT -> LightColorScheme
-            ThemeVariant.DARK -> DarkColorScheme
-            ThemeVariant.AMOLED -> OLEDColorScheme
+    val baseColorScheme = if (effectiveThemeMode == ThemeMode.MATERIAL_YOU &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    ) {
+        if (effectiveVariant == ThemeVariant.LIGHT) {
+            dynamicLightColorScheme(context)
+        } else {
+            dynamicDarkColorScheme(context)
         }
-        ThemeMode.OLED -> OLEDColorScheme
-        ThemeMode.SYSTEM -> if (isSystemDark) DarkColorScheme else LightColorScheme
-        ThemeMode.LAVENDER_MIST -> LavenderMistColorScheme
-        ThemeMode.OCEAN_BLUE -> OceanBlueColorScheme
-        ThemeMode.FOREST_GREEN -> ForestGreenColorScheme
-        ThemeMode.SUNSET_ORANGE -> SunsetOrangeColorScheme
-        ThemeMode.PURPLE_NEBULA -> PurpleNebulaColorScheme
-        ThemeMode.MIDNIGHT_BLACK -> MidnightBlackColorScheme
-        ThemeMode.ROSE_GOLD -> RoseGoldColorScheme
-        ThemeMode.ARCTIC_ICE -> ArcticIceColorScheme
-        ThemeMode.CRIMSON_RED -> CrimsonRedColorScheme
-        ThemeMode.MINTY_FRESH -> MintyFreshColorScheme
-        ThemeMode.COSMIC_VOID -> CosmicVoidColorScheme
-        ThemeMode.SOLAR_FLARE -> SolarFlareColorScheme
-        ThemeMode.CYBERPUNK -> CyberpunkColorScheme
-        ThemeMode.ROYAL_GOLD -> RoyalGoldColorScheme
-        ThemeMode.NORDIC_HORIZON -> NordicHorizonColorScheme
-        ThemeMode.ESPRESSO -> EspressoColorScheme
-        ThemeMode.GUNMETAL -> GunmetalColorScheme
-        ThemeMode.MINT_LIGHT -> MintLightColorScheme
-        ThemeMode.ROSE_LIGHT -> RoseLightColorScheme
-        ThemeMode.SKY_LIGHT -> SkyLightColorScheme
-        ThemeMode.CREAM_LIGHT -> CreamLightColorScheme
-        ThemeMode.MONOCHROME -> MonochromeColorScheme
-        ThemeMode.CUSTOM -> customThemeColorScheme(customThemePalettes.forVariant(effectiveVariant))
-        ThemeMode.MATERIAL_YOU -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (effectiveVariant == ThemeVariant.LIGHT) dynamicLightColorScheme(context) else dynamicDarkColorScheme(context)
-            } else {
-                if (effectiveVariant == ThemeVariant.LIGHT) LightColorScheme else DarkColorScheme
-            }
-        }
-    }
-    return if (effectiveThemeMode == ThemeMode.CUSTOM) {
-        baseColorScheme
     } else {
-        baseColorScheme.withVariant(
-            variant = effectiveVariant,
-            preserveLightSurfaces = effectiveThemeMode in setOf(
-                ThemeMode.DARK,
-                ThemeMode.MINT_LIGHT,
-                ThemeMode.ROSE_LIGHT,
-                ThemeMode.SKY_LIGHT,
-                ThemeMode.CREAM_LIGHT
-            ),
-            preserveDarkSurfaces = effectiveThemeMode !in setOf(
-                ThemeMode.LIGHT,
-                ThemeMode.MINT_LIGHT,
-                ThemeMode.ROSE_LIGHT,
-                ThemeMode.SKY_LIGHT,
-                ThemeMode.CREAM_LIGHT
-            )
-        )
+        staticBaseColorScheme(effectiveThemeMode, effectiveVariant, customThemePalettes)
     }
+    return applyVariantAndComplete(baseColorScheme, effectiveThemeMode, effectiveVariant)
+}
+
+/**
+ * Static (non-dynamic) base scheme for a theme mode. [MATERIAL_YOU] falls back
+ * to the pre-Android-12 behavior (Light/Dark) — the dynamic path needs a
+ * [Context] and is handled by [resolveFlowColorScheme].
+ */
+internal fun staticBaseColorScheme(
+    effectiveThemeMode: ThemeMode,
+    effectiveVariant: ThemeVariant,
+    customThemePalettes: CustomThemePalettes
+): ColorScheme = when (effectiveThemeMode) {
+    ThemeMode.LIGHT -> LightColorScheme
+    ThemeMode.DARK -> when (effectiveVariant) {
+        ThemeVariant.LIGHT -> LightColorScheme
+        ThemeVariant.DARK -> DarkColorScheme
+        ThemeVariant.AMOLED -> OLEDColorScheme
+    }
+    ThemeMode.OLED -> OLEDColorScheme
+    ThemeMode.SYSTEM -> DarkColorScheme
+    ThemeMode.LAVENDER_MIST -> LavenderMistColorScheme
+    ThemeMode.OCEAN_BLUE -> OceanBlueColorScheme
+    ThemeMode.FOREST_GREEN -> ForestGreenColorScheme
+    ThemeMode.SUNSET_ORANGE -> SunsetOrangeColorScheme
+    ThemeMode.PURPLE_NEBULA -> PurpleNebulaColorScheme
+    ThemeMode.MIDNIGHT_BLACK -> MidnightBlackColorScheme
+    ThemeMode.ROSE_GOLD -> RoseGoldColorScheme
+    ThemeMode.ARCTIC_ICE -> ArcticIceColorScheme
+    ThemeMode.CRIMSON_RED -> CrimsonRedColorScheme
+    ThemeMode.MINTY_FRESH -> MintyFreshColorScheme
+    ThemeMode.COSMIC_VOID -> CosmicVoidColorScheme
+    ThemeMode.SOLAR_FLARE -> SolarFlareColorScheme
+    ThemeMode.CYBERPUNK -> CyberpunkColorScheme
+    ThemeMode.ROYAL_GOLD -> RoyalGoldColorScheme
+    ThemeMode.NORDIC_HORIZON -> NordicHorizonColorScheme
+    ThemeMode.ESPRESSO -> EspressoColorScheme
+    ThemeMode.GUNMETAL -> GunmetalColorScheme
+    ThemeMode.MINT_LIGHT -> MintLightColorScheme
+    ThemeMode.ROSE_LIGHT -> RoseLightColorScheme
+    ThemeMode.SKY_LIGHT -> SkyLightColorScheme
+    ThemeMode.CREAM_LIGHT -> CreamLightColorScheme
+    ThemeMode.MONOCHROME -> MonochromeColorScheme
+    ThemeMode.CUSTOM -> customThemeColorScheme(customThemePalettes.forVariant(effectiveVariant))
+    ThemeMode.MATERIAL_YOU -> if (effectiveVariant == ThemeVariant.LIGHT) LightColorScheme else DarkColorScheme
+}
+
+/**
+ * Applies the per-variant surface/tonal derivation. Shared by
+ * [resolveFlowColorScheme] and the theme-contrast unit tests.
+ */
+internal fun applyVariantAndComplete(
+    baseColorScheme: ColorScheme,
+    effectiveThemeMode: ThemeMode,
+    effectiveVariant: ThemeVariant
+): ColorScheme {
+    if (effectiveThemeMode == ThemeMode.CUSTOM) return baseColorScheme
+    return baseColorScheme.withVariant(
+        variant = effectiveVariant,
+        preserveLightSurfaces = effectiveThemeMode in setOf(
+            ThemeMode.DARK,
+            ThemeMode.MINT_LIGHT,
+            ThemeMode.ROSE_LIGHT,
+            ThemeMode.SKY_LIGHT,
+            ThemeMode.CREAM_LIGHT
+        ),
+        preserveDarkSurfaces = effectiveThemeMode !in setOf(
+            ThemeMode.LIGHT,
+            ThemeMode.MINT_LIGHT,
+            ThemeMode.ROSE_LIGHT,
+            ThemeMode.SKY_LIGHT,
+            ThemeMode.CREAM_LIGHT
+        )
+    )
 }
 
 val MaterialTheme.extendedColors: ExtendedColors
