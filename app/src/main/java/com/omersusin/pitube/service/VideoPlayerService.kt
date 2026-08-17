@@ -104,21 +104,9 @@ class VideoPlayerService : MediaSessionService() {
             ) { like, dislike, radio -> Triple(like, dislike, radio) }
                 .collect { (like, dislike, radio) ->
                     val provider = wrappedProvider
-                    val changed =
-                        provider.showLike != like ||
-                            provider.showDislike != dislike ||
-                            provider.showRadio != radio
                     provider.showLike = like
                     provider.showDislike = dislike
                     provider.showRadio = radio
-                    if (changed) {
-                        runCatching {
-                            EnhancedPlayerManager.getInstance()
-                                .getVideoMediaSession()
-                                ?.mediaNotificationManager
-                                ?.invalidateNotification()
-                        }
-                    }
                 }
         }
         recordForegroundStartFailures("video-service")
@@ -175,7 +163,6 @@ class VideoPlayerService : MediaSessionService() {
             ACTION_NOTIF_TOGGLE_RADIO -> serviceScope.launch {
                 val prefs = com.omersusin.pitube.data.local.PlayerPreferences(this@VideoPlayerService)
                 prefs.setRadioModeEnabled(!prefs.radioModeEnabled.first())
-                refreshPlaybackNotification()
             }
         }
 
@@ -300,16 +287,6 @@ class VideoPlayerService : MediaSessionService() {
                 likedRepo.dislikeVideo(video.id)
                 accountActions.setLikeStatus(video.id, "DISLIKE")
             }
-        }
-        refreshPlaybackNotification()
-    }
-
-    private fun refreshPlaybackNotification() {
-        runCatching {
-            EnhancedPlayerManager.getInstance()
-                .getVideoMediaSession()
-                ?.mediaNotificationManager
-                ?.invalidateNotification()
         }
     }
 }

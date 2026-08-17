@@ -80,7 +80,10 @@ class PlaybackNotificationProvider(
             )
         }
         if (extras.isNotEmpty()) {
-            notification.actions = (notification.actions.orEmpty() + extras).toTypedArray()
+            val combined = mutableListOf<Notification.Action>()
+            notification.actions.orEmpty().forEach { combined += it }
+            extras.forEach { combined += it }
+            notification.actions = combined.toTypedArray()
         }
         return MediaNotification(built.notificationId, notification)
     }

@@ -309,7 +309,7 @@ fun ContentSettingsScreen(
                         }
                     )
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    SettingsClickItem(
+                    DismissedContentRow(
                         icon = Icons.Outlined.History,
                         title = stringResource(R.string.content_settings_history_range_title),
                         subtitle =
@@ -922,6 +922,7 @@ private fun GridSizeOption(
 private fun DismissedContentRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
+    subtitle: String? = null,
     onClick: () -> Unit,
 ) {
     Row(
@@ -939,9 +940,18 @@ private fun DismissedContentRow(
             modifier = Modifier.size(24.dp),
         )
         Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-        )
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
 }

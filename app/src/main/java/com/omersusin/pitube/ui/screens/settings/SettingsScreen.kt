@@ -517,6 +517,12 @@ fun SettingsScreen(
                 stringResource(R.string.settings_item_content_display_subtitle),
                 secAppearance,
                 onNavigateToContentSettings,
+            ),
+            SettingSearchEntry(
+                Icons.Outlined.SwapHoriz,
+                stringResource(R.string.settings_item_subscription_transfer),
+                stringResource(R.string.settings_item_subscription_transfer_subtitle),
+                secAppearance,
                 onNavigateToSubscriptionTransfer,
             ),
             SettingSearchEntry(
