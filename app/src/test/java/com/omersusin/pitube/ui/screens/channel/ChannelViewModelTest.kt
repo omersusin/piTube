@@ -2,6 +2,7 @@ package com.omersusin.pitube.ui.screens.channel
 
 import android.content.Context
 import com.google.common.truth.Truth.assertThat
+import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.local.SubscriptionRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -34,6 +35,7 @@ class ChannelViewModelTest {
             ChannelViewModel(
                 appContext = context,
                 subscriptionRepository = subscriptionRepository,
+                playerPreferences = mockk(relaxed = true),
             )
     }
 
