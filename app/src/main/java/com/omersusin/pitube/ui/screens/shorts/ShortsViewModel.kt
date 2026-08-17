@@ -410,8 +410,26 @@ class ShortsViewModel @Inject constructor(
                 )
             )
         }
-        com.omersusin.pitube.data.local.AccountActions(context)
-            .setLikeStatus(video.id, if (isLiked) null else "LIKE")
+        val applied =
+            com.omersusin.pitube.data.local.AccountActions(context)
+                .setLikeStatus(video.id, if (isLiked) null else "LIKE")
+        if (!applied) {
+            // Roll the optimistic local state back so the UI and the account
+            // stay consistent (the caller renders the like button from the
+            // repository state).
+            if (isLiked) {
+                likedVideosRepository.likeVideo(
+                    com.omersusin.pitube.data.local.LikedVideoInfo(
+                        videoId = video.id,
+                        title = video.title,
+                        thumbnail = video.thumbnailUrl,
+                        channelName = video.channelName
+                    )
+                )
+            } else {
+                likedVideosRepository.removeLikeState(video.id)
+            }
+        }
     }
     
     suspend fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {

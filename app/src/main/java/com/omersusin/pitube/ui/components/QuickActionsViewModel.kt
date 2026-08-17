@@ -157,18 +157,31 @@ class QuickActionsViewModel @Inject constructor(
 
                 if (isInWatchLater) {
                     playlistRepository.removeFromWatchLater(video.id)
-                    android.util.Log.d("QuickActionsViewModel", "Removed from Watch Later")
-                    Toast.makeText(context, context.getString(R.string.toast_removed_from_watch_later), Toast.LENGTH_SHORT).show()
                 } else {
                     playlistRepository.addToWatchLater(video)
-                    android.util.Log.d("QuickActionsViewModel", "Added to Watch Later")
-                    Toast.makeText(context, context.getString(R.string.toast_added_to_watch_later), Toast.LENGTH_SHORT).show()
                 }
                 // Mirror the toggle onto the real account's Watch Later when
                 // signed in; the local Room entry above is the source of truth
-                // for the UI and works offline, this write is best-effort.
-                com.omersusin.pitube.data.local.AccountActions(context)
-                    .setVideoInWatchLater(video.id, !isInWatchLater)
+                // for the UI and works offline. When YouTube answers but does
+                // not apply the write, roll the local state back so the UI and
+                // the account agree.
+                val applied =
+                    com.omersusin.pitube.data.local.AccountActions(context)
+                        .setVideoInWatchLater(video.id, !isInWatchLater)
+                if (!applied) {
+                    if (isInWatchLater) {
+                        playlistRepository.addToWatchLater(video)
+                    } else {
+                        playlistRepository.removeFromWatchLater(video.id)
+                    }
+                    Toast.makeText(context, context.getString(R.string.toast_watch_later_write_failed), Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+                if (isInWatchLater) {
+                    Toast.makeText(context, context.getString(R.string.toast_removed_from_watch_later), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, context.getString(R.string.toast_added_to_watch_later), Toast.LENGTH_SHORT).show()
+                }
             } catch (e: Exception) {
                 android.util.Log.e("QuickActionsViewModel", "Error toggling Watch Later", e)
                 Toast.makeText(

@@ -176,9 +176,19 @@ fun AddToPlaylistDialog(
                                         selectedWatchLater = !shouldSave
                                     }.onSuccess {
                                         // Mirror onto the real account's Watch
-                                        // Later when signed in (best-effort).
-                                        com.omersusin.pitube.data.local.AccountActions(context)
-                                            .setVideoInWatchLater(video.id, shouldSave)
+                                        // Later when signed in; roll back when
+                                        // YouTube answers but does not apply.
+                                        val applied =
+                                            com.omersusin.pitube.data.local.AccountActions(context)
+                                                .setVideoInWatchLater(video.id, shouldSave)
+                                        if (!applied) {
+                                            if (shouldSave) {
+                                                repo.removeFromWatchLater(video.id)
+                                            } else {
+                                                repo.addToWatchLater(video)
+                                            }
+                                            selectedWatchLater = !shouldSave
+                                        }
                                     }
                                 }
                             }
@@ -236,13 +246,24 @@ fun AddToPlaylistDialog(
                                             }
                                     }.onSuccess {
                                         // Mirror onto the real account when signed
-                                        // in (best-effort, Koda playlist-edit port).
-                                        if (isCurrentlySaved) {
+                                        // in (Koda playlist-edit port); roll the
+                                        // optimistic state back when YouTube
+                                        // answers but does not apply the write.
+                                        val applied =
                                             com.omersusin.pitube.data.local.AccountActions(context)
-                                                .setVideoInPlaylist(playlist.id, video.id, add = false)
-                                        } else {
-                                            com.omersusin.pitube.data.local.AccountActions(context)
-                                                .setVideoInPlaylist(playlist.id, video.id, add = true)
+                                                .setVideoInPlaylist(playlist.id, video.id, add = !isCurrentlySaved)
+                                        if (!applied) {
+                                            if (isCurrentlySaved) {
+                                                repo.addVideoToPlaylist(playlist.id, video)
+                                            } else {
+                                                repo.removeVideoFromPlaylist(playlist.id, video.id)
+                                            }
+                                            selectedPlaylistIds =
+                                                if (isCurrentlySaved) {
+                                                    selectedPlaylistIds + playlist.id
+                                                } else {
+                                                    selectedPlaylistIds - playlist.id
+                                                }
                                         }
                                     }
                                 }

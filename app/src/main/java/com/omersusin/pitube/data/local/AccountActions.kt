@@ -44,23 +44,27 @@ class AccountActions(context: Context) {
 
     /**
      * Like / unlike a video on the account. [status] is `"LIKE"`, `"DISLIKE"`
-     * or null (clears the rating). Best-effort: never throws.
+     * or null (clears the rating).
+     *
+     * Returns true when the write was applied (or correctly skipped because
+     * the device is signed out) and false when YouTube answered but did not
+     * apply it — the caller rolls the optimistic local state back and shows a
+     * friendly error. Never throws.
      */
-    fun setLikeStatus(videoId: String, status: String?) {
-        if (!canWriteBack() || videoId.isBlank()) return
-        backgroundScope.launch {
-            YouTube.setLikeStatus(videoId, status)
-                .onFailure { Log.w("AccountActions", "setLikeStatus failed for $videoId", it) }
-                .onSuccess { ok ->
-                    if (ok) {
-                        // Keep the local "Liked videos" library matching the account.
-                        backgroundScope.launch {
-                            runCatching { YouTubeLibrarySync.syncLikedVideosOnly(appContext) }
-                                .onFailure { Log.w("AccountActions", "post-like library refresh failed", it) }
-                        }
+    suspend fun setLikeStatus(videoId: String, status: String?): Boolean {
+        if (!canWriteBack() || videoId.isBlank()) return true
+        return YouTube.setLikeStatus(videoId, status)
+            .onFailure { Log.w("AccountActions", "setLikeStatus failed for $videoId", it) }
+            .getOrDefault(false)
+            .also { ok ->
+                if (ok) {
+                    // Keep the local "Liked videos" library matching the account.
+                    backgroundScope.launch {
+                        runCatching { YouTubeLibrarySync.syncLikedVideosOnly(appContext) }
+                            .onFailure { Log.w("AccountActions", "post-like library refresh failed", it) }
                     }
                 }
-        }
+            }
     }
 
     /**
@@ -96,37 +100,38 @@ class AccountActions(context: Context) {
      * Add / remove a video on the account's real Watch Later playlist ("WL").
      *
      * The caller already wrote the optimistic local Room entry (which is what
-     * the UI toggles from, and keeps watch-later working offline), so this is
-     * best-effort only: a failed network write never rolls the device state
-     * back. Signed out calls no-op exactly like [setLikeStatus].
+     * the UI toggles from, and keeps watch-later working offline). Returns
+     * true when the write was applied (or correctly skipped while signed out)
+     * and false when YouTube answered but did not apply it — the caller rolls
+     * the optimistic state back and shows a friendly error.
      */
-    fun setVideoInWatchLater(videoId: String, add: Boolean) {
-        if (!canWriteBack() || videoId.isBlank()) return
-        backgroundScope.launch {
-            YouTube.setVideoInWatchLater(videoId, add)
-                .onFailure { Log.w("AccountActions", "setVideoInWatchLater(add=$add) failed for $videoId", it) }
-                .onSuccess { ok ->
-                    if (!ok) {
-                        Log.w("AccountActions", "setVideoInWatchLater(add=$add) not applied for $videoId")
-                    }
+    suspend fun setVideoInWatchLater(videoId: String, add: Boolean): Boolean {
+        if (!canWriteBack() || videoId.isBlank()) return true
+        return YouTube.setVideoInWatchLater(videoId, add)
+            .onFailure { Log.w("AccountActions", "setVideoInWatchLater(add=$add) failed for $videoId", it) }
+            .getOrDefault(false)
+            .also { ok ->
+                if (!ok) {
+                    Log.w("AccountActions", "setVideoInWatchLater(add=$add) not applied for $videoId")
                 }
-        }
+            }
     }
 
     /**
      * Add / remove a video on one of the account's real playlists via
-     * `browse/edit_playlist`. Best-effort, mirroring [setVideoInWatchLater].
+     * `browse/edit_playlist`. Returns true when the write was applied (or
+     * correctly skipped while signed out) and false when YouTube answered but
+     * did not apply it — the caller rolls the optimistic state back.
      */
-    fun setVideoInPlaylist(playlistId: String, videoId: String, add: Boolean) {
-        if (!canWriteBack() || playlistId.isBlank() || videoId.isBlank()) return
-        backgroundScope.launch {
-            YouTube.editPlaylist(playlistId, videoId, add)
-                .onFailure { Log.w("AccountActions", "setVideoInPlaylist($playlistId, add=$add) failed for $videoId", it) }
-                .onSuccess { ok ->
-                    if (!ok) {
-                        Log.w("AccountActions", "setVideoInPlaylist($playlistId, add=$add) not applied for $videoId")
-                    }
+    suspend fun setVideoInPlaylist(playlistId: String, videoId: String, add: Boolean): Boolean {
+        if (!canWriteBack() || playlistId.isBlank() || videoId.isBlank()) return true
+        return YouTube.editPlaylist(playlistId, videoId, add)
+            .onFailure { Log.w("AccountActions", "setVideoInPlaylist($playlistId, add=$add) failed for $videoId", it) }
+            .getOrDefault(false)
+            .also { ok ->
+                if (!ok) {
+                    Log.w("AccountActions", "setVideoInPlaylist($playlistId, add=$add) not applied for $videoId")
                 }
-        }
+            }
     }
 }
