@@ -65,6 +65,7 @@ class PlayerPreferences(context: Context) {
         val BACKGROUND_PLAY_ENABLED = booleanPreferencesKey("background_play_enabled")
         val AUTOPLAY_ENABLED = booleanPreferencesKey("autoplay_enabled")
         val QUEUE_AUTOPLAY_ENABLED = booleanPreferencesKey("queue_autoplay_enabled")
+        val QUEUE_SWIPE_TO_REMOVE_ENABLED = booleanPreferencesKey("queue_swipe_to_remove_enabled")
         val AUTOPLAY_COUNTDOWN_SECONDS = intPreferencesKey("autoplay_countdown_seconds")
         val SHOW_CONTROLS_WHILE_LOADING = booleanPreferencesKey("show_controls_while_loading")
         val VIDEO_LOOP_ENABLED = booleanPreferencesKey("video_loop_enabled")
@@ -925,6 +926,18 @@ class PlayerPreferences(context: Context) {
     suspend fun setQueueAutoplayEnabled(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.QUEUE_AUTOPLAY_ENABLED] = enabled
+        }
+    }
+
+    // Swipe a queue row to remove it (InnerTune-style queue UX).
+    val queueSwipeToRemoveEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.QUEUE_SWIPE_TO_REMOVE_ENABLED] ?: true
+        }
+
+    suspend fun setQueueSwipeToRemoveEnabled(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.QUEUE_SWIPE_TO_REMOVE_ENABLED] = enabled
         }
     }
 

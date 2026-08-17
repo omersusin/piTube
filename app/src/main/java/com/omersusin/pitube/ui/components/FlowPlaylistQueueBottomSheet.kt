@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.BottomSheetDefaults
@@ -31,7 +32,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -79,6 +83,7 @@ fun FlowPlaylistQueueBottomSheet(
     onDismiss: () -> Unit,
     expandedHeight: Dp? = null,
     collapsedHeight: Dp = 0.dp,
+    swipeToRemoveEnabled: Boolean = true,
     onSheetProgressChange: (Float) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -306,31 +311,93 @@ fun FlowPlaylistQueueBottomSheet(
                 ) {
                     itemsIndexed(displayItems, key = { _, item -> item.key }) { index, item ->
                         val isPlaying = item === currentDisplayItem
-                        PlaylistQueueItem(
-                            video = item.video,
-                            isPlaying = isPlaying,
-                            reorderModifier = reorderState.itemModifier(index),
-                            dragHandleModifier = reorderState.handleModifier(index),
-                            onClick = { onPlayVideoAtIndex(index) },
-                            onRemove =
-                                if (isPlaying) {
-                                    null
-                                } else {
-                                    { onRemoveVideoAtIndex(index) }
+                        if (swipeToRemoveEnabled && !isPlaying) {
+                            val dismissState = rememberSwipeToDismissBoxState(
+                                confirmValueChange = { value ->
+                                    if (value == SwipeToDismissBoxValue.EndToStart) {
+                                        onRemoveVideoAtIndex(index)
+                                        true
+                                    } else {
+                                        false
+                                    }
                                 },
-                            onMoveUp =
-                                if (index > 0) {
-                                    { onMoveVideoAtIndex(index, index - 1) }
-                                } else {
-                                    null
+                            )
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                enableDismissFromStartToEnd = false,
+                                backgroundContent = {
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxSize()
+                                                .background(MaterialTheme.colorScheme.errorContainer),
+                                        contentAlignment = Alignment.CenterEnd,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = stringResource(R.string.remove),
+                                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                                            modifier =
+                                                Modifier
+                                                    .padding(end = 20.dp)
+                                                    .size(24.dp),
+                                        )
+                                    }
                                 },
-                            onMoveDown =
-                                if (index < displayItems.lastIndex) {
-                                    { onMoveVideoAtIndex(index, index + 1) }
-                                } else {
-                                    null
-                                },
-                        )
+                            ) {
+                                PlaylistQueueItem(
+                                    video = item.video,
+                                    isPlaying = isPlaying,
+                                    reorderModifier = reorderState.itemModifier(index),
+                                    dragHandleModifier = reorderState.handleModifier(index),
+                                    onClick = { onPlayVideoAtIndex(index) },
+                                    onRemove =
+                                        if (isPlaying) {
+                                            null
+                                        } else {
+                                            { onRemoveVideoAtIndex(index) }
+                                        },
+                                    onMoveUp =
+                                        if (index > 0) {
+                                            { onMoveVideoAtIndex(index, index - 1) }
+                                        } else {
+                                            null
+                                        },
+                                    onMoveDown =
+                                        if (index < displayItems.lastIndex) {
+                                            { onMoveVideoAtIndex(index, index + 1) }
+                                        } else {
+                                            null
+                                        },
+                                )
+                            }
+                        } else {
+                            PlaylistQueueItem(
+                                video = item.video,
+                                isPlaying = isPlaying,
+                                reorderModifier = reorderState.itemModifier(index),
+                                dragHandleModifier = reorderState.handleModifier(index),
+                                onClick = { onPlayVideoAtIndex(index) },
+                                onRemove =
+                                    if (isPlaying) {
+                                        null
+                                    } else {
+                                        { onRemoveVideoAtIndex(index) }
+                                    },
+                                onMoveUp =
+                                    if (index > 0) {
+                                        { onMoveVideoAtIndex(index, index - 1) }
+                                    } else {
+                                        null
+                                    },
+                                onMoveDown =
+                                    if (index < displayItems.lastIndex) {
+                                        { onMoveVideoAtIndex(index, index + 1) }
+                                    } else {
+                                        null
+                                    },
+                            )
+                        }
                     }
                 }
             }

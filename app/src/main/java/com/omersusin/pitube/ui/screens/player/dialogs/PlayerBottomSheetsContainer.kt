@@ -77,6 +77,9 @@ fun PlayerBottomSheetsContainer(
     val shareWithoutText by remember { PlayerPreferences(context).shareWithoutText }
         .collectAsStateWithLifecycle(initialValue = false)
 
+    val queueSwipeToRemoveEnabled by remember { PlayerPreferences(context).queueSwipeToRemoveEnabled }
+        .collectAsStateWithLifecycle(initialValue = true)
+
     val sortedComments =
         remember(comments, screenState.commentSortFilter) {
             sortCommentsByFilter(comments, screenState.commentSortFilter)
@@ -279,6 +282,7 @@ fun PlayerBottomSheetsContainer(
             onDismiss = { screenState.showPlaylistQueueSheet = false },
             expandedHeight = mediaSheetExpandedHeight,
             collapsedHeight = mediaSheetCollapsedHeight,
+            swipeToRemoveEnabled = queueSwipeToRemoveEnabled,
             onSheetProgressChange = onMediaSheetProgressChange,
         )
     }

@@ -1600,6 +1600,8 @@
     
     
     <string name="player_settings_queue_autoplay">Kuyruktaki videoları otomatik oynat</string>
+    <string name="player_settings_queue_swipe_to_remove">Kuyruktan kaydırarak kaldır</string>
+    <string name="player_settings_queue_swipe_to_remove_subtitle">Bir kuyruk öğesini yana kaydırarak kaldır</string>
     <string name="player_settings_queue_autoplay_subtitle">Oynatma listesindeki veya Daha Sonra İzle kuyruğundaki sonraki videoyu otomatik olarak oynat. Kapalıyken de elle sonraki videoya geçebilirsin.</string>
     <string name="player_settings_autoplay_countdown_title">Otomatik oynatma gecikmesi</string>
     <string name="player_settings_autoplay_countdown_none">Yok (hemen geç)</string>

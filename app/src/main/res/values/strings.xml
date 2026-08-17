@@ -776,6 +776,8 @@
     <string name="player_settings_autoplay">Autoplay related videos</string>
     <string name="player_settings_autoplay_subtitle">When nothing is queued, automatically play a suggested video next</string>
     <string name="player_settings_queue_autoplay">Autoplay queued videos</string>
+    <string name="player_settings_queue_swipe_to_remove">Swipe to remove from queue</string>
+    <string name="player_settings_queue_swipe_to_remove_subtitle">Swipe a queue item sideways to remove it</string>
     <string name="player_settings_queue_autoplay_subtitle">Automatically play the next video in a playlist or Watch Later queue. When off, you can still skip manually.</string>
     <string name="player_settings_autoplay_countdown_title">Autoplay delay</string>
     <string name="player_settings_autoplay_countdown_none">None (switch immediately)</string>

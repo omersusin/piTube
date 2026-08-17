@@ -147,6 +147,7 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
 
     val autoplayEnabled by playerPreferences.autoplayEnabled.collectAsState(initial = true)
     val queueAutoplayEnabled by playerPreferences.queueAutoplayEnabled.collectAsState(initial = true)
+    val queueSwipeToRemoveEnabled by playerPreferences.queueSwipeToRemoveEnabled.collectAsState(initial = true)
     val autoplayCountdownSeconds by playerPreferences.autoplayCountdownSeconds.collectAsState(initial = 0)
     val skipSilenceEnabled by playerPreferences.skipSilenceEnabled.collectAsState(initial = false)
     val manualPipButtonEnabled by playerPreferences.manualPipButtonEnabled.collectAsState(initial = true)
@@ -386,6 +387,18 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                         onCheckedChange = {
                             coroutineScope.launch {
                                 playerPreferences.setQueueAutoplayEnabled(it && !videoLoopEnabled)
+                            }
+                        },
+                    )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.SwipeLeft,
+                        title = stringResource(R.string.player_settings_queue_swipe_to_remove),
+                        subtitle = stringResource(R.string.player_settings_queue_swipe_to_remove_subtitle),
+                        checked = queueSwipeToRemoveEnabled,
+                        onCheckedChange = {
+                            coroutineScope.launch {
+                                playerPreferences.setQueueSwipeToRemoveEnabled(it)
                             }
                         },
                     )
