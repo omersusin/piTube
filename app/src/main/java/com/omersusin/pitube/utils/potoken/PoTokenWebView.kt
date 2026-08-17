@@ -165,7 +165,7 @@ class PoTokenWebView private constructor(
             Log.d(TAG, "GenerateIT response: $responseBody")
             try {
                 val (integrityToken, expirationTimeInSeconds) = parseIntegrityTokenData(responseBody)
-                Log.d(TAG, "Parsed integrityToken (${integrityToken.take(50)}...), expires in $expirationTimeInSeconds sec")
+                Log.d(TAG, "Parsed integrityToken (${integrityToken.take(4)}...), expires in $expirationTimeInSeconds sec")
 
                 // leave 10 minutes of margin just to be sure
                 expirationInstant = Instant.now().plusSeconds(expirationTimeInSeconds).minus(10, ChronoUnit.MINUTES)
@@ -260,7 +260,7 @@ class PoTokenWebView private constructor(
             return
         }
 
-        Log.d(TAG, "Generated poToken: identifier=$identifier poToken=$poToken")
+        Log.d(TAG, "Generated poToken for identifier=$identifier")
         popPoTokenContinuation(identifier)?.resume(poToken)
     }
 

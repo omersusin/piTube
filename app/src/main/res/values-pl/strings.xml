@@ -165,7 +165,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_newest">Najnowsze</string>
     <string name="filter_oldest">Najstarsze</string>
     <string name="no_comments_yet">Brak komentarzy</string>
@@ -188,7 +187,6 @@
     
     <string name="nav_library">Biblioteka</string>
     <string name="notifications">Powiadomienia</string>
-    <string name="search">Wyszukaj</string>
     <string name="settings">Ustawienia</string>
     
     <string name="description">Opis</string>
@@ -231,7 +229,6 @@
     
     <string name="views_template">%1$s wyświetleń</string>
     <string name="chapters">Sekcje</string>
-    <string name="artist">Artysta</string>
     <string name="playlist">Playlista</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -583,10 +580,6 @@
     <string name="content_settings_title_lines_2">2 linie</string>
     <string name="content_settings_title_lines_3">3 linie</string>
     <string name="content_settings_title_lines_unlimited">Bez limitu</string>
-    
-    
-    <string name="nav_explore">Odkrywaj</string>
-    <string name="nav_more">Więcej</string>
     <string name="categories_title">Kategorie</string>
     <string name="categories_switch_to_grid">Przełącz na widok siatki</string>
     <string name="categories_switch_to_list">Przełącz na widok listy</string>
@@ -662,11 +655,6 @@
     <string name="content_settings_grid_size_title">Rozmiar elementów siatki</string>
     <string name="content_settings_grid_size_subtitle">Ustaw rozmiar okładek albumów i kart treści</string>
     <string name="content_settings_grid_big_desc">Większe miniatury</string>
-    <string name="download_menu_style_title">Styl menu pobierania</string>
-    <string name="download_menu_style_classic">Klasyczny</string>
-    <string name="download_menu_style_classic_desc">Pełna lista wszystkich formatów i kodeków</string>
-    <string name="download_menu_style_compact">Kompaktowy</string>
-    <string name="download_menu_style_compact_desc">Edycja tytułu, ilości wątków oraz rozwijany wybór formatów</string>
     <string name="content_settings_home_layout_title">Tryb Wyświetlania Strony Głównej</string>
     <string name="content_settings_home_layout_subtitle">Wybierz sposób wyświetlania filmów na ekranie głównym</string>
     
@@ -890,7 +878,6 @@
     <string name="performance_optimization_note">Zwiększenie liczby wątków może przyspieszyć działanie, ale może też spowodować większe zużycie baterii i przegrzanie urządzenia.</string>
     <string name="select_threads_count_desc">Wybierz liczbę wątków (1–8):</string>
     <string name="threads_count_label">%1$d wąt.</string>
-    <string name="download_threads_label">Wątki</string>
     <string name="search_history_title">Wyszukiwanie i Historia</string>
     <string name="save_search_history_title">Zapisuj Historie Wyszukiwania</string>
     <string name="save_searches_subtitle">Zapisz swoje wyszukiwania, aby mieć do nich szybki dostęp</string>
@@ -1148,7 +1135,6 @@
     <string name="sync_receive_show_qr_hint">Skanuje nadawca. Użyj tej opcji, jeśli to urządzenie nie ma aparatu lub wolisz pokazać kod.</string>
     <string name="sync_show_qr_here">Wyświetl tutaj kod QR</string>
     <string name="quick_actions_error_template">Błąd: %1$s</string>
-    <string name="download_menu_style_subtitle">Zmień wygląd i układ okna pobierania</string>
     <string name="content_settings_header_home_feed">Strona Główna</string>
     
     <string name="content_settings_home_feed_disabled_title">Wyłączono Stronę Główną</string>
@@ -1232,7 +1218,6 @@
     <string name="section_options">Opcje</string>
     <string name="copy_video_link">Skopiuj link do filmu</string>
     <string name="copy_channel_link">Skopiuj link do kanału</string>
-    <string name="toast_fetching_download_links">Wyszukiwanie linków do pobrania…</string>
     <string name="link_copied">Skopiowano link</string>
     <string name="link_with_timestamp_copied">Skopiowano link z sygnaturą czasową</string>
     <string name="dlna_cast_to_device">Prześlij na Urządzenie</string>
@@ -1281,8 +1266,6 @@
     <string name="logs_copied">Skopiowano raport</string>
     <string name="collaborators">Współtwórcy</string>
     <string name="collaborator">Współtwórca</string>
-    
-    <string name="select_quality">Wybierz jakość pobierania</string>
     
     <string name="equalizer">Korektor Dźwięku</string>
     <string name="label_parametric_equalizer">Korektor Parametryczny</string>
@@ -1560,12 +1543,6 @@
     <string name="resize_fill">Wypełnij</string>
     <string name="resize_zoom">Przybliż</string>
     
-    
-    <string name="download_audio">Audio</string>
-    <string name="download_title_label">Tytuł</string>
-    <string name="download_format_label">Format</string>
-    <string name="downloading_template">Pobieranie %1$s...</string>
-    
     <string name="section_incomplete_downloads">Niedokończone pobieranie</string>
     <string name="section_completed">Ukończone</string>
     <string name="download_status_queued">W kolejce</string>
@@ -1701,12 +1678,10 @@
     <string name="recognition_error_language_not_supported">Ten język nie jest obsługiwany przez rozpoznawanie mowy.</string>
     <string name="recognition_error_language_unavailable">Model językowy na urządzeniu nie jest zainstalowany. Pobierz go w ustawieniach urządzenia, a następnie spróbuj ponownie.</string>
     <string name="account_menu_title">Konto</string>
-    <string name="account_sheet_local_profile">Na tym urządzeniu</string>
     <string name="account_sheet_profiles_header">Profile</string>
     <string name="account_sheet_sign_in_cta">Zaloguj się</string>
     <string name="account_sheet_signed_out_subtitle">Zaloguj się, aby zsynchronizować swój kanał i subskrypcje</string>
     <string name="account_sheet_signed_out_title">Wylogowano</string>
-    <string name="account_sheet_unknown_user">Nieznany użytkownik</string>
     <string name="account_switcher_active">Aktywny profil</string>
     <string name="account_switcher_add_local_subtitle">Oddzielne subskrypcje, konto nie jest potrzebne</string>
     <string name="account_switcher_add_local_title">Dodaj profil na tym urządzeniu</string>
@@ -1747,9 +1722,6 @@
     <string name="appearance_role_surface_dim">Przyciemnienie powierzchni</string>
     <string name="appearance_role_surface_tint">Odcień powierzchni</string>
     <string name="appearance_role_tertiary_container">Kontener trzeciorzędny</string>
-    <string name="audio_only">Tylko dźwięk</string>
-    <string name="audio_track_dubbed">Nazwany</string>
-    <string name="audio_track_original">Oryginał</string>
     <string name="blocked_channels_empty">Brak zablokowanych kanałów</string>
     <string name="blocked_clear_all">Odblokuj wszystkich</string>
     <string name="cancel_reply">Anuluj odpowiedź</string>
@@ -1764,10 +1736,7 @@
     <string name="content_settings_watched_threshold_almost">Prawie gotowe (ostatnia minuta)</string>
     <string name="content_settings_watched_threshold_dialog_body">Wybierz, jaka część filmu musi zostać odtworzona, zanim zostanie uznana za obejrzaną i ukryta.</string>
     <string name="content_settings_watched_threshold_title">Oznacz jako obejrzane, kiedy</string>
-    <string name="cookie_paste_cancel">Anuluj</string>
     <string name="cookie_paste_clipboard">Wklej ze schowka</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Nagłówek pliku cookie</string>
     <string name="cookie_paste_how">Jak to zdobyć?</string>
     <string name="cookie_paste_missing">Brakuje %1$s. Skopiuj całą wartość pliku cookie i upewnij się, że przeglądarka jest zalogowana.</string>
     <string name="cookie_paste_security_body">Te pliki cookie zapewniają pełny dostęp do Twojego konta Google i omijają weryfikację dwuetapową. piTube przechowuje je w postaci zaszyfrowanej na tym urządzeniu i wysyła je wyłącznie do YouTube. Nigdy ich nie udostępniaj.</string>
@@ -1779,8 +1748,6 @@
     <string name="cookie_paste_step_4">Kliknij dowolne żądanie na liście</string>
     <string name="cookie_paste_step_5">W obszarze Nagłówki żądań kliknij prawym przyciskiem myszy „plik cookie” i wybierz opcję Kopiuj wartość</string>
     <string name="cookie_paste_step_6">Wyślij go na to urządzenie i wklej powyżej</string>
-    <string name="cookie_paste_subtitle">Zaloguj się, wklejając sesję przeglądarki</string>
-    <string name="cookie_paste_title">Pliki cookie sesji</string>
     <string name="creator_replied">Twórca odpowiedział</string>
     <string name="dlna_now_casting">Teraz przesyłam: %1$s</string>
     <string name="dlna_stop_casting">Zatrzymaj przesyłanie</string>
@@ -1800,7 +1767,6 @@
     <string name="download_merging_audio_video">Łączenie dźwięku i obrazu…</string>
     <string name="download_muxing_failed_retry">Muxing nie powiódł się — spróbuj pobrać ponownie.</string>
     <string name="download_muxing_incompatible">Muxing nie powiódł się – format audio niezgodny z kontenerem wideo. Spróbuj pobrać ponownie.</string>
-    <string name="download_no_compatible_audio">Brak kompatybilnego strumienia audio — pobieranie nie może być kontynuowane</string>
     <string name="download_sabr_failed">Pobieranie SABR nie powiodło się</string>
     <string name="download_sabr_failed_try_again">Pobieranie SABR nie powiodło się. Spróbuj ponownie.</string>
     <string name="download_section_audio_quality">Jakość dźwięku</string>
@@ -2008,13 +1974,11 @@
     <string name="sync_error_peer_also_send">Drugie urządzenie również jest ustawione na Wyślij. Ustaw go na Odbierz, a następnie skanuj ponownie.</string>
     <string name="sync_error_qr_bad_address">W kodzie synchronizacji brakuje prawidłowego adresu sieciowego.</string>
     <string name="toast_added_to_watch_later">Dodano do obejrzenia później</string>
-    <string name="toast_download_started">Pobieranie rozpoczęte: %1$s</string>
     <string name="toast_failed_to_merge_playlist">Nie udało się połączyć playlisty</string>
     <string name="toast_no_download_source">Brak dostępnego źródła pobierania</string>
     <string name="toast_removed_from_watch_later">Usunięto z Do obejrzenia</string>
     <string name="toast_sabr_download_failed">Pobieranie SABR nie powiodło się: %1$s</string>
     <string name="toast_sabr_download_started">Rozpoczęło się pobieranie SABR</string>
-    <string name="toast_sabr_download_started_for_video">Rozpoczęło się pobieranie SABR: %1$s</string>
     <string name="toast_subscribed_to">Zasubskrybowano %1$s</string>
     <string name="toast_trying_sabr_download">Próbuję pobrać SABR…</string>
     <string name="toast_unsubscribed_from">Wypisano z %1$s</string>
@@ -2027,9 +1991,7 @@
     <string name="translation_caption_note">Napisy korzystają z wbudowanych przetłumaczonych napisów YouTube, jeśli są one dostępne w języku docelowym.</string>
     <string name="translation_missing_key_hint">Tłumaczenie jest włączone, ale %1$s potrzebuje klucza API: dodaj go powyżej lub wybierz bezpłatnego dostawcę, a treść pozostanie w oryginalnym języku.</string>
     <string name="translation_mode_dual">Oryginał + tłumaczenie</string>
-    <string name="translation_mode_dual_subtitle">Pokaż oba razem</string>
     <string name="translation_mode_replace">Wymień oryginał</string>
-    <string name="translation_mode_replace_subtitle">Pokaż tylko tłumaczenie; dotknij, aby wyświetlić oryginał</string>
     <string name="translation_mode_row">Wyświetlanie tłumaczeń</string>
     <string name="translation_model_custom">Model niestandardowy</string>
     <string name="translation_model_not_selected">Nie wybrano</string>
@@ -2060,8 +2022,6 @@
     <string name="ui_back">Powrót</string>
     <string name="ui_clear_search">Wyczyść wyszukiwanie</string>
     <string name="ui_close_search">Zamknij wyszukiwanie</string>
-    <string name="ui_download_audio">Pobieranie dźwięku: %1$s kbps %2$s</string>
-    <string name="ui_download_start_failed">Pobieranie nie rozpoczęło się: %1$s</string>
     <string name="ui_downloading">Pobieranie</string>
     <string name="ui_downloading_playlist">Pobieranie playlisty</string>
     <string name="ui_downloading_videos">Pobieranie filmów %1$d…</string>
@@ -2081,7 +2041,6 @@
     <string name="ui_skip_back_10_seconds">Przeskocz wstecz o 10 s</string>
     <string name="ui_skip_forward_10_seconds">Przeskocz do przodu o 10 s</string>
     <string name="ui_skipped_segment">Pominięto %1$s</string>
-    <string name="ui_started_download">Rozpoczęto pobieranie: %1$s</string>
     <string name="ui_try_sabr_download">Wypróbuj SABR Pobierz</string>
     <string name="upcoming_waiting_count">%1$s czeka</string>
     <string name="version_format">Wersja %1$s</string>

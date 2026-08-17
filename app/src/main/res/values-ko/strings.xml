@@ -210,7 +210,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">인기순</string>
     <string name="filter_newest">최신순</string>
     <string name="filter_oldest">오래된순</string>
@@ -235,7 +234,6 @@
     
     <string name="nav_library">라이브러리</string>
     <string name="notifications">알림</string>
-    <string name="search">검색</string>
     <string name="settings">설정</string>
     
     <string name="description">설명</string>
@@ -270,7 +268,6 @@
     
     <string name="views_template">조회수 %1$s회</string>
     <string name="chapters">챕터</string>
-    <string name="artist">아티스트</string>
     <string name="playlist">재생목록</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
     <string name="app_name_uppercase">PITUBE</string>
@@ -716,10 +713,6 @@
     
     
     <string name="nav_search">검색</string>
-    
-    
-    <string name="nav_explore">둘러보기</string>
-    <string name="nav_more">더보기</string>
     <string name="categories_title">카테고리</string>
     <string name="categories_switch_to_grid">그리드 보기로 전환</string>
     <string name="categories_switch_to_list">목록 보기로 전환</string>
@@ -1401,20 +1394,7 @@
     <string name="play_next_toast">다음에 재생됩니다</string>
     
     <string name="download_video">동영상 다운로드</string>
-    <string name="select_quality">원하는 화질을 선택하세요</string>
     <string name="no_download_streams">사용 가능한 다운로드 스트림이 없습니다</string>
-    <string name="download_audio">오디오</string>
-    <string name="download_title_label">제목</string>
-    <string name="download_format_label">형식</string>
-    <string name="download_threads_label">스레드</string>
-    <string name="download_no_compatible_audio">호환되는 오디오 스트림이 없어 다운로드할 수 없습니다</string>
-    <string name="download_menu_style_title">다운로드 메뉴 스타일</string>
-    <string name="download_menu_style_subtitle">다운로드 대화상자의 표시 방식을 선택하세요</string>
-    <string name="download_menu_style_classic">클래식</string>
-    <string name="download_menu_style_classic_desc">모든 화질과 코덱의 전체 목록</string>
-    <string name="download_menu_style_compact">간결하게</string>
-    <string name="download_menu_style_compact_desc">제목 편집, 드롭다운 및 스레드 수</string>
-    <string name="downloading_template">%1$s 다운로드 중...</string>
     
     <string name="section_incomplete_downloads">미완료 다운로드</string>
     <string name="section_completed">완료됨</string>
@@ -1807,19 +1787,13 @@
     <string name="ui_downloading_videos">동영상 %1$d개 다운로드 중…</string>
     <string name="ui_playlist_saved_to_library">재생목록을 라이브러리에 저장했습니다</string>
     <string name="ui_playlist_removed_from_library">재생목록을 라이브러리에서 삭제했습니다</string>
-    <string name="ui_download_audio">오디오 다운로드 중: %1$s kbps %2$s</string>
     <string name="ui_skipped_segment">%1$s 구간을 건너뛰었습니다</string>
-    <string name="ui_started_download">다운로드 시작: %1$s</string>
-    <string name="ui_download_start_failed">다운로드를 시작하지 못했습니다: %1$s</string>
     <string name="toast_unsubscribed_from">%1$s 구독을 취소했습니다</string>
     <string name="toast_subscribed_to">%1$s 채널을 구독했습니다</string>
     <string name="toast_removed_from_watch_later">나중에 볼 동영상에서 삭제했습니다</string>
     <string name="toast_added_to_watch_later">나중에 볼 동영상에 추가했습니다</string>
-    <string name="toast_fetching_download_links">다운로드 링크를 가져오는 중…</string>
-    <string name="toast_download_started">다운로드 시작: %1$s</string>
     <string name="toast_trying_sabr_download">SABR 다운로드를 시도하는 중…</string>
     <string name="toast_sabr_download_started">SABR 다운로드를 시작했습니다</string>
-    <string name="toast_sabr_download_started_for_video">SABR 다운로드 시작: %1$s</string>
     <string name="toast_no_download_source">사용 가능한 다운로드 소스가 없습니다</string>
     <string name="toast_sabr_download_failed">SABR 다운로드 실패: %1$s</string>
     <string name="toast_copied_to_clipboard">클립보드에 복사했습니다</string>
@@ -1919,12 +1893,10 @@
     <string name="recognition_error_language_unavailable">기기에 언어 모델이 설치되어 있지 않습니다. 기기 설정에서 다운로드한 후 다시 시도하세요.</string>
     
     <string name="account_menu_title">계정</string>
-    <string name="account_sheet_local_profile">이 기기에서</string>
     <string name="account_sheet_profiles_header">프로필</string>
     <string name="account_sheet_sign_in_cta">로그인</string>
     <string name="account_sheet_signed_out_subtitle">피드와 구독을 동기화하려면 로그인하세요</string>
     <string name="account_sheet_signed_out_title">로그아웃</string>
-    <string name="account_sheet_unknown_user">알 수 없는 사용자</string>
     <string name="account_switcher_active">활성 프로필</string>
     <string name="account_switcher_add_local_subtitle">별도의 구독, 계정이 필요하지 않음</string>
     <string name="account_switcher_add_local_title">이 기기에 프로필을 추가하세요</string>
@@ -1950,9 +1922,6 @@
     <string name="account_switcher_switch_account_subtitle">여러 Google 계정 관리</string>
     <string name="account_switcher_title">프로필</string>
     <string name="action_save_preset">사전 설정 저장</string>
-    <string name="audio_only">오디오만</string>
-    <string name="audio_track_dubbed">더빙</string>
-    <string name="audio_track_original">원본</string>
     <string name="blocked_channels_empty">차단된 채널 없음</string>
     <string name="blocked_clear_all">모두 차단 해제</string>
     <string name="cancel_reply">답장 취소</string>
@@ -1960,10 +1929,7 @@
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">연령 제한, 비공개, 회원 전용 및 삭제된 동영상이 재생되지 않으면 필터링</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">피드에서 재생할 수 없는 동영상 숨기기</string>
-    <string name="cookie_paste_cancel">취소</string>
     <string name="cookie_paste_clipboard">클립보드에서 붙여넣기</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">쿠키 헤더</string>
     <string name="cookie_paste_how">어떻게 얻을 수 있나요?</string>
     <string name="cookie_paste_missing">Missing %1$s. Copy the whole cookie value, and make sure that browser is signed in.</string>
     <string name="cookie_paste_security_body">이 쿠키는 귀하의 Google 계정에 대한 전체 액세스 권한을 부여하고 2단계 인증을 우회합니다. piTube은 이 기기에 암호화되어 저장되며 YouTube로만 전송됩니다. 절대 공유하지 마세요.</string>
@@ -1975,8 +1941,6 @@
     <string name="cookie_paste_step_4">목록에서 요청을 클릭하세요</string>
     <string name="cookie_paste_step_5">요청 헤더에서 "쿠키"를 마우스 오른쪽 버튼으로 클릭하고 값 복사</string>
     <string name="cookie_paste_step_6">이 기기로 보내고 위에 붙여넣으세요</string>
-    <string name="cookie_paste_subtitle">브라우저 세션을 붙여넣어 로그인</string>
-    <string name="cookie_paste_title">세션 쿠키</string>
     <string name="creator_replied">작성자가 답변했습니다</string>
     <string name="donations_cryptocurrency">암호화폐</string>
     <string name="download_action_delete_selected">선택한 항목 삭제</string>
@@ -2154,9 +2118,7 @@
     <string name="translation_caption_note">자막은 대상 언어로 제공되는 경우 YouTube에 내장된 번역된 자막을 사용합니다.</string>
     <string name="translation_missing_key_hint">Translation is on, but %1$s needs an API key: add one above or pick a free provider and content stays in the original language.</string>
     <string name="translation_mode_dual">원본 + 번역</string>
-    <string name="translation_mode_dual_subtitle">둘 다 함께 표시</string>
     <string name="translation_mode_replace">원본 교체</string>
-    <string name="translation_mode_replace_subtitle">번역만 표시합니다. 원본을 보려면 탭하세요</string>
     <string name="translation_mode_row">번역 표시</string>
     <string name="translation_model_custom">맞춤 모델</string>
     <string name="translation_model_not_selected">선택되지 않음</string>

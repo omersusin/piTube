@@ -94,7 +94,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Populaarsed</string>
     <string name="filter_newest">Uusimad</string>
     <string name="reply">Vasta</string>
@@ -103,7 +102,6 @@
     
     <string name="nav_library">Meediakogu</string>
     <string name="notifications">Teavitused</string>
-    <string name="search">Otsi</string>
     <string name="settings">Seadistused</string>
     <string name="description">Kirjeldus</string>
     <string name="tags">Sildid</string>
@@ -112,7 +110,6 @@
     <string name="playback_header">Taasesitus</string>
     
     <string name="chapters">Peatükid</string>
-    <string name="artist">Esitaja</string>
     <string name="playlist">Esitusloend</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -417,12 +414,10 @@
     <string name="about_title">Teave</string>
     <string name="about_website">veebisaidi kohta</string>
     <string name="account_menu_title">konto</string>
-    <string name="account_sheet_local_profile">Selles seadmes</string>
     <string name="account_sheet_profiles_header">Profiilid</string>
     <string name="account_sheet_sign_in_cta">Logige sisse</string>
     <string name="account_sheet_signed_out_subtitle">Logige oma voo ja tellimuste sünkroonimiseks sisse</string>
     <string name="account_sheet_signed_out_title">Välja logitud</string>
-    <string name="account_sheet_unknown_user">Tundmatu kasutaja</string>
     <string name="account_switcher_active">Aktiivne profiil</string>
     <string name="account_switcher_add_local_subtitle">Eraldi tellimused, kontot pole vaja</string>
     <string name="account_switcher_add_local_title">Lisage selles seadmes profiil</string>
@@ -532,12 +527,9 @@
     <string name="appearance_variant_light">Hele</string>
     <string name="appearance_variant_title">Teema stiil</string>
     <string name="arch_label">Arch: %1$s</string>
-    <string name="audio_only">Ainult heli</string>
     <string name="audio_settings_title">heliseaded</string>
     <string name="audio_track">heliriba</string>
-    <string name="audio_track_dubbed">Dubleeritud</string>
     <string name="audio_track_number_template">%1$s %2$d</string>
-    <string name="audio_track_original">Algne</string>
     <string name="auto_delete_history_title">automaatse kustutamise ajalugu</string>
     <string name="autoplay_countdown_cancel">Tühista</string>
     <string name="autoplay_countdown_next_video">Järgmine video</string>
@@ -669,10 +661,7 @@
     <string name="content_settings_watched_threshold_dialog_body">Valige, kui palju videot tuleb esitada, enne kui see loetakse vaadatuks ja peidetakse.</string>
     <string name="content_settings_watched_threshold_title">Märgi vaadatuks, kui</string>
     <string name="continue_watching_title">Jätka vaatamist</string>
-    <string name="cookie_paste_cancel">Tühista</string>
     <string name="cookie_paste_clipboard">Kleebi lõikelaualt</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Küpsise päis</string>
     <string name="cookie_paste_how">Kuidas seda saada?</string>
     <string name="cookie_paste_missing">%1$s puudub. Kopeerige kogu küpsise väärtus ja veenduge, et brauser oleks sisse logitud.</string>
     <string name="cookie_paste_security_body">Need küpsised annavad täieliku juurdepääsu teie Google\'i kontole ja lähevad kaheastmelisest kinnitamisest mööda. piTube salvestab need krüpteeritult sellesse seadmesse ja saadab need ainult YouTube\'i. Ärge kunagi jagage neid.</string>
@@ -684,8 +673,6 @@
     <string name="cookie_paste_step_4">Klõpsake loendis mis tahes päringul</string>
     <string name="cookie_paste_step_5">Jaotises Taotluse päised paremklõpsake "küpsist" ja Kopeeri väärtus</string>
     <string name="cookie_paste_step_6">Saada see sellesse seadmesse ja kleepige see</string>
-    <string name="cookie_paste_subtitle">kohale Logige sisse, kleepides brauseri seansi</string>
-    <string name="cookie_paste_title">Seansiküpsised</string>
     <string name="copy_channel_link">Kopeeri kanali link</string>
     <string name="copy_logs">Kopeeri logid</string>
     <string name="copy_video_link">Kopeeri video link</string>
@@ -762,7 +749,6 @@
     <string name="download_action_resume_all">Jätka kõiki</string>
     <string name="download_action_retry_selected">Proovi valitud uuesti</string>
     <string name="download_action_select">Vali %1$s</string>
-    <string name="download_audio">Heli</string>
     <string name="download_audio_builtin">Sisseehitatud (muksitud)</string>
     <string name="download_audio_builtin_hint">Heli kvaliteet on juba ühendatud selle videoga.</string>
     <string name="download_audio_only">Ainult heli allalaadimine</string>
@@ -771,17 +757,9 @@
     <string name="download_failed_audio_length">Helisisu pikkuse hankimine ebaõnnestus</string>
     <string name="download_failed_try_again">Allalaadimine ebaõnnestus. Palun proovi uuesti.</string>
     <string name="download_failed_video_length">Video sisu pikkuse hankimine ebaõnnestus</string>
-    <string name="download_format_label">Vorming</string>
-    <string name="download_menu_style_classic">Klassikaline</string>
-    <string name="download_menu_style_classic_desc">Kõikide kvaliteedi- ja koodekite täielik loend</string>
-    <string name="download_menu_style_compact">Kompaktne</string>
-    <string name="download_menu_style_compact_desc">Redigeeritav pealkiri, rippmenüüd ja lõimede arv</string>
-    <string name="download_menu_style_subtitle">Valige, kuidas allalaadimisdialoog välja näeb</string>
-    <string name="download_menu_style_title">Allalaadimismenüü stiil</string>
     <string name="download_merging_audio_video">Heli ja video ühendamine…</string>
     <string name="download_muxing_failed_retry">Muxing ebaõnnestus – proovige uuesti alla laadida.</string>
     <string name="download_muxing_incompatible">Muxing nurjus – helivorming ei ühildu videokonteineriga. Proovige uuesti alla laadida.</string>
-    <string name="download_no_compatible_audio">Ühilduv helivoog puudub – allalaadimist ei saa jätkata</string>
     <string name="download_over_wifi_only">Allalaadimine ainult WiFi kaudu</string>
     <string name="download_sabr_failed">SABR-i allalaadimine ebaõnnestus</string>
     <string name="download_sabr_failed_try_again">SABR-i allalaadimine ebaõnnestus. Proovige uuesti.</string>
@@ -796,13 +774,10 @@
     <string name="download_status_queued">Järjekorras</string>
     <string name="download_stream_muxed">segatud</string>
     <string name="download_stream_video_only">Ainult video</string>
-    <string name="download_threads_label">Pealkiri</string>
-    <string name="download_title_label">Ads3</string>
     <string name="download_url_expired">Threads aegunud (403). Vajalik uuesti toomine.</string>
     <string name="download_video">Video allalaadimine</string>
     <string name="download_waiting_for_wifi">WiFi ootel</string>
     <string name="download_workers_failed">Üks või mitu töötajat ebaõnnestus</string>
-    <string name="downloading_template">%1$s allalaadimine ...</string>
     <string name="downloads_selected_count">%1$d valitud</string>
     <string name="duration_hours_minutes">%1$d h %2$d min</string>
     <string name="duration_hours_short">%1$d h</string>
@@ -992,8 +967,6 @@
     <string name="mini_player_small">Väike</string>
     <string name="model_label">Mudel: %1$s</string>
     <string name="my_playlist_placeholder">My Playlist</string>
-    <string name="nav_explore">Explore</string>
-    <string name="nav_more">Minu esitusloend</string>
     <string name="nav_search">PSPLIT1K SEPLIT13K Explore4</string>
     <string name="nav_you">Teie</string>
     <string name="never_delete_automatically">Ärge kunagi kustutage automaatselt</string>
@@ -1366,7 +1339,6 @@
     <string name="section_legal">Juriidiline</string>
     <string name="section_options">Valikud</string>
     <string name="select_all">Vali kõik</string>
-    <string name="select_quality">Valige eelistatud kvaliteet</string>
     <string name="select_threads_count_desc">Valige lõimede arv (1-8):</string>
     <string name="select_videos">Valige</string>
     <string name="selected_count_template">%1$d valitud</string>
@@ -1639,14 +1611,11 @@
     <string name="time_management_title">Ajahaldus</string>
     <string name="toast_added_to_watch_later">Lisatud hiljem vaatamiseks</string>
     <string name="toast_copied_to_clipboard">Kopeeritud lõikelauale</string>
-    <string name="toast_download_started">Allalaadimine alanud: %1$s</string>
     <string name="toast_failed_to_merge_playlist">Esitusloendi ühendamine ebaõnnestus</string>
-    <string name="toast_fetching_download_links">Allalaadimislinkide toomine…</string>
     <string name="toast_no_download_source">Allalaadimise allikas pole saadaval</string>
     <string name="toast_removed_from_watch_later">Eemaldati valikust Vaata hiljem</string>
     <string name="toast_sabr_download_failed">SABR-i allalaadimine ebaõnnestus: %1$s</string>
     <string name="toast_sabr_download_started">SABR-i allalaadimine algas</string>
-    <string name="toast_sabr_download_started_for_video">SABR-i allalaadimine algas: %1$s</string>
     <string name="toast_subscribed_to">%1$s</string>
     <string name="toast_trying_sabr_download">tellitud SABR-i allalaadimise proovimine…</string>
     <string name="toast_unsubscribed_from">%1$s</string>
@@ -1664,9 +1633,7 @@
     <string name="translation_caption_note">Subtiitrid kasutavad YouTube\'i sisseehitatud tõlgitud subtiitreid, kui need on sihtkeele jaoks saadaval.</string>
     <string name="translation_missing_key_hint">tõlge on sisse lülitatud, kuid %1$s vajab API-võtit: lisage üks ülalpool või valige tasuta pakkuja ja sisu jääb algkeeleks.</string>
     <string name="translation_mode_dual">Originaal + tõlge</string>
-    <string name="translation_mode_dual_subtitle">Kuva mõlemad koos</string>
     <string name="translation_mode_replace">Asenda originaal</string>
-    <string name="translation_mode_replace_subtitle">Kuva ainult tõlge; puudutage originaali vaatamiseks</string>
     <string name="translation_mode_row">Tõlkekuva</string>
     <string name="translation_model_custom">Kohandatud mudel</string>
     <string name="translation_model_not_selected">Pole valitud</string>
@@ -1701,8 +1668,6 @@
     <string name="ui_copy_log">Kopeeri logi</string>
     <string name="ui_copy_log_description">Kopeerige allolev logi ja kleepige see GitHubi probleemisse, et seda saaks parandada.</string>
     <string name="ui_crashed_last_session">piTube jooksis eelmisel seansil kokku</string>
-    <string name="ui_download_audio">Heli allalaadimine: %1$s kbps %2$s</string>
-    <string name="ui_download_start_failed">Allalaadimine ebaõnnestus: %1$s</string>
     <string name="ui_downloading">Downloading</string>
     <string name="ui_downloading_playlist">allalaadimine Esitusloendi allalaadimine</string>
     <string name="ui_downloading_videos">%1$d videote allalaadimine…</string>
@@ -1724,7 +1689,6 @@
     <string name="ui_skip_back_10_seconds">Jäta vahele 10 s</string>
     <string name="ui_skip_forward_10_seconds">Vahele edasi 10 s</string>
     <string name="ui_skipped_segment">Vahele jäetud %1$s</string>
-    <string name="ui_started_download">Alustatud allalaadimist: %1$s</string>
     <string name="ui_try_sabr_download">Proovige SABR-i Allalaadimine</string>
     <string name="upcoming_label">Tulevane</string>
     <string name="upcoming_video_reminder_action">Tuleta meelde</string>

@@ -77,7 +77,6 @@
     <string name="nav_home">المنزل</string>
     <string name="nav_library">المكتبة</string>
     <string name="notifications">الإشعارات</string>
-    <string name="search">البحث</string>
     <string name="settings">الإعدادات</string>
     
     <string name="description">الوصف</string>
@@ -97,7 +96,6 @@
     
     <string name="views_template">%1$s مشاهدة</string>
     <string name="chapters">الفصول</string>
-    <string name="artist">الفنان</string>
     <string name="playlist">قائمة التشغيل</string>
     <string name="personalized_feed">خلاصتك المخصصة</string>
     
@@ -348,7 +346,6 @@
     
     
     <string name="nav_search">البحث</string>
-    <string name="nav_more">المزيد</string>
     <string name="categories_title">الفئات</string>
     <string name="categories_switch_to_grid">التبديل إلى عرض الشبكة</string>
     <string name="categories_switch_to_list">التبديل إلى عرض القائمة</string>
@@ -832,9 +829,7 @@
     <string name="play_next_toast">سيتم تشغيله تالياً</string>
     
     <string name="download_video">تحميل الفيديو</string>
-    <string name="select_quality">اختر الجودة المفضلة لديك</string>
     <string name="no_download_streams">لا توجد قنوات تنزيل متاحة</string>
-    <string name="downloading_template">جار تحميل %1$s...</string>
     
     <string name="section_completed">مكتمل</string>
     <string name="download_status_queued">في قائمة الانتظار</string>
@@ -983,7 +978,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">الأفضل</string>
     <string name="filter_newest">الأحدث</string>
     <string name="no_comments_yet">لا تعليقات بعد</string>
@@ -1046,16 +1040,6 @@
     <string name="theme_desc_espresso">غنية و دافئة</string>
     <string name="theme_name_gunmetal">Gunmetal</string>
     <string name="theme_desc_gunmetal">الحافة الصناعية</string>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <string name="nav_explore">استكشاف</string>
     
     <string name="player_settings_sponsorblock">SponsorBlock</string>
     <string name="player_settings_sponsorblock_subtitle">تخطي المقاطع الدعائية</string>
@@ -1440,17 +1424,6 @@
     <string name="history_delete_shorts">حذف Shorts من السجل</string>
     <string name="history_delete_shorts_title">هل تريد حذف الshorts؟</string>
     <string name="history_delete_shorts_body">سيؤدي هذا إلى حذف جميع الفيديوهات القصيرة من سجل المشاهدة. أما الفيديوهات الأخرى فستبقى محفوظة.</string>
-    <string name="download_audio">الصوت</string>
-    <string name="download_title_label">العنوان</string>
-    <string name="download_format_label">التنسيق</string>
-    <string name="download_threads_label">التقسيمات</string>
-    <string name="download_no_compatible_audio">لا يوجد دفق صوتي متوافق — لا يمكن بدء التنزيل</string>
-    <string name="download_menu_style_title">نمط قائمة التنزيل</string>
-    <string name="download_menu_style_subtitle">اختر شكل مربع حوار التنزيل</string>
-    <string name="download_menu_style_classic">كلاسيكي</string>
-    <string name="download_menu_style_classic_desc">‎قائمة كاملة بكل جودة و برنامج ترميز</string>
-    <string name="download_menu_style_compact">‎مدمج</string>
-    <string name="download_menu_style_compact_desc">عنوان قابل للتعديل، قوائم منسدلة، وعدد التقسيمات</string>
     <string name="player_appearance_long_press_speed_title">سرعة الضغط المطول علي المشغل</string>
     
     <string name="player_appearance_long_press_speed_disabled">معطلة</string>
@@ -1805,16 +1778,11 @@
     <string name="ui_downloading_videos">جاري تنزيل %1$d فيديو…</string>
     <string name="ui_playlist_saved_to_library">تم حفظ قائمة التشغيل في المكتبة</string>
     <string name="ui_playlist_removed_from_library">‎تمت إزالة قائمة التشغيل من المكتبة</string>
-    <string name="ui_download_audio">جاري تنزيل الصوت: %1$skbps %2$s</string>
     <string name="ui_skipped_segment">تم تخطي %1$s</string>
-    <string name="ui_started_download">بدأ التنزيل: %1$s</string>
-    <string name="ui_download_start_failed">فشل بدء التنزيل: %1$s</string>
     <string name="toast_unsubscribed_from">تم إلغاء الاشتراك من %1$s</string>
     <string name="toast_subscribed_to">مشترك في %1$s</string>
     <string name="toast_removed_from_watch_later">تمت إزالته من قائمة المشاهدة لاحقًا</string>
     <string name="toast_added_to_watch_later">تمت إضافته إلى قائمة المشاهدة لاحقاً</string>
-    <string name="toast_fetching_download_links">جاري جلب روابط التنزيل…</string>
-    <string name="toast_download_started">بدأ التنزيل: %1$s</string>
     <string name="toast_trying_sabr_download">محاولة طريقة تنزيل SABR…</string>
     <string name="toast_no_download_source">لا يوجد مصدر للتحميل متاح</string>
     <string name="toast_copied_to_clipboard">تم النسخ إلى الحافظة</string>
@@ -1835,7 +1803,6 @@
     <string name="ui_grid_view">عرض الشبكة</string>
     <string name="ui_crashed_last_session">تعطل piTube في الجلسة الأخيرة</string>
     <string name="toast_sabr_download_started">بدأ طريقة تنزيل SABR</string>
-    <string name="toast_sabr_download_started_for_video">‎بدأ طريقة تنزيل SABR: %1$s</string>
     <string name="toast_sabr_download_failed">فشل طريقة تنزيل SABR: %1$s</string>
     
     
@@ -1928,8 +1895,6 @@
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="notif_background_restricted_title">تخضع عمليات التحقق من الخلفية لقيود</string>
     <string name="notif_background_restricted_subtitle">يمنع نظام أندرويد تطبيق piTube من التحقق من وجود فيديوهات جديدة أثناء إغلاقه، لذا لن تصلك التنبيهات إلا عند فتح التطبيق. انقر للسماح بنشاط التطبيق في الخلفية دون قيود.</string>
-    <string name="audio_track_original">أصلي</string>
-    <string name="audio_track_dubbed">مدبلج</string>
     <string name="empty_saved_shorts">لم يتم حفظ أي مقاطع قصيرة حتى الآن</string>
     <string name="settings_search_no_results">لم يتم العثور على إعدادات لـ %1$s</string>
     
@@ -1942,12 +1907,10 @@
     <string name="recognition_error_language_not_supported">هذه اللغة لا يدعمها أداة التعرف على الكلام.</string>
     <string name="recognition_error_language_unavailable">نموذج اللغة على الجهاز غير مثبت. نزّله في إعدادات الجهاز، ثم حاول مرة أخرى.</string>
     <string name="account_menu_title">الحساب</string>
-    <string name="account_sheet_local_profile">على هذا الجهاز</string>
     <string name="account_sheet_profiles_header">الملفات الشخصية</string>
     <string name="account_sheet_sign_in_cta">تسجيل الدخول</string>
     <string name="account_sheet_signed_out_subtitle">قم بتسجيل الدخول لمزامنة خلاصتك واشتراكاتك</string>
     <string name="account_sheet_signed_out_title">تم تسجيل الخروج</string>
-    <string name="account_sheet_unknown_user">مستخدم غير معروف</string>
     <string name="account_switcher_active">الملف الشخصي النشط</string>
     <string name="account_switcher_add_local_subtitle">اشتراكات منفصلة، ​​لا حاجة لحساب</string>
     <string name="account_switcher_add_local_title">إضافة ملف تعريف على هذا الجهاز</string>
@@ -1972,16 +1935,12 @@
     <string name="account_switcher_switch_account">تبديل الحساب</string>
     <string name="account_switcher_switch_account_subtitle">إدارة حسابات جوجل متعددة</string>
     <string name="account_switcher_title">الملفات الشخصية</string>
-    <string name="audio_only">صوت فقط</string>
     <string name="blocked_channels_empty">لا توجد قنوات محظورة</string>
     <string name="blocked_clear_all">قم بإلغاء حظر الكل</string>
     <string name="cancel_reply">إلغاء الرد</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">قم بتصفية مقاطع الفيديو المقيدة بالفئة العمرية والخاصة والمخصصة للأعضاء فقط والتي تمت إزالتها بعد فشل تشغيلها</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">إخفاء مقاطع الفيديو غير القابلة للتشغيل من الخلاصة</string>
-    <string name="cookie_paste_cancel">إلغاء</string>
     <string name="cookie_paste_clipboard">لصق من الحافظة</string>
-    <string name="cookie_paste_field_hint">معرف الأمان =...; سابيسيد=...</string>
-    <string name="cookie_paste_field_label">رأس ملف تعريف الارتباط</string>
     <string name="cookie_paste_how">كيف أحصل على هذا؟</string>
     <string name="cookie_paste_missing">مفقود %1$s . انسخ قيمة ملف تعريف الارتباط بالكامل، وتأكد من تسجيل الدخول إلى المتصفح.</string>
     <string name="cookie_paste_security_body">تمنح ملفات تعريف الارتباط هذه حق الوصول الكامل إلى حساب Google الخاص بك وتتجاوز عملية التحقق بخطوتين. يقوم piTube بتخزينها مشفرة على هذا الجهاز ويرسلها فقط إلى YouTube. لا تشاركهم أبدًا.</string>
@@ -1993,8 +1952,6 @@
     <string name="cookie_paste_step_4">انقر فوق أي طلب في القائمة</string>
     <string name="cookie_paste_step_5">ضمن رؤوس الطلبات، انقر بزر الماوس الأيمن فوق "ملف تعريف الارتباط" وانسخ القيمة</string>
     <string name="cookie_paste_step_6">أرسله إلى هذا الجهاز والصقه أعلاه</string>
-    <string name="cookie_paste_subtitle">قم بتسجيل الدخول عن طريق لصق جلسة المتصفح</string>
-    <string name="cookie_paste_title">ملفات تعريف الارتباط للجلسة</string>
     <string name="creator_replied">أجاب المبدع</string>
     <string name="download_action_delete_selected">حذف المحدد</string>
     <string name="download_action_pause_all">إيقاف مؤقت الكل</string>
@@ -2158,9 +2115,7 @@
     <string name="translation_caption_note">تستخدم الترجمات التسميات التوضيحية المترجمة المضمنة في YouTube عندما تكون متاحة للغة الهدف.</string>
     <string name="translation_missing_key_hint">الترجمة قيد التشغيل، ولكن %1$s يحتاج إلى مفتاح API: قم بإضافة مفتاح أعلاه أو اختر موفرًا مجانيًا وسيظل المحتوى باللغة الأصلية.</string>
     <string name="translation_mode_dual">اصلية + ترجمة</string>
-    <string name="translation_mode_dual_subtitle">أظهرهما معًا</string>
     <string name="translation_mode_replace">استبدال الأصلي</string>
-    <string name="translation_mode_replace_subtitle">إظهار الترجمة فقط؛ اضغط لعرض الأصل</string>
     <string name="translation_mode_row">عرض الترجمة</string>
     <string name="translation_model_custom">نموذج مخصص</string>
     <string name="translation_model_not_selected">لم يتم التحديد</string>

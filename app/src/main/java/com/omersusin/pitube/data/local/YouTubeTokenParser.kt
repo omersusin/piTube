@@ -25,9 +25,9 @@ data class YouTubeToken(
  * ***VISITOR DATA*** =Cg...
  * ***DATASYNC ID*** =118371353090829304832
  * ***PO TOKEN*** =...
- * ***ACCOUNT NAME*** =Ömer SÜSİN
- * ***ACCOUNT EMAIL*** =...
- * ***ACCOUNT CHANNEL HANDLE*** =@omersusin
+ * ***ACCOUNT NAME*** =Example User
+ * ***ACCOUNT EMAIL*** =user@example.com
+ * ***ACCOUNT CHANNEL HANDLE*** =@example
  * ```
  *
  * Each `***MARKER*** =value` line is optional; the same parser also accepts a

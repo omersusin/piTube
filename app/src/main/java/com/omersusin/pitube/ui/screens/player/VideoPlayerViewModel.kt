@@ -2859,8 +2859,9 @@ class VideoPlayerViewModel @Inject constructor(
                     val scheduled = tracking?.scheduledFlushSeconds?.takeIf { it.isNotEmpty() }
                         ?: listOf(10L, 20L, 30L)
                     val defaultFlush = tracking?.defaultFlushSeconds?.takeIf { it > 0L } ?: 40L
-                    val baseSeconds = if (heartbeatIndex < scheduled.size) {
-                        scheduled[heartbeatIndex] - if (heartbeatIndex == 0) 0L else scheduled[heartbeatIndex - 1]
+                    val baseSeconds: Double = if (heartbeatIndex < scheduled.size) {
+                        (scheduled[heartbeatIndex] -
+                            if (heartbeatIndex == 0) 0L else scheduled[heartbeatIndex - 1]).toDouble()
                     } else {
                         defaultFlush.toDouble() * (0.85 + kotlin.random.Random.nextDouble() * 0.3)
                     }

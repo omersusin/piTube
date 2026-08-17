@@ -146,7 +146,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Лучшие</string>
     <string name="filter_newest">Новые</string>
     <string name="no_comments_yet">Комментариев пока нет</string>
@@ -164,7 +163,6 @@
     
     <string name="nav_library">Библиотека</string>
     <string name="notifications">Уведомления</string>
-    <string name="search">Поиск</string>
     <string name="settings">Настройки</string>
     
     <string name="description">Описание</string>
@@ -188,7 +186,6 @@
     
     <string name="views_template">%1$s просмотров</string>
     <string name="chapters">Главы</string>
-    <string name="artist">Исполнитель</string>
     <string name="playlist">Плейлист</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -451,10 +448,6 @@
     
     
     <string name="nav_search">Поиск</string>
-    
-    
-    <string name="nav_explore">Обзор</string>
-    <string name="nav_more">Еще</string>
     <string name="categories_title">Категории</string>
     <string name="categories_switch_to_grid">Переключить на сетку</string>
     <string name="categories_switch_to_list">Переключить на список</string>
@@ -793,7 +786,6 @@
     
     
     <string name="status_downloaded">Скачано</string>
-    <string name="downloading_template">Скачивается %1$s...</string>
     
     <string name="search_history_title">Поиск и история</string>
     <string name="save_search_history_title">Сохранять историю поиска</string>
@@ -905,7 +897,6 @@
     
     <string name="player_settings">Настройки плеера</string>
     <string name="download_video">Скачать видео</string>
-    <string name="select_quality">Выберите желаемое качество</string>
     <string name="on">Включить</string>
     <string name="off">Выключить</string>
     
@@ -1245,12 +1236,6 @@
     <string name="player_appearance_long_press_speed_title">Скорость воспроизведения при длительном нажатии</string>
     <string name="player_appearance_long_press_speed_disabled">Отключено</string>
     <string name="player_settings_ambient_mode_subtitle">Заполнить черные области вокруг видео мягким свечением его цветов</string>
-    <string name="download_menu_style_title">Стиль меню загрузки</string>
-    <string name="download_menu_style_subtitle">Выберите внешний вид диалогового окна загрузки</string>
-    <string name="download_menu_style_classic">Классический</string>
-    <string name="download_menu_style_classic_desc">Полный список вариантов качества и кодеков</string>
-    <string name="download_menu_style_compact">Компактный</string>
-    <string name="download_menu_style_compact_desc">Редактируемый заголовок и выпадающие списки</string>
     
     
     
@@ -1418,7 +1403,6 @@
     <string name="playlist_metadata_private_template">Плейлист • Ограниченный доступ • %1$d видео</string>
     <string name="error_private_video">Видео с ограниченным доступом</string>
     <string name="playlist_metadata_public_template">Плейлист • Публичный • %1$d видео</string>
-    <string name="download_no_compatible_audio">Нет совместимого аудиопотока – загрузка невозможна</string>
     
     
     
@@ -1560,10 +1544,6 @@
     <string name="play_next_toast">Будет воспроизведено следующим</string>
     
     <string name="no_download_streams">Нет доступных потоков для скачивания</string>
-    <string name="download_audio">Аудио</string>
-    <string name="download_title_label">Заголовок</string>
-    <string name="download_format_label">Формат</string>
-    <string name="download_threads_label">Потоки</string>
     <string name="download_status_cancelled">Отменено</string>
     <string name="playlist_queue">Очередь воспроизведения</string>
     <string name="sync_bullet_item">• %1$s</string>
@@ -1815,19 +1795,13 @@
     <string name="ui_downloading_videos">Скачивается %1$d видео…</string>
     <string name="ui_playlist_saved_to_library">Плейлист добавлен в библиотеку</string>
     <string name="ui_playlist_removed_from_library">Плейлист удален из библиотеки</string>
-    <string name="ui_download_audio">Скачивание аудио: %1$s кбит/с (%2$s)</string>
     <string name="ui_skipped_segment">Пропущено: %1$s</string>
-    <string name="ui_started_download">Началось скачивание: %1$s</string>
-    <string name="ui_download_start_failed">Не удалось начать скачивание: %1$s</string>
     <string name="toast_unsubscribed_from">Вы отписались от %1$s</string>
     <string name="toast_subscribed_to">Вы подписались на %1$s</string>
     <string name="toast_removed_from_watch_later">Удалено из «Смотреть позже»</string>
     <string name="toast_added_to_watch_later">Добавлено в «Смотреть позже»</string>
-    <string name="toast_fetching_download_links">Получение ссылок на скачивание…</string>
-    <string name="toast_download_started">Скачивание началось: %1$s</string>
     <string name="toast_trying_sabr_download">Попытка скачать через SABR…</string>
     <string name="toast_sabr_download_started">Началось скачивание через SABR</string>
-    <string name="toast_sabr_download_started_for_video">Началось скачивание через SABR: %1$s</string>
     <string name="toast_sabr_download_failed">Не удалось скачать через SABR: %1$s</string>
     <string name="download_sabr_failed">Не удалось скачать через SABR</string>
     <string name="download_sabr_failed_try_again">Не удалось скачать через SABR. Повторите попытку.</string>
@@ -1933,8 +1907,6 @@
     <string name="notif_background_restricted_subtitle">Android блокирует проверку новых видео, когда piTube закрыт, поэтому уведомления приходят только при открытии приложения. Нажмите, чтобы снять ограничения на фоновую активность.</string>
     <string name="comment_edited">изменено</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
-    <string name="audio_track_original">Оригинал</string>
-    <string name="audio_track_dubbed">Дубляж</string>
     <string name="empty_saved_shorts">Нет сохраненных Shorts</string>
     <string name="settings_search_no_results">Ничего не найдено по запросу: %1$s</string>
     
@@ -1947,12 +1919,10 @@
     <string name="recognition_error_language_not_supported">Этот язык не поддерживается распознаванием речи.</string>
     <string name="recognition_error_language_unavailable">Языковая модель на устройстве не установлена. Загрузите её в настройках устройства и попробуйте снова.</string>
     <string name="account_menu_title">Аккаунт</string>
-    <string name="account_sheet_local_profile">На этом устройстве</string>
     <string name="account_sheet_profiles_header">Профили</string>
     <string name="account_sheet_sign_in_cta">Войти</string>
     <string name="account_sheet_signed_out_subtitle">Войдите, чтобы синхронизировать свой канал и подписки</string>
     <string name="account_sheet_signed_out_title">Вышел из системы</string>
-    <string name="account_sheet_unknown_user">Неизвестный пользователь</string>
     <string name="account_switcher_active">Активный профиль</string>
     <string name="account_switcher_add_local_subtitle">Отдельные подписки, учетная запись не требуется</string>
     <string name="account_switcher_add_local_title">Добавить профиль на этом устройстве</string>
@@ -1977,16 +1947,12 @@
     <string name="account_switcher_switch_account">Сменить аккаунт</string>
     <string name="account_switcher_switch_account_subtitle">Управление несколькими учетными записями Google</string>
     <string name="account_switcher_title">Профили</string>
-    <string name="audio_only">Только аудио</string>
     <string name="blocked_channels_empty">Нет заблокированных каналов</string>
     <string name="blocked_clear_all">Разблокировать все</string>
     <string name="cancel_reply">Отменить ответ</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Отфильтровывать видео с возрастными ограничениями, частные, только для участников и удаленные видео, если они не воспроизводятся</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Скрыть невоспроизводимые видео из ленты</string>
-    <string name="cookie_paste_cancel">Отменить</string>
     <string name="cookie_paste_clipboard">Вставить из буфера обмена</string>
-    <string name="cookie_paste_field_hint">SID=...; САПИСИД=...</string>
-    <string name="cookie_paste_field_label">Заголовок файла cookie</string>
     <string name="cookie_paste_how">Как мне это получить?</string>
     <string name="cookie_paste_missing">Отсутствует %1$s. Скопируйте все значение файла cookie и убедитесь, что вход в браузер выполнен.</string>
     <string name="cookie_paste_security_body">Эти файлы cookie предоставляют полный доступ к вашей учетной записи Google и обходят двухэтапную проверку. piTube хранит их в зашифрованном виде на этом устройстве и отправляет только на YouTube. Никогда не делитесь ими.</string>
@@ -1998,8 +1964,6 @@
     <string name="cookie_paste_step_4">Щелкните любой запрос в списке</string>
     <string name="cookie_paste_step_5">В разделе «Заголовки запросов» щелкните правой кнопкой мыши «cookie» и скопируйте значение</string>
     <string name="cookie_paste_step_6">Отправьте его на это устройство и вставьте выше</string>
-    <string name="cookie_paste_subtitle">Войдите в систему, вставив сеанс браузера</string>
-    <string name="cookie_paste_title">Сеансовые файлы cookie</string>
     <string name="creator_replied">Создатель ответил</string>
     <string name="download_action_delete_selected">Удалить выбранное</string>
     <string name="download_action_pause_all">Приостановить все</string>
@@ -2163,9 +2127,7 @@
     <string name="translation_caption_note">В субтитрах используются встроенные переведенные субтитры YouTube, если они доступны для целевого языка.</string>
     <string name="translation_missing_key_hint">Перевод включен, но %1$s нужен ключ API: добавьте его выше или выберите бесплатного поставщика, и контент останется на языке оригинала.</string>
     <string name="translation_mode_dual">Оригинал + перевод</string>
-    <string name="translation_mode_dual_subtitle">Показать оба вместе</string>
     <string name="translation_mode_replace">Заменить оригинал</string>
-    <string name="translation_mode_replace_subtitle">Показать только перевод; нажмите, чтобы просмотреть оригинал</string>
     <string name="translation_mode_row">Отображение перевода</string>
     <string name="translation_model_custom">Пользовательская модель</string>
     <string name="translation_model_not_selected">Не выбрано</string>

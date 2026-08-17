@@ -133,7 +133,7 @@ class ParallelDownloader @Inject constructor(
     suspend fun start(mission: FlowDownloadMission, onProgress: (Float) -> Unit): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d(TAG, "start: Beginning download for URL=${mission.url}, threads=${mission.threads}")
+                Log.d(TAG, "start: Beginning download for mission=${mission.id}, threads=${mission.threads}")
                 mission.status = MissionStatus.RUNNING
                 val client = getClient(mission.threads)
 
@@ -544,7 +544,7 @@ class ParallelDownloader @Inject constructor(
             rangeResponse.close()
             if (total > 0) total else if (bodyLen > 1) bodyLen else -1L
         } catch (e: Exception) {
-            Log.e(TAG, "Content length check failed: url=$url, error=${e.message}")
+            Log.e(TAG, "Content length check failed: error=${e.message}")
             -1L
         }
     }

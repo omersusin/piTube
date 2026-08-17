@@ -184,14 +184,11 @@
     <string name="app_icon_picker_subtitle">Elige un estilo de icono para el launcher.El cambio se aplica inmediatamente y el launcher se actualizará brevemente.</string>
     <string name="app_icon_picker_warning">Atención: Al cambiar los iconos, Android puede eliminar temporalmente el acceso directo del launcher de tu pantalla de inicio. Si desaparece, mantén pulsado sobre el launcher y agrégalo de nuevo.</string>
     <string name="app_icon_apply_toast">Icono actualizado - tu launcher se refrescará</string>
-    
-    <string name="artist">Artista</string>
     <string name="comments">Comentarios</string>
     <string name="comment_hint">Add a comment...</string>
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     
     <string name="app_name">piTube</string>
     <string name="download_all">Descargar todo</string>
@@ -267,8 +264,6 @@
     <string name="nav_library">Biblioteca</string>
     <string name="hide_replies">Ocultar respuestas</string>
     <string name="update_available_template">%1$s ya está disponible</string>
-    
-    <string name="search">Buscar</string>
     <string name="notifications">Notificaciones</string>
     <string name="settings">Ajustes</string>
     
@@ -459,7 +454,6 @@
     <string name="video_download_location_label">Ubicación de descarga de vídeo</string>
     <string name="datetime_mode_exact">fecha exacta</string>
     <string name="player_appearance_volume_boost_subtitle">Cuando está apagado, el gesto de deslizar el volumen se detiene en el volumen máximo del sistema. Actívelo para hacer que el audio sea aún más alto.</string>
-    <string name="download_no_compatible_audio">No hay transmisión de audio compatible: la descarga no puede continuar</string>
     <string name="notif_system_settings">Configuración de notificaciones del sistema</string>
     <string name="notif_type_general_subtitle">Avisos y notificaciones varias de la app</string>
     <string name="notif_type_general">Notificaciones generales</string>
@@ -596,13 +590,7 @@
     
     
     <string name="nav_search">Buscar</string>
-    
-    
-    
-    
-    <string name="nav_more">Más</string>
     <string name="categories_title">Categorías</string>
-    <string name="nav_explore">Explorar</string>
     <string name="category_all">Todo</string>
     <string name="categories_switch_to_grid">Cambiar a vista de cuadrícula</string>
     <string name="categories_switch_to_list">Cambiar a vista de lista</string>
@@ -1079,9 +1067,7 @@
     <string name="download_video">Descargar Vídeo</string>
     <string name="shorts_quality_wifi_header">Pantalones cortos Calidad Wi-Fi</string>
     <string name="added_to_queue_toast">Agregado a la cola</string>
-    <string name="select_quality">Selecciona tu calidad preferida</string>
     <string name="no_download_streams">No hay transmisiones de descarga disponibles</string>
-    <string name="downloading_template">Descargando %1$s...</string>
     <string name="section_completed">Terminado</string>
     <string name="download_status_queued">En cola</string>
     <string name="download_status_paused">En pausa</string>
@@ -1438,17 +1424,7 @@
     
     <string name="history_delete_shorts_body">Esto elimina todos los cortos de tu historial de reproducciones. Otros vídeos se conservan.</string>
     <string name="history_delete_shorts">Eliminar cortos del historial</string>
-    <string name="download_audio">Audio</string>
     <string name="history_delete_shorts_title">¿Eliminar cortos?</string>
-    <string name="download_title_label">Título</string>
-    <string name="download_threads_label">Trapos</string>
-    <string name="download_menu_style_title">Descargar estilo de menú</string>
-    <string name="download_format_label">Formato</string>
-    <string name="download_menu_style_classic">Clásico</string>
-    <string name="download_menu_style_classic_desc">Lista completa de todas las calidades y códecs</string>
-    <string name="download_menu_style_subtitle">Elija cómo se ve el cuadro de diálogo de descarga</string>
-    <string name="download_menu_style_compact_desc">Título editable, menús desplegables y número de hilos</string>
-    <string name="download_menu_style_compact">Compacto</string>
     
     <string name="live_chat">Chat en directo</string>
     <string name="live_chat_connecting">Conectando al chat en directo…</string>
@@ -1810,19 +1786,13 @@
     <string name="ui_downloading_videos">Descargando %1$d vídeos</string>
     <string name="ui_playlist_saved_to_library">Lista guardada en la biblioteca</string>
     <string name="ui_playlist_removed_from_library">Lista borrada de la biblioteca</string>
-    <string name="ui_download_audio">Descargando audio: %1$skbps %2$s</string>
     <string name="ui_skipped_segment">Omitido %1$s</string>
-    <string name="ui_started_download">Descarga iniciada: %1$s</string>
-    <string name="ui_download_start_failed">Error al iniciar la descarga: %1$s</string>
     <string name="toast_unsubscribed_from">Dado de baja de %1$s</string>
     <string name="toast_subscribed_to">Suscrito a %1$s</string>
     <string name="toast_removed_from_watch_later">Borrado de \"Ver mas tarde\"</string>
     <string name="toast_added_to_watch_later">Agregado a \"Ver mas tarde\"</string>
-    <string name="toast_fetching_download_links">Obteniendo enlaces de descarga</string>
-    <string name="toast_download_started">Descarga iniciada: %1$s</string>
     <string name="toast_trying_sabr_download">Intentando descarga SABR</string>
     <string name="toast_sabr_download_started">Descarga SABR iniciada</string>
-    <string name="toast_sabr_download_started_for_video">Descarga SABR iniciada: %1$s</string>
     <string name="toast_no_download_source">No hay fuente de descarga disponible</string>
     <string name="toast_sabr_download_failed">Error en la descarga SABR: %1$s</string>
     <string name="toast_copied_to_clipboard">Copiado al portapapeles</string>
@@ -1925,12 +1895,10 @@
     <string name="recognition_error_language_not_supported">El reconocedor de voz no admite este idioma.</string>
     <string name="recognition_error_language_unavailable">El modelo de idioma del dispositivo no está instalado. Descárgalo en la configuración del dispositivo e inténtalo de nuevo.</string>
     <string name="account_menu_title">Cuenta</string>
-    <string name="account_sheet_local_profile">En este dispositivo</string>
     <string name="account_sheet_profiles_header">Perfiles</string>
     <string name="account_sheet_sign_in_cta">Iniciar sesión</string>
     <string name="account_sheet_signed_out_subtitle">Inicia sesión para sincronizar tu feed y tus suscripciones</string>
     <string name="account_sheet_signed_out_title">Cerrado sesión</string>
-    <string name="account_sheet_unknown_user">Usuario desconocido</string>
     <string name="account_switcher_active">Perfil activo</string>
     <string name="account_switcher_add_local_subtitle">Suscripciones separadas, no se necesita cuenta</string>
     <string name="account_switcher_add_local_title">Agregar perfil en este dispositivo</string>
@@ -1955,9 +1923,6 @@
     <string name="account_switcher_switch_account">Cambiar de cuenta</string>
     <string name="account_switcher_switch_account_subtitle">Administrar varias cuentas de Google</string>
     <string name="account_switcher_title">Perfiles</string>
-    <string name="audio_only">Sólo audio</string>
-    <string name="audio_track_dubbed">Apodado</string>
-    <string name="audio_track_original">Originales</string>
     <string name="blocked_channels_empty">No hay canales bloqueados</string>
     <string name="blocked_clear_all">Desbloquear todo</string>
     <string name="cancel_reply">Cancelar respuesta</string>
@@ -1965,10 +1930,7 @@
     <string name="comment_time_edited_template">%1$s ( %2$s )</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Filtre videos con restricción de edad, privados, solo para miembros y eliminados después de que no se reproduzcan</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Ocultar vídeos que no se pueden reproducir del feed</string>
-    <string name="cookie_paste_cancel">Cancelar</string>
     <string name="cookie_paste_clipboard">Pegar desde el portapapeles</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Encabezado de cookies</string>
     <string name="cookie_paste_how">¿Cómo consigo esto?</string>
     <string name="cookie_paste_missing">Falta %1$s. Copie el valor completo de la cookie y asegúrese de que el navegador haya iniciado sesión.</string>
     <string name="cookie_paste_security_body">Estas cookies otorgan acceso completo a su cuenta de Google y omiten la verificación en dos pasos. piTube los almacena cifrados en este dispositivo y sólo los envía a YouTube. Nunca los compartas.</string>
@@ -1980,8 +1942,6 @@
     <string name="cookie_paste_step_4">Haga clic en cualquier solicitud de la lista</string>
     <string name="cookie_paste_step_5">En Encabezados de solicitud, haga clic derecho en "cookie" y Copiar valor</string>
     <string name="cookie_paste_step_6">Envíalo a este dispositivo y pégalo arriba</string>
-    <string name="cookie_paste_subtitle">Inicie sesión pegando una sesión del navegador</string>
-    <string name="cookie_paste_title">Cookies de sesión</string>
     <string name="creator_replied">El creador respondió</string>
     <string name="donations_cryptocurrency">CRIPTOMONEDA</string>
     <string name="download_action_delete_selected">Eliminar seleccionado</string>
@@ -2157,9 +2117,7 @@
     <string name="translation_caption_note">Los subtítulos utilizan los subtítulos traducidos integrados de YouTube cuando están disponibles para el idioma de destino.</string>
     <string name="translation_missing_key_hint">La traducción está activada, pero %1$s necesita una clave API: agregue una arriba o elija un proveedor gratuito y el contenido permanecerá en el idioma original.</string>
     <string name="translation_mode_dual">Original + traducción</string>
-    <string name="translation_mode_dual_subtitle">Mostrar ambos juntos</string>
     <string name="translation_mode_replace">Reemplazar original</string>
-    <string name="translation_mode_replace_subtitle">Mostrar sólo la traducción; toque para ver el original</string>
     <string name="translation_mode_row">Visualización de traducción</string>
     <string name="translation_model_custom">Modelo personalizado</string>
     <string name="translation_model_not_selected">No seleccionado</string>

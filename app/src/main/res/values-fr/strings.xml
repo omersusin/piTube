@@ -143,7 +143,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Meilleurs</string>
     <string name="filter_newest">Les plus récents</string>
     <string name="no_comments_yet">Aucun commentaire pour l\'instant</string>
@@ -163,7 +162,6 @@
     
     <string name="nav_library">Bibliothèque</string>
     <string name="notifications">Notifications</string>
-    <string name="search">Rechercher</string>
     <string name="settings">Paramètres</string>
     
     <string name="description">Description</string>
@@ -183,7 +181,6 @@
     
     <string name="views_template">%1$s vues</string>
     <string name="chapters">Chapitres</string>
-    <string name="artist">Artiste</string>
     <string name="playlist">Playlist</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -794,9 +791,7 @@
     <string name="resize_zoom">Zoomer</string>
     <!-- Dialogues du Lecteur -->
     <string name="download_video">Télécharger la vidéo</string>
-    <string name="select_quality">Sélectionnez votre qualité préférée</string>
     <string name="no_download_streams">Aucun flux de téléchargement disponible</string>
-    <string name="downloading_template">Téléchargement de %1$s...</string>
     <string name="audio_track">Piste Audio</string>
     <string name="off">Désactivé</string>
     <string name="on">Activé</string>
@@ -956,9 +951,6 @@
     <string name="content_settings_title_lines_2">2 lignes</string>
     <string name="content_settings_title_lines_3">3 lignes</string>
     <string name="content_settings_title_lines_unlimited">Sans limite</string>
-    
-    
-    <string name="nav_explore">Découvrir</string>
     <string name="player_mini_player_continue_watching_label">Continuer à regarder</string>
     <string name="proxy_settings_title">Paramètres du proxy</string>
     <string name="proxy_settings_description">Configurez un proxy HTTP ou SOCKS5 (facultatif) pour les requêtes à distance. La diffusion locale et la détection sur le réseau local restent directes.</string>
@@ -986,7 +978,6 @@
     <string name="sb_color_reset">Réinitialiser les paramètres par défaut</string>
     <string name="content_settings_header_home_layout">Configuration de l\'accueil</string>
     <string name="content_settings_header_home_feed">Fil d\'actualité</string>
-    <string name="nav_more">Plus</string>
     <string name="categories_title">Catégories</string>
     <string name="categories_switch_to_grid">Passer à l\'affichage en grille</string>
     <string name="categories_switch_to_list">Passer à l\'affichage en liste</string>
@@ -1481,17 +1472,6 @@
     <string name="history_delete_shorts">Supprimer les Shorts de l\'historique</string>
     <string name="history_delete_shorts_title">Supprimer les Shorts ?</string>
     <string name="history_delete_shorts_body">Cela supprime toutes les vidéos « Shorts » de votre historique de visionnage. Les autres vidéos sont conservées.</string>
-    <string name="download_audio">Audio</string>
-    <string name="download_title_label">Titre</string>
-    <string name="download_format_label">Format</string>
-    <string name="download_threads_label">Fils</string>
-    <string name="download_no_compatible_audio">Flux audio incompatible — le téléchargement ne peut pas se poursuivre</string>
-    <string name="download_menu_style_subtitle">Choisissez l\'apparence de la boîte de dialogue de téléchargement</string>
-    <string name="download_menu_style_classic">Classique</string>
-    <string name="download_menu_style_classic_desc">Liste complète de toutes les qualités et de tous les codecs</string>
-    <string name="download_menu_style_compact">Compact</string>
-    <string name="download_menu_style_compact_desc">Titre modifiable, menus déroulants et nombre de messages</string>
-    <string name="download_menu_style_title">Télécharger le style de menu</string>
     <string name="player_appearance_long_press_speed_title">Appui long sur la vitesse de lecture</string>
     
     <string name="player_appearance_long_press_speed_disabled">Désactivé</string>
@@ -1855,19 +1835,13 @@
     <string name="ui_downloading_videos">Téléchargement de %1$d vidéos…</string>
     <string name="ui_playlist_saved_to_library">Playlist enregistrée dans la bibliothèque</string>
     <string name="ui_playlist_removed_from_library">Playlist supprimée de la bibliothèque</string>
-    <string name="ui_download_audio">Téléchargement du fichier audio : %1$skbps %2$s</string>
     <string name="ui_skipped_segment">%1$s ignorés</string>
-    <string name="ui_started_download">Téléchargement lancé : %1$s</string>
-    <string name="ui_download_start_failed">Échec du lancement du téléchargement : %1$s</string>
     <string name="toast_unsubscribed_from">Désabonnement de %1$s</string>
     <string name="toast_subscribed_to">Abonné à %1$s</string>
     <string name="toast_removed_from_watch_later">Supprimé de la liste « À regarder plus tard »</string>
     <string name="toast_added_to_watch_later">Ajouté à « À regarder plus tard »</string>
-    <string name="toast_fetching_download_links">Récupération des liens de téléchargement…</string>
-    <string name="toast_download_started">Téléchargement lancé : %1$s</string>
     <string name="toast_trying_sabr_download">Tentative de téléchargement de SABR…</string>
     <string name="toast_sabr_download_started">Le téléchargement de SABR a commencé</string>
-    <string name="toast_sabr_download_started_for_video">Téléchargement SABR lancé : %1$s</string>
     <string name="toast_no_download_source">Aucune source de téléchargement disponible</string>
     <string name="toast_sabr_download_failed">Échec du téléchargement SABR : %1$s</string>
     <string name="toast_copied_to_clipboard">Copié dans le presse-papiers</string>
@@ -1969,8 +1943,6 @@
     <string name="notif_background_restricted_title">Les vérifications d\'antécédents sont soumises à des restrictions</string>
     <string name="comment_edited">modifié</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
-    <string name="audio_track_original">Original</string>
-    <string name="audio_track_dubbed">Surnommé</string>
     <string name="duration_hours_minutes">%1$d h %2$d min</string>
     <string name="duration_minutes">%1$d min</string>
     <string name="duration_hours_short">%1$dh</string>
@@ -1983,12 +1955,10 @@
     <string name="recognition_error_language_not_supported">Cette langue n\'est pas prise en charge par la reconnaissance vocale.</string>
     <string name="recognition_error_language_unavailable">Le modèle de langue de l\'appareil n\'est pas installé. Téléchargez-le dans les paramètres de l\'appareil, puis réessayez.</string>
     <string name="account_menu_title">Compte</string>
-    <string name="account_sheet_local_profile">Sur cet appareil</string>
     <string name="account_sheet_profiles_header">Profils</string>
     <string name="account_sheet_sign_in_cta">Connectez-vous</string>
     <string name="account_sheet_signed_out_subtitle">Connectez-vous pour synchroniser votre flux et vos abonnements</string>
     <string name="account_sheet_signed_out_title">Déconnecté</string>
-    <string name="account_sheet_unknown_user">Utilisateur inconnu</string>
     <string name="account_switcher_active">Profil actif</string>
     <string name="account_switcher_add_local_subtitle">Abonnements séparés, aucun compte requis</string>
     <string name="account_switcher_add_local_title">Ajouter un profil sur cet appareil</string>
@@ -2013,16 +1983,12 @@
     <string name="account_switcher_switch_account">Changer de compte</string>
     <string name="account_switcher_switch_account_subtitle">Gérer plusieurs comptes Google</string>
     <string name="account_switcher_title">Profils</string>
-    <string name="audio_only">Audio uniquement</string>
     <string name="blocked_channels_empty">Aucune chaîne bloquée</string>
     <string name="blocked_clear_all">Débloquer tout</string>
     <string name="cancel_reply">Annuler la réponse</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Filtrez les vidéos soumises à une limite d\'âge, privées, réservées aux membres et supprimées en cas d\'échec de lecture</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Masquer les vidéos illisibles du flux</string>
-    <string name="cookie_paste_cancel">Annuler</string>
     <string name="cookie_paste_clipboard">Coller depuis le presse-papiers</string>
-    <string name="cookie_paste_field_hint">SID=... ; SAPISID=...</string>
-    <string name="cookie_paste_field_label">En-tête du cookie</string>
     <string name="cookie_paste_how">Comment puis-je obtenir cela ?</string>
     <string name="cookie_paste_missing">%1$s manquant. Copiez l\'intégralité de la valeur du cookie et assurez-vous que le navigateur est connecté.</string>
     <string name="cookie_paste_security_body">Ces cookies accordent un accès complet à votre compte Google et contournent la vérification en deux étapes. piTube les stocke cryptés sur cet appareil et les envoie uniquement à YouTube. Ne les partagez jamais.</string>
@@ -2034,8 +2000,6 @@
     <string name="cookie_paste_step_4">Cliquez sur n\'importe quelle demande dans la liste</string>
     <string name="cookie_paste_step_5">Sous En-têtes de demande, cliquez avec le bouton droit sur « cookie » et copiez la valeur</string>
     <string name="cookie_paste_step_6">Envoyez-le à cet appareil et collez-le ci-dessus</string>
-    <string name="cookie_paste_subtitle">Connectez-vous en collant une session de navigateur</string>
-    <string name="cookie_paste_title">Cookies de session</string>
     <string name="creator_replied">Le Créateur a répondu</string>
     <string name="download_action_delete_selected">Supprimer la sélection</string>
     <string name="download_action_pause_all">Tout mettre en pause</string>
@@ -2199,9 +2163,7 @@
     <string name="translation_caption_note">Les sous-titres utilisent les sous-titres traduits intégrés de YouTube lorsqu\'ils sont disponibles pour la langue cible.</string>
     <string name="translation_missing_key_hint">La traduction est activée, mais %1$s a besoin d\'une clé API : ajoutez-en une ci-dessus ou choisissez un fournisseur gratuit et le contenu reste dans la langue d\'origine.</string>
     <string name="translation_mode_dual">Original + traduction</string>
-    <string name="translation_mode_dual_subtitle">Montrer les deux ensemble</string>
     <string name="translation_mode_replace">Remplacer l\'original</string>
-    <string name="translation_mode_replace_subtitle">Afficher uniquement la traduction ; appuyez pour voir l\'original</string>
     <string name="translation_mode_row">Affichage de la traduction</string>
     <string name="translation_model_custom">Modèle personnalisé</string>
     <string name="translation_model_not_selected">Non sélectionné</string>

@@ -210,7 +210,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Ən populyar</string>
     <string name="filter_newest">Ən yeni</string>
     <string name="filter_oldest">Ən köhnə</string>
@@ -235,7 +234,6 @@
     
     <string name="nav_library">Kitabxana</string>
     <string name="notifications">Bildirişlər</string>
-    <string name="search">Axtar</string>
     <string name="settings">Parametrlər</string>
     
     <string name="description">Açıqlama</string>
@@ -270,7 +268,6 @@
     
     <string name="views_template">%1$s baxış</string>
     <string name="chapters">Fəsillər</string>
-    <string name="artist">İfaçı</string>
     <string name="playlist">Pleylist</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
     <string name="app_name_uppercase">PITUBE</string>
@@ -716,10 +713,6 @@
     
     
     <string name="nav_search">Axtar</string>
-    
-    
-    <string name="nav_explore">Kəşf</string>
-    <string name="nav_more">Daha çox</string>
     <string name="categories_title">Kateqoriyalar</string>
     <string name="categories_switch_to_grid">Tor görünüşünə keç</string>
     <string name="categories_switch_to_list">Siyahı görünüşünə keç</string>
@@ -1401,20 +1394,7 @@
     <string name="play_next_toast">Növbəti oxudulacaq</string>
     
     <string name="download_video">Videonu endir</string>
-    <string name="select_quality">Üstünlük verdiyiniz keyfiyyəti seçin</string>
     <string name="no_download_streams">Əlçatan endirmə axını yoxdur</string>
-    <string name="download_audio">Audio</string>
-    <string name="download_title_label">Başlıq</string>
-    <string name="download_format_label">Format</string>
-    <string name="download_threads_label">İş axınları</string>
-    <string name="download_no_compatible_audio">Uyğun audio axını yoxdur — endirmə davam edə bilməz</string>
-    <string name="download_menu_style_title">Endirmə menyusunun üslubu</string>
-    <string name="download_menu_style_subtitle">Endirmə dialoqunun necə görünəcəyini seçin</string>
-    <string name="download_menu_style_classic">Klassik</string>
-    <string name="download_menu_style_classic_desc">Bütün keyfiyyət və kodeklərin tam siyahısı</string>
-    <string name="download_menu_style_compact">Yığcam</string>
-    <string name="download_menu_style_compact_desc">Redaktə olunan başlıq, açılan siyahılar və axın sayı</string>
-    <string name="downloading_template">%1$s endirilir...</string>
     
     <string name="section_incomplete_downloads">Tamamlanmamış endirmələr</string>
     <string name="section_completed">Tamamlanıb</string>
@@ -1807,19 +1787,13 @@
     <string name="ui_downloading_videos">%1$d video endirilir…</string>
     <string name="ui_playlist_saved_to_library">Pleylist kitabxanada yadda saxlanıldı</string>
     <string name="ui_playlist_removed_from_library">Pleylist kitabxanadan silindi</string>
-    <string name="ui_download_audio">Audio endirilir: %1$skbps %2$s</string>
     <string name="ui_skipped_segment">%1$s seqmenti keçildi</string>
-    <string name="ui_started_download">Endirmə başladıldı: %1$s</string>
-    <string name="ui_download_start_failed">Endirməni başlatmaq mümkün olmadı: %1$s</string>
     <string name="toast_unsubscribed_from">%1$s kanalından abunəlik ləğv edildi</string>
     <string name="toast_subscribed_to">%1$s kanalına abunə olundu</string>
     <string name="toast_removed_from_watch_later">“Sonra bax”dan silindi</string>
     <string name="toast_added_to_watch_later">“Sonra bax”a əlavə edildi</string>
-    <string name="toast_fetching_download_links">Endirmə keçidləri alınır…</string>
-    <string name="toast_download_started">Endirmə başladıldı: %1$s</string>
     <string name="toast_trying_sabr_download">SABR endirməsi sınanır…</string>
     <string name="toast_sabr_download_started">SABR endirməsi başladı</string>
-    <string name="toast_sabr_download_started_for_video">SABR endirməsi başladı: %1$s</string>
     <string name="toast_no_download_source">Əlçatan endirmə mənbəyi yoxdur</string>
     <string name="toast_sabr_download_failed">SABR endirməsi uğursuz oldu: %1$s</string>
     <string name="toast_copied_to_clipboard">Mübadilə buferinə kopyalandı</string>
@@ -1919,12 +1893,10 @@
     <string name="recognition_error_language_not_supported">Bu dil nitq tanıyıcısı tərəfindən dəstəklənmir.</string>
     <string name="recognition_error_language_unavailable">Cihazdakı dil modeli quraşdırılmayıb. Onu cihaz parametrlərində endirin, sonra yenidən cəhd edin.</string>
     <string name="account_menu_title">Hesab</string>
-    <string name="account_sheet_local_profile">Bu cihazda</string>
     <string name="account_sheet_profiles_header">Profillər</string>
     <string name="account_sheet_sign_in_cta">Daxil ol</string>
     <string name="account_sheet_signed_out_subtitle">Lentinizi və abunəliklərinizi sinxronlaşdırmaq üçün daxil olun</string>
     <string name="account_sheet_signed_out_title">Çıxış</string>
-    <string name="account_sheet_unknown_user">Naməlum istifadəçi</string>
     <string name="account_switcher_active">Aktiv profil</string>
     <string name="account_switcher_add_local_subtitle">Ayrı-ayrı abunəliklər, hesaba ehtiyac yoxdur</string>
     <string name="account_switcher_add_local_title">Bu cihazda profil əlavə edin</string>
@@ -1950,9 +1922,6 @@
     <string name="account_switcher_switch_account_subtitle">Çoxlu Google hesablarını idarə edin</string>
     <string name="account_switcher_title">Profillər</string>
     <string name="action_save_preset">Əvvəlcədən ayarı saxla</string>
-    <string name="audio_only">Yalnız audio</string>
-    <string name="audio_track_dubbed">Dublyaj</string>
-    <string name="audio_track_original">Orijinal</string>
     <string name="blocked_channels_empty">Bloklanmış kanal yoxdur</string>
     <string name="blocked_clear_all">Hamısını blokdan çıxarın</string>
     <string name="cancel_reply">Cavabı ləğv edin</string>
@@ -1960,10 +1929,7 @@
     <string name="comment_time_edited_template">%1$s ( %2$s )</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Yaş məhdudiyyəti qoyulmuş, şəxsi, yalnız üzvlər üçün nəzərdə tutulmuş və silinmiş videoları oynatmadan sonra filtrləyin</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Lentdən Oynatılamayan Videoları Gizlət</string>
-    <string name="cookie_paste_cancel">Ləğv et</string>
     <string name="cookie_paste_clipboard">Buferdən yapışdırın</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Kuki başlığı</string>
     <string name="cookie_paste_how">Bunu necə əldə edə bilərəm?</string>
     <string name="cookie_paste_missing">%1$s yoxdur. Bütün kuki dəyərini kopyalayın və brauzerin daxil olduğundan əmin olun.</string>
     <string name="cookie_paste_security_body">Bu kukilər Google hesabınıza tam giriş imkanı verir və 2-addımlı doğrulamadan yan keçir. piTube onları bu cihazda şifrələnmiş şəkildə saxlayır və yalnız YouTube-a göndərir. Onları heç vaxt paylaşmayın.</string>
@@ -1975,8 +1941,6 @@
     <string name="cookie_paste_step_4">yenidən yükləyin Siyahıda istənilən sorğuya klikləyin</string>
     <string name="cookie_paste_step_5">Sorğu Başlıqları altında, "kuki" üzərinə sağ klikləyin və Dəyəri kopyalayın</string>
     <string name="cookie_paste_step_6">Onu bu cihaza göndərin və yuxarıya</string>
-    <string name="cookie_paste_subtitle">yapışdırın Brauzer sessiyasını yerləşdirməklə daxil olun</string>
-    <string name="cookie_paste_title">Sessiya kukiləri</string>
     <string name="creator_replied">Yaradan cavab verdi</string>
     <string name="donations_cryptocurrency">KRİPTOVALYA</string>
     <string name="download_action_delete_selected">Seçilmiş</string>
@@ -2154,9 +2118,7 @@
     <string name="translation_caption_note">Subtitrlər hədəf dil üçün əlçatan olduqda YouTube\'un daxili tərcümə edilmiş başlıqlarından istifadə edir.</string>
     <string name="translation_missing_key_hint">Tərcümə aktivdir, lakin %1$s üçün API açarı lazımdır: yuxarıda birini əlavə edin və ya pulsuz provayder seçin və məzmun orijinal dildə qalacaq.</string>
     <string name="translation_mode_dual">Orijinal + tərcümə</string>
-    <string name="translation_mode_dual_subtitle">Hər ikisini birlikdə göstər</string>
     <string name="translation_mode_replace">Orijinal</string>
-    <string name="translation_mode_replace_subtitle">dəyişdirin Yalnız tərcüməni göstərin; orijinala baxmaq üçün toxunun</string>
     <string name="translation_mode_row">Tərcümə ekranı</string>
     <string name="translation_model_custom">Fərdi model</string>
     <string name="translation_model_not_selected">Seçilməyib</string>

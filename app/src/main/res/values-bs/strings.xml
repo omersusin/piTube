@@ -144,7 +144,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Najbolji</string>
     <string name="filter_newest">Najnoviji</string>
     <string name="no_comments_yet">Još uvijek nema komentara</string>
@@ -164,7 +163,6 @@
     
     <string name="nav_library">Biblioteka</string>
     <string name="notifications">Obavijesti</string>
-    <string name="search">Pretraži</string>
     <string name="settings">Postavke</string>
     
     <string name="description">Opis</string>
@@ -188,7 +186,6 @@
     
     <string name="views_template">%1$s pregleda</string>
     <string name="chapters">Poglavlja</string>
-    <string name="artist">Izvođač</string>
     <string name="playlist">Lista za reprodukciju</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -581,12 +578,10 @@
     <string name="about_title">O</string>
     <string name="about_website">Web stranici</string>
     <string name="account_menu_title">Račun</string>
-    <string name="account_sheet_local_profile">Na ovom uređaju</string>
     <string name="account_sheet_profiles_header">Profili</string>
     <string name="account_sheet_sign_in_cta">Prijavite se</string>
     <string name="account_sheet_signed_out_subtitle">Prijavite se da biste sinhronizirali svoj feed i pretplate</string>
     <string name="account_sheet_signed_out_title">Odjavljen</string>
-    <string name="account_sheet_unknown_user">Nepoznati korisnik</string>
     <string name="account_switcher_active">Aktivan profil</string>
     <string name="account_switcher_add_local_subtitle">Odvojene pretplate, nije potreban nalog</string>
     <string name="account_switcher_add_local_title">Dodajte profil na ovom uređaju</string>
@@ -665,12 +660,9 @@
     <string name="appearance_variant_light">Svetla</string>
     <string name="appearance_variant_title">Stil teme</string>
     <string name="arch_label">Arch: %1$s</string>
-    <string name="audio_only">Samo audio</string>
     <string name="audio_settings_title">Audio postavke</string>
     <string name="audio_track">Audio traka</string>
-    <string name="audio_track_dubbed">Sinhronizovana</string>
     <string name="audio_track_number_template">%1$s %2$d</string>
-    <string name="audio_track_original">Original</string>
     <string name="auto_delete_history_title">Automatsko brisanje istorije</string>
     <string name="autoplay_countdown_cancel">Otkaži</string>
     <string name="autoplay_countdown_next_video">Sljedeći video</string>
@@ -800,10 +792,7 @@
     <string name="content_settings_watched_threshold_dialog_body">Odaberite koliko videozapisa mora biti pušteno prije nego što se računa kao gledano i sakri se.</string>
     <string name="content_settings_watched_threshold_title">Označi kao gledano kada</string>
     <string name="continue_watching_title">Nastavi sa gledanjem</string>
-    <string name="cookie_paste_cancel">Poništi</string>
     <string name="cookie_paste_clipboard">Nalijepi iz međuspremnika</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Zaglavlje kolačića</string>
     <string name="cookie_paste_how">Kako da dobijem ovo?</string>
     <string name="cookie_paste_missing">Nedostaje %1$s . Kopirajte cijelu vrijednost kolačića i uvjerite se da je pretraživač prijavljen.</string>
     <string name="cookie_paste_security_body">Ovi kolačići daju puni pristup vašem Google računu i zaobilaze verifikaciju u 2 koraka. piTube ih pohranjuje šifrirane na ovom uređaju i šalje ih samo na YouTube. Nikada ih ne dijelite.</string>
@@ -815,8 +804,6 @@
     <string name="cookie_paste_step_4">Kliknite na bilo koji zahtjev na listi, i kliknite na bilo koji zahtjev na listi, a zatim udesno</string>
     <string name="cookie_paste_step_5">"Request Headers" Kopiraj vrijednost</string>
     <string name="cookie_paste_step_6">Pošaljite ga na ovaj uređaj i zalijepite ga iznad</string>
-    <string name="cookie_paste_subtitle">Prijavite se lijepljenjem sesije pretraživača</string>
-    <string name="cookie_paste_title">Kolačići sesije</string>
     <string name="copy_channel_link">Kopiraj link kanala</string>
     <string name="copy_video_link">Kopiraj video link</string>
     <string name="creator_replied">Kreator je odgovorio</string>
@@ -893,7 +880,6 @@
     <string name="download_action_retry_selected">Ponovo Pokušaj odabrano</string>
     <string name="download_action_select">Select %1$s</string>
     <string name="download_all_confirmation">Download all %1$d videos? This may use significant storage.</string>
-    <string name="download_audio">Audio</string>
     <string name="download_audio_builtin">Ugrađeni (muksirani)</string>
     <string name="download_audio_builtin_hint">Audio je već kombinovan sa ovim video kvalitetom.</string>
     <string name="download_audio_only">Preuzmi samo audio</string>
@@ -902,17 +888,9 @@
     <string name="download_failed_audio_length">Nije uspio dobiti dužinu audio sadržaja</string>
     <string name="download_failed_try_again">Preuzimanje nije uspjelo. Molimo pokušajte ponovo.</string>
     <string name="download_failed_video_length">Nije moguće dobiti dužinu video sadržaja</string>
-    <string name="download_format_label">Format</string>
-    <string name="download_menu_style_classic">Classic</string>
-    <string name="download_menu_style_classic_desc">Potpuna lista svih kvaliteta i kodeka</string>
-    <string name="download_menu_style_compact">Compact</string>
-    <string name="download_menu_style_compact_desc">Uređivanje naslova, padajućih menija i broja niti</string>
-    <string name="download_menu_style_subtitle">Odaberite kako izgleda dijalog za preuzimanje</string>
-    <string name="download_menu_style_title">Stil menija za preuzimanje</string>
     <string name="download_merging_audio_video">Spajanje audio i video zapisa…</string>
     <string name="download_muxing_failed_retry">Muxing nije uspio — pokušajte ponovo preuzeti.</string>
     <string name="download_muxing_incompatible">Muxing nije uspio – audio format nije kompatibilan sa video kontejnerom. Pokušajte ponovo preuzeti</string>
-    <string name="download_no_compatible_audio">Nema kompatibilnog audio prijenosa — preuzimanje se ne može nastaviti</string>
     <string name="download_over_wifi_only">Preuzimanje samo preko Wi-Fi-ja</string>
     <string name="download_sabr_failed">SABR preuzimanje nije uspjelo</string>
     <string name="download_sabr_failed_try_again">SABR preuzimanje nije uspjelo. Molimo pokušajte ponovo.</string>
@@ -927,13 +905,10 @@
     <string name="download_status_queued">U redu</string>
     <string name="download_stream_muxed">Muksirano</string>
     <string name="download_stream_video_only">Samo video</string>
-    <string name="download_threads_label">Niti</string>
-    <string name="download_title_label">Naslov</string>
     <string name="download_url_expired">URL je istekao (403). Potreban je ponovni dohvat.</string>
     <string name="download_video">Preuzmi video</string>
     <string name="download_waiting_for_wifi">Čeka se WiFi</string>
     <string name="download_workers_failed">Jedan ili više radnika nije uspjelo</string>
-    <string name="downloading_template">Preuzimanje %1$s ...</string>
     <string name="downloads_selected_count">%1$d odabran</string>
     <string name="duration_hours_minutes">%1$d hr %2$d min</string>
     <string name="duration_hours_short">%1$d h</string>
@@ -1101,8 +1076,6 @@
     <string name="merge_playlist_success">Dodao %1$d pjesme u “ %2$s ”</string>
     <string name="model_label">Model: %1$s</string>
     <string name="my_playlist_placeholder">Moja lista za reprodukciju</string>
-    <string name="nav_explore">Istražite</string>
-    <string name="nav_more">Više</string>
     <string name="nav_search">Pretraga</string>
     <string name="nav_you">Vi</string>
     <string name="never_delete_automatically">Nikada nemojte brisati automatski</string>
@@ -1461,7 +1434,6 @@
     <string name="section_legal">Pravni</string>
     <string name="section_options">Opcije</string>
     <string name="select_all">Odaberi sve</string>
-    <string name="select_quality">Odaberite željeni kvalitet</string>
     <string name="select_threads_count_desc">Odaberite broj niti (1-8):</string>
     <string name="select_videos">Odaberite</string>
     <string name="selected_count_template">%1$d odabran</string>
@@ -1712,14 +1684,11 @@
     <string name="title_copied">Naslov je kopiran u međuspremnik</string>
     <string name="toast_added_to_watch_later">Dodan u Gledaj kasnije</string>
     <string name="toast_copied_to_clipboard">Kopirano u međuspremnik</string>
-    <string name="toast_download_started">Preuzimanje je počelo: %1$s</string>
     <string name="toast_failed_to_merge_playlist">Nije uspjelo spajanje liste za reprodukciju</string>
-    <string name="toast_fetching_download_links">Preuzimanje linkova za preuzimanje…</string>
     <string name="toast_no_download_source">Izvor za preuzimanje nije dostupan</string>
     <string name="toast_removed_from_watch_later">Uklonjeno sa Gledaj kasnije</string>
     <string name="toast_sabr_download_failed">SABR preuzimanje nije uspjelo: %1$s</string>
     <string name="toast_sabr_download_started">SABR preuzimanje je počelo</string>
-    <string name="toast_sabr_download_started_for_video">SABR preuzimanje je počelo: %1$s</string>
     <string name="toast_subscribed_to">Pretplaćeno na %1$s</string>
     <string name="toast_trying_sabr_download">Pokušavam SABR preuzimanje…</string>
     <string name="toast_unsubscribed_from">Otjavljena na %1$s</string>
@@ -1736,9 +1705,7 @@
     <string name="translation_caption_note">Titlovi koriste YouTubeove ugrađene prevedene titlove kada su dostupni za ciljni jezik.</string>
     <string name="translation_missing_key_hint">Prevod je uključen, ali %1$s treba API ključ: dodajte ga iznad ili odaberite besplatnog provajdera i sadržaj ostaje na originalnom jeziku.</string>
     <string name="translation_mode_dual">Original + prijevod</string>
-    <string name="translation_mode_dual_subtitle">Prikaži oba zajedno</string>
     <string name="translation_mode_replace">Zamijeni original</string>
-    <string name="translation_mode_replace_subtitle">Prikaži samo prijevod; tapnite da vidite original</string>
     <string name="translation_mode_row">Prikaz prevoda</string>
     <string name="translation_model_custom">Custom model</string>
     <string name="translation_model_not_selected">Nije odabran</string>
@@ -1773,8 +1740,6 @@
     <string name="ui_copy_log">Kopiraj dnevnik</string>
     <string name="ui_copy_log_description">Kopirajte dnevnik ispod i zalijepite ga u GitHub problem kako bi se mogao popraviti.</string>
     <string name="ui_crashed_last_session">piTube se srušio na posljednjoj sesiji</string>
-    <string name="ui_download_audio">Preuzimanje audiozapisa: %1$s kbps %2$s</string>
-    <string name="ui_download_start_failed">Preuzimanje nije uspelo: %1$s</string>
     <string name="ui_downloading">Preuzimanje</string>
     <string name="ui_downloading_playlist">Preuzimanje plejliste</string>
     <string name="ui_downloading_videos">Preuzimanje %1$d video zapisa…</string>
@@ -1796,7 +1761,6 @@
     <string name="ui_skip_back_10_seconds">Preskoči nazad 10s</string>
     <string name="ui_skip_forward_10_seconds">Preskoči naprijed 10s</string>
     <string name="ui_skipped_segment">Preskoči %1$s</string>
-    <string name="ui_started_download">Započeto preuzimanje: %1$s</string>
     <string name="ui_try_sabr_download">Isprobaj SABR Preuzmi</string>
     <string name="upcoming_label">Predstojeći</string>
     <string name="upcoming_video_reminder_action">Podsjeti me</string>

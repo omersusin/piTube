@@ -129,7 +129,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Principal</string>
     <string name="filter_newest">Mais recente</string>
     <string name="no_comments_yet">Ainda não há comentários</string>
@@ -147,7 +146,6 @@
     
     <string name="nav_library">Biblioteca</string>
     <string name="notifications">Notificações</string>
-    <string name="search">Procurar</string>
     <string name="settings">Configurações</string>
     
     <string name="description">Descrição</string>
@@ -169,7 +167,6 @@
     
     <string name="views_template">%1$s visualizações</string>
     <string name="chapters">Capítulos</string>
-    <string name="artist">Artista</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">O seu feed personalizado</string>
     <string name="videos_curated_template">%1$d vídeos selecionados especialmente para si</string>
@@ -306,12 +303,10 @@
     <string name="about_title">Sobre o site</string>
     <string name="about_website">Conta</string>
     <string name="account_menu_title">Account</string>
-    <string name="account_sheet_local_profile">Neste dispositivo</string>
     <string name="account_sheet_profiles_header">Perfis</string>
     <string name="account_sheet_sign_in_cta">Iniciar sessão</string>
     <string name="account_sheet_signed_out_subtitle">Iniciar sessão para sincronizar o seu feed e subscrições</string>
     <string name="account_sheet_signed_out_title">Desligado</string>
-    <string name="account_sheet_unknown_user">Utilizador desconhecido</string>
     <string name="account_switcher_active">Perfil ativo</string>
     <string name="account_switcher_add_local_subtitle">Subscrições separadas, sem necessidade de conta</string>
     <string name="account_switcher_add_local_title">Adicionar perfil neste dispositivo</string>
@@ -422,12 +417,9 @@
     <string name="appearance_variant_light">Light</string>
     <string name="appearance_variant_title">Estilo do tema</string>
     <string name="arch_label">Arch: %1$s</string>
-    <string name="audio_only">Apenas áudio</string>
     <string name="audio_settings_title">Definições de áudio</string>
     <string name="audio_track">Faixa de áudio</string>
-    <string name="audio_track_dubbed">Dobrado</string>
     <string name="audio_track_number_template">%1$s %2$d</string>
-    <string name="audio_track_original">Original</string>
     <string name="auto_delete_history_title">Apagar automaticamente o histórico</string>
     <string name="autoplay_countdown_cancel">Cancelar</string>
     <string name="autoplay_countdown_next_video">Próximo vídeo</string>
@@ -560,10 +552,7 @@
     <string name="content_settings_watched_threshold_dialog_body">Escolha a quantidade de um vídeo que deve ser reproduzido antes de ser considerado assistido e ficar oculto.</string>
     <string name="content_settings_watched_threshold_title">Marcar como assistido quando</string>
     <string name="continue_watching_title">Continuar a ver</string>
-    <string name="cookie_paste_cancel">Cancelar</string>
     <string name="cookie_paste_clipboard">Colar da área de transferência</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Cabeçalho de cookies</string>
     <string name="cookie_paste_how">Como obtenho isto?</string>
     <string name="cookie_paste_missing">%1$s em falta . Copie todo o valor do cookie e certifique-se de que o navegador está ligado.</string>
     <string name="cookie_paste_security_body">Estes cookies concedem acesso total à sua conta Google e ignoram a verificação em dois passos. O piTube armazena-os encriptados neste dispositivo e envia-os apenas para o YouTube. Nunca os compartilhe.</string>
@@ -575,8 +564,6 @@
     <string name="cookie_paste_step_4">Clique em qualquer pedido na lista</string>
     <string name="cookie_paste_step_5">Em cabeçalhos de pedido, clique com o "cookie" e copie o valor</string>
     <string name="cookie_paste_step_6">Envie para este dispositivo e cole-o acima</string>
-    <string name="cookie_paste_subtitle">Faça login colando uma sessão do navegador</string>
-    <string name="cookie_paste_title">Cookies de sessão</string>
     <string name="copy_channel_link">Copiar link do canal</string>
     <string name="copy_video_link">Copiar link do vídeo</string>
     <string name="creator_replied">O criador respondeu</string>
@@ -655,7 +642,6 @@
     <string name="download_action_resume_all">Retomar tudo</string>
     <string name="download_action_retry_selected">Tentar novamente selecionado</string>
     <string name="download_action_select">Selecionar %1$s</string>
-    <string name="download_audio">Áudio</string>
     <string name="download_audio_builtin">Integrado (muxado) O áudio O</string>
     <string name="download_audio_builtin_hint">já está combinado com esta qualidade de vídeo.</string>
     <string name="download_audio_only">Download apenas áudio</string>
@@ -664,17 +650,9 @@
     <string name="download_failed_audio_length">Falha ao obter a duração do conteúdo de áudio</string>
     <string name="download_failed_try_again">Falha no download. Por favor, tente novamente.</string>
     <string name="download_failed_video_length">Falha ao obter a duração do conteúdo do vídeo Formato</string>
-    <string name="download_format_label">Format</string>
-    <string name="download_menu_style_classic">Clássico</string>
-    <string name="download_menu_style_classic_desc">Lista completa de todas as qualidades e codecs</string>
-    <string name="download_menu_style_compact">Compacto</string>
-    <string name="download_menu_style_compact_desc">Título editável, menus suspensos e contagem de threads</string>
-    <string name="download_menu_style_subtitle">Escolha a aparência da caixa de diálogo de download</string>
-    <string name="download_menu_style_title">Descarregue o estilo de menu</string>
     <string name="download_merging_audio_video">Mesclando áudio e vídeo…</string>
     <string name="download_muxing_failed_retry">Muxing falhou - tente fazer o download novamente.</string>
     <string name="download_muxing_incompatible">Muxing falhou - formato de áudio incompatível com o contentor de vídeo. Tente fazer download novamente.</string>
-    <string name="download_no_compatible_audio">Nenhum fluxo de áudio compatível - o download não pode prosseguir</string>
     <string name="download_over_wifi_only">Download apenas por Wi-Fi</string>
     <string name="download_sabr_failed">Falha no download do SABR</string>
     <string name="download_sabr_failed_try_again">Falha no download do SABR. Tente novamente.</string>
@@ -689,13 +667,10 @@
     <string name="download_status_queued">Na fila</string>
     <string name="download_stream_muxed">Muxado</string>
     <string name="download_stream_video_only">Apenas vídeo</string>
-    <string name="download_threads_label">Tópicos</string>
-    <string name="download_title_label">Título</string>
     <string name="download_url_expired">URL expirado (403). É necessário procurar novamente.</string>
     <string name="download_video">Download do vídeo</string>
     <string name="download_waiting_for_wifi">Aguarda WiFi</string>
     <string name="download_workers_failed">Um ou mais trabalhadores falharam</string>
-    <string name="downloading_template">A descarregar %1$s ...</string>
     <string name="downloads_selected_count">%1$d seleccionado</string>
     <string name="duration_hours_minutes">%1$d hr %2$d min</string>
     <string name="duration_hours_short">%1$d h</string>
@@ -874,8 +849,6 @@
     <string name="mini_player_small">Pequeno</string>
     <string name="model_label">Modelo: %1$s</string>
     <string name="my_playlist_placeholder">A minha lista de reprodução</string>
-    <string name="nav_explore">Explorar</string>
-    <string name="nav_more">Mais Pesquisa</string>
     <string name="nav_search">Search</string>
     <string name="nav_shorts">Shorts</string>
     <string name="nav_you">Você</string>
@@ -1246,7 +1219,6 @@ para criar a sua lista de reprodução</string>
     <string name="section_legal">Legal</string>
     <string name="section_options">Opções</string>
     <string name="select_all">Selecionar tudo</string>
-    <string name="select_quality">Selecione a sua qualidade preferida</string>
     <string name="select_threads_count_desc">Selecione a contagem de threads (1-8):</string>
     <string name="select_videos">Selecione</string>
     <string name="selected_count_template">%1$d selecionado</string>
@@ -1533,14 +1505,11 @@ para criar a sua lista de reprodução</string>
     <string name="title_copied">Título copiado para a área de transferência</string>
     <string name="toast_added_to_watch_later">Adicionado para ver mais tarde</string>
     <string name="toast_copied_to_clipboard">Copiado para a área de transferência</string>
-    <string name="toast_download_started">Download iniciado: %1$s</string>
     <string name="toast_failed_to_merge_playlist">Falha ao fundir a lista de reprodução</string>
-    <string name="toast_fetching_download_links">A procurar links de download…</string>
     <string name="toast_no_download_source">Nenhuma fonte de download disponível</string>
     <string name="toast_removed_from_watch_later">Removido de Ver mais tarde</string>
     <string name="toast_sabr_download_failed">Falha no download do SABR: %1$s</string>
     <string name="toast_sabr_download_started">Download do SABR iniciado</string>
-    <string name="toast_sabr_download_started_for_video">Download do SABR iniciado: %1$s</string>
     <string name="toast_subscribed_to">Assinado no %1$s</string>
     <string name="toast_trying_sabr_download">Tentando descarregar o SABR…</string>
     <string name="toast_unsubscribed_from">Cancelado subscrição do %1$s</string>
@@ -1557,9 +1526,7 @@ para criar a sua lista de reprodução</string>
     <string name="translation_caption_note">As legendas utilizam as legendas traduzidas do YouTube integradas quando estão disponíveis para o idioma de destino. A tradução</string>
     <string name="translation_missing_key_hint">está ativada, mas o %1$s precisa de uma chave API: adicione uma acima ou escolha um fornecedor gratuito e o conteúdo permanecerá no idioma original.</string>
     <string name="translation_mode_dual">Original + tradução</string>
-    <string name="translation_mode_dual_subtitle">Mostrar ambos juntos</string>
     <string name="translation_mode_replace">Substituir original</string>
-    <string name="translation_mode_replace_subtitle">Mostrar apenas a tradução; toque para ver o original</string>
     <string name="translation_mode_row">Exibição de tradução</string>
     <string name="translation_model_custom">Modelo personalizado</string>
     <string name="translation_model_not_selected">Não selecionado</string>
@@ -1594,8 +1561,6 @@ para criar a sua lista de reprodução</string>
     <string name="ui_copy_log">Copiar registo</string>
     <string name="ui_copy_log_description">Copie o registo abaixo e cole-o num problema do GitHub para que possa ser corrigido.</string>
     <string name="ui_crashed_last_session">piTube falhou na última sessão</string>
-    <string name="ui_download_audio">A descarregar áudio: %1$s kbps %2$s</string>
-    <string name="ui_download_start_failed">Download falhou ao iniciar: %1$s</string>
     <string name="ui_downloading">A descarregar</string>
     <string name="ui_downloading_playlist">A descarregar a lista de reprodução</string>
     <string name="ui_downloading_videos">A descarregar vídeos %1$d…</string>
@@ -1617,7 +1582,6 @@ para criar a sua lista de reprodução</string>
     <string name="ui_skip_back_10_seconds">Saltar para trás 10s</string>
     <string name="ui_skip_forward_10_seconds">Saltar para a frente 10s</string>
     <string name="ui_skipped_segment">Ignorado %1$s</string>
-    <string name="ui_started_download">Download iniciado: %1$s</string>
     <string name="ui_try_sabr_download">Tentar SABR Descarregar</string>
     <string name="unlike">Diferente</string>
     <string name="upcoming_label">Próximo</string>

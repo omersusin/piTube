@@ -37,11 +37,6 @@
     
     <string name="description">Deskripsi</string>
     <string name="copy_description">Salin deskripsi</string>
-    
-    
-    
-    
-    <string name="artist">Artis</string>
     <string name="videos_count_template">%1$d video</string>
     
     
@@ -241,7 +236,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Teratas</string>
     <string name="filter_newest">Terbaru</string>
     <string name="filter_oldest">Terlama</string>
@@ -259,7 +253,6 @@
     <string name="maybe_later">Nanti saja</string>
     <string name="nav_library">Perpustakaan</string>
     <string name="notifications">Notifikasi</string>
-    <string name="search">Cari</string>
     
     <string name="description_copied">Deskripsi disalin ke papan klip</string>
     <string name="title_copied">Judul disalin ke papan klip</string>
@@ -535,10 +528,6 @@
     
     
     <string name="nav_search">Cari</string>
-    
-    
-    <string name="nav_explore">Jelajahi</string>
-    <string name="nav_more">Lainnya</string>
     <string name="categories_title">Kategori</string>
     <string name="categories_switch_to_grid">Beralih ke tampilan grid</string>
     <string name="categories_switch_to_list">Beralih ke tampilan daftar</string>
@@ -1108,9 +1097,7 @@
     <string name="play_next_toast">Akan diputar berikutnya</string>
     
     <string name="download_video">Unduh Video</string>
-    <string name="select_quality">Pilih kualitas yang Anda inginkan</string>
     <string name="no_download_streams">Tidak ada aliran unduhan yang tersedia</string>
-    <string name="downloading_template">Mengunduh %1$s...</string>
     
     <string name="section_completed">Selesai</string>
     <string name="download_status_queued">Dalam Antrean</string>
@@ -1392,32 +1379,6 @@
     
     
     <string name="video_download_location_label">Lokasi unduhan video</string>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <string name="download_audio">Audio</string>
-    <string name="download_title_label">Judul</string>
-    <string name="download_format_label">Format</string>
-    <string name="download_threads_label">Thread</string>
-    <string name="download_no_compatible_audio">Tidak ada aliran audio yang kompatibel — unduhan tidak dapat dilanjutkan</string>
-    <string name="download_menu_style_title">Gaya menu unduhan</string>
-    <string name="download_menu_style_subtitle">Pilih tampilan dialog unduhan</string>
-    <string name="download_menu_style_classic">Klasik</string>
-    <string name="download_menu_style_classic_desc">Daftar lengkap setiap kualitas dan codec</string>
-    <string name="download_menu_style_compact">Ringkas</string>
-    <string name="download_menu_style_compact_desc">Judul yang dapat diedit, dropdown, dan jumlah thread</string>
     
     
     
@@ -1817,19 +1778,13 @@
     <string name="ui_downloading_videos">Mengunduh %1$d video</string>
     <string name="ui_playlist_saved_to_library">Playlist disimpan ke koleksi</string>
     <string name="ui_playlist_removed_from_library">Playlist dihapus dari koleksi</string>
-    <string name="ui_download_audio">Mengunduh audio: %1$skbps %2$s</string>
     <string name="ui_skipped_segment">Melewati %1$s</string>
-    <string name="ui_started_download">Unduhan dimulai: %1$s</string>
-    <string name="ui_download_start_failed">Gagal memulai unduhan: %1$s</string>
     <string name="toast_unsubscribed_from">Berhenti berlangganan dari %1$s</string>
     <string name="toast_subscribed_to">Berlangganan ke %1$s</string>
     <string name="toast_removed_from_watch_later">Dihapus dari Tonton Nanti</string>
     <string name="toast_added_to_watch_later">Ditambahkan ke Tonton Nanti</string>
-    <string name="toast_fetching_download_links">Mengambil tautan unduhan</string>
-    <string name="toast_download_started">Unduhan dimulai: %1$s</string>
     <string name="toast_trying_sabr_download">Mencoba unduhan SABR</string>
     <string name="toast_sabr_download_started">Unduhan SABR dimulai</string>
-    <string name="toast_sabr_download_started_for_video">Unduhan SABR dimulai: %1$s</string>
     <string name="toast_no_download_source">Tidak ada sumber unduhan yang tersedia</string>
     <string name="toast_sabr_download_failed">Unduhan SABR gagal: %1$s</string>
     <string name="toast_copied_to_clipboard">Disalin ke papan klip</string>
@@ -1932,12 +1887,10 @@
     <string name="recognition_error_language_not_supported">Bahasa ini tidak didukung oleh pengenal ucapan.</string>
     <string name="recognition_error_language_unavailable">Model bahasa di perangkat tidak terpasang. Unduh di pengaturan perangkat, lalu coba lagi.</string>
     <string name="account_menu_title">Akun</string>
-    <string name="account_sheet_local_profile">Di perangkat ini</string>
     <string name="account_sheet_profiles_header">Profil</string>
     <string name="account_sheet_sign_in_cta">Masuk</string>
     <string name="account_sheet_signed_out_subtitle">Masuk untuk menyinkronkan feed dan langganan Anda</string>
     <string name="account_sheet_signed_out_title">Keluar</string>
-    <string name="account_sheet_unknown_user">Pengguna tidak dikenal</string>
     <string name="account_switcher_active">Profil aktif</string>
     <string name="account_switcher_add_local_subtitle">Langganan terpisah, tidak perlu akun</string>
     <string name="account_switcher_add_local_title">Tambahkan profil di perangkat ini</string>
@@ -1962,9 +1915,6 @@
     <string name="account_switcher_switch_account">Ganti akun</string>
     <string name="account_switcher_switch_account_subtitle">Kelola beberapa akun Google</string>
     <string name="account_switcher_title">Profil</string>
-    <string name="audio_only">Hanya audio</string>
-    <string name="audio_track_dubbed">Dijuluki</string>
-    <string name="audio_track_original">Asli</string>
     <string name="blocked_channels_empty">Tidak ada saluran yang diblokir</string>
     <string name="blocked_clear_all">Buka blokir semua</string>
     <string name="cancel_reply">Batalkan balasan</string>
@@ -1972,10 +1922,7 @@
     <string name="comment_time_edited_template">%1$s ( %2$s )</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Filter video yang dikenai pembatasan usia, pribadi, khusus anggota, dan dihapus setelah gagal diputar</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Sembunyikan Video yang Tidak Dapat Diputar dari Umpan</string>
-    <string name="cookie_paste_cancel">Batalkan</string>
     <string name="cookie_paste_clipboard">Tempel dari papan klip</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Tajuk kue</string>
     <string name="cookie_paste_how">Bagaimana cara mendapatkan ini?</string>
     <string name="cookie_paste_missing">%1$s tidak ada. Salin seluruh nilai cookie, dan pastikan browser sudah masuk.</string>
     <string name="cookie_paste_security_body">Cookie ini memberikan akses penuh ke akun Google Anda dan melewati verifikasi 2 langkah. piTube menyimpannya dengan terenkripsi di perangkat ini dan hanya mengirimkannya ke YouTube. Jangan pernah membaginya.</string>
@@ -1987,8 +1934,6 @@
     <string name="cookie_paste_step_4">Klik permintaan apa pun dalam daftar</string>
     <string name="cookie_paste_step_5">Di bawah Header Permintaan, klik kanan "cookie" dan Salin nilai</string>
     <string name="cookie_paste_step_6">Kirim ke perangkat ini dan tempel di atas</string>
-    <string name="cookie_paste_subtitle">Masuk dengan menempelkan sesi browser</string>
-    <string name="cookie_paste_title">Cookie Sesi</string>
     <string name="creator_replied">Sang Pencipta menjawab</string>
     <string name="desc_more">...lebih lanjut</string>
     <string name="donations_cryptocurrency">MATA UANG KRIPTO</string>
@@ -2162,9 +2107,7 @@
     <string name="translation_caption_note">Subtitel menggunakan teks terjemahan bawaan YouTube jika tersedia untuk bahasa target.</string>
     <string name="translation_missing_key_hint">Terjemahan aktif, tetapi %1$s memerlukan kunci API: tambahkan kunci di atas atau pilih penyedia gratis dan konten tetap dalam bahasa aslinya.</string>
     <string name="translation_mode_dual">Asli + terjemahan</string>
-    <string name="translation_mode_dual_subtitle">Tunjukkan keduanya bersama-sama</string>
     <string name="translation_mode_replace">Ganti yang asli</string>
-    <string name="translation_mode_replace_subtitle">Tampilkan hanya terjemahannya; ketuk untuk melihat yang asli</string>
     <string name="translation_mode_row">Tampilan terjemahan</string>
     <string name="translation_model_custom">Model khusus</string>
     <string name="translation_model_not_selected">Tidak dipilih</string>

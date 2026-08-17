@@ -576,7 +576,7 @@ class YouTubeRepository
                         // Retry with alternate URL format which works as a cache buster sometimes
                         try {
                             val altUrl = "https://youtu.be/$videoId"
-                            Log.d("YouTubeRepository", "Retrying with alternate URL: $altUrl")
+                            Log.d("YouTubeRepository", "Retrying with alternate URL format for $videoId")
                             return@withContext StreamInfo.getInfo(service, altUrl)
                         } catch (retryEx: Exception) {
                             Log.e("YouTubeRepository", "Retry failed for $videoId: ${retryEx.message}", retryEx)

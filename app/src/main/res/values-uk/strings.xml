@@ -95,7 +95,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_newest">Найновіше</string>
     <string name="no_comments_yet">Коментарі поки відсутні</string>
     <string name="read_more">Читати більше</string>
@@ -110,7 +109,6 @@
     <string name="maybe_later">Можливо пізніше</string>
     
     <string name="nav_library">Бібліотека</string>
-    <string name="search">Пошук</string>
     <string name="settings">Налаштування</string>
     <string name="description">Опис</string>
     <string name="copy_description">Скопіювати опис</string>
@@ -138,7 +136,6 @@
     
     
     <string name="views_template">%1$s переглядів</string>
-    <string name="artist">Виконавець</string>
     <string name="playlist">Список відтворення</string>
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Ваша персоналізована стрічка</string>
@@ -262,9 +259,6 @@
     <string name="categories_region_picker_desc">Змінити регіон трендів (поточний: %1$s)</string>
     
     <string name="nav_search">Пошук</string>
-    
-    <string name="nav_explore">Дослідити</string>
-    <string name="nav_more">Більше</string>
     <string name="categories_title">Категорії</string>
     <string name="category_all">Все</string>
     
@@ -1097,9 +1091,7 @@
     <string name="play_next_toast">Наступне буде</string>
     
     <string name="download_video">Завантажити відео</string>
-    <string name="select_quality">Оберіть бажану якість</string>
     <string name="no_download_streams">Немає доступних потоків для завантаження</string>
-    <string name="downloading_template">Завантаження %1$s...</string>
     
     <string name="section_completed">Виконано</string>
     <string name="download_status_queued">В черзі</string>
@@ -1440,17 +1432,6 @@
     <string name="history_delete_shorts">Видалити Shorts з історії</string>
     <string name="history_delete_shorts_title">Видалити Shorts?</string>
     <string name="history_delete_shorts_body">Це вилучить усі Shorts з вашої історії переглядів. Інші відео будуть збережені.</string>
-    <string name="download_audio">Аудіо</string>
-    <string name="download_title_label">Назва</string>
-    <string name="download_format_label">Формат</string>
-    <string name="download_threads_label">Потоки</string>
-    <string name="download_no_compatible_audio">Немає сумісного аудіопотоку — завантаження неможливо продовжити</string>
-    <string name="download_menu_style_title">Стиль меню завантаження</string>
-    <string name="download_menu_style_subtitle">Виберіть вигляд діалогового вікна завантаження</string>
-    <string name="download_menu_style_classic">Класичний</string>
-    <string name="download_menu_style_classic_desc">Повний перелік усіх якостей та кодеків</string>
-    <string name="download_menu_style_compact">Компактний</string>
-    <string name="download_menu_style_compact_desc">Редагований заголовок, випадні списки та кількість потоків</string>
     <string name="player_appearance_long_press_speed_title">Швидкість відтворення при тривалому натисканні</string>
     <string name="live_chat">Живий чат</string>
     <string name="live_chat_connecting">З’єднання з живим чатом…</string>
@@ -1814,19 +1795,13 @@
     <string name="ui_downloading_videos">Завантаження %1$d відео</string>
     <string name="ui_playlist_saved_to_library">Список відтворення збережено до бібліотеки</string>
     <string name="ui_playlist_removed_from_library">Список відтворення вилучено з бібліотеки</string>
-    <string name="ui_download_audio">Завантаження аудіо: %1$s кбіт/с %2$s</string>
     <string name="ui_skipped_segment">Пропущено %1$s</string>
-    <string name="ui_started_download">Почато завантаження: %1$s</string>
-    <string name="ui_download_start_failed">Не вдалось почати завантаження: %1$s</string>
     <string name="toast_unsubscribed_from">Відписано від %1$s</string>
     <string name="toast_subscribed_to">Підписано на %1$s</string>
     <string name="toast_removed_from_watch_later">Вилучено з \"Переглянути пізніше\"</string>
     <string name="toast_added_to_watch_later">Додано до \"Переглянути пізніше\"</string>
-    <string name="toast_fetching_download_links">Отримання посилань для завантаження</string>
-    <string name="toast_download_started">Завантаження почато: %1$s</string>
     <string name="toast_trying_sabr_download">Спроба завантаження SABR</string>
     <string name="toast_sabr_download_started">Завантаження SABR почато</string>
-    <string name="toast_sabr_download_started_for_video">Розпочато завантаження SABR: %1$s</string>
     <string name="toast_no_download_source">Немає доступного джерела завантаження</string>
     <string name="toast_sabr_download_failed">Не вдалося завантажити SABR: %1$s</string>
     <string name="toast_copied_to_clipboard">Скопійовано в буфер обміну</string>
@@ -1931,12 +1906,10 @@
     <string name="recognition_error_language_not_supported">Ця мова не підтримується розпізнаванням мовлення.</string>
     <string name="recognition_error_language_unavailable">Мовну модель на пристрої не встановлено. Завантажте її в налаштуваннях пристрою, а потім спробуйте ще раз.</string>
     <string name="account_menu_title">Рахунок</string>
-    <string name="account_sheet_local_profile">На цьому пристрої</string>
     <string name="account_sheet_profiles_header">Профілі</string>
     <string name="account_sheet_sign_in_cta">Увійти</string>
     <string name="account_sheet_signed_out_subtitle">Увійдіть, щоб синхронізувати канал і підписки</string>
     <string name="account_sheet_signed_out_title">Вийшов</string>
-    <string name="account_sheet_unknown_user">Невідомий користувач</string>
     <string name="account_switcher_active">Активний профіль</string>
     <string name="account_switcher_add_local_subtitle">Окремі підписки, обліковий запис не потрібен</string>
     <string name="account_switcher_add_local_title">Додати профіль на цьому пристрої</string>
@@ -1961,9 +1934,6 @@
     <string name="account_switcher_switch_account">Змінити обліковий запис</string>
     <string name="account_switcher_switch_account_subtitle">Керуйте кількома обліковими записами Google</string>
     <string name="account_switcher_title">Профілі</string>
-    <string name="audio_only">Лише аудіо</string>
-    <string name="audio_track_dubbed">Дубльований</string>
-    <string name="audio_track_original">Оригінал</string>
     <string name="blocked_channels_empty">Немає заблокованих каналів</string>
     <string name="blocked_clear_all">Розблокувати всі</string>
     <string name="cancel_reply">Скасувати відповідь</string>
@@ -1971,10 +1941,7 @@
     <string name="comment_time_edited_template">%1$s ( %2$s )</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Відфільтруйте відео з віковими обмеженнями, приватні, лише для членів і вилучені відео, якщо їх не вдається відтворити</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Приховати невідтворювані відео з каналу</string>
-    <string name="cookie_paste_cancel">Скасувати</string>
     <string name="cookie_paste_clipboard">Вставити з буфера обміну</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Заголовок файлу cookie</string>
     <string name="cookie_paste_how">Як мені це отримати?</string>
     <string name="cookie_paste_missing">Відсутній %1$s. Скопіюйте все значення cookie та переконайтеся, що в браузері виконано вхід.</string>
     <string name="cookie_paste_security_body">Ці файли cookie надають повний доступ до вашого облікового запису Google і обходять двоетапну перевірку. piTube зберігає їх у зашифрованому вигляді на цьому пристрої та надсилає лише на YouTube. Ніколи не діліться ними.</string>
@@ -1986,8 +1953,6 @@
     <string name="cookie_paste_step_4">Натисніть будь-який запит у списку</string>
     <string name="cookie_paste_step_5">У розділі «Заголовки запитів» клацніть правою кнопкою миші «cookie» і скопіюйте значення</string>
     <string name="cookie_paste_step_6">Надішліть його на цей пристрій і вставте вище</string>
-    <string name="cookie_paste_subtitle">Увійдіть, вставивши сеанс браузера</string>
-    <string name="cookie_paste_title">Сеансові файли cookie</string>
     <string name="creator_replied">Творець відповів</string>
     <string name="donations_cryptocurrency">КРИПТОВАЛЮТА</string>
     <string name="download_action_delete_selected">Видалити вибране</string>
@@ -2159,9 +2124,7 @@
     <string name="translation_caption_note">Субтитри використовують вбудовані перекладені субтитри YouTube, якщо вони доступні для цільової мови.</string>
     <string name="translation_missing_key_hint">Переклад увімкнено, але %1$s потрібен ключ API: додайте його вище або виберіть безкоштовного постачальника, і вміст залишиться мовою оригіналу.</string>
     <string name="translation_mode_dual">Оригінал + переклад</string>
-    <string name="translation_mode_dual_subtitle">Показати обидва разом</string>
     <string name="translation_mode_replace">Замінити оригінальний</string>
-    <string name="translation_mode_replace_subtitle">Показати лише переклад; натисніть, щоб переглянути оригінал</string>
     <string name="translation_mode_row">Відображення перекладу</string>
     <string name="translation_model_custom">Спеціальна модель</string>
     <string name="translation_model_not_selected">Не вибрано</string>

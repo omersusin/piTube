@@ -32,9 +32,6 @@
     <string name="reply_placeholder">Rnu-d tiririt...</string>
     <string name="delete_comment">Kkes awennit</string>
     <string name="delete_comment_confirm">Kkes awennit-agi? Ur yettwasefsex ara.</string>
-    <string name="send">Azen</string>
-    
-    <string name="search">Anadi</string>
     <string name="settings">Iɣewwaren</string>
     <string name="description">Aglam</string>
     <string name="nav_home">Agejdan</string>
@@ -61,8 +58,6 @@
     <string name="appearance_category_light">Aceɛlal</string>
     <string name="appearance_category_dark">Ubrik</string>
     <string name="nav_search">Nadi</string>
-    <string name="nav_explore">Snirem</string>
-    <string name="nav_more">Ugar</string>
     <string name="categories_title">Taggayin</string>
     <string name="category_all">Akk</string>
     <string name="category_live">Srid</string>
@@ -292,7 +287,6 @@
     <string name="download_started_toast">Asider yebda…</string>
     <string name="audio_effects">Igrazan n umeslaw</string>
     <string name="views_template">%1$s n timezriyin</string>
-    <string name="artist">Anaẓur</string>
     <string name="playlist">Umuɣ</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
     <string name="app_name_uppercase">PITUBE</string>
@@ -1026,7 +1020,6 @@
     <string name="added_to_queue_toast">Yettwarna ɣer tedbelt</string>
     <string name="play_next_toast">Ad iɣer seld</string>
     <string name="download_video">Sader Tavidyut</string>
-    <string name="select_quality">Fren taɣara-inek</string>
     <string name="no_download_streams">Ulac isuzemgen n usider</string>
     <string name="download_section_video_quality">Taɣara n tavidyut</string>
     <string name="download_section_audio_quality">Taɣara n umesslik</string>
@@ -1036,18 +1029,6 @@
     <string name="download_stream_video_only">Tavidyut kan</string>
     <string name="download_audio_builtin">Yebni deg-s (muxed)</string>
     <string name="download_audio_builtin_hint">Umesslik yella yakan yemlul akked tɣara-agi n tavidyut.</string>
-    <string name="download_audio">Amesslik</string>
-    <string name="download_title_label">Azwel</string>
-    <string name="download_format_label">Amasal</string>
-    <string name="download_threads_label">Isubbgen</string>
-    <string name="download_no_compatible_audio">Ulac ubrid n umesslik ittwacudden — asider yezmir ara ad thes</string>
-    <string name="download_menu_style_title">Anaw n umenyu n usider</string>
-    <string name="download_menu_style_subtitle">Fren amek d-ittili udlis n usider</string>
-    <string name="download_menu_style_classic">Aqdim</string>
-    <string name="download_menu_style_classic_desc">Tabdart tummidt n yal taɣara d codec</string>
-    <string name="download_menu_style_compact">Aḥfif</string>
-    <string name="download_menu_style_compact_desc">Azwel yettwasefles, ugar n uferyan d umiḍan n isubbgen</string>
-    <string name="downloading_template">Asider n %1$s...</string>
     <string name="section_incomplete_downloads">Isidar ur nfukken</string>
     <string name="section_completed">Yefka</string>
     <string name="download_status_queued">Deg tedbelt</string>
@@ -1061,7 +1042,6 @@
     <string name="download_action_retry_selected">Ɛreḍ i yettwafren</string>
     <string name="download_action_delete_selected">Kkes i yettwafren</string>
     <string name="download_action_select">Fren %1$s</string>
-    <string name="audio_only">Amesslik kan</string>
     <string name="shared_video">Tavidyut Yettwaqsen</string>
     <string name="end_of_results">Taggara n igmamen</string>
     <string name="local_video">Tavidyut tadigant</string>
@@ -1324,21 +1304,13 @@
     <string name="ui_downloading_videos">Asider n %1$d n tividyutin…</string>
     <string name="ui_playlist_saved_to_library">Umuɣ yettwasekles ɣer ugbur</string>
     <string name="ui_playlist_removed_from_library">Umuɣ yettwakkes seg ugbur</string>
-    <string name="ui_download_audio">Asider n umesslik: %1$skbps %2$s</string>
-    <string name="audio_track_original">Taḥeqqit</string>
-    <string name="audio_track_dubbed">Tettwasefl</string>
     <string name="ui_skipped_segment">Zgen %1$s</string>
-    <string name="ui_started_download">Asider yebda: %1$s</string>
-    <string name="ui_download_start_failed">Asider ur yezmir ara ad yebdu: %1$s</string>
     <string name="toast_unsubscribed_from">Ffeɣ seg ujerred n %1$s</string>
     <string name="toast_subscribed_to">Tlteɣeḍ ɣef %1$s</string>
     <string name="toast_removed_from_watch_later">Yettwakkes seg Ẓer Seld</string>
     <string name="toast_added_to_watch_later">Yettwarna ɣer Ẓer Seld</string>
-    <string name="toast_fetching_download_links">Asali n isneqqden n usider…</string>
-    <string name="toast_download_started">Asider yebda: %1$s</string>
     <string name="toast_trying_sabr_download">La nɛerreḍ asider SABR…</string>
     <string name="toast_sabr_download_started">Asider SABR yebda</string>
-    <string name="toast_sabr_download_started_for_video">Asider SABR yebda: %1$s</string>
     <string name="toast_no_download_source">Ulac asagluf n usider</string>
     <string name="toast_sabr_download_failed">Asider SABR ur yeddi ara: %1$s</string>
     <string name="toast_copied_to_clipboard">Yettwanɣel ɣer tefranit</string>
@@ -1426,11 +1398,7 @@
     <string name="settings_google_sync_now">Mtawi tura</string>
     <string name="settings_google_sync_result">Yettwamtuwi: %1$d n tividyutin yettwaεǧben, %2$d n umuɣen, %3$d n ibuda</string>
     <string name="settings_google_sync_error">Amtawi ur yeddi ara: %1$s</string>
-    <string name="cookie_paste_title">Imiḍanen n useqqed</string>
-    <string name="cookie_paste_subtitle">Kcem s usekkes n useqqed n yibraser</string>
     <string name="cookie_paste_clipboard">Ssekkes seg tefranit</string>
-    <string name="cookie_paste_field_label">Aneqqaf Cookie</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
     <string name="cookie_paste_missing">%1$s ur yella ara. Nɣel azalen n cookie akk, d ḍmen belli yibraser yettwaqrreh s tuffra.</string>
     <string name="cookie_paste_how">Amek ad t-id-awiɣ?</string>
     <string name="cookie_paste_step_1">Ldi music.youtube.com deg yibraser n tsala, yettwaqrreh s tuffra</string>
@@ -1442,7 +1410,6 @@
     <string name="cookie_paste_security_title">Eǧǧ-it am awal uffir</string>
     <string name="cookie_paste_security_body">Imiḍanen-agi fkan tussna tummidt ɣef amiḍan Google-ik d tzemmirent ad zgrin tasenked n sin imranen. piTube ittensekkes s tuffra deg yibenk-agi kan, d i YouTube kan i ten-yettazen. Ur ten-bḍu ara.</string>
     <string name="cookie_paste_sign_in">Kcem</string>
-    <string name="cookie_paste_cancel">Semmet</string>
     <string name="account_switcher_expired">Aseqqed yekkes - seddu ɣef wakken ad tqaṛreḥ tikkelt nniḍen</string>
     <string name="login_tab_token">Ssekkes token / cookie</string>
     <string name="login_tab_webview">Tuqqna s yibraser</string>
@@ -1480,8 +1447,6 @@
     <string name="account_sheet_signed_out_title">Yettwaqqteɛ s tuffra</string>
     <string name="account_sheet_signed_out_subtitle">Kcem akken ad tesmtawuḍ asumer-inek d ijerraden-inek</string>
     <string name="account_sheet_sign_in_cta">Kcem</string>
-    <string name="account_sheet_unknown_user">Aseqdac ur yettwassinen</string>
-    <string name="account_sheet_local_profile">Deg yibenk-agi</string>
     <string name="account_sheet_profiles_header">Amanzawen</string>
     <string name="translation_settings_title">Asuɣel</string>
     <string name="translation_settings_header_provider">Adeffay</string>
@@ -1507,9 +1472,7 @@
     <string name="translation_target_language_device_label">Amanay n yibenk (tutlayt n unagraw)</string>
     <string name="translation_mode_row">Aneẓri n usuɣel</string>
     <string name="translation_mode_replace">Sefles taḥeqqit</string>
-    <string name="translation_mode_replace_subtitle">Ssken asuɣel kan; seddu ɣef wakken ad twaliḍ taḥeqqit</string>
     <string name="translation_mode_dual">Taḥeqqit + asuɣel</string>
-    <string name="translation_mode_dual_subtitle">Ssken snat-iyi</string>
     <string name="translation_toggle_master">Suɣel agbur</string>
     <string name="translation_toggle_titles">Izwilen n tividyutin</string>
     <string name="translation_toggle_captions">Tiḍebrit &amp; iktilen</string>

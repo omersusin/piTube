@@ -210,7 +210,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">热门</string>
     <string name="filter_newest">最新</string>
     <string name="filter_oldest">最早</string>
@@ -235,7 +234,6 @@
     
     <string name="nav_library">媒体库</string>
     <string name="notifications">通知</string>
-    <string name="search">搜索</string>
     <string name="settings">设置</string>
     
     <string name="description">描述</string>
@@ -270,7 +268,6 @@
     
     <string name="views_template">%1$s 浏览次数</string>
     <string name="chapters">章节</string>
-    <string name="artist">艺术家</string>
     <string name="playlist">播放列表</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
     <string name="app_name_uppercase">PITUBE</string>
@@ -716,10 +713,6 @@
     
     
     <string name="nav_search">搜索</string>
-    
-    
-    <string name="nav_explore">探索</string>
-    <string name="nav_more">更多</string>
     <string name="categories_title">类别</string>
     <string name="categories_switch_to_grid">切换到网格视图</string>
     <string name="categories_switch_to_list">切换到列表视图</string>
@@ -1401,20 +1394,7 @@
     <string name="play_next_toast">将作为下一项播放</string>
     
     <string name="download_video">下载视频</string>
-    <string name="select_quality">选择首选清晰度</string>
     <string name="no_download_streams">没有可用的下载流</string>
-    <string name="download_audio">音频</string>
-    <string name="download_title_label">标题</string>
-    <string name="download_format_label">格式</string>
-    <string name="download_threads_label">线程数</string>
-    <string name="download_no_compatible_audio">没有兼容的音频流 - 下载无法继续</string>
-    <string name="download_menu_style_title">下载菜单样式</string>
-    <string name="download_menu_style_subtitle">选择下载对话框的外观</string>
-    <string name="download_menu_style_classic">经典</string>
-    <string name="download_menu_style_classic_desc">每个质量和编解码器的完整列表</string>
-    <string name="download_menu_style_compact">紧凑型</string>
-    <string name="download_menu_style_compact_desc">可编辑的标题、下拉菜单和线程数</string>
-    <string name="downloading_template">正在下载%1$s...</string>
     
     <string name="section_incomplete_downloads">下载不完整</string>
     <string name="section_completed">已完成</string>
@@ -1763,12 +1743,10 @@
     <string name="recognition_error_language_not_supported">语音识别器不支持此语言。</string>
     <string name="recognition_error_language_unavailable">设备端语言模型尚未安装。请在设备设置中下载后重试。</string>
     <string name="account_menu_title">帐户</string>
-    <string name="account_sheet_local_profile">在此设备上</string>
     <string name="account_sheet_profiles_header">简介</string>
     <string name="account_sheet_sign_in_cta">登录</string>
     <string name="account_sheet_signed_out_subtitle">登录以同步您的提要和订阅</string>
     <string name="account_sheet_signed_out_title">已退出</string>
-    <string name="account_sheet_unknown_user">未知用户</string>
     <string name="account_switcher_active">活动档案</string>
     <string name="account_switcher_add_local_subtitle">单独订阅，无需帐户</string>
     <string name="account_switcher_add_local_title">在此设备上添加配置文件</string>
@@ -1794,9 +1772,6 @@
     <string name="account_switcher_switch_account_subtitle">管理多个 Google 帐户</string>
     <string name="account_switcher_title">简介</string>
     <string name="action_save_preset">保存预设</string>
-    <string name="audio_only">仅音频</string>
-    <string name="audio_track_dubbed">配音</string>
-    <string name="audio_track_original">原创</string>
     <string name="blocked_channels_empty">没有阻塞的频道</string>
     <string name="blocked_clear_all">解锁所有</string>
     <string name="cancel_reply">取消回复</string>
@@ -1804,10 +1779,7 @@
     <string name="comment_time_edited_template">%1$s（%2$s）</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">过滤掉有年龄限制、私人、会员专用以及无法播放后删除的视频</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">隐藏源中无法播放的视频</string>
-    <string name="cookie_paste_cancel">取消</string>
     <string name="cookie_paste_clipboard">从剪贴板粘贴</string>
-    <string name="cookie_paste_field_hint">SID=...； SAPISID=...</string>
-    <string name="cookie_paste_field_label">Cookie 标头</string>
     <string name="cookie_paste_how">我如何得到这个？</string>
     <string name="cookie_paste_missing">缺少 %1$s。复制整个 cookie 值，并确保浏览器已登录。</string>
     <string name="cookie_paste_security_body">这些 cookie 授予您对 Google 帐户的完全访问权限并绕过两步验证。 piTube 将它们加密存储在此设备上，并且仅将它们发送到 YouTube。永远不要分享它们。</string>
@@ -1819,8 +1791,6 @@
     <string name="cookie_paste_step_4">单击列表中的任何请求</string>
     <string name="cookie_paste_step_5">在请求标头下，右键单击“cookie”并复制值</string>
     <string name="cookie_paste_step_6">将其发送到此设备并将其粘贴到上面</string>
-    <string name="cookie_paste_subtitle">通过粘贴浏览器会话登录</string>
-    <string name="cookie_paste_title">会话 Cookie</string>
     <string name="creator_replied">作者回复</string>
     <string name="donations_cryptocurrency">加密货币</string>
     <string name="download_action_delete_selected">删除所选</string>
@@ -2051,14 +2021,11 @@
     <string name="sync_account_title">以 %1$s 身份登录</string>
     <string name="toast_added_to_watch_later">添加到稍后观看</string>
     <string name="toast_copied_to_clipboard">复制到剪贴板</string>
-    <string name="toast_download_started">下载开始：%1$s</string>
     <string name="toast_failed_to_merge_playlist">合并播放列表失败</string>
-    <string name="toast_fetching_download_links">正在获取下载链接...</string>
     <string name="toast_no_download_source">没有可用的下载源</string>
     <string name="toast_removed_from_watch_later">已从稍后观看中删除</string>
     <string name="toast_sabr_download_failed">SABR 下载失败：%1$s</string>
     <string name="toast_sabr_download_started">SABR 下载开始</string>
-    <string name="toast_sabr_download_started_for_video">SABR下载开始：%1$s</string>
     <string name="toast_subscribed_to">Subscribed to %1$s</string>
     <string name="toast_trying_sabr_download">正在尝试 SABR 下载...</string>
     <string name="toast_unsubscribed_from">取消订阅 %1$s</string>
@@ -2071,9 +2038,7 @@
     <string name="translation_caption_note">当字幕可用于目标语言时，字幕将使用 YouTube 的内置翻译字幕。</string>
     <string name="translation_missing_key_hint">翻译已开启，但 %1$s 需要 API 密钥：在上面添加一个或选择一个免费提供商，内容将保留原始语言。</string>
     <string name="translation_mode_dual">原文+翻译</string>
-    <string name="translation_mode_dual_subtitle">一起显示</string>
     <string name="translation_mode_replace">替换原来的</string>
-    <string name="translation_mode_replace_subtitle">仅显示翻译；点击查看原文</string>
     <string name="translation_mode_row">翻译显示</string>
     <string name="translation_model_custom">定制模型</string>
     <string name="translation_model_not_selected">未选择</string>
@@ -2108,8 +2073,6 @@
     <string name="ui_copy_log">复制日志</string>
     <string name="ui_copy_log_description">复制下面的日志并将其粘贴到 GitHub 问题中，以便可以修复它。</string>
     <string name="ui_crashed_last_session">piTube 上次会话崩溃</string>
-    <string name="ui_download_audio">下载音频：%1$s kbps %2$s</string>
-    <string name="ui_download_start_failed">下载无法开始：%1$s</string>
     <string name="ui_downloading">正在下载</string>
     <string name="ui_downloading_playlist">正在下载播放列表</string>
     <string name="ui_downloading_videos">正在下载 %1$d 视频...</string>
@@ -2131,7 +2094,6 @@
     <string name="ui_skip_back_10_seconds">向后跳 10 秒</string>
     <string name="ui_skip_forward_10_seconds">快进 10 秒</string>
     <string name="ui_skipped_segment">跳过 %1$s</string>
-    <string name="ui_started_download">开始下载：%1$s</string>
     <string name="ui_try_sabr_download">尝试 SABR 下载</string>
     <string name="update_download_prompt">新版本的 piTube 现已推出（%1$s）。下载最新的APK？</string>
     <string name="version_format">版本 %1$s</string>

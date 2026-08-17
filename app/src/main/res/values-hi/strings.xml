@@ -147,7 +147,6 @@
     <string name="reply_placeholder">उत्तर जोड़ें...</string>
     <string name="delete_comment">टिप्पणी हटाएँ</string>
     <string name="delete_comment_confirm">यह टिप्पणी हटाएं? इसे असंपादित नहीं किया जा सकता है।</string>
-    <string name="send">भेजें</string>
     <string name="filter_top">शीर्ष</string>
     <string name="filter_newest">नवीनतम</string>
     <string name="no_comments_yet">अभी तक कोई टिप्पणी नहीं</string>
@@ -165,7 +164,6 @@
     
     <string name="nav_library">लाइब्रेरी</string>
     <string name="notifications">सूचनाएँ</string>
-    <string name="search">खोजें</string>
     <string name="settings">सेटिंग्स</string>
     
     <string name="description">विवरण</string>
@@ -189,7 +187,6 @@
     
     <string name="views_template">%1$s विऊज़</string>
     <string name="chapters">अध्याय</string>
-    <string name="artist">कलाकार</string>
     <string name="playlist">प्लेलिस्ट</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -452,10 +449,6 @@
     
     
     <string name="nav_search">खोजें</string>
-    
-    
-    <string name="nav_explore">एक्सप्लोर करें</string>
-    <string name="nav_more">अधिक</string>
     <string name="categories_title">श्रेणियाँ</string>
     <string name="categories_switch_to_grid">ग्रिड दृश्य पर स्विच करें</string>
     <string name="categories_switch_to_list">लिस्ट दृश्य पर स्विच करें</string>
@@ -969,9 +962,7 @@
     <string name="play_next_toast">इसके बाद चलेगा</string>
     
     <string name="download_video">वीडियो डाउनलोड करें</string>
-    <string name="select_quality">अपनी पसंदीदा क्वालिटी चुनें</string>
     <string name="no_download_streams">डाउनलोड के लिए कोई स्ट्रीम उपलब्ध नहीं है</string>
-    <string name="downloading_template">%1$s डाउनलोड हो रहा है..।</string>
     <string name="audio_track">ऑडियो ट्रैक</string>
     <string name="off">बंद</string>
     <string name="on">चालू</string>
@@ -1107,12 +1098,10 @@
     <string name="recognition_error_language_not_supported">यह भाषा स्पीच रिकग्नाइज़र द्वारा समर्थित नहीं है।</string>
     <string name="recognition_error_language_unavailable">डिवाइस पर मौजूद भाषा मॉडल इंस्टॉल नहीं है। इसे डिवाइस सेटिंग्स से डाउनलोड करें, फिर दोबारा कोशिश करें।</string>
     <string name="account_menu_title">खाता</string>
-    <string name="account_sheet_local_profile">इस डिवाइस पर</string>
     <string name="account_sheet_profiles_header">प्रोफाइल</string>
     <string name="account_sheet_sign_in_cta">साइन इन करें</string>
     <string name="account_sheet_signed_out_subtitle">अपने फ़ीड और सब्सक्रिप्शन को सिंक करने के लिए साइन इन करें</string>
     <string name="account_sheet_signed_out_title">साइन आउट कर दिया गया</string>
-    <string name="account_sheet_unknown_user">अज्ञात उपयोगकर्ता</string>
     <string name="account_switcher_active">सक्रिय प्रोफ़ाइल</string>
     <string name="account_switcher_add_local_subtitle">अलग सदस्यताएँ, किसी खाते की आवश्यकता नहीं</string>
     <string name="account_switcher_add_local_title">इस डिवाइस पर प्रोफ़ाइल जोड़ें</string>
@@ -1198,10 +1187,7 @@
     <string name="appearance_variant_dark">अंधेरा</string>
     <string name="appearance_variant_light">रोशनी</string>
     <string name="appearance_variant_title">थीम शैली</string>
-    <string name="audio_only">केवल ऑडियो</string>
-    <string name="audio_track_dubbed">डब किया हुआ</string>
     <string name="audio_track_number_template">%1$s %2$d</string>
-    <string name="audio_track_original">मौलिक</string>
     <string name="blocked_channels_empty">कोई अवरुद्ध चैनल नहीं</string>
     <string name="blocked_channels_header">अवरुद्ध चैनल</string>
     <string name="blocked_clear_all">सभी को अनब्लॉक करें</string>
@@ -1244,10 +1230,7 @@
     <string name="content_settings_watched_threshold_almost">लगभग समाप्त (अंतिम मिनट)</string>
     <string name="content_settings_watched_threshold_dialog_body">चुनें कि किसी वीडियो को देखा हुआ माने जाने और छुप जाने से पहले उसे कितना चलाया जाना चाहिए।</string>
     <string name="content_settings_watched_threshold_title">कब देखा गया के रूप में चिह्नित करें</string>
-    <string name="cookie_paste_cancel">रद्द करें</string>
     <string name="cookie_paste_clipboard">क्लिपबोर्ड से चिपकाएँ</string>
-    <string name="cookie_paste_field_hint">एसआईडी=...; सैपिसिड=...</string>
-    <string name="cookie_paste_field_label">कुकी हेडर</string>
     <string name="cookie_paste_how">मुझे यह कैसे मिलेगा?</string>
     <string name="cookie_paste_missing">गुम %1$s। संपूर्ण कुकी मान कॉपी करें, और सुनिश्चित करें कि ब्राउज़र साइन इन है।</string>
     <string name="cookie_paste_security_body">ये कुकीज़ आपके Google खाते तक पूर्ण पहुंच प्रदान करती हैं और 2-चरणीय सत्यापन को बायपास करती हैं। [[ piTube APP]] उन्हें इस डिवाइस पर एन्क्रिप्टेड संग्रहीत करता है और केवल YouTube पर भेजता है। उन्हें कभी साझा न करें.</string>
@@ -1259,8 +1242,6 @@
     <string name="cookie_paste_step_4">सूची में किसी भी अनुरोध पर क्लिक करें</string>
     <string name="cookie_paste_step_5">अनुरोध शीर्षलेख के अंतर्गत, "कुकी" पर राइट-क्लिक करें और मान कॉपी करें</string>
     <string name="cookie_paste_step_6">इसे इस डिवाइस पर भेजें और ऊपर चिपकाएँ</string>
-    <string name="cookie_paste_subtitle">ब्राउज़र सत्र चिपकाकर साइन इन करें</string>
-    <string name="cookie_paste_title">सत्र कुकीज़</string>
     <string name="copy_channel_link">चैनल लिंक कॉपी करें</string>
     <string name="copy_video_link">वीडियो लिंक कॉपी करें</string>
     <string name="creator_replied">विधाता ने उत्तर दिया</string>
@@ -1319,7 +1300,6 @@
     <string name="download_action_resume_all">सभी को फिर से शुरू करें</string>
     <string name="download_action_retry_selected">पुनः प्रयास करें चयनित</string>
     <string name="download_action_select">%1$s चुनें</string>
-    <string name="download_audio">ऑडियो</string>
     <string name="download_audio_builtin">अंतर्निर्मित (मक्स्ड)</string>
     <string name="download_audio_builtin_hint">इस वीडियो गुणवत्ता के साथ ऑडियो पहले से ही संयोजित है।</string>
     <string name="download_audio_only">केवल ऑडियो डाउनलोड करें</string>
@@ -1328,17 +1308,9 @@
     <string name="download_failed_audio_length">ऑडियो सामग्री की लंबाई प्राप्त करने में विफल</string>
     <string name="download_failed_try_again">डाउनलोड विफल रहा. कृपया पुन: प्रयास करें।</string>
     <string name="download_failed_video_length">वीडियो सामग्री की लंबाई प्राप्त करने में विफल</string>
-    <string name="download_format_label">प्रारूप</string>
-    <string name="download_menu_style_classic">क्लासिक</string>
-    <string name="download_menu_style_classic_desc">प्रत्येक गुणवत्ता और कोडेक की पूरी सूची</string>
-    <string name="download_menu_style_compact">सघन</string>
-    <string name="download_menu_style_compact_desc">संपादन योग्य शीर्षक, ड्रॉपडाउन और थ्रेड गिनती</string>
-    <string name="download_menu_style_subtitle">चुनें कि डाउनलोड संवाद कैसा दिखेगा</string>
-    <string name="download_menu_style_title">मेनू शैली डाउनलोड करें</string>
     <string name="download_merging_audio_video">ऑडियो और वीडियो मर्ज किया जा रहा है...</string>
     <string name="download_muxing_failed_retry">मक्सिंग विफल - पुनः डाउनलोड करने का प्रयास करें।</string>
     <string name="download_muxing_incompatible">मक्सिंग विफल - ऑडियो प्रारूप वीडियो कंटेनर के साथ असंगत। पुनः डाउनलोड करने का प्रयास करें।</string>
-    <string name="download_no_compatible_audio">कोई संगत ऑडियो स्ट्रीम नहीं - डाउनलोड आगे नहीं बढ़ सकता</string>
     <string name="download_sabr_failed">SABR डाउनलोड विफल रहा</string>
     <string name="download_sabr_failed_try_again">SABR डाउनलोड विफल रहा. कृपया पुनः प्रयास करें.</string>
     <string name="download_section_audio_quality">ऑडियो गुणवत्ता</string>
@@ -1351,8 +1323,6 @@
     <string name="download_status_queued">कतारबद्ध</string>
     <string name="download_stream_muxed">मक्स्ड</string>
     <string name="download_stream_video_only">केवल वीडियो</string>
-    <string name="download_threads_label">धागे</string>
-    <string name="download_title_label">शीर्षक</string>
     <string name="download_url_expired">यूआरएल समाप्त हो गया (403)। पुनः लाने की आवश्यकता है.</string>
     <string name="download_waiting_for_wifi">वाईफाई का इंतजार है</string>
     <string name="download_workers_failed">एक या अधिक कर्मचारी विफल रहे</string>
@@ -1790,14 +1760,11 @@
     <string name="title_copied">शीर्षक क्लिपबोर्ड पर कॉपी किया गया</string>
     <string name="toast_added_to_watch_later">बाद में देखने के लिए जोड़ा गया</string>
     <string name="toast_copied_to_clipboard">क्लिपबोर्ड पर कॉपी किया गया</string>
-    <string name="toast_download_started">डाउनलोड प्रारंभ: %1$s</string>
     <string name="toast_failed_to_merge_playlist">प्लेलिस्ट मर्ज करने में विफल</string>
-    <string name="toast_fetching_download_links">डाउनलोड लिंक लाए जा रहे हैं...</string>
     <string name="toast_no_download_source">कोई डाउनलोड स्रोत उपलब्ध नहीं है</string>
     <string name="toast_removed_from_watch_later">बाद में देखें से हटा दिया गया</string>
     <string name="toast_sabr_download_failed">SABR डाउनलोड विफल: %1$s</string>
     <string name="toast_sabr_download_started">SABR डाउनलोड प्रारंभ हुआ</string>
-    <string name="toast_sabr_download_started_for_video">SABR डाउनलोड प्रारंभ: %1$s</string>
     <string name="toast_subscribed_to">%1$s की सदस्यता ली</string>
     <string name="toast_trying_sabr_download">SABR डाउनलोड का प्रयास कर रहा हूँ...</string>
     <string name="toast_unsubscribed_from">%1$s से सदस्यता समाप्त की गई</string>
@@ -1810,9 +1777,7 @@
     <string name="translation_caption_note">जब उपशीर्षक लक्ष्य भाषा के लिए उपलब्ध होते हैं तो वे YouTube के अंतर्निहित अनुवादित कैप्शन का उपयोग करते हैं।</string>
     <string name="translation_missing_key_hint">अनुवाद चालू है, लेकिन %1$s को एक एपीआई कुंजी की आवश्यकता है: ऊपर एक जोड़ें या एक मुफ़्त प्रदाता चुनें और सामग्री मूल भाषा में रहेगी।</string>
     <string name="translation_mode_dual">मूल+अनुवाद</string>
-    <string name="translation_mode_dual_subtitle">दोनों को एक साथ दिखाओ</string>
     <string name="translation_mode_replace">मूल बदलें</string>
-    <string name="translation_mode_replace_subtitle">केवल अनुवाद दिखाएँ; मूल देखने के लिए टैप करें</string>
     <string name="translation_mode_row">अनुवाद प्रदर्शन</string>
     <string name="translation_model_custom">कस्टम मॉडल</string>
     <string name="translation_model_not_selected">चयनित नहीं</string>
@@ -1847,8 +1812,6 @@
     <string name="ui_copy_log">लॉग कॉपी करें</string>
     <string name="ui_copy_log_description">नीचे दिए गए लॉग को कॉपी करें और इसे GitHub समस्या में पेस्ट करें ताकि इसे ठीक किया जा सके।</string>
     <string name="ui_crashed_last_session">[[ piTube APP]] पिछले सत्र में क्रैश हो गया था</string>
-    <string name="ui_download_audio">ऑडियो डाउनलोड करना: %1$s kbps %2$s</string>
-    <string name="ui_download_start_failed">डाउनलोड प्रारंभ होने में विफल: %1$s</string>
     <string name="ui_downloading">डाउनलोड हो रहा है</string>
     <string name="ui_downloading_playlist">प्लेलिस्ट डाउनलोड हो रही है</string>
     <string name="ui_downloading_videos">%1$d वीडियो डाउनलोड हो रहा है...</string>
@@ -1870,7 +1833,6 @@
     <string name="ui_skip_back_10_seconds">10s पीछे जाएँ</string>
     <string name="ui_skip_forward_10_seconds">10s आगे छोड़ें</string>
     <string name="ui_skipped_segment">छोड़ दिया गया %1$s</string>
-    <string name="ui_started_download">डाउनलोड प्रारंभ: %1$s</string>
     <string name="ui_try_sabr_download">SABR डाउनलोड आज़माएँ</string>
     <string name="upcoming_video_reminder_action">मुझे याद दिलाओ</string>
     <string name="upcoming_video_reminder_badge">अनुस्मारक सक्षम किया गया</string>

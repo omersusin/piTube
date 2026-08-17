@@ -172,7 +172,6 @@
     <string name="reply_placeholder">Bir yanıt ekleyin...</string>
     <string name="delete_comment">Yorumu sil</string>
     <string name="delete_comment_confirm">Bu yorum silinsin mi? Bu geri alınamaz.</string>
-    <string name="send">Gönder</string>
     <string name="filter_top">En popüler</string>
     <string name="filter_newest">En yeni</string>
     <string name="filter_oldest">En eski</string>
@@ -195,7 +194,6 @@
     
     <string name="nav_library">Kitaplık</string>
     <string name="notifications">Bildirimler</string>
-    <string name="search">Ara</string>
     <string name="settings">Ayarlar</string>
     <string name="description">Açıklama</string>
     <string name="copy_description">Açıklamayı kopyala</string>
@@ -204,7 +202,6 @@
     
     
     <string name="views_template">%1$s görüntüleme</string>
-    <string name="artist">Sanatçı</string>
     <string name="playlist">Oynatma listesi</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -756,10 +753,6 @@
     
     
     <string name="nav_search">Ara</string>
-    
-    
-    <string name="nav_explore">Keşfet</string>
-    <string name="nav_more">Daha Fazla</string>
     <string name="categories_title">Kategoriler</string>
     <string name="categories_switch_to_grid">Izgara görünümüne geç</string>
     <string name="categories_switch_to_list">Liste görünümüne geç</string>
@@ -1229,7 +1222,6 @@
     <string name="play_next_toast">Sıradaki olarak oynatılacak</string>
     
     <string name="download_video">Videoyu İndir</string>
-    <string name="select_quality">Tercih ettiğin kaliteyi seç</string>
     <string name="no_download_streams">Kullanılabilir indirme akışı yok</string>
     <string name="download_section_video_quality">Video kalitesi</string>
     <string name="download_section_audio_quality">Ses kalitesi</string>
@@ -1239,7 +1231,6 @@
     <string name="download_stream_video_only">Yalnızca video</string>
     <string name="download_audio_builtin">Birleşik (muxed)</string>
     <string name="download_audio_builtin_hint">Ses bu video kalitesiyle zaten birleşik.</string>
-    <string name="downloading_template">%1$s indiriliyor...</string>
     
     <string name="section_incomplete_downloads">Tamamlanmamış indirmeler</string>
     <string name="section_completed">Tamamlandı</string>
@@ -1254,7 +1245,6 @@
     <string name="download_action_retry_selected">Seçilenleri tekrar dene</string>
     <string name="download_action_delete_selected">Seçilenleri sil</string>
     <string name="download_action_select">%1$s seç</string>
-    <string name="audio_only">Yalnızca ses</string>
     <string name="shared_video">Paylaşılan Video</string>
     <string name="end_of_results">Sonuçların sonu</string>
     <string name="local_video">Yerel video</string>
@@ -1481,17 +1471,6 @@
     <string name="history_delete_shorts">Shorts videolarını geçmişten sil</string>
     <string name="history_delete_shorts_title">Shorts videoları silinsin mi?</string>
     <string name="history_delete_shorts_body">Bu işlem tüm Shorts videolarını izleme geçmişinden kaldırır. Diğer videolar korunur.</string>
-    <string name="download_audio">Ses</string>
-    <string name="download_title_label">Başlık</string>
-    <string name="download_format_label">Biçim</string>
-    <string name="download_threads_label">İş Parçacığı</string>
-    <string name="download_no_compatible_audio">Uyumlu ses akışı yok — indirme işlemine devam edilemiyor</string>
-    <string name="download_menu_style_title">İndirme Menüsü Stili</string>
-    <string name="download_menu_style_subtitle">İndirme menüsünün nasıl görüneceğini seç</string>
-    <string name="download_menu_style_classic">Klasik</string>
-    <string name="download_menu_style_classic_desc">Tüm kalite ve kodeklerin tam listesi</string>
-    <string name="download_menu_style_compact">Kompakt</string>
-    <string name="download_menu_style_compact_desc">Düzenlenebilir başlık, açılır menüler ve iş parçacığı sayısı</string>
     <string name="live_chat">Canlı sohbet</string>
     <string name="live_chat_connecting">Canlı sohbete bağlanılıyor…</string>
     <string name="live_chat_empty">Mesajlar bekleniyor…</string>
@@ -1852,19 +1831,13 @@
     <string name="ui_downloading_videos">%1$d video indiriliyor…</string>
     <string name="ui_playlist_saved_to_library">Oynatma listesi kitaplığa kaydedildi</string>
     <string name="ui_playlist_removed_from_library">Oynatma listesi kitaplıktan kaldırıldı</string>
-    <string name="ui_download_audio">Ses indiriliyor: %1$skbps %2$s</string>
     <string name="ui_skipped_segment">%1$s bölümü atlandı</string>
-    <string name="ui_started_download">İndirme başlatıldı: %1$s</string>
-    <string name="ui_download_start_failed">İndirme başlatılamadı: %1$s</string>
     <string name="toast_unsubscribed_from">%1$s aboneliğinden çıkıldı</string>
     <string name="toast_subscribed_to">%1$s kanalına abone olundu</string>
     <string name="toast_removed_from_watch_later">Daha Sonra İzle\'den kaldırıldı</string>
     <string name="toast_added_to_watch_later">Daha Sonra İzle\'ye eklendi</string>
-    <string name="toast_fetching_download_links">İndirme bağlantıları alınıyor…</string>
-    <string name="toast_download_started">İndirme başlatıldı: %1$s</string>
     <string name="toast_trying_sabr_download">SABR indirmesi deneniyor…</string>
     <string name="toast_sabr_download_started">SABR indirmesi başladı</string>
-    <string name="toast_sabr_download_started_for_video">SABR indirmesi başladı: %1$s</string>
     <string name="toast_no_download_source">Kullanılabilir indirme kaynağı yok</string>
     <string name="toast_sabr_download_failed">SABR indirmesi başarısız: %1$s</string>
     <string name="toast_copied_to_clipboard">Panoya kopyalandı</string>
@@ -1957,11 +1930,7 @@
     
     
     <string name="fallback_downloaded_locally">Cihaza indirildi</string>
-    <string name="cookie_paste_title">Oturum Çerezleri</string>
-    <string name="cookie_paste_subtitle">Tarayıcıdaki oturumu yapıştırarak giriş yapın</string>
     <string name="cookie_paste_clipboard">Panodan yapıştır</string>
-    <string name="cookie_paste_field_label">Çerez başlığı</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
     <string name="cookie_paste_missing">%1$s eksik. Çerez değerinin tamamını kopyalayın ve tarayıcının oturum açık olduğundan emin olun.</string>
     <string name="cookie_paste_how">Bunu nasıl alırım?</string>
     <string name="cookie_paste_step_1">Masaüstü tarayıcıda oturum açık olarak music.youtube.com açın</string>
@@ -1973,7 +1942,6 @@
     <string name="cookie_paste_security_title">Bunu şifre gibi koruyun</string>
     <string name="cookie_paste_security_body">Bu çerezler Google hesabınıza tam erişim sağlar ve iki adımlı doğrulamayı baypas eder. piTube bunları bu cihazda şifreli şekilde saklar ve yalnızca YouTube\'a gönderir. Asla paylaşmayın.</string>
     <string name="cookie_paste_sign_in">Giriş yap</string>
-    <string name="cookie_paste_cancel">İptal</string>
     <string name="account_switcher_expired">Oturum süresi doldu - yeniden bağlanmak için dokunun</string>
     <string name="login_tab_token">Token / çerez yapıştır</string>
     <string name="login_tab_webview">Tarayıcı girişi</string>
@@ -1984,8 +1952,6 @@
     <string name="account_sheet_signed_out_title">Çıkış yapıldı</string>
     <string name="account_sheet_signed_out_subtitle">Akışınızı ve aboneliklerinizi eşitlemek için giriş yapın</string>
     <string name="account_sheet_sign_in_cta">Giriş yap</string>
-    <string name="account_sheet_unknown_user">Bilinmeyen kullanıcı</string>
-    <string name="account_sheet_local_profile">Bu cihazda</string>
     <string name="account_sheet_profiles_header">Profiller</string>
 
     <string name="translation_settings_title">Çeviri</string>
@@ -2012,9 +1978,7 @@
     <string name="translation_target_language_device_label">Cihaz dili (sistem dili)</string>
     <string name="translation_mode_row">Çeviri görünümü</string>
     <string name="translation_mode_replace">Orijinali değiştir</string>
-    <string name="translation_mode_replace_subtitle">Yalnızca çeviriyi göster; orijinali görüntülemek için dokunun</string>
     <string name="translation_mode_dual">Orijinal + çeviri</string>
-    <string name="translation_mode_dual_subtitle">İkisini birlikte göster</string>
     <string name="translation_toggle_master">İçeriği çevir</string>
     <string name="translation_toggle_titles">Video başlıkları</string>
     <string name="translation_toggle_captions">Altyazılar</string>
@@ -2122,8 +2086,6 @@
     <string name="account_switcher_switch_account_subtitle">Birden fazla Google hesabını yönetin</string>
     <string name="account_switcher_title">Profiller</string>
     <string name="action_save_preset">Ön ayarı kaydet</string>
-    <string name="audio_track_dubbed">Dublajlı</string>
-    <string name="audio_track_original">Orijinal</string>
     <string name="blocked_channels_empty">Engellenen kanal yok</string>
     <string name="blocked_clear_all">Tümünün engelini kaldır</string>
     <string name="cancel_reply">Yanıtı iptal et</string>

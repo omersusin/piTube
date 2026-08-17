@@ -206,7 +206,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation(libs.coil.network.okhttp)
-    implementation("androidx.palette:palette-ktx:1.0.0")
+    implementation(libs.androidx.palette.ktx)
 
     // --- Dependency Injection ---
     implementation(libs.hilt.android)
@@ -262,7 +262,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.datastore.preferences)
-    // implementation(libs.androidx.datastore) // In TOML if needed
     implementation(libs.androidx.security.crypto)
 
     // --- Home-screen widgets (Jetpack Glance) ---

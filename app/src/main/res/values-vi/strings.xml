@@ -210,7 +210,6 @@
     <string name="reply_placeholder">Add a reply...</string>
     <string name="delete_comment">Delete comment</string>
     <string name="delete_comment_confirm">Delete this comment? This cannot be undone.</string>
-    <string name="send">Send</string>
     <string name="filter_top">Hàng đầu</string>
     <string name="filter_newest">Mới nhất</string>
     <string name="filter_oldest">Cũ nhất</string>
@@ -235,7 +234,6 @@
     
     <string name="nav_library">Thư viện</string>
     <string name="notifications">Thông báo</string>
-    <string name="search">Tìm kiếm</string>
     <string name="settings">Cài đặt</string>
     
     <string name="description">Mô tả</string>
@@ -270,7 +268,6 @@
     
     <string name="views_template">%1$s lượt xem</string>
     <string name="chapters">Chương</string>
-    <string name="artist">Nghệ sĩ</string>
     <string name="playlist">Danh sách phát</string>
     <string name="playlist_visibility_metadata">%1$s • %2$s</string>
     <string name="app_name_uppercase">PITUBE</string>
@@ -716,10 +713,6 @@
     
     
     <string name="nav_search">Tìm kiếm</string>
-    
-    
-    <string name="nav_explore">Khám phá</string>
-    <string name="nav_more">Thêm</string>
     <string name="categories_title">Danh mục</string>
     <string name="categories_switch_to_grid">Chuyển sang lưới</string>
     <string name="categories_switch_to_list">Chuyển sang danh sách</string>
@@ -1409,20 +1402,7 @@
     <string name="play_next_toast">Sẽ phát tiếp</string>
     
     <string name="download_video">Tải xuống video</string>
-    <string name="select_quality">Chọn chất lượng mong muốn</string>
     <string name="no_download_streams">Không có luồng tải xuống</string>
-    <string name="download_audio">Âm thanh</string>
-    <string name="download_title_label">Tiêu đề</string>
-    <string name="download_format_label">Định dạng</string>
-    <string name="download_threads_label">Luồng</string>
-    <string name="download_no_compatible_audio">Không có luồng âm thanh tương thích — không thể tải</string>
-    <string name="download_menu_style_title">Kiểu menu tải xuống</string>
-    <string name="download_menu_style_subtitle">Chọn giao diện của hộp thoại tải</string>
-    <string name="download_menu_style_classic">Cổ điển</string>
-    <string name="download_menu_style_classic_desc">Danh sách đầy đủ chất lượng và codec</string>
-    <string name="download_menu_style_compact">Gọn</string>
-    <string name="download_menu_style_compact_desc">Tiêu đề có thể sửa, dropdown và số luồng</string>
-    <string name="downloading_template">Đang tải %1$s…</string>
     
     <string name="section_incomplete_downloads">Tải chưa hoàn tất</string>
     <string name="section_completed">Đã hoàn tất</string>
@@ -1814,19 +1794,13 @@
     <string name="ui_downloading_videos">Đang tải %1$d video…</string>
     <string name="ui_playlist_saved_to_library">Đã lưu danh sách phát vào thư viện</string>
     <string name="ui_playlist_removed_from_library">Đã xóa danh sách phát khỏi thư viện</string>
-    <string name="ui_download_audio">Đang tải âm thanh: %1$skbps %2$s</string>
     <string name="ui_skipped_segment">Đã bỏ qua %1$s</string>
-    <string name="ui_started_download">Bắt đầu tải: %1$s</string>
-    <string name="ui_download_start_failed">Tải thất bại: %1$s</string>
     <string name="toast_unsubscribed_from">Đã hủy đăng ký %1$s</string>
     <string name="toast_subscribed_to">Đã đăng ký %1$s</string>
     <string name="toast_removed_from_watch_later">Đã xóa khỏi Xem sau</string>
     <string name="toast_added_to_watch_later">Đã thêm vào Xem sau</string>
-    <string name="toast_fetching_download_links">Đang lấy liên kết tải…</string>
-    <string name="toast_download_started">Đã bắt đầu tải: %1$s</string>
     <string name="toast_trying_sabr_download">Đang thử tải SABR…</string>
     <string name="toast_sabr_download_started">Đã bắt đầu tải SABR</string>
-    <string name="toast_sabr_download_started_for_video">Đã bắt đầu tải SABR: %1$s</string>
     <string name="toast_no_download_source">Không có nguồn tải</string>
     <string name="toast_sabr_download_failed">Tải SABR thất bại: %1$s</string>
     <string name="toast_copied_to_clipboard">Đã sao chép</string>
@@ -1931,8 +1905,6 @@
     <string name="comment_edited">đã chỉnh sửa</string>
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="desc_more">...thêm</string>
-    <string name="audio_track_original">Gốc</string>
-    <string name="audio_track_dubbed">Lồng tiếng</string>
     <string name="empty_saved_shorts">Chưa có Shorts nào được lưu</string>
     <string name="settings_search_no_results">Không tìm thấy cài đặt cho %1$s</string>
     
@@ -1945,12 +1917,10 @@
     <string name="recognition_error_language_not_supported">Bộ nhận dạng giọng nói không hỗ trợ ngôn ngữ này.</string>
     <string name="recognition_error_language_unavailable">Mô hình ngôn ngữ trên thiết bị chưa được cài đặt. Hãy tải về trong cài đặt thiết bị, rồi thử lại.</string>
     <string name="account_menu_title">Tài khoản</string>
-    <string name="account_sheet_local_profile">Trên thiết bị này</string>
     <string name="account_sheet_profiles_header">Hồ sơ</string>
     <string name="account_sheet_sign_in_cta">Đăng nhập</string>
     <string name="account_sheet_signed_out_subtitle">Đăng nhập để đồng bộ hóa nguồn cấp dữ liệu và đăng ký của bạn</string>
     <string name="account_sheet_signed_out_title">Đã đăng xuất</string>
-    <string name="account_sheet_unknown_user">Người dùng không xác định</string>
     <string name="account_switcher_active">Hồ sơ đang hoạt động</string>
     <string name="account_switcher_add_local_subtitle">Đăng ký riêng biệt, không cần tài khoản</string>
     <string name="account_switcher_add_local_title">Thêm hồ sơ trên thiết bị này</string>
@@ -1975,16 +1945,12 @@
     <string name="account_switcher_switch_account">Chuyển tài khoản</string>
     <string name="account_switcher_switch_account_subtitle">Quản lý nhiều tài khoản Google</string>
     <string name="account_switcher_title">Hồ sơ</string>
-    <string name="audio_only">Chỉ có âm thanh</string>
     <string name="blocked_channels_empty">Không có kênh nào bị chặn</string>
     <string name="blocked_clear_all">Bỏ chặn tất cả</string>
     <string name="cancel_reply">Hủy trả lời</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Lọc các video bị giới hạn độ tuổi, riêng tư, chỉ dành cho thành viên và bị xóa sau khi không phát được</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Ẩn video không thể phát khỏi nguồn cấp dữ liệu</string>
-    <string name="cookie_paste_cancel">Hủy bỏ</string>
     <string name="cookie_paste_clipboard">Dán từ bảng nhớ tạm</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Tiêu đề cookie</string>
     <string name="cookie_paste_how">Làm thế nào để tôi có được điều này?</string>
     <string name="cookie_paste_missing">Thiếu %1$s. Sao chép toàn bộ giá trị cookie và đảm bảo rằng trình duyệt đã được đăng nhập.</string>
     <string name="cookie_paste_security_body">Những cookie này cấp quyền truy cập đầy đủ vào tài khoản Google của bạn và bỏ qua xác minh 2 bước. piTube lưu trữ chúng được mã hóa trên thiết bị này và chỉ gửi chúng tới YouTube. Không bao giờ chia sẻ chúng.</string>
@@ -1996,8 +1962,6 @@
     <string name="cookie_paste_step_4">Bấm vào bất kỳ yêu cầu nào trong danh sách</string>
     <string name="cookie_paste_step_5">Trong Tiêu đề yêu cầu, nhấp chuột phải vào "cookie" và Sao chép giá trị</string>
     <string name="cookie_paste_step_6">Gửi nó đến thiết bị này và dán nó lên trên</string>
-    <string name="cookie_paste_subtitle">Đăng nhập bằng cách dán phiên trình duyệt</string>
-    <string name="cookie_paste_title">Cookie phiên</string>
     <string name="creator_replied">Người sáng tạo đã trả lời</string>
     <string name="download_action_delete_selected">Xóa đã chọn</string>
     <string name="download_action_pause_all">Tạm dừng tất cả</string>
@@ -2161,9 +2125,7 @@
     <string name="translation_caption_note">Phụ đề sử dụng phụ đề đã dịch tích hợp của YouTube khi chúng có sẵn cho ngôn ngữ đích.</string>
     <string name="translation_missing_key_hint">Tính năng dịch đang bật nhưng %1$s cần có khóa API: thêm khóa API ở trên hoặc chọn nhà cung cấp miễn phí và nội dung vẫn ở ngôn ngữ gốc.</string>
     <string name="translation_mode_dual">Bản gốc + bản dịch</string>
-    <string name="translation_mode_dual_subtitle">Hiển thị cả hai cùng nhau</string>
     <string name="translation_mode_replace">Thay thế bản gốc</string>
-    <string name="translation_mode_replace_subtitle">Chỉ hiển thị bản dịch; nhấn để xem bản gốc</string>
     <string name="translation_mode_row">Hiển thị bản dịch</string>
     <string name="translation_model_custom">Mô hình tùy chỉnh</string>
     <string name="translation_model_not_selected">Không được chọn</string>

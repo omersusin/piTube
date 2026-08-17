@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Flow" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.Flow" parent="android:Theme.Material.NoActionBar">
         <!-- Enable edge-to-edge -->
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <!-- The app defaults to a dark theme (ThemeMode.SYSTEM resolves dark);
+             keep the window dark until Compose applies the real theme so a
+             light pre-Compose flash can never appear. -->
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="android:enforceStatusBarContrast">false</item>
     </style>

@@ -630,6 +630,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                Log.d(TAG, "Home shorts shelf load failed: ${e.message}")
             }
         }
     }

@@ -141,7 +141,6 @@
     <string name="reply_placeholder">Eine Antwort hinzufügen...</string>
     <string name="delete_comment">Kommentar löschen</string>
     <string name="delete_comment_confirm">Diesen Kommentar löschen? Dies kann nicht rückgängig gemacht werden.</string>
-    <string name="send">Senden</string>
     <string name="filter_top">Beliebteste</string>
     <string name="filter_newest">Neueste</string>
     <string name="no_comments_yet">Noch keine Kommentare</string>
@@ -164,7 +163,6 @@
     
     <string name="nav_library">Bibliothek</string>
     <string name="notifications">Benachrichtigungen</string>
-    <string name="search">Suche</string>
     <string name="settings">Einstellungen</string>
     
     <string name="description">Beschreibung</string>
@@ -188,7 +186,6 @@
     
     <string name="views_template">%1$s Aufrufe</string>
     <string name="chapters">Kapitel</string>
-    <string name="artist">Künstler</string>
     <string name="playlist">Wiedergabeliste</string>
     <string name="app_name_uppercase">PITUBE</string>
     <string name="notification_badge_9_plus">9+</string>
@@ -576,10 +573,6 @@
     
     
     <string name="nav_search">Suchen</string>
-    
-    
-    <string name="nav_explore">Entdecken</string>
-    <string name="nav_more">Mehr</string>
     <string name="categories_title">Kategorien</string>
     <string name="categories_switch_to_grid">Zur Rasteransicht wechseln</string>
     <string name="categories_switch_to_list">Zur Listenansicht wechseln</string>
@@ -1161,13 +1154,6 @@
     <string name="add_video_to_queue_desc">Am Ende der Warteschlange einfügen</string>
     <string name="added_to_queue_toast">Zur Warteschlange hinzugefügt</string>
     <string name="download_video">Video herunterladen</string>
-    <string name="select_quality">Wähle deine bevorzugte Qualität</string>
-    <string name="download_audio">Audio</string>
-    <string name="download_title_label">Titel</string>
-    <string name="download_format_label">Formatieren Sie</string>
-    <string name="download_menu_style_classic">Klassisch</string>
-    <string name="download_menu_style_compact">Kompakt</string>
-    <string name="downloading_template">Herunterladen %1$s...</string>
     
     <string name="download_status_paused">Pausiert</string>
     <string name="download_status_failed">Fehlgeschlagen</string>
@@ -1499,11 +1485,6 @@
     <string name="play_next_toast">Wird als Nächstes gespielt</string>
     
     <string name="no_download_streams">Es sind keine Download-Streams verfügbar</string>
-    <string name="download_threads_label">Themen</string>
-    <string name="download_no_compatible_audio">Kein kompatibler Audiostream – der Download kann nicht fortgesetzt werden</string>
-    <string name="download_menu_style_subtitle">Legen Sie fest, wie der Download-Dialog aussehen soll</string>
-    <string name="download_menu_style_classic_desc">Vollständige Liste aller Qualitäten und Codecs</string>
-    <string name="download_menu_style_compact_desc">Bearbeitbarer Titel, Dropdown-Menüs und Anzahl der Beiträge</string>
     <string name="section_incomplete_downloads">Unvollständige Downloads</string>
     <string name="section_completed">Abgeschlossen</string>
     <string name="download_status_queued">In der Warteschlange</string>
@@ -1537,12 +1518,10 @@
     <string name="recognition_error_language_not_supported">Diese Sprache wird von der Spracherkennung nicht unterstützt.</string>
     <string name="recognition_error_language_unavailable">Das Sprachmodell des Geräts ist nicht installiert. Laden Sie es in den Geräteeinstellungen herunter und versuchen Sie es dann erneut.</string>
     <string name="account_menu_title">Konto</string>
-    <string name="account_sheet_local_profile">Auf diesem Gerät</string>
     <string name="account_sheet_profiles_header">Profile</string>
     <string name="account_sheet_sign_in_cta">Anmelden</string>
     <string name="account_sheet_signed_out_subtitle">Melden Sie sich an, um Ihren Feed und Ihre Abonnements zu synchronisieren</string>
     <string name="account_sheet_signed_out_title">Abgemeldet</string>
-    <string name="account_sheet_unknown_user">Unbekannter Benutzer</string>
     <string name="account_switcher_active">Aktives Profil</string>
     <string name="account_switcher_add_local_subtitle">Separate Abonnements, kein Konto erforderlich</string>
     <string name="account_switcher_add_local_title">Profil auf diesem Gerät hinzufügen</string>
@@ -1574,10 +1553,7 @@
     <string name="appearance_role_surface_container_highest">Oberflächenbehälter am höchsten</string>
     <string name="appearance_role_surface_container_low">Oberflächenbehälter niedrig</string>
     <string name="appearance_role_surface_container_lowest">Oberflächenbehälter am niedrigsten</string>
-    <string name="audio_only">Nur Audio</string>
     <string name="audio_track">Audiospur</string>
-    <string name="audio_track_dubbed">Synchronisiert</string>
-    <string name="audio_track_original">Original</string>
     <string name="blocked_channels_empty">Keine blockierten Kanäle</string>
     <string name="blocked_clear_all">Entsperren Sie alle</string>
     <string name="cancel_reply">Antwort abbrechen</string>
@@ -1585,10 +1561,7 @@
     <string name="close_popup_player">Popup-Player schließen</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Filtern Sie altersbeschränkte, private, nur für Mitglieder zugängliche und entfernte Videos heraus, nachdem sie nicht abgespielt werden können</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Nicht abspielbare Videos aus dem Feed ausblenden</string>
-    <string name="cookie_paste_cancel">Abbrechen</string>
     <string name="cookie_paste_clipboard">Aus Zwischenablage einfügen</string>
-    <string name="cookie_paste_field_hint">SID=...; SAPISID=...</string>
-    <string name="cookie_paste_field_label">Cookie-Header</string>
     <string name="cookie_paste_how">Wie bekomme ich das?</string>
     <string name="cookie_paste_missing">%1$s fehlt. Kopieren Sie den gesamten Cookie-Wert und stellen Sie sicher, dass der Browser angemeldet ist.</string>
     <string name="cookie_paste_security_body">Diese Cookies gewähren vollen Zugriff auf Ihr Google-Konto und umgehen die Bestätigung in zwei Schritten. piTube speichert diese verschlüsselt auf diesem Gerät und sendet sie nur an YouTube. Teilen Sie sie niemals.</string>
@@ -1600,8 +1573,6 @@
     <string name="cookie_paste_step_4">erneut Klicken Sie auf eine beliebige Anfrage in der Liste</string>
     <string name="cookie_paste_step_5">Klicken Sie unter „Anforderungsheader“ mit der rechten Maustaste auf „Cookie“ und kopieren Sie den Wert</string>
     <string name="cookie_paste_step_6">Senden Sie es an dieses Gerät und fügen Sie es über</string>
-    <string name="cookie_paste_subtitle">ein Melden Sie sich an, indem Sie eine Browsersitzung einfügen</string>
-    <string name="cookie_paste_title">Sitzungscookies</string>
     <string name="creator_replied">Der Ersteller antwortete</string>
     <string name="datetime_context_lists">Listen &amp; Karten</string>
     <string name="datetime_context_watch">Seite ansehen</string>
@@ -1635,7 +1606,6 @@
     <string name="download_failed_audio_length">Die Länge des Audioinhalts</string>
     <string name="download_failed_try_again">konnte nicht abgerufen werden Der Download ist fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="download_failed_video_length">Die Länge des Videoinhalts konnte nicht abgerufen werden</string>
-    <string name="download_menu_style_title">Menüstil herunterladen</string>
     <string name="download_merging_audio_video">Audio und Video zusammenführen…</string>
     <string name="download_muxing_failed_retry">Das Muxen ist fehlgeschlagen. Versuchen Sie es erneut.</string>
     <string name="download_muxing_incompatible">Muxing fehlgeschlagen – Audioformat ist mit dem Videocontainer nicht kompatibel. Versuchen Sie es erneut.</string>
@@ -1946,14 +1916,11 @@
     <string name="threads_count_label">%1$d-Threads</string>
     <string name="toast_added_to_watch_later">Zu „Später ansehen“ hinzugefügt</string>
     <string name="toast_copied_to_clipboard">In die Zwischenablage kopiert</string>
-    <string name="toast_download_started">Download gestartet: %1$s</string>
     <string name="toast_failed_to_merge_playlist">Zusammenführung der Playlist</string>
-    <string name="toast_fetching_download_links">fehlgeschlagen Download-Links werden abgerufen…</string>
     <string name="toast_no_download_source">Keine Download-Quelle verfügbar</string>
     <string name="toast_removed_from_watch_later">Aus „Später ansehen“ entfernt</string>
     <string name="toast_sabr_download_failed">SABR-Download fehlgeschlagen: %1$s</string>
     <string name="toast_sabr_download_started">SABR-Download gestartet</string>
-    <string name="toast_sabr_download_started_for_video">SABR-Download gestartet: %1$s</string>
     <string name="toast_subscribed_to">Abonniert %1$s</string>
     <string name="toast_trying_sabr_download">Versuche den SABR-Download …</string>
     <string name="toast_unsubscribed_from">Von %1$s abgemeldet</string>
@@ -1966,9 +1933,7 @@
     <string name="translation_caption_note">Untertitel verwenden die integrierten übersetzten Untertitel von YouTube, sofern diese für die Zielsprache verfügbar sind.</string>
     <string name="translation_missing_key_hint">Die Übersetzung ist aktiviert, aber %1$s benötigt einen API-Schlüssel: Fügen Sie oben einen hinzu oder wählen Sie einen kostenlosen Anbieter aus, und der Inhalt bleibt in der Originalsprache.</string>
     <string name="translation_mode_dual">Original + Übersetzung</string>
-    <string name="translation_mode_dual_subtitle">Beides zusammen anzeigen</string>
     <string name="translation_mode_replace">Ersetzen Sie das Original</string>
-    <string name="translation_mode_replace_subtitle">Nur die Übersetzung anzeigen; Tippen Sie hier, um das Original anzuzeigen</string>
     <string name="translation_mode_row">Übersetzungsanzeige</string>
     <string name="translation_model_custom">Benutzerdefiniertes Modell</string>
     <string name="translation_model_not_selected">Nicht ausgewählt</string>
@@ -2003,8 +1968,6 @@
     <string name="ui_copy_log">Protokoll kopieren</string>
     <string name="ui_copy_log_description">Kopieren Sie das Protokoll unten und fügen Sie es in ein GitHub-Problem ein, damit es behoben werden kann.</string>
     <string name="ui_crashed_last_session">piTube ist letzte Sitzung abgestürzt</string>
-    <string name="ui_download_audio">Audio herunterladen: %1$s kbps %2$s</string>
-    <string name="ui_download_start_failed">Der Download konnte nicht gestartet werden: %1$s</string>
     <string name="ui_downloading">Herunterladen</string>
     <string name="ui_downloading_playlist">Wiedergabeliste wird heruntergeladen</string>
     <string name="ui_downloading_videos">%1$d-Videos werden heruntergeladen…</string>
@@ -2026,7 +1989,6 @@
     <string name="ui_skip_back_10_seconds">10 Sekunden zurückspringen</string>
     <string name="ui_skip_forward_10_seconds">10 Sekunden vorwärts springen</string>
     <string name="ui_skipped_segment">%1$s übersprungen</string>
-    <string name="ui_started_download">Download gestartet: %1$s</string>
     <string name="ui_try_sabr_download">Probieren Sie den SABR-Download</string>
     <string name="update_download_prompt">aus Eine neue Version von piTube ist verfügbar (%1$s). Die neueste APK herunterladen?</string>
     <string name="version_format">Version %1$s</string>

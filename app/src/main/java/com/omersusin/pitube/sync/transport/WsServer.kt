@@ -1,5 +1,6 @@
 package com.omersusin.pitube.sync.transport
 
+import android.util.Log
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.EmbeddedServer
@@ -36,7 +37,8 @@ class WsServer {
                             for (frame in incoming) {
                                 if (frame is Frame.Binary) conn.deliver(frame.readBytes())
                             }
-                        } catch (_: Throwable) {
+                        } catch (t: Throwable) {
+                            Log.w("WsServer", "Incoming frame loop ended: ${t.message}")
                         } finally {
                             conn.onClosed()
                         }
