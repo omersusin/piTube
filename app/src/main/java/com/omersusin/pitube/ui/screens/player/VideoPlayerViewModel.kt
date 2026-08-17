@@ -2865,7 +2865,7 @@ class VideoPlayerViewModel @Inject constructor(
                     } else {
                         defaultFlush.toDouble() * (0.85 + kotlin.random.Random.nextDouble() * 0.3)
                     }
-                    (baseSeconds * 1_000L).toLong().coerceAtLeast(2_000L)
+                    return (baseSeconds * 1_000L).toLong().coerceAtLeast(2_000L)
                 }
 
                 fun relativeTimeSeconds(): Long =
