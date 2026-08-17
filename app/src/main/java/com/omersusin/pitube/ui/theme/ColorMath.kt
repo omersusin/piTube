@@ -88,7 +88,7 @@ internal fun hslToColor(h: Float, s: Float, l: Float): Color {
 
     fun quantize(v: Float): Int = ((v + m) * 255f + 0.5f).toInt().coerceIn(0, 255)
 
-    return Color((quantize(r) shl 16) or (quantize(g) shl 8) or quantize(b))
+    return Color((0xFF shl 24) or (quantize(r) shl 16) or (quantize(g) shl 8) or quantize(b))
 }
 
 internal fun contrastRatio(a: Color, b: Color): Float {

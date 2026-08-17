@@ -61,25 +61,28 @@ class HomeFeedLogicTest {
     fun `home feed quotas adapt to no subscription maturing and mature profiles`() {
         assertThat(homeFeedQuotas(40, subCount = 0, totalInteractions = 200))
             .containsExactly(
+                FeedSource.PERSONAL, 0,
                 FeedSource.SUBS, 0,
-                FeedSource.RELATED, 14,
-                FeedSource.DISCOVERY, 18,
-                FeedSource.VIRAL, 8
+                FeedSource.RELATED, 12,
+                FeedSource.DISCOVERY, 16,
+                FeedSource.VIRAL, 12
             )
 
         assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 20))
             .containsExactly(
-                FeedSource.SUBS, 14,
-                FeedSource.RELATED, 12,
-                FeedSource.DISCOVERY, 10,
+                FeedSource.PERSONAL, 0,
+                FeedSource.SUBS, 18,
+                FeedSource.RELATED, 10,
+                FeedSource.DISCOVERY, 8,
                 FeedSource.VIRAL, 4
             )
 
         assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 200))
             .containsExactly(
-                FeedSource.SUBS, 16,
-                FeedSource.RELATED, 10,
-                FeedSource.DISCOVERY, 10,
+                FeedSource.PERSONAL, 0,
+                FeedSource.SUBS, 20,
+                FeedSource.RELATED, 8,
+                FeedSource.DISCOVERY, 8,
                 FeedSource.VIRAL, 4
             )
     }
@@ -105,6 +108,7 @@ class HomeFeedLogicTest {
         assertThat(result.videos.map { it.id }).containsExactly("s1", "r1", "d1", "v1").inOrder()
         assertThat(result.sourceCounts)
             .containsExactly(
+                FeedSource.PERSONAL, 0,
                 FeedSource.SUBS, 1,
                 FeedSource.RELATED, 1,
                 FeedSource.DISCOVERY, 1,
