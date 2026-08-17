@@ -39,6 +39,13 @@ class HistoryViewModel
         val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
         init {
+            // Keep play counts ("Most played" sort) fresh alongside history.
+            viewModelScope.launch {
+                viewHistory.getAllHistory().collect {
+                    val playCounts = viewHistory.getPlayCounts()
+                    _uiState.update { state -> state.copy(playCounts = playCounts) }
+                }
+            }
             // Load history and enrich any entries that are missing metadata
             viewModelScope.launch {
                 _uiState.update { it.copy(isLoading = true) }
@@ -237,6 +244,7 @@ class HistoryViewModel
 data class HistoryUiState(
     val historyEntries: List<VideoHistoryEntry> = emptyList(),
     val shortVideos: Map<String, Video> = emptyMap(),
+    val playCounts: Map<String, Int> = emptyMap(),
     val isLoading: Boolean = false,
     val isImporting: Boolean = false,
 )

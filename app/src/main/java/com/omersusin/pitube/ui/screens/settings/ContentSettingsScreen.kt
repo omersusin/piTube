@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Block
@@ -95,6 +96,8 @@ fun ContentSettingsScreen(
     var showBlockedChannelsDialog by remember { mutableStateOf(false) }
     val hiddenVideoIds by preferences.hiddenVideoIds.collectAsState(initial = emptySet())
     var showHiddenVideosDialog by remember { mutableStateOf(false) }
+    val historyDefaultRange by preferences.historyDefaultRange.collectAsState(initial = "all_time")
+    var showHistoryRangeDialog by remember { mutableStateOf(false) }
     val bottomNavHideOnScroll by preferences.bottomNavHideOnScroll.collectAsState(initial = true)
     val shareWithoutText by preferences.shareWithoutText.collectAsState(initial = false)
     val disableShortsPlayer by preferences.disableShortsPlayer.collectAsState(initial = false)
@@ -304,6 +307,18 @@ fun ContentSettingsScreen(
                                 preferences.setHideUnplayableVideosFromSubscriptions(enabled)
                             }
                         }
+                    )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsClickItem(
+                        icon = Icons.Outlined.History,
+                        title = stringResource(R.string.content_settings_history_range_title),
+                        subtitle =
+                            when (historyDefaultRange) {
+                                "today" -> stringResource(R.string.history_range_today)
+                                "this_week" -> stringResource(R.string.history_range_this_week)
+                                else -> stringResource(R.string.history_range_all_time)
+                            },
+                        onClick = { showHistoryRangeDialog = true },
                     )
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -584,8 +599,50 @@ fun ContentSettingsScreen(
         )
     }
 
-    if (showHiddenVideosDialog) {
+    if (showHistoryRangeDialog) {
         AlertDialog(
+            onDismissRequest = { showHistoryRangeDialog = false },
+            title = { Text(stringResource(R.string.content_settings_history_range_title)) },
+            text = {
+                Column {
+                    listOf(
+                        "all_time" to stringResource(R.string.history_range_all_time),
+                        "today" to stringResource(R.string.history_range_today),
+                        "this_week" to stringResource(R.string.history_range_this_week),
+                    ).forEach { (key, label) ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        coroutineScope.launch { preferences.setHistoryDefaultRange(key) }
+                                        showHistoryRangeDialog = false
+                                    }
+                                    .padding(vertical = 10.dp),
+                        ) {
+                            RadioButton(
+                                selected = historyDefaultRange == key,
+                                onClick = {
+                                    coroutineScope.launch { preferences.setHistoryDefaultRange(key) }
+                                    showHistoryRangeDialog = false
+                                },
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(label, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showHistoryRangeDialog = false }) {
+                    Text(stringResource(R.string.btn_close))
+                }
+            },
+        )
+    }
+
+    if (showHiddenVideosDialog) {        AlertDialog(
             onDismissRequest = { showHiddenVideosDialog = false },
             title = {
                 Text(

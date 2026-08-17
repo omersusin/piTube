@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
 /**
@@ -126,6 +127,38 @@ class ViewHistory private constructor(private val context: Context) {
                 isShort      = isShort
             )
         )
+        incrementPlayCount(videoId)
+    }
+
+    // ── Play counts ("Most played" history sort) ─────────────────────────────
+
+    /**
+     * How many times each video was opened, stored outside Room so the
+     * history table schema stays untouched. Incremented on every
+     * [touchHistoryEntry] (i.e. once per playback session start) and read by
+     * the history screen's "Most played" sort.
+     */
+    private fun playCountsPrefs() =
+        context.getSharedPreferences("watch_history_play_counts", Context.MODE_PRIVATE)
+
+    fun incrementPlayCount(videoId: String) {
+        if (videoId.isBlank()) return
+        runCatching {
+            playCountsPrefs().edit().putInt(videoId, playCountsPrefs().getInt(videoId, 0) + 1).apply()
+        }
+    }
+
+    suspend fun getPlayCounts(): Map<String, Int> = withContext(Dispatchers.IO) {
+        runCatching {
+            val prefs = playCountsPrefs()
+            prefs.all.entries.associate { (key, value) ->
+                key to ((value as? Int) ?: 0)
+            }.filterValues { it > 0 }
+        }.getOrDefault(emptyMap())
+    }
+
+    fun clearPlayCount(videoId: String) {
+        runCatching { playCountsPrefs().edit().remove(videoId).apply() }
     }
 
     /**
@@ -154,6 +187,7 @@ class ViewHistory private constructor(private val context: Context) {
 
     suspend fun clearVideoHistory(videoId: String) {
         dao.deleteEntry(videoId)
+        clearPlayCount(videoId)
     }
 
     /**

@@ -112,6 +112,11 @@
     <string name="history_filter_all_years">Tüm zamanlar</string>
     <string name="history_sort_newest">Önce en yeni</string>
     <string name="history_sort_oldest">Önce en eski</string>
+    <string name="history_sort_most_played">En çok oynatılan</string>
+    <string name="history_range_all_time">Tüm zamanlar</string>
+    <string name="history_range_today">Bugün</string>
+    <string name="history_range_this_week">Bu hafta</string>
+    <string name="content_settings_history_range_title">Geçmiş aralığı</string>
     <string name="history_no_results">Eşleşen geçmiş yok</string>
     <string name="history_no_results_body">Farklı bir arama veya filtre dene</string>
     <string name="history_tab_videos">Videolar</string>

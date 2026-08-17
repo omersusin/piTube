@@ -66,6 +66,7 @@ class PlayerPreferences(context: Context) {
         val AUTOPLAY_ENABLED = booleanPreferencesKey("autoplay_enabled")
         val QUEUE_AUTOPLAY_ENABLED = booleanPreferencesKey("queue_autoplay_enabled")
         val QUEUE_SWIPE_TO_REMOVE_ENABLED = booleanPreferencesKey("queue_swipe_to_remove_enabled")
+        val HISTORY_DEFAULT_RANGE = stringPreferencesKey("history_default_range")
         val AUTOPLAY_COUNTDOWN_SECONDS = intPreferencesKey("autoplay_countdown_seconds")
         val SHOW_CONTROLS_WHILE_LOADING = booleanPreferencesKey("show_controls_while_loading")
         val VIDEO_LOOP_ENABLED = booleanPreferencesKey("video_loop_enabled")
@@ -938,6 +939,19 @@ class PlayerPreferences(context: Context) {
     suspend fun setQueueSwipeToRemoveEnabled(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.QUEUE_SWIPE_TO_REMOVE_ENABLED] = enabled
+        }
+    }
+
+    // Default watch-history range (all_time / today / this_week) — the history
+    // screen applies it on open and remembers the last selection here.
+    val historyDefaultRange: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.HISTORY_DEFAULT_RANGE] ?: "all_time"
+        }
+
+    suspend fun setHistoryDefaultRange(range: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.HISTORY_DEFAULT_RANGE] = range
         }
     }
 

@@ -51,6 +51,11 @@
     <string name="history_filter_all_years">All years</string>
     <string name="history_sort_newest">Newest first</string>
     <string name="history_sort_oldest">Oldest first</string>
+    <string name="history_sort_most_played">Most played</string>
+    <string name="history_range_all_time">All time</string>
+    <string name="history_range_today">Today</string>
+    <string name="history_range_this_week">This week</string>
+    <string name="content_settings_history_range_title">History range</string>
     <string name="history_no_results">No matching history</string>
     <string name="history_no_results_body">Try a different search or filter</string>
     <string name="history_tab_videos">Videos</string>

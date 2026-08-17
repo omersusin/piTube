@@ -60,6 +60,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -97,6 +98,21 @@ fun HistoryScreen(
     var selectedFilter by rememberSaveable { mutableStateOf(HistoryContentFilter.All) }
     var selectedSort by rememberSaveable { mutableStateOf(HistorySort.Newest) }
     var selectedYear by rememberSaveable { mutableStateOf<Int?>(null) }
+    var selectedRange by rememberSaveable { mutableStateOf(HistoryRange.AllTime) }
+
+    val context = LocalContext.current
+    val historyPrefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(context) }
+    // Apply the saved default range once on open; every later chip tap becomes
+    // the new persisted default.
+    LaunchedEffect(Unit) {
+        selectedRange = HistoryRange.fromKey(historyPrefs.historyDefaultRange.first())
+    }
+    fun onRangeSelected(range: HistoryRange) {
+        selectedRange = range
+        runCatching {
+            kotlinx.coroutines.runBlocking { historyPrefs.setHistoryDefaultRange(range.key) }
+        }
+    }
 
     val availableYears =
         remember(uiState.historyEntries) {
@@ -109,25 +125,32 @@ fun HistoryScreen(
     val displayEntries =
         remember(
             uiState.historyEntries,
+            uiState.playCounts,
             searchQuery,
             selectedFilter,
             selectedSort,
             selectedYear,
+            selectedRange,
         ) {
             uiState.historyEntries
                 .asSequence()
                 .filter { entry -> selectedFilter.matches(entry) }
                 .filter { entry -> selectedYear == null || historyYear(entry.timestamp) == selectedYear }
+                .filter { entry -> selectedRange.matches(entry.timestamp) }
                 .filter { entry ->
                     val query = searchQuery.trim()
                     query.isBlank() ||
                         entry.title.contains(query, ignoreCase = true) ||
                         entry.channelName.contains(query, ignoreCase = true)
                 }.let { sequence ->
-                    if (selectedSort == HistorySort.Newest) {
-                        sequence.sortedByDescending { it.timestamp }
-                    } else {
-                        sequence.sortedBy { it.timestamp }
+                    when (selectedSort) {
+                        HistorySort.Newest -> sequence.sortedByDescending { it.timestamp }
+                        HistorySort.Oldest -> sequence.sortedBy { it.timestamp }
+                        HistorySort.MostPlayed -> sequence.sortedWith(
+                            compareByDescending<VideoHistoryEntry> {
+                                uiState.playCounts[it.videoId] ?: 0
+                            }.thenByDescending { it.timestamp }
+                        )
                     }
                 }.toList()
         }
@@ -222,6 +245,11 @@ fun HistoryScreen(
                 selectedYear = selectedYear,
                 availableYears = availableYears,
                 onYearSelected = { selectedYear = it },
+            )
+
+            HistoryRangeRow(
+                selectedRange = selectedRange,
+                onRangeSelected = ::onRangeSelected,
             )
 
             when {
@@ -759,6 +787,7 @@ private fun HistoryContentFilter.label(): String =
 private enum class HistorySort {
     Newest,
     Oldest,
+    MostPlayed,
 }
 
 @Composable
@@ -766,7 +795,56 @@ private fun HistorySort.label(): String =
     when (this) {
         HistorySort.Newest -> stringResource(R.string.history_sort_newest)
         HistorySort.Oldest -> stringResource(R.string.history_sort_oldest)
+        HistorySort.MostPlayed -> stringResource(R.string.history_sort_most_played)
     }
+
+private enum class HistoryRange(val key: String) {
+    AllTime("all_time"),
+    Today("today"),
+    ThisWeek("this_week"),
+    ;
+
+    fun matches(timestamp: Long): Boolean {
+        val now = System.currentTimeMillis()
+        return when (this) {
+            AllTime -> true
+            Today -> now - timestamp <= 24L * 60L * 60L * 1000L
+            ThisWeek -> now - timestamp <= 7L * 24L * 60L * 60L * 1000L
+        }
+    }
+
+    companion object {
+        fun fromKey(key: String): HistoryRange = entries.firstOrNull { it.key == key } ?: AllTime
+    }
+}
+
+@Composable
+private fun HistoryRange.label(): String =
+    when (this) {
+        HistoryRange.AllTime -> stringResource(R.string.history_range_all_time)
+        HistoryRange.Today -> stringResource(R.string.history_range_today)
+        HistoryRange.ThisWeek -> stringResource(R.string.history_range_this_week)
+    }
+
+@Composable
+private fun HistoryRangeRow(
+    selectedRange: HistoryRange,
+    onRangeSelected: (HistoryRange) -> Unit,
+) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(HistoryRange.entries) { range ->
+            FilterChip(
+                selected = selectedRange == range,
+                onClick = { onRangeSelected(range) },
+                label = { Text(range.label()) },
+            )
+        }
+    }
+}
 
 private fun VideoHistoryEntry.toShortVideo(): Video =
     Video(
