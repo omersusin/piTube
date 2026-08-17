@@ -321,12 +321,20 @@ data class ChannelVideosResponse(
         data class Overlay(
             @SerialName("thumbnailBottomOverlayViewModel")
             val thumbnailBottomOverlayViewModel: ThumbnailBottomOverlayViewModel? = null,
+            @SerialName("thumbnailOverlayBadgeViewModel")
+            val thumbnailOverlayBadgeViewModel: ThumbnailOverlayBadgeViewModel? = null,
         )
 
         @Serializable
         data class ThumbnailBottomOverlayViewModel(
             @SerialName("badges")
             val badges: List<Badge>? = null,
+        )
+
+        @Serializable
+        data class ThumbnailOverlayBadgeViewModel(
+            @SerialName("thumbnailBadges")
+            val thumbnailBadges: List<Badge>? = null,
         )
 
         @Serializable
@@ -339,7 +347,17 @@ data class ChannelVideosResponse(
         data class ThumbnailBadgeViewModel(
             @SerialName("text")
             val text: String? = null,
-        )
+            @SerialName("badgeStyle")
+            val badgeStyle: String? = null,
+            @SerialName("animatedText")
+            val animatedText: AnimatedText? = null,
+        ) {
+            @Serializable
+            data class AnimatedText(
+                @SerialName("text")
+                val text: String? = null,
+            )
+        }
     }
 
     @Serializable

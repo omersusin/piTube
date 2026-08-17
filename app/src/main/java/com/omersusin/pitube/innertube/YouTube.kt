@@ -91,6 +91,8 @@ object YouTube {
     private const val CHANNEL_VIDEOS_PARAMS = "EgZ2aWRlb3PyBgQKAjoA"
     private const val CHANNEL_LIVE_PARAMS = "EgdzdHJlYW1z8gYECgJ6AA%3D%3D"
     private const val CHANNEL_POSTS_PARAMS = "EgVwb3N0c_IGBAoCSgA="
+    /** Signed-out marker YouTube embeds in authenticated response bodies. */
+    private val LOGGED_OUT_REGEX = Regex("\"loggedIn\"\\s*:\\s*(false|0)|\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"0\"")
 
     var locale: YouTubeLocale
         get() = innerTube.locale
@@ -831,6 +833,12 @@ object YouTube {
      * [channelId] must be a canonical `UC...` id.
      */
     suspend fun setSubscribed(channelId: String, subscribe: Boolean): Result<Boolean> = runCatching {
+        if (!channelId.startsWith("UC") || channelId.length <= 10 ||
+            channelId.contains("/") || channelId.contains("@")
+        ) {
+            Log.w("YouTube", "setSubscribed($subscribe): non-canonical channel id '$channelId' — remote write skipped")
+            return@runCatching false
+        }
         val client = currentWebClient()
         val endpoint = if (subscribe) "subscription/subscribe" else "subscription/unsubscribe"
         val httpResponse = innerTube.signedJsonPost(
@@ -1237,11 +1245,18 @@ object YouTube {
                 Log.w("YouTube", "webSubscribedChannels: HTTP ${response.status.value} on page $pages")
                 break
             }
-            val root = Json.parseToJsonElement(response.bodyAsText())
+            val bodyText = response.bodyAsText()
+            if (LOGGED_OUT_REGEX.containsMatchIn(bodyText)) {
+                // A dead session answers the browse anonymously: that is a
+                // re-login problem, not an account with zero channels.
+                Log.w("YouTube", "webSubscribedChannels: YouTube answered signed-out — session dead")
+                return@runCatching RemoteChannelCrawl(emptyList(), complete = false, sessionExpired = true)
+            }
+            val root = Json.parseToJsonElement(bodyText)
             val found = root.toRemoteChannels()
             channels += found
             if (found.isEmpty()) {
-                Log.w("YouTube", "webSubscribedChannels: parser returned 0 channels on page $pages (body len ${response.bodyAsText().length})")
+                Log.w("YouTube", "webSubscribedChannels: parser returned 0 channels on page $pages (body len ${bodyText.length})")
             }
             continuation = root.browseContinuation()
             pages++
@@ -1460,12 +1475,23 @@ object YouTube {
             ?.maxByOrNull { it.width ?: 0 }
             ?.url
             ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
-        val durationText = lockup.contentImage?.thumbnailViewModel?.overlays
-            ?.firstNotNullOfOrNull { overlay ->
-                overlay.thumbnailBottomOverlayViewModel
-                    ?.badges
-                    ?.firstNotNullOfOrNull { it.thumbnailBadgeViewModel?.text }
-            }
+        val overlays = lockup.contentImage?.thumbnailViewModel?.overlays.orEmpty()
+        // FEwhat_to_watch / FEsubscriptions grids carry the duration badge in
+        // either the modern bottom overlay or the legacy top overlay — read
+        // both (Koda/NewPipe do the same) and treat a `:`-shaped text as the
+        // duration, never a "LIVE"/"MIX" text badge.
+        val badgeViewModels = overlays.flatMap { overlay ->
+            overlay.thumbnailBottomOverlayViewModel?.badges.orEmpty() +
+                overlay.thumbnailOverlayBadgeViewModel?.thumbnailBadges.orEmpty()
+        }.mapNotNull { it.thumbnailBadgeViewModel }
+        val durationText = badgeViewModels
+            .mapNotNull { it.text }
+            .firstOrNull { it.contains(":") }
+        val liveBadge = badgeViewModels.firstOrNull { badge ->
+            badge.badgeStyle?.contains("LIVE", ignoreCase = true) == true ||
+                badge.text?.contains("LIVE", ignoreCase = true) == true ||
+                badge.animatedText?.text?.contains("LIVE", ignoreCase = true) == true
+        }
         val metadataRows = metadata?.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
         val channelPart = metadataRows.firstOrNull()?.metadataParts?.firstOrNull()
         val resolvedChannelId = channelPart?.runs
@@ -1512,7 +1538,8 @@ object YouTube {
             uploadDate = uploadText,
             timestamp = parseRelativeUploadDate(uploadText) ?: 0L,
             channelThumbnailUrl = resolvedThumbnail,
-            isLive = isLive || viewsText?.contains("watching", ignoreCase = true) == true
+            isLive = isLive || liveBadge != null
+                || viewsText?.contains("watching", ignoreCase = true) == true
                 || viewsText?.contains("izliyor", ignoreCase = true) == true,
         )
     }

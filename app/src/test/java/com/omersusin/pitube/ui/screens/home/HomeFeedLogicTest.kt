@@ -88,6 +88,18 @@ class HomeFeedLogicTest {
     }
 
     @Test
+    fun `home feed quotas prioritize the personalized lane when signed in`() {
+        assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 20, hasPersonalFeed = true))
+            .containsExactly(
+                FeedSource.PERSONAL, 22,
+                FeedSource.SUBS, 8,
+                FeedSource.RELATED, 4,
+                FeedSource.DISCOVERY, 3,
+                FeedSource.VIRAL, 3
+            )
+    }
+
+    @Test
     fun `blendFeedSources reports source distribution`() {
         val result = blendFeedSources(
             lanes = mapOf(

@@ -302,11 +302,15 @@ class InnerTube {
             append("X-YouTube-Client-Name", client.clientId)
             append("X-YouTube-Client-Version", client.clientVersion)
             append("X-Origin", origin)
+            append("Origin", origin)
             append("Referer", referer)
             visitorData?.let { append("X-Goog-Visitor-Id", it) }
             if (setLogin && client.loginSupported) {
                 cookie?.let { cookie ->
                     append("cookie", cookie)
+                    // Session index: signed requests must pin the Google
+                    // account the cookies belong to (yt-dlp/Koda both do).
+                    append("X-Goog-AuthUser", "0")
                     if ("SAPISID" !in cookieMap) return@let
                     val currentTime = System.currentTimeMillis() / 1000
                     val sapisidHash = sha1("$currentTime ${cookieMap["SAPISID"]} $origin")

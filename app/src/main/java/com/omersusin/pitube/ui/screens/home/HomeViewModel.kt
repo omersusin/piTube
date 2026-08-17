@@ -81,7 +81,7 @@ internal fun homeFeedQuotas(
         return FeedSource.entries.associateWith { 0 }
     }
 
-    val personal = if (hasPersonalFeed) (slots * 0.30).toInt().coerceAtLeast(0) else 0
+    val personal = if (hasPersonalFeed) (slots * 0.55).toInt().coerceAtLeast(0) else 0
     val remainingAfterPersonal = (slots - personal).coerceAtLeast(0)
     // Subscribed channels are the heart of the feed: when the user follows
     // channels, give them the largest share so their uploads actually surface.
@@ -722,7 +722,7 @@ class HomeViewModel @Inject constructor(
                                 result.videos
                             }
                             .orEmpty()
-                            .filterValid()
+                            .filterSignedValid()
                             .filterWatched(watchedVideoIds.value)
                             .filterUnplayable(unplayableVideoIds.value)
                             .filterRecentHomeSuggestion(System.currentTimeMillis())
@@ -759,7 +759,12 @@ class HomeViewModel @Inject constructor(
                                         .orEmpty()
                                 } ?: emptyList()
                             } else emptyList()
-                            if (aggregate.size >= 8) aggregate
+                            // The signed FEsubscriptions page is the real
+                            // subscription feed; fall back to the per-channel
+                            // crawl only when it came back empty (bot-walled /
+                            // dead session), never when it merely returned
+                            // fewer items than some arbitrary threshold.
+                            if (aggregate.isNotEmpty()) aggregate
                             else {
                                 // Budget must cover the channel crawl inside
                                 // getVideosForChannels (10-wide chunks, 6s/channel,
@@ -862,7 +867,7 @@ class HomeViewModel @Inject constructor(
                 // Filter to regular videos for the main feed
                 val watched = watchedVideoIds.value
                 val unplayable = unplayableVideoIds.value
-                val subsPool = rawSubs.filterValid().filterWatched(watched).filterUnplayable(unplayable).enrichAvatars()
+                val subsPool = rawSubs.filterSignedValid().filterWatched(watched).filterUnplayable(unplayable).enrichAvatars()
                 val discoveryPool = rawDiscovery.filterValid().filterWatched(watched).filterUnplayable(unplayable)
                     .filterRecentHomeSuggestion(now)
                 val viralPool = rawViral.filterValid().filterWatched(watched).filterUnplayable(unplayable)
@@ -903,7 +908,7 @@ class HomeViewModel @Inject constructor(
                     watched.size,
                     hasPersonalFeed = personalizedPool.isNotEmpty()
                 )
-                val bestPersonal = personalizedPool.take(12)
+                val bestPersonal = personalizedPool.take(20)
                 val sourceMix = blendFeedSources(
                     lanes = mapOf(
                         FeedSource.PERSONAL to bestPersonal,
@@ -1366,6 +1371,16 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
+     * Lenient validity filter for the signed lanes (FEwhat_to_watch /
+     * FEsubscriptions): those grids can omit the duration badge, and dropping
+     * every item without a duration is what silently emptied the personalized
+     * feed. Only actual Shorts are removed.
+     */
+    private fun List<Video>.filterSignedValid(): List<Video> {
+        return this.filter { !it.isShort }
+    }
+
+    /**
      * Filter that extracts shorts from a video list for the shelf.
      * Complements filterValid() by capturing what it discards.
      */
@@ -1381,6 +1396,12 @@ class HomeViewModel @Inject constructor(
     private fun isRecentHomeSuggestion(video: Video, now: Long): Boolean {
         val text = video.uploadDate.lowercase()
         if (text.isBlank() || text == "unknown") return video.isLive
+
+        // The parser fills a real epoch for relative dates in any language —
+        // prefer it over keyword matching, which only understands English.
+        if (video.timestamp > 0L) {
+            return now - video.timestamp <= HOME_MAX_SUGGESTION_AGE_MS
+        }
 
         val age = now - video.timestamp
         if (age in 0..HOME_MAX_SUGGESTION_AGE_MS) return true
