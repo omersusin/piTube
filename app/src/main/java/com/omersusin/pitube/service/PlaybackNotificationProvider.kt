@@ -4,8 +4,9 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
 import android.os.Bundle
+import androidx.core.app.NotificationCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaNotification
 import androidx.media3.session.MediaSession
@@ -28,9 +29,9 @@ class PlaybackNotificationProvider(
     @Volatile var showDislike: Boolean = false
     @Volatile var showRadio: Boolean = false
 
-    private fun customAction(code: Int, title: String, iconRes: Int): Notification.Action =
-        Notification.Action.Builder(
-            Icon.createWithResource(context, iconRes),
+    private fun customAction(code: Int, title: String, iconRes: Int): NotificationCompat.Action =
+        NotificationCompat.Action.Builder(
+            IconCompat.createWithResource(context, iconRes),
             title,
             PendingIntent.getService(
                 context,
@@ -60,8 +61,10 @@ class PlaybackNotificationProvider(
             onNotificationChangedCallback,
         )
         val notification = built.notification
-        val combined = mutableListOf<Notification.Action>()
-        notification.actions.orEmpty().forEach { combined += it }
+        val combined = mutableListOf<NotificationCompat.Action>()
+        notification.actions.orEmpty().forEach {
+            combined += NotificationCompat.Action.Builder(it).build()
+        }
         if (showLike) {
             combined += customAction(101, context.getString(R.string.like), R.drawable.ic_notif_like)
         }
@@ -71,10 +74,11 @@ class PlaybackNotificationProvider(
         if (showRadio) {
             combined += customAction(103, context.getString(R.string.player_settings_radio_mode), R.drawable.ic_notif_radio)
         }
-        // Rebuild through the Builder: `Notification.actions` is read-only on
-        // newer API levels, but setActions copies every other field.
+        // The platform `Notification.Builder(Context, Notification)` constructor
+        // is @hide — NotificationCompat rebuilds from the existing notification
+        // while setActions replaces the action list.
         val rebuilt =
-            Notification.Builder(context, notification)
+            NotificationCompat.Builder(context, notification)
                 .setActions(*combined.toTypedArray())
                 .build()
         return MediaNotification(built.notificationId, rebuilt)
