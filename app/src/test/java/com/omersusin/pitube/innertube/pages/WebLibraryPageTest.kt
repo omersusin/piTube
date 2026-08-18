@@ -7,61 +7,34 @@ import org.junit.Test
 
 class WebLibraryPageTest {
 
-    private fun channelRenderer(id: String, name: String): String = """
-        {
-          "channelRenderer": {
-            "channelId": "$id",
-            "title": {"simpleText": "$name"},
-            "thumbnail": {"thumbnails": [{"url": "//$id", "width": 80, "height": 80}]}
-          }
-        }
-    """.trimIndent()
+    private fun channelRendererMember(id: String, name: String): String =
+        """"channelRenderer":{"channelId":"$id","title":{"simpleText":"$name"},"thumbnail":{"thumbnails":[{"url":"//$id","width":80,"height":80}]}}"""
+
+    private fun channelRendererObject(id: String, name: String): String = "{${channelRendererMember(id, name)}}"
 
     @Test
     fun `collects grid behind unexpected wrapper keys while skipping you-may-like shelves`() {
-        val response = Json.parseToJsonElement(
-            """
+        val fixture = """
             {
               "contents": {
                 "sectionListRenderer": {
                   "contents": [{
                     "richGridRenderer": {
                       "contents": [
-                        {
-                          "richShelfRenderer": {
-                            "content": {
-                              "horizontalListRenderer": {
-                                "items": [
-                                  ${channelRenderer("UCsuggestedchannel", "Suggested Channel")}
-                                ]
-                              }
-                            }
-                          }
-                        },
-                        {
-                          "carouselLockupContainer": {
-                            "spacing": {"value": "8"},
-                            ${channelRenderer("UCrealsubscription1", "Real Channel One")}
-                          }
-                        },
-                        {
-                          "gridRenderer": {
-                            "items": [
-                              ${channelRenderer("UCrealsubscription2", "Real Channel Two")},
-                              {"gridChannelRenderer": {"channelId": "UCrealsubscription3",
-                                "title": {"simpleText": "Real Channel Three"}}}
-                            ]
-                          }
-                        }
+                        {"richShelfRenderer": {"content": {"horizontalListRenderer": {"items": [__SUGGESTED__]}}}},
+                        {"carouselLockupContainer": {"spacing": {"value": "8"}, __REAL1__}},
+                        {"gridRenderer": {"items": [__REAL2__, {"gridChannelRenderer": {"channelId": "UCrealsubscription3", "title": {"simpleText": "Real Channel Three"}}}]}}
                       ]
                     }
                   }]
                 }
               }
             }
-            """.trimIndent(),
-        )
-        val channels = response.toRemoteChannels()
+        """.trimIndent()
+            .replace("__SUGGESTED__", channelRendererObject("UCsuggestedchannel", "Suggested Channel"))
+            .replace("__REAL1__", channelRendererMember("UCrealsubscription1", "Real Channel One"))
+            .replace("__REAL2__", channelRendererObject("UCrealsubscription2", "Real Channel Two"))
+        val channels = Json.parseToJsonElement(fixture).toRemoteChannels()
         assertEquals(
             setOf("UCrealsubscription1", "UCrealsubscription2", "UCrealsubscription3"),
             channels.map { it.id }.toSet(),
@@ -72,8 +45,7 @@ class WebLibraryPageTest {
 
     @Test
     fun `grid sharing an object with a shelf is still walked`() {
-        val response = Json.parseToJsonElement(
-            """
+        val fixture = """
             {
               "contents": [{
                 "sectionListRenderer": {
@@ -83,21 +55,22 @@ class WebLibraryPageTest {
                         "title": {"simpleText": "Channels you may like"},
                         "content": {
                           "horizontalListRenderer": {
-                            "items": [${channelRenderer("UCshelfchannelaa", "Shelf Channel")}]
+                            "items": [__SHELF__]
                           }
                         }
                       },
                       "gridRenderer": {
-                        "items": [${channelRenderer("UCrealgridchannel", "Real Grid Channel")}]
+                        "items": [__REALGRID__]
                       }
                     }
                   }]
                 }
               }]
             }
-            """.trimIndent(),
-        )
-        val channels = response.toRemoteChannels()
+        """.trimIndent()
+            .replace("__SHELF__", channelRendererObject("UCshelfchannelaa", "Shelf Channel"))
+            .replace("__REALGRID__", channelRendererObject("UCrealgridchannel", "Real Grid Channel"))
+        val channels = Json.parseToJsonElement(fixture).toRemoteChannels()
         assertEquals(listOf("UCrealgridchannel"), channels.map { it.id })
         assertEquals("Real Grid Channel", channels.single().name)
     }
