@@ -60,8 +60,10 @@ import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.potoken.WebPoTokenSession
 import android.util.Log
 import io.ktor.client.call.body
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -94,6 +96,8 @@ object YouTube {
     private const val CHANNEL_VIDEOS_PARAMS = "EgZ2aWRlb3PyBgQKAjoA"
     private const val CHANNEL_LIVE_PARAMS = "EgdzdHJlYW1z8gYECgJ6AA%3D%3D"
     private const val CHANNEL_POSTS_PARAMS = "EgVwb3N0c_IGBAoCSgA="
+    /** Max FEchannels browse pages per crawl (safety cap; ~94 channels/page). */
+    private const val CHANNEL_PAGE_CAP = 10
     /** Signed-out marker YouTube embeds in authenticated response bodies. */
     private val LOGGED_OUT_REGEX = Regex("\"loggedIn\"\\s*:\\s*(false|0)|\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"0\"")
 
@@ -1336,17 +1340,33 @@ object YouTube {
         if (cookie.isNullOrBlank()) return@runCatching RemoteChannelCrawl(emptyList(), complete = false)
         val client = currentWebClient()
         val channels = mutableListOf<RemoteChannel>()
+        val seenContinuations = mutableSetOf<String>()
         var continuation: String? = null
         var pages = 0
         var complete = false
+        var stopReason = "no-continuation-token"
         do {
-            val response = innerTube.signedWebBrowse(
-                client = client,
-                browseId = if (continuation == null) "FEchannels" else null,
-                continuation = continuation,
-            )
+            // One in-place retry: a transient 429/5xx mid-crawl must not abort
+            // an otherwise healthy run (withRetry only re-tries transport
+            // failures, not rejected statuses).
+            var response: HttpResponse
+            var attempts = 0
+            while (true) {
+                response = innerTube.signedWebBrowse(
+                    client = client,
+                    browseId = if (continuation == null) "FEchannels" else null,
+                    continuation = continuation,
+                )
+                if (response.status.isSuccess() || ++attempts > 1) break
+                delay(1_000)
+            }
             if (!response.status.isSuccess()) {
-                Log.w("YouTube", "webSubscribedChannels: HTTP ${response.status.value} on page $pages")
+                stopReason = "http-${response.status.value}"
+                Log.w(
+                    "YouTube",
+                    "webSubscribedChannels: HTTP ${response.status.value} on page $pages " +
+                        "(channels so far ${channels.size})",
+                )
                 break
             }
             val bodyText = response.bodyAsText()
@@ -1361,32 +1381,58 @@ object YouTube {
             val found = root.toRemoteChannels()
             channels += found
             if (found.isEmpty()) {
-                // Diagnostic hook: a 0-channel first page is either a dead
-                // session or a parser-shape regression — never "the account has
-                // nothing subscribed". Dump the raw page so the real shape can
-                // be inspected on-device alongside the HTTP and session state.
-                if (pages == 0) {
-                    val dumpPath = runCatching {
-                        val root = FlowApplication.appContext.getExternalFilesDir(null)
-                            ?: return@runCatching null
-                        val dir = File(root, "session_dump").apply { mkdirs() }
-                        val dumpFile = File(dir, "fechannels_page0_${System.currentTimeMillis()}.json")
-                        dumpFile.writeText(bodyText)
-                        dumpFile.absolutePath
-                    }.getOrNull()
-                    Log.w(
-                        "YouTube",
-                        "webSubscribedChannels: 0 channels on first page http=${response.status.value} " +
-                            "loggedOut=$loggedOut dump=${dumpPath ?: "dump-failed"}",
-                    )
-                } else {
-                    Log.w("YouTube", "webSubscribedChannels: parser returned 0 channels on page $pages (body len ${bodyText.length})")
+                // Diagnostic hook: a 0-channel page is either a dead session
+                // or a parser-shape regression — never "the account has
+                // nothing subscribed". Dump the raw page so the real shape
+                // can be inspected on-device alongside the HTTP and session
+                // state.
+                val dumpPath = runCatching {
+                    val rootDir = FlowApplication.appContext.getExternalFilesDir(null)
+                        ?: return@runCatching null
+                    val dir = File(rootDir, "session_dump").apply { mkdirs() }
+                    val dumpFile = File(dir, "fechannels_page${pages}_${System.currentTimeMillis()}.json")
+                    dumpFile.writeText(bodyText)
+                    dumpFile.absolutePath
+                }.getOrNull()
+                Log.w(
+                    "YouTube",
+                    "webSubscribedChannels: 0 channels on page $pages http=${response.status.value} " +
+                        "loggedOut=$loggedOut dump=${dumpPath ?: "dump-failed"}",
+                )
+            }
+            val next = root.browseContinuation()
+            pages++
+            when {
+                next == null -> {
+                    complete = true
+                    stopReason = "no-continuation-token"
+                }
+                !seenContinuations.add(next) -> {
+                    // The server echoed the same token twice: further requests
+                    // would only re-serve this page, so the crawl is complete.
+                    complete = true
+                    stopReason = "repeated-continuation"
+                }
+                pages >= CHANNEL_PAGE_CAP -> {
+                    complete = false
+                    stopReason = "page-cap-$CHANNEL_PAGE_CAP"
+                }
+                else -> {
+                    complete = false
+                    stopReason = "continuing"
                 }
             }
-            continuation = root.browseContinuation()
-            pages++
-            if (continuation == null) complete = true
-        } while (continuation != null && pages < 10)
+            continuation = next
+            Log.i(
+                "YouTube",
+                "webSubscribedChannels: page=${pages - 1} found=${found.size} total=${channels.size} " +
+                    "complete=$complete stop=$stopReason",
+            )
+        } while (!complete && pages < CHANNEL_PAGE_CAP)
+        Log.i(
+            "YouTube",
+            "webSubscribedChannels: done pages=$pages channels=${channels.size} complete=$complete stop=$stopReason",
+        )
         RemoteChannelCrawl(channels.distinctBy { it.id }, complete = complete)
     }
 
