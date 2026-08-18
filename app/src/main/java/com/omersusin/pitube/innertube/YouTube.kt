@@ -143,6 +143,11 @@ object YouTube {
         set(value) {
             innerTube.sessionStateListener = value
         }
+    var dataSyncIdListener: ((String) -> Unit)?
+        get() = innerTube.dataSyncIdListener
+        set(value) {
+            innerTube.dataSyncIdListener = value
+        }
 
     // Long-form search ignores the Shorts shelf; fetch it from the main site (not music).
     suspend fun searchShorts(query: String): Result<List<SearchShortItem>> = runCatching {
