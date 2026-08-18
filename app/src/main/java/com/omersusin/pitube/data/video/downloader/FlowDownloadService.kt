@@ -1443,8 +1443,7 @@ class FlowDownloadService : Service() {
                         val langTag = pick.languageTag
                             ?: pick.locale?.language
                             ?: "sub"
-                        val ext =
-                            if (pick.format.name.lowercase().contains("vtt")) "vtt" else "srt"
+                        val ext = pick.extension.takeIf { it.isNotBlank() && it != "mime" } ?: "srt"
                         File(dir, "$baseName.$langTag.$ext").writeText(content)
                     }
                 }
