@@ -738,8 +738,8 @@
     <string name="player_settings_shorts_background_play">Odtwarzanie w Tle Shorts</string>
     <string name="player_settings_shorts_background_play_subtitle">Kontynuuj odtwarzanie Shorts, gdy aplikacja działa w tle</string>
     <string name="player_settings_shorts_playback_mode_title">Tryb Odtwarzania Shorts</string>
-    <string name="player_settings_shorts_playback_mode_loop">Pętla (powtórz bieżący short)</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Autoodtwarzanie kolejnego Short</string>
+    <string name="player_settings_shorts_playback_mode_loop">Pętla (powtórz bieżący Shorts)</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Autoodtwarzanie kolejnego Shortsssssssss</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">Przewijaj automatycznie po czasie</string>
     <string name="player_settings_shorts_playback_mode_dialog_body">Wybierz zachowanie odtwarzacza po zakończeniu oglądania klipu Shorts:</string>
     <string name="player_settings_queue_autoplay_subtitle">Automatycznie odtwarza kolejny film z listy lub kolejki „Obejrzyj później”. Po wyłączeniu możesz przełączać filmy ręcznie.</string>
@@ -832,7 +832,7 @@
     <string name="quality_1080p_full_hd">1080p Full HD</string>
     <string name="quality_1440p_qhd">1440p QHD</string>
     <string name="quality_2160p_4k">2160p 4K</string>
-    <string name="shorts_quality_warning">Wyższa jakość wymaga większej ilości danych. Filmy krótkometrażowe wykorzystują pionowe strumienie wideo.</string>
+    <string name="shorts_quality_warning">Wyższa jakość wymaga większej ilości danych. Shorts wykorzystują pionowe strumienie wideo.</string>
     <string name="buffer_settings_title">Ustawienia Buforowania</string>
     <string name="buffer_settings_desc">Skonfiguruj sposób buforowania wideo tak, aby był dostosowany do Twojego połączenia sieciowego.</string>
     <string name="buffer_settings_header_profile">Profil Wydajności</string>
@@ -1345,8 +1345,8 @@
     <string name="appearance_navigate_back">Nawiguj wstecz</string>
     <string name="appearance_selected">Zaznaczono</string>
     <string name="icon_name_flow_play">piTube Play</string>
-    <string name="shorts_saved">Short został zapisany</string>
-    <string name="shorts_unsaved">Short nie został zapisany</string>
+    <string name="shorts_saved">Shorts został zapisany</string>
+    <string name="shorts_unsaved">Shorts nie został zapisany</string>
     <string name="autoplay_countdown_up_next">Następny</string>
     <string name="autoplay_countdown_next_video">Następny film</string>
     <string name="autoplay_countdown_cancel">Anuluj</string>
@@ -1379,7 +1379,7 @@
     <string name="back">Powrót</string>
     <string name="btn_close">Zamknij</string>
     <string name="error_short_load">Wystąpił błąd</string>
-    <string name="share_short_template">Obejrzyj ten short: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Obejrzyj ten Shorts: https://youtu.be/%1$s</string>
     <string name="speed_2x">Prędkość 2x</string>
     <string name="cd_liked">Polubione</string>
     
@@ -1781,7 +1781,7 @@
     <string name="empty_feed_title">Nothing here yet</string>
     <string name="empty_results_body">Try a different search or check your connection</string>
     <string name="empty_results_title">No results found</string>
-    <string name="empty_saved_shorts">No saved shorts yet</string>
+    <string name="empty_saved_shorts">No saved Shorts yet</string>
     <string name="end_of_results">End of results</string>
     <string name="error_all_stream_sources_failed">Unable to play this video. All stream sources returned errors.</string>
     <string name="error_bot_wall">YouTube is asking for verification</string>
@@ -1793,15 +1793,15 @@
     <string name="error_failed_to_load_feed">Nie udało się załadować kanału</string>
     <string name="error_failed_to_load_media">Nie udało się załadować multimediów: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Nie udało się załadować multimediów: Nieprawidłowe strumienie</string>
-    <string name="error_failed_to_load_more_shorts">Nie udało się załadować więcej krótkich spodenek</string>
-    <string name="error_failed_to_load_shorts">Nie udało się załadować szortów</string>
+    <string name="error_failed_to_load_more_shorts">Nie udało się załadować więcej Shorts</string>
+    <string name="error_failed_to_load_shorts">Nie udało się załadować Shorts</string>
     <string name="error_failed_to_load_videos">Nie udało się załadować filmów.</string>
     <string name="error_insecure_stream_blocked">Niebezpieczny strumień zablokowany przez zasady dotyczące urządzeń.</string>
     <string name="error_invalid_channel_url">Nieprawidłowy adres URL kanału</string>
     <string name="error_no_internet_found">Nie znaleziono połączenia internetowego</string>
     <string name="error_no_live_videos_found">Nie znaleziono filmów na żywo</string>
     <string name="error_no_playlists_found">Nie znaleziono playlist</string>
-    <string name="error_no_shorts_found">Nie znaleziono filmów Short</string>
+    <string name="error_no_shorts_found">Nie znaleziono filmów Shortsssssssss</string>
     <string name="error_no_videos_for_category">Nie znaleziono filmów w tej kategorii.</string>
     <string name="error_no_videos_found">Nie znaleziono filmów</string>
     <string name="error_playback_device">Błąd urządzenia odtwarzającego: %1$s</string>

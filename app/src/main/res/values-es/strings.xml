@@ -389,7 +389,7 @@
     <string name="quality_480p">480p</string>
     <string name="buffer_profile_aggressive">Inicio rápido/agresivo</string>
     <string name="buffer_label_rebuffer">Reanudar después del Rebuffer: %1$ds</string>
-    <string name="share_short_template">Mira este corto: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Mira este Shorts: https://youtu.be/%1$s</string>
     <string name="action_like">Me gusta</string>
     
     
@@ -421,7 +421,7 @@
     
     
     <string name="fullscreen">Pantalla completa</string>
-    <string name="shorts_quality_settings_subtitle">Calidad al ver Cortos</string>
+    <string name="shorts_quality_settings_subtitle">Calidad al ver Shorts</string>
     <string name="play_next_toast">jugará el próximo</string>
     <string name="on">Activadas</string>
     <string name="check_for_updates">Buscar actualizaciones</string>
@@ -432,7 +432,7 @@
     <string name="player_settings_overlay_sleep_timer">Botón del temporizador de apagado</string>
     <string name="settings_item_diagnostics_subtitle">Ver registros de errores e informes de fallos</string>
     
-    <string name="player_settings_shorts_playback_mode_loop">Bucle (repite el short actual)</string>
+    <string name="player_settings_shorts_playback_mode_loop">Bucle (repite el Shorts actual)</string>
     
     <string name="sb_settings_general_header">General</string>
     <string name="channel_search_hint">Buscar en canal</string>
@@ -716,7 +716,7 @@
     <string name="cache_size_unlimited">Ilimitado</string>
     <string name="btn_back">Atrás</string>
     <string name="back">Atrás</string>
-    <string name="loading_shorts">Cargando cortos…</string>
+    <string name="loading_shorts">Cargando Shorts…</string>
     <string name="error_short_load">Se produjo un error</string>
     <string name="speed_2x">2x velocidad</string>
     <string name="cd_liked">Apreciado</string>
@@ -1055,17 +1055,17 @@
     <string name="shorts_quality">Calidad</string>
     
     
-    <string name="shorts_quality_settings_title">Calidad de vídeo de cortos</string>
+    <string name="shorts_quality_settings_title">Calidad de vídeo de Shorts</string>
     
-    <string name="shorts_quality_warning">Una mayor calidad utiliza más datos. Los cortos utilizan transmisiones de video verticales.</string>
-    <string name="shorts_quality_cellular_header">Pantalones cortos de calidad celular</string>
+    <string name="shorts_quality_warning">Una mayor calidad utiliza más datos. Los Shorts utilizan transmisiones de video verticales.</string>
+    <string name="shorts_quality_cellular_header">Shorts Calidad de datos móviles</string>
     <string name="play_next_video">Reproducir siguiente</string>
     <string name="play_next_video_desc">Insertar al inicio de la cola de videos</string>
     <string name="add_video_to_queue">Agregar a la cola</string>
     <string name="add_video_to_queue_desc">Agregar al final de la cola de videos</string>
     
     <string name="download_video">Descargar Vídeo</string>
-    <string name="shorts_quality_wifi_header">Pantalones cortos Calidad Wi-Fi</string>
+    <string name="shorts_quality_wifi_header">Shorts Calidad Wi-Fi</string>
     <string name="added_to_queue_toast">Agregado a la cola</string>
     <string name="no_download_streams">No hay transmisiones de descarga disponibles</string>
     <string name="section_completed">Terminado</string>
@@ -1162,13 +1162,13 @@
     <string name="content_settings_title_lines_unlimited">Sin límite</string>
     <string name="player_settings_shorts_background_play_subtitle">Continuar reproduciendo Shorts cuando la aplicación esté en segundo plano</string>
     
-    <string name="player_settings_shorts_playback_mode_auto_next">Reproducir siguiente automáticamente (avanza al siguiente short)</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Reproducir siguiente automáticamente (avanza al siguiente Shorts)</string>
     
     <string name="player_settings_shorts_playback_mode_dialog_title">Modo de reproducción de Shorts</string>
     <string name="player_settings_shorts_playback_mode_title">Modo de reproducción de Shorts</string>
     <string name="theme_name_monochrome">Monocromo</string>
     <string name="theme_desc_monochrome">Pura claridad en blanco y negro</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">Elija cómo deben comportarse los Shorts cuando termine de reproducirse el short actual:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">Elija cómo deben comportarse los Shorts cuando termine de reproducirse el Shorts actual:</string>
     <string name="theme_name_custom">Personalizado</string>
     <string name="permissions_header">Permisos</string>
     <string name="files_access_title">Acceso a archivos</string>
@@ -1422,9 +1422,9 @@
     <string name="player_appearance_volume_boost_title">Permitir un aumento de volumen adicional</string>
     <string name="shorts_playback_speed">Velocidad de reproducción</string>
     
-    <string name="history_delete_shorts_body">Esto elimina todos los cortos de tu historial de reproducciones. Otros vídeos se conservan.</string>
-    <string name="history_delete_shorts">Eliminar cortos del historial</string>
-    <string name="history_delete_shorts_title">¿Eliminar cortos?</string>
+    <string name="history_delete_shorts_body">Esto elimina todos los Shorts de tu historial de reproducciones. Otros vídeos se conservan.</string>
+    <string name="history_delete_shorts">Eliminar Shorts del historial</string>
+    <string name="history_delete_shorts_title">¿Eliminar Shorts?</string>
     
     <string name="live_chat">Chat en directo</string>
     <string name="live_chat_connecting">Conectando al chat en directo…</string>
@@ -1454,7 +1454,7 @@
     
     <string name="shorts_player_ui_default">Predeterminada</string>
     <string name="shorts_player_ui_simple">Sencilla</string>
-    <string name="shorts_saved">Short guardado</string>
+    <string name="shorts_saved">Shorts guardado</string>
     <string name="content_settings_watched_threshold_90">90% reproducido</string>
     <string name="content_settings_watched_threshold_95">95% reproducido</string>
     <string name="content_settings_watched_threshold_99">99% reproducido</string>
@@ -1533,7 +1533,7 @@
     <string name="player_appearance_shorts_ui_subtitle">Elige qué tan visible se mantiene la superposición de Shorts</string>
     <string name="player_appearance_grouped_quality_selector_title">Selector de calidad agrupado</string>
     <string name="player_appearance_grouped_quality_selector_subtitle">Mostrar una fila por resolución con las opciones de códec en su interior</string>
-    <string name="shorts_unsaved">Short no guardado</string>
+    <string name="shorts_unsaved">Shorts no guardado</string>
     <string name="player_appearance_controls_while_loading_title">Controles durante la carga</string>
     <string name="player_appearance_controls_while_loading_subtitle">Muestra los controles del reproductor antes de que el video termine de cargar para que puedas ajustar el volumen de inmediato</string>
     
@@ -1839,8 +1839,8 @@
     <string name="error_channel_loading_timed_out">Tiempo de espera agotado al cargar el canal</string>
     <string name="error_failed_to_load_feed">No se pudo cargar el feed</string>
     <string name="error_failed_to_load_channel">No se pudo cargar el canal</string>
-    <string name="error_failed_to_load_shorts">No se pudieron cargar los shorts</string>
-    <string name="error_failed_to_load_more_shorts">No se pudieron cargar más shorts</string>
+    <string name="error_failed_to_load_shorts">No se pudieron cargar los Shorts</string>
+    <string name="error_failed_to_load_more_shorts">No se pudieron cargar más Shorts</string>
     
     
     
@@ -1849,7 +1849,7 @@
     <string name="action_save_preset">Guardar preajuste</string>
     <string name="label_preset_name">Nombre del preajuste</string>
     <string name="error_no_videos_found">No se encontraron videos</string>
-    <string name="error_no_shorts_found">No se encontraron shorts</string>
+    <string name="error_no_shorts_found">No se encontraron Shorts</string>
     <string name="error_no_live_videos_found">No se encontraron vídeos en directo</string>
     <string name="error_no_playlists_found">No se encontraron listas</string>
     <string name="error_unable_to_load_next_video">No se pudo cargar el siguiente vídeo</string>
@@ -1967,7 +1967,7 @@
     <string name="empty_feed_title">Nada aquí todavía</string>
     <string name="empty_results_body">Prueba una búsqueda diferente o comprueba tu conexión</string>
     <string name="empty_results_title">No se encontraron resultados</string>
-    <string name="empty_saved_shorts">Aún no hay cortos guardados</string>
+    <string name="empty_saved_shorts">Aún no hay Shorts guardados</string>
     <string name="end_of_results">Fin de los resultados</string>
     <string name="error_bot_wall">YouTube solicita verificación</string>
     <string name="error_bot_wall_hint">YouTube requiere iniciar sesión para confirmar que no eres un bot. Si ha iniciado sesión, espere un momento y vuelva a intentarlo, o cambie de red/VPN e intente nuevamente.</string>

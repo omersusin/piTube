@@ -493,7 +493,7 @@
     <string name="new_group">Nova Grupa</string>
     <string name="no_groups_yet">Još nema grupa. Napravite grupu da biste filtrirali svoj feed.</string>
     <string name="no_related_content">Nema pronađenog srodnog sadržaja</string>
-    <string name="no_shorts_found">Nema pronađenih shorts</string>
+    <string name="no_shorts_found">Nema pronađenih Shorts</string>
     <string name="no_subscriptions_yet">Još nema pretplata</string>
     <string name="no_videos_found">Nema pronađenih videa</string>
     <string name="not_interested">Nije mi zanimljivo</string>
@@ -545,7 +545,7 @@
     <string name="share_message_template">Poslušaj ovu pjesmu: %1$s od %2$s\nhttps://music.youtube.com/watch?v=%3$s</string>
     <string name="share_song">Podijeli pjesmu</string>
     <string name="share_song_chooser">Podijeli pjesmu</string>
-    <string name="shorts_count_template">%1$d shorts</string>
+    <string name="shorts_count_template">%1$d Shorts</string>
     <string name="since">Od</string>
     <string name="song">Pjesma</string>
     <string name="songs_count_template">%1$d pjesama</string>
@@ -919,7 +919,7 @@
     <string name="empty_feed_title">Ovdje još ništa</string>
     <string name="empty_results_body">Pokušajte s drugom pretragu ili provjerite svoju vezu</string>
     <string name="empty_results_title">Nema pronađenih rezultata</string>
-    <string name="empty_saved_shorts">Još nema sačuvanih kratkih hlača</string>
+    <string name="empty_saved_shorts">Još nema sačuvanih Shorts</string>
     <string name="end_time">Vrijeme završetka</string>
     <string name="equalizer">Ekvilajzer</string>
     <string name="error_age_restricted">Staro ograničeni sadržaj</string>
@@ -943,8 +943,8 @@
     <string name="error_failed_to_load_feed">Nije uspjelo učitavanje feeda</string>
     <string name="error_failed_to_load_media">Nije uspjelo učitavanje medija: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Nije uspjelo učitavanje medija: Nevažeći tokovi</string>
-    <string name="error_failed_to_load_more_shorts">Nije uspjelo učitavanje još kratkih filmova</string>
-    <string name="error_failed_to_load_shorts">Nije uspjelo učitavanje kratkih filmova</string>
+    <string name="error_failed_to_load_more_shorts">Nije uspjelo učitavanje još Shorts</string>
+    <string name="error_failed_to_load_shorts">Nije uspjelo učitavanje Shorts</string>
     <string name="error_failed_to_load_videos">Nije uspjelo učitavanje video zapisa.</string>
     <string name="error_generic">Nije uspjelo učitavanje video zapisa</string>
     <string name="error_generic_hint">Došlo je do nepoznate greške. Molimo pokušajte ponovo.</string>
@@ -964,7 +964,7 @@
     <string name="error_no_internet_hint">Provjerite Wi-Fi ili mobilne podatke i pokušajte ponovo.</string>
     <string name="error_no_live_videos_found">Nema pronađenih video zapisa uživo</string>
     <string name="error_no_playlists_found">Nema pronađenih plejlista</string>
-    <string name="error_no_shorts_found">Nema kratkih sadržaja</string>
+    <string name="error_no_shorts_found">Nema Shorts sadržaja</string>
     <string name="error_no_videos_for_category">Nema pronađenih videozapisa za ovu kategoriju.</string>
     <string name="error_no_videos_found">Nije pronađen nijedan video</string>
     <string name="error_not_available">Video nije dostupan</string>
@@ -1011,7 +1011,7 @@
     <string name="hearted_by_creator">Hearted by kreator</string>
     <string name="history_delete_shorts">Izbriši Shorts iz historije</string>
     <string name="history_delete_shorts_body">Ovo uklanja sve Shorts iz vaše historije gledanja. Ostali video zapisi se čuvaju.</string>
-    <string name="history_delete_shorts_title">Izbrisati kratke hlače?</string>
+    <string name="history_delete_shorts_title">Izbrisati Shorts?</string>
     <string name="history_sync_youtube">Sync sa YouTube</string>
     <string name="icon_name_flow_light">piTube Light</string>
     <string name="icon_name_flow_play">piTube Pusti</string>
@@ -1034,7 +1034,7 @@
     <string name="load_more_replies">Učitavanje više odgovora</string>
     <string name="loading_ellipsis">Učitavanje...</string>
     <string name="loading_more">Učitavanje više...</string>
-    <string name="loading_shorts">Učitavanje kratkih hlača...</string>
+    <string name="loading_shorts">Učitavanje Shorts...</string>
     <string name="local_media_empty_body">Video zapisi i muzika sačuvani na ovom uređaju će se pojaviti ovde.</string>
     <string name="local_media_empty_title">Nije pronađen %1$s</string>
     <string name="local_media_permission_body">Dozvolite pristup vašim medijima kako bi piTube mogao pronaći i reproducirati lokalne video zapise i muziku.</string>
@@ -1242,10 +1242,10 @@
     <string name="player_settings_shorts_background_play_subtitle">Nastavi s reprodukcijom Shorts kada je aplikacija u pozadini</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">Automatsko pomicanje nakon prilagođenog vremena</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">Automatsko pomicanje svakih %1$d sekundi</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Automatska reprodukcija Sljedeće (prelazak na sljedeći kratki trenutak) Odaberite kako bi trebao biti kratak</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">Automatsko pomicanje reprodukcija:</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Automatska reprodukcija Sljedeće (prelazak na sljedeći Shorts)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">Odaberite kako bi se Shorts ponašao nakon završetka trenutnog:</string>
     <string name="player_settings_shorts_playback_mode_dialog_title">Shorts Režim reprodukcije</string>
-    <string name="player_settings_shorts_playback_mode_loop">Petlja (kratka struja ponavljanja)</string>
+    <string name="player_settings_shorts_playback_mode_loop">Petlja (ponavljanje trenutnog Shorts)</string>
     <string name="player_settings_shorts_playback_mode_title">Shorts Režim reprodukcije</string>
     <string name="player_settings_skip_silence">Preskoči tišinu</string>
     <string name="player_settings_skip_silence_subtitle">Preskoči dijelove bez zvuka</string>
@@ -1478,7 +1478,7 @@
     <string name="settings_stt_provider">Dobavljač govora u tekst</string>
     <string name="share_community_post">Podijelite objavu zajednice</string>
     <string name="share_link_only_template">https://youtube.com/watch?v= %1$s</string>
-    <string name="share_short_template">Pogledajte ovo kratko: https://youtu.be/ %1$s</string>
+    <string name="share_short_template">Pogledajte ovaj Shorts: https://youtu.be/%1$s</string>
     <string name="shared_video">dijeljeni video</string>
     <string name="shorts_audio_track">audio zapis</string>
     <string name="shorts_auto_scroll_active_template">Auto %1$d s</string>
@@ -1487,13 +1487,13 @@
     <string name="shorts_player_ui_impressive">Impresivan</string>
     <string name="shorts_player_ui_simple">Jednostavan</string>
     <string name="shorts_quality">kvalitet</string>
-    <string name="shorts_quality_cellular_header">Kratki kvalitet Cell kvalitet</string>
+    <string name="shorts_quality_cellular_header">Shorts Kvalitet preko mobilne mreže</string>
     <string name="shorts_quality_settings_subtitle">Kvalitet pri gledanju Shorts</string>
-    <string name="shorts_quality_settings_title">Kratki kvaliteti videa</string>
-    <string name="shorts_quality_warning">Viši kvalitet koristi više podataka. Kratki filmovi koriste vertikalne video tokove.</string>
+    <string name="shorts_quality_settings_title">Kvalitet Shorts videa</string>
+    <string name="shorts_quality_warning">Viši kvalitet koristi više podataka. Shorts koriste vertikalne video tokove.</string>
     <string name="shorts_quality_wifi_header">Shorts Wi-Fi kvalitet</string>
-    <string name="shorts_saved">Kratko sačuvano</string>
-    <string name="shorts_unsaved">Kratko nesačuvano</string>
+    <string name="shorts_saved">Shorts sačuvano</string>
+    <string name="shorts_unsaved">Shorts nesačuvano</string>
     <string name="show_suggestions_subtitle">Prikaži prijedloge dok kucate</string>
     <string name="sleep_timer">Sleep Timer</string>
     <string name="sleep_timer_cancel_timer">Otkaži Tajmer</string>

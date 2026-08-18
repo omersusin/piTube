@@ -659,7 +659,7 @@
     <string name="btn_close">Закрити</string>
     <string name="loading_shorts">Завантаження Shorts…</string>
     <string name="error_short_load">Сталася помилка</string>
-    <string name="share_short_template">Переглянь цей shorts: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Переглянь цей Shorts: https://youtu.be/%1$s</string>
     <string name="speed_2x">Швидкість 2x</string>
     <string name="cd_liked">Вподобано</string>
     <string name="cd_pause">Пауза</string>
@@ -758,7 +758,7 @@
     <string name="player_settings_shorts_background_play">Фонове відтворення Shorts</string>
     <string name="player_settings_shorts_background_play_subtitle">Продовжувати відтворення Shorts, коли застосунок працює у фоні</string>
     <string name="player_settings_shorts_playback_mode_title">Режим відтворення Shorts</string>
-    <string name="player_settings_shorts_playback_mode_loop">Зациклити (поточний short)</string>
+    <string name="player_settings_shorts_playback_mode_loop">Зациклити (поточний Shorts)</string>
     <string name="player_settings_shorts_playback_mode_auto_next">Автовідтворення наступного (перехід до наступного Shorts)</string>
     <string name="player_settings_shorts_playback_mode_dialog_title">Режим відтворення Shorts</string>
     <string name="player_settings_shorts_playback_mode_dialog_body">Оберіть, що має відбуватися після завершення відео Shorts:</string>
@@ -1504,13 +1504,13 @@
     <string name="player_settings_display">Дисплей</string>
     <string name="player_settings_ambient_mode">Ambient режим</string>
     <string name="player_settings_ambient_mode_subtitle">Заповнює \"чорні смуги\" навколо відео м\'яким світінням кольором відео</string>
-    <string name="player_appearance_shorts_ui_title">Інтерфейс програвача shorts</string>
+    <string name="player_appearance_shorts_ui_title">Інтерфейс програвача Shorts</string>
     <string name="player_appearance_shorts_ui_subtitle">Виберіть, яка частина накладання Shorts має бути видимою</string>
     <string name="shorts_player_ui_default">Стандартне</string>
     <string name="shorts_player_ui_simple">Просте</string>
     <string name="shorts_player_ui_impressive">Ефектний</string>
-    <string name="shorts_saved">Short збережено</string>
-    <string name="shorts_unsaved">Short не збережено</string>
+    <string name="shorts_saved">Shorts збережено</string>
+    <string name="shorts_unsaved">Shorts не збережено</string>
     <string name="sync_devices_title">Синхронізування пристроїв</string>
     <string name="sync_devices_subtitle">Синхронізація бібліотеки, історії та профілю через локальну мережу Wi-Fi</string>
     <string name="sync_notification_title">Синхронізація пристроїв</string>
@@ -1978,7 +1978,7 @@
     <string name="empty_feed_title">Тут ще нічого немає</string>
     <string name="empty_results_body">Спробуйте інший пошук або перевірте підключення</string>
     <string name="empty_results_title">Результатів не знайдено</string>
-    <string name="empty_saved_shorts">Ще немає збережених шорт</string>
+    <string name="empty_saved_shorts">Ще немає збережених Shorts</string>
     <string name="end_of_results">Кінець результатів</string>
     <string name="error_bot_wall">YouTube просить підтвердження</string>
     <string name="error_bot_wall_hint">YouTube вимагає входу, щоб підтвердити, що ви не бот. Якщо ви ввійшли, зачекайте деякий час і повторіть спробу — або змініть мережу/VPN і повторіть спробу.</string>

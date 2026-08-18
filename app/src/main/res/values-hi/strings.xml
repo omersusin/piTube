@@ -13,7 +13,7 @@
     
     
     <string name="library_liked_videos_label">लाइक्स</string>
-    <string name="library_saved_shorts_label">सहेजे गए शॉर्ट्स</string>
+    <string name="library_saved_shorts_label">सहेजे गए Shorts</string>
     <string name="library_watch_later_label">बाद में देखने के लिए</string>
     <string name="library_downloads_label">डाउनलोड</string>
     <string name="library_manage_data_label">डेटा प्रबंधित करें</string>
@@ -28,7 +28,7 @@
     
     <string name="video">वीडियो</string>
     <string name="share">सांझा करें</string>
-    <string name="shorts">शॉर्ट्स</string>
+    <string name="shorts">Shorts</string>
     <string name="clear_watch_history_alert_body">यह आपके देखने के इतिहास से सभी वीडियो हटा देगा। यह प्रक्रिया अपरिवर्तनीय है।</string>
     <string name="library_settings_data_header"><![CDATA[सेटिंग्स और डेटा]]></string>
     <string name="library">लाइब्रेरी</string>
@@ -94,7 +94,7 @@
     <string name="quality_auto_template">स्वचालित (%1$dp)</string>
     <string name="play_mode_suggestion_title">प्ले मोड सुझाव</string>
     <string name="play_mode_suggestion_body">यह वीडियो 2 मिनट से कम का है। क्या आप एक विशेष प्लेयर पर स्विच करना चाहेंगे?</string>
-    <string name="shorts_player">शॉर्ट्स प्लेयर</string>
+    <string name="shorts_player">Shorts प्लेयर</string>
     
     <string name="tab_videos">वीडियो</string>
     
@@ -160,7 +160,7 @@
     <string name="update_flow">फ्लो अपडेट करें</string>
     <string name="maybe_later">बाद में शायद</string>
     <string name="nav_home">होम</string>
-    <string name="nav_shorts">शॉर्ट्स</string>
+    <string name="nav_shorts">Shorts</string>
     
     <string name="nav_library">लाइब्रेरी</string>
     <string name="notifications">सूचनाएँ</string>
@@ -238,7 +238,7 @@
     <string name="channel_avatar">चैनल अवतार</string>
     <string name="subscribe">सदस्यता लें</string>
     <string name="unlike">नापसंद करें</string>
-    <string name="tab_shorts">शॉर्ट्स</string>
+    <string name="tab_shorts">Shorts</string>
     <string name="tab_live">लाइव</string>
     <string name="tab_playlists">प्लेलिस्ट</string>
     <string name="tab_about">के बारे में</string>
@@ -576,9 +576,9 @@
     <string name="btn_back">वापस</string>
     <string name="back">वापस</string>
     <string name="btn_close">बंद करें</string>
-    <string name="loading_shorts">शॉर्ट्स लोड हो रहे हैं…</string>
+    <string name="loading_shorts">Shorts लोड हो रहे हैं…</string>
     <string name="error_short_load">एक त्रुटि हुई</string>
-    <string name="share_short_template">यह शॉर्ट देखें: https://youtu.be/%1$s</string>
+    <string name="share_short_template">यह Shorts देखें: https://youtu.be/%1$s</string>
     <string name="speed_2x">2x गति</string>
     <string name="cd_liked">पसंद किए</string>
     <string name="cd_pause">रोकें</string>
@@ -949,11 +949,11 @@
     
     
     
-    <string name="shorts_quality_settings_title">शॉर्ट्स वीडियो क्वालिटी</string>
-    <string name="shorts_quality_settings_subtitle">शॉर्ट्स देखते समय क्वालिटी</string>
-    <string name="shorts_quality_warning">बेहतर क्वालिटी में ज़्यादा डेटा लगता है। शॉर्ट्स में वर्टिकल वीडियो स्ट्रीम का इस्तेमाल होता है।</string>
-    <string name="shorts_quality_wifi_header">शॉर्ट्स वाई-फाई क्वालिटी</string>
-    <string name="shorts_quality_cellular_header">शॉर्ट्स सेल्युलर क्वालिटी</string>
+    <string name="shorts_quality_settings_title">Shorts वीडियो क्वालिटी</string>
+    <string name="shorts_quality_settings_subtitle">Shorts देखते समय क्वालिटी</string>
+    <string name="shorts_quality_warning">बेहतर क्वालिटी में ज़्यादा डेटा लगता है। Shorts में वर्टिकल वीडियो स्ट्रीम का इस्तेमाल होता है।</string>
+    <string name="shorts_quality_wifi_header">Shorts वाई-फाई क्वालिटी</string>
+    <string name="shorts_quality_cellular_header">Shorts सेल्युलर क्वालिटी</string>
     <string name="play_next_video">अगला चलाएं</string>
     <string name="play_next_video_desc">वीडियो कतार की शुरुआत में डालें</string>
     <string name="add_video_to_queue">कतार में जोड़ें</string>
@@ -1076,7 +1076,7 @@
     <string name="history_no_results">कोई मिलता-जुलता इतिहास नहीं मिला</string>
     <string name="history_no_results_body">कोई दूसरा खोज या फ़िल्टर आज़माएँ</string>
     <string name="history_tab_videos">वीडियो</string>
-    <string name="history_tab_shorts">शॉर्ट्स</string>
+    <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_local_videos">स्थानीय वीडियो</string>
     
     <string name="download_all">सभी डाउनलोड करें</string>
@@ -1335,7 +1335,7 @@
     <string name="empty_feed_title">अभी तक यहां कुछ भी नहीं है</string>
     <string name="empty_results_body">कोई भिन्न खोज आज़माएँ या अपना कनेक्शन जाँचें</string>
     <string name="empty_results_title">कोई परिणाम नहीं मिला</string>
-    <string name="empty_saved_shorts">अभी तक कोई सहेजा गया शॉर्ट्स नहीं</string>
+    <string name="empty_saved_shorts">अभी तक कोई सहेजा गया Shorts नहीं</string>
     <string name="end_of_results">परिणाम का अंत</string>
     <string name="equalizer">तुल्यकारक</string>
     <string name="error_all_stream_sources_failed">यह वीडियो चलाने में असमर्थ. सभी स्ट्रीम स्रोतों ने त्रुटियाँ लौटाईं।</string>
@@ -1348,15 +1348,15 @@
     <string name="error_failed_to_load_feed">फ़ीड लोड करने में विफल</string>
     <string name="error_failed_to_load_media">मीडिया लोड करने में विफल: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">मीडिया लोड करने में विफल: अमान्य धाराएँ</string>
-    <string name="error_failed_to_load_more_shorts">अधिक शॉर्ट्स लोड करने में विफल</string>
-    <string name="error_failed_to_load_shorts">शॉर्ट्स लोड करने में विफल</string>
+    <string name="error_failed_to_load_more_shorts">अधिक Shorts लोड करने में विफल</string>
+    <string name="error_failed_to_load_shorts">Shorts लोड करने में विफल</string>
     <string name="error_failed_to_load_videos">वीडियो लोड करने में विफल.</string>
     <string name="error_insecure_stream_blocked">डिवाइस नीति द्वारा असुरक्षित स्ट्रीम अवरुद्ध।</string>
     <string name="error_invalid_channel_url">अमान्य चैनल यूआरएल</string>
     <string name="error_no_internet_found">कोई इंटरनेट कनेक्शन नहीं मिला</string>
     <string name="error_no_live_videos_found">कोई लाइव वीडियो नहीं मिला</string>
     <string name="error_no_playlists_found">कोई प्लेलिस्ट नहीं मिली</string>
-    <string name="error_no_shorts_found">कोई शॉर्ट्स नहीं मिला</string>
+    <string name="error_no_shorts_found">कोई Shorts नहीं मिला</string>
     <string name="error_no_videos_for_category">इस श्रेणी के लिए कोई वीडियो नहीं मिला.</string>
     <string name="error_no_videos_found">कोई वीडियो नहीं मिला</string>
     <string name="error_playback_device">प्लेबैक डिवाइस त्रुटि: %1$s</string>
@@ -1372,9 +1372,9 @@
     <string name="files_access_title">फ़ाइलों तक पहुंच</string>
     <string name="filter_oldest">सबसे पुराना</string>
     <string name="hearted_by_creator">निर्माता द्वारा हृदयबद्ध</string>
-    <string name="history_delete_shorts">इतिहास से शॉर्ट्स हटाएं</string>
-    <string name="history_delete_shorts_body">यह आपके देखने के इतिहास से सभी शॉर्ट्स हटा देता है। अन्य वीडियो रखे गए हैं.</string>
-    <string name="history_delete_shorts_title">शॉर्ट्स हटाएं?</string>
+    <string name="history_delete_shorts">इतिहास से Shorts हटाएं</string>
+    <string name="history_delete_shorts_body">यह आपके देखने के इतिहास से सभी Shorts हटा देता है। अन्य वीडियो रखे गए हैं.</string>
+    <string name="history_delete_shorts_title">Shorts हटाएं?</string>
     <string name="history_sync_youtube">यूट्यूब से सिंक करें</string>
     <string name="icon_name_flow_light">[[ piTube एपीपी]] प्रकाश</string>
     <string name="icon_name_flow_play">[[ piTube एपीपी]] चलायें</string>
@@ -1462,8 +1462,8 @@
     <string name="player_appearance_long_press_speed_title">प्लेबैक स्पीड को लंबे समय तक दबाकर रखें</string>
     <string name="player_appearance_remember_brightness_subtitle">अगले वीडियो के लिए अपने अंतिम प्लेयर चमक स्तर का पुन: उपयोग करें</string>
     <string name="player_appearance_remember_brightness_title">चमक याद रखें</string>
-    <string name="player_appearance_shorts_ui_subtitle">चुनें कि शॉर्ट्स ओवरले का कितना भाग दृश्यमान रहे</string>
-    <string name="player_appearance_shorts_ui_title">शॉर्ट्स प्लेयर यूआई</string>
+    <string name="player_appearance_shorts_ui_subtitle">चुनें कि Shorts ओवरले का कितना भाग दृश्यमान रहे</string>
+    <string name="player_appearance_shorts_ui_title">Shorts प्लेयर यूआई</string>
     <string name="player_appearance_volume_boost_subtitle">बंद होने पर, वॉल्यूम स्वाइप जेस्चर अधिकतम सिस्टम वॉल्यूम पर रुक जाता है। ऑडियो को और भी तेज़ बनाने के लिए चालू करें।</string>
     <string name="player_appearance_volume_boost_title">अतिरिक्त वॉल्यूम बढ़ाने की अनुमति दें</string>
     <string name="player_appearance_volume_gesture_subtitle">वॉल्यूम समायोजित करने के लिए फ़ुलस्क्रीन में दाएँ किनारे को स्वाइप करें</string>
@@ -1492,15 +1492,15 @@
     <string name="player_settings_rytd_subtitle">रिटर्न यूट्यूब डिसलाइक सेवा से नापसंद की संख्या प्राप्त करें</string>
     <string name="player_settings_rytd_title">YouTube नापसंद लौटाएँ</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d सेकंड</string>
-    <string name="player_settings_shorts_background_play">शॉर्ट्स बैकग्राउंड प्ले</string>
-    <string name="player_settings_shorts_background_play_subtitle">जब ऐप बैकग्राउंड में हो तो शॉर्ट्स बजाना जारी रखें</string>
+    <string name="player_settings_shorts_background_play">Shorts बैकग्राउंड प्ले</string>
+    <string name="player_settings_shorts_background_play_subtitle">जब ऐप बैकग्राउंड में हो तो Shorts बजाना जारी रखें</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">कस्टम समय के बाद ऑटो-स्क्रॉल करें</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">हर %1$d सेकंड में ऑटो-स्क्रॉल करें</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">ऑटो प्ले नेक्स्ट (अगले शॉर्ट में आगे बढ़ें)</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">चुनें कि जब मौजूदा शॉर्ट खेलना समाप्त हो जाए तो शॉर्ट्स को कैसा व्यवहार करना चाहिए:</string>
-    <string name="player_settings_shorts_playback_mode_dialog_title">शॉर्ट्स प्लेबैक मोड</string>
-    <string name="player_settings_shorts_playback_mode_loop">लूप (वर्तमान लघु दोहराएँ)</string>
-    <string name="player_settings_shorts_playback_mode_title">शॉर्ट्स प्लेबैक मोड</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">ऑटो प्ले नेक्स्ट (अगले Shorts में आगे बढ़ें)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">चुनें कि जब मौजूदा Shorts खेलना समाप्त हो जाए तो Shorts को कैसा व्यवहार करना चाहिए:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_title">Shorts प्लेबैक मोड</string>
+    <string name="player_settings_shorts_playback_mode_loop">लूप (वर्तमान Shorts दोहराएँ)</string>
+    <string name="player_settings_shorts_playback_mode_title">Shorts प्लेबैक मोड</string>
     <string name="player_settings_speed_slider_subtitle">किसी भी प्लेबैक गति को सेट करने के लिए सतत स्लाइडर का उपयोग करें</string>
     <string name="player_settings_speed_slider_title">स्पीड स्लाइडर मोड</string>
     <string name="player_settings_video_codec">डिफ़ॉल्ट वीडियो कोडेक</string>
@@ -1656,8 +1656,8 @@
     <string name="shorts_player_ui_default">डिफ़ॉल्ट</string>
     <string name="shorts_player_ui_impressive">प्रभावशाली</string>
     <string name="shorts_player_ui_simple">सरल</string>
-    <string name="shorts_saved">लघु सहेजा गया</string>
-    <string name="shorts_unsaved">लघु सहेजा नहीं गया</string>
+    <string name="shorts_saved">Shorts सहेजा गया</string>
+    <string name="shorts_unsaved">Shorts सहेजा नहीं गया</string>
     <string name="songs_count_template">%1$d गाने</string>
     <string name="speed_slider_decrease">गति कम करें</string>
     <string name="speed_slider_increase">गति बढ़ाएँ</string>

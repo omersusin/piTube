@@ -295,11 +295,11 @@
     <string name="content_settings_related_card_compact_desc">الصورة المصغرة و المعلومات جنبًا إلى جنب</string>
     <string name="content_settings_related_card_full_width">عرض كامل</string>
     <string name="content_settings_related_card_full_width_desc">صورة مصغرة كبيرة مع العنوان أسفله</string>
-    <string name="shorts">شورتز</string>
+    <string name="shorts">Shorts</string>
     <string name="subscribers">المشتركون</string>
     
     <string name="library_liked_videos_label">الإعجابات</string>
-    <string name="library_saved_shorts_label">الشورتز المحفوظة</string>
+    <string name="library_saved_shorts_label">Shorts المحفوظة</string>
     <string name="library_settings_data_header"><![CDATA[الإعدادات والبيانات]]></string>
     <string name="library_manage_data_label">أدر البيانات</string>
     <string name="about">حول</string>
@@ -316,7 +316,7 @@
     
     <string name="unsubscribed_from">تم إلغاء الاشتراك من %s</string>
     <string name="play_mode_suggestion_body">هذا الفيديو اقل من دقيقتين. هل تود الانتقال الى مشغّل مخصص؟</string>
-    <string name="shorts_player">مشغّل الشورتز</string>
+    <string name="shorts_player">مشغّل Shorts</string>
     <string name="cd_delete_download">احذف %1$s</string>
     <string name="save_to">أضف إلى...</string>
     <string name="watch_later">المشاهدة لاحقا</string>
@@ -456,9 +456,9 @@
     <string name="btn_back">رجوع</string>
     <string name="back">رجوع</string>
     <string name="btn_close">إغلاق</string>
-    <string name="loading_shorts">تحميل الفيديوهات القصيرة…</string>
+    <string name="loading_shorts">تحميل Shorts…</string>
     <string name="error_short_load">حدث خطأ</string>
-    <string name="share_short_template">شاهد هذا الفيديو القصير: https://youtu.be/%1$s</string>
+    <string name="share_short_template">شاهد هذا Shorts: https://youtu.be/%1$s</string>
     <string name="speed_2x">سرعة x2</string>
     <string name="cd_liked">أعجبني</string>
     <string name="cd_pause">إيقاف</string>
@@ -816,11 +816,11 @@
     
     
     
-    <string name="shorts_quality_settings_title">جودة الفيديو القصير</string>
-    <string name="shorts_quality_settings_subtitle">الجودة عند مشاهدة الفيديوهات القصيرة</string>
-    <string name="shorts_quality_warning">تستهلك الجودة العالية بيانات أكثر. تستخدم المقاطع القصيرة تدفقات فيديو عمودية.</string>
-    <string name="shorts_quality_wifi_header">جودة فديوهات shorts علي الWi-Fi</string>
-    <string name="shorts_quality_cellular_header">جودة فديوهات shorts علي البيانات الخلوية</string>
+    <string name="shorts_quality_settings_title">جودة فيديو Shorts</string>
+    <string name="shorts_quality_settings_subtitle">الجودة عند مشاهدة Shorts</string>
+    <string name="shorts_quality_warning">تستهلك الجودة العالية بيانات أكثر. تستخدم Shorts تدفقات فيديو عمودية.</string>
+    <string name="shorts_quality_wifi_header">جودة فديوهات Shorts علي الWi-Fi</string>
+    <string name="shorts_quality_cellular_header">جودة فديوهات Shorts علي البيانات الخلوية</string>
     <string name="play_next_video">تشغيل التالي</string>
     <string name="play_next_video_desc">أدرج في بداية قائمة انتظار الفيديو</string>
     <string name="add_video_to_queue">أضف إلى قائمة الانتظار</string>
@@ -985,7 +985,7 @@
     <string name="view_replies_template">عرض %1$d رد</string>
     <string name="pinned_comment">تعليق مثبت</string>
     <string name="pinned_by_creator">تم التثبيت بواسطة منشئ المحتوى</string>
-    <string name="nav_shorts">مقاطع قصيرة</string>
+    <string name="nav_shorts">Shorts</string>
     
     <string name="tags">العلامات</string>
     
@@ -998,7 +998,7 @@
     
     
     
-    <string name="tab_shorts">المقاطع القصيرة</string>
+    <string name="tab_shorts">Shorts</string>
     <string name="dismiss">تَجاهُل</string>
     <string name="peace_and_quiet">سلام و هدوء</string>
     <string name="notifications_empty_body">لقد وصلت للنهاية! ستظهر التحديثات الجديدة من اشتراكاتك هنا.</string>
@@ -1083,15 +1083,15 @@
     <string name="template_q">%1$.1f</string>
     <string name="now_playing">يعرض الآن</string>
     <string name="player_settings_overlay_controls">متحكمات التراكب</string>
-    <string name="player_settings_shorts_background_play">تشغيل الفيديوهات القصيرة في الخلفية</string>
-    <string name="player_settings_shorts_background_play_subtitle">استمر في تشغيل الفيديوهات القصيرة عندما يكون التطبيق في الخلفية</string>
+    <string name="player_settings_shorts_background_play">تشغيل Shorts في الخلفية</string>
+    <string name="player_settings_shorts_background_play_subtitle">استمر في تشغيل Shorts عندما يكون التطبيق في الخلفية</string>
     
     
-    <string name="player_settings_shorts_playback_mode_title">وضع مشغل الفيديوهات القصيرة</string>
-    <string name="player_settings_shorts_playback_mode_loop">Loop (تكرار الفيديو القصير الحالي)</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">التشغيل التلقائي للتالي (الإنتقال إلي الفيديو القصير التالي)</string>
-    <string name="player_settings_shorts_playback_mode_dialog_title">وضع مشغل الفيديوهات القصيرة</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">اختر كيف يتصرف الفيديو القصير عندما ينتهي الفيديو القصير الحالي من التشغيل:</string>
+    <string name="player_settings_shorts_playback_mode_title">وضع مشغل Shorts</string>
+    <string name="player_settings_shorts_playback_mode_loop">Loop (تكرار Shorts الحالي)</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">التشغيل التلقائي للتالي (الإنتقال إلي Shorts التالي)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_title">وضع مشغل Shorts</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">اختر كيف يتصرف Shorts عندما ينتهي Shorts الحالي من التشغيل:</string>
     <string name="appearance_category_custom">مخصص</string>
     <string name="appearance_customize_theme">تخصيص الموضوع</string>
     
@@ -1291,7 +1291,7 @@
     
     
     <string name="history_tab_videos">الفيديوهات</string>
-    <string name="history_tab_shorts">الشورتز</string>
+    <string name="history_tab_shorts">Shorts</string>
     
     
     <string name="proxy_settings_description">قم بتهيئة وكيل HTTP أو SOCKS5 اختياري للطلبات البعيدة. يبقى Local casting و LAN discovery مباشر.</string>
@@ -1422,8 +1422,8 @@
     <string name="shorts_playback_speed">سرعة التشغيل</string>
     
     <string name="history_delete_shorts">حذف Shorts من السجل</string>
-    <string name="history_delete_shorts_title">هل تريد حذف الshorts؟</string>
-    <string name="history_delete_shorts_body">سيؤدي هذا إلى حذف جميع الفيديوهات القصيرة من سجل المشاهدة. أما الفيديوهات الأخرى فستبقى محفوظة.</string>
+    <string name="history_delete_shorts_title">هل تريد حذف الShorts؟</string>
+    <string name="history_delete_shorts_body">سيؤدي هذا إلى حذف جميع Shorts من سجل المشاهدة. أما الفيديوهات الأخرى فستبقى محفوظة.</string>
     <string name="player_appearance_long_press_speed_title">سرعة الضغط المطول علي المشغل</string>
     
     <string name="player_appearance_long_press_speed_disabled">معطلة</string>
@@ -1501,8 +1501,8 @@
     <string name="shorts_player_ui_default">إفتراضي</string>
     <string name="shorts_player_ui_simple">بسيط</string>
     <string name="shorts_player_ui_impressive">مُبهر</string>
-    <string name="shorts_saved">تم حفظ المقطع القصير</string>
-    <string name="shorts_unsaved">إلغاء حفظ المقطع القصير</string>
+    <string name="shorts_saved">تم حفظ Shorts</string>
+    <string name="shorts_unsaved">إلغاء حفظ Shorts</string>
     <string name="sync_devices_title">مزامنة الأجهزة</string>
     <string name="sync_devices_subtitle">مزامنة المكتبة، السجل و الملف الشخصي عبر شبكة Wi-Fi محلية</string>
     <string name="sync_notification_title">يتم مزامنة الأجهزة</string>
@@ -1836,8 +1836,8 @@
     <string name="error_channel_loading_timed_out">إنتهت مهلة تحميل القناة</string>
     <string name="error_failed_to_load_feed">فشل تحميل التغذية</string>
     <string name="error_failed_to_load_channel">فشل تحميل القناة</string>
-    <string name="error_failed_to_load_shorts">فشل تحميل المقاطع القصيرة</string>
-    <string name="error_failed_to_load_more_shorts">فشل تحميل المزيد من المقاطع القصيرة</string>
+    <string name="error_failed_to_load_shorts">فشل تحميل Shorts</string>
+    <string name="error_failed_to_load_more_shorts">فشل تحميل المزيد من Shorts</string>
     
     
     
@@ -1895,7 +1895,7 @@
     <string name="comment_time_edited_template">%1$s (%2$s)</string>
     <string name="notif_background_restricted_title">تخضع عمليات التحقق من الخلفية لقيود</string>
     <string name="notif_background_restricted_subtitle">يمنع نظام أندرويد تطبيق piTube من التحقق من وجود فيديوهات جديدة أثناء إغلاقه، لذا لن تصلك التنبيهات إلا عند فتح التطبيق. انقر للسماح بنشاط التطبيق في الخلفية دون قيود.</string>
-    <string name="empty_saved_shorts">لم يتم حفظ أي مقاطع قصيرة حتى الآن</string>
+    <string name="empty_saved_shorts">لم يتم حفظ أي Shorts حتى الآن</string>
     <string name="settings_search_no_results">لم يتم العثور على إعدادات لـ %1$s</string>
     
     <string name="donations_cryptocurrency">العملات المشفرة</string>

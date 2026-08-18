@@ -13,7 +13,7 @@
     <string name="library_history_label">Histórico</string>
     
     
-    <string name="library_saved_shorts_label">Curtos Gravdos</string>
+    <string name="library_saved_shorts_label">Shorts Guardados</string>
     <string name="library_watch_later_label">Assistir Mais Tarde</string>
     <string name="library_downloads_label">Downloads</string>
     <string name="library_settings_data_header"><![CDATA[Configurações &amp; Dados]]></string>
@@ -683,7 +683,7 @@
     <string name="empty_offline_body">O seu %1$s descarregado aparecerá aqui. \nAproveite o seu conteúdo mesmo sem internet.</string>
     <string name="empty_results_body">Tente uma pesquisa diferente ou verifique a sua ligação</string>
     <string name="empty_results_title">Nenhum resultado encontrado</string>
-    <string name="empty_saved_shorts">Nenhum short guardado ainda</string>
+    <string name="empty_saved_shorts">Nenhum Shorts guardado ainda</string>
     <string name="end_of_results">Fim dos resultados</string>
     <string name="end_time">Hora de fim</string>
     <string name="equalizer">Equalizador</string>
@@ -708,8 +708,8 @@
     <string name="error_failed_to_load_feed">Falha ao carregar o feed</string>
     <string name="error_failed_to_load_media">Falha ao carregar media: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Falha ao carregar media: fluxos inválidos</string>
-    <string name="error_failed_to_load_more_shorts">Falha ao carregar mais calções</string>
-    <string name="error_failed_to_load_shorts">Falha ao carregar calções</string>
+    <string name="error_failed_to_load_more_shorts">Falha ao carregar mais Shorts</string>
+    <string name="error_failed_to_load_shorts">Falha ao carregar Shorts</string>
     <string name="error_failed_to_load_videos">Falha ao carregar vídeos.</string>
     <string name="error_generic">Falha ao carregar vídeo</string>
     <string name="error_generic_hint">Ocorreu um erro desconhecido. Por favor, tente novamente.</string>
@@ -774,9 +774,9 @@
     <string name="global_loop_subtitle">Loop de todos os vídeos por defeito</string>
     <string name="gnu_license_full_title">Licença pública geral GNU</string>
     <string name="hearted_by_creator">Apoiado pelo criador</string>
-    <string name="history_delete_shorts">Apagar Calções do histórico</string>
-    <string name="history_delete_shorts_body">Isto remove todos os Calções do seu histórico de visualização. Outros vídeos são mantidos.</string>
-    <string name="history_delete_shorts_title">Apagar Calções?</string>
+    <string name="history_delete_shorts">Apagar Shorts do histórico</string>
+    <string name="history_delete_shorts_body">Isto remove todos os Shorts do seu histórico de visualização. Outros vídeos são mantidos.</string>
+    <string name="history_delete_shorts_title">Apagar Shorts?</string>
     <string name="history_sync_youtube">Sincronizar do YouTube Shorts</string>
     <string name="history_tab_shorts">Shorts</string>
     <string name="icon_name_amoled">AMOLED Dark</string>
@@ -806,7 +806,7 @@
     <string name="load_more_replies">Carregar mais respostas</string>
     <string name="loading_ellipsis">Carregando...</string>
     <string name="loading_more">Carregando mais…</string>
-    <string name="loading_shorts">Carregando calções…</string>
+    <string name="loading_shorts">Carregando Shorts…</string>
     <string name="local_video">Vídeo local</string>
     <string name="location_badge_recommended">Recomendado</string>
     <string name="location_custom_header">Localização personalizada</string>
@@ -941,8 +941,8 @@
     <string name="player_appearance_long_press_speed_title">Pressão longa Velocidade de reprodução</string>
     <string name="player_appearance_remember_brightness_subtitle">Reutilizar o nível de brilho do último leitor para os próximos vídeos</string>
     <string name="player_appearance_remember_brightness_title">Lembrar brilho</string>
-    <string name="player_appearance_shorts_ui_subtitle">Escolha quanto da sobreposição de Calções permanece visível</string>
-    <string name="player_appearance_shorts_ui_title">UI do leitor de calções</string>
+    <string name="player_appearance_shorts_ui_subtitle">Escolha quanto da sobreposição de Shorts permanece visível</string>
+    <string name="player_appearance_shorts_ui_title">UI do leitor de Shorts</string>
     <string name="player_appearance_style_subtitle">Selecione o estilo visual da barra de pesquisa</string>
     <string name="player_appearance_title">Aparência do leitor</string>
     <string name="player_appearance_volume_boost_subtitle">Quando desativado, o gesto de deslizar o volume para no volume máximo do sistema. Ative para tornar o áudio ainda mais alto.</string>
@@ -1024,15 +1024,15 @@
     <string name="player_settings_rytd_subtitle">Pesquisar contagens de antipatia no serviço Return YouTube Dislike</string>
     <string name="player_settings_rytd_title">Retornar YouTube Dislike</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d segundos</string>
-    <string name="player_settings_shorts_background_play">Calções em segundo plano</string>
-    <string name="player_settings_shorts_background_play_subtitle">Continuar a reproduzir Calções quando a aplicação está em segundo plano</string>
+    <string name="player_settings_shorts_background_play">Shorts em segundo plano</string>
+    <string name="player_settings_shorts_background_play_subtitle">Continuar a reproduzir Shorts quando a aplicação está em segundo plano</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">Auto após o tempo personalizado</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">Auto-scroll a cada %1$d segundos</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Auto Play Next (avançar para a próxima curta-metragem)</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">Escolha como as curtas-metragens devem comportar-se quando a curta-metragem atual terminar de ser reproduzida:</string>
-    <string name="player_settings_shorts_playback_mode_dialog_title">Modo de reprodução de curtas-metragens</string>
-    <string name="player_settings_shorts_playback_mode_loop">Loop (repetir a curta-metragem atual)</string>
-    <string name="player_settings_shorts_playback_mode_title">Modo de reprodução de curtas-metragens</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Auto Play Next (avançar para o próximo Shorts)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">Escolha como os Shorts devem comportar-se quando o Shorts atual terminar de ser reproduzido:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_title">Modo de reprodução de Shorts</string>
+    <string name="player_settings_shorts_playback_mode_loop">Loop (repetir o Shorts atual)</string>
+    <string name="player_settings_shorts_playback_mode_title">Modo de reprodução de Shorts</string>
     <string name="player_settings_skip_silence">Saltar silêncio</string>
     <string name="player_settings_skip_silence_subtitle">Saltar partes sem áudio</string>
     <string name="player_settings_speed_slider_subtitle">Utilize um deslizador contínuo para definir qualquer velocidade de reprodução</string>
@@ -1289,7 +1289,7 @@ para criar a sua lista de reprodução</string>
     <string name="settings_stt_provider">Fornecedor de voz para texto</string>
     <string name="share_community_post">Partilhar publicação da comunidade</string>
     <string name="share_link_only_template">https://youtube.com/watch?v= %1$s</string>
-    <string name="share_short_template">Veja esta curta-metragem: https://youtu.be/ %1$s</string>
+    <string name="share_short_template">Veja este Shorts: https://youtu.be/%1$s</string>
     <string name="shared_video">Vídeo partilhado</string>
     <string name="shorts_audio_track">Faixa de áudio</string>
     <string name="shorts_auto_scroll_active_template">Auto %1$d s</string>
@@ -1302,10 +1302,10 @@ para criar a sua lista de reprodução</string>
     <string name="shorts_quality_cellular_header">Qualidade celular</string>
     <string name="shorts_quality_settings_subtitle">Qualidade ao assistir Shorts</string>
     <string name="shorts_quality_settings_title">Shorts Qualidade de vídeo</string>
-    <string name="shorts_quality_warning">Maior qualidade usa mais dados. Os calções usam fluxos de vídeo verticais.</string>
-    <string name="shorts_quality_wifi_header">Calções Qualidade Wi-Fi</string>
-    <string name="shorts_saved">Curto guardado</string>
-    <string name="shorts_unsaved">Curto não guardado</string>
+    <string name="shorts_quality_warning">Maior qualidade usa mais dados. Os Shorts usam fluxos de vídeo verticais.</string>
+    <string name="shorts_quality_wifi_header">Shorts Qualidade Wi-Fi</string>
+    <string name="shorts_saved">Shorts guardado</string>
+    <string name="shorts_unsaved">Shorts não guardado</string>
     <string name="show_suggestions_subtitle">Mostrar sugestões ao digitar</string>
     <string name="skip_button_subtitle">Mostrar botões de retrocesso/avançar 10s no mini player</string>
     <string name="skip_button_title">Mostrar botões de salto</string>
@@ -1435,7 +1435,7 @@ para criar a sua lista de reprodução</string>
     <string name="sync_try_again">Tentar novamente</string>
     <string name="tab_playlists">Listas de reprodução</string>
     <string name="tab_posts">Publicações</string>
-    <string name="tab_shorts">Calções</string>
+    <string name="tab_shorts">Shorts</string>
     <string name="tap_to_close">Toque para fechar</string>
     <string name="template_bass_boost">Bass Boost: %1$d dB</string>
     <string name="template_freq">%1$d Hz</string>

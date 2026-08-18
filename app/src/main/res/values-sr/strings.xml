@@ -23,7 +23,7 @@
     
     
     <string name="library_liked_videos_label">Свиђања</string>
-    <string name="library_saved_shorts_label">Сачувани shorts</string>
+    <string name="library_saved_shorts_label">Сачувани Shorts</string>
     <string name="library_watch_later_label">Гледај касније</string>
     <string name="library_downloads_label">Преузимања</string>
     <string name="library_local_media_label">Локални медији</string>
@@ -584,7 +584,7 @@
     <string name="empty_liked_body">Овде ће се појавити садржај који вам се свиђа</string>
     <string name="empty_results_body">Пробајте другу претрагу или проверите везу</string>
     <string name="empty_results_title">Нема пронађених резултата</string>
-    <string name="empty_saved_shorts">Још нема сачуваних кратких панталона</string>
+    <string name="empty_saved_shorts">Још нема сачуваних Shorts</string>
     <string name="end_of_results">Крај резултата</string>
     <string name="end_time">Време завршетка</string>
     <string name="equalizer">Еквилајзер</string>
@@ -609,8 +609,8 @@
     <string name="error_failed_to_load_feed">Учитавање фида није успело</string>
     <string name="error_failed_to_load_media">Failed to load media: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Учитавање медија није успело: неважећи стримови</string>
-    <string name="error_failed_to_load_more_shorts">Учитавање још шортсова није успело</string>
-    <string name="error_failed_to_load_shorts">Учитавање кратких панталона није успело</string>
+    <string name="error_failed_to_load_more_shorts">Учитавање још Shorts није успело</string>
+    <string name="error_failed_to_load_shorts">Учитавање Shorts није успело</string>
     <string name="error_failed_to_load_videos">Учитавање видео снимака није успело.</string>
     <string name="error_generic">Учитавање видеа није успело</string>
     <string name="error_generic_hint">Дошло је до непознате грешке. Покушајте поново.</string>
@@ -630,7 +630,7 @@
     <string name="error_no_internet_hint">Проверите Ви-Фи или мобилне податке и покушајте поново.</string>
     <string name="error_no_live_videos_found">Није пронађен ниједан видео снимак уживо</string>
     <string name="error_no_playlists_found">Није пронађена ниједна плејлиста</string>
-    <string name="error_no_shorts_found">Није пронађен ниједан Схортс</string>
+    <string name="error_no_shorts_found">Није пронађен ниједан Shorts</string>
     <string name="error_no_videos_for_category">Није пронађен ниједан видео за ову категорију.</string>
     <string name="error_no_videos_found">Није пронађен ниједан видео</string>
     <string name="error_not_available">Видео није доступан</string>
@@ -681,13 +681,13 @@
     <string name="gnu_license_full_title">ГНУ општа јавна лиценца</string>
     <string name="hearted_by_creator">Срце стваралац</string>
     <string name="hide_replies">Сакриј одговоре</string>
-    <string name="history_delete_shorts">Избришите Схортс из историје</string>
-    <string name="history_delete_shorts_body">Ово уклања све Схортс из историје гледања. Остали видео снимци се чувају.</string>
-    <string name="history_delete_shorts_title">Избрисати кратке хлаче?</string>
+    <string name="history_delete_shorts">Избришите Shorts из историје</string>
+    <string name="history_delete_shorts_body">Ово уклања све Shorts из историје гледања. Остали видео снимци се чувају.</string>
+    <string name="history_delete_shorts_title">Избрисати Shorts?</string>
     <string name="history_no_results_body">Пробајте другу претрагу или филтер</string>
     <string name="history_sync_youtube">Синхронизација са ИоуТубе-а</string>
     <string name="history_tab_local_videos">Локални видео снимци</string>
-    <string name="history_tab_shorts">Шортс</string>
+    <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_videos">Видеос</string>
     <string name="hz">Хз</string>
     <string name="icon_name_amoled">АМОЛЕД Дарк</string>
@@ -719,7 +719,7 @@
     <string name="load_more_replies">Учитајте више одговора</string>
     <string name="loading_ellipsis">Учитавање...</string>
     <string name="loading_more">Учитавање више…</string>
-    <string name="loading_shorts">Учитавање кратких панталона…</string>
+    <string name="loading_shorts">Учитавање Shorts…</string>
     <string name="local_video">Локални видео</string>
     <string name="location_badge_recommended">Препоручено</string>
     <string name="location_custom_header">Прилагођена локација</string>
@@ -771,7 +771,7 @@
     <string name="nav_home">Хоме</string>
     <string name="nav_library">Библиотека</string>
     <string name="nav_search">Тражи</string>
-    <string name="nav_shorts">Шортс</string>
+    <string name="nav_shorts">Shorts</string>
     <string name="nav_you">Ви</string>
     <string name="never_delete_automatically">Никада не бришите аутоматски</string>
     <string name="new_update_available">Ново ажурирање доступно</string>
@@ -887,8 +887,8 @@
     <string name="player_appearance_long_press_speed_title">Дуги притисак на брзину репродукције</string>
     <string name="player_appearance_remember_brightness_subtitle">Поново користите последњи ниво осветљености плејера за следеће видео снимке</string>
     <string name="player_appearance_remember_brightness_title">Запамтите Бригхтнесс</string>
-    <string name="player_appearance_shorts_ui_subtitle">Одаберите колико преклапања Схортс остаје видљиво</string>
-    <string name="player_appearance_shorts_ui_title">Кориснички интерфејс плејера за кратке хлаче</string>
+    <string name="player_appearance_shorts_ui_subtitle">Одаберите колико преклапања Shorts остаје видљиво</string>
+    <string name="player_appearance_shorts_ui_title">Shorts player UI</string>
     <string name="player_appearance_style_subtitle">Изаберите визуелни стил траке за тражење</string>
     <string name="player_appearance_title">Изглед играча</string>
     <string name="player_appearance_volume_boost_subtitle">Када је искључен, покрет превлачења за јачину звука се зауставља на максималној јачини звука система. Укључите да звук буде још гласнији.</string>
@@ -970,15 +970,15 @@
     <string name="player_settings_rytd_subtitle">Преузми број несвиђања из услуге Врати ИоуТубе несвиђање</string>
     <string name="player_settings_rytd_title">Врати несвиђање на ИоуТубе-у</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d seconds</string>
-    <string name="player_settings_shorts_background_play">Схортс Бацкгроунд Плаи</string>
-    <string name="player_settings_shorts_background_play_subtitle">Наставите да играте Схортс када је апликација у позадини</string>
+    <string name="player_settings_shorts_background_play">Shorts позадинска репродукција</string>
+    <string name="player_settings_shorts_background_play_subtitle">Наставите да играте Shorts када је апликација у позадини</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">Аутоматско померање након прилагођеног времена</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">Auto-scroll every %1$d seconds</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Аутоматска репродукција следеће (прелазак на следећи кратки)</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">Одаберите како ће се Схортс понашати када се тренутни кратки заврши репродукција:</string>
-    <string name="player_settings_shorts_playback_mode_dialog_title">Режим репродукције кратких филмова</string>
-    <string name="player_settings_shorts_playback_mode_loop">Петља (кратко понављање струје)</string>
-    <string name="player_settings_shorts_playback_mode_title">Режим репродукције кратких филмова</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Аутоматска репродукција следеће (прелазак на следећи Shorts)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">Одаберите како ће се Shorts понашати када се тренутни Shorts заврши репродукција:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_title">Shorts режим репродукције</string>
+    <string name="player_settings_shorts_playback_mode_loop">Loop (repeat current Shorts)</string>
+    <string name="player_settings_shorts_playback_mode_title">Shorts режим репродукције</string>
     <string name="player_settings_skip_silence">Скип Силенце</string>
     <string name="player_settings_skip_silence_subtitle">Прескочите делове без звука</string>
     <string name="player_settings_speed_slider_subtitle">Користите непрекидни клизач да подесите било коју брзину репродукције</string>
@@ -1258,7 +1258,7 @@
     <string name="share">Схаре</string>
     <string name="share_community_post">Делите објаву заједнице</string>
     <string name="share_link_only_template">https://youtube.com/watch?v=%1$s</string>
-    <string name="share_short_template">Check out this short: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Check out this Shorts: https://youtu.be/%1$s</string>
     <string name="shared_video">Схаред Видео</string>
     <string name="shorts_audio_track">Аудио Трацк</string>
     <string name="shorts_auto_scroll_active_template">Auto %1$ds</string>
@@ -1267,13 +1267,13 @@
     <string name="shorts_player_ui_impressive">Импресивно</string>
     <string name="shorts_player_ui_simple">Симпле</string>
     <string name="shorts_quality">Квалитет</string>
-    <string name="shorts_quality_cellular_header">Шортс Целлулар Куалити</string>
-    <string name="shorts_quality_settings_subtitle">Квалитет при гледању кратких филмова</string>
-    <string name="shorts_quality_settings_title">Кратки видео квалитет</string>
-    <string name="shorts_quality_warning">Већи квалитет користи више података. Кратки филмови користе вертикалне видео стримове.</string>
-    <string name="shorts_quality_wifi_header">Шортс Ви-Фи квалитет</string>
-    <string name="shorts_saved">Кратко сачувано</string>
-    <string name="shorts_unsaved">Кратко несачувано</string>
+    <string name="shorts_quality_cellular_header">Shorts мобилни квалитет</string>
+    <string name="shorts_quality_settings_subtitle">Квалитет при гледању Shorts</string>
+    <string name="shorts_quality_settings_title">Shorts видео квалитет</string>
+    <string name="shorts_quality_warning">Већи квалитет користи више података. Shorts користе вертикалне видео стримове.</string>
+    <string name="shorts_quality_wifi_header">Shorts Wi-Fi квалитет</string>
+    <string name="shorts_saved">Shorts сачувано</string>
+    <string name="shorts_unsaved">Shorts несачувано</string>
     <string name="show_suggestions_subtitle">Прикажи предлоге док куцате</string>
     <string name="shuffle">Схуффле</string>
     <string name="skip_button_subtitle">Прикажите дугмад за 10с уназад/напред на мини плејеру</string>
@@ -1408,7 +1408,7 @@
     <string name="tab_live">Уживо</string>
     <string name="tab_playlists">Плејлисте</string>
     <string name="tab_posts">Постови</string>
-    <string name="tab_shorts">Шортс</string>
+    <string name="tab_shorts">Shorts</string>
     <string name="tags">Ознаке</string>
     <string name="tap_to_close">Додирните да бисте затворили</string>
     <string name="template_bass_boost">Bass Boost: %1$ddB</string>

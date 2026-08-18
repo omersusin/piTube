@@ -447,7 +447,7 @@
     <string name="empty_offline_title">ອອບໄລນ໌ %1$s</string>
     <string name="empty_results_body">ລອງຊອກຫາແບບອື່ນ ຫຼືກວດເບິ່ງການເຊື່ອມຕໍ່ຂອງເຈົ້າ</string>
     <string name="empty_results_title">ບໍ່ພົບຜົນການຊອກຫາ</string>
-    <string name="empty_saved_shorts">ບໍ່ມີຊຸດສັ້ນທີ່ບັນທຶກໄວ້ເທື່ອ</string>
+    <string name="empty_saved_shorts">ບໍ່ມີ Shorts ທີ່ບັນທຶກໄວ້ເທື່ອ</string>
     <string name="empty_watch_history">ບໍ່ມີປະຫວັດການເບິ່ງ</string>
     <string name="empty_watch_history_body">ວິດີໂອທີ່ທ່ານເບິ່ງຈະປາກົດຢູ່ບ່ອນນີ້</string>
     <string name="end_of_results">ສິ້ນສຸດຜົນການຊອກຫາ</string>
@@ -474,8 +474,8 @@
     <string name="error_failed_to_load_feed">ລົ້ມເຫລວໃນການໂຫລດ feed</string>
     <string name="error_failed_to_load_media">ໂຫຼດມີເດຍບໍ່ສຳເລັດ: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">ໂຫຼດມີເດຍບໍ່ສຳເລັດ: ສະຕຣີມບໍ່ຖືກຕ້ອງ</string>
-    <string name="error_failed_to_load_more_shorts">ໂຫຼດຊຸດສັ້ນເພີ່ມເຕີມ</string>
-    <string name="error_failed_to_load_shorts">ລົ້ມເຫລວໃນການໂຫຼດຊຸດສັ້ນ</string>
+    <string name="error_failed_to_load_more_shorts">ໂຫຼດ Shorts ເພີ່ມເຕີມ</string>
+    <string name="error_failed_to_load_shorts">ລົ້ມເຫລວໃນການໂຫຼດ Shorts</string>
     <string name="error_failed_to_load_videos">ລົ້ມເຫລວໃນການໂຫລດວິດີໂອ.</string>
     <string name="error_generic">ລົ້ມເຫລວໃນການໂຫຼດວິດີໂອ</string>
     <string name="error_generic_hint">ເກີດຄວາມຜິດພາດທີ່ບໍ່ຮູ້ຈັກຂຶ້ນ. ກະລຸນາລອງອີກຄັ້ງ.</string>
@@ -495,7 +495,7 @@
     <string name="error_no_internet_hint">ກວດເບິ່ງ Wi-Fi ຫຼືຂໍ້ມູນມືຖືຂອງທ່ານແລ້ວລອງໃໝ່ອີກຄັ້ງ.</string>
     <string name="error_no_live_videos_found">ບໍ່ພົບວິດີໂອສົດໆ</string>
     <string name="error_no_playlists_found">ບໍ່ພົບລາຍການຫຼິ້ນ</string>
-    <string name="error_no_shorts_found">ບໍ່ພົບວິດີໂອສັ້ນ</string>
+    <string name="error_no_shorts_found">ບໍ່ພົບ Shorts</string>
     <string name="error_no_videos_for_category">ບໍ່ພົບວິດີໂອສຳລັບໝວດໝູ່ນີ້.</string>
     <string name="error_no_videos_found">ບໍ່ພົບວິດີໂອ</string>
     <string name="error_not_available">ບໍ່ມີວິດີໂອ</string>
@@ -549,9 +549,9 @@
     <string name="go_to_channel">ໄປທີ່ຊ່ອງ</string>
     <string name="hearted_by_creator">Hearted by creator</string>
     <string name="hide_replies">ເຊື່ອງການຕອບກັບ</string>
-    <string name="history_delete_shorts">ລຶບສັ້ນອອກຈາກປະຫວັດ</string>
+    <string name="history_delete_shorts">ລຶບ Shorts ອອກຈາກປະຫວັດ</string>
     <string name="history_delete_shorts_body">ນີ້ຈະເປັນການລຶບ Shorts ທັງໝົດອອກຈາກປະຫວັດການເບິ່ງຂອງທ່ານ. ວິດີໂອອື່ນໆຖືກເກັບໄວ້.</string>
-    <string name="history_delete_shorts_title">ລຶບສັ້ນບໍ?</string>
+    <string name="history_delete_shorts_title">ລຶບ Shorts ບໍ?</string>
     <string name="history_filter_all_years">ທັງໝົດປີ</string>
     <string name="history_no_results">ບໍ່ມີປະຫວັດທີ່ກົງກັນ</string>
     <string name="history_no_results_body">ລອງຊອກຫາແບບອື່ນ ຫຼືການກັ່ນຕອງ</string>
@@ -588,7 +588,7 @@
     <string name="library_manage_data_label">ຈັດການຂໍ້ມູນ</string>
     <string name="library_manage_data_subtitle">ລ້າງແຄດ ແລະປະຫວັດ</string>
     <string name="library_playlists_label">ລາຍການຫຼິ້ນ</string>
-    <string name="library_saved_shorts_label">ບັນທຶກສັ້ນ</string>
+    <string name="library_saved_shorts_label">ບັນທຶກ Shorts</string>
     <string name="library_settings_data_header">ການຕັ້ງຄ່າ &amp; ຂໍ້ມູນ</string>
     <string name="library_watch_later_label">ເບິ່ງພາຍຫຼັງ</string>
     <string name="like">Liked</string>
@@ -606,7 +606,7 @@
     <string name="load_more_replies">ໂຫຼດຄຳຕອບເພີ່ມເຕີມ</string>
     <string name="loading_ellipsis">Loading...</string>
     <string name="loading_more">ກຳລັງໂຫຼດເພີ່ມເຕີມ...</string>
-    <string name="loading_shorts">ກຳລັງໂຫຼດໂສ້ງສັ້ນ...</string>
+    <string name="loading_shorts">ກຳລັງໂຫຼດ Shorts...</string>
     <string name="local_media_empty_body">ວິດີໂອ ແລະເພງທີ່ເກັບໄວ້ໃນອຸປະກອນນີ້ຈະປາກົດຢູ່ບ່ອນນີ້.</string>
     <string name="local_media_empty_title">ບໍ່ພົບ %1$s ອະນຸຍາດໃຫ້ເຂົ້າເຖິງ</string>
     <string name="local_media_grant">Grant access</string>
@@ -671,7 +671,7 @@
     <string name="nav_home">ຫນ້າທໍາອິດ</string>
     <string name="nav_library">Library</string>
     <string name="nav_search">ຊອກຫາ</string>
-    <string name="nav_shorts">ສັ້ນ</string>
+    <string name="nav_shorts">Shorts</string>
     <string name="nav_you">ເຈົ້າ</string>
     <string name="never_delete_automatically">ບໍ່ເຄີຍລຶບອັດຕະໂນມັດ</string>
     <string name="new_update_available">ອັບເດດໃໝ່ມີຫ້ອງສະໝຸດການສະກັດເອົາຫຼັກ</string>
@@ -789,8 +789,8 @@
     <string name="player_appearance_long_press_speed_title">ຄວາມໄວການຫຼິ້ນແບບກົດຄ້າງໄວ້</string>
     <string name="player_appearance_remember_brightness_subtitle">ໃຊ້ຄືນລະດັບຄວາມສະຫວ່າງຂອງເຄື່ອງຫຼິ້ນຄັ້ງຕໍ່ໄປຂອງທ່ານ.</string>
     <string name="player_appearance_remember_brightness_title">ຈື່ຈໍາຄວາມສະຫວ່າງ</string>
-    <string name="player_appearance_shorts_ui_subtitle">ເລືອກວ່າຫຼາຍເທົ່າໃດຂອງການວາງຊ້ອນສັ້ນຄົງທີ່ເບິ່ງເຫັນໄດ້</string>
-    <string name="player_appearance_shorts_ui_title">ຕົວຫຼິ້ນສັ້ນ UI</string>
+    <string name="player_appearance_shorts_ui_subtitle">ເລືອກວ່າຫຼາຍເທົ່າໃດຂອງການວາງຊ້ອນ Shorts ຄົງທີ່ເບິ່ງເຫັນໄດ້</string>
+    <string name="player_appearance_shorts_ui_title">ຕົວຫຼິ້ນ Shorts UI</string>
     <string name="player_appearance_style_subtitle">ເລືອກຮູບແບບພາບຂອງແຖບຊອກຫາ</string>
     <string name="player_appearance_title">ຮູບລັກສະນະຂອງຕົວຫຼິ້ນ</string>
     <string name="player_appearance_volume_boost_subtitle">ເມື່ອປິດ, ທ່າທາງຮູດລະດັບສຽງຈະຢຸດຢູ່ທີ່ລະດັບສຽງສູງສຸດຂອງລະບົບ. ເປີດເພື່ອເຮັດໃຫ້ສຽງດັງຂຶ້ນ.</string>
@@ -876,11 +876,11 @@
     <string name="player_settings_shorts_background_play_subtitle">ສືບຕໍ່ການຫຼິ້ນ Shorts ເມື່ອແອັບຯຢູ່ໃນພື້ນຫຼັງ</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">ເລື່ອນອັດຕະໂນມັດຫຼັງຈາກເວລາກຳນົດເອງ</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">ເລື່ອນອັດຕະໂນມັດທຸກໆ %1$d ວິນາທີ</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">ສັ້ນຄວນຫຼິ້ນຕໍ່ໄປແນວໃດ (</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">ເລື່ອນອັດຕະໂນມັດ ຕໍ່ໄປ) ປະພຶດຕົວເມື່ອການຫຼິ້ນສັ້ນປັດຈຸບັນຈົບລົງ:</string>
-    <string name="player_settings_shorts_playback_mode_dialog_title">ໂໝດຫຼິ້ນສັ້ນ</string>
-    <string name="player_settings_shorts_playback_mode_loop">Loop (ເຮັດຊ້ຳປັດຈຸບັນສັ້ນ)</string>
-    <string name="player_settings_shorts_playback_mode_title">ໂໝດຫຼິ້ນສັ້ນ</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Shorts ຄວນຫຼິ້ນຕໍ່ໄປແນວໃດ (</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">ເລື່ອນອັດຕະໂນມັດ ຕໍ່ໄປ) ປະພຶດຕົວເມື່ອການຫຼິ້ນ Shorts ປັດຈຸບັນຈົບລົງ:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_title">ໂໝດຫຼິ້ນ Shorts</string>
+    <string name="player_settings_shorts_playback_mode_loop">Loop (ເຮັດຊ້ຳ Shorts ປັດຈຸບັນ)</string>
+    <string name="player_settings_shorts_playback_mode_title">ໂໝດຫຼິ້ນ Shorts</string>
     <string name="player_settings_skip_silence">Skip Silence</string>
     <string name="player_settings_skip_silence_subtitle">ຂ້າມພາກສ່ວນທີ່ບໍ່ມີສຽງ</string>
     <string name="player_settings_speed_slider_subtitle">ໃຊ້ຕົວເລື່ອນຢ່າງຕໍ່ເນື່ອງເພື່ອຕັ້ງຄ່າຄວາມໄວການຫຼິ້ນໃດໆກໍຕາມ</string>
@@ -1176,10 +1176,10 @@
     <string name="share">ແບ່ງປັນ</string>
     <string name="share_community_post">ແບ່ງປັນໂພສຊຸມຊົນ</string>
     <string name="share_link_only_template">https://youtube.com/watch?v= %1$s</string>
-    <string name="share_short_template">ກວດເບິ່ງສັ້ນນີ້: https://youtu.be/ %1$s</string>
+    <string name="share_short_template">ກວດເບິ່ງ Shorts ນີ້: https://youtu.be/%1$s</string>
     <string name="share_video">ແບ່ງປັນວິດີໂອ</string>
     <string name="shared_video">ແບ່ງປັນວິດີໂອ</string>
-    <string name="shorts">ສັ້ນ</string>
+    <string name="shorts">Shorts</string>
     <string name="shorts_audio_track">ຕິດຕາມສຽງ</string>
     <string name="shorts_auto_scroll_active_template">Auto %1$d s</string>
     <string name="shorts_playback_speed">ຄວາມໄວການຫຼິ້ນ</string>
@@ -1189,12 +1189,12 @@
     <string name="shorts_player_ui_simple">ງ່າຍດາຍ</string>
     <string name="shorts_quality">ຄຸນນະພາບ</string>
     <string name="shorts_quality_cellular_header">Shorts Cellular Quality</string>
-    <string name="shorts_quality_settings_subtitle">ຄຸນນະພາບເມື່ອເບິ່ງສັ້ນ</string>
-    <string name="shorts_quality_settings_title">ຄຸນນະພາບວິດີໂອສັ້ນ</string>
-    <string name="shorts_quality_warning">ຄຸນນະພາບສູງກວ່າໃຊ້ຂໍ້ມູນຫຼາຍຂຶ້ນ. ສັ້ນໃຊ້ການຖ່າຍທອດວິດີໂອແນວຕັ້ງ.</string>
-    <string name="shorts_quality_wifi_header">ສັ້ນຄຸນນະພາບ Wi-Fi</string>
-    <string name="shorts_saved">ບັນທຶກສັ້ນ</string>
-    <string name="shorts_unsaved">ສັ້ນທີ່ຍັງບໍ່ໄດ້ບັນທຶກໄວ້</string>
+    <string name="shorts_quality_settings_subtitle">ຄຸນນະພາບເມື່ອເບິ່ງ Shorts</string>
+    <string name="shorts_quality_settings_title">ຄຸນນະພາບວິດີໂອ Shorts</string>
+    <string name="shorts_quality_warning">ຄຸນນະພາບສູງກວ່າໃຊ້ຂໍ້ມູນຫຼາຍຂຶ້ນ. Shorts ໃຊ້ການຖ່າຍທອດວິດີໂອແນວຕັ້ງ.</string>
+    <string name="shorts_quality_wifi_header">Shorts ຄຸນນະພາບ Wi-Fi</string>
+    <string name="shorts_saved">ບັນທຶກ Shorts</string>
+    <string name="shorts_unsaved">Shorts ທີ່ຍັງບໍ່ໄດ້ບັນທຶກໄວ້</string>
     <string name="show_suggestions_subtitle">ສະແດງຄໍາແນະນໍາໃນຂະນະທີ່ພິມ</string>
     <string name="shuffle">Shuffle</string>
     <string name="skip_button_subtitle">ສະແດງປຸ່ມ rewind/forward 10s ໃນເຄື່ອງຫຼິ້ນຂະໜາດນ້ອຍ</string>

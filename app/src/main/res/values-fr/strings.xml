@@ -440,9 +440,9 @@
     <string name="btn_back">Retour</string>
     <string name="btn_close">Fermer</string>
     <!-- Écran des Shorts -->
-    <string name="loading_shorts">Chargement des shorts…</string>
+    <string name="loading_shorts">Chargement des Shorts…</string>
     <string name="error_short_load">Une erreur est survenue</string>
-    <string name="share_short_template">Découvrez ce short : https://youtu.be/%1$s</string>
+    <string name="share_short_template">Découvrez ce Shorts : https://youtu.be/%1$s</string>
     <string name="speed_2x">Vitesse 2x</string>
     <string name="cd_liked">Aimé</string>
     <string name="cd_pause">Pause</string>
@@ -1008,9 +1008,9 @@
     <string name="proxy_settings_host">Hôte</string>
     <string name="player_settings_shorts_background_play">Lecture en arrière-plan des Shorts</string>
     <string name="player_settings_shorts_playback_mode_title">Mode de lecture des Shorts</string>
-    <string name="player_settings_shorts_playback_mode_loop">Boucle (répéter le passage actuel)</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Lecture automatique du suivant (passer au court métrage suivant)</string>
-    <string name="player_settings_shorts_playback_mode_dialog_title">Mode de lecture des courts métrages</string>
+    <string name="player_settings_shorts_playback_mode_loop">Boucle (répéter le Shorts actuel)</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Lecture automatique du suivant (passer au Shorts suivant)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_title">Mode de lecture des Shorts</string>
     <string name="player_settings_shorts_playback_mode_dialog_body">Choisissez comment les Shorts doivent se comporter une fois la lecture du Shorts en cours terminée :</string>
     <string name="player_settings_remember_speed">Mémoriser la vitesse de lecture</string>
     <string name="player_settings_remember_speed_subtitle">Appliquer la dernière vitesse de lecture utilisée aux vidéos</string>
@@ -1549,8 +1549,8 @@
     <string name="shorts_player_ui_default">Par défaut</string>
     <string name="shorts_player_ui_simple">Simple</string>
     <string name="shorts_player_ui_impressive">Impressionnante</string>
-    <string name="shorts_saved">Short enregistré</string>
-    <string name="shorts_unsaved">Short non enregistré</string>
+    <string name="shorts_saved">Shorts enregistré</string>
+    <string name="shorts_unsaved">Shorts non enregistré</string>
     <string name="sync_devices_title">Synchroniser les appareils</string>
     <string name="sync_devices_subtitle">Synchroniser la bibliothèque, l\'historique et le profil via le Wi-Fi local</string>
     <string name="sync_notification_title">Synchronisation des appareils</string>
@@ -1910,14 +1910,14 @@
     
     <string name="fallback_downloaded_locally">Téléchargé localement</string>
     
-    <string name="error_failed_to_load_shorts">Échec du chargement des shorts</string>
-    <string name="error_failed_to_load_more_shorts">Impossible de charger plus de shorts</string>
+    <string name="error_failed_to_load_shorts">Échec du chargement des Shorts</string>
+    <string name="error_failed_to_load_more_shorts">Impossible de charger plus de Shorts</string>
     
     
     
     
     <string name="error_no_videos_found">Aucune vidéo trouvée</string>
-    <string name="error_no_shorts_found">Aucun short trouvé</string>
+    <string name="error_no_shorts_found">Aucun Shorts trouvé</string>
     <string name="error_no_live_videos_found">Aucune vidéo en direct trouvée</string>
     <string name="error_no_playlists_found">Aucune playlist trouvée</string>
     <string name="error_unable_to_load_next_video">Impossible de charger la vidéo suivante</string>
@@ -1947,7 +1947,7 @@
     <string name="duration_minutes">%1$d min</string>
     <string name="duration_hours_short">%1$dh</string>
     <string name="duration_minutes_short">%1$dm</string>
-    <string name="empty_saved_shorts">Aucun court métrage enregistré pour l\'instant</string>
+    <string name="empty_saved_shorts">Aucun Shorts enregistré pour l\'instant</string>
     <string name="settings_search_no_results">Aucun paramètre trouvé pour %1$s</string>
     
     <string name="donations_cryptocurrency">CRYPTOMONNAIE</string>

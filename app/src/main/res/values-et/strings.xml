@@ -11,11 +11,11 @@
     <string name="subscribed">Tellitud</string>
     <string name="home_refresh_feed">Laadi sisuvoog uuesti</string>
     <string name="retry">Proovi uuesti</string>
-    <string name="shorts">Lühivideod</string>
+    <string name="shorts">Shorts</string>
     <string name="failed_to_load_channel">Kanali laadimine ei õnnestunud</string>
     <string name="subscribers">Tellijad</string>
     <string name="library_liked_videos_label">Meeldivaks märgitud videod</string>
-    <string name="library_saved_shorts_label">Salvestatud lühivideod</string>
+    <string name="library_saved_shorts_label">Salvestatud Shorts</string>
     <string name="library_watch_later_label">Vaata hiljem</string>
     <string name="library_downloads_label">Allalaadimised</string>
     <string name="library_settings_data_header"><![CDATA[Seadistused ja andmed]]></string>
@@ -98,7 +98,7 @@
     <string name="filter_newest">Uusimad</string>
     <string name="reply">Vasta</string>
     <string name="nav_home">Avavaade</string>
-    <string name="nav_shorts">Lühivideod</string>
+    <string name="nav_shorts">Shorts</string>
     
     <string name="nav_library">Meediakogu</string>
     <string name="notifications">Teavitused</string>
@@ -138,20 +138,20 @@
     <string name="quality_auto_template">Automaatne (%1$dp)</string>
     <string name="play_mode_suggestion_title">Esitusrežiimi soovitus</string>
     <string name="play_mode_suggestion_body">Selle video kestus jääb alla 2 minuti. Kas tahaksid kasutada asjakohast esitusvaadet?</string>
-    <string name="shorts_player">Lühivideote esitaja</string>
+    <string name="shorts_player">Shorts esitaja</string>
     
-    <string name="tab_shorts">Lühivideod</string>
+    <string name="tab_shorts">Shorts</string>
     
     
-    <string name="loading_shorts">Laadin lühivideoid…</string>
+    <string name="loading_shorts">Laadin Shorts…</string>
     
     <string name="shorts_audio_track">Heliriba</string>
     <string name="shorts_quality">Kvaliteet</string>
     
     
     
-    <string name="shorts_quality_settings_title">Lühivideo kvaliteet</string>
-    <string name="shorts_quality_settings_subtitle">Kvaliteet lühivideote vaatamisel</string>
+    <string name="shorts_quality_settings_title">Shorts-kvaliteet</string>
+    <string name="shorts_quality_settings_subtitle">Kvaliteet Shorts vaatamisel</string>
     <string name="empty_offline_title">Pole võrgus: %1$s</string>
     <string name="action_go_to_home">Suundu avalehele</string>
     
@@ -320,7 +320,7 @@
     <string name="channels_label">Kanalid</string>
     <string name="close_player">Sulge meediaesitaja</string>
     <string name="codec_label">Koodek</string>
-    <string name="content_settings_disable_shorts_player_title">Ära kasuta lühivideote esitajajat</string>
+    <string name="content_settings_disable_shorts_player_title">Ära kasuta Shorts-esitajat</string>
     <string name="date_last_hour">Viimase tunni kestel</string>
     <string name="delete_group">Kustuta grupp</string>
     <string name="download_deleted">Allalaaditu on kustutatud</string>
@@ -358,7 +358,7 @@
     <string name="new_group">Uus grupp</string>
     <string name="no_groups_yet">Gruppe veel pole. Oma sisuvoo filtreerimiseks loo mõni.</string>
     <string name="no_related_content">Teemakohast sisu ei leidu</string>
-    <string name="no_shorts_found">Lühivideoid ei leidu</string>
+    <string name="no_shorts_found">Shorts-e ei leidu</string>
     <string name="no_subscriptions_yet">Tellimusi veel pole</string>
     <string name="no_videos_found">Videoid ei leidu</string>
     <string name="not_interested">Pole huvitatud</string>
@@ -388,7 +388,7 @@
     <string name="share_song_chooser">Jaga lugu</string>
     <string name="shorts_audio_dubbed">Dubleeritud</string>
     <string name="shorts_audio_original">Algne</string>
-    <string name="shorts_count_template">%1$d lühivideot</string>
+    <string name="shorts_count_template">%1$d Shorts</string>
     <string name="shorts_no_audio_tracks">Heliribasid pole saadaval</string>
     <string name="shorts_original_sound">Algne heli - %1$s</string>
     <string name="since">Alates</string>
@@ -789,7 +789,7 @@
     <string name="empty_offline_body">Siin kuvatakse teie allalaaditud %1$s.\nNaudi oma sisu isegi ilma Internetita.</string>
     <string name="empty_results_body">Proovige teist otsingut või kontrollige ühendust</string>
     <string name="empty_results_title">Tulemusi ei leitud</string>
-    <string name="empty_saved_shorts">Salvestatud lühikesi pükse pole veel</string>
+    <string name="empty_saved_shorts">Salvestatud Shorts pole veel</string>
     <string name="end_time">Lõpuaeg</string>
     <string name="equalizer">Ekvalaiser</string>
     <string name="error_age_restricted">Vanusepiiranguga sisu</string>
@@ -813,8 +813,8 @@
     <string name="error_failed_to_load_feed">Voo laadimine ebaõnnestus</string>
     <string name="error_failed_to_load_media">Meediumi laadimine ebaõnnestus: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Meediumi laadimine ebaõnnestus: Kehtetud vood</string>
-    <string name="error_failed_to_load_more_shorts">Rohkemate lühikeste pükste laadimine ebaõnnestus</string>
-    <string name="error_failed_to_load_shorts">Lühikesi reklaame ebaõnnestus</string>
+    <string name="error_failed_to_load_more_shorts">Rohkemate Shorts laadimine ebaõnnestus</string>
+    <string name="error_failed_to_load_shorts">Shorts-e laadimine ebaõnnestus</string>
     <string name="error_failed_to_load_videos">videote laadimine ebaõnnestus.</string>
     <string name="error_generic">Video laadimine nurjus</string>
     <string name="error_generic_hint">Ilmnes tundmatu viga. Palun proovi uuesti.</string>
@@ -834,7 +834,7 @@
     <string name="error_no_internet_hint">Kontrollige oma WiFi-ühendust või mobiilset andmesidet ja proovige uuesti.</string>
     <string name="error_no_live_videos_found">Reaalajas videoid ei leitud</string>
     <string name="error_no_playlists_found">Esitusloendeid ei leitud</string>
-    <string name="error_no_shorts_found">Lühivideoid ei leitud</string>
+    <string name="error_no_shorts_found">Shorts-e ei leitud</string>
     <string name="error_no_videos_for_category">Selle kategooria videoid ei leitud.</string>
     <string name="error_no_videos_found">Videoid ei leitud</string>
     <string name="error_not_available">Video pole saadaval</string>
@@ -878,9 +878,9 @@
     <string name="global_loop_subtitle">Loob vaikimisi kõik videod</string>
     <string name="gnu_license_full_title">GNU Üldine avalik litsents</string>
     <string name="hearted_by_creator">Sisu on looja</string>
-    <string name="history_delete_shorts">Kustuta lühivideod ajaloost</string>
-    <string name="history_delete_shorts_body">See eemaldab teie vaatamiste ajaloost kõik lühivideod. Muud videod jäetakse alles.</string>
-    <string name="history_delete_shorts_title">Kas kustutada lühikesed püksid?</string>
+    <string name="history_delete_shorts">Kustuta Shorts ajaloost</string>
+    <string name="history_delete_shorts_body">See eemaldab teie vaatamiste ajaloost kõik Shorts. Muud videod jäetakse alles.</string>
+    <string name="history_delete_shorts_title">Kas kustutada Shorts?</string>
     <string name="history_filter_all_years">Kõik aastad</string>
     <string name="history_no_results">Vastete ajalugu puudub</string>
     <string name="history_no_results_body">Proovi teist otsingut või filtrit</string>
@@ -888,7 +888,7 @@
     <string name="history_sort_oldest">Vanemad alguses</string>
     <string name="history_sync_youtube">Sünkrooni YouTube\'ist</string>
     <string name="history_tab_local_videos">Kohalikud videod</string>
-    <string name="history_tab_shorts">Lühikesed püksid</string>
+    <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_videos">Videod</string>
     <string name="icon_name_amoled">AMOLED Tume</string>
     <string name="icon_name_dynamic">Materjal Teie</string>
@@ -1144,15 +1144,15 @@
     <string name="player_settings_rytd_subtitle">Rakenda videotele viimati kasutatud taasesituskiirus</string>
     <string name="player_settings_rytd_title">Hankige mittemeeldimiste arv teenusest YouTube\'i mittemeeldimise pakkumine</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d seconds</string>
-    <string name="player_settings_shorts_background_play">V0X sekundit</string>
-    <string name="player_settings_shorts_background_play_subtitle">Lühikesed filmid Taustal Esitage</string>
-    <string name="player_settings_shorts_playback_mode_auto_interval">SEPSIT1, kui taustal mängib rakendust Shorts1 Contin1 Automaatne kerimine pärast kohandatud aega</string>
+    <string name="player_settings_shorts_background_play">Shorts-ide taustal esitamine</string>
+    <string name="player_settings_shorts_background_play_subtitle">Jätka Shorts-esitamist, kui rakendus on taustal</string>
+    <string name="player_settings_shorts_playback_mode_auto_interval">Automaatne kerimine pärast kohandatud aega</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">Automaatne kerimine iga %1$d sekundi järel</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Automaatne esitamine Järgmine (liikumine järgmise lühikese juurde)</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">Valige, kuidas lühikesed püksid peaksid käituma, kui praegune lühifilm esitamise lõpetab:</string>
-    <string name="player_settings_shorts_playback_mode_dialog_title">Lühikeste taasesitusrežiim</string>
-    <string name="player_settings_shorts_playback_mode_loop">Silmus (käesolevat lühikest kordamine)</string>
-    <string name="player_settings_shorts_playback_mode_title">Lühikeste taasesitusrežiim</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Automaatne esitamine Järgmine (liikumine järgmise Shorts juurde)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">Valige, kuidas Shorts peaks käituma, kui praegune Shorts esitamise lõpetab:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_title">Shorts-esitusrežiim</string>
+    <string name="player_settings_shorts_playback_mode_loop">Silmus (käesoleva Shorts kordamine)</string>
+    <string name="player_settings_shorts_playback_mode_title">Shorts-esitusrežiim</string>
     <string name="player_settings_skip_silence">Jäta vahele vaikus</string>
     <string name="player_settings_skip_silence_subtitle">Jäta vahele ilma helita osad</string>
     <string name="player_settings_speed_slider_subtitle">Kasutage pidevat liugurit mis tahes taasesituskiiruse määramiseks</string>
@@ -1407,18 +1407,18 @@
     <string name="settings_stt_provider">Kõne tekstiks pakkuja</string>
     <string name="share_community_post">Jaga kogukonna postitust</string>
     <string name="share_link_only_template">https://youtube.com/watch?v= %1$s</string>
-    <string name="share_short_template">Vaadake seda lühidalt: https://youtu.be/ %1$s</string>
+    <string name="share_short_template">Vaadake seda Shorts: https://youtu.be/%1$s</string>
     <string name="shared_video">jagatud video</string>
     <string name="shorts_auto_scroll_active_template">Automaatne %1$d s</string>
     <string name="shorts_playback_speed">Taasesituskiirus</string>
     <string name="shorts_player_ui_default">Vaikimisi</string>
     <string name="shorts_player_ui_impressive">Muljetavaldav</string>
     <string name="shorts_player_ui_simple">Lihtne</string>
-    <string name="shorts_quality_cellular_header">Lühikesed püksid Mobiilside kvaliteet</string>
-    <string name="shorts_quality_warning">Kõrgem kvaliteet kasutab rohkem andmeid. Lühikesed videod kasutavad vertikaalseid videovooge.</string>
-    <string name="shorts_quality_wifi_header">Lühikesed püksid Wi-Fi kvaliteet</string>
-    <string name="shorts_saved">Lühike salvestatud</string>
-    <string name="shorts_unsaved">Lühike salvestamata</string>
+    <string name="shorts_quality_cellular_header">Shorts Mobiilside kvaliteet</string>
+    <string name="shorts_quality_warning">Kõrgem kvaliteet kasutab rohkem andmeid. Shorts kasutavad vertikaalseid videovooge.</string>
+    <string name="shorts_quality_wifi_header">Shorts Wi-Fi kvaliteet</string>
+    <string name="shorts_saved">Shorts salvestatud</string>
+    <string name="shorts_unsaved">Shorts salvestamata</string>
     <string name="show_suggestions_subtitle">Näita soovitusi tippimise ajal</string>
     <string name="skip_button_subtitle">Kuva minipleieri 10 s tagasi-/edasikerimise nupud</string>
     <string name="skip_button_title">Kuva vahelejätunupud</string>

@@ -1828,7 +1828,7 @@
     <string name="empty_feed_title">这里还什么都没有</string>
     <string name="empty_results_body">尝试不同的搜索或检查您的连接</string>
     <string name="empty_results_title">没有找到结果</string>
-    <string name="empty_saved_shorts">尚未保存短裤</string>
+    <string name="empty_saved_shorts">尚未保存 Shorts</string>
     <string name="end_of_results">结果结束</string>
     <string name="equalizer">均衡器</string>
     <string name="error_all_stream_sources_failed">无法播放该视频。所有流源都返回错误。</string>
@@ -1841,15 +1841,15 @@
     <string name="error_failed_to_load_feed">无法加载提要</string>
     <string name="error_failed_to_load_media">无法加载媒体：%1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">无法加载媒体：无效流</string>
-    <string name="error_failed_to_load_more_shorts">无法加载更多短裤</string>
-    <string name="error_failed_to_load_shorts">未能加载短裤</string>
+    <string name="error_failed_to_load_more_shorts">无法加载更多 Shorts</string>
+    <string name="error_failed_to_load_shorts">未能加载 Shorts</string>
     <string name="error_failed_to_load_videos">无法加载视频。</string>
     <string name="error_insecure_stream_blocked">不安全的流被设备策略阻止。</string>
     <string name="error_invalid_channel_url">频道网址无效</string>
     <string name="error_no_internet_found">找不到互联网连接</string>
     <string name="error_no_live_videos_found">没有找到直播视频</string>
     <string name="error_no_playlists_found">未找到播放列表</string>
-    <string name="error_no_shorts_found">未找到短裤</string>
+    <string name="error_no_shorts_found">未找到 Shorts</string>
     <string name="error_no_videos_for_category">没有找到该类别的视频。</string>
     <string name="error_no_videos_found">没有找到视频</string>
     <string name="error_playback_device">播放设备错误：%1$s</string>

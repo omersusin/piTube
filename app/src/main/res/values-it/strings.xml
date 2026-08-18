@@ -640,9 +640,9 @@
     <string name="btn_back">Indietro</string>
     <string name="back">Indietro</string>
     <string name="btn_close">Chiudi</string>
-    <string name="loading_shorts">Caricamento shorts…</string>
+    <string name="loading_shorts">Caricamento Shorts…</string>
     <string name="error_short_load">Si è verificato un errore</string>
-    <string name="share_short_template">Guarda questo Short: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Guarda questo Shorts: https://youtu.be/%1$s</string>
     <string name="speed_2x">Velocità 2x</string>
     <string name="cd_liked">Piaciuti</string>
     <string name="cd_pause">Pausa</string>
@@ -1506,7 +1506,7 @@
     <string name="shorts_player_ui_default">Predefinito</string>
     <string name="shorts_player_ui_simple">Semplice</string>
     <string name="shorts_player_ui_impressive">Impressive</string>
-    <string name="shorts_saved">Short salvato</string>
+    <string name="shorts_saved">Shorts salvato</string>
     <string name="sync_devices_title">Sincronizzazione dispositivi</string>
     <string name="sync_devices_subtitle">Sincronizza libreria, cronologia e profilo tramite Wi-Fi locale</string>
     <string name="sync_notification_title">Sincronizzazione dispositivi</string>
@@ -1580,7 +1580,7 @@
     <string name="player_appearance_grouped_quality_selector_title">Selettore della qualità raggruppato</string>
     
     <string name="player_appearance_grouped_quality_selector_subtitle">Mostra una riga per ogni risoluzione con le opzioni del codec all\'interno</string>
-    <string name="shorts_unsaved">Short non salvato</string>
+    <string name="shorts_unsaved">Shorts non salvato</string>
     <string name="player_settings_header_video">Video</string>
     <string name="select_videos">Seleziona</string>
     <string name="cancel_selection">Annulla selezione</string>
@@ -1817,7 +1817,7 @@
     <string name="empty_feed_title">Ancora niente qui</string>
     <string name="empty_results_body">Prova una ricerca diversa o controlla la connessione</string>
     <string name="empty_results_title">Nessun risultato trovato</string>
-    <string name="empty_saved_shorts">Nessun cortometraggio ancora salvato</string>
+    <string name="empty_saved_shorts">Nessun Shorts ancora salvato</string>
     <string name="end_of_results">Fine dei risultati</string>
     <string name="error_all_stream_sources_failed">Impossibile riprodurre questo video. Tutte le origini del flusso hanno restituito errori.</string>
     <string name="error_bot_wall">YouTube richiede la verifica</string>
@@ -1829,15 +1829,15 @@
     <string name="error_failed_to_load_feed">Impossibile caricare il feed</string>
     <string name="error_failed_to_load_media">Impossibile caricare il supporto: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">Impossibile caricare il supporto: flussi non validi</string>
-    <string name="error_failed_to_load_more_shorts">Impossibile caricare altri cortometraggi</string>
-    <string name="error_failed_to_load_shorts">Impossibile caricare gli shorts</string>
+    <string name="error_failed_to_load_more_shorts">Impossibile caricare altri Shorts</string>
+    <string name="error_failed_to_load_shorts">Impossibile caricare gli Shorts</string>
     <string name="error_failed_to_load_videos">Impossibile caricare i video.</string>
     <string name="error_insecure_stream_blocked">Streaming non sicuro bloccato dai criteri del dispositivo.</string>
     <string name="error_invalid_channel_url">URL del canale non valido</string>
     <string name="error_no_internet_found">Nessuna connessione Internet trovata</string>
     <string name="error_no_live_videos_found">Nessun video dal vivo trovato</string>
     <string name="error_no_playlists_found">Nessuna playlist trovata</string>
-    <string name="error_no_shorts_found">Nessun cortometraggio trovato</string>
+    <string name="error_no_shorts_found">Nessun Shorts trovato</string>
     <string name="error_no_videos_for_category">Nessun video trovato per questa categoria.</string>
     <string name="error_no_videos_found">Nessun video trovato</string>
     <string name="error_playback_device">Errore del dispositivo di riproduzione: %1$s</string>

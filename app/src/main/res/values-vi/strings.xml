@@ -520,8 +520,8 @@
     <string name="shorts_player_ui_impressive">Ấn tượng</string>
     <string name="player_appearance_grouped_quality_selector_title">Chọn chất lượng nhóm</string>
     <string name="player_appearance_grouped_quality_selector_subtitle">Hiện một hàng cho mỗi độ phân giải, codec bên trong</string>
-    <string name="shorts_saved">Đã lưu Short</string>
-    <string name="shorts_unsaved">Đã bỏ lưu Short</string>
+    <string name="shorts_saved">Đã lưu Shortssssssss</string>
+    <string name="shorts_unsaved">Đã bỏ lưu Shortssssssss</string>
     <string name="settings_item_player_appearance">Giao diện trình phát</string>
     <string name="settings_item_player_appearance_subtitle">Tùy chỉnh kiểu thanh tiến trình</string>
     
@@ -893,7 +893,7 @@
     <string name="btn_back">Quay lại</string>
     <string name="back">Quay lại</string>
     <string name="btn_close">Đóng</string>
-    <string name="loading_shorts">Đang tải shorts…</string>
+    <string name="loading_shorts">Đang tải Shorts…</string>
     <string name="error_short_load">Đã xảy ra lỗi</string>
     <string name="sb_submit_start_time">Thời gian bắt đầu</string>
     <string name="sb_submit_end_time">Thời gian kết thúc</string>
@@ -914,7 +914,7 @@
     
     <string name="player_settings_header_video">Video</string>
     <string name="player_settings_header_audio">Âm thanh</string>
-    <string name="share_short_template">Xem thử Short này: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Xem thử Shorts này: https://youtu.be/%1$s</string>
     <string name="speed_2x">2x</string>
     <string name="cd_liked">Đã thích</string>
     <string name="cd_pause">Tạm dừng</string>
@@ -1847,8 +1847,8 @@
     <string name="error_channel_loading_timed_out">Tải kênh hết thời gian</string>
     <string name="error_failed_to_load_feed">Không tải được nguồn cấp</string>
     <string name="error_failed_to_load_channel">Không tải được kênh</string>
-    <string name="error_failed_to_load_shorts">Không tải được shorts</string>
-    <string name="error_failed_to_load_more_shorts">Không tải thêm shorts</string>
+    <string name="error_failed_to_load_shorts">Không tải được Shorts</string>
+    <string name="error_failed_to_load_more_shorts">Không tải thêm Shorts</string>
     
     
     

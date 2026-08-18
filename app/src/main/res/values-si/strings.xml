@@ -9,7 +9,7 @@
     <string name="logs_copied">ලොග් පිටපත් කරගන්නා ලදී</string>
     <string name="logs_copy_failed">ලොග් පිටපත් කරගැනීමට නොහැකි විය</string>
     <string name="channel_error_log_clip_label">piTube නාලිකා දෝෂ ලොගය</string>
-    <string name="shorts">ශෝට්ස්</string>
+    <string name="shorts">Shorts</string>
     <string name="failed_to_load_channel">නාලිකාව ලෝඩ් කිරීමට අසමත් විය</string>
     <string name="subscribers">දායකයන්</string>
     <string name="collaborators">සහයෝගිතාකරුවන්</string>
@@ -23,7 +23,7 @@
     
     
     <string name="library_liked_videos_label">කැමති</string>
-    <string name="library_saved_shorts_label">සුරැකි ශෝට්ස්</string>
+    <string name="library_saved_shorts_label">සුරැකි Shorts</string>
     <string name="library_watch_later_label">පසුව නරඹන්න</string>
     <string name="library_downloads_label">බාගැනීම්</string>
     <string name="library_local_media_label">දේශීය මාධ්‍ය</string>
@@ -55,7 +55,7 @@
     <string name="history_no_results">ගැළපෙන ඉතිහාසයක් නැත</string>
     <string name="history_no_results_body">වෙනස් සෙවීමක් හෝ පෙරහනක් උත්සාහ කරන්න</string>
     <string name="history_tab_videos">වීඩියෝ</string>
-    <string name="history_tab_shorts">ශෝට්ස්</string>
+    <string name="history_tab_shorts">Shorts</string>
     <string name="history_tab_local_videos">දේශීය වීඩියෝ</string>
     
     <string name="liked">කැමති වුණු</string>
@@ -139,7 +139,7 @@
     <string name="quality_auto_template">ඔටෝ(%1$d)</string>
     <string name="play_mode_suggestion_title">ධාවන ප්‍රකාර යෝජනාව</string>
     <string name="play_mode_suggestion_body">මෙම වීඩියෝව මිනිත්තු 2කට වඩා අඩුය. විශේෂිත වාදකයකට මාරු වීමට ඔබ කැමතිද?</string>
-    <string name="shorts_player">ශෝට්ස් ධාවකය</string>
+    <string name="shorts_player">Shorts ධාවකය</string>
     <string name="tab_videos">වීඩියෝ</string>
     <string name="recognition_error_too_many_requests">හඬ සේවාව දැනට තාවකාලිකව කාර්යබහුලයි. මොහොතක් රැඳී සිට නැවත උත්සාහ කරන්න.</string>
     <string name="recognition_error_language_not_supported">කථන හඳුනාගැනීමේ යන්ත්‍රය මෙම භාෂාවට සහාය නොදක්වයි.</string>
@@ -611,7 +611,7 @@
     <string name="empty_offline_title">නොබැඳි %1$s</string>
     <string name="empty_results_body">වෙනස් සෙවීමක් උත්සාහ කරන්න හෝ ඔබේ සම්බන්ධතාවය පරීක්ෂා කරන්න</string>
     <string name="empty_results_title">ප්‍රතිඵල කිසිවක් හමු නොවීය</string>
-    <string name="empty_saved_shorts">තවමත් සුරකින ලද කෙටිකතා නොමැත</string>
+    <string name="empty_saved_shorts">තවමත් සුරකින ලද Shorts නොමැත</string>
     <string name="end_of_results">ප්‍රතිඵලවල අවසානය</string>
     <string name="end_time">අවසාන කාලය</string>
     <string name="equalizer">සමකරනය</string>
@@ -636,8 +636,8 @@
     <string name="error_failed_to_load_feed">සංග්‍රහය පූරණය කිරීමට අසමත් විය</string>
     <string name="error_failed_to_load_media">මාධ්‍ය පූරණය කිරීමට අසමත් විය: %1$s</string>
     <string name="error_failed_to_load_media_invalid_streams">මාධ්‍ය පූරණය කිරීමට අසමත් විය: වලංගු නොවන ප්‍රවාහ</string>
-    <string name="error_failed_to_load_more_shorts">Failed to load more shorts</string>
-    <string name="error_failed_to_load_shorts">කෙටි</string>
+    <string name="error_failed_to_load_more_shorts">Failed to load more Shorts</string>
+    <string name="error_failed_to_load_shorts">Shorts</string>
     <string name="error_failed_to_load_videos">වෙත පැටවීමට අසමත් විය. වීඩියෝ පටවන්න.</string>
     <string name="error_generic">වීඩියෝව පූරණය කිරීමට අසමත් විය</string>
     <string name="error_generic_hint">නොදන්නා දෝෂයක් සිදු විය. කරුණාකර නැවත උත්සාහ කරන්න.</string>
@@ -657,7 +657,7 @@
     <string name="error_no_internet_hint">ඔබගේ Wi-Fi හෝ ජංගම දත්ත පරීක්ෂා කර නැවත උත්සාහ කරන්න.</string>
     <string name="error_no_live_videos_found">සජීවී වීඩියෝ හමු නොවිණි</string>
     <string name="error_no_playlists_found">ධාවන ලැයිස්තු කිසිවක් හමු නොවිණි</string>
-    <string name="error_no_shorts_found">කෙටි දර්ශන කිසිවක් හමු නොවිණි</string>
+    <string name="error_no_shorts_found">Shorts කිසිවක් හමු නොවිණි</string>
     <string name="error_no_videos_for_category">මෙම ප්‍රවර්ගය සඳහා වීඩියෝ කිසිවක් හමු නොවිණි.</string>
     <string name="error_no_videos_found">වීඩියෝ කිසිවක් හමු නොවීය</string>
     <string name="error_not_available">වීඩියෝව නොමැත</string>
@@ -708,9 +708,9 @@
     <string name="go_to_channel">Go to channel</string>
     <string name="hearted_by_creator">නාලිකාව වෙත යන්න නිර්මාපකයාගේ හදවත්</string>
     <string name="hide_replies">පිළිතුරු සඟවන්න</string>
-    <string name="history_delete_shorts">ඉතිහාසයෙන් කෙටිකතා මකන්න</string>
-    <string name="history_delete_shorts_body">මෙය ඔබගේ නැරඹුම් ඉතිහාසයෙන් සියලුම කෙටි සටහන් ඉවත් කරයි. වෙනත් වීඩියෝ තබා ඇත.</string>
-    <string name="history_delete_shorts_title">කෙටි මකන්නද? YouTube වෙතින්</string>
+    <string name="history_delete_shorts">ඉතිහාසයෙන් Shorts මකන්න</string>
+    <string name="history_delete_shorts_body">මෙය ඔබගේ නැරඹුම් ඉතිහාසයෙන් සියලුම Shorts ඉවත් කරයි. වෙනත් වීඩියෝ තබා ඇත.</string>
+    <string name="history_delete_shorts_title">Shorts මකන්නද?</string>
     <string name="history_sync_youtube">සමමුහුර්ත</string>
     <string name="icon_name_amoled">AMOLED අඳුරු</string>
     <string name="icon_name_dynamic">ද්‍රව්‍ය ඔබ</string>
@@ -740,7 +740,7 @@
     <string name="load_more_replies">තවත් පිළිතුරු පූරණය කරන්න</string>
     <string name="loading_ellipsis">පූරණය වෙමින්...</string>
     <string name="loading_more">තව පූරණය වෙමින්...</string>
-    <string name="loading_shorts">කොට කලිසම් පූරණය වෙමින්...</string>
+    <string name="loading_shorts">Shorts පූරණය වෙමින්...</string>
     <string name="local_video">දේශීය වීඩියෝ</string>
     <string name="location_badge_recommended">නිර්දේශිත</string>
     <string name="location_custom_header">අභිරුචි ස්ථානය</string>
@@ -790,7 +790,7 @@
     <string name="nav_home">මුල් පිටුව</string>
     <string name="nav_library">පුස්තකාලය</string>
     <string name="nav_search">සොයන්න</string>
-    <string name="nav_shorts">කොට කලිසම්</string>
+    <string name="nav_shorts">Shorts</string>
     <string name="nav_you">ඔබ</string>
     <string name="never_delete_automatically">කිසිවිටෙක ස්වයංක්‍රීයව මකන්න එපා</string>
     <string name="new_update_available">නව යාවත්කාලීනය ඇත</string>
@@ -902,7 +902,7 @@
     <string name="player_appearance_long_press_speed_title">දිගු-ඔබන්න ධාවන වේගය</string>
     <string name="player_appearance_remember_brightness_subtitle">ඊළඟ වීඩියෝ වාදකයේ දීප්තියේ මට්ටම නැවත භාවිත කරන්න</string>
     <string name="player_appearance_remember_brightness_title">දීප්තිය මතක තබා ගන්න</string>
-    <string name="player_appearance_shorts_ui_subtitle">කෙටි ආවරණ කොපමණ ප්‍රමාණයක් දෘශ්‍යමානව පවතීද යන්න තෝරන්න</string>
+    <string name="player_appearance_shorts_ui_subtitle">Shorts ආවරණ කොපමණ ප්‍රමාණයක් දෘශ්‍යමානව පවතීද යන්න තෝරන්න</string>
     <string name="player_appearance_shorts_ui_title">Shorts player UI</string>
     <string name="player_appearance_style_subtitle">සෙවීම් තීරුවේ දෘශ්‍ය විලාසය තෝරන්න</string>
     <string name="player_appearance_title">ක්‍රීඩකයාගේ පෙනුම</string>
@@ -985,14 +985,14 @@
     <string name="player_settings_rytd_subtitle">ආපසු යූ ටියුබ් අකමැත්ත සේවාවෙන් අකමැත්ත ගණන් ලබා ගන්න</string>
     <string name="player_settings_rytd_title">යූ ටියුබ් අකමැත්ත ආපසු දෙන්න</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d තත්පර</string>
-    <string name="player_settings_shorts_background_play">කෙටි පසුබිම් පසුබිම වාදනය කරන විට</string>
-    <string name="player_settings_shorts_background_play_subtitle">SPLIT1 කෙටි යෙදුම් පසුබිම් වාදනය කරන විට</string>
+    <string name="player_settings_shorts_background_play">Shorts Background Play</string>
+    <string name="player_settings_shorts_background_play_subtitle">Continue playing Shorts when app is in background</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">අභිරුචි වේලාවෙන් පසු ස්වයංක්‍රීය අනුචලනය</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">සෑම %1$d තත්පරයකට වරක් ස්වයංක්‍රීයව අනුචලනය කරන්න</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">ස්වයංක්‍රීය වාදනය Next (ඊළඟ කෙටියෙන් ඉදිරියට)</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">වත්මන් කෙටි වාදනය අවසන් වූ විට කෙටි කලිසම් හැසිරිය යුතු ආකාරය තෝරන්න:</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">ස්වයංක්‍රීය වාදනය Next (ඊළඟ Shorts වෙත)</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">වත්මන් Shorts වාදනය අවසන් වූ විට හැසිරිය යුතු ආකාරය තෝරන්න:</string>
     <string name="player_settings_shorts_playback_mode_dialog_title">Shorts Playback Mode</string>
-    <string name="player_settings_shorts_playback_mode_loop">ලූප් (ධාරා කෙටි නැවත නැවත කරන්න)</string>
+    <string name="player_settings_shorts_playback_mode_loop">ලූප් (වත්මන් Shorts නැවත නැවත කරන්න)</string>
     <string name="player_settings_shorts_playback_mode_title">Shorts Playback Mode</string>
     <string name="player_settings_skip_silence">නිශ්ශබ්දතාවය මඟ හරින්න</string>
     <string name="player_settings_skip_silence_subtitle">ශ්‍රව්‍ය නොමැතිව කොටස් මඟ හරින්න</string>
@@ -1273,7 +1273,7 @@
     <string name="settings_stt_provider">කථනයෙන් පෙළ සපයන්නා</string>
     <string name="settings_title">සැකසීම්</string>
     <string name="share_community_post">ප්‍රජා පළ කිරීම බෙදා ගන්න</string>
-    <string name="share_short_template">මෙම කෙටියෙන් පරීක්ෂා කරන්න: https://youtu.be/ %1$s</string>
+    <string name="share_short_template">මෙම Shorts බලන්න: https://youtu.be/%1$s</string>
     <string name="shared_video">බෙදාගත් වීඩියෝ</string>
     <string name="shorts_audio_track">ශ්‍රව්‍ය පථය</string>
     <string name="shorts_auto_scroll_active_template">ස්වයංක්‍රීය %1$d s</string>
@@ -1282,13 +1282,13 @@
     <string name="shorts_player_ui_impressive">සිත් ඇදගන්නා සුළුය</string>
     <string name="shorts_player_ui_simple">සරල</string>
     <string name="shorts_quality">ගුණාත්මක</string>
-    <string name="shorts_quality_cellular_header">කෙටි කලිසම් සෛලීය තත්ත්වය</string>
-    <string name="shorts_quality_settings_subtitle">කෙටි කලිසම් නරඹන විට ගුණාත්මකභාවය</string>
-    <string name="shorts_quality_settings_title">කෙටි වීඩියෝ තත්ත්වය</string>
-    <string name="shorts_quality_warning">ඉහළ ගුණත්වය වැඩි දත්ත භාවිතා කරයි. කොට කලිසම් සිරස් වීඩියෝ ප්‍රවාහ භාවිතා කරයි.</string>
-    <string name="shorts_quality_wifi_header">කෙටි Wi-Fi ගුණාත්මක</string>
-    <string name="shorts_saved">කෙටි සුරකින ලදී</string>
-    <string name="shorts_unsaved">කෙටි නොසුරකින ලද</string>
+    <string name="shorts_quality_cellular_header">Shorts සෛලීය තත්ත්වය</string>
+    <string name="shorts_quality_settings_subtitle">Shorts නරඹන විට ගුණාත්මකභාවය</string>
+    <string name="shorts_quality_settings_title">Shorts වීඩියෝ තත්ත්වය</string>
+    <string name="shorts_quality_warning">ඉහළ ගුණත්වය වැඩි දත්ත භාවිතා කරයි. Shorts සිරස් වීඩියෝ ප්‍රවාහ භාවිතා කරයි.</string>
+    <string name="shorts_quality_wifi_header">Shorts Wi-Fi ගුණාත්මක</string>
+    <string name="shorts_saved">Shorts සුරකින ලදී</string>
+    <string name="shorts_unsaved">Shorts නොසුරකින ලද</string>
     <string name="show_suggestions_subtitle">Show suggestions while typing</string>
     <string name="skip_button_subtitle">ටයිප් කරන අතරතුර යෝජනා පෙන්වන්න කුඩා ප්ලේයරයේ 10s රිවයින්ඩ්/ෆෝවර්වර්ඩ් බොත්තම් පෙන්වන්න</string>
     <string name="skip_button_title">Skip බොත්තම් පෙන්වන්න</string>
@@ -1423,7 +1423,7 @@
     <string name="tab_live">සජීවී</string>
     <string name="tab_playlists">ධාවන ලැයිස්තු</string>
     <string name="tab_posts">පළ කිරීම් ගැන</string>
-    <string name="tab_shorts">කොට කලිසම්</string>
+    <string name="tab_shorts">Shorts</string>
     <string name="tags">ටැග්</string>
     <string name="tap_to_close">Tap to close</string>
     <string name="template_bass_boost">Bass Boost වැසීමට තට්ටු කරන්න: %1$d dB</string>

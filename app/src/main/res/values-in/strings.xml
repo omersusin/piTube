@@ -563,10 +563,10 @@
     <string name="player_settings_shorts_background_play">Putar Latar Belakang Shorts</string>
     <string name="player_settings_shorts_background_play_subtitle">Lanjutkan memutar Shorts saat aplikasi berada di latar belakang</string>
     <string name="player_settings_shorts_playback_mode_title">Mode Pemutaran Shorts</string>
-    <string name="player_settings_shorts_playback_mode_loop">Ulangi (ulangi shorts saat ini)</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">Putar Berikutnya Otomatis (lanjut ke shorts berikutnya)</string>
+    <string name="player_settings_shorts_playback_mode_loop">Ulangi (ulangi Shorts saat ini)</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">Putar Berikutnya Otomatis (lanjut ke Shorts berikutnya)</string>
     <string name="player_settings_shorts_playback_mode_dialog_title">Mode Pemutaran Shorts</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">Pilih perilaku Shorts saat short yang sedang diputar selesai:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">Pilih perilaku Shorts saat Shorts yang sedang diputar selesai:</string>
     <string name="player_settings_autoplay">Putar otomatis video terkait</string>
     <string name="player_settings_autoplay_subtitle">Saat tidak ada antrean, putar otomatis video saran berikutnya</string>
     <string name="player_settings_skip_silence">Lewati Keheningan</string>
@@ -697,9 +697,9 @@
     <string name="btn_back">Kembali</string>
     <string name="back">Kembali</string>
     <string name="btn_close">Tutup</string>
-    <string name="loading_shorts">Memuat shorts…</string>
+    <string name="loading_shorts">Memuat Shorts…</string>
     <string name="error_short_load">Terjadi kesalahan</string>
-    <string name="share_short_template">Lihat shorts ini: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Lihat Shorts ini: https://youtu.be/%1$s</string>
     <string name="speed_2x">Kecepatan 2x</string>
     <string name="cd_liked">Disukai</string>
     <string name="cd_pause">Jeda</string>
@@ -1462,8 +1462,8 @@
     <string name="shorts_player_ui_default">Default</string>
     <string name="shorts_player_ui_simple">Sederhana</string>
     <string name="shorts_player_ui_impressive">Mengesankan</string>
-    <string name="shorts_saved">Short disimpan</string>
-    <string name="shorts_unsaved">Short batal disimpan</string>
+    <string name="shorts_saved">Shorts disimpan</string>
+    <string name="shorts_unsaved">Shorts batal disimpan</string>
     <string name="content_settings_watched_threshold_title">Tandai sebagai ditonton ketika</string>
     <string name="content_settings_watched_threshold_dialog_body">Pilih seberapa banyak video harus diputar sebelum dianggap sudah ditonton dan disembunyikan.</string>
     <string name="content_settings_watched_threshold_90">90% diputar</string>
@@ -1960,7 +1960,7 @@
     <string name="empty_feed_title">Belum ada apa-apa di sini</string>
     <string name="empty_results_body">Coba penelusuran lain atau periksa koneksi Anda</string>
     <string name="empty_results_title">Tidak ada hasil yang ditemukan</string>
-    <string name="empty_saved_shorts">Belum ada celana pendek yang disimpan</string>
+    <string name="empty_saved_shorts">Belum ada Shorts yang disimpan</string>
     <string name="end_of_results">Hasil akhir</string>
     <string name="error_bot_wall">YouTube meminta verifikasi</string>
     <string name="error_bot_wall_hint">YouTube memerlukan proses masuk untuk mengonfirmasi bahwa Anda bukan bot. Jika Anda sudah masuk, tunggu beberapa saat dan coba lagi — atau ubah jaringan/VPN dan coba lagi.</string>

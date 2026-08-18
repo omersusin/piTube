@@ -5,7 +5,7 @@
     <string name="subscribed">Abone olundu</string>
     <string name="home_refresh_feed">Akışı Yenile</string>
     <string name="retry">Yeniden dene</string>
-    <string name="shorts">Şort</string>
+    <string name="shorts">Shorts</string>
     <string name="subscribers">Aboneler</string>
     <string name="failed_to_load_channel">Kanal yüklenemedi</string>
     <string name="stats">İstatistikler</string>
@@ -120,7 +120,7 @@
     <string name="history_no_results">Eşleşen geçmiş yok</string>
     <string name="history_no_results_body">Farklı bir arama veya filtre dene</string>
     <string name="history_tab_videos">Videolar</string>
-    <string name="history_tab_shorts">Şort</string>
+    <string name="history_tab_shorts">Shorts</string>
     <string name="liked">Beğenilenler</string>
     
     
@@ -195,7 +195,7 @@
     <string name="update_flow">piTube\'u Güncelle</string>
     <string name="maybe_later">Belki daha sonra</string>
     <string name="nav_home">Ana sayfa</string>
-    <string name="nav_shorts">Şort</string>
+    <string name="nav_shorts">Shorts</string>
     
     <string name="nav_library">Kitaplık</string>
     <string name="notifications">Bildirimler</string>
@@ -256,7 +256,7 @@
     <string name="channel_banner">Kanal afişi</string>
     <string name="channel_avatar">Kanal avatarı</string>
     <string name="subscribe">Abone ol</string>
-    <string name="tab_shorts">Şort</string>
+    <string name="tab_shorts">Shorts</string>
     <string name="tab_live">Canlı</string>
     <string name="tab_playlists">Oynatma listeleri</string>
     <string name="tab_about">Hakkında</string>
@@ -2156,7 +2156,7 @@
     <string name="duration_hours_short">%1$ds</string>
     <string name="duration_minutes">%1$d dakika</string>
     <string name="duration_minutes_short">%1$ddk</string>
-    <string name="empty_saved_shorts">Henüz kayıtlı shorts yok</string>
+    <string name="empty_saved_shorts">Henüz kayıtlı Shorts yok</string>
     <string name="equalizer">Ekolayzer</string>
     <string name="hearted_by_creator">Oluşturucu tarafından beğenildi</string>
     <string name="history_sync_youtube">YouTube\'dan senkronize et</string>

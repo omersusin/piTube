@@ -567,7 +567,7 @@
     <string name="btn_close">Закрыть</string>
     <string name="loading_shorts">Загрузка Shorts…</string>
     <string name="error_short_load">Произошла ошибка</string>
-    <string name="share_short_template">Посмотрите этот Short: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Посмотрите этот Shorts: https://youtu.be/%1$s</string>
     <string name="speed_2x">Скорость 2x</string>
     <string name="cd_liked">Нравится</string>
     <string name="player_settings_remember_speed">Запоминать скорость воспроизведения</string>
@@ -1354,8 +1354,8 @@
     
     
     
-    <string name="shorts_saved">Short сохранен</string>
-    <string name="shorts_unsaved">Short не сохранен</string>
+    <string name="shorts_saved">Shorts сохранен</string>
+    <string name="shorts_unsaved">Shorts не сохранен</string>
     <string name="max_history_size_title">Максимальный размер истории</string>
     <string name="currently_searches_template">Сейчас: %1$d поисковых запросов</string>
     <string name="auto_delete_history_title">Автоматическое удаление истории</string>

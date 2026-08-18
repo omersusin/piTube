@@ -245,7 +245,7 @@
     <string name="channel_banner">Kanalbanner</string>
     <string name="channel_avatar">Kanal-Avatar</string>
     <string name="subscribe">Abonnieren</string>
-    <string name="tab_shorts">Schorts</string>
+    <string name="tab_shorts">Shorts</string>
     <string name="tab_live">Lebe</string>
     <string name="tab_playlists">Wiedergabelisten</string>
     <string name="tab_about">Über</string>
@@ -637,12 +637,12 @@
     <string name="player_settings_shorts_background_play">Shorts-Hintergrundwiedergabe</string>
     <string name="player_settings_shorts_background_play_subtitle">„Shorts“ weiter abspielen, wenn die App im Hintergrund läuft</string>
     <string name="player_settings_shorts_playback_mode_title">Wiedergabemodus für Shorts</string>
-    <string name="player_settings_shorts_playback_mode_loop">Schleife (aktuellen Abschnitt wiederholen)</string>
-    <string name="player_settings_shorts_playback_mode_auto_next">„Nächsten Titel automatisch abspielen“ (zum nächsten Short springen)</string>
+    <string name="player_settings_shorts_playback_mode_loop">Schleife (aktuellen Shorts wiederholen)</string>
+    <string name="player_settings_shorts_playback_mode_auto_next">„Nächsten Titel automatisch abspielen“ (zum nächsten Shorts springen)</string>
     <string name="player_settings_shorts_playback_mode_auto_interval">Automatisches Scrollen nach einer festgelegten Zeit</string>
     <string name="player_settings_shorts_playback_mode_auto_interval_summary">Alle %1$d Sekunden automatisch scrollen</string>
     <string name="player_settings_shorts_playback_mode_dialog_title">Wiedergabemodus für Shorts</string>
-    <string name="player_settings_shorts_playback_mode_dialog_body">Wähle aus, wie sich „Shorts“ verhalten soll, wenn der aktuelle Short zu Ende ist:</string>
+    <string name="player_settings_shorts_playback_mode_dialog_body">Wähle aus, wie sich „Shorts“ verhalten soll, wenn der aktuelle Shorts zu Ende ist:</string>
     <string name="player_settings_shorts_auto_scroll_seconds_template">%1$d Sekunden</string>
     <string name="player_settings_autoplay">Automatische Wiedergabe von verwandten Videos</string>
     <string name="player_settings_autoplay_subtitle">Wenn nichts in der Warteschlange vorhanden ist, wird automatisch ein vorgeschlagenes Video als Nächstes abgespielt</string>
@@ -771,7 +771,7 @@
     <string name="back">Zurück</string>
     <string name="btn_close">Schließen</string>
     <string name="error_short_load">Es ist ein Fehler aufgetreten</string>
-    <string name="share_short_template">Schau dir diesen Short an: https://youtu.be/%1$s</string>
+    <string name="share_short_template">Schau dir diesen Shorts an: https://youtu.be/%1$s</string>
     <string name="speed_2x">2-fache Geschwindigkeit</string>
     <string name="cd_pause">Pause</string>
     <string name="live_chat">Live-Chat</string>
@@ -941,8 +941,8 @@
     <string name="shorts_player_ui_default">Standard</string>
     <string name="shorts_player_ui_simple">Einfach</string>
     <string name="shorts_player_ui_impressive">Beeindruckend</string>
-    <string name="shorts_saved">Short gespeichert</string>
-    <string name="shorts_unsaved">Short, nicht gespeichert</string>
+    <string name="shorts_saved">Shorts gespeichert</string>
+    <string name="shorts_unsaved">Shorts, nicht gespeichert</string>
     <string name="player_settings_display">Anzeige</string>
     <string name="sleep_timer_stops_in">Schaltet sich nach</string>
     <string name="days_count_template">%1$d Tage</string>
