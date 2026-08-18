@@ -79,7 +79,7 @@ fun FlowApp(
     onRecognitionSearchQueryConsumed: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val activity = context as? androidx.activity.ComponentActivity
+    val activity = context as? androidx.activity.ComponentActivity ?: return
     val navController = rememberNavController()
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
