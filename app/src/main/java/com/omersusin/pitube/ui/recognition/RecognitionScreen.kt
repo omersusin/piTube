@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -353,27 +354,20 @@ private fun songBackgroundBrush(): Brush {
         ),
         label = "songBgPhase",
     )
-    Crossfade(
-        targetState = phase >= 0.5f,
-        animationSpec = tween(durationMillis = 1800),
-        label = "songBgCrossfade",
-    ) { secondHalf ->
-        Brush.verticalGradient(
-            if (secondHalf) {
-                listOf(
-                    tertiary.copy(alpha = 0.32f),
-                    secondary.copy(alpha = 0.20f),
-                    background,
-                )
-            } else {
-                listOf(
-                    primary.copy(alpha = 0.34f),
-                    tertiary.copy(alpha = 0.16f),
-                    background,
-                )
-            },
-        )
-    }
+    // Continuous crossfade between two gradient palettes: the blend factor
+    // runs 0 → 1 → 0 each cycle, lerping every stop of palette A into B.
+    val blend = kotlin.math.sin(phase * kotlin.math.PI).toFloat()
+    val top = lerp(
+        primary.copy(alpha = 0.34f),
+        tertiary.copy(alpha = 0.32f),
+        blend,
+    )
+    val mid = lerp(
+        tertiary.copy(alpha = 0.16f),
+        secondary.copy(alpha = 0.20f),
+        blend,
+    )
+    return Brush.verticalGradient(top, mid, background)
 }
 
 @Composable
