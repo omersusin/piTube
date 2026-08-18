@@ -17,6 +17,7 @@ import com.omersusin.pitube.data.model.toVideo
 import com.omersusin.pitube.data.repository.YouTubeRepository
 import com.omersusin.pitube.data.shorts.ShortsRepository
 import com.omersusin.pitube.R
+import com.omersusin.pitube.SessionManager
 import com.omersusin.pitube.ui.components.FeedInvalidationBus
 import com.omersusin.pitube.utils.PerformanceDispatcher
 import kotlin.random.Random
@@ -390,7 +391,9 @@ class HomeViewModel @Inject constructor(
     }
 
     init {
-        if (HomeFeedCache.isFresh()) {
+        if (HomeFeedCache.isFresh() &&
+            HomeFeedCache.signedIn == (com.omersusin.pitube.innertube.YouTube.cookie != null)
+        ) {
             _uiState.update {
                 it.copy(
                     videos = HomeFeedCache.videos,
@@ -439,7 +442,7 @@ class HomeViewModel @Inject constructor(
                     val videos = state.videos.filterWatched(result.watchedVideoIds)
                     val shorts = state.shorts.filterWatched(result.watchedVideoIds)
                     if (videos != state.videos || shorts != state.shorts) {
-                        HomeFeedCache.update(videos, shorts)
+                        HomeFeedCache.update(videos, shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
                     }
                     state.copy(
                         videos = videos,
@@ -464,7 +467,7 @@ class HomeViewModel @Inject constructor(
                         val videos = state.videos.filterUnplayable(ids)
                         val shorts = state.shorts.filterUnplayable(ids)
                         if (videos != state.videos || shorts != state.shorts) {
-                            HomeFeedCache.update(videos, shorts)
+                            HomeFeedCache.update(videos, shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
                         }
                         state.copy(videos = videos, shorts = shorts)
                     }
@@ -485,7 +488,7 @@ class HomeViewModel @Inject constructor(
                         val videos = state.videos.filterSuppressed(hidden, blocked)
                         val shorts = state.shorts.filterSuppressed(hidden, blocked)
                         if (videos != state.videos || shorts != state.shorts) {
-                            HomeFeedCache.update(videos, shorts)
+                            HomeFeedCache.update(videos, shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
                         }
                         state.copy(videos = videos, shorts = shorts)
                     }
@@ -693,7 +696,7 @@ class HomeViewModel @Inject constructor(
             _uiState.update { state ->
                 if (state.videos.isNotEmpty()) return@update state
                 val videos = hydratedCached.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value)
-                HomeFeedCache.update(videos, state.shorts)
+                HomeFeedCache.update(videos, state.shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
                 state.copy(
                     videos = videos,
                     isFlowFeed = true,
@@ -744,6 +747,12 @@ class HomeViewModel @Inject constructor(
                 } else {
                     seedDiscoveryQueries(shuffle = false)
                 }
+
+                // Cold starts race the application's async session restore; wait
+                // up to 1.5s so the signed-in verdict below is computed from the
+                // restored cookie instead of the pre-restore null (which would
+                // fall back to a generic anonymous feed and cache it).
+                withTimeoutOrNull(1500L) { SessionManager.restored.await() }
 
                 val signedIn = !com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()
 
@@ -1000,7 +1009,7 @@ class HomeViewModel @Inject constructor(
                         lastRefreshTime = now
                     )
                 }
-                HomeFeedCache.update(visibleFeed, _uiState.value.shorts)
+                HomeFeedCache.update(visibleFeed, _uiState.value.shorts, signedIn = signedIn)
                 persistentHomeFeedCache.saveLastFeed(spacedMix)
                 persistentHomeFeedCache.saveReserve(reserveCandidates)
                 enrichVisibleChannelMetadata(spacedMix)?.let {
@@ -1048,7 +1057,7 @@ class HomeViewModel @Inject constructor(
                                     if (uniqueNew.isEmpty()) return@update state
                                     val updated = state.videos + uniqueNew
                                     updatedSnapshot = updated
-                                    HomeFeedCache.update(updated, state.shorts)
+HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
                                     state.copy(videos = updated)
                                 }
                                 updatedSnapshot?.let { persistentHomeFeedCache.saveLastFeed(it) }
@@ -1230,7 +1239,7 @@ class HomeViewModel @Inject constructor(
             val tailChannels = state.videos.takeLast(2).map { it.channelId }
             val updated = state.videos + spaceByChannel(appendedPage, seedRecent = tailChannels)
             updatedSnapshot = updated
-            HomeFeedCache.update(updated, state.shorts)
+            HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
             state.copy(
                 videos = updated,
                 hasMorePages = true
@@ -1255,7 +1264,7 @@ class HomeViewModel @Inject constructor(
             }
             if (updated == state.videos) return@update state
             updatedSnapshot = updated
-            HomeFeedCache.update(updated, state.shorts)
+            HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
             state.copy(videos = updated)
         }
         return updatedSnapshot
@@ -1284,7 +1293,7 @@ class HomeViewModel @Inject constructor(
                         }
                     }
                     if (updated == state.videos) state else {
-                        HomeFeedCache.update(updated, state.shorts)
+                        HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
                         state.copy(videos = updated)
                     }
                 }
@@ -1521,20 +1530,34 @@ internal object HomeFeedCache {
     @Volatile var timestamp: Long = 0L
         private set
 
+    /**
+     * Whether the cached feed was produced while a YouTube session was
+     * present. The cache is only trusted when it matches the current session
+     * state; a generic anonymous snapshot must never mask a warmed-up
+     * signed-in account (see the init gate and FlowApplication's invalidate).
+     */
+    @Volatile var signedIn: Boolean = false
+        private set
+
     fun isFresh(): Boolean =
         videos.isNotEmpty() && (System.currentTimeMillis() - timestamp) < CACHE_TTL_MS
 
-    fun update(newVideos: List<Video>, newShorts: List<Video>) {
+    fun update(newVideos: List<Video>, newShorts: List<Video>, signedIn: Boolean = false) {
         videos = newVideos
         shorts = newShorts.sortedByDescending { it.timestamp }
         timestamp = System.currentTimeMillis()
+        this.signedIn = signedIn
     }
 
     fun clear() {
         videos = emptyList()
         shorts = emptyList()
         timestamp = 0L
+        signedIn = false
     }
+
+    /** Drop the cached feed so the next visit re-fetches from network. */
+    fun invalidate() = clear()
 
     /**
      * Remove videos by blocked channel/topic from the cached feed without

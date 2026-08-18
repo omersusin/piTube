@@ -18,6 +18,7 @@ import com.omersusin.pitube.innertube.models.normalizeYouTubeHostLanguage
 import com.omersusin.pitube.innertube.pages.NewPipeExtractor
 import com.omersusin.pitube.network.AppProxyManager
 import com.omersusin.pitube.notification.NotificationHelper
+import com.omersusin.pitube.ui.screens.home.HomeFeedCache
 import com.omersusin.pitube.utils.AppLanguageManager
 import com.omersusin.pitube.utils.FlowCrashHandler
 import com.omersusin.pitube.utils.PerformanceDispatcher
@@ -203,6 +204,13 @@ class FlowApplication :
                 val cookie = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).getCookies()
                 YouTube.cookie = cookie
                 YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
+                // A session arriving after an anonymous process start invalidates
+                // any generic feed the pre-restore window could have cached, so
+                // the next Home visit re-fetches signed instead of trusting the
+                // signed-in flag of the anonymous cache entry.
+                if (!cookie.isNullOrBlank() && !HomeFeedCache.signedIn) {
+                    HomeFeedCache.invalidate()
+                }
                 // Identity that ties signed requests (like/subscribe write-back,
                 // personalized browse) to the active account. Without it innertube
                 // answers as the default session and writes can silently no-op.
@@ -216,8 +224,10 @@ class FlowApplication :
                     preferences.refreshYoutubeCookie(cookie)
                 }
                 Log.d(TAG, "YouTube session restored, signedIn=${!cookie.isNullOrEmpty()}")
+                SessionManager.restored.complete(true)
             } catch (e: Exception) {
                 Log.w(TAG, "session restore error: ${e.message}")
+                SessionManager.restored.complete(false)
             }
             YouTube.onCookieRotated = { merged ->
                 CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
