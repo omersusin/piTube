@@ -22,7 +22,7 @@ import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsOff
-import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Radio
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Subscriptions
@@ -241,7 +241,7 @@ fun NotificationSettingsScreen(onNavigateBack: () -> Unit) {
             item {
                 SettingsGroup {
                     SettingsItem(
-                        icon = Icons.Outlined.OpenInNew,
+                        icon = Icons.AutoMirrored.Outlined.OpenInNew,
                         title = stringResource(R.string.notif_system_settings),
                         subtitle = stringResource(R.string.notif_system_settings_subtitle),
                         onClick = {

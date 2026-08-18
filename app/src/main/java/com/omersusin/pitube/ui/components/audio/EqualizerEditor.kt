@@ -293,7 +293,7 @@ private fun logToFreq(norm: Float): Double {
     val minLog = kotlin.math.log10(20.0)
     val maxLog = kotlin.math.log10(20000.0)
     val logFreq = minLog + (norm * (maxLog - minLog))
-    return 10.0.pow(logFreq.toDouble())
+    return 10.0.pow(logFreq)
 }
 
 // Editing scaffold shown when the active profile has no bands (e.g. Flat).

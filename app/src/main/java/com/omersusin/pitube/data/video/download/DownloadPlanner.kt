@@ -57,7 +57,7 @@ object DownloadPlanner {
                         stream = s,
                         height = VideoCodecUtils.qualityHeightFromStream(s),
                         codecKey = VideoCodecUtils.codecKeyFromStream(s),
-                        isMuxed = !s.isVideoOnly,
+                        isMuxed = !s.isVideoOnly(),
                     )
                 }
         }

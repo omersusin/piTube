@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -156,6 +157,8 @@ class RecognitionOverlayService : Service() {
         return START_NOT_STICKY
     }
 
+    // TYPE_PHONE is deprecated in API 34 but required for pre-O overlay windows.
+    @Suppress("DEPRECATION")
     private fun addOverlayButton() {
         val view =
             LayoutInflater.from(this).inflate(R.layout.view_recognition_overlay_button, null)
@@ -430,7 +433,13 @@ class RecognitionOverlayService : Service() {
     private fun performHaptic() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.VIBRATE) != PackageManager.PERMISSION_GRANTED) return
         val vibrator =
-            (getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
+            } else {
+                // VIBRATOR_SERVICE is deprecated in API 31; VibratorManager is not available pre-S.
+                @Suppress("DEPRECATION")
+                getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+            } ?: return
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(12, VibrationEffect.DEFAULT_AMPLITUDE))

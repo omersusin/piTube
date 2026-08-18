@@ -279,7 +279,7 @@ fun VideoInfoContent(
                 // Use the fetched channel avatar URL if available, otherwise fallback to existing video thumbnail as last resort 
                 // but checking for uploaderUrl is wrong as it is a web link.
                 val channelThumbSafe = uiState.channelAvatarUrl?.takeIf { it.isNotEmpty() } 
-                    ?: video.channelThumbnailUrl?.takeIf { it.isNotEmpty() }
+                    ?: video.channelThumbnailUrl.takeIf { it.isNotEmpty() }
                     ?: ""
                 
                 viewModel.toggleSubscription(channelIdSafe, channelNameSafe, channelThumbSafe)
@@ -306,7 +306,7 @@ fun VideoInfoContent(
                 val channelIdSafe = ChannelIdResolver.resolve(video.channelId, streamInfo.uploaderUrl)
                 val channelNameSafe = streamInfo.uploaderName ?: video.channelName
                 val channelThumbSafe = uiState.channelAvatarUrl?.takeIf { it.isNotEmpty() }
-                    ?: video.channelThumbnailUrl?.takeIf { it.isNotEmpty() }
+                    ?: video.channelThumbnailUrl.takeIf { it.isNotEmpty() }
                     ?: ""
                 viewModel.toggleSubscription(channelIdSafe, channelNameSafe, channelThumbSafe)
                 scope.launch {

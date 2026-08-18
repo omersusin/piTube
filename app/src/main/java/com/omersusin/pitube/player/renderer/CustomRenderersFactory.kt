@@ -23,6 +23,8 @@ open class CustomRenderersFactory(
     private val audioProcessors: Array<AudioProcessor> = emptyArray()
 ) : DefaultRenderersFactory(context) {
 
+    // setEnableAudioTrackPlaybackParams is deprecated in media3 with no replacement.
+    @Suppress("DEPRECATION")
     override fun buildAudioSink(
         context: Context,
         enableFloatOutput: Boolean,
@@ -63,6 +65,8 @@ open class CustomRenderersFactory(
         )
     }
 
+    // experimentalSetLegacyDecodingEnabled is deprecated; no non-experimental replacement.
+    @Suppress("DEPRECATION")
     override fun buildTextRenderers(
         context: Context,
         output: TextOutput,

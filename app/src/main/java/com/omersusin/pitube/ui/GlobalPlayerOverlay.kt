@@ -48,14 +48,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import com.omersusin.pitube.R
@@ -920,7 +920,7 @@ fun GlobalPlayerOverlay(
                                         val p1 = event.changes.firstOrNull { it.id == firstDown.id }
                                         if (p1 == null || !p1.pressed) return@awaitEachGesture
                                     }
-                                    val p2 = secondPtr!!
+                                    val p2 = secondPtr
                                     p2.consume()
                                     val dx0 = firstDown.position.x - p2.position.x
                                     val dy0 = firstDown.position.y - p2.position.y

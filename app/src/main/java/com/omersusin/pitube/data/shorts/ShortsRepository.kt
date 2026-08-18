@@ -533,10 +533,10 @@ class ShortsRepository private constructor(private val context: Context) {
             } ?: audioCandidates.firstOrNull()
         }
 
-        val videoUrl = videoStream?.content ?: videoStream?.url ?: return null
+        val videoUrl = videoStream?.content ?: return null
         return ShortPlaybackStreams(
             videoUrl = videoUrl,
-            audioUrl = audioStream?.content ?: audioStream?.url,
+            audioUrl = audioStream?.content,
             durationMs = streamInfo.duration.takeIf { it > 0 }?.let { it * 1000L }
         )
     }
@@ -579,7 +579,7 @@ class ShortsRepository private constructor(private val context: Context) {
             .mapNotNull { (_, group) ->
                 val best = group.maxByOrNull { it.bitrate } ?: return@mapNotNull null
                 val cls = QualityManager.normalizeQualityHeight(VideoCodecUtils.qualityHeightFromStream(best))
-                val url = best.content ?: best.url ?: return@mapNotNull null
+                val url = best.content ?: return@mapNotNull null
                 val codecKey = VideoCodecUtils.codecKeyFromStream(best)
                 ShortVideoQuality(
                     heightClass = cls,

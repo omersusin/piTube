@@ -21,7 +21,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -75,7 +76,7 @@ fun DiagnosticsScreen(onNavigateBack: () -> Unit) {
 
     val context       = LocalContext.current
     val scope         = rememberCoroutineScope()
-    val clipboard     = LocalClipboardManager.current
+    val clipboard     = LocalClipboard.current
 
     // Tab state
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -119,7 +120,7 @@ fun DiagnosticsScreen(onNavigateBack: () -> Unit) {
             0    -> FlowDiagnostics.buildFullReport(context, sessionLines.joinToString("\n"))
             else -> "$deviceInfo\n\n$crashText"
         }
-        clipboard.setText(AnnotatedString(text))
+        scope.launch { clipboard.setClipEntry(ClipEntry(AnnotatedString(text))) }
         if (!copiedSnackShown) {
             copiedSnackShown = true
             scope.launch {
@@ -233,7 +234,7 @@ fun DiagnosticsScreen(onNavigateBack: () -> Unit) {
             // ----------------------------------------------------------------
             // Tab row
             // ----------------------------------------------------------------
-            TabRow(
+            PrimaryTabRow(
                 selectedTabIndex = selectedTab,
                 containerColor   = MaterialTheme.colorScheme.background,
                 divider          = {

@@ -102,7 +102,7 @@ object ShazamRecognizer {
                     throw RecognitionException(RecognitionFailureType.OTHER, "Recognition failed (HTTP ${response.code})")
                 }
 
-                parseTrack(response.body?.string().orEmpty())
+                parseTrack(response.body.string())
                     ?: throw RecognitionException(RecognitionFailureType.NO_MATCH, "No match found")
             }
         } catch (e: RecognitionException) {

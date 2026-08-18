@@ -144,6 +144,8 @@ class MainActivity : ComponentActivity() {
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
+            // API 35 deprecates contrast enforcement; no replacement control exists.
+            @Suppress("DEPRECATION")
             window.isStatusBarContrastEnforced = false
         }
 
@@ -842,7 +844,7 @@ class MainActivity : ComponentActivity() {
 
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful) {
-                    val body = response.body?.string()
+                    val body = response.body.string()
                     if (body != null) {
                         val json = JsonParser.parseString(body).asJsonObject
                         val latestTag = json.get("tag_name").asString

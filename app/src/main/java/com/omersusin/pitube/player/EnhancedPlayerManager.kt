@@ -65,6 +65,7 @@ import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -458,6 +459,7 @@ class EnhancedPlayerManager private constructor() {
      * Persist the queue + current index (debounced) so the session survives
      * process death and is restored by [restoreQueue] on the next app start.
      */
+    @OptIn(FlowPreview::class)
     private fun startQueuePersistence() {
         if (queuePersistenceJob?.isActive == true) return
         queuePersistenceJob = scope.launch {
@@ -2636,7 +2638,7 @@ class EnhancedPlayerManager private constructor() {
     ): Pair<VideoStream?, AudioStream?> {
         val audioCandidates =
             audioCandidatesAll
-                .distinctBy { it.url ?: it.content }
+                .distinctBy { it.content }
                 .sortedByDescending { it.bitrate }
 
         val audioStream =
@@ -2690,7 +2692,7 @@ class EnhancedPlayerManager private constructor() {
             if (audioStream == null && selectedVideoStream == null) {
                 videoStreams
                     .sortedWith(
-                        compareBy<VideoStream> { if (it.isVideoOnly) 1 else 0 }
+                        compareBy<VideoStream> { if (it.isVideoOnly()) 1 else 0 }
                             .thenByDescending { QualityManager.normalizeQualityHeight(VideoCodecUtils.qualityHeightFromStream(it)) }
                             .thenBy { VideoCodecUtils.codecRankWithPreference(it, preferredCodecKey) }
                             .thenByDescending { it.bitrate },
@@ -3391,7 +3393,7 @@ class EnhancedPlayerManager private constructor() {
                     if (p.playWhenReady) p.play()
                 }
             }
-            if (resyncPausedVideo && p != null) {
+            if (resyncPausedVideo) {
                 val position = p.currentPosition
                 Log.w(
                     "FlowVideoLifecycle",

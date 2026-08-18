@@ -103,7 +103,7 @@ class SabrDownloadEngine {
                                 val initData = event.metadata.initData
                                 if (initData.isNotEmpty()) {
                                     if (event.metadata.isAudio) {
-                                        audioStream?.write(initData)
+                                        audioStream.write(initData)
                                         downloadedAudioBytes.addAndGet(initData.size.toLong())
                                         Log.d(TAG, "Audio init: ${event.metadata.mimeType} ${event.metadata.codecs}, ${initData.size}B")
                                     } else if (event.metadata.isVideo && !audioOnly) {
@@ -119,7 +119,7 @@ class SabrDownloadEngine {
                                 consecutiveErrors = 0
                                 val segment = event.segment
                                 if (segment.isAudio) {
-                                    audioStream?.write(segment.data)
+                                    audioStream.write(segment.data)
                                     downloadedAudioBytes.addAndGet(segment.data.size.toLong())
                                 } else if (!audioOnly) {
                                     videoStream?.write(segment.data)

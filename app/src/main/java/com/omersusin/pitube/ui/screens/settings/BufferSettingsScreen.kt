@@ -293,7 +293,6 @@ private fun getProfileNameRes(profile: BufferProfile): Int {
         BufferProfile.AGGRESSIVE -> com.omersusin.pitube.R.string.buffer_profile_aggressive
         BufferProfile.DATASAVER -> com.omersusin.pitube.R.string.buffer_profile_datasaver
         BufferProfile.CUSTOM -> com.omersusin.pitube.R.string.buffer_profile_custom
-        else -> com.omersusin.pitube.R.string.buffer_profile_stable // Default fallback
     }
 }
 

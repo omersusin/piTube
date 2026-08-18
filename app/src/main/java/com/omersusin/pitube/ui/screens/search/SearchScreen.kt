@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,7 +38,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
@@ -902,7 +903,7 @@ private fun SearchFiltersBar(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                if (isGridMode) Icons.Outlined.ViewList else Icons.Outlined.GridView,
+                if (isGridMode) Icons.AutoMirrored.Outlined.ViewList else Icons.Outlined.GridView,
                 contentDescription = stringResource(R.string.search_toggle_view_mode),
                 tint =
                     if (isGridMode) {
@@ -1008,9 +1009,7 @@ private fun SearchResultList(
                                 Channel(
                                     id = channelId,
                                     name = item.video.channelName,
-                                    thumbnailUrl =
-                                        item.video.channelThumbnailUrl
-                                            ?: "",
+                                    thumbnailUrl = item.video.channelThumbnailUrl,
                                     subscriberCount = 0,
                                     url = "https://www.youtube.com/channel/$channelId",
                                 ),
@@ -1041,9 +1040,7 @@ private fun SearchResultList(
                     ShortsShelf(shorts = item.shorts, onShortClick = onVideoClick)
                 }
 
-                null -> {
-                    Unit
-                }
+                null -> {}
             }
         }
 
@@ -1115,9 +1112,7 @@ private fun SearchResultGrid(
                                 Channel(
                                     id = channelId,
                                     name = item.video.channelName,
-                                    thumbnailUrl =
-                                        item.video.channelThumbnailUrl
-                                            ?: "",
+                                    thumbnailUrl = item.video.channelThumbnailUrl,
                                     subscriberCount = 0,
                                     url = "https://www.youtube.com/channel/$channelId",
                                 ),

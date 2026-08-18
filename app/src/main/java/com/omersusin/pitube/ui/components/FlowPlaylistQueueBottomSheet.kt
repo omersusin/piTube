@@ -312,16 +312,13 @@ fun FlowPlaylistQueueBottomSheet(
                     itemsIndexed(displayItems, key = { _, item -> item.key }) { index, item ->
                         val isPlaying = item === currentDisplayItem
                         if (swipeToRemoveEnabled && !isPlaying) {
-                            val dismissState = rememberSwipeToDismissBoxState(
-                                confirmValueChange = { value ->
-                                    if (value == SwipeToDismissBoxValue.EndToStart) {
-                                        onRemoveVideoAtIndex(index)
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                },
-                            )
+                            val dismissState = rememberSwipeToDismissBoxState()
+                            LaunchedEffect(dismissState.currentValue) {
+                                if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                                    onRemoveVideoAtIndex(index)
+                                    dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                                }
+                            }
                             SwipeToDismissBox(
                                 state = dismissState,
                                 enableDismissFromStartToEnd = false,

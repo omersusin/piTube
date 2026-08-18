@@ -1100,9 +1100,9 @@ class YouTubeRepository
                                 resolvedChannelAvatar = fallbackAvatars[uploaderReference],
                             ),
                         text = item.commentText.content ?: "",
-                        likeCount = item.likeCount.toInt(),
+                        likeCount = item.likeCount,
                         publishedTime = item.textualUploadDate ?: "",
-                        replyCount = item.replyCount.toInt(),
+                        replyCount = item.replyCount,
                         repliesPage = item.replies,
                         isPinned = item.isPinned,
                         authorChannelId = extractChannelId(uploaderReference),
@@ -1193,6 +1193,39 @@ class YouTubeRepository
             withContext(Dispatchers.IO) {
                 if (!isSignedIn) return@withContext null
                 YouTube.getPlaybackTracking(videoId, cpn)
+            }
+
+        /**
+         * Read the beacon pair straight out of the already-fetched playback
+         * player response instead of issuing a second signed /player request.
+         * Returns null when the in-memory playback cache has no entry for
+         * [videoId] (expired or fetched by a fallback client without tracking);
+         * callers then fall back to [getPlaybackTracking].
+         */
+        suspend fun getPlaybackTrackingFromCachedPlayer(
+            videoId: String,
+        ): com.omersusin.pitube.innertube.YouTube.PlaybackTracking? =
+            withContext(Dispatchers.IO) {
+                if (!isSignedIn) return@withContext null
+                val data =
+                    com.omersusin.pitube.utils.MusicPlayerUtils.cachedPlaybackData(videoId)
+                        ?.getOrNull() ?: return@withContext null
+                val tracking = data.playbackTracking ?: return@withContext null
+                val playbackUrl = tracking.videostatsPlaybackUrl?.baseUrl
+                    ?.takeIf { it.isNotBlank() } ?: return@withContext null
+                val watchtimeUrl = tracking.videostatsWatchtimeUrl?.baseUrl
+                val length = watchtimeUrl
+                    ?.let { YouTube.parseLengthFromTrackingUrl(it) }
+                    ?.takeIf { it > 0f }
+                    ?: data.videoDetails?.lengthSeconds?.toFloatOrNull()
+                    ?: 0f
+                com.omersusin.pitube.innertube.YouTube.PlaybackTracking(
+                    playbackUrl = playbackUrl,
+                    watchtimeUrl = watchtimeUrl,
+                    lengthSeconds = length,
+                    scheduledFlushSeconds = tracking.scheduledFlushSeconds.orEmpty(),
+                    defaultFlushSeconds = tracking.defaultFlushSeconds ?: 40L,
+                )
             }
 
         /**

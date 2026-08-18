@@ -377,7 +377,7 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
             val extractor = service.getSearchExtractor(query)
             extractor.fetchPage()
 
-            extractor.initialPage?.items
+            extractor.initialPage.items
                 ?.filterIsInstance<StreamInfoItem>()
                 ?.filter { item ->
                     item.duration in 1..120 ||
@@ -425,7 +425,7 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
             channelId = channelId,
             thumbnailUrl = com.omersusin.pitube.utils.ThumbnailUrlResolver.normalizeVideoThumbnail(
                 videoId,
-                item.thumbnails?.maxByOrNull { it.height }?.url
+                item.thumbnails.maxByOrNull { it.height }?.url
             ),
             duration = item.duration.toInt().coerceAtLeast(0),
             viewCount = if (item.viewCount >= 0) item.viewCount else 0L,

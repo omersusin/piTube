@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.entity.NotificationEntity
@@ -173,17 +173,13 @@ private fun SwipeToDismissNotification(
     onDismiss: () -> Unit,
     onClick: () -> Unit,
 ) {
-    val dismissState =
-        rememberSwipeToDismissBoxState(
-            confirmValueChange = {
-                if (it == SwipeToDismissBoxValue.EndToStart) {
-                    onDismiss()
-                    true
-                } else {
-                    false
-                }
-            },
-        )
+    val dismissState = rememberSwipeToDismissBoxState()
+    LaunchedEffect(dismissState.currentValue) {
+        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+            onDismiss()
+            dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+        }
+    }
 
     SwipeToDismissBox(
         state = dismissState,

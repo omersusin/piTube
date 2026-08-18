@@ -339,7 +339,7 @@ fun PlaybackRefocusEffect(
                     return@LaunchedEffect
                 }
 
-                if (player.playbackState == Player.STATE_IDLE && playerMgrState.currentVideoId != null) {
+                if (player.playbackState == Player.STATE_IDLE) {
                     Log.d(TAG, "PlaybackRefocusEffect: player in IDLE after resume, calling prepare()")
                     player.prepare()
                     if (savedPosition != null && savedPosition > 500L) {
@@ -610,7 +610,7 @@ fun KeepScreenOnEffect(
         }
 
         onDispose {
-            if (observer != null && lifecycleOwner != null) {
+            if (observer != null) {
                 lifecycleOwner.lifecycle.removeObserver(observer)
             }
             clearScreenOn()

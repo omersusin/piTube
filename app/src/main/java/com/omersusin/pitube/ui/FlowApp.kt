@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.compose.NavHost
@@ -83,7 +83,7 @@ fun FlowApp(
     val navController = rememberNavController()
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
-    val playerViewModel: VideoPlayerViewModel = hiltViewModel(activity!!)
+    val playerViewModel: VideoPlayerViewModel = hiltViewModel(activity)
     val playerUiStateResult = playerViewModel.uiState.collectAsStateWithLifecycle()
     val playerUiState by playerUiStateResult
     val enhancedPlayerManager = remember { EnhancedPlayerManager.getInstance() }
@@ -158,7 +158,7 @@ fun FlowApp(
     // Same Activity-scoped ViewModel the modal uses: every open starts a fresh
     // IDLE session (a stale SUCCESS would otherwise auto-search the old track).
     val recognitionViewModel: com.omersusin.pitube.ui.recognition.RecognitionViewModel =
-        hiltViewModel(activity!!)
+        hiltViewModel(activity)
     LaunchedEffect(openRecognitionModal) {
         if (openRecognitionModal) {
             recognitionViewModel.reset()
@@ -396,7 +396,7 @@ fun FlowApp(
                 }
                 playerViewModel.clearVideo()
                 if (isInPipMode) {
-                    activity?.moveTaskToBack(false)
+                    activity.moveTaskToBack(false)
                 }
             }
         }
@@ -452,7 +452,7 @@ fun FlowApp(
                             .nestedScroll(nestedScrollConnection),
                 ) {
                     if (needsOnboarding != null) {
-                        val homeViewModel: HomeViewModel = hiltViewModel(activity!!)
+                        val homeViewModel: HomeViewModel = hiltViewModel(activity)
                         LaunchedEffect(homeViewModel) {
                             homeViewModel.initialize(context.applicationContext)
                         }
@@ -748,6 +748,8 @@ private fun ApplyStatusBarStyle(
         val insetsController = WindowCompat.getInsetsController(window, view)
         val shouldDrawBehindStatusBar = isFullscreen || isShortsPlayer
 
+        // API 35 deprecates statusBarColor; edge-to-edge insets are handled elsewhere.
+        @Suppress("DEPRECATION")
         window.statusBarColor =
             if (shouldDrawBehindStatusBar) {
                 android.graphics.Color.TRANSPARENT

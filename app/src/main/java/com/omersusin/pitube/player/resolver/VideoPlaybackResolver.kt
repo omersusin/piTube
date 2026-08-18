@@ -203,9 +203,9 @@ class VideoPlaybackResolver(
 
         val bestStream =
             if (preferMuxed) {
-                sortedStreams.firstOrNull { !it.isVideoOnly } ?: sortedStreams.firstOrNull()
+                sortedStreams.firstOrNull { !it.isVideoOnly() } ?: sortedStreams.firstOrNull()
             } else {
-                sortedStreams.firstOrNull { it.isVideoOnly } ?: sortedStreams.firstOrNull()
+                sortedStreams.firstOrNull { it.isVideoOnly() } ?: sortedStreams.firstOrNull()
             }
 
         if (bestStream == null) return null
@@ -232,7 +232,7 @@ class VideoPlaybackResolver(
             TAG,
             "Creating video source: ${VideoCodecUtils.qualityHeightFromStream(
                 stream,
-            )}p, delivery=$deliveryMethod, videoOnly=${stream.isVideoOnly}",
+            )}p, delivery=$deliveryMethod, videoOnly=${stream.isVideoOnly()}",
         )
 
         return try {
@@ -244,7 +244,7 @@ class VideoPlaybackResolver(
 
                 DeliveryMethod.PROGRESSIVE_HTTP -> {
                     // Progressive streams - generate DASH manifest to avoid throttling
-                    if (stream.isVideoOnly && durationSeconds > 0) {
+                    if (stream.isVideoOnly() && durationSeconds > 0) {
                         createProgressiveDashSource(stream, durationSeconds)
                     } else {
                         // Fallback for non-video-only streams

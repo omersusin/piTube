@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material3.*
@@ -39,7 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -956,7 +957,7 @@ private fun PlaylistVideoItem(
             )
 
             // Duration overlay
-            video.duration?.let { duration ->
+            video.duration.let { duration ->
                 Box(
                     modifier =
                         Modifier
@@ -1024,7 +1025,7 @@ private fun PlaylistVideoItem(
                     text =
                         when {
                             showAdded -> {
-                                stringResource(R.string.playlist_video_added_template, formatYouTubeRelativeTime(addedAt!!))
+                                stringResource(R.string.playlist_video_added_template, formatYouTubeRelativeTime(addedAt))
                             }
 
                             isPremiere -> {
@@ -1527,7 +1528,7 @@ class PlaylistDetailViewModel
                                         ?: (videoOnlyStreams + combinedStreams).maxByOrNull { qualityHeight(it) }
 
                                 if (selectedStream != null) {
-                                    val videoUrl = selectedStream.content ?: selectedStream.url
+                                    val videoUrl = selectedStream.content
                                     val audioUrl =
                                         if (selectedStream in videoOnlyStreams) {
                                             val aac =
@@ -1536,7 +1537,7 @@ class PlaylistDetailViewModel
                                                     preferredAudioLanguage = preferredAudioLanguage,
                                                     compatibilityFilter = ::isAacAudio,
                                                 )
-                                            aac?.content ?: aac?.url
+                                            aac?.content
                                         } else {
                                             null
                                         }
@@ -1554,7 +1555,7 @@ class PlaylistDetailViewModel
                                         video.copy(
                                             thumbnailUrl =
                                                 video.thumbnailUrl.ifBlank {
-                                                    streamInfo.thumbnails?.maxByOrNull { it.height }?.url ?: ""
+                                                    streamInfo.thumbnails.maxByOrNull { it.height }?.url ?: ""
                                                 },
                                         )
 
@@ -1610,7 +1611,7 @@ class PlaylistDetailViewModel
                     _uiState.update { state ->
                         state.copy(
                             playlistName = details.name.ifBlank { state.playlistName },
-                            description = (details.description ?: "").ifBlank { state.description },
+                            description = details.description.ifBlank { state.description },
                             thumbnailUrl = details.thumbnailUrl.ifBlank { state.thumbnailUrl },
                         )
                     }
@@ -1686,7 +1687,7 @@ class PlaylistDetailViewModel
                             _uiState.update {
                                 it.copy(
                                     playlistName = details.name,
-                                    description = details.description ?: "",
+                                    description = details.description,
                                     isPrivate = false,
                                     videos = details.videos,
                                     thumbnailUrl = details.thumbnailUrl,

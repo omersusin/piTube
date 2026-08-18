@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.outlined.AudioFile
 import androidx.compose.material.icons.outlined.HighQuality
 import androidx.compose.material.icons.rounded.*
@@ -162,6 +163,8 @@ internal fun ShortVideoPage(
     // Register a MediaSessionCompat so earphone / Bluetooth media buttons (play-pause)
     // work while a short is active. Re-created every time isActive changes; released on dispose.
     DisposableEffect(isActive) {
+        // MediaSessionCompat/PlaybackStateCompat are deprecated; the Bluetooth-remote path needs them.
+        @Suppress("DEPRECATION")
         val session =
             MediaSessionCompat(context, "ShortsPlayer").also { s ->
                 s.setPlaybackState(
@@ -1100,7 +1103,7 @@ internal fun ShortVideoPage(
             selectedIndex = pageState.selectedAudioIndex,
             onTrackSelected = { index ->
                 val stream = pageState.availableAudioStreams[index]
-                val audioUrl = stream.content ?: stream.url
+                val audioUrl = stream.content
                 playerPool.reloadWithAudioUrl(pageIndex, video.id, audioUrl)
                 pageState.selectedAudioIndex = index
                 pageState.showAudioTrackSheet = false

@@ -53,7 +53,7 @@ object PipePipeNsigDecoder {
                     Log.w(TAG, "latest-player HTTP ${resp.code}")
                     return null
                 }
-                val body = resp.body?.string() ?: return null
+                val body = resp.body.string()
                 val json = JSONObject(body)
                 val id = json.optString("player").takeIf { it.isNotEmpty() } ?: return null
                 cachedSignatureTimestamp = json.optInt("signatureTimestamp").takeIf { it != 0 }
@@ -86,7 +86,7 @@ object PipePipeNsigDecoder {
                     Log.w(TAG, "batch decode HTTP ${resp.code}")
                     return
                 }
-                val data = parseData(resp.body?.string()) ?: return
+                val data = parseData(resp.body.string()) ?: return
                 var ok = 0
                 for (n in ns) {
                     val decoded = data.optString(n)
@@ -111,7 +111,7 @@ object PipePipeNsigDecoder {
                 .header("User-Agent", USER_AGENT).build()
             httpClient.newCall(req).execute().use { resp ->
                 if (!resp.isSuccessful) return null
-                val data = parseData(resp.body?.string()) ?: return null
+                val data = parseData(resp.body.string())
                 val decoded = data.optString(n).takeIf { it.isNotEmpty() } ?: return null
                 nCache["$pid:$n"] = decoded
                 decoded

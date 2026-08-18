@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,7 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.omersusin.pitube.R
 import java.util.Locale
 
@@ -351,9 +352,9 @@ private fun StatsHeroCard(uiState: TimeManagementState) {
                     ) {
                         Icon(
                             if (isPositiveTrend) {
-                                Icons.Filled.TrendingDown
+                                Icons.AutoMirrored.Filled.TrendingDown
                             } else {
-                                Icons.Filled.TrendingUp
+                                Icons.AutoMirrored.Filled.TrendingUp
                             },
                             null,
                             tint = trendColor,

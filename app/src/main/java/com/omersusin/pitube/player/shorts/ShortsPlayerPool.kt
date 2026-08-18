@@ -162,6 +162,8 @@ class ShortsPlayerPool private constructor() {
         }
     }
 
+    // setViewportSizeToPhysicalDisplaySize has no non-deprecated API 35 replacement.
+    @Suppress("DEPRECATION")
     private fun createShortsPlayer(context: Context): ExoPlayer {
         val allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
         val (maxVideoWidth, maxVideoHeight) = maxVideoSizeForHeap(context)

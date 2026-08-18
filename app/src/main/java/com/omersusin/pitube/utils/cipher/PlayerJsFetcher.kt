@@ -132,7 +132,7 @@ object PlayerJsFetcher {
         val response = httpClient.newCall(request).execute()
         Log.d(TAG, "iframe_api response: HTTP ${response.code}")
         if (!response.isSuccessful) return null
-        val body = response.body?.string() ?: return null
+        val body = response.body.string()
         val match = PLAYER_HASH_REGEX.find(body)
         val hash = match?.groupValues?.get(1)
         Log.d(TAG, "Player hash: $hash")
@@ -149,7 +149,7 @@ object PlayerJsFetcher {
         val response = httpClient.newCall(request).execute()
         Log.d(TAG, "player.js response: HTTP ${response.code}")
         if (!response.isSuccessful) return null
-        val body = response.body?.string()
+        val body = response.body.string()
         Log.d(TAG, "player.js downloaded: ${body?.length} chars")
         return body
     }

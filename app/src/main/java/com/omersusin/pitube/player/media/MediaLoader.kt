@@ -269,8 +269,8 @@ class MediaLoader(
 
         if (sabrAvailable && sabrPreferred && !overridesDefaultAudio) {
             createSabrMediaSource(
-                sabrInfo!!,
-                sabrVideoId!!,
+                sabrInfo,
+                sabrVideoId,
                 finalDuration,
                 startPositionMs,
                 mediaId,
@@ -343,8 +343,8 @@ class MediaLoader(
         if (mediaSource == null && sabrAvailable && !sabrPreferred) {
             Log.w(TAG, "No playable extractor streams — falling back to native SABR session")
             createSabrMediaSource(
-                sabrInfo!!,
-                sabrVideoId!!,
+                sabrInfo,
+                sabrVideoId,
                 finalDuration,
                 startPositionMs,
                 mediaId,
@@ -402,6 +402,8 @@ class MediaLoader(
             null
         }
 
+    // SingleSampleMediaSource is deprecated in media3 but has no direct replacement here.
+    @Suppress("DEPRECATION")
     private fun mergeSubtitleSourcesIfNeeded(
         mediaSource: MediaSource?,
         subtitleStreams: List<SubtitlesStream>,

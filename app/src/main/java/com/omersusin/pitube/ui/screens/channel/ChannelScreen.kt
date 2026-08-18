@@ -41,7 +41,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ViewList
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.NotificationsActive
@@ -61,10 +61,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.SecondaryTabRowDefaults
+import androidx.compose.material3.SecondaryTabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -100,7 +100,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -513,9 +513,7 @@ private fun ChannelContent(
                 }
             }
 
-            VideoFilter.Latest -> {
-                Unit
-            }
+            VideoFilter.Latest -> {}
         }
     }
 
@@ -536,9 +534,7 @@ private fun ChannelContent(
                 }
             }
 
-            VideoFilter.Latest -> {
-                Unit
-            }
+            VideoFilter.Latest -> {}
         }
     }
 
@@ -1030,7 +1026,7 @@ private fun ChannelHeader(
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
                             onError = { err ->
-                                val msg = err.result.throwable?.message ?: "unknown"
+                                val msg = err.result.throwable.message
                                 if (!didRetry) {
                                     didRetry = true
                                     val lowRes = retryUrl.replace(Regex("=s\\d+"), "=s88")
@@ -1241,13 +1237,13 @@ private fun ChannelTabRow(
     tabs: List<String>,
     onTabSelected: (Int) -> Unit,
 ) {
-    ScrollableTabRow(
+    SecondaryScrollableTabRow(
         selectedTabIndex = selectedIndex,
         edgePadding = 0.dp,
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onSurface,
         indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
+            SecondaryTabRowDefaults.Indicator(
                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
                 height = 2.dp,
                 color = MaterialTheme.colorScheme.primary,

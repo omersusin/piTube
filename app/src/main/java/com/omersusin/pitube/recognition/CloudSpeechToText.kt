@@ -185,13 +185,13 @@ object CloudSpeechToText {
 
         return client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                Log.w(TAG, "Groq HTTP ${response.code}: ${response.body?.string().orEmpty().take(300)}")
+                Log.w(TAG, "Groq HTTP ${response.code}: ${response.body.string().take(300)}")
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
                     "Groq failed (HTTP ${response.code})",
                 )
             }
-            val text = json.decodeFromString(GroqResponse.serializer(), response.body?.string().orEmpty()).text.orEmpty().trim()
+            val text = json.decodeFromString(GroqResponse.serializer(), response.body.string()).text.orEmpty().trim()
             transcriptOrThrow(text, "Groq")
         }
     }
@@ -220,7 +220,7 @@ object CloudSpeechToText {
                     "Google Cloud failed (HTTP ${response.code})",
                 )
             }
-            val parsed = json.decodeFromString(GoogleResponse.serializer(), response.body?.string().orEmpty())
+            val parsed = json.decodeFromString(GoogleResponse.serializer(), response.body.string())
             val text = parsed.results?.firstOrNull()?.alternatives?.firstOrNull()?.transcript.orEmpty().trim()
             transcriptOrThrow(text, "Google Cloud")
         }
@@ -242,7 +242,7 @@ object CloudSpeechToText {
                     "Azure failed (HTTP ${response.code})",
                 )
             }
-            val parsed = json.decodeFromString(AzureResponse.serializer(), response.body?.string().orEmpty())
+            val parsed = json.decodeFromString(AzureResponse.serializer(), response.body.string())
             if (parsed.status != "Success") {
                 throw RecognitionException(
                     RecognitionFailureType.OTHER,
@@ -271,7 +271,7 @@ object CloudSpeechToText {
                     "IBM Watson failed (HTTP ${response.code})",
                 )
             }
-            val parsed = json.decodeFromString(IbmResponse.serializer(), response.body?.string().orEmpty())
+            val parsed = json.decodeFromString(IbmResponse.serializer(), response.body.string())
             val text = parsed.results?.firstOrNull()?.alternatives?.firstOrNull()?.transcript.orEmpty().trim()
             transcriptOrThrow(text, "IBM Watson")
         }
@@ -294,7 +294,7 @@ object CloudSpeechToText {
                     "IBM Watson auth failed (HTTP ${response.code})",
                 )
             }
-            val token = json.decodeFromString(IbmTokenResponse.serializer(), response.body?.string().orEmpty()).accessToken
+            val token = json.decodeFromString(IbmTokenResponse.serializer(), response.body.string()).accessToken
             if (token.isNullOrBlank()) {
                 throw RecognitionException(RecognitionFailureType.OTHER, "IBM Watson auth: no token")
             }

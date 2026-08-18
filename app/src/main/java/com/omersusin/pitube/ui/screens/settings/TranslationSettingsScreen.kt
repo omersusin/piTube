@@ -51,7 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.translation.ApiKeyState
@@ -412,7 +412,7 @@ fun TranslationSettingsScreen(
         RadioListDialog(
             title = stringResource(R.string.translation_model_row),
             options = modelOptions,
-            selected = if (modelInList) selectedModel!! else "custom_input",
+            selected = if (modelInList) selectedModel else "custom_input",
             onSelect = { choice ->
                 if (choice == "custom_input") {
                     customModelInput = selectedModel.orEmpty()

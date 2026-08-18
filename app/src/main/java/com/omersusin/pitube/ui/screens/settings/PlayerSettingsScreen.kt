@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.rounded.SlowMotionVideo
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -383,7 +384,7 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                     )
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsSwitchItem(
-                        icon = Icons.Outlined.PlaylistPlay,
+                        icon = Icons.AutoMirrored.Outlined.PlaylistPlay,
                         title = stringResource(R.string.player_settings_queue_autoplay),
                         subtitle = stringResource(R.string.player_settings_queue_autoplay_subtitle),
                         checked = queueAutoplayEnabled,
@@ -631,7 +632,7 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                 )
                 SettingsGroup {
                     SettingsClickItem(
-                        icon = Icons.Outlined.VolumeUp,
+                        icon = Icons.AutoMirrored.Outlined.VolumeUp,
                         title = stringResource(R.string.player_settings_audio_language),
                         subtitle =
                             audioLanguageOptions

@@ -57,7 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.VideoHistoryEntry
@@ -1087,7 +1087,7 @@ fun CollaboratorsBottomSheet(
                                     if (canOpenChannel) {
                                         Modifier.clickable {
                                             onDismiss()
-                                            onChannelClick?.invoke(collaborator.channelId)
+                                            onChannelClick.invoke(collaborator.channelId)
                                         }
                                     } else {
                                         Modifier
@@ -1502,7 +1502,7 @@ fun VideoThumbnailImage(
         remember(videoId, model) {
             when {
                 model is String || model == null -> {
-                    ThumbnailUrlResolver.resolveVideoThumbnailCandidates(videoId, model as? String)
+                    ThumbnailUrlResolver.resolveVideoThumbnailCandidates(videoId, model)
                 }
 
                 else -> {
@@ -1605,7 +1605,7 @@ fun ChannelAvatarImage(
                 modifier = modifier,
                 contentScale = ContentScale.Crop,
                 onError = { errorResult ->
-                    val errMsg = errorResult.result.throwable?.message ?: "unknown error"
+                    val errMsg = errorResult.result.throwable.message
                     if (!didRetry) {
                         didRetry = true
                         val src =

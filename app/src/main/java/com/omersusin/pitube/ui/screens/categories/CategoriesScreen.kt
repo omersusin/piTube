@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.*
@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.model.Video
@@ -287,7 +287,7 @@ private fun CategoriesTopBar(
             }
             IconButton(onClick = onToggleViewMode) {
                 Icon(
-                    imageVector = if (isListView) Icons.Outlined.GridView else Icons.Outlined.List,
+                    imageVector = if (isListView) Icons.Outlined.GridView else Icons.AutoMirrored.Outlined.List,
                     contentDescription = if (isListView)
                         stringResource(R.string.categories_switch_to_grid)
                     else

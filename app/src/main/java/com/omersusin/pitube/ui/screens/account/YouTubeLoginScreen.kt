@@ -33,12 +33,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.HelpOutline
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,7 +54,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -353,7 +353,7 @@ fun YouTubeLoginScreen(
         ) {
             Spacer(Modifier.height(4.dp))
 
-            TabRow(selectedTabIndex = loginMode) {
+            PrimaryTabRow(selectedTabIndex = loginMode) {
                 Tab(
                     selected = loginMode == LoginMode.TOKEN.ordinal,
                     onClick = { loginMode = LoginMode.TOKEN.ordinal },
@@ -727,7 +727,7 @@ private fun TokenHelpSection() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.HelpOutline,
+                    imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
@@ -909,7 +909,7 @@ private fun AccountPanel(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
-                    Icons.Outlined.Logout,
+                    Icons.AutoMirrored.Outlined.Logout,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )

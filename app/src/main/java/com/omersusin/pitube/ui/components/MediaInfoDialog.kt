@@ -142,7 +142,7 @@ fun MediaInfoDialog(
                     // Technical Info
                     details.add(videoIdLabel to currentId)
 
-                    if (video.uploadDate != null) details.add(uploadedLabel to dateSettings.format(video.uploadDate, DateContext.WATCH, video.timestamp))
+                    details.add(uploadedLabel to dateSettings.format(video.uploadDate, DateContext.WATCH, video.timestamp))
                     
                     // Fallback Duration
                     resolvedDurationSeconds?.takeIf { it > 0 }?.let {

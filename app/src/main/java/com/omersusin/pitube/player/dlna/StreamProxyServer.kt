@@ -464,11 +464,7 @@ class StreamProxyServer private constructor() {
                 return
             }
 
-            val body = response.body ?: run {
-                sendError(output, 502, "No Body")
-                response.close()
-                return
-            }
+            val body = response.body
 
             val responseHeaders = buildString {
                 if (response.code == 206) {
@@ -550,6 +546,8 @@ class StreamProxyServer private constructor() {
         }
     }
 
+    // WifiInfo.ipAddress/connectionInfo are deprecated with no replacement below API 31.
+    @Suppress("DEPRECATION")
     private fun getDeviceIpAddress(context: Context): String {
         try {
             val wifiManager = context.applicationContext

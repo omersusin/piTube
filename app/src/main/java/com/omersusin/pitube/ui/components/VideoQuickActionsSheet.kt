@@ -28,10 +28,10 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.PlaylistAdd
+import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material.icons.outlined.PlaylistRemove
-import androidx.compose.material.icons.outlined.QueueMusic
+import androidx.compose.material.icons.automirrored.outlined.QueueMusic
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
@@ -63,7 +63,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.model.Video
@@ -240,7 +240,7 @@ fun VideoQuickActionsBottomSheet(
                     actions =
                         listOf(
                             FlowAction(
-                                icon = { Icon(Icons.Outlined.PlaylistAdd, null) },
+                                icon = { Icon(Icons.AutoMirrored.Outlined.PlaylistAdd, null) },
                                 text = stringResource(R.string.save_to_playlist),
                                 onClick = { showAddToPlaylistDialog = true },
                             ),
@@ -315,7 +315,7 @@ fun VideoQuickActionsBottomSheet(
                     items =
                         listOf(
                             FlowMenuItemData(
-                                icon = { Icon(Icons.Outlined.QueueMusic, null) },
+                                icon = { Icon(Icons.AutoMirrored.Outlined.QueueMusic, null) },
                                 title = { Text(stringResource(R.string.play_next_video)) },
                                 description = { Text(stringResource(R.string.play_next_video_desc)) },
                                 onClick = {
@@ -330,7 +330,7 @@ fun VideoQuickActionsBottomSheet(
                                 },
                             ),
                             FlowMenuItemData(
-                                icon = { Icon(Icons.Outlined.PlaylistAdd, null) },
+                                icon = { Icon(Icons.AutoMirrored.Outlined.PlaylistAdd, null) },
                                 title = { Text(stringResource(R.string.add_video_to_queue)) },
                                 description = { Text(stringResource(R.string.add_video_to_queue_desc)) },
                                 onClick = {

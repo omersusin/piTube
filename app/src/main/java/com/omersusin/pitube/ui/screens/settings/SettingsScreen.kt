@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -420,7 +421,7 @@ fun SettingsScreen(
                     withContext(Dispatchers.Main) {
                         isCheckingUpdate = false
                         if (response.isSuccessful) {
-                            val body = response.body?.string()
+                            val body = response.body.string()
                             if (body != null) {
                                 val json = JsonParser.parseString(body).asJsonObject
                                 val latestTag = json.get("tag_name").asString
@@ -582,7 +583,7 @@ fun SettingsScreen(
                 onNavigateToDownloads,
             ),
             SettingSearchEntry(
-                Icons.Outlined.TrendingUp,
+                Icons.AutoMirrored.Outlined.TrendingUp,
                 stringResource(R.string.settings_item_region),
                 REGION_NAMES[currentRegion] ?: currentRegion,
                 secContentPlayback,
@@ -613,7 +614,7 @@ fun SettingsScreen(
                 secRecognition,
             ) { showRecognitionProviderDialog = true },
             SettingSearchEntry(
-                Icons.Outlined.CompareArrows,
+                Icons.AutoMirrored.Outlined.CompareArrows,
                 stringResource(R.string.settings_recognition_fallback),
                 stringResource(R.string.settings_recognition_fallback_subtitle),
                 secRecognition,
@@ -625,7 +626,7 @@ fun SettingsScreen(
                 secRecognition,
             ) { onRecognitionNotificationsToggle(!recognitionNotificationsEnabled) },
             SettingSearchEntry(
-                Icons.Outlined.OpenInNew,
+                Icons.AutoMirrored.Outlined.OpenInNew,
                 stringResource(R.string.settings_recognition_floating_button),
                 stringResource(R.string.settings_recognition_floating_button_subtitle),
                 secRecognition,
@@ -1086,7 +1087,7 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                         )
                         SettingsItem(
-                            icon = Icons.Outlined.TrendingUp,
+                            icon = Icons.AutoMirrored.Outlined.TrendingUp,
                             title = stringResource(R.string.settings_item_region),
                             subtitle = REGION_NAMES[currentRegion] ?: currentRegion,
                             onClick = { showRegionDialog = true },
@@ -1168,7 +1169,7 @@ fun SettingsScreen(
                             onClick = { showRecognitionProviderDialog = true },
                         )
                         SettingsItem(
-                            icon = Icons.Outlined.CompareArrows,
+                            icon = Icons.AutoMirrored.Outlined.CompareArrows,
                             title = stringResource(R.string.settings_recognition_fallback),
                             subtitle = stringResource(R.string.settings_recognition_fallback_subtitle),
                             onClick = { showRecognitionFallbackDialog = true },
@@ -1181,7 +1182,7 @@ fun SettingsScreen(
                             onCheckedChange = ::onRecognitionNotificationsToggle,
                         )
                         SettingsSwitchItem(
-                            icon = Icons.Outlined.OpenInNew,
+                            icon = Icons.AutoMirrored.Outlined.OpenInNew,
                             title = stringResource(R.string.settings_recognition_floating_button),
                             subtitle = stringResource(R.string.settings_recognition_floating_button_subtitle),
                             checked = floatingButtonShown,
@@ -1933,7 +1934,7 @@ private fun SettingsSearchResultItem(
         when (entry.icon) {
             is ImageVector -> {
                 SettingsItem(
-                    icon = entry.icon as ImageVector,
+                    icon = entry.icon,
                     title = entry.title,
                     subtitle = entry.subtitle,
                     onClick = onNavigate,
@@ -1942,7 +1943,7 @@ private fun SettingsSearchResultItem(
 
             is Int -> {
                 SettingsItem(
-                    icon = painterResource(entry.icon as Int),
+                    icon = painterResource(entry.icon),
                     title = entry.title,
                     subtitle = entry.subtitle,
                     onClick = onNavigate,

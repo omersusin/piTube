@@ -181,7 +181,7 @@ fun DownloadSheet(
         "${VideoPlayerUtils.qualityHeightFromStream(it)}_${VideoCodecUtils.codecKeyFromStream(it)}" == selectedVideoKey
     }
     val selectedAudio = audioStreams.firstOrNull { it.getContent() == selectedAudioUrl }
-    val selectedIsMuxed = selectedCandidate?.isVideoOnly == false
+    val selectedIsMuxed = selectedCandidate?.isVideoOnly() == false
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -304,7 +304,7 @@ fun DownloadSheet(
                                         enabled = !audioOnly,
                                         onClick = {
                                             selectedVideoKey = key
-                                            if (!stream.isVideoOnly) selectedAudioUrl = null
+                                            if (!stream.isVideoOnly()) selectedAudioUrl = null
                                         },
                                     )
                                 }
@@ -519,7 +519,7 @@ private fun VideoQualityRow(
                 Text(
                     text = listOfNotNull(
                         sizeText,
-                        if (stream.isVideoOnly) stringResource(R.string.download_stream_video_only) else stringResource(R.string.download_stream_muxed),
+                        if (stream.isVideoOnly()) stringResource(R.string.download_stream_video_only) else stringResource(R.string.download_stream_muxed),
                     ).joinToString(" • "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

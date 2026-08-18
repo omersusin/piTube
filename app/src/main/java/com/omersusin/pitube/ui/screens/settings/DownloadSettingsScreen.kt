@@ -43,7 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -863,7 +863,7 @@ fun DownloadSettingsScreen(
 
         var showManualDialog by remember { mutableStateOf(false) }
         var manualPathInput by remember(dialogTarget, selectedLocation) {
-            mutableStateOf(if (isSafCustomSelected) selectedLocation ?: "" else "")
+            mutableStateOf(if (isSafCustomSelected) selectedLocation else "")
         }
 
         BasicAlertDialog(onDismissRequest = { locationDialogTarget = null }) {
@@ -1033,7 +1033,7 @@ fun DownloadSettingsScreen(
                                     )
                                     Spacer(Modifier.height(4.dp))
                                     Text(
-                                        text = if (isSafCustomSelected) selectedLocation ?: stringResource(R.string.location_custom_saf_desc)
+                                        text = if (isSafCustomSelected) selectedLocation
                                                else stringResource(R.string.location_custom_saf_desc),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,

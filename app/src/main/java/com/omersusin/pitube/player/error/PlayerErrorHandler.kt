@@ -579,8 +579,8 @@ class PlayerErrorHandler(
         try {
             var cause: Throwable? = error.cause
             while (cause != null) {
-                val field = runCatching { cause!!.javaClass.getField("responseCode") }.getOrNull()
-                    ?: runCatching { cause!!.javaClass.getDeclaredField("responseCode") }.getOrNull()
+                val field = runCatching { cause.javaClass.getField("responseCode") }.getOrNull()
+                    ?: runCatching { cause.javaClass.getDeclaredField("responseCode") }.getOrNull()
                 if (field != null) {
                     field.isAccessible = true
                     return (field.get(cause) as? Int) ?: 0

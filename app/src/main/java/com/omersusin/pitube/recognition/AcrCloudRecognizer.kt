@@ -78,7 +78,7 @@ object AcrCloudRecognizer {
                         "ACRCloud failed (HTTP ${response.code})",
                     )
                 }
-                parseResponse(response.body?.string().orEmpty())
+                parseResponse(response.body.string())
             }
         } catch (e: RecognitionException) {
             throw e

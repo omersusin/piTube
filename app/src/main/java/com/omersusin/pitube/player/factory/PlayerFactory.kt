@@ -82,6 +82,8 @@ class PlayerFactory {
             .setResetOnNetworkTypeChange(false)
             .build()
 
+    // setViewportSizeToPhysicalDisplaySize has no non-deprecated API 35 replacement.
+    @Suppress("DEPRECATION")
     fun createTrackSelector(context: Context): DefaultTrackSelector {
         val trackSelectionFactory = AdaptiveTrackSelection.Factory()
         val prefs = ensurePrefs(context)

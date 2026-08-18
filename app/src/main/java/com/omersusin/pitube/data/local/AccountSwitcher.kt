@@ -192,6 +192,7 @@ class AccountSwitcher(context: Context) {
      */
     fun signOut(profileId: String) {
         profileManager.replaceWithFreshLocal(profileId)
+        clearHomeFeedCacheFor(profileId)
         if (profileManager.activeProfileId.value == profileId) {
             repointRuntimeSession()
             invalidateForProfileChange()
@@ -202,11 +203,26 @@ class AccountSwitcher(context: Context) {
     fun remove(profileId: String): Boolean {
         val wasActive = profileManager.activeProfileId.value == profileId
         if (!profileManager.remove(profileId)) return false
+        clearHomeFeedCacheFor(profileId)
         if (wasActive) {
             repointRuntimeSession()
             invalidateForProfileChange()
         }
         return true
+    }
+
+    /**
+     * Drop one profile's cached feed rows. Runs for sign-out and removal even
+     * when the profile is not active, because either way that account's
+     * personalised feed must never be served under another identity.
+     */
+    private fun clearHomeFeedCacheFor(profileId: String) {
+        backgroundScope.launch {
+            runCatching {
+                com.omersusin.pitube.data.local.HomeFeedCacheRepository(appContext)
+                    .clearProfile(profileId)
+            }
+        }
     }
 
     fun rename(profileId: String, name: String) {

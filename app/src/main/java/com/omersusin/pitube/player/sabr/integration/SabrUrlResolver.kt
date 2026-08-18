@@ -79,7 +79,7 @@ object SabrUrlResolver {
         val selectedVideo = selectBestVideo(videoFormats, preferredCodec)
         val selectedAudio = selectedVideo?.let { selectBestAudio(audioFormats, it) }
 
-        if (selectedAudio == null || selectedVideo == null) {
+        if (selectedVideo == null || selectedAudio == null) {
             Log.w(TAG, "Could not select audio/video format: audio=${selectedAudio != null}, video=${selectedVideo != null}")
             return null
         }

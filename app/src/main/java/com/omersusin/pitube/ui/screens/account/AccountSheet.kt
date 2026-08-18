@@ -29,7 +29,7 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PersonOutline
-import androidx.compose.material.icons.outlined.PlaylistPlay
+import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ThumbUp
@@ -167,7 +167,7 @@ fun AccountSheet(
                 }
             )
             QuickLinkRow(
-                icon = Icons.Outlined.PlaylistPlay,
+                icon = Icons.AutoMirrored.Outlined.PlaylistPlay,
                 label = stringResource(R.string.library_playlists_label),
                 onClick = {
                     onDismiss()

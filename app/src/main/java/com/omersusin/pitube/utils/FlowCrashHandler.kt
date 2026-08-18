@@ -101,6 +101,8 @@ class FlowCrashHandler private constructor(
         }
     }
     
+    // Thread.id is deprecated; threadId() requires API 34+. Kept for crash-report shape.
+    @Suppress("DEPRECATION")
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
         try {
             // Log to logcat
@@ -162,6 +164,8 @@ class FlowCrashHandler private constructor(
         return sw.toString()
     }
 
+    // Thread.id is deprecated; threadId() requires API 34+. Kept for crash-report shape.
+    @Suppress("DEPRECATION")
     private fun buildCrashReport(
         thread: Thread,
         throwable: Throwable,

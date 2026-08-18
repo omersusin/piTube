@@ -233,6 +233,10 @@ data class PlayerResponse(
         val videostatsWatchtimeUrl: VideostatsWatchtimeUrl?,
         @SerialName("atrUrl")
         val atrUrl: AtrUrl?,
+        @SerialName("videostatsScheduledFlushWalltimeSeconds")
+        val scheduledFlushSeconds: List<Long>? = null,
+        @SerialName("videostatsDefaultFlushIntervalSeconds")
+        val defaultFlushSeconds: Long? = null,
     ) {
         @Serializable
         data class VideostatsPlaybackUrl(

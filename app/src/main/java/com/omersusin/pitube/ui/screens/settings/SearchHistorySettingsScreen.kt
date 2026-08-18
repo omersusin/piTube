@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -83,7 +84,7 @@ fun SearchHistorySettingsScreen(
                     )
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsSwitchItem(
-                        icon = Icons.Outlined.TrendingUp,
+                        icon = Icons.AutoMirrored.Outlined.TrendingUp,
                         title = stringResource(R.string.search_suggestions_title),
                         subtitle = stringResource(R.string.show_suggestions_subtitle),
                         checked = searchSuggestionsEnabled,
@@ -117,7 +118,7 @@ fun SearchHistorySettingsScreen(
                     
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsItem(
-                        icon = Icons.Outlined.ManageSearch,
+                        icon = Icons.AutoMirrored.Outlined.ManageSearch,
                         title = stringResource(R.string.clear_history_item_title),
                         subtitle = stringResource(R.string.remove_all_queries),
                         onClick = { showClearSearchDialog = true }

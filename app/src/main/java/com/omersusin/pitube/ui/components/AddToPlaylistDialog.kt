@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -370,7 +371,7 @@ private fun PlaylistSheetRow(
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Outlined.PlaylistPlay,
+                    imageVector = Icons.AutoMirrored.Outlined.PlaylistPlay,
                     contentDescription = null,
                     modifier =
                         Modifier
@@ -419,7 +420,7 @@ private fun CreateNewPlaylistDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
-            Icon(Icons.Outlined.PlaylistAdd, null)
+            Icon(Icons.AutoMirrored.Outlined.PlaylistAdd, null)
         },
         title = {
             Text(stringResource(R.string.create_new_playlist))

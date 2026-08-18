@@ -18,7 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlaylistRepository

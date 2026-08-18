@@ -263,8 +263,8 @@ fun SeekbarWithPreview(
                 // SponsorBlock segments above progress so they remain visible after playback passes them.
                 if (duration > 0) {
                     sponsorSegments.forEach { segment ->
-                        val startRatio = (segment.startTime.toFloat() * 1000f / duration.toFloat()).coerceIn(0f, 1f)
-                        val endRatio = (segment.endTime.toFloat() * 1000f / duration.toFloat()).coerceIn(0f, 1f)
+                        val startRatio = (segment.startTime * 1000f / duration.toFloat()).coerceIn(0f, 1f)
+                        val endRatio = (segment.endTime * 1000f / duration.toFloat()).coerceIn(0f, 1f)
 
                         if (endRatio > startRatio) {
                             val startX = startRatio * width

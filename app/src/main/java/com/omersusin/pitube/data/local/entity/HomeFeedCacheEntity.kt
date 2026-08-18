@@ -16,6 +16,7 @@ import androidx.room.PrimaryKey
 )
 data class HomeFeedCacheEntity(
     @PrimaryKey val cacheKey: String,
+    val profileId: String,
     val bucket: String,
     val videoId: String,
     val title: String,

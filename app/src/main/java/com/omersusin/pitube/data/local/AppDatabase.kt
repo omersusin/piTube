@@ -53,7 +53,7 @@ import com.omersusin.pitube.data.local.migrations.MIGRATIONS
         SyncPeerEntity::class,
         CachedTranslationEntity::class,
     ],
-    version = 26,
+    version = 27,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

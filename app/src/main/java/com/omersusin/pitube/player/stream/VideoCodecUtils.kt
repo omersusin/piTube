@@ -46,7 +46,7 @@ object VideoCodecUtils {
 
     fun codecKeyFromStream(stream: VideoStream): String {
         val url = try {
-            stream.content.takeIf { it.isNotBlank() } ?: stream.url ?: ""
+            stream.content.takeIf { it.isNotBlank() } ?: ""
         } catch (_: Exception) {
             ""
         }
@@ -81,14 +81,14 @@ object VideoCodecUtils {
     }
 
     fun qualityHeightFromStream(stream: VideoStream): Int {
-        parseQualityHeight(stream.resolution)?.let { return it }
+        parseQualityHeight(stream.resolution())?.let { return it }
         parseQualityHeight(stream.quality)?.let { return it }
-        parseQualityHeight(stream.itagItem?.resolutionString)?.let { return it }
+        parseQualityHeight(stream.itagItem?.getResolutionString())?.let { return it }
         return normalizeQualityHeight(stream.height)
     }
 
     fun qualityLabelFromStream(stream: VideoStream): String {
-        return stream.resolution
+        return stream.resolution()
             .takeIf { it.isNotBlank() && it != VideoStream.RESOLUTION_UNKNOWN }
             ?: "${qualityHeightFromStream(stream)}p"
     }

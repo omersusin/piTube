@@ -73,7 +73,7 @@ class SabrDataSource(
         val response = getClient().newCall(request).execute()
 
         if (!response.isSuccessful) {
-            val errorBody = response.body?.string()?.take(500) ?: ""
+            val errorBody = response.body.string().take(500)
             response.close()
             throw IOException("SABR request failed: HTTP ${response.code} - $errorBody")
         }
@@ -84,7 +84,7 @@ class SabrDataSource(
         }
 
         currentResponse = response
-        currentStream = response.body?.byteStream()
+        currentStream = response.body.byteStream()
             ?: throw IOException("SABR response has no body")
 
         Log.d(TAG, "SABR stream opened: content-type=$contentType")

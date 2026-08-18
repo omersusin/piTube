@@ -40,30 +40,36 @@ internal fun selectReservePageFromCache(
     return related + discovery
 }
 
-class HomeFeedCacheRepository(context: Context) {
+class HomeFeedCacheRepository(
+    context: Context,
+    private val profileIdProvider: () -> String = {
+        ProfileManager(context.applicationContext).active().id
+    },
+) {
     private val dao = AppDatabase.getDatabase(context).homeFeedCacheDao()
 
     suspend fun loadLastFeed(filters: HomeFeedCacheFilters, now: Long = System.currentTimeMillis()): List<Video> {
         dao.deleteExpired(now)
         return filterCachedHomeVideos(
-            dao.getFreshBucket(BUCKET_LAST_FEED, now).map { it.toCachedHomeVideo() },
-            filters
+            dao.getFreshBucket(profileIdProvider(), BUCKET_LAST_FEED, now).map { it.toCachedHomeVideo() },
+            filters,
         ).map { it.video }
     }
 
     suspend fun saveLastFeed(videos: List<Video>, now: Long = System.currentTimeMillis()) {
-        dao.clearBucket(BUCKET_LAST_FEED)
+        dao.clearBucket(profileIdProvider(), BUCKET_LAST_FEED)
         dao.insertAll(
             videos.take(LAST_FEED_CAP).mapIndexed { index, video ->
                 video.toEntity(
+                    profileId = profileIdProvider(),
                     bucket = BUCKET_LAST_FEED,
                     source = SOURCE_LAST_FEED,
                     relatedSeedId = null,
                     orderIndex = index,
                     cachedAt = now,
-                    expiresAt = now + LAST_FEED_TTL_MS
+                    expiresAt = now + LAST_FEED_TTL_MS,
                 )
-            }
+            },
         )
     }
 
@@ -71,15 +77,15 @@ class HomeFeedCacheRepository(context: Context) {
         filters: HomeFeedCacheFilters,
         now: Long = System.currentTimeMillis(),
         maxRelated: Int = 4,
-        maxDiscovery: Int = 4
+        maxDiscovery: Int = 4,
     ): List<CachedHomeVideo> {
         dao.deleteExpired(now)
-        val freshReserve = dao.getFreshReserve(now, RESERVE_CAP)
+        val freshReserve = dao.getFreshReserve(profileIdProvider(), now, RESERVE_CAP)
             .map { it.toCachedHomeVideo() }
         return selectReservePageFromCache(
             filterCachedHomeVideos(freshReserve, filters),
             maxRelated = maxRelated,
-            maxDiscovery = maxDiscovery
+            maxDiscovery = maxDiscovery,
         )
     }
 
@@ -90,51 +96,53 @@ class HomeFeedCacheRepository(context: Context) {
                 .take(RESERVE_CAP)
                 .mapIndexed { index, item ->
                     item.video.toEntity(
+                        profileId = profileIdProvider(),
                         bucket = BUCKET_RESERVE,
                         source = item.source,
                         relatedSeedId = item.relatedSeedId,
                         orderIndex = index,
                         cachedAt = now,
-                        expiresAt = now + RESERVE_TTL_MS
+                        expiresAt = now + RESERVE_TTL_MS,
                     )
-                }
+                },
         )
-        dao.trimReserve(RESERVE_CAP)
+        dao.trimReserve(profileIdProvider(), RESERVE_CAP)
     }
 
     suspend fun loadRelated(
         seedId: String,
         filters: HomeFeedCacheFilters,
-        now: Long = System.currentTimeMillis()
+        now: Long = System.currentTimeMillis(),
     ): List<Video> {
         dao.deleteExpired(now)
         return filterCachedHomeVideos(
-            dao.getFreshRelated(seedId, now).map { it.toCachedHomeVideo() },
-            filters
+            dao.getFreshRelated(profileIdProvider(), seedId, now).map { it.toCachedHomeVideo() },
+            filters,
         ).map { it.video }
     }
 
     suspend fun saveRelated(
         seedId: String,
         videos: List<Video>,
-        now: Long = System.currentTimeMillis()
+        now: Long = System.currentTimeMillis(),
     ) {
         if (seedId.isBlank() || videos.isEmpty()) return
-        dao.clearRelated(seedId)
+        dao.clearRelated(profileIdProvider(), seedId)
         dao.insertAll(
             videos.take(RELATED_PER_SEED_CAP).mapIndexed { index, video ->
                 video.toEntity(
+                    profileId = profileIdProvider(),
                     bucket = BUCKET_RELATED,
                     source = SOURCE_RELATED,
                     relatedSeedId = seedId,
                     orderIndex = index,
                     cachedAt = now,
-                    expiresAt = now + RELATED_TTL_MS
+                    expiresAt = now + RELATED_TTL_MS,
                 )
-            }
+            },
         )
-        dao.trimRelatedSeed(seedId, RELATED_PER_SEED_CAP)
-        dao.trimRelatedSeeds(RELATED_SEED_CAP)
+        dao.trimRelatedSeed(profileIdProvider(), seedId, RELATED_PER_SEED_CAP)
+        dao.trimRelatedSeeds(profileIdProvider(), RELATED_SEED_CAP)
     }
 
     suspend fun deleteVideo(videoId: String) {
@@ -145,21 +153,27 @@ class HomeFeedCacheRepository(context: Context) {
         if (channelId.isNotBlank()) dao.deleteChannel(channelId)
     }
 
+    suspend fun clearProfile(profileId: String) {
+        if (profileId.isNotBlank()) dao.clearProfile(profileId)
+    }
+
     suspend fun clearAll() {
         dao.clearAll()
     }
 
     private fun Video.toEntity(
+        profileId: String,
         bucket: String,
         source: String,
         relatedSeedId: String?,
         orderIndex: Int,
         cachedAt: Long,
-        expiresAt: Long
+        expiresAt: Long,
     ): HomeFeedCacheEntity {
         val seedPart = relatedSeedId.orEmpty()
         return HomeFeedCacheEntity(
-            cacheKey = "$bucket|$source|$seedPart|$id",
+            cacheKey = "$profileId|$bucket|$source|$seedPart|$id",
+            profileId = profileId,
             bucket = bucket,
             videoId = id,
             title = title,

@@ -1478,7 +1478,7 @@ class VideoPlayerViewModel @Inject constructor(
                     if (streamInfo != null) {
                         val realTitle = streamInfo.name?.takeIf { it.isNotBlank() }
                         val realChannel = streamInfo.uploaderName?.takeIf { it.isNotBlank() }
-                        val realThumbnail = streamInfo.thumbnails?.maxByOrNull { it.height }?.url?.takeIf { it.isNotBlank() }
+                        val realThumbnail = streamInfo.thumbnails.maxByOrNull { it.height }?.url?.takeIf { it.isNotBlank() }
                         if (realTitle != null) {
                             val currentCached = _uiState.value.cachedVideo
                             val enrichedVideo = (currentCached ?: Video(
@@ -1764,7 +1764,7 @@ class VideoPlayerViewModel @Inject constructor(
                                 }
                             }
                         }
-                    } else if (liveFromInnerTube && innerTubeResult != null) {
+                    } else if (liveFromInnerTube) {
                         Log.w("VideoPlayerViewModel", "Live fallback for $videoId via InnerTube manifest (NewPipe StreamInfo null)")
                         prepareLiveStreamFromInnerTube(videoId, innerTubeResult, relatedVideos, loadToken)
                         lateStreamInfoDeferred?.let {
@@ -2851,7 +2851,9 @@ class VideoPlayerViewModel @Inject constructor(
                 val sessionStart = historySessionStartMs
                 com.omersusin.pitube.utils.HistoryReportScope.scope.launch {
                     try {
-                        val minted = previousTracking ?: repository.getPlaybackTracking(previousVideoId, previousCpn)
+                        val minted = previousTracking
+                            ?: repository.getPlaybackTrackingFromCachedPlayer(previousVideoId)
+                            ?: repository.getPlaybackTracking(previousVideoId, previousCpn)
                         val status = repository.reportVideoPlaybackStatus(
                             videoId = previousVideoId,
                             positionMs = abandonedPosition,
@@ -2928,7 +2930,8 @@ class VideoPlayerViewModel @Inject constructor(
                         // never stall the heartbeat loop; a failed mint simply
                         // skips this beat and retries on the next one.
                         historyTracking = withTimeoutOrNull(15_000L) {
-                            repository.getPlaybackTracking(video.id, cpn)
+                            repository.getPlaybackTrackingFromCachedPlayer(video.id)
+                                ?: repository.getPlaybackTracking(video.id, cpn)
                         }
                         if (historyTracking == null) return 0
                     }
@@ -3098,7 +3101,9 @@ class VideoPlayerViewModel @Inject constructor(
             if (finalMs >= MIN_WATCH_FOR_STATS_MS) {
                 launchScope.launch {
                     try {
-                        val minted = tracking ?: repository.getPlaybackTracking(videoId, cpn)
+                        val minted = tracking
+                            ?: repository.getPlaybackTrackingFromCachedPlayer(videoId)
+                            ?: repository.getPlaybackTracking(videoId, cpn)
                         val status = repository.reportVideoPlaybackStatus(
                             videoId = videoId,
                             positionMs = finalMs,
@@ -3605,7 +3610,7 @@ class VideoPlayerViewModel @Inject constructor(
         preferredCodecKey: String = "auto"
     ): Triple<VideoStream?, AudioStream?, VideoQuality> {
         val audioCandidates = audioStreams
-            .distinctBy { it.content ?: "" }
+            .distinctBy { it.content }
             .sortedByDescending { it.bitrate }
 
         val audioStream = when (preferredAudioLanguage) {
@@ -3654,7 +3659,7 @@ class VideoPlayerViewModel @Inject constructor(
         val playableVideoStream = if (safeAudio == null && videoStream == null) {
             allVideoStreams
                 .sortedWith(
-                    compareBy<VideoStream> { if (it.isVideoOnly) 1 else 0 }
+                    compareBy<VideoStream> { if (it.isVideoOnly()) 1 else 0 }
                         .thenByDescending { QualityManager.normalizeQualityHeight(VideoCodecUtils.qualityHeightFromStream(it)) }
                         .thenBy { VideoCodecUtils.codecRankWithPreference(it, preferredCodecKey) }
                         .thenByDescending { it.bitrate }
@@ -3705,7 +3710,7 @@ class VideoPlayerViewModel @Inject constructor(
     ): List<SubtitleInfo> {
         return subtitleStreams.map { subtitle ->
             SubtitleInfo(
-                url = subtitle.getContent() ?: "",
+                url = subtitle.getContent(),
                 format = subtitle.format?.mimeType ?: "text/vtt",
                 language = subtitle.displayLanguageName ?: subtitle.languageTag,
                 languageCode = subtitle.languageTag,

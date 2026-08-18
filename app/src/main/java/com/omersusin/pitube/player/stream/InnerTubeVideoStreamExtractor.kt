@@ -6,7 +6,6 @@ import com.omersusin.pitube.innertube.YouTube
 import com.omersusin.pitube.innertube.models.YouTubeClient
 import com.omersusin.pitube.innertube.models.YouTubeLocale
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
-import androidx.media3.common.util.UnstableApi
 import com.omersusin.pitube.innertube.pages.NewPipeExtractor
 import com.omersusin.pitube.player.error.PlayerDiagnostics
 import com.omersusin.pitube.player.sabr.SabrRoutingPolicy
@@ -91,7 +90,6 @@ object InnerTubeVideoStreamExtractor {
      *   dub list ([withCompleteAudioTracks]). Pass false for surfaces with no audio-track selector
      *   (Shorts), where the extra request would never be used.
      */
-    @OptIn(UnstableApi::class)
     suspend fun extract(
         videoId: String,
         forceSabr: Boolean = false,
@@ -343,7 +341,6 @@ object InnerTubeVideoStreamExtractor {
         }
     }
 
-    @OptIn(UnstableApi::class)
     private suspend fun tryDirectClients(
         videoId: String,
         clients: List<YouTubeClient>,
@@ -436,7 +433,7 @@ object InnerTubeVideoStreamExtractor {
                 // stream, plus whether the response is SABR-capable. Makes "why was this client skipped"
                 // visible in the in-app diagnostics instead of only when every client fails.
                 val rawUrlCount = adaptiveFormats.count { !it.url.isNullOrEmpty() }
-                val sabrPresent = !playerResponse.streamingData?.serverAbrStreamingUrl.isNullOrEmpty()
+                val sabrPresent = !playerResponse.streamingData.serverAbrStreamingUrl.isNullOrEmpty()
                 PlayerDiagnostics.logWarning(
                     TAG,
                     "probe ${client.clientName} v${client.clientVersion}: adaptive=${adaptiveFormats.size} " +

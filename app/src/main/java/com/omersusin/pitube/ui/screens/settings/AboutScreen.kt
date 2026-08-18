@@ -20,7 +20,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -421,7 +422,8 @@ fun LicenseDialog(onDismiss: () -> Unit) {
 @Composable
 fun DeviceInfoDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
+    val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboard.current
     
     val deviceInfo = remember {
         buildString {
@@ -449,7 +451,7 @@ fun DeviceInfoDialog(onDismiss: () -> Unit) {
         },
         dismissButton = {
             TextButton(onClick = {
-                clipboardManager.setText(AnnotatedString(deviceInfo))
+                scope.launch { clipboard.setClipEntry(ClipEntry(AnnotatedString(deviceInfo))) }
             }) { Text(stringResource(R.string.btn_copy)) }
         }
     )

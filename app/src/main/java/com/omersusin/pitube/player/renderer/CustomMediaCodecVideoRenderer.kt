@@ -7,6 +7,8 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
 import androidx.media3.exoplayer.video.VideoRendererEventListener
 
+// The superclass constructor is deprecated in media3 without a direct replacement.
+@Suppress("DEPRECATION")
 class CustomMediaCodecVideoRenderer(
     context: Context,
     codecAdapterFactory: MediaCodecAdapter.Factory,

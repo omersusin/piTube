@@ -60,7 +60,7 @@ object AuddRecognizer {
                         "AudD failed (HTTP ${response.code})",
                     )
                 }
-                parseResponse(response.body?.string().orEmpty())
+                parseResponse(response.body.string())
                     ?: throw RecognitionException(RecognitionFailureType.NO_MATCH, "No match found")
             }
         } catch (e: RecognitionException) {

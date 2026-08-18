@@ -41,7 +41,7 @@ class SponsorBlockRepository @Inject constructor() {
             val response = client.newCall(request).execute()
             response.use { resp ->
                 if (resp.isSuccessful) {
-                    val responseBody = resp.body?.string() ?: return@withContext emptyList()
+                    val responseBody = resp.body.string()
                     val listType = object : TypeToken<List<SponsorBlockSegment>>() {}.type
                     return@withContext gson.fromJson(responseBody, listType)
                 } else {

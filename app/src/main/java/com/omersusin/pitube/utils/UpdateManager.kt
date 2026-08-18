@@ -43,7 +43,7 @@ object UpdateManager {
             
             if (!response.isSuccessful) return@withContext null
 
-            val json = JSONObject(response.body?.string() ?: "{}")
+            val json = JSONObject(response.body.string())
             
             // 1. Get Remote Version
             val remoteTag = json.optString("tag_name", "").removePrefix("v").split("-").first()

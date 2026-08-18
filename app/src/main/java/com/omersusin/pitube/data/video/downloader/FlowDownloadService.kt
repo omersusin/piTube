@@ -518,7 +518,7 @@ class FlowDownloadService : Service() {
                                 Log.d(TAG, "Executing SABR download...")
                                 executeSabrDownload(
                                     mission, videoId, audioOnly, normalizedAudioMimeType,
-                                    sabrStreamingUrl = sabrStreamingUrl!!,
+                                    sabrStreamingUrl = sabrStreamingUrl,
                                     sabrAudioItag = sabrAudioItag,
                                     sabrAudioLmt = sabrAudioLmt,
                                     sabrVideoItag = sabrVideoItag,
@@ -1420,7 +1420,7 @@ class FlowDownloadService : Service() {
                         runCatching {
                             val bytes = okhttp3.OkHttpClient().newCall(
                                 okhttp3.Request.Builder().url(thumb).build(),
-                            ).execute().use { response -> response.body?.bytes() }
+                            ).execute().use { response -> response.body.bytes() }
                             if (bytes != null) File(dir, "$baseName.cover.jpg").writeBytes(bytes)
                         }
                     }
@@ -1441,7 +1441,7 @@ class FlowDownloadService : Service() {
                                 (sub.languageTag != null && sub.languageTag.startsWith(language)))
                     } ?: if (autoAllowed) streamInfo.subtitles.firstOrNull() else null
                     if (pick != null) {
-                        val content = pick.content ?: return@runCatching
+                        val content = pick.content
                         if (content.isBlank()) return@runCatching
                         val langTag = pick.languageTag
                             ?: pick.locale?.language

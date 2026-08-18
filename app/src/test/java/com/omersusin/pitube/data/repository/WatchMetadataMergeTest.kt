@@ -9,9 +9,11 @@ import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class WatchMetadataMergeTest {
+    private val json = Json { ignoreUnknownKeys = true }
+
     @Test
     fun `fresh watch metadata replaces a corrupted legacy release date`() {
-        val response = Json { ignoreUnknownKeys = true }
+        val response = json
             .decodeFromString<WatchMetadataResponse>(WATCH_METADATA_JSON)
         val legacy = Video(
             id = "video-id",

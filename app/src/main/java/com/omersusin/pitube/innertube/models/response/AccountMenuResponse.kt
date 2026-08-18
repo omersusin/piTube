@@ -89,7 +89,7 @@ data class AccountMenuResponse(
                 val runs = element?.jsonObject?.get("runs")?.jsonArray ?: return null
                 return Runs(
                     runs.mapNotNull {
-                        it.jsonObject?.get("text")?.jsonPrimitive?.contentOrNull
+                        it.jsonObject.get("text")?.jsonPrimitive?.contentOrNull
                             ?.let { text -> Run(text, navigationEndpoint = null) }
                     }
                 )
@@ -99,7 +99,7 @@ data class AccountMenuResponse(
                 val arr = element?.jsonObject?.get("thumbnails")?.jsonArray ?: return null
                 return Thumbnails(
                     arr.mapNotNull {
-                        val obj = it.jsonObject ?: return@mapNotNull null
+                        val obj = it.jsonObject
                         val url = obj["url"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
                         Thumbnail(
                             url = url,

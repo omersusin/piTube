@@ -189,7 +189,7 @@ object DlnaCastManager {
         return try {
             val descriptionUrl = URL(device.location)
             val xml = http.newCall(Request.Builder().url(device.location).build())
-                .execute().use { it.body?.string() ?: "" }
+                .execute().use { it.body.string() }
 
             var friendlyName = device.friendlyName
             var urlBaseFromXml: String? = null
@@ -291,7 +291,7 @@ object DlnaCastManager {
                 .sortedByDescending { VideoCodecUtils.qualityHeightFromStream(it) }
                 .map { stream ->
                     CastStreamVariant(
-                        url = stream.content ?: stream.url ?: "",
+                        url = stream.content,
                         width = stream.width.takeIf { it > 0 } ?: (stream.height * 16 / 9),
                         height = stream.height,
                         bitrate = stream.bitrate.takeIf { it > 0 } ?: 2_500_000,
@@ -308,9 +308,9 @@ object DlnaCastManager {
                 }
                 ?.maxByOrNull { it.bitrate }
 
-            val audioUrl = bestAudio?.let { it.content ?: it.url }
+            val audioUrl = bestAudio?.let { it.content }
             val audioBitrate = bestAudio?.bitrate?.takeIf { it > 0 } ?: 128_000
-            val audioCodec = bestAudio?.codec?.takeIf { it?.isNotBlank() == true } ?: "mp4a.40.2"
+            val audioCodec = bestAudio?.codec.takeIf { it.isNotBlank() } ?: "mp4a.40.2"
             val audioMime = bestAudio?.format?.mimeType?.let {
                 if (it.contains("mp4") || it.contains("m4a")) "audio/mp4" else it
             } ?: "audio/mp4"
@@ -331,7 +331,7 @@ object DlnaCastManager {
                 val bestMuxed = streamInfo.videoStreams
                     ?.filter { it.height > 0 }
                     ?.maxByOrNull { VideoCodecUtils.qualityHeightFromStream(it) }
-                val muxedUrl = bestMuxed?.let { it.content ?: it.url } ?: currentPlayerUrl
+                val muxedUrl = bestMuxed?.let { it.content } ?: currentPlayerUrl
                 if (muxedUrl != null && muxedUrl.isNotEmpty() && !muxedUrl.startsWith("local://")) {
                     Log.d(TAG, "Fallback to pre-muxed: ${bestMuxed?.let(VideoCodecUtils::qualityHeightFromStream)}p")
                     castTo(device = device, title = title, fallbackVideoUrl = muxedUrl)
@@ -564,7 +564,7 @@ object DlnaCastManager {
             .build()
         http.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                val responseBody = response.body?.string().orEmpty()
+                val responseBody = response.body.string()
                 throw IllegalStateException("SOAP $action failed (${response.code}): $responseBody")
             }
         }
@@ -577,7 +577,7 @@ object DlnaCastManager {
             .post(body.toRequestBody(SOAP_TYPE))
             .build()
         return http.newCall(request).execute().use { response ->
-            response.body?.string() ?: ""
+            response.body.string()
         }
     }
 

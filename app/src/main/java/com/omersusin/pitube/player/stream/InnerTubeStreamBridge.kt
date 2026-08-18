@@ -158,7 +158,7 @@ object InnerTubeStreamBridge {
         } else {
             format.width?.let { item.width = it }
             format.height?.let { item.height = it }
-            format.fps?.let { item.fps = it }
+            format.fps?.let { item.setFps(it) }
             item.quality = format.quality
         }
         return item

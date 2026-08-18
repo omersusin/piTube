@@ -87,6 +87,7 @@ import org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper
  * Modified from [ViMusic](https://github.com/vfsfitvnm/ViMusic)
  */
 object YouTube {
+    private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
     private val innerTube = InnerTube()
     private const val CHANNEL_VIDEOS_PARAMS = "EgZ2aWRlb3PyBgQKAjoA"
     private const val CHANNEL_LIVE_PARAMS = "EgdzdHJlYW1z8gYECgJ6AA%3D%3D"
@@ -186,7 +187,7 @@ object YouTube {
      */
     suspend fun searchVideoAvatarStacks(query: String): Result<Map<String, List<String>>> = runCatching {
         val rawBody = innerTube.webSearch(WEB, query).bodyAsText()
-        val root = Json { ignoreUnknownKeys = true; explicitNulls = false }.parseToJsonElement(rawBody)
+        val root = json.parseToJsonElement(rawBody)
         buildMap {
             collectSearchVideoAvatarStacks(root, this)
         }
@@ -194,13 +195,13 @@ object YouTube {
 
     suspend fun videoAvatarStack(videoId: String): Result<List<String>> = runCatching {
         val rawBody = innerTube.next(WEB, videoId, null, null, null, null, null).bodyAsText()
-        val root = Json { ignoreUnknownKeys = true; explicitNulls = false }.parseToJsonElement(rawBody)
+        val root = json.parseToJsonElement(rawBody)
         root.findVideoOwnerAvatarStackUrls()
     }
 
     suspend fun videoCollaborators(videoId: String): Result<List<VideoCollaborator>> = runCatching {
         val rawBody = innerTube.next(WEB, videoId, null, null, null, null, null).bodyAsText()
-        val root = Json { ignoreUnknownKeys = true; explicitNulls = false }.parseToJsonElement(rawBody)
+        val root = json.parseToJsonElement(rawBody)
         root.findVideoOwnerCollaborators()
     }
 
@@ -442,7 +443,7 @@ object YouTube {
     ): Result<ChannelVideoSearchResult> = runCatching {
         val httpResponse = innerTube.channelSearch(currentWebClient(), channelId, query)
         val rawBody = httpResponse.bodyAsText()
-        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val lenientJson = json
         val response = lenientJson.decodeFromString<com.omersusin.pitube.innertube.models.response.ChannelSearchResponse>(rawBody)
         parseChannelSearchResponse(response, channelId, channelName, channelThumbnailUrl)
     }
@@ -459,7 +460,7 @@ object YouTube {
         val httpResponse =
             innerTube.signedWebBrowse(currentWebClient(), browseId = "FEhistory", continuation = continuation)
         val rawBody = httpResponse.bodyAsText()
-        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val lenientJson = json
         val response = lenientJson.decodeFromString<com.omersusin.pitube.innertube.models.response.ChannelSearchResponse>(rawBody)
 
         val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
@@ -502,7 +503,7 @@ object YouTube {
             continuation = continuation,
         )
         val rawBody = httpResponse.bodyAsText()
-        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val lenientJson = json
         val response = lenientJson.decodeFromString<com.omersusin.pitube.innertube.models.response.ChannelSearchResponse>(rawBody)
 
         val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
@@ -629,7 +630,7 @@ object YouTube {
         )
         val rawBody = httpResponse.bodyAsText()
         innerTube.noteResponseState(rawBody)
-        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val lenientJson = json
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
         return parseChannelVideosResponse(response, "", "", "", false)
     }
@@ -781,7 +782,7 @@ object YouTube {
      * applied).
      */
     private fun signedWriteContext(client: YouTubeClient): JsonObject =
-        Json { ignoreUnknownKeys = true; explicitNulls = false }
+        json
             .encodeToJsonElement(
                 client.toContext(innerTube.locale, innerTube.visitorData, dataSyncId),
             )
@@ -1232,7 +1233,7 @@ object YouTube {
         return null
     }
 
-    private fun parseLengthFromTrackingUrl(url: String): Float {
+    internal fun parseLengthFromTrackingUrl(url: String): Float {
         val lenMatch = Regex("(?:^|&)len=([^&]+)").find(url)?.groupValues?.get(1)
         return lenMatch?.toFloatOrNull() ?: 0f
     }
@@ -1369,7 +1370,7 @@ object YouTube {
             Log.w("YouTube", "webSubscriptionsFeed: HTTP ${httpResponse.status.value}")
             return@runCatching ChannelVideoSearchResult(emptyList(), null, null)
         }
-        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val lenientJson = json
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(httpResponse.bodyAsText())
         parseChannelVideosResponse(response, "", "", "", false)
     }
@@ -1479,7 +1480,7 @@ object YouTube {
             continuation = continuation,
         )
         val rawBody = httpResponse.bodyAsText()
-        val lenientJson = Json { ignoreUnknownKeys = true; explicitNulls = false }
+        val lenientJson = json
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
         parseChannelVideosResponse(response, channelId, channelName, channelThumbnailUrl, isLive)
     }
@@ -1576,7 +1577,7 @@ object YouTube {
                 badge.text?.contains("LIVE", ignoreCase = true) == true ||
                 badge.animatedText?.text?.contains("LIVE", ignoreCase = true) == true
         }
-        val metadataRows = metadata?.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
+        val metadataRows = metadata.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
         val channelPart = metadataRows.firstOrNull()?.metadataParts?.firstOrNull()
         val resolvedChannelId = channelPart?.runs
             ?.firstNotNullOfOrNull { it.navigationEndpoint?.browseEndpoint?.browseId }
@@ -1587,7 +1588,7 @@ object YouTube {
             } else {
                 channelName
             }
-        val resolvedThumbnail = metadata?.image
+        val resolvedThumbnail = metadata.image
             ?.decoratedAvatarViewModel?.avatar?.avatarViewModel?.image?.sources
             ?.maxByOrNull { it.width ?: 0 }
             ?.url

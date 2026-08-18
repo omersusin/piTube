@@ -57,7 +57,7 @@ object DeArrowRepository {
                 if (!response.isSuccessful) {
                     return@withContext null
                 }
-                val body = response.body?.string()
+                val body = response.body.string()
                 if (body.isNullOrBlank()) {
                     cache.put(videoId, Optional(null))
                     return@withContext null

@@ -180,8 +180,8 @@ class ParallelDownloader @Inject constructor(
                 }
 
                 if (audioBaseUrl != null && mission.audioTotalBytes == 0L) {
-                    val clenFromUrl = if (isYouTubeStreamUrl(mission.audioUrl ?: "")) {
-                        extractClenFromUrl(mission.audioUrl ?: "")
+                    val clenFromUrl = if (isYouTubeStreamUrl(mission.audioUrl)) {
+                        extractClenFromUrl(mission.audioUrl)
                     } else -1L
 
                     val audioLength = if (clenFromUrl > 0) {
@@ -469,7 +469,7 @@ class ParallelDownloader @Inject constructor(
                 return false
             }
 
-            val inputStream = response.body?.byteStream() ?: return false
+            val inputStream = response.body.byteStream()
             val buffer = ByteArray(BUFFER_SIZE)
 
             RandomAccessFile(file, "rw").use { raf ->
