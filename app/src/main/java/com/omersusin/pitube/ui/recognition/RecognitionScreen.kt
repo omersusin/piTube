@@ -367,7 +367,7 @@ private fun songBackgroundBrush(): Brush {
         secondary.copy(alpha = 0.20f),
         blend,
     )
-    return Brush.verticalGradient(top, mid, background)
+    return Brush.verticalGradient(listOf(top, mid, background))
 }
 
 @Composable
