@@ -105,40 +105,28 @@ internal fun JsonElement.toRemoteChannels(): List<RemoteChannel> {
 }
 
 /**
- * Collects only the channel items that represent *your* subscription grid,
- * skipping recommendation shelves. FEchannels can mix the subscribed channels
- * grid with "channels you may like" shelves whose channel renderers must
- * never be imported as subscriptions — walking the whole tree (as
- * [findObjectsByKey] does) wrote those back into the local library in earlier
- * builds, which is how channels the user never subscribed to appeared as
- * subscribed. Channel items are collected from `channelRenderer`,
- * `gridChannelRenderer` (identical shape) and channel lockupViewModels, and
- * any item that sits inside a shelf container is skipped by never descending
- * into a shelf-named member. Unexpected container keys wrapping the channel
- * grid are walked like any other member — only the shelf members themselves
- * are pruned, so a wrapper carrying a shelf next to the real grid never
- * aborts the sibling grid (earlier builds skipped the whole subtree).
+ * Collects every channel item in the FEchannels response tree, exactly like
+ * the working Koda build (findObjectsByKey). Verified against a live signed
+ * FEchannels body (Aug 2026): the whole subscription grid sits inside
+ * `shelfRenderer.content.expandedShelfContentsRenderer.items[]` — a shelf
+ * container! — so earlier container-scoping attempts (skipping shelf
+ * subtrees) dropped every channel and reported 0 subscriptions. The grid
+ * holds `channelRenderer` items (`channelId`, `title.simpleText`,
+ * `thumbnail.thumbnails`, subscriber count in `videoCountText`, @handle in
+ * `subscriberCountText`); `gridChannelRenderer` shares the inner shape, and
+ * channel lockupViewModels are accepted too (contentType
+ * `LOCKUP_CONTENT_TYPE_CHANNEL`).
  */
-private val SHELF_CONTAINER_KEYS = setOf(
-    "shelfRenderer",
-    "horizontalListRenderer",
-    "expandedShelfContentsRenderer",
-    "richShelfRenderer",
-)
-
 private fun findChannelRenderersInSubscriptionGrids(node: JsonElement?, results: MutableList<JsonObject>) {
     when (node) {
         is JsonObject -> {
             node["channelRenderer"].objectOrNull()?.let { results.add(it) }
             node["gridChannelRenderer"].objectOrNull()?.let { results.add(it) }
             node["lockupViewModel"].objectOrNull()?.let { results.add(it) }
-            node.entries.forEach { (key, child) ->
-                if (child !is JsonObject && child !is JsonArray) return@forEach
-                // Shelf containers hold "related / you might like" channels —
-                // never descend into them, but keep walking every sibling
-                // member (including unexpected wrapper keys around the grid).
-                if (key in SHELF_CONTAINER_KEYS) return@forEach
-                findChannelRenderersInSubscriptionGrids(child, results)
+            node.values.forEach { child ->
+                if (child is JsonObject || child is JsonArray) {
+                    findChannelRenderersInSubscriptionGrids(child, results)
+                }
             }
         }
         is JsonArray -> node.forEach {

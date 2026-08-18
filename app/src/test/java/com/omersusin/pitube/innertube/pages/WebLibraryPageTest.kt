@@ -13,7 +13,7 @@ class WebLibraryPageTest {
     private fun channelRendererObject(id: String, name: String): String = "{${channelRendererMember(id, name)}}"
 
     @Test
-    fun `collects grid behind unexpected wrapper keys while skipping you-may-like shelves`() {
+    fun `collects channels from every wrapper, including shelves`() {
         val fixture = """
             {
               "contents": {
@@ -36,15 +36,19 @@ class WebLibraryPageTest {
             .replace("__REAL2__", channelRendererObject("UCrealsubscription2", "Real Channel Two"))
         val channels = Json.parseToJsonElement(fixture).toRemoteChannels()
         assertEquals(
-            setOf("UCrealsubscription1", "UCrealsubscription2", "UCrealsubscription3"),
+            setOf(
+                "UCsuggestedchannel",
+                "UCrealsubscription1",
+                "UCrealsubscription2",
+                "UCrealsubscription3",
+            ),
             channels.map { it.id }.toSet(),
         )
-        assertTrue(channels.none { it.id == "UCsuggestedchannel" })
         assertEquals("Real Channel One", channels.first { it.id == "UCrealsubscription1" }.name)
     }
 
     @Test
-    fun `grid sharing an object with a shelf is still walked`() {
+    fun `channels inside a shelfRenderer are collected`() {
         val fixture = """
             {
               "contents": [{
@@ -71,7 +75,58 @@ class WebLibraryPageTest {
             .replace("__SHELF__", channelRendererObject("UCshelfchannelaa", "Shelf Channel"))
             .replace("__REALGRID__", channelRendererObject("UCrealgridchannel", "Real Grid Channel"))
         val channels = Json.parseToJsonElement(fixture).toRemoteChannels()
-        assertEquals(listOf("UCrealgridchannel"), channels.map { it.id })
-        assertEquals("Real Grid Channel", channels.single().name)
+        assertEquals(
+            setOf("UCshelfchannelaa", "UCrealgridchannel"),
+            channels.map { it.id }.toSet(),
+        )
+    }
+
+    @Test
+    fun `collects the signed FEchannels grid shape from a live response`() {
+        val fixture = """
+            {
+              "contents": {
+                "twoColumnBrowseResultsRenderer": {
+                  "tabs": [{
+                    "tabRenderer": {
+                      "content": {
+                        "sectionListRenderer": {
+                          "contents": [
+                            {
+                              "itemSectionRenderer": {
+                                "contents": [{
+                                  "shelfRenderer": {
+                                    "content": {
+                                      "expandedShelfContentsRenderer": {
+                                        "items": [
+                                          __CHANNEL1__,
+                                          __CHANNEL2__
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }]
+                              }
+                            },
+                            {"continuationItemRenderer": {"continuationEndpoint": {"continuationCommand": {"token": "tok"}}}}
+                          ]
+                        }
+                      }
+                    }
+                  }]
+                }
+              }
+            }
+        """.trimIndent()
+            .replace("__CHANNEL1__", channelRendererObject("UCUnwimZlOXfAedrmRfguS1g", "+90"))
+            .replace("__CHANNEL2__", channelRendererObject("UCSeY5HzX4Pi3S8D88XFl3uA", "1Echer"))
+        val channels = Json.parseToJsonElement(fixture).toRemoteChannels()
+        assertEquals(
+            listOf("UCUnwimZlOXfAedrmRfguS1g", "UCSeY5HzX4Pi3S8D88XFl3uA"),
+            channels.map { it.id },
+        )
+        assertEquals("+90", channels[0].name)
+        assertEquals("https://UCUnwimZlOXfAedrmRfguS1g", channels[0].thumbnail)
+        assertTrue(channels.all { it.thumbnail.startsWith("https://") })
     }
 }
