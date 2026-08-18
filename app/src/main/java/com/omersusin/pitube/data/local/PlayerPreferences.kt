@@ -2253,7 +2253,11 @@ class PlayerPreferences(context: Context) {
     /** Persist the preferred video codec chip ("auto" is null). */
     suspend fun setPreferredDownloadCodec(codec: String?) {
         context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.LAST_DOWNLOAD_CODEC] = codec
+            if (codec != null) {
+                preferences[Keys.LAST_DOWNLOAD_CODEC] = codec
+            } else {
+                preferences.remove(Keys.LAST_DOWNLOAD_CODEC)
+            }
         }
     }
 
