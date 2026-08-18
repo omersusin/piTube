@@ -91,6 +91,18 @@ fun FlowApp(
         initialValue = enhancedPlayerManager.playerState.value.queueTitle != null,
     )
 
+    // When the app leaves the foreground, commit a paused watch-history beacon
+    // so a video abandoned via app switch still registers as in-progress.
+    DisposableEffect(activity) {
+        val lifecycleObserver = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) {
+                playerViewModel.onAppBackgrounded()
+            }
+        }
+        activity.lifecycle.addObserver(lifecycleObserver)
+        onDispose { activity.lifecycle.removeObserver(lifecycleObserver) }
+    }
+
     val preferences = remember { PlayerPreferences(context) }
     val isHomeNavigationEnabled by preferences.homeNavigationEnabled.collectAsState(initial = true)
     val isShortsNavigationEnabled by preferences.shortsNavigationEnabled.collectAsState(initial = true)

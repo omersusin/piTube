@@ -1059,10 +1059,23 @@ object YouTube {
         rtn: Long = 0L,
     ): Int {
         if (cookie.isNullOrBlank()) return 0
-        val tracking = tracking ?: signedPlaybackTracking(videoId, cpn) ?: return 0
+        val tracking = tracking ?: signedPlaybackTracking(videoId, cpn)
+        if (tracking == null) {
+            Log.w(
+                "YouTube",
+                "reportVideoPlaybackStatus: playback tracking unavailable for $videoId — history ping dropped (bot wall or dead session)",
+            )
+            return 0
+        }
 
         val playbackUrl = tracking.playbackUrl
         val watchtimeUrl = tracking.watchtimeUrl
+        if (watchtimeUrl == null) {
+            Log.w(
+                "YouTube",
+                "reportVideoPlaybackStatus: no watchtime URL in tracking for $videoId — only the playback beacon will fire",
+            )
+        }
 
         val lengthSeconds = tracking.lengthSeconds
         val videoLength = (lengthSeconds - 1f).coerceAtLeast(0f)

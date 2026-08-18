@@ -3126,6 +3126,46 @@ class VideoPlayerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * App-level background signal (activity ON_STOP): fires a single
+     * paused beacon at the current position so the entry stays in-progress
+     * even if the process is killed before the next heartbeat. The heartbeat
+     * loop is left running so returning to the app resumes its cadence.
+     */
+    fun onAppBackgrounded() {
+        val videoId = historyVideoId ?: return
+        val cpn = historyCpn ?: return
+        val tracking = historyTracking
+        val position = EnhancedPlayerManager.getInstance().getCurrentPosition().coerceAtLeast(0L)
+        if (position < MIN_WATCH_FOR_STATS_MS) return
+        val sessionStart = historySessionStartMs
+        com.omersusin.pitube.utils.HistoryReportScope.scope.launch {
+            try {
+                val minted = tracking
+                    ?: repository.getPlaybackTrackingFromCachedPlayer(videoId)
+                    ?: repository.getPlaybackTracking(videoId, cpn)
+                val status = repository.reportVideoPlaybackStatus(
+                    videoId = videoId,
+                    positionMs = position,
+                    cpn = cpn,
+                    tracking = minted,
+                    previousPositionMs = position,
+                    final = false,
+                    relativeTimeSeconds = (System.currentTimeMillis() - sessionStart) / 1000L,
+                    paused = true,
+                    fmt = currentPlaybackItag(),
+                )
+                if (status in 200..299) {
+                    Log.d("VideoPlayerViewModel", "Background paused beacon committed for $videoId at ${position}ms")
+                } else if (status != 0) {
+                    Log.w("VideoPlayerViewModel", "Background paused beacon failed (HTTP $status) for $videoId")
+                }
+            } catch (e: Exception) {
+                Log.w("VideoPlayerViewModel", "Background paused beacon failed for $videoId", e)
+            }
+        }
+    }
+
     fun toggleSubscription(channelId: String, channelName: String, channelThumbnail: String) {
         viewModelScope.launch {
             val isSubscribed = subscriptionRepository.isSubscribed(channelId).first()
