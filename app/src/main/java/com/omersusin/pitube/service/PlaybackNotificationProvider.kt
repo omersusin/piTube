@@ -61,27 +61,20 @@ class PlaybackNotificationProvider(
             onNotificationChangedCallback,
         )
         val notification = built.notification
-        val combined = mutableListOf<NotificationCompat.Action>()
-        notification.actions.orEmpty().forEach {
-            combined += NotificationCompat.Action.Builder(it).build()
-        }
+        // NotificationCompat.Builder(Context, Notification) copies the whole
+        // notification (including the MediaStyle and existing actions) and
+        // addAction appends our custom buttons on top.
+        val builder = NotificationCompat.Builder(context, notification)
         if (showLike) {
-            combined += customAction(101, context.getString(R.string.like), R.drawable.ic_notif_like)
+            builder.addAction(customAction(101, context.getString(R.string.like), R.drawable.ic_notif_like))
         }
         if (showDislike) {
-            combined += customAction(102, context.getString(R.string.action_dislike), R.drawable.ic_notif_dislike)
+            builder.addAction(customAction(102, context.getString(R.string.action_dislike), R.drawable.ic_notif_dislike))
         }
         if (showRadio) {
-            combined += customAction(103, context.getString(R.string.player_settings_radio_mode), R.drawable.ic_notif_radio)
+            builder.addAction(customAction(103, context.getString(R.string.player_settings_radio_mode), R.drawable.ic_notif_radio))
         }
-        // The platform `Notification.Builder(Context, Notification)` constructor
-        // is @hide — NotificationCompat rebuilds from the existing notification
-        // while setActions replaces the action list.
-        val rebuilt =
-            NotificationCompat.Builder(context, notification)
-                .setActions(*combined.toTypedArray())
-                .build()
-        return MediaNotification(built.notificationId, rebuilt)
+        return MediaNotification(built.notificationId, builder.build())
     }
 
     override fun handleCustomCommand(
