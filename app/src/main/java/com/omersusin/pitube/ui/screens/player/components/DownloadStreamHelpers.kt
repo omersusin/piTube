@@ -49,6 +49,13 @@ object DownloadStreamHelpers {
         }
     }
 
+    /** Download-sheet group label; WEBM folds into OPUS like audioFormatSortRank. */
+    fun audioGroupLabel(stream: AudioStream): String =
+        when (audioFormatLabel(stream)) {
+            "OPUS", "WEBM" -> "OPUS"
+            else -> audioFormatLabel(stream)
+        }
+
     fun audioLanguageLabel(stream: AudioStream): String? =
         stream.audioTrackName?.takeIf { it.isNotBlank() }
             ?: stream.audioLocale?.displayLanguage?.takeIf { it.isNotBlank() }

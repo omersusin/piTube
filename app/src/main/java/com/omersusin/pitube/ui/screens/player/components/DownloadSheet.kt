@@ -85,6 +85,9 @@ fun DownloadSheet(
     var audioAccordionExpanded by remember { mutableStateOf(false) }
     var selectedVideoKey by remember { mutableStateOf<String?>(null) }
     var selectedAudioUrl by remember { mutableStateOf<String?>(null) }
+    var preferredCodec by remember { mutableStateOf(lastDownloadCodec) }
+    var expandedVideoHeight by remember { mutableStateOf<Int?>(null) }
+    var expandedAudioGroup by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(false) }
     var loadFailed by remember { mutableStateOf(false) }
     var fetchedVideoFormats by remember { mutableStateOf<List<com.omersusin.pitube.innertube.models.response.PlayerResponse.StreamingData.Format>>(emptyList()) }
@@ -289,24 +292,96 @@ fun DownloadSheet(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
-                                }
-                                distinctVideoStreams.forEach { stream ->
-                                    val codecKey = VideoCodecUtils.codecKeyFromStream(stream)
-                                    val height = VideoPlayerUtils.qualityHeightFromStream(stream)
-                                    val key = "${height}_${codecKey}"
-                                    val isSelected = key == selectedVideoKey
-                                    VideoQualityRow(
-                                        stream = stream,
-                                        codecKey = codecKey,
-                                        height = height,
-                                        sizeInBytes = streamSizes[VideoPlayerUtils.streamSizeKey(height, codecKey)],
-                                        isSelected = isSelected,
-                                        enabled = !audioOnly,
-                                        onClick = {
-                                            selectedVideoKey = key
-                                            if (!stream.isVideoOnly()) selectedAudioUrl = null
-                                        },
+                                } else {
+                                    val heightsDescending = remember(distinctVideoStreams) {
+                                        distinctVideoStreams
+                                            .map { VideoPlayerUtils.qualityHeightFromStream(it) }
+                                            .distinct()
+                                    }
+                                    val codecChips = listOf(
+                                        null to stringResource(R.string.download_codec_auto),
+                                        DownloadPlanner.CODEC_H264 to VideoCodecUtils.codecLabelFromKey(DownloadPlanner.CODEC_H264),
+                                        DownloadPlanner.CODEC_VP9 to VideoCodecUtils.codecLabelFromKey(DownloadPlanner.CODEC_VP9),
+                                        DownloadPlanner.CODEC_AV1 to VideoCodecUtils.codecLabelFromKey(DownloadPlanner.CODEC_AV1),
                                     )
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 20.dp, vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        codecChips.forEach { (codecKey, label) ->
+                                            FilterChip(
+                                                selected = preferredCodec == codecKey,
+                                                onClick = {
+                                                    preferredCodec = codecKey
+                                                    coroutineScope.launch {
+                                                        prefs.setPreferredDownloadCodec(codecKey)
+                                                    }
+                                                },
+                                                label = { Text(label) },
+                                            )
+                                        }
+                                    }
+                                    heightsDescending.forEach { height ->
+                                        val streamsAtHeight = distinctVideoStreams.filter {
+                                            VideoPlayerUtils.qualityHeightFromStream(it) == height
+                                        }
+                                        val effectiveCodec =
+                                            preferredCodec?.takeIf { codec ->
+                                                streamsAtHeight.any { VideoCodecUtils.codecKeyFromStream(it) == codec }
+                                            }
+                                                ?: VideoCodecUtils.codecKeyFromStream(streamsAtHeight.first())
+                                        val isExpanded = expandedVideoHeight == height
+                                        VideoHeightRow(
+                                            height = height,
+                                            sizeInBytes = streamSizes[
+                                                VideoPlayerUtils.streamSizeKey(height, effectiveCodec)
+                                            ],
+                                            expanded = isExpanded,
+                                            onClick = {
+                                                if (isExpanded) {
+                                                    expandedVideoHeight = null
+                                                } else {
+                                                    expandedVideoHeight = height
+                                                    val prefill =
+                                                        preferredCodec?.takeIf { codec ->
+                                                            streamsAtHeight.any {
+                                                                VideoCodecUtils.codecKeyFromStream(it) == codec
+                                                            }
+                                                        }
+                                                    if (prefill != null) {
+                                                        selectedVideoKey = "${height}_$prefill"
+                                                        val prefillStream = streamsAtHeight.first {
+                                                            VideoCodecUtils.codecKeyFromStream(it) == prefill
+                                                        }
+                                                        if (!prefillStream.isVideoOnly()) selectedAudioUrl = null
+                                                    }
+                                                }
+                                            },
+                                        )
+                                        AnimatedVisibility(visible = isExpanded) {
+                                            Column {
+                                                streamsAtHeight.forEach { stream ->
+                                                    val codecKey = VideoCodecUtils.codecKeyFromStream(stream)
+                                                    VideoQualityRow(
+                                                        stream = stream,
+                                                        codecKey = codecKey,
+                                                        height = height,
+                                                        sizeInBytes = streamSizes[
+                                                            VideoPlayerUtils.streamSizeKey(height, codecKey)
+                                                        ],
+                                                        isSelected = "${height}_$codecKey" == selectedVideoKey,
+                                                        enabled = !audioOnly,
+                                                        onClick = {
+                                                            selectedVideoKey = "${height}_$codecKey"
+                                                            if (!stream.isVideoOnly()) selectedAudioUrl = null
+                                                        },
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -376,16 +451,56 @@ fun DownloadSheet(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
-                                }
-                                audioStreams.forEach { audio ->
-                                    AudioQualityRow(
-                                        audio = audio,
-                                        isSelected = audio.getContent() == selectedAudioUrl,
-                                        enabled = audioOnly || !selectedIsMuxed,
-                                        onClick = {
-                                            selectedAudioUrl = audio.getContent().takeIf { it.isNotBlank() }
-                                        },
-                                    )
+                                } else {
+                                    val audioGroups = remember(audioStreams) {
+                                        audioStreams
+                                            .groupBy { DownloadStreamHelpers.audioGroupLabel(it) }
+                                            .map { (group, streams) ->
+                                                group to streams.sortedByDescending {
+                                                    DownloadStreamHelpers.audioBitrateKbps(it)
+                                                }
+                                            }
+                                            .sortedBy { (group, _) ->
+                                                when (group) {
+                                                    "OPUS" -> 0
+                                                    "M4A" -> 1
+                                                    "MP3" -> 2
+                                                    else -> 3
+                                                }
+                                            }
+                                    }
+                                    audioGroups.forEach { (group, streams) ->
+                                        val selectedInGroup = streams.firstOrNull {
+                                            it.getContent() == selectedAudioUrl
+                                        }
+                                        AudioGroupRow(
+                                            group = group,
+                                            subtitle = selectedInGroup?.let {
+                                                "${DownloadStreamHelpers.audioFormatLabel(it)} " +
+                                                    "${DownloadStreamHelpers.audioBitrateKbps(it)}kbps"
+                                            },
+                                            expanded = expandedAudioGroup == group,
+                                            onClick = {
+                                                expandedAudioGroup =
+                                                    if (expandedAudioGroup == group) null else group
+                                            },
+                                        )
+                                        AnimatedVisibility(visible = expandedAudioGroup == group) {
+                                            Column {
+                                                streams.forEach { audio ->
+                                                    AudioQualityRow(
+                                                        audio = audio,
+                                                        isSelected = audio.getContent() == selectedAudioUrl,
+                                                        enabled = audioOnly || !selectedIsMuxed,
+                                                        onClick = {
+                                                            selectedAudioUrl =
+                                                                audio.getContent().takeIf { it.isNotBlank() }
+                                                        },
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -464,6 +579,143 @@ private fun AccordionHeader(
         )
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
+private fun VideoHeightRow(
+    height: Int,
+    sizeInBytes: Long?,
+    expanded: Boolean,
+    onClick: () -> Unit,
+) {
+    val sizeText =
+        if (sizeInBytes != null && sizeInBytes > 0) {
+            String.format("~%.2f MB", sizeInBytes / (1024.0 * 1024.0))
+        } else {
+            null
+        }
+    val resBadge =
+        when {
+            height >= 2160 -> "4K"
+            height >= 1440 -> "2K"
+            height >= 1080 -> "HD"
+            else -> null
+        }
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${height}p" + (resBadge?.let { " • $it" } ?: ""),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                if (sizeText != null) {
+                    Text(
+                        text = sizeText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (resBadge != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Surface(
+                    color =
+                        when (resBadge) {
+                            "4K" -> MaterialTheme.colorScheme.tertiary
+                            "2K" -> MaterialTheme.colorScheme.secondary
+                            else -> MaterialTheme.colorScheme.primary
+                        },
+                    shape = RoundedCornerShape(4.dp),
+                ) {
+                    Text(
+                        text = resBadge,
+                        color = MaterialTheme.colorScheme.surface,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AudioGroupRow(
+    group: String,
+    subtitle: String?,
+    expanded: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(36.dp)
+                        .background(
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
+                            CircleShape,
+                        ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.GraphicEq,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = group,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }
 
 @Composable

@@ -1444,6 +1444,7 @@
     <string name="no_download_streams">No download streams available</string>
     <string name="download_section_video_quality">Video quality</string>
     <string name="download_section_audio_quality">Audio quality</string>
+    <string name="download_codec_auto">Oto</string>
     <string name="download_audio_only">Download audio only</string>
     <string name="download_audio_only_hint">Save just the audio track, without video</string>
     <string name="download_stream_muxed">Muxed</string>

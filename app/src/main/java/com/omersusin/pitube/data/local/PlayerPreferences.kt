@@ -2250,6 +2250,13 @@ class PlayerPreferences(context: Context) {
         }
     }
 
+    /** Persist the preferred video codec chip ("auto" is null). */
+    suspend fun setPreferredDownloadCodec(codec: String?) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.LAST_DOWNLOAD_CODEC] = codec
+        }
+    }
+
     val parallelDownloadEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
         .map { preferences ->
             preferences[Keys.PARALLEL_DOWNLOAD_ENABLED] ?: true
