@@ -250,7 +250,7 @@ class OnDeviceVoiceRecognizer(
                                 }
                             Log.w("STT", "OnDeviceVoice error=$error; tearing down and retrying on network recognizer once (delay=${delay}ms)")
                             teardownPending()
-                            watchdog?.let { mainHandler.removeCallbacks(it) }
+                            watchdog.let { mainHandler.removeCallbacks(it) }
                             mainHandler.postDelayed(
                                 {
                                     if (!settled && !cancelled) {
@@ -427,7 +427,7 @@ class OnDeviceVoiceRecognizer(
 
         continuation.invokeOnCancellation {
             cancelled = true
-            watchdog?.let { mainHandler.removeCallbacks(it) }
+            watchdog.let { mainHandler.removeCallbacks(it) }
             mainHandler.post { teardownPending() }
         }
     }

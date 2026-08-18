@@ -150,7 +150,7 @@ object PlayerJsFetcher {
         Log.d(TAG, "player.js response: HTTP ${response.code}")
         if (!response.isSuccessful) return null
         val body = response.body.string()
-        Log.d(TAG, "player.js downloaded: ${body?.length} chars")
+        Log.d(TAG, "player.js downloaded: ${body.length} chars")
         return body
     }
 }

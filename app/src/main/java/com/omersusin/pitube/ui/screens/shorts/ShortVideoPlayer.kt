@@ -860,7 +860,7 @@ internal fun ShortVideoPage(
                     )
 
                     ShortsActionButton(
-                        icon = Icons.Default.Comment,
+                        icon = Icons.AutoMirrored.Filled.Comment,
                         text =
                             if (isSimpleShortsUi) {
                                 video

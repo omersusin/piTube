@@ -85,7 +85,6 @@ class SabrDataSource(
 
         currentResponse = response
         currentStream = response.body.byteStream()
-            ?: throw IOException("SABR response has no body")
 
         Log.d(TAG, "SABR stream opened: content-type=$contentType")
         return currentStream!!

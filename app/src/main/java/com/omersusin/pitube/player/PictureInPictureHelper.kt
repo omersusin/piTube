@@ -66,6 +66,7 @@ object PictureInPictureHelper {
     fun isPlayerPopupSupported(context: Context): Boolean =
         isPipSupported(context) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 
+    @Suppress("DEPRECATION")
     fun isPipAllowed(context: Context): Boolean {
         if (!isPipSupported(context)) return false
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager ?: return true

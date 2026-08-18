@@ -83,7 +83,7 @@ fun FlowApp(
     val navController = rememberNavController()
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
-    val playerViewModel: VideoPlayerViewModel = hiltViewModel(activity!!)
+    val playerViewModel: VideoPlayerViewModel = hiltViewModel(activity)
     val playerUiStateResult = playerViewModel.uiState.collectAsStateWithLifecycle()
     val playerUiState by playerUiStateResult
     val enhancedPlayerManager = remember { EnhancedPlayerManager.getInstance() }
@@ -158,7 +158,7 @@ fun FlowApp(
     // Same Activity-scoped ViewModel the modal uses: every open starts a fresh
     // IDLE session (a stale SUCCESS would otherwise auto-search the old track).
     val recognitionViewModel: com.omersusin.pitube.ui.recognition.RecognitionViewModel =
-        hiltViewModel(activity!!)
+        hiltViewModel(activity)
     LaunchedEffect(openRecognitionModal) {
         if (openRecognitionModal) {
             recognitionViewModel.reset()
@@ -396,7 +396,7 @@ fun FlowApp(
                 }
                 playerViewModel.clearVideo()
                 if (isInPipMode) {
-                    activity?.moveTaskToBack(false)
+                    activity.moveTaskToBack(false)
                 }
             }
         }
@@ -452,7 +452,7 @@ fun FlowApp(
                             .nestedScroll(nestedScrollConnection),
                 ) {
                     if (needsOnboarding != null) {
-                        val homeViewModel: HomeViewModel = hiltViewModel(activity!!)
+                        val homeViewModel: HomeViewModel = hiltViewModel(activity)
                         LaunchedEffect(homeViewModel) {
                             homeViewModel.initialize(context.applicationContext)
                         }

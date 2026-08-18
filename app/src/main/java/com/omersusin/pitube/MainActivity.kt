@@ -845,27 +845,25 @@ class MainActivity : ComponentActivity() {
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful) {
                     val body = response.body.string()
-                    if (body != null) {
-                        val json = JsonParser.parseString(body).asJsonObject
-                        val latestTag = json.get("tag_name").asString
-                        val currentVersion = BuildConfig.VERSION_NAME
+                    val json = JsonParser.parseString(body).asJsonObject
+                    val latestTag = json.get("tag_name").asString
+                    val currentVersion = BuildConfig.VERSION_NAME
 
-                        val cleanLatest = latestTag.removePrefix("v").split("-").first()
-                        val cleanCurrent = currentVersion.removePrefix("v").split("-").first()
+                    val cleanLatest = latestTag.removePrefix("v").split("-").first()
+                    val cleanCurrent = currentVersion.removePrefix("v").split("-").first()
 
-                        Log.d("MainActivity", "Latest tag: $latestTag, Current: $currentVersion, Comparing: $cleanLatest vs $cleanCurrent")
+                    Log.d("MainActivity", "Latest tag: $latestTag, Current: $currentVersion, Comparing: $cleanLatest vs $cleanCurrent")
 
-                        if (isNewerVersion(cleanLatest, cleanCurrent)) {
-                            withContext(Dispatchers.Main) {
-                                AlertDialog
-                                    .Builder(this@MainActivity)
-                                    .setTitle(getString(R.string.new_update_available))
-                                    .setMessage(getString(R.string.update_download_prompt, latestTag))
-                                    .setPositiveButton(getString(R.string.download)) { _, _ ->
-                                        ApkUpdateHelper.requestDownload(this@MainActivity, "https://github.com/omersusin/piTube/releases/latest")
-                                    }.setNegativeButton(getString(R.string.maybe_later), null)
-                                    .show()
-                            }
+                    if (isNewerVersion(cleanLatest, cleanCurrent)) {
+                        withContext(Dispatchers.Main) {
+                            AlertDialog
+                                .Builder(this@MainActivity)
+                                .setTitle(getString(R.string.new_update_available))
+                                .setMessage(getString(R.string.update_download_prompt, latestTag))
+                                .setPositiveButton(getString(R.string.download)) { _, _ ->
+                                    ApkUpdateHelper.requestDownload(this@MainActivity, "https://github.com/omersusin/piTube/releases/latest")
+                                }.setNegativeButton(getString(R.string.maybe_later), null)
+                                .show()
                         }
                     }
                 }

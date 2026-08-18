@@ -549,7 +549,7 @@ private fun PlaylistDetailTopBar(
                 if (!isUserCreatedPlaylist) {
                     IconButton(onClick = onMergeClick) {
                         Icon(
-                            imageVector = Icons.Default.PlaylistAdd,
+                            imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
                             contentDescription = stringResource(R.string.add_all_to_playlist),
                         )
                     }
@@ -655,7 +655,7 @@ private fun PlaylistHeader(
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Default.PlaylistPlay,
+                    imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
                     contentDescription = null,
                     modifier =
                         Modifier
@@ -866,7 +866,7 @@ private fun PlaylistSortSheet(
                     horizontalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     Icon(
-                        imageVector = if (option == selected) Icons.Default.Check else Icons.Default.Sort,
+                        imageVector = if (option == selected) Icons.Default.Check else Icons.AutoMirrored.Filled.Sort,
                         contentDescription = null,
                         tint = if (option == selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -1101,7 +1101,7 @@ private fun EmptyPlaylistState(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Icon(
-            imageVector = if (isWatchLater) Icons.Default.WatchLater else Icons.Default.PlaylistPlay,
+            imageVector = if (isWatchLater) Icons.Default.WatchLater else Icons.AutoMirrored.Filled.PlaylistPlay,
             contentDescription = null,
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
@@ -1350,7 +1350,7 @@ private fun MergeIntoPlaylistDialog(
                                     )
                                 } else {
                                     Icon(
-                                        imageVector = Icons.Default.PlaylistPlay,
+                                        imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
                                         contentDescription = null,
                                         modifier =
                                             Modifier
@@ -1559,18 +1559,16 @@ class PlaylistDetailViewModel
                                                 },
                                         )
 
-                                    if (videoUrl != null) {
-                                        withContext(Dispatchers.Main) {
-                                            com.omersusin.pitube.data.video.downloader.FlowDownloadService.startDownload(
-                                                context = context,
-                                                video = fullVideo,
-                                                url = videoUrl,
-                                                quality = qualityLabel,
-                                                audioUrl = audioUrl,
-                                                videoCodec = videoCodec,
-                                            )
-                                            successCount++
-                                        }
+                                    withContext(Dispatchers.Main) {
+                                        com.omersusin.pitube.data.video.downloader.FlowDownloadService.startDownload(
+                                            context = context,
+                                            video = fullVideo,
+                                            url = videoUrl,
+                                            quality = qualityLabel,
+                                            audioUrl = audioUrl,
+                                            videoCodec = videoCodec,
+                                        )
+                                        successCount++
                                     }
                                 }
                             }

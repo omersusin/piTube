@@ -579,7 +579,7 @@ class ShortsRepository private constructor(private val context: Context) {
             .mapNotNull { (_, group) ->
                 val best = group.maxByOrNull { it.bitrate } ?: return@mapNotNull null
                 val cls = QualityManager.normalizeQualityHeight(VideoCodecUtils.qualityHeightFromStream(best))
-                val url = best.content ?: return@mapNotNull null
+                val url = best.content
                 val codecKey = VideoCodecUtils.codecKeyFromStream(best)
                 ShortVideoQuality(
                     heightClass = cls,

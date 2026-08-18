@@ -422,24 +422,22 @@ fun SettingsScreen(
                         isCheckingUpdate = false
                         if (response.isSuccessful) {
                             val body = response.body.string()
-                            if (body != null) {
-                                val json = JsonParser.parseString(body).asJsonObject
-                                val latestTag = json.get("tag_name").asString
-                                val cleanLatest = latestTag.removePrefix("v")
-                                val cleanCurrent = BuildConfig.VERSION_NAME.removePrefix("v")
-                                val latestParts = cleanLatest.split(".").mapNotNull { it.toIntOrNull() }
-                                val currentParts = cleanCurrent.split(".").mapNotNull { it.toIntOrNull() }
-                                var isNewer = false
-                                val size = maxOf(latestParts.size, currentParts.size)
-                                for (i in 0 until size) {
-                                    val l = latestParts.getOrNull(i) ?: 0
-                                    val c = currentParts.getOrNull(i) ?: 0
-                                    if (l > c) {
-                                        isNewer = true
-                                        break
-                                    }
-                                    if (l < c) break
+                            val json = JsonParser.parseString(body).asJsonObject
+                            val latestTag = json.get("tag_name").asString
+                            val cleanLatest = latestTag.removePrefix("v")
+                            val cleanCurrent = BuildConfig.VERSION_NAME.removePrefix("v")
+                            val latestParts = cleanLatest.split(".").mapNotNull { it.toIntOrNull() }
+                            val currentParts = cleanCurrent.split(".").mapNotNull { it.toIntOrNull() }
+                            var isNewer = false
+                            val size = maxOf(latestParts.size, currentParts.size)
+                            for (i in 0 until size) {
+                                val l = latestParts.getOrNull(i) ?: 0
+                                val c = currentParts.getOrNull(i) ?: 0
+                                if (l > c) {
+                                    isNewer = true
+                                    break
                                 }
+                                if (l < c) break
                                 if (isNewer) {
                                     updateAvailableTag = latestTag
                                 } else {
