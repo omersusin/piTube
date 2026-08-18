@@ -247,6 +247,22 @@ class FlowApplication :
                     }
                 }
             }
+            // Multi-account self-heal: YouTube echoes the datasyncId of the
+            // account that actually answered in every signed response. Adopt it
+            // on the active profile whenever it differs, so cookies and identity
+            // can never drift apart (the "second account shows another account's
+            // feed / empty subscriptions" failure mode).
+            YouTube.dataSyncIdListener = { healed ->
+                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                    runCatching {
+                        val pm = com.omersusin.pitube.data.local.ProfileManager(this@FlowApplication)
+                        val profile = pm.active()
+                        if (profile.datasyncId != healed) {
+                            pm.updateIdentity(profile.id, datasyncId = healed)
+                        }
+                    }
+                }
+            }
             try {
                 com.omersusin.pitube.utils.potoken.WebPoTokenSession
                     .prewarm()

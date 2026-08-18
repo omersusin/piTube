@@ -48,7 +48,12 @@ data class YouTubeClient(
     )
 
     companion object {
-        const val USER_AGENT_WEB = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0"
+        // Chrome-style desktop UA, matching Koda's BROWSER_USER_AGENT (their
+        // working reference). YouTube's anti-bot stack treats the Firefox UA as
+        // a different browser family than the one that minted the login
+        // cookies, which can produce signed-out answers on personalized
+        // surfaces.
+        const val USER_AGENT_WEB = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
         const val ORIGIN_YOUTUBE_MUSIC = "https://music.youtube.com"
         const val REFERER_YOUTUBE_MUSIC = "$ORIGIN_YOUTUBE_MUSIC/"
@@ -65,7 +70,13 @@ data class YouTubeClient(
 
         val WEB = YouTubeClient(
             clientName = "WEB",
-            clientVersion = "2.20260710.06.00",
+            // Current InnerTube client versions, kept in sync with yt-dlp
+            // upstream (same values as the working Koda build). YouTube
+            // rejects clients older than a few months — stale versions answer
+            // personalized browse as signed out. Bump these together with
+            // WEB_REMIX when refreshing; re-derive from the YouTube bootstrap
+            // HTML.
+            clientVersion = "2.20260817.01.00",
             clientId = "1",
             userAgent = USER_AGENT_WEB,
             originalUrl = ORIGIN_YOUTUBE,
@@ -93,7 +104,11 @@ data class YouTubeClient(
 
         val WEB_REMIX = YouTubeClient(
             clientName = "WEB_REMIX",
-            clientVersion = "1.20260213.01.00",
+            // Kept in sync with the WEB bump above (yt-dlp upstream values,
+            // matching the working Koda build). Carries the account menu and
+            // all music-origin signed calls, which answer as signed out on
+            // stale versions.
+            clientVersion = "1.20260816.07.00",
             clientId = "67",
             userAgent = USER_AGENT_WEB,
             loginSupported = true,

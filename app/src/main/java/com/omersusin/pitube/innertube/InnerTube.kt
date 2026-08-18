@@ -48,6 +48,15 @@ private val LOGGED_IN_TRACKING_PARAM =
     Regex("\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"([01])\"")
 
 /**
+ * The `datasyncId` a response's responseContext echoes back. Every signed
+ * response carries the datasyncId of the account that actually answered; a
+ * stored datasyncId that differs means the runtime identity belongs to a
+ * different Google account than the cookies (multi-account mismatch).
+ */
+private val DATASYNC_ID_IN_BODY =
+    Regex("\"datasyncId\"\\s*:\\s*\"([^\"]+)\"")
+
+/**
  * Provide access to InnerTube endpoints.
  * For making HTTP requests, not parsing response.
  */
@@ -103,6 +112,16 @@ class InnerTube {
     var sessionStateListener: ((Boolean) -> Unit)? = null
 
     /**
+     * Invoked when a response's responseContext reports a `datasyncId`
+     * different from the runtime one. The active profile can then adopt the
+     * authoritative value, so a mismatch (cookies of one Google account paired
+     * with the datasyncId of another, e.g. after re-adding an account) heals
+     * itself instead of silently answering signed requests as the wrong
+     * account.
+     */
+    var dataSyncIdListener: ((String) -> Unit)? = null
+
+    /**
      * Read YouTube's verdict on the session out of a response body.
      *
      * Every InnerTube response reports `logged_in` in its responseContext
@@ -111,10 +130,24 @@ class InnerTube {
      * empty account screens with no hint that signing in again was the fix.
      * A `1` clears the flag, so a session revived by a cookie rotation heals
      * itself without a round trip through the login screen.
+     *
+     * Also self-heals a mismatched datasyncId (see [dataSyncIdListener]) unless
+     * the session was answered as dead.
      */
     fun noteResponseState(body: String) {
-        val match = LOGGED_IN_TRACKING_PARAM.find(body) ?: return
-        sessionStateListener?.invoke(match.groupValues[1] == "1")
+        val match = LOGGED_IN_TRACKING_PARAM.find(body)
+        val loggedIn = match?.groupValues?.get(1)
+        if (loggedIn != null) {
+            sessionStateListener?.invoke(loggedIn == "1")
+        }
+        if (loggedIn != "0") {
+            val bodyDataSyncId = DATASYNC_ID_IN_BODY.find(body)?.groupValues?.get(1)
+                ?.takeIf { it.isNotBlank() }
+            if (bodyDataSyncId != null && bodyDataSyncId != dataSyncId) {
+                dataSyncId = bodyDataSyncId
+                dataSyncIdListener?.invoke(bodyDataSyncId)
+            }
+        }
     }
 
     private fun sanitizeLocale(value: YouTubeLocale): YouTubeLocale =

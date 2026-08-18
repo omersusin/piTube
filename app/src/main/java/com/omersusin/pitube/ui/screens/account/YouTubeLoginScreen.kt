@@ -91,15 +91,19 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-// Plain ServiceLogin + continue param, matching the current working implementation in
-// MetrolistGroup/Metrolist's LoginScreen.kt (verified against their live source). No
-// user-agent spoofing: presenting as a real WebView with no extra params on the login
-// URL is what currently gets past Google's embedded-browser check. Spoofing a desktop
-// Chrome UA (an earlier version of this file did that) creates a mismatch with other
-// signals Google's server can see, which is more likely to trigger the "this browser or
-// app may not be secure" block than to avoid it.
+// ServiceLogin + service=youtube + continue, matching the working
+// implementation in Koda's YouTubeAuthDialog (verified against their live
+// source). The explicit service=youtube keeps Google on the YouTube login
+// flow instead of dropping into a generic Google account chooser, which is
+// what produces "session closed" / sign-out states on multi-account setups.
+// No user-agent spoofing: presenting as a real WebView with no extra params
+// on the login URL is what currently gets past Google's embedded-browser
+// check. Spoofing a desktop Chrome UA (an earlier version of this file did
+// that) creates a mismatch with other signals Google's server can see, which
+// is more likely to trigger the "this browser or app may not be secure" block
+// than to avoid it.
 private const val GOOGLE_LOGIN_URL =
-    "https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fmusic.youtube.com"
+    "https://accounts.google.com/ServiceLogin?service=youtube&continue=https%3A%2F%2Fmusic.youtube.com"
 
 private enum class LoginMode { TOKEN, WEBVIEW }
 
@@ -188,6 +192,11 @@ fun YouTubeLoginScreen(
         errorMessage = null
         YouTube.cookie = cookies
         YouTube.useLoginForBrowse = true
+        // Clear the previous profile's datasyncId before the identity fetch: a
+        // stale onBehalfOfUser makes every signed call (including the identity
+        // fetch below) answer as the OLD account. The live identity re-adopts
+        // the value matching these cookies.
+        YouTube.dataSyncId = null
         coroutineScope.launch {
             // Fetch identity first when possible: it lets ProfileManager dedupe a
             // re-added account via datasyncId instead of leaving a duplicate row.
@@ -264,10 +273,20 @@ fun YouTubeLoginScreen(
         YouTube.cookie = normalized
         YouTube.useLoginForBrowse = true
         token.visitorData?.takeIf { it.isNotBlank() }?.let { YouTube.visitorData = it }
-        token.dataSyncId?.takeIf { it.isNotBlank() }?.let { YouTube.dataSyncId = it }
+        // Clear the previous profile's datasyncId before the identity fetch — a
+        // stale onBehalfOfUser answers as the OLD account (and a pasted token
+        // marker may belong to a different browser entirely). The live identity
+        // below adopts the value that matches these cookies; the token marker is
+        // only a fallback if that fetch fails.
+        YouTube.dataSyncId = null
         coroutineScope.launch {
             // Best-effort identity fetch for dedupe and avatar (never blocks the
-            // sign-in); token markers are authoritative when present.
+            // sign-in); the live identity is authoritative for the datasyncId.
+            // A pasted `***DATASYNC ID***` marker often belongs to a different
+            // browser/account than the pasted cookies (multi-account setups) —
+            // trusting it pins the wrong account on every signed request, which
+            // reads as an empty subscriptions feed. Only fall back to the token
+            // marker when the identity fetch itself failed.
             val identity = runCatching {
                 com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull()
             }.getOrNull()
@@ -279,7 +298,7 @@ fun YouTubeLoginScreen(
                 handle = token.accountChannelHandle ?: identity?.channelHandle,
                 email = token.accountEmail ?: identity?.email,
                 avatarUrl = identity?.thumbnailUrl,
-                datasyncId = token.dataSyncId ?: identity?.datasyncId,
+                datasyncId = identity?.datasyncId ?: token.dataSyncId,
                 poToken = token.poToken
             )
             playerPreferences.setYoutubeAccount(cookie = normalized, name = null, email = null, thumbnailUrl = null)
