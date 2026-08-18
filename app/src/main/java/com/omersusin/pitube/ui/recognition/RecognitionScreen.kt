@@ -4,15 +4,18 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.outlined.MicOff
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.RecordVoiceOver
 import androidx.compose.material.icons.outlined.Settings
@@ -21,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -89,11 +93,19 @@ fun RecognitionScreen(
         latestOnSearch(query)
     }
 
+    // Mode-branched backdrop: Voice keeps a fixed dark vertical gradient,
+    // Song slowly crossfades between two gradient palettes.
+    val backgroundBrush =
+        when (uiState.mode) {
+            RecognitionMode.VOICE -> voiceBackgroundBrush()
+            RecognitionMode.SONG -> songBackgroundBrush()
+        }
+
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(backgroundBrush)
                 .windowInsetsPadding(WindowInsets.statusBars),
     ) {
         Column(
@@ -110,8 +122,8 @@ fun RecognitionScreen(
             ) {
                 IconButton(onClick = onDismiss) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.close),
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -248,13 +260,40 @@ fun RecognitionScreen(
                             }
                             Spacer(Modifier.height(24.dp))
                             if (!micPermissionGranted) {
-                                Text(
-                                    text = stringResource(R.string.recognition_mic_permission_needed),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center,
+                                Card(
                                     modifier = Modifier.padding(horizontal = 32.dp),
-                                )
+                                    shape = RoundedCornerShape(20.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                                    ),
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(20.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.MicOff,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(40.dp),
+                                        )
+                                        Spacer(Modifier.height(12.dp))
+                                        Text(
+                                            text = stringResource(R.string.recognition_mic_permission_needed),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center,
+                                        )
+                                        Spacer(Modifier.height(16.dp))
+                                        Button(
+                                            onClick = {
+                                                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                            },
+                                        ) {
+                                            Text(stringResource(R.string.recognition_grant_permission))
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -285,6 +324,55 @@ fun RecognitionScreen(
                 Spacer(Modifier.height(48.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun voiceBackgroundBrush(): Brush {
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    return Brush.verticalGradient(
+        0f to onSurface.copy(alpha = 0.10f),
+        0.45f to Color.Transparent,
+        1f to onSurface.copy(alpha = 0.16f),
+    )
+}
+
+@Composable
+private fun songBackgroundBrush(): Brush {
+    val primary = MaterialTheme.colorScheme.primary
+    val tertiary = MaterialTheme.colorScheme.tertiary
+    val secondary = MaterialTheme.colorScheme.secondary
+    val background = MaterialTheme.colorScheme.background
+    val transition = rememberInfiniteTransition(label = "songBgTransition")
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3600, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "songBgPhase",
+    )
+    Crossfade(
+        targetState = phase >= 0.5f,
+        animationSpec = tween(durationMillis = 1800),
+        label = "songBgCrossfade",
+    ) { secondHalf ->
+        Brush.verticalGradient(
+            if (secondHalf) {
+                listOf(
+                    tertiary.copy(alpha = 0.32f),
+                    secondary.copy(alpha = 0.20f),
+                    background,
+                )
+            } else {
+                listOf(
+                    primary.copy(alpha = 0.34f),
+                    tertiary.copy(alpha = 0.16f),
+                    background,
+                )
+            },
+        )
     }
 }
 

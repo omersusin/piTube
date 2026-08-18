@@ -2188,6 +2188,7 @@
     <string name="recognition_recording_saved">The recording was saved to the device.</string>
     <string name="recognition_retry">Try again</string>
     <string name="recognition_mic_permission_needed">Give microphone permission to recognize music or search by voice.</string>
+    <string name="recognition_grant_permission">Grant permission</string>
     <string name="recognition_voice_hint">Tap the mic and say what you want to search</string>
     <string name="recognition_song_hint">Tap the mic, play the song for a few seconds</string>
     <string name="recognition_mode_voice">Voice</string>
