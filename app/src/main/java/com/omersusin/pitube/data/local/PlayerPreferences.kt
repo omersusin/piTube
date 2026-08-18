@@ -73,6 +73,15 @@ class PlayerPreferences(context: Context) {
         val NOTIFICATION_ACTION_LIKE = booleanPreferencesKey("notification_action_like")
         val NOTIFICATION_ACTION_DISLIKE = booleanPreferencesKey("notification_action_dislike")
         val NOTIFICATION_ACTION_RADIO = booleanPreferencesKey("notification_action_radio")
+        val DOWNLOAD_NOTIFICATION_ACTIONS = booleanPreferencesKey("download_notification_actions")
+        val DOWNLOAD_FILENAME_TEMPLATE_VIDEO = stringPreferencesKey("download_filename_template_video")
+        val DOWNLOAD_FILENAME_TEMPLATE_AUDIO = stringPreferencesKey("download_filename_template_audio")
+        val DOWNLOAD_VIDEO_FOLDER = stringPreferencesKey("download_video_folder")
+        val DOWNLOAD_AUDIO_FOLDER = stringPreferencesKey("download_audio_folder")
+        val DOWNLOAD_WRITE_SUBTITLES = booleanPreferencesKey("download_write_subtitles")
+        val DOWNLOAD_AUTO_SUBTITLES = booleanPreferencesKey("download_auto_subtitles")
+        val DOWNLOAD_SUBTITLE_LANGUAGE = stringPreferencesKey("download_subtitle_language")
+        val DOWNLOAD_METADATA_FILES = booleanPreferencesKey("download_metadata_files")
         val AUTOPLAY_COUNTDOWN_SECONDS = intPreferencesKey("autoplay_countdown_seconds")
         val SHOW_CONTROLS_WHILE_LOADING = booleanPreferencesKey("show_controls_while_loading")
         val VIDEO_LOOP_ENABLED = booleanPreferencesKey("video_loop_enabled")
@@ -1029,6 +1038,101 @@ class PlayerPreferences(context: Context) {
     suspend fun setNotificationActionRadio(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
             preferences[Keys.NOTIFICATION_ACTION_RADIO] = enabled
+        }
+    }
+
+    // ── Download customization ──────────────────────────────────────────────
+
+    /** Show pause/resume/cancel actions on active download notifications. */
+    val downloadNotificationActions: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences ->
+            preferences[Keys.DOWNLOAD_NOTIFICATION_ACTIONS] ?: true
+        }
+
+    suspend fun setDownloadNotificationActions(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_NOTIFICATION_ACTIONS] = enabled
+        }
+    }
+
+    /**
+     * Filename template for video/audio downloads. Tokens: %(title)s, %(id)s,
+     * %(quality)s, %(ext)s, %(channel)s. Empty = default "title_quality.ext".
+     */
+    val downloadFilenameTemplateVideo: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_FILENAME_TEMPLATE_VIDEO] ?: "" }
+
+    suspend fun setDownloadFilenameTemplateVideo(template: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_FILENAME_TEMPLATE_VIDEO] = template
+        }
+    }
+
+    val downloadFilenameTemplateAudio: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_FILENAME_TEMPLATE_AUDIO] ?: "" }
+
+    suspend fun setDownloadFilenameTemplateAudio(template: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_FILENAME_TEMPLATE_AUDIO] = template
+        }
+    }
+
+    /** Per-type download folders (SAF tree URI or plain path). Empty = default location. */
+    val downloadVideoFolder: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_VIDEO_FOLDER] ?: "" }
+
+    suspend fun setDownloadVideoFolder(uri: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_VIDEO_FOLDER] = uri
+        }
+    }
+
+    val downloadAudioFolder: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_AUDIO_FOLDER] ?: "" }
+
+    suspend fun setDownloadAudioFolder(uri: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_AUDIO_FOLDER] = uri
+        }
+    }
+
+    /** Write subtitle files (.vtt/.srt) next to downloaded videos. */
+    val downloadWriteSubtitles: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_WRITE_SUBTITLES] ?: false }
+
+    suspend fun setDownloadWriteSubtitles(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_WRITE_SUBTITLES] = enabled
+        }
+    }
+
+    /** Include auto-generated captions when writing subtitles. */
+    val downloadAutoSubtitles: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_AUTO_SUBTITLES] ?: true }
+
+    suspend fun setDownloadAutoSubtitles(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_AUTO_SUBTITLES] = enabled
+        }
+    }
+
+    /** Preferred subtitle language code (e.g. "tr", "en"). Empty = any/original. */
+    val downloadSubtitleLanguage: Flow<String> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_SUBTITLE_LANGUAGE] ?: "" }
+
+    suspend fun setDownloadSubtitleLanguage(language: String) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_SUBTITLE_LANGUAGE] = language
+        }
+    }
+
+    /** Write metadata sidecar files (info + cover image) next to downloads. */
+    val downloadMetadataFiles: Flow<Boolean> = context.playerPreferencesDataStore.data
+        .map { preferences -> preferences[Keys.DOWNLOAD_METADATA_FILES] ?: false }
+
+    suspend fun setDownloadMetadataFiles(enabled: Boolean) {
+        context.playerPreferencesDataStore.edit { preferences ->
+            preferences[Keys.DOWNLOAD_METADATA_FILES] = enabled
         }
     }
 

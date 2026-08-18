@@ -406,10 +406,19 @@ class FlowDownloadService : Service() {
                 else -> "mp4"
             }
             downloadManager.customDownloadPath = preferences.downloadLocation.firstOrNull()
+            // Per-type folder overrides the global location when configured.
+            val typeFolder = (if (audioOnly) preferences.downloadAudioFolder else preferences.downloadVideoFolder)
+                .firstOrNull()
+                ?.takeIf { it.isNotBlank() }
+            if (typeFolder != null) {
+                com.omersusin.pitube.utils.SafTreeResolver.resolve(this, typeFolder)
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { downloadManager.customDownloadPath = it }
+            }
             val downloadDir = downloadManager.getDownloadDir(fileType)
             Log.d(TAG, "handleStartDownload: downloadDir=${downloadDir.absolutePath}, exists=${downloadDir.exists()}, canWrite=${downloadDir.canWrite()}")
 
-            val fileName = downloadManager.generateFileName(title, quality, extension)
+            val fileName = downloadManager.generateFileName(title, quality, extension, videoId, channel, isAudio = audioOnly)
             val savePath = File(downloadDir, fileName).absolutePath
             Log.d(TAG, "handleStartDownload: savePath=$savePath")
 
@@ -700,6 +709,7 @@ class FlowDownloadService : Service() {
                     }
 
                     val nmComplete = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    writeSidecars(mission)
                     postTerminalNotification(nmComplete, videoId, mission, isComplete = true)
 
                     // Fetch and persist SponsorBlock segments inline (awaited) so it completes
@@ -1045,6 +1055,7 @@ class FlowDownloadService : Service() {
                     }
 
                     val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    writeSidecars(mission)
                     postTerminalNotification(nm, videoId, mission, isComplete = true)
 
                     try {
@@ -1324,40 +1335,41 @@ class FlowDownloadService : Service() {
             } else {
                 builder.setProgress(100, progress, false)
 
-                if (mission.status == MissionStatus.PAUSED) {
-                    // Show Resume button
-                    val resumeIntent = Intent(this, FlowDownloadService::class.java).apply {
-                        action = ACTION_RESUME_DOWNLOAD
-                        putExtra("video_id", videoId)
+                // Pause/resume/cancel actions — optional via settings.
+                val showActions = preferences.downloadNotificationActions.firstOrNull() ?: true
+                if (showActions) {
+                    if (mission.status == MissionStatus.PAUSED) {
+                        val resumeIntent = Intent(this, FlowDownloadService::class.java).apply {
+                            action = ACTION_RESUME_DOWNLOAD
+                            putExtra("video_id", videoId)
+                        }
+                        val resumePending = PendingIntent.getService(
+                            this, "resume_$videoId".hashCode(), resumeIntent,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+                        builder.addAction(android.R.drawable.ic_media_play, getString(R.string.download_notif_resume), resumePending)
+                    } else {
+                        val pauseIntent = Intent(this, FlowDownloadService::class.java).apply {
+                            action = ACTION_PAUSE_DOWNLOAD
+                            putExtra("video_id", videoId)
+                        }
+                        val pausePending = PendingIntent.getService(
+                            this, "pause_$videoId".hashCode(), pauseIntent,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+                        builder.addAction(android.R.drawable.ic_media_pause, getString(R.string.download_notif_pause), pausePending)
                     }
-                    val resumePending = PendingIntent.getService(
-                        this, "resume_$videoId".hashCode(), resumeIntent,
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                    )
-                    builder.addAction(android.R.drawable.ic_media_play, "Resume", resumePending)
-                } else {
-                    // Show Pause button
-                    val pauseIntent = Intent(this, FlowDownloadService::class.java).apply {
-                        action = ACTION_PAUSE_DOWNLOAD
-                        putExtra("video_id", videoId)
-                    }
-                    val pausePending = PendingIntent.getService(
-                        this, "pause_$videoId".hashCode(), pauseIntent,
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                    )
-                    builder.addAction(android.R.drawable.ic_media_pause, "Pause", pausePending)
-                }
 
-                // Cancel button
-                val cancelIntent = Intent(this, FlowDownloadService::class.java).apply {
-                    action = ACTION_CANCEL_DOWNLOAD
-                    putExtra("video_id", videoId)
+                    val cancelIntent = Intent(this, FlowDownloadService::class.java).apply {
+                        action = ACTION_CANCEL_DOWNLOAD
+                        putExtra("video_id", videoId)
+                    }
+                    val cancelPending = PendingIntent.getService(
+                        this, "cancel_$videoId".hashCode(), cancelIntent,
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                    builder.addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.download_notif_cancel), cancelPending)
                 }
-                val cancelPending = PendingIntent.getService(
-                    this, "cancel_$videoId".hashCode(), cancelIntent,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-                )
-                builder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelPending)
             }
         } else {
             builder.setProgress(0, 0, false)
@@ -1378,6 +1390,66 @@ class FlowDownloadService : Service() {
     ) {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(getNotificationId(videoId), createNotification(mission, videoId, isComplete, isMuxing))
+    }
+
+    /**
+     * Best-effort post-download extras: subtitle files (.vtt/.srt) and
+     * metadata sidecars (info + cover image) next to the downloaded file,
+     * both gated by the download settings.
+     */
+    private fun writeSidecars(mission: FlowDownloadMission) {
+        serviceScope.launch(Dispatchers.IO) {
+            runCatching {
+                val baseFile = File(mission.savePath)
+                val baseName = baseFile.nameWithoutExtension
+                val dir = baseFile.parentFile ?: return@runCatching
+
+                if (preferences.downloadMetadataFiles.firstOrNull() == true) {
+                    val info = buildString {
+                        appendLine("title=" + mission.video.title)
+                        appendLine("channel=" + mission.video.channelName)
+                        appendLine("id=" + mission.video.id)
+                        appendLine("url=https://www.youtube.com/watch?v=" + mission.video.id)
+                        appendLine("quality=" + mission.quality)
+                    }
+                    File(dir, "$baseName.info.txt").writeText(info)
+                    mission.video.thumbnailUrl.takeIf { it.isNotBlank() }?.let { thumb ->
+                        runCatching {
+                            val bytes = okhttp3.OkHttpClient().newCall(
+                                okhttp3.Request.Builder().url(thumb).build(),
+                            ).execute().use { response -> response.body?.bytes() }
+                            if (bytes != null) File(dir, "$baseName.cover.jpg").writeBytes(bytes)
+                        }
+                    }
+                }
+
+                val isVideoFile = baseFile.extension.lowercase() in setOf("mp4", "webm", "mkv")
+                if (isVideoFile && preferences.downloadWriteSubtitles.firstOrNull() == true) {
+                    val streamInfo = org.schabi.newpipe.extractor.stream.StreamInfo.getInfo(
+                        org.schabi.newpipe.extractor.ServiceList.YouTube,
+                        "https://www.youtube.com/watch?v=" + mission.video.id,
+                    )
+                    val autoAllowed = preferences.downloadAutoSubtitles.firstOrNull() ?: true
+                    val language = preferences.downloadSubtitleLanguage.firstOrNull().orEmpty()
+                    val pick = streamInfo.subtitles.firstOrNull { sub ->
+                        (autoAllowed || !sub.isAutoGenerated) &&
+                            (language.isBlank() ||
+                                sub.locale?.language == language ||
+                                (sub.languageTag != null && sub.languageTag.startsWith(language)))
+                    } ?: if (autoAllowed) streamInfo.subtitles.firstOrNull() else null
+                    if (pick != null) {
+                        val content = pick.content ?: return@runCatching
+                        if (content.isBlank()) return@runCatching
+                        val langTag = pick.languageTag
+                            ?: pick.locale?.language
+                            ?: "sub"
+                        val ext =
+                            if (pick.format.name.lowercase().contains("vtt")) "vtt" else "srt"
+                        File(dir, "$baseName.$langTag.$ext").writeText(content)
+                    }
+                }
+            }.onFailure { Log.w(TAG, "Download sidecars failed", it) }
+        }
     }
 
     /**

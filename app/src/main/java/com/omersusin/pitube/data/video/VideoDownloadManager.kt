@@ -13,6 +13,7 @@ import android.provider.MediaStore
 import android.content.ContentValues
 import com.omersusin.pitube.data.local.dao.DownloadDao
 import com.omersusin.pitube.R
+import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.local.entity.DownloadEntity
 import com.omersusin.pitube.data.local.entity.DownloadFileType
 import com.omersusin.pitube.data.local.entity.DownloadItemEntity
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -607,7 +609,14 @@ class VideoDownloadManager @Inject constructor(
      * Only characters that are illegal in filenames on Android/FAT filesystems
      * are replaced with underscores.
      */
-    fun generateFileName(title: String, quality: String, extension: String = "mp4"): String {
+    fun generateFileName(
+        title: String,
+        quality: String,
+        extension: String = "mp4",
+        videoId: String = "",
+        channel: String = "",
+        isAudio: Boolean = false,
+    ): String {
         val safeTitle = title
             .replace(Regex("[^\\p{L}\\p{M}\\p{N}\\s._-]"), "_")
             .replace(Regex("\\s+"), " ")
@@ -615,6 +624,35 @@ class VideoDownloadManager @Inject constructor(
             .trim('_', ' ')
             .take(100)
             .ifEmpty { "video" }
+        val safeChannel = channel
+            .replace(Regex("[^\\p{L}\\p{M}\\p{N}\\s._-]"), "_")
+            .replace(Regex("\\s+"), " ")
+            .trim('_', ' ')
+            .take(60)
+        val template = try {
+            kotlinx.coroutines.runBlocking {
+                val prefs = PlayerPreferences(context)
+                if (isAudio) {
+                    prefs.downloadFilenameTemplateAudio.first()
+                } else {
+                    prefs.downloadFilenameTemplateVideo.first()
+                }
+            }
+        } catch (e: Exception) {
+            ""
+        }.orEmpty().trim()
+        if (template.isNotEmpty()) {
+            val substituted = template
+                .replace("%(title)s", safeTitle)
+                .replace("%(id)s", videoId.takeIf { it.isNotBlank() } ?: "video")
+                .replace("%(quality)s", quality)
+                .replace("%(ext)s", extension)
+                .replace("%(channel)s", safeChannel.ifBlank { "unknown" })
+            val safeTemplate = substituted
+                .replace(Regex("[^\\p{L}\\p{M}\\p{N}\\s._%()-]"), "_")
+                .trim()
+            if (safeTemplate.isNotBlank()) return safeTemplate
+        }
         return "${safeTitle}_${quality}.$extension"
     }
 

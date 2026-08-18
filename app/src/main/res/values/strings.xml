@@ -808,6 +808,28 @@
     <string name="subscription_transfer_export_opml_subtitle">RSS reader compatible</string>
     <string name="subscription_transfer_imported_template">Imported %1$d channels from %2$s</string>
     <string name="subscription_transfer_import_failed">Could not read subscriptions from this file</string>
+    <string name="download_notif_resume">Resume</string>
+    <string name="download_notif_pause">Pause</string>
+    <string name="download_notif_cancel">Cancel</string>
+    <string name="download_settings_notification_actions">Download notification actions</string>
+    <string name="download_settings_notification_actions_subtitle">Show pause, resume and cancel buttons on active download notifications</string>
+    <string name="download_settings_filename_templates">Filename templates</string>
+    <string name="download_settings_template_video">Video template</string>
+    <string name="download_settings_template_audio">Audio template</string>
+    <string name="download_settings_template_hint">Tokens: %(title)s, %(id)s, %(quality)s, %(ext)s, %(channel)s — empty uses the default name</string>
+    <string name="download_settings_folder_video">Video download folder</string>
+    <string name="download_settings_folder_audio">Audio download folder</string>
+    <string name="download_settings_folder_default">Default location</string>
+    <string name="download_settings_subtitles">Subtitles</string>
+    <string name="download_settings_write_subtitles">Write subtitle files</string>
+    <string name="download_settings_write_subtitles_subtitle">Save a .vtt/.srt subtitle file next to downloaded videos</string>
+    <string name="download_settings_auto_subtitles">Include auto-generated subtitles</string>
+    <string name="download_settings_auto_subtitles_subtitle">Fall back to auto captions when no manual ones exist</string>
+    <string name="download_settings_subtitle_language">Subtitle language</string>
+    <string name="download_settings_subtitle_language_subtitle">Language code like en or tr — empty picks any</string>
+    <string name="download_settings_metadata">Metadata sidecars</string>
+    <string name="download_settings_metadata_title">Write metadata files</string>
+    <string name="download_settings_metadata_subtitle">Save title/channel info and the cover image next to downloads</string>
     <string name="player_settings_queue_autoplay_subtitle">Automatically play the next video in a playlist or Watch Later queue. When off, you can still skip manually.</string>
     <string name="player_settings_autoplay_countdown_title">Autoplay delay</string>
     <string name="player_settings_autoplay_countdown_none">None (switch immediately)</string>
@@ -909,6 +931,9 @@
     <string name="no_external_player">No app can play this video</string>
     <!-- Misc -->
     <string name="btn_save">Save</string>
+    <string name="btn_reset">Reset</string>
+    <string name="btn_change">Change</string>
+    <string name="download_customization_header">Customization</string>
     <string name="btn_cancel">Cancel</string>
     
     

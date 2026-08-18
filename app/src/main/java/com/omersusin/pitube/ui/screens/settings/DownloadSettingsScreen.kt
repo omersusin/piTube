@@ -20,11 +20,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.ClosedCaption
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.HighQuality
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.RocketLaunch
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.VideoLibrary
@@ -75,6 +80,43 @@ fun DownloadSettingsScreen(
     val defaultQuality by preferences.defaultDownloadQuality.collectAsState(initial = VideoQuality.Q_720p)
     val defaultCodec by preferences.defaultDownloadCodec.collectAsState(initial = VideoCodec.AUTO)
     val downloadLocation by preferences.downloadLocation.collectAsState(initial = null)
+    val videoTemplate by preferences.downloadFilenameTemplateVideo.collectAsState(initial = "")
+    val audioTemplate by preferences.downloadFilenameTemplateAudio.collectAsState(initial = "")
+    val videoFolder by preferences.downloadVideoFolder.collectAsState(initial = "")
+    val audioFolder by preferences.downloadAudioFolder.collectAsState(initial = "")
+    val writeSubtitles by preferences.downloadWriteSubtitles.collectAsState(initial = false)
+    val autoSubtitles by preferences.downloadAutoSubtitles.collectAsState(initial = true)
+    val subtitleLanguage by preferences.downloadSubtitleLanguage.collectAsState(initial = "")
+    val metadataFiles by preferences.downloadMetadataFiles.collectAsState(initial = false)
+    val notificationActions by preferences.downloadNotificationActions.collectAsState(initial = true)
+    var showSubtitleLanguageDialog by remember { mutableStateOf(false) }
+
+    val videoFolderPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                )
+            }
+            coroutineScope.launch { preferences.setDownloadVideoFolder(it.toString()) }
+        }
+    }
+    val audioFolderPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                )
+            }
+            coroutineScope.launch { preferences.setDownloadAudioFolder(it.toString()) }
+        }
+    }
 
     // Dialog states
     var showThreadDialog by remember { mutableStateOf(false) }
@@ -478,7 +520,162 @@ fun DownloadSettingsScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+
+            // ── Customization: names, folders, subtitles, metadata, notification ──
+            item {
+                Text(
+                    stringResource(R.string.download_customization_header),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+
+            item {
+                SettingsGroup {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            stringResource(R.string.download_settings_filename_templates),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            stringResource(R.string.download_settings_template_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = videoTemplate,
+                            onValueChange = {
+                                videoTemplate = it
+                                coroutineScope.launch { preferences.setDownloadFilenameTemplateVideo(it) }
+                            },
+                            label = { Text(stringResource(R.string.download_settings_template_video)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = audioTemplate,
+                            onValueChange = {
+                                audioTemplate = it
+                                coroutineScope.launch { preferences.setDownloadFilenameTemplateAudio(it) }
+                            },
+                            label = { Text(stringResource(R.string.download_settings_template_audio)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        FolderOverrideRow(
+                            title = stringResource(R.string.download_settings_folder_video),
+                            value = videoFolder,
+                            onPick = { videoFolderPicker.launch(null) },
+                            onReset = {
+                                coroutineScope.launch { preferences.setDownloadVideoFolder("") }
+                            },
+                        )
+                        FolderOverrideRow(
+                            title = stringResource(R.string.download_settings_folder_audio),
+                            value = audioFolder,
+                            onPick = { audioFolderPicker.launch(null) },
+                            onReset = {
+                                coroutineScope.launch { preferences.setDownloadAudioFolder("") }
+                            },
+                        )
+                    }
+                }
+            }
+
+            item {
+                SettingsGroup {
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.ClosedCaption,
+                        title = stringResource(R.string.download_settings_write_subtitles),
+                        subtitle = stringResource(R.string.download_settings_write_subtitles_subtitle),
+                        checked = writeSubtitles,
+                        onCheckedChange = { coroutineScope.launch { preferences.setDownloadWriteSubtitles(it) } }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 56.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.AutoAwesome,
+                        title = stringResource(R.string.download_settings_auto_subtitles),
+                        subtitle = stringResource(R.string.download_settings_auto_subtitles_subtitle),
+                        checked = autoSubtitles,
+                        onCheckedChange = { coroutineScope.launch { preferences.setDownloadAutoSubtitles(it) } }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 56.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                    SettingsItem(
+                        icon = Icons.Outlined.Language,
+                        title = stringResource(R.string.download_settings_subtitle_language),
+                        subtitle = subtitleLanguage.ifBlank {
+                            stringResource(R.string.download_settings_subtitle_language_subtitle)
+                        },
+                        onClick = { showSubtitleLanguageDialog = true }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 56.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.Description,
+                        title = stringResource(R.string.download_settings_metadata_title),
+                        subtitle = stringResource(R.string.download_settings_metadata_subtitle),
+                        checked = metadataFiles,
+                        onCheckedChange = { coroutineScope.launch { preferences.setDownloadMetadataFiles(it) } }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 56.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.Notifications,
+                        title = stringResource(R.string.download_settings_notification_actions),
+                        subtitle = stringResource(R.string.download_settings_notification_actions_subtitle),
+                        checked = notificationActions,
+                        onCheckedChange = { coroutineScope.launch { preferences.setDownloadNotificationActions(it) } }
+                    )
+                }
+            }
         }
+    }
+
+    if (showSubtitleLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showSubtitleLanguageDialog = false },
+            title = { Text(stringResource(R.string.download_settings_subtitle_language)) },
+            text = {
+                OutlinedTextField(
+                    value = subtitleLanguage,
+                    onValueChange = { subtitleLanguage = it },
+                    placeholder = { Text("en / tr / …") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        coroutineScope.launch { preferences.setDownloadSubtitleLanguage(subtitleLanguage.trim()) }
+                        showSubtitleLanguageDialog = false
+                    },
+                ) {
+                    Text(stringResource(R.string.btn_save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSubtitleLanguageDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
     }
 
     // ==================== DIALOGS ====================
@@ -932,6 +1129,34 @@ fun DownloadSettingsScreen(
                 },
                 containerColor = MaterialTheme.colorScheme.surface
             )
+        }
+    }
+}
+
+@Composable
+private fun FolderOverrideRow(
+    title: String,
+    value: String,
+    onPick: () -> Unit,
+    onReset: () -> Unit,
+) {
+    Column(modifier = Modifier.padding(vertical = 6.dp)) {
+        Text(
+            title,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = value.ifBlank { stringResource(R.string.download_settings_folder_default) },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = onReset) { Text(stringResource(R.string.btn_reset)) }
+            TextButton(onClick = onPick) { Text(stringResource(R.string.btn_change)) }
         }
     }
 }

@@ -875,6 +875,9 @@
     <string name="dont_show_channel_desc">Önerilerinden kaldır</string>
     <string name="channel_blocked_toast">%1$s akışında görünmeyecek</string>
     <string name="btn_save">Kaydet</string>
+    <string name="btn_reset">Sıfırla</string>
+    <string name="btn_change">Değiştir</string>
+    <string name="download_customization_header">Özelleştirme</string>
     <string name="btn_cancel">İptal</string>
     
     
@@ -1632,6 +1635,28 @@
     <string name="subscription_transfer_export_opml_subtitle">RSS okuyucularla uyumlu</string>
     <string name="subscription_transfer_imported_template">%2$s kaynağından %1$d kanal içe aktarıldı</string>
     <string name="subscription_transfer_import_failed">Bu dosyadan abonelikler okunamadı</string>
+    <string name="download_notif_resume">Devam et</string>
+    <string name="download_notif_pause">Duraklat</string>
+    <string name="download_notif_cancel">İptal</string>
+    <string name="download_settings_notification_actions">İndirme bildirimi butonları</string>
+    <string name="download_settings_notification_actions_subtitle">Aktif indirme bildirimlerinde duraklat, devam ve iptal butonlarını göster</string>
+    <string name="download_settings_filename_templates">Dosya adı şablonları</string>
+    <string name="download_settings_template_video">Video şablonu</string>
+    <string name="download_settings_template_audio">Ses şablonu</string>
+    <string name="download_settings_template_hint">Belirteçler: %(title)s, %(id)s, %(quality)s, %(ext)s, %(channel)s — boş bırakılırsa varsayılan ad kullanılır</string>
+    <string name="download_settings_folder_video">Video indirme klasörü</string>
+    <string name="download_settings_folder_audio">Ses indirme klasörü</string>
+    <string name="download_settings_folder_default">Varsayılan konum</string>
+    <string name="download_settings_subtitles">Altyazılar</string>
+    <string name="download_settings_write_subtitles">Altyazı dosyalarını yaz</string>
+    <string name="download_settings_write_subtitles_subtitle">İndirilen videoların yanına .vtt/.srt altyazı dosyası kaydet</string>
+    <string name="download_settings_auto_subtitles">Otomatik altyazıları dahil et</string>
+    <string name="download_settings_auto_subtitles_subtitle">Elle yazılmış altyazı yoksa otomatik altyazıya düş</string>
+    <string name="download_settings_subtitle_language">Altyazı dili</string>
+    <string name="download_settings_subtitle_language_subtitle">en veya tr gibi dil kodu — boş bırakılırsa herhangi biri seçilir</string>
+    <string name="download_settings_metadata">Metadata yan dosyaları</string>
+    <string name="download_settings_metadata_title">Metadata dosyalarını yaz</string>
+    <string name="download_settings_metadata_subtitle">İndirmelerin yanına başlık/kanal bilgisi ve kapak görseli kaydet</string>
     <string name="player_settings_queue_autoplay_subtitle">Oynatma listesindeki veya Daha Sonra İzle kuyruğundaki sonraki videoyu otomatik olarak oynat. Kapalıyken de elle sonraki videoya geçebilirsin.</string>
     <string name="player_settings_autoplay_countdown_title">Otomatik oynatma gecikmesi</string>
     <string name="player_settings_autoplay_countdown_none">Yok (hemen geç)</string>
