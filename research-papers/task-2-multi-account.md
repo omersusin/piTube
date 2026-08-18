@@ -107,3 +107,30 @@ regressions/gaps around the roster, not from a missing roster.
   merges into the *active* profile cookie. With N accounts the rotated cookie is
   correctly attributed to the active account because the merge happens against
   whatever the runtime session points at.
+## Aug 19 2026 — root cause of persistent "0 channels" subscription sync
+
+The subscription sync still reported 0 channels after the WEB/WEB_REMIX client
+version and UA alignment. The actual root cause (verified live, Aug 2026):
+
+- Every signed WEB request carried `user.onBehalfOfUser = <stored datasyncId>`
+  (added earlier as a multi-account mechanism — no browser, yt-dlp, or the
+  working Koda build sends it).
+- Live curl experiment against `youtubei/v1/browse` (FEchannels) with a
+  mismatched `onBehalfOfUser`: **HTTP 401, error body, no contents**. The app
+  treated that as "0 channels" (no `logged_in` verdict in a 401 body, so the
+  session-expired guard never fired, and a rejected request echoes no
+  datasyncId, so the self-heal could never repair the value).
+- The session cookie (SAPISID + SAPISIDHASH, signed per-origin) is the account
+  authority. Koda's `postWatchApi` proves it: it sends cookie + Authorization +
+  X-Goog-AuthUser=0 and **no user block**, and its FEchannels parser was
+  verified against live data in August 2026.
+- Fix (`bf80159`): `YouTubeClient.toContext` never attaches `onBehalfOfUser`
+  (always null). The stored datasyncId remains purely local bookkeeping
+  (profile dedupe). Regression test asserts the wire format contains no
+  `onBehalfOfUser` even when a stale datasyncId is supplied.
+
+Still-valid fixes from the same investigation (keep them):
+- WEB/WEB_REMIX client versions aligned with Koda (2.20260817.01.00 /
+  1.20260816.07.00); Chrome/124 UA; `service=youtube` on the login URL;
+  identity-first datasyncId precedence in `handleCookiesCaptured`;
+  `noteResponseState` datasyncId self-heal.
