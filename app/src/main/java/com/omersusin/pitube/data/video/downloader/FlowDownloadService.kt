@@ -1421,7 +1421,7 @@ class FlowDownloadService : Service() {
                             val bytes = okhttp3.OkHttpClient().newCall(
                                 okhttp3.Request.Builder().url(thumb).build(),
                             ).execute().use { response -> response.body.bytes() }
-                            if (bytes != null) File(dir, "$baseName.cover.jpg").writeBytes(bytes)
+                            File(dir, "$baseName.cover.jpg").writeBytes(bytes)
                         }
                     }
                 }
