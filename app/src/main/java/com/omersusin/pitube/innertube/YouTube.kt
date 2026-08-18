@@ -55,6 +55,7 @@ import com.omersusin.pitube.innertube.pages.NewPipeExtractor
 import com.omersusin.pitube.innertube.pages.toNotificationPage
 import com.omersusin.pitube.data.model.Comment
 import com.omersusin.pitube.data.model.VideoCollaborator
+import com.omersusin.pitube.FlowApplication
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.potoken.WebPoTokenSession
 import android.util.Log
@@ -77,6 +78,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.buildJsonArray
+import java.io.File
 import java.net.Proxy
 import java.util.Locale
 import kotlin.random.Random
@@ -1331,7 +1333,8 @@ object YouTube {
                 break
             }
             val bodyText = response.bodyAsText()
-            if (LOGGED_OUT_REGEX.containsMatchIn(bodyText)) {
+            val loggedOut = LOGGED_OUT_REGEX.containsMatchIn(bodyText)
+            if (loggedOut) {
                 // A dead session answers the browse anonymously: that is a
                 // re-login problem, not an account with zero channels.
                 Log.w("YouTube", "webSubscribedChannels: YouTube answered signed-out — session dead")
@@ -1341,7 +1344,27 @@ object YouTube {
             val found = root.toRemoteChannels()
             channels += found
             if (found.isEmpty()) {
-                Log.w("YouTube", "webSubscribedChannels: parser returned 0 channels on page $pages (body len ${bodyText.length})")
+                // Diagnostic hook: a 0-channel first page is either a dead
+                // session or a parser-shape regression — never "the account has
+                // nothing subscribed". Dump the raw page so the real shape can
+                // be inspected on-device alongside the HTTP and session state.
+                if (pages == 0) {
+                    val dumpPath = runCatching {
+                        val root = FlowApplication.appContext.getExternalFilesDir(null)
+                            ?: return@runCatching null
+                        val dir = File(root, "session_dump").apply { mkdirs() }
+                        val dumpFile = File(dir, "fechannels_page0_${System.currentTimeMillis()}.json")
+                        dumpFile.writeText(bodyText)
+                        dumpFile.absolutePath
+                    }.getOrNull()
+                    Log.w(
+                        "YouTube",
+                        "webSubscribedChannels: 0 channels on first page http=${response.status.value} " +
+                            "loggedOut=$loggedOut dump=${dumpPath ?: "dump-failed"}",
+                    )
+                } else {
+                    Log.w("YouTube", "webSubscribedChannels: parser returned 0 channels on page $pages (body len ${bodyText.length})")
+                }
             }
             continuation = root.browseContinuation()
             pages++

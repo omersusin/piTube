@@ -284,6 +284,10 @@ fun SettingsScreen(
     val isGoogleSignedIn by playerPreferences.youtubeCookie
         .map { !it.isNullOrEmpty() }
         .collectAsStateWithLifecycle(initialValue = false)
+    // YouTube answered an authenticated request as anonymous; the stored
+    // session is dead until the user signs in again.
+    val sessionExpired by com.omersusin.pitube.data.local.SessionManager.sessionExpired
+        .collectAsStateWithLifecycle(initialValue = false)
     var showAccountSwitcher by remember { mutableStateOf(false) }
     var isSyncingLibrary by remember { mutableStateOf(false) }
     var librarySyncResultText by remember { mutableStateOf<String?>(null) }
@@ -301,10 +305,16 @@ fun SettingsScreen(
         isSyncingLibrary = false
         librarySyncResultText = when {
             result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
+            result.sessionExpired && result.subscribedChannels == 0 -> context.getString(
+                R.string.settings_google_sync_zero_invalid
+            )
             result.sessionExpired -> context.getString(R.string.account_switcher_expired)
             !result.error.isNullOrBlank() -> context.getString(
                 R.string.settings_google_sync_error,
                 result.error
+            )
+            result.subscribedChannels == 0 -> context.getString(
+                R.string.settings_google_sync_zero_valid
             )
             else -> {
                 val base = context.getString(
@@ -875,6 +885,28 @@ fun SettingsScreen(
                                 }
                             }
                             HorizontalDivider()
+                            if (sessionExpired) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable(onClick = onNavigateToGoogleLogin)
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.ErrorOutline,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
+                                    )
+                                    Spacer(Modifier.width(12.dp))
+                                    Text(
+                                        text = stringResource(R.string.settings_session_expired),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+                                }
+                                HorizontalDivider()
+                            }
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()

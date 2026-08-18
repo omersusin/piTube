@@ -113,30 +113,32 @@ internal fun JsonElement.toRemoteChannels(): List<RemoteChannel> {
  * builds, which is how channels the user never subscribed to appeared as
  * subscribed. Channel items are collected from `channelRenderer`,
  * `gridChannelRenderer` (identical shape) and channel lockupViewModels, and
- * any item that sits inside a shelf container is skipped by not descending
- * into shelves at all.
+ * any item that sits inside a shelf container is skipped by never descending
+ * into a shelf-named member. Unexpected container keys wrapping the channel
+ * grid are walked like any other member — only the shelf members themselves
+ * are pruned, so a wrapper carrying a shelf next to the real grid never
+ * aborts the sibling grid (earlier builds skipped the whole subtree).
  */
+private val SHELF_CONTAINER_KEYS = setOf(
+    "shelfRenderer",
+    "horizontalListRenderer",
+    "expandedShelfContentsRenderer",
+    "richShelfRenderer",
+)
+
 private fun findChannelRenderersInSubscriptionGrids(node: JsonElement?, results: MutableList<JsonObject>) {
     when (node) {
         is JsonObject -> {
             node["channelRenderer"].objectOrNull()?.let { results.add(it) }
             node["gridChannelRenderer"].objectOrNull()?.let { results.add(it) }
             node["lockupViewModel"].objectOrNull()?.let { results.add(it) }
-            // Skip any shelf container entirely: this is where YouTube hides
-            // "related / you might like" channels on the subscriptions page.
-            // Only the subtree below a shelf key is skipped — a sibling grid
-            // sharing an ancestor must still be walked.
-            val hasShelf = listOf(
-                "shelfRenderer",
-                "horizontalListRenderer",
-                "expandedShelfContentsRenderer",
-                "richShelfRenderer",
-            ).any { node[it].objectOrNull() != null }
-            if (hasShelf) return
-            node.values.forEach { child ->
-                if (child is JsonObject || child is JsonArray) {
-                    findChannelRenderersInSubscriptionGrids(child, results)
-                }
+            node.entries.forEach { (key, child) ->
+                if (child !is JsonObject && child !is JsonArray) return@forEach
+                // Shelf containers hold "related / you might like" channels —
+                // never descend into them, but keep walking every sibling
+                // member (including unexpected wrapper keys around the grid).
+                if (key in SHELF_CONTAINER_KEYS) return@forEach
+                findChannelRenderersInSubscriptionGrids(child, results)
             }
         }
         is JsonArray -> node.forEach {

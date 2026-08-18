@@ -24,6 +24,38 @@ object CookieRotation {
         "__Secure-1PSIDCC", "__Secure-3PSIDCC"
     )
 
+    /** Single-name cookies a captured session must carry to work as signed. */
+    private val REQUIRED_SINGLE_COOKIE_NAMES = listOf("SID", "HSID", "SSID", "APISID")
+
+    /**
+     * The rotated TS pair guards the session against replay; a jar missing
+     * both `__Secure-1PSIDTS` and `__Secure-3PSIDTS` answers as signed out
+     * even when every other cookie is intact.
+     */
+    private val PSIDTS_PAIR = listOf("__Secure-1PSIDTS", "__Secure-3PSIDTS")
+
+    /**
+     * Names missing from [cookie] that a captured session cannot work without.
+     * Checks the full signed set — SID/HSID/SSID/APISID/SAPISID (SAPISID under
+     * either of its names) and at least one of the `__Secure-*PSIDTS` pair.
+     * A blank jar reports every name missing.
+     */
+    fun missingRequiredCookies(cookie: String?): List<String> {
+        if (cookie.isNullOrBlank()) {
+            return REQUIRED_SINGLE_COOKIE_NAMES + "SAPISID" + PSIDTS_PAIR.joinToString("/")
+        }
+        val missing = mutableListOf<String>()
+        REQUIRED_SINGLE_COOKIE_NAMES.forEach { name ->
+            if (YouTubeAuthUtils.getCookieValue(cookie, name) == null) missing += name
+        }
+        if (YouTubeAuthUtils.getSapisid(cookie) == null) missing += "SAPISID"
+        val hasTsPair = PSIDTS_PAIR.any {
+            YouTubeAuthUtils.getCookieValue(cookie, it) != null
+        }
+        if (!hasTsPair) missing += PSIDTS_PAIR.joinToString("/")
+        return missing
+    }
+
     /**
      * Fold freshly issued `Set-Cookie` header values into a stored cookie
      * string. Only names already present, or in [REFRESHABLE_COOKIE_NAMES],

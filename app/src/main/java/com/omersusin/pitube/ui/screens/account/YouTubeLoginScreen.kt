@@ -251,7 +251,10 @@ fun YouTubeLoginScreen(
         if (isFinishing) return
         val token = YouTubeTokenParser.parse(tokenInput)
         val normalized = YouTubeAuthUtils.normalizeCookieString(token.cookie)
-        val missing = YouTubeAuthUtils.missingRequiredCookies(normalized)
+        // Full-session bar: a captured jar missing the secure TS pair or any of
+        // the auth cookies will silently answer signed-out once browsing, so it
+        // is rejected here with the missing names shown to the user.
+        val missing = com.omersusin.pitube.data.local.CookieRotation.missingRequiredCookies(normalized)
         if (missing.isNotEmpty()) {
             errorMessage = context.getString(R.string.cookie_paste_missing, missing.joinToString(", "))
             return

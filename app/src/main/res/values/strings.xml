@@ -2015,6 +2015,9 @@
     <string name="settings_google_sync_result">Synced: %1$d liked videos, %2$d playlists, %3$d channels</string>
     <string name="settings_google_sync_error">Sync failed: %1$s</string>
     <string name="settings_google_sync_partial">Sync finished partially — YouTube only returned part of your library. The counts above are what was loaded so far.</string>
+    <string name="settings_google_sync_zero_valid">0 channels, session confirmed valid</string>
+    <string name="settings_google_sync_zero_invalid">0 channels, session invalid</string>
+    <string name="settings_session_expired">Session expired — tap to sign in again</string>
     <string name="toast_subscribe_write_failed">Could not update your YouTube subscription. The change was undone.</string>
     <string name="toast_like_write_failed">Could not update your rating on YouTube. The change was undone.</string>
     <string name="toast_watch_later_write_failed">Could not update Watch Later on YouTube. The change was undone.</string>
