@@ -1336,7 +1336,10 @@ class FlowDownloadService : Service() {
                 builder.setProgress(100, progress, false)
 
                 // Pause/resume/cancel actions — optional via settings.
-                val showActions = preferences.downloadNotificationActions.firstOrNull() ?: true
+                val showActions =
+                    kotlinx.coroutines.runBlocking {
+                        preferences.downloadNotificationActions.firstOrNull()
+                    } ?: true
                 if (showActions) {
                     if (mission.status == MissionStatus.PAUSED) {
                         val resumeIntent = Intent(this, FlowDownloadService::class.java).apply {

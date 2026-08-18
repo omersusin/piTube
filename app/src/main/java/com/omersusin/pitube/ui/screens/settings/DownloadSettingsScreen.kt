@@ -55,6 +55,7 @@ import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.local.VideoQuality
 import com.omersusin.pitube.data.local.VideoCodec
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -80,16 +81,22 @@ fun DownloadSettingsScreen(
     val defaultQuality by preferences.defaultDownloadQuality.collectAsState(initial = VideoQuality.Q_720p)
     val defaultCodec by preferences.defaultDownloadCodec.collectAsState(initial = VideoCodec.AUTO)
     val downloadLocation by preferences.downloadLocation.collectAsState(initial = null)
-    val videoTemplate by preferences.downloadFilenameTemplateVideo.collectAsState(initial = "")
-    val audioTemplate by preferences.downloadFilenameTemplateAudio.collectAsState(initial = "")
+    var videoTemplate by remember { mutableStateOf("") }
+    var audioTemplate by remember { mutableStateOf("") }
+    var subtitleLanguage by remember { mutableStateOf("") }
     val videoFolder by preferences.downloadVideoFolder.collectAsState(initial = "")
     val audioFolder by preferences.downloadAudioFolder.collectAsState(initial = "")
     val writeSubtitles by preferences.downloadWriteSubtitles.collectAsState(initial = false)
     val autoSubtitles by preferences.downloadAutoSubtitles.collectAsState(initial = true)
-    val subtitleLanguage by preferences.downloadSubtitleLanguage.collectAsState(initial = "")
     val metadataFiles by preferences.downloadMetadataFiles.collectAsState(initial = false)
     val notificationActions by preferences.downloadNotificationActions.collectAsState(initial = true)
     var showSubtitleLanguageDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        videoTemplate = preferences.downloadFilenameTemplateVideo.first()
+        audioTemplate = preferences.downloadFilenameTemplateAudio.first()
+        subtitleLanguage = preferences.downloadSubtitleLanguage.first()
+    }
 
     val videoFolderPicker = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
