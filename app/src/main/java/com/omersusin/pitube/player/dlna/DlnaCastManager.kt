@@ -310,7 +310,7 @@ object DlnaCastManager {
 
             val audioUrl = bestAudio?.let { it.content }
             val audioBitrate = bestAudio?.bitrate?.takeIf { it > 0 } ?: 128_000
-            val audioCodec = bestAudio?.codec.takeIf { it.isNotBlank() } ?: "mp4a.40.2"
+            val audioCodec = bestAudio?.codec?.takeIf { it.isNotBlank() } ?: "mp4a.40.2"
             val audioMime = bestAudio?.format?.mimeType?.let {
                 if (it.contains("mp4") || it.contains("m4a")) "audio/mp4" else it
             } ?: "audio/mp4"

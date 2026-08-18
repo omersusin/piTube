@@ -1,5 +1,6 @@
 package com.omersusin.pitube.ui.screens.settings
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -451,7 +453,7 @@ fun DeviceInfoDialog(onDismiss: () -> Unit) {
         },
         dismissButton = {
             TextButton(onClick = {
-                scope.launch { clipboard.setClipEntry(ClipEntry(AnnotatedString(deviceInfo))) }
+                scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("device info", deviceInfo))) }
             }) { Text(stringResource(R.string.btn_copy)) }
         }
     )

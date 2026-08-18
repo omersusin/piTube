@@ -133,7 +133,7 @@ class OnDeviceVoiceRecognizer(
         fun finishSuccess(text: String) {
             if (settled) return
             settled = true
-            watchdog.let { mainHandler.removeCallbacks(it) }
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             sessionRecognizer?.let { destroyOnMain(it) }
             bound.set(false)
             current = null
@@ -144,7 +144,7 @@ class OnDeviceVoiceRecognizer(
         fun finishError(message: String, type: RecognitionFailureType = RecognitionFailureType.OTHER) {
             if (settled) return
             settled = true
-            watchdog.let { mainHandler.removeCallbacks(it) }
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             sessionRecognizer?.let { destroyOnMain(it) }
             bound.set(false)
             current = null
@@ -250,7 +250,7 @@ class OnDeviceVoiceRecognizer(
                                 }
                             Log.w("STT", "OnDeviceVoice error=$error; tearing down and retrying on network recognizer once (delay=${delay}ms)")
                             teardownPending()
-                            watchdog.let { mainHandler.removeCallbacks(it) }
+                            watchdog?.let { mainHandler.removeCallbacks(it) }
                             mainHandler.postDelayed(
                                 {
                                     if (!settled && !cancelled) {
@@ -427,7 +427,7 @@ class OnDeviceVoiceRecognizer(
 
         continuation.invokeOnCancellation {
             cancelled = true
-            watchdog.let { mainHandler.removeCallbacks(it) }
+            watchdog?.let { mainHandler.removeCallbacks(it) }
             mainHandler.post { teardownPending() }
         }
     }

@@ -81,14 +81,14 @@ object VideoCodecUtils {
     }
 
     fun qualityHeightFromStream(stream: VideoStream): Int {
-        parseQualityHeight(stream.resolution())?.let { return it }
+        parseQualityHeight(stream.getResolution())?.let { return it }
         parseQualityHeight(stream.quality)?.let { return it }
         parseQualityHeight(stream.itagItem?.getResolutionString())?.let { return it }
         return normalizeQualityHeight(stream.height)
     }
 
     fun qualityLabelFromStream(stream: VideoStream): String {
-        return stream.resolution()
+        return stream.getResolution()
             .takeIf { it.isNotBlank() && it != VideoStream.RESOLUTION_UNKNOWN }
             ?: "${qualityHeightFromStream(stream)}p"
     }

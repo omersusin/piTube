@@ -63,8 +63,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.SecondaryTabRowDefaults
-import androidx.compose.material3.SecondaryTabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -925,7 +924,7 @@ private fun FilterAndToggleBar(
             }
             IconButton(onClick = onToggleGridView) {
                 Icon(
-                    imageVector = if (isGridView) Icons.Default.ViewList else Icons.Default.GridView,
+                    imageVector = if (isGridView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.GridView,
                     contentDescription = if (isGridView) stringResource(R.string.ui_list_view) else stringResource(R.string.ui_grid_view),
                     modifier = Modifier.size(22.dp),
                 )
@@ -1242,9 +1241,9 @@ private fun ChannelTabRow(
         edgePadding = 0.dp,
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        indicator = { tabPositions ->
-            SecondaryTabRowDefaults.Indicator(
-                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
+        indicator = {
+            TabRowDefaults.Indicator(
+                modifier = Modifier.tabIndicatorOffset(tabPositions, selectedTabIndex),
                 height = 2.dp,
                 color = MaterialTheme.colorScheme.primary,
             )

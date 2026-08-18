@@ -120,7 +120,7 @@ fun DiagnosticsScreen(onNavigateBack: () -> Unit) {
             0    -> FlowDiagnostics.buildFullReport(context, sessionLines.joinToString("\n"))
             else -> "$deviceInfo\n\n$crashText"
         }
-        scope.launch { clipboard.setClipEntry(ClipEntry(AnnotatedString(text))) }
+        scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("piTube diagnostics", text))) }
         if (!copiedSnackShown) {
             copiedSnackShown = true
             scope.launch {

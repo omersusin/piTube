@@ -111,7 +111,7 @@ object PipePipeNsigDecoder {
                 .header("User-Agent", USER_AGENT).build()
             httpClient.newCall(req).execute().use { resp ->
                 if (!resp.isSuccessful) return null
-                val data = parseData(resp.body.string())
+                val data = parseData(resp.body.string()) ?: return null
                 val decoded = data.optString(n).takeIf { it.isNotEmpty() } ?: return null
                 nCache["$pid:$n"] = decoded
                 decoded
