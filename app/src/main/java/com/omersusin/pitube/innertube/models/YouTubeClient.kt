@@ -43,7 +43,14 @@ data class YouTubeClient(
             visitorData = visitorData
         ),
         user = Context.User(
-            onBehalfOfUser = if (loginSupported) dataSyncId else null
+            // NEVER attach onBehalfOfUser. The session cookie (SAPISID +
+            // SAPISIDHASH) already pins the account — browsers, yt-dlp and the
+            // working Koda build all omit the user block, and a mismatched
+            // datasyncId here makes YouTube answer personal surfaces with
+            // HTTP 401 / empty bodies (verified live Aug 2026), which read as
+            // "0 channels". The stored datasyncId stays for local account
+            // dedupe only.
+            onBehalfOfUser = null
         ),
     )
 

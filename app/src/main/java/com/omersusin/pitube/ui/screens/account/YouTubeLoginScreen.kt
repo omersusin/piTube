@@ -192,10 +192,8 @@ fun YouTubeLoginScreen(
         errorMessage = null
         YouTube.cookie = cookies
         YouTube.useLoginForBrowse = true
-        // Clear the previous profile's datasyncId before the identity fetch: a
-        // stale onBehalfOfUser makes every signed call (including the identity
-        // fetch below) answer as the OLD account. The live identity re-adopts
-        // the value matching these cookies.
+        // The session cookie is the account authority (signed calls never send
+        // onBehalfOfUser); the datasyncId below is local dedupe bookkeeping.
         YouTube.dataSyncId = null
         coroutineScope.launch {
             // Fetch identity first when possible: it lets ProfileManager dedupe a
@@ -234,8 +232,8 @@ fun YouTubeLoginScreen(
                         sm.saveUserEmail(account.email)
                         sm.saveUserAvatar(account.thumbnailUrl ?: "")
                         // Persist any identity details the first fetch missed, so
-                        // the profile row shows the handle and the runtime session
-                        // picks up the datasyncId (onBehalfOfUser on signed writes).
+                        // the profile row shows the handle and keeps a datasyncId
+                        // for local account dedupe (never sent to YouTube).
                         val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
                         val profile = pm.active()
                         var needDatasync = false
@@ -273,11 +271,9 @@ fun YouTubeLoginScreen(
         YouTube.cookie = normalized
         YouTube.useLoginForBrowse = true
         token.visitorData?.takeIf { it.isNotBlank() }?.let { YouTube.visitorData = it }
-        // Clear the previous profile's datasyncId before the identity fetch — a
-        // stale onBehalfOfUser answers as the OLD account (and a pasted token
-        // marker may belong to a different browser entirely). The live identity
-        // below adopts the value that matches these cookies; the token marker is
-        // only a fallback if that fetch fails.
+        // The session cookie is the account authority (signed calls never send
+        // onBehalfOfUser); the datasyncId below is local dedupe bookkeeping,
+        // preferring the live identity over a pasted token marker.
         YouTube.dataSyncId = null
         coroutineScope.launch {
             // Best-effort identity fetch for dedupe and avatar (never blocks the
@@ -318,8 +314,8 @@ fun YouTubeLoginScreen(
                         sm.saveUserEmail(account.email)
                         sm.saveUserAvatar(account.thumbnailUrl ?: "")
                         // Persist any identity details the first fetch missed, so
-                        // the profile row shows the handle and the runtime session
-                        // picks up the datasyncId (onBehalfOfUser on signed writes).
+                        // the profile row shows the handle and keeps a datasyncId
+                        // for local account dedupe (never sent to YouTube).
                         val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
                         val profile = pm.active()
                         var needDatasync = false

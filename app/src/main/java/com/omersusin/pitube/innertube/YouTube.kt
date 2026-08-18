@@ -783,10 +783,9 @@ object YouTube {
 
     /**
      * Full signed-in context for account writes, matching how Koda/Metrolist
-     * build their like/subscribe bodies. Carries the active account's
-     * `dataSyncId` as `user.onBehalfOfUser` — without it YouTube answers as the
-     * default session and the write can silently no-op (HTTP 200, nothing
-     * applied).
+     * build their like/subscribe bodies. The session cookie is the account
+     * authority (no `user.onBehalfOfUser` — a stale datasyncId there makes
+     * YouTube reject the request with HTTP 401, verified live Aug 2026).
      */
     private fun signedWriteContext(client: YouTubeClient): JsonObject =
         json
