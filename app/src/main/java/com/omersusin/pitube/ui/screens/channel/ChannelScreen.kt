@@ -1242,8 +1242,8 @@ private fun ChannelTabRow(
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onSurface,
         indicator = {
-            TabRowDefaults.Indicator(
-                modifier = Modifier.tabIndicatorOffset(tabPositions, selectedTabIndex),
+            TabRowDefaults.SecondaryIndicator(
+                modifier = Modifier.tabIndicatorOffset(selectedIndex),
                 height = 2.dp,
                 color = MaterialTheme.colorScheme.primary,
             )
