@@ -3173,6 +3173,8 @@ class VideoPlayerViewModel @Inject constructor(
 
     fun likeVideo(videoId: String, title: String, thumbnail: String, channelName: String, channelId: String = "") {
         viewModelScope.launch {
+            val streamInfo = _uiState.value.streamInfo
+            val previousCount = streamInfo?.likeCount
             likedVideosRepository.likeVideo(
                 LikedVideoInfo(
                     videoId = videoId,
@@ -3181,10 +3183,16 @@ class VideoPlayerViewModel @Inject constructor(
                     channelName = channelName
                 )
             )
+            if (streamInfo != null && previousCount != null) {
+                streamInfo.likeCount += 1
+            }
             _uiState.value = _uiState.value.copy(likeState = "LIKED")
             val applied = accountActions.setLikeStatus(videoId, "LIKE")
             if (!applied) {
                 likedVideosRepository.removeLikeState(videoId)
+                if (streamInfo != null && previousCount != null) {
+                    streamInfo.likeCount = previousCount
+                }
                 _uiState.value = _uiState.value.copy(likeState = null)
                 Toast.makeText(context, context.getString(R.string.toast_like_write_failed), Toast.LENGTH_LONG).show()
             }
@@ -3193,21 +3201,37 @@ class VideoPlayerViewModel @Inject constructor(
 
     fun dislikeVideo(videoId: String) {
         viewModelScope.launch {
+            val streamInfo = _uiState.value.streamInfo
+            val previousCount = streamInfo?.likeCount
             likedVideosRepository.dislikeVideo(videoId)
+            if (streamInfo != null && previousCount != null) {
+                streamInfo.likeCount = (streamInfo.likeCount - 1).coerceAtLeast(0)
+            }
             _uiState.value = _uiState.value.copy(likeState = "DISLIKED")
             val applied = accountActions.setLikeStatus(videoId, "DISLIKE")
             if (!applied) {
                 likedVideosRepository.removeLikeState(videoId)
+                if (streamInfo != null && previousCount != null) {
+                    streamInfo.likeCount = previousCount
+                }
                 _uiState.value = _uiState.value.copy(likeState = null)
                 Toast.makeText(context, context.getString(R.string.toast_like_write_failed), Toast.LENGTH_LONG).show()
             }
         }
     }
-    
+
     fun removeLikeState(videoId: String) {
         viewModelScope.launch {
             val previous = _uiState.value.likeState
+            val streamInfo = _uiState.value.streamInfo
+            val previousCount = streamInfo?.likeCount
             likedVideosRepository.removeLikeState(videoId)
+            if (streamInfo != null && previousCount != null) {
+                when (previous) {
+                    "LIKED" -> streamInfo.likeCount = (streamInfo.likeCount - 1).coerceAtLeast(0)
+                    "DISLIKED" -> streamInfo.likeCount += 1
+                }
+            }
             _uiState.value = _uiState.value.copy(likeState = null)
             val applied = accountActions.setLikeStatus(videoId, null)
             if (!applied) {
@@ -3232,6 +3256,9 @@ class VideoPlayerViewModel @Inject constructor(
                         likedVideosRepository.dislikeVideo(videoId)
                         _uiState.value = _uiState.value.copy(likeState = "DISLIKED")
                     }
+                }
+                if (streamInfo != null && previousCount != null) {
+                    streamInfo.likeCount = previousCount
                 }
                 Toast.makeText(context, context.getString(R.string.toast_like_write_failed), Toast.LENGTH_LONG).show()
             }
