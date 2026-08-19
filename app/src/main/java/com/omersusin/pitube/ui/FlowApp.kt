@@ -658,7 +658,7 @@ fun FlowApp(
                     navController.navigate("account")
                 },
                 onAddYouTubeAccount = {
-                    navController.navigate("account?add=1")
+                    navController.navigate("account?add=true")
                 },
                 onOpenHistory = {
                     navController.navigate("history")

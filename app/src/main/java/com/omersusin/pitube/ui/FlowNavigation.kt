@@ -148,9 +148,11 @@ fun NavGraphBuilder.flowAppGraph(
         )
     }
 
-    // Account (YouTube sign-in) Screen. `add=1` forces a fresh login even when
+    // Account (YouTube sign-in) Screen. `add=true` forces a fresh login even when
     // an account is already signed in, so "Add account" shows the WebView
     // instead of bouncing to the current account's panel + logout button.
+    // Note: NavType.BoolType parses with String.toBoolean(), so the value must
+    // be the literal "true" - "1" silently parses as false.
     composable(
         route = "account?add={add}",
         arguments = listOf(
@@ -340,7 +342,7 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToSponsorBlockSettings = { navController.navigate("settings/sponsorblock") },
             onNavigateToTranslation = { navController.navigate("settings/translation") },
             onNavigateToGoogleLogin = { navController.navigate("account") },
-            onAddYouTubeAccount = { navController.navigate("account?add=1") }
+            onAddYouTubeAccount = { navController.navigate("account?add=true") }
         )
     }
 
