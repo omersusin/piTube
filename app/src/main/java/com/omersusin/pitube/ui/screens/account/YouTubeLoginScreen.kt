@@ -125,7 +125,10 @@ private val REPORTED_COOKIES = listOf("SAPISID", "SID")
  *
  * When [forceNewLogin] is set (the "Add account" flow), the current session is
  * cleared first so Google presents a fresh sign-in and the new account is added
- * to the roster without touching any already-stored account.
+ * to the roster without touching any already-stored account. The login page is
+ * only opened once the asynchronous cookie removal has actually completed - if
+ * it loaded immediately, the old account's cookies could still be visible to
+ * Google and silently recapture the previous account (Koda parity fix 3691308).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
@@ -624,11 +627,20 @@ private fun WebViewLoginPane(
                     // "Add account" from the switcher: drop the current session
                     // cookie so Google presents a fresh sign-in (it would otherwise
                     // detect the existing cookie and silently reuse it).
+                    // removeAllCookies is asynchronous - loadUrl must wait on its
+                    // callback, otherwise the login page can race ahead while the
+                    // old account's cookies are still in the jar and recapture the
+                    // previous account (Koda parity fix 3691308).
                     if (forceNewLogin && com.omersusin.pitube.innertube.YouTube.cookie?.isNotBlank() == true) {
-                        cookieManager.removeAllCookies(null)
                         com.omersusin.pitube.innertube.YouTube.cookie = null
                         com.omersusin.pitube.innertube.YouTube.useLoginForBrowse = false
                         com.omersusin.pitube.innertube.YouTube.dataSyncId = null
+                        cookieManager.removeAllCookies {
+                            cookieManager.flush()
+                            loadUrl(GOOGLE_LOGIN_URL)
+                        }
+                    } else {
+                        loadUrl(GOOGLE_LOGIN_URL)
                     }
                     webViewClient = object : WebViewClient() {
                         override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
@@ -649,7 +661,6 @@ private fun WebViewLoginPane(
                         }
                     }
                     onWebViewReady(this)
-                    loadUrl(GOOGLE_LOGIN_URL)
                 }
             },
             onRelease = { view ->
