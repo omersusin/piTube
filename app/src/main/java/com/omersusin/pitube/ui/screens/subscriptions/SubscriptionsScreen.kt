@@ -25,11 +25,10 @@ import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -53,7 +52,7 @@ import com.omersusin.pitube.data.local.ChannelSubscription
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.ui.components.VideoCardFullWidth
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionsScreen(
     onBack: () -> Unit,
@@ -134,7 +133,7 @@ fun SubscriptionsScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(Modifier.height(6.dp))
-                            LinearWavyProgressIndicator(
+                            LinearProgressIndicator(
                                 progress = { if (total > 0) done.toFloat() / total else 0f },
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -164,7 +163,7 @@ fun SubscriptionsScreen(
                             modifier = Modifier.fillMaxWidth().padding(32.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth(0.6f))
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(0.6f))
                         }
                     }
                 } else if (channels.isEmpty()) {
