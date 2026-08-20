@@ -92,13 +92,19 @@ fun RecognitionScreen(
         latestOnSearch(query)
     }
 
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .windowInsetsPadding(WindowInsets.statusBars),
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .windowInsetsPadding(WindowInsets.displayCutout),
+        ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -262,8 +268,8 @@ fun RecognitionScreen(
                                     modifier = Modifier.padding(horizontal = 32.dp),
                                     shape = RoundedCornerShape(20.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                                    ),
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                     ),
                                 ) {
                                     Column(
                                         modifier = Modifier.padding(20.dp),
@@ -323,6 +329,7 @@ fun RecognitionScreen(
             }
         }
     }
+    }
 }
 
 @Composable
@@ -337,7 +344,7 @@ private fun RecognitionModeToggle(
         modifier =
             Modifier
                 .clip(RoundedCornerShape(24.dp))
-                .background(surfaceColor.copy(alpha = 0.6f))
+                .background(surfaceColor)
                 .padding(4.dp),
     ) {
         ModeSegment(
@@ -427,7 +434,7 @@ private fun VoiceResultCard(
     Card(
         modifier = Modifier.padding(horizontal = 24.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
@@ -478,7 +485,7 @@ private fun TrackResultCard(
     Card(
         modifier = Modifier.padding(horizontal = 24.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
