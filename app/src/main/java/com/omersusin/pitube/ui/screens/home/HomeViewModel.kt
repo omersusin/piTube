@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -327,6 +328,16 @@ class HomeViewModel @Inject constructor(
     private var homePrefetchJob: Job? = null
 
     private var subsBacklog: List<Video> = emptyList()
+
+    private val shownVideoIds = LinkedHashSet<String>()
+    private fun rememberShown(ids: Collection<String>) {
+        shownVideoIds.addAll(ids)
+        while (shownVideoIds.size > 400) {
+            val it = shownVideoIds.iterator()
+            it.next()
+            it.remove()
+        }
+    }
     
     private var currentQueryIndex = 0
     private val discoveryQueries = mutableListOf<String>()
@@ -403,9 +414,8 @@ class HomeViewModel @Inject constructor(
                     lastRefreshTime = HomeFeedCache.timestamp
                 )
             }
-            // Show the cached feed instantly, but still refresh in the
-            // background when the cache is older than a minute so consecutive
-            // visits don't show the same videos all day.
+            rememberShown(HomeFeedCache.videos.map { it.id })
+            hydratePersistentHomeFeed()
             if (System.currentTimeMillis() - HomeFeedCache.timestamp > FEED_BACKGROUND_REFRESH_AFTER_MS) {
                 loadFlowFeed()
             }
@@ -413,6 +423,23 @@ class HomeViewModel @Inject constructor(
             hydratePersistentHomeFeed()
             loadFlowFeed(forceRefresh = true)
             loadHomeShorts()
+        }
+        viewModelScope.launch {
+            try {
+                com.omersusin.pitube.data.local.ProfileManager(appContext).activeProfileId.drop(1).distinctUntilChanged().collect {
+                    shownVideoIds.clear()
+                    subsBacklog = emptyList()
+                    currentPage = null
+                    personalizedContinuation = null
+                    resetHomePrefetch()
+                    wave2Job?.cancel()
+                    HomeFeedCache.clear()
+                    _uiState.value = HomeUiState()
+                    hydratePersistentHomeFeed()
+                    loadFlowFeed(forceRefresh = true)
+                    loadHomeShorts()
+                }
+            } catch (_: Exception) { }
         }
     }
     
@@ -712,8 +739,8 @@ class HomeViewModel @Inject constructor(
     
 
     private fun updateVideosAndShorts(newVideos: List<Video>, append: Boolean = false) {
-        val (newShorts, regularVideos) = newVideos.partition { 
-            it.isShort || (it.duration in 1..120) || (it.duration == 0 && !it.isLive)
+        val (newShorts, regularVideos) = newVideos.partition {
+            it.isShort || (it.duration in 1..120 && !it.isLive)
         }
         
         _uiState.update { state ->
@@ -997,20 +1024,31 @@ class HomeViewModel @Inject constructor(
                     cacheCandidates(FeedSource.SUBS, bestSubs, renderedIds) +
                     cacheCandidates(FeedSource.VIRAL, bestViral, renderedIds)
                 var visibleFeed = emptyList<Video>()
+                val dedupedSpacedMix = if (forceRefresh && shownVideoIds.isNotEmpty()) {
+                    val fresh = spacedMix.filterNot { it.id in shownVideoIds }
+                    if (fresh.size >= 15) fresh else if (fresh.isNotEmpty()) fresh else spacedMix
+                } else spacedMix
                 _uiState.update { state ->
-                    visibleFeed = spacedMix.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value)
-                    state.copy(
-                        videos = visibleFeed,
-                        isLoading = false,
-                        isRefreshing = false,
-                        hasMorePages = true,
-                        isFlowFeed = true,
-                        feedContinuation = personalizedContinuation,
-                        lastRefreshTime = now
-                    )
+                    visibleFeed = dedupedSpacedMix.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value)
+                    if (visibleFeed.isEmpty()) {
+                        state.copy(isLoading = false, isRefreshing = false)
+                    } else {
+                        rememberShown(visibleFeed.map { it.id })
+                        state.copy(
+                            videos = visibleFeed,
+                            isLoading = false,
+                            isRefreshing = false,
+                            hasMorePages = true,
+                            isFlowFeed = true,
+                            feedContinuation = personalizedContinuation,
+                            lastRefreshTime = now
+                        )
+                    }
                 }
-                HomeFeedCache.update(visibleFeed, _uiState.value.shorts, signedIn = signedIn)
-                persistentHomeFeedCache.saveLastFeed(spacedMix)
+                if (visibleFeed.isNotEmpty()) {
+                    HomeFeedCache.update(visibleFeed, _uiState.value.shorts, signedIn = signedIn)
+                }
+                persistentHomeFeedCache.saveLastFeed(if (visibleFeed.isNotEmpty()) dedupedSpacedMix else spacedMix)
                 persistentHomeFeedCache.saveReserve(reserveCandidates)
                 enrichVisibleChannelMetadata(spacedMix)?.let {
                     persistentHomeFeedCache.saveLastFeed(it)
@@ -1109,7 +1147,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                 val userSubs = subscriptionRepository.getAllSubscriptionIds()
                 val page = mutableListOf<Video>()
                 val channelCounts = HashMap<String, Int>()
-                val pageIds = HashSet<String>(currentIds)
+                val pageIds = HashSet<String>(currentIds).apply { addAll(shownVideoIds) }
 
                 val reserveVideos = try {
                     persistentHomeFeedCache.loadReservePage(cacheFilters()).map { it.video }
@@ -1235,7 +1273,9 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                 .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                 .filterUnplayable(unplayableVideoIds.value)
                 .filterNot { it.id in existingVideoIds }
+                .filterNot { it.id in shownVideoIds }
             if (appendedPage.isEmpty()) return@update state
+            rememberShown(appendedPage.map { it.id })
             val tailChannels = state.videos.takeLast(2).map { it.channelId }
             val updated = state.videos + spaceByChannel(appendedPage, seedRecent = tailChannels)
             updatedSnapshot = updated
@@ -1428,7 +1468,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
      * feed. Only actual Shorts are removed.
      */
     private fun List<Video>.filterSignedValid(): List<Video> {
-        return this.filter { !it.isShort }
+        return this.filter { !it.isShort && !(it.duration in 1..120 && !it.isLive) }
     }
 
     /**

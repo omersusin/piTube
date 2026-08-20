@@ -1663,6 +1663,11 @@ object YouTube {
                 badge.text?.contains("LIVE", ignoreCase = true) == true ||
                 badge.animatedText?.text?.contains("LIVE", ignoreCase = true) == true
         }
+        val isShortBadge = badgeViewModels.any { badge ->
+            badge.text?.contains("Shorts", ignoreCase = true) == true ||
+                badge.badgeStyle?.contains("SHORTS", ignoreCase = true) == true ||
+                badge.text?.equals("SHORTS", ignoreCase = true) == true
+        }
         val metadataRows = metadata.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
         val channelPart = metadataRows.firstOrNull()?.metadataParts?.firstOrNull()
         val resolvedChannelId = channelPart?.runs
@@ -1712,6 +1717,7 @@ object YouTube {
             isLive = isLive || liveBadge != null
                 || viewsText?.contains("watching", ignoreCase = true) == true
                 || viewsText?.contains("izliyor", ignoreCase = true) == true,
+            isShort = isShortBadge,
         )
     }
 

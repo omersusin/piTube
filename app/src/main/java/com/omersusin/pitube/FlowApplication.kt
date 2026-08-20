@@ -28,6 +28,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -284,6 +286,17 @@ class FlowApplication :
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Auto library sync failed: ${e.message}")
+            }
+        }
+
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            try {
+                com.omersusin.pitube.data.local.ProfileManager(this@FlowApplication).activeProfileId.drop(1).distinctUntilChanged().collect {
+                    HomeFeedCache.clear()
+                    Log.d(TAG, "HomeFeedCache cleared for profile switch")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Profile switch observer failed: ${e.message}")
             }
         }
 

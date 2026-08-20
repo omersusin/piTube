@@ -96,8 +96,6 @@ class AccountSwitcher(context: Context) {
      * which one is active.
      */
     fun invalidateForProfileChange() {
-        // Anonymous anti-bot identity: drop from memory and disk so it is
-        // re-minted fresh for the profile we just switched to.
         YouTube.visitorData = null
         runCatching {
             val prefs = appContext.getSharedPreferences("flow_prefs", Context.MODE_PRIVATE)
@@ -110,10 +108,9 @@ class AccountSwitcher(context: Context) {
             appContext.getSharedPreferences("home_feed_rotation", Context.MODE_PRIVATE)
                 .edit().clear().apply()
         }
-        // One account's personalised feed must not leak into another's.
         runCatching { com.omersusin.pitube.ui.screens.home.HomeFeedCache.clear() }
-        backgroundScope.launch {
-            runCatching {
+        runCatching {
+            kotlinx.coroutines.runBlocking {
                 com.omersusin.pitube.data.local.HomeFeedCacheRepository(appContext).clearAll()
             }
         }

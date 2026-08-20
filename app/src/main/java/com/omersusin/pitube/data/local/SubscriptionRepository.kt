@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.omersusin.pitube.data.local.dao.SubscriptionGroupDao
+import com.omersusin.pitube.data.local.entity.SubscriptionGroupEntity
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -33,6 +35,9 @@ class SubscriptionRepository private constructor(
     private val context: Context,
 ) {
     private val profileManager = ProfileManager(context)
+    private val subscriptionGroupDao: SubscriptionGroupDao by lazy {
+        AppDatabase.getDatabase(context).subscriptionGroupDao()
+    }
 
     companion object {
         @Volatile
@@ -398,6 +403,54 @@ class SubscriptionRepository private constructor(
                 preferences[channelKey(profileId, channelId)] = serializeChannel(updated)
             }
         }
+    }
+
+    fun getAllGroups(): Flow<List<SubscriptionGroupEntity>> = subscriptionGroupDao.getAllGroups()
+
+    suspend fun getGroupsOnce(): List<SubscriptionGroupEntity> = subscriptionGroupDao.getAllGroupsOnce()
+
+    suspend fun createGroup(name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty()) return
+        if (subscriptionGroupDao.exists(trimmed)) return
+        val maxOrder = subscriptionGroupDao.getAllGroupsOnce().maxOfOrNull { it.sortOrder } ?: -1
+        subscriptionGroupDao.insertGroup(SubscriptionGroupEntity(name = trimmed, channelIds = "", sortOrder = maxOrder + 1))
+    }
+
+    suspend fun renameGroup(id: String, name: String) {
+        val trimmed = name.trim()
+        if (trimmed.isEmpty() || trimmed == id) return
+        val groups = subscriptionGroupDao.getAllGroupsOnce()
+        val existing = groups.find { it.name == id } ?: return
+        if (groups.any { it.name == trimmed }) return
+        subscriptionGroupDao.deleteGroup(id)
+        subscriptionGroupDao.insertGroup(existing.copy(name = trimmed))
+    }
+
+    suspend fun deleteGroup(id: String) {
+        subscriptionGroupDao.deleteGroup(id)
+    }
+
+    suspend fun toggleChannelInGroup(groupId: String, channelId: String) {
+        if (channelId.isBlank()) return
+        val groups = subscriptionGroupDao.getAllGroupsOnce()
+        val group = groups.find { it.name == groupId } ?: return
+        val ids = if (group.channelIds.isBlank()) mutableSetOf<String>()
+        else group.channelIds.split(",").map { it.trim() }.filter { it.isNotBlank() }.toMutableSet()
+        if (!ids.add(channelId)) ids.remove(channelId)
+        subscriptionGroupDao.updateGroup(group.copy(channelIds = ids.joinToString(",")))
+    }
+
+    suspend fun channelsInGroup(groupId: String?): Set<String> {
+        if (groupId == null) return emptySet()
+        val group = subscriptionGroupDao.getAllGroupsOnce().find { it.name == groupId } ?: return emptySet()
+        if (group.channelIds.isBlank()) return emptySet()
+        return group.channelIds.split(",").map { it.trim() }.filter { it.isNotBlank() }.toSet()
+    }
+
+    suspend fun setGroupChannels(groupId: String, channelIds: List<String>) {
+        val group = subscriptionGroupDao.getAllGroupsOnce().find { it.name == groupId } ?: return
+        subscriptionGroupDao.updateGroup(group.copy(channelIds = channelIds.distinct().joinToString(",")))
     }
 }
 

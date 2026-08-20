@@ -217,11 +217,9 @@ fun YouTubeLoginScreen(
                 datasyncId = identity?.datasyncId
             )
             playerPreferences.setYoutubeAccount(cookie = cookies, name = null, email = null, thumbnailUrl = null)
-            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            kotlinx.coroutines.withContext(Dispatchers.IO) {
                 runCatching { HomeFeedCacheRepository(appContext).clearAll() }
                 runCatching { YouTubeLibrarySync.sync(appContext) }
-                // Retry the profile refetch in case the attempt above failed, and
-                // stash the identity on the active profile.
                 runCatching {
                     val account = YouTube.accountInfo().getOrNull()
                     if (account != null) {
@@ -234,9 +232,6 @@ fun YouTubeLoginScreen(
                         sm.saveUserName(account.name)
                         sm.saveUserEmail(account.email)
                         sm.saveUserAvatar(account.thumbnailUrl ?: "")
-                        // Persist any identity details the first fetch missed, so
-                        // the profile row shows the handle and keeps a datasyncId
-                        // for local account dedupe (never sent to YouTube).
                         val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
                         val profile = pm.active()
                         var needDatasync = false
@@ -301,7 +296,7 @@ fun YouTubeLoginScreen(
                 poToken = token.poToken
             )
             playerPreferences.setYoutubeAccount(cookie = normalized, name = null, email = null, thumbnailUrl = null)
-            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            kotlinx.coroutines.withContext(Dispatchers.IO) {
                 runCatching { HomeFeedCacheRepository(appContext).clearAll() }
                 runCatching { YouTubeLibrarySync.sync(appContext) }
                 runCatching {
@@ -316,9 +311,6 @@ fun YouTubeLoginScreen(
                         sm.saveUserName(account.name)
                         sm.saveUserEmail(account.email)
                         sm.saveUserAvatar(account.thumbnailUrl ?: "")
-                        // Persist any identity details the first fetch missed, so
-                        // the profile row shows the handle and keeps a datasyncId
-                        // for local account dedupe (never sent to YouTube).
                         val pm = com.omersusin.pitube.data.local.ProfileManager(appContext)
                         val profile = pm.active()
                         var needDatasync = false

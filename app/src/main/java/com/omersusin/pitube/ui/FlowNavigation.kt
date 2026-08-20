@@ -219,6 +219,26 @@ fun NavGraphBuilder.flowAppGraph(
         )
     }
 
+    composable("subscriptions") {
+        currentRoute.value = "subscriptions"
+        showBottomNav.value = false
+        com.omersusin.pitube.ui.screens.subscriptions.SubscriptionsScreen(
+            onBack = { navController.popBackStack() },
+            onVideoClick = { video ->
+                if (video.isShort && !disableShortsPlayer) {
+                    navController.navigate("shorts?startVideoId=${video.id}")
+                } else {
+                    navController.navigate("player/${video.id}")
+                }
+            },
+            onChannelClick = { channelId ->
+                navController.navigateToYoutubeChannel(channelId)
+            },
+            onNavigateToImport = { navController.navigate("settings/subscriptions_transfer") },
+            onNavigateToLogin = { navController.navigate("account") }
+        )
+    }
+
     composable("library") {
         currentRoute.value = "library"
         showBottomNav.value = true
@@ -245,11 +265,8 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToDownloads = {
                 navController.navigate("downloads")
             },
-            onNavigateToLocalMedia = {
-                navController.navigate("localMedia")
-            },
-            onManageData = {
-                navController.navigate("settings")
+            onNavigateToSubscriptions = {
+                navController.navigate("subscriptions")
             },
             onVideoClick = { video ->
                 if (video.isShort && !disableShortsPlayer) {
@@ -700,29 +717,6 @@ fun NavGraphBuilder.flowAppGraph(
                 navController.navigate("home") {
                     popUpTo("home") { inclusive = true }
                 }
-            }
-        )
-    }
-    composable("localMedia") {
-        currentRoute.value = "localMedia"
-        showBottomNav.value = false
-
-        com.omersusin.pitube.ui.screens.library.LocalMediaScreen(
-            onBackClick = { navController.popBackStack() },
-            onVideoClick = { item ->
-                val video = com.omersusin.pitube.data.model.Video(
-                    id = com.omersusin.pitube.ui.screens.library.LocalMediaViewModel.localMediaId(item),
-                    title = item.title,
-                    channelName = item.subtitle.ifBlank { navController.context.getString(R.string.local_video) },
-                    channelId = "local",
-                    thumbnailUrl = item.contentUri,
-                    duration = (item.durationMs / 1000).toInt(),
-                    viewCount = 0,
-                    uploadDate = "",
-                    description = ""
-                )
-                playerViewModel.playLocalVideo(video, item.contentUri)
-                GlobalPlayerState.setCurrentVideo(video)
             }
         )
     }
