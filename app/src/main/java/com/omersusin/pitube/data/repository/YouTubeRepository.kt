@@ -1564,10 +1564,7 @@ class YouTubeRepository
 
             var durationSecs = if (duration > 0) duration.toInt() else 0
 
-            // The uploads playlist (UU…) returns `watch?v=` URLs even for
-            // Shorts, so the URL check alone misses them — NewPipe's own
-            // short-form flag is the reliable signal there.
-            val isShortUrl = rawUrl.contains("/shorts/") || isShortFormContent == true
+            val isShortUrl = rawUrl.contains("/shorts/")
 
             if (isShortUrl && durationSecs == 0) {
                 durationSecs = 60

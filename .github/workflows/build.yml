@@ -50,94 +50,18 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace
 
-      # ABI splits are configured in app/build.gradle.kts, so each assemble task
-      # already emits one APK per ABI plus a universal one. List them so a
-      # missing split is obvious in the log rather than a silent upload failure.
-      - name: List built APKs
-        run: |
-          echo "── debug ──"
-          ls -l app/build/outputs/apk/debug/
-          echo "── release ──"
-          ls -l app/build/outputs/apk/release/
-
-      # ── Debug artifacts, one per ABI ──────────────────────────────────────
-      - name: Upload Debug APK (universal)
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v7
         with:
-          name: piTube-debug-universal
+          name: piTube-debug
           path: app/build/outputs/apk/debug/app-universal-debug.apk
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload Debug APK (arm64-v8a)
+      - name: Upload Release APK
         uses: actions/upload-artifact@v7
         with:
-          name: piTube-debug-arm64-v8a
-          path: app/build/outputs/apk/debug/app-arm64-v8a-debug.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload Debug APK (armeabi-v7a)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-debug-armeabi-v7a
-          path: app/build/outputs/apk/debug/app-armeabi-v7a-debug.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload Debug APK (x86_64)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-debug-x86_64
-          path: app/build/outputs/apk/debug/app-x86_64-debug.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload Debug APK (x86)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-debug-x86
-          path: app/build/outputs/apk/debug/app-x86-debug.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      # ── Release artifacts, one per ABI ────────────────────────────────────
-      - name: Upload Release APK (universal)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-release-universal
+          name: piTube-release
           path: app/build/outputs/apk/release/app-universal-release.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload Release APK (arm64-v8a)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-release-arm64-v8a
-          path: app/build/outputs/apk/release/app-arm64-v8a-release.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload Release APK (armeabi-v7a)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-release-armeabi-v7a
-          path: app/build/outputs/apk/release/app-armeabi-v7a-release.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload Release APK (x86_64)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-release-x86_64
-          path: app/build/outputs/apk/release/app-x86_64-release.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload Release APK (x86)
-        uses: actions/upload-artifact@v7
-        with:
-          name: piTube-release-x86
-          path: app/build/outputs/apk/release/app-x86-release.apk
           if-no-files-found: error
           retention-days: 14

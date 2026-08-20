@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -95,25 +94,18 @@ fun RecognitionScreen(
         latestOnSearch(query)
     }
 
-    // Mode-branched backdrop. Both brushes are opaque: this modal is hosted at
-    // the app root, directly over the Home screen and the player, so a
-    // translucent backdrop let the screen underneath bleed through.
+    // Mode-branched backdrop: Voice keeps a fixed dark vertical gradient,
+    // Song slowly crossfades between two gradient palettes.
     val backgroundBrush =
         when (uiState.mode) {
             RecognitionMode.VOICE -> voiceBackgroundBrush()
-            RecognitionMode.SONG -> songBackgroundBrush(
-                active = uiState.phase == RecognitionPhase.LISTENING ||
-                    uiState.phase == RecognitionPhase.PROCESSING,
-            )
+            RecognitionMode.SONG -> songBackgroundBrush()
         }
 
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                // Opaque base first: guarantees full coverage no matter what
-                // the gradient above it does (and in every theme).
-                .background(MaterialTheme.colorScheme.background)
                 .background(backgroundBrush)
                 .windowInsetsPadding(WindowInsets.statusBars),
     ) {
@@ -336,31 +328,18 @@ fun RecognitionScreen(
     }
 }
 
-/**
- * Voice backdrop: a calm, theme-adaptive vertical wash. Every stop is
- * composited over the theme background so the brush is fully opaque and the
- * modal never shows the screen behind it (and still reads correctly in light
- * mode).
- */
 @Composable
 private fun voiceBackgroundBrush(): Brush {
-    val background = MaterialTheme.colorScheme.background
-    val primary = MaterialTheme.colorScheme.primary
-    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant
+    val onSurface = MaterialTheme.colorScheme.onSurface
     return Brush.verticalGradient(
-        0f to primary.copy(alpha = 0.14f).compositeOver(background),
-        0.45f to background,
-        1f to surfaceVariant.copy(alpha = 0.35f).compositeOver(background),
+        0f to onSurface.copy(alpha = 0.10f),
+        0.45f to Color.Transparent,
+        1f to onSurface.copy(alpha = 0.16f),
     )
 }
 
-/**
- * Song backdrop: an opaque gradient that slowly crossfades between two theme
- * palettes while [active], and settles into a still gradient when idle so the
- * screen isn't animating for no reason.
- */
 @Composable
-private fun songBackgroundBrush(active: Boolean): Brush {
+private fun songBackgroundBrush(): Brush {
     val primary = MaterialTheme.colorScheme.primary
     val tertiary = MaterialTheme.colorScheme.tertiary
     val secondary = MaterialTheme.colorScheme.secondary
@@ -377,17 +356,17 @@ private fun songBackgroundBrush(active: Boolean): Brush {
     )
     // Continuous crossfade between two gradient palettes: the blend factor
     // runs 0 → 1 → 0 each cycle, lerping every stop of palette A into B.
-    val blend = if (active) kotlin.math.sin(phase * kotlin.math.PI).toFloat() else 0f
+    val blend = kotlin.math.sin(phase * kotlin.math.PI).toFloat()
     val top = lerp(
         primary.copy(alpha = 0.34f),
         tertiary.copy(alpha = 0.32f),
         blend,
-    ).compositeOver(background)
+    )
     val mid = lerp(
         tertiary.copy(alpha = 0.16f),
         secondary.copy(alpha = 0.20f),
         blend,
-    ).compositeOver(background)
+    )
     return Brush.verticalGradient(listOf(top, mid, background))
 }
 
