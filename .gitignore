@@ -9,3 +9,6 @@ Piped/
 invidious/
 local.properties
 android-sdk/
+node_modules/
+package.json
+package-lock.json

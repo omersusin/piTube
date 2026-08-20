@@ -19,6 +19,7 @@ import com.omersusin.pitube.innertube.models.response.AccountMenuResponse
 import com.omersusin.pitube.innertube.models.response.BrowseResponse
 import com.omersusin.pitube.innertube.models.response.ChannelVideosResponse
 import com.omersusin.pitube.innertube.models.response.channelVideoCountText
+import com.omersusin.pitube.innertube.models.response.isShortsLockup
 import com.omersusin.pitube.innertube.models.response.GetTranscriptResponse
 import com.omersusin.pitube.innertube.models.response.NextResponse
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
@@ -1610,6 +1611,13 @@ object YouTube {
             ?.flatMap { it.contents.orEmpty() }
             ?.let { richItems += it }
 
+        // Rich shelves wrap another list of rich items ("For you", "Latest from
+        // …"). Flatten one level so their videos are parsed instead of dropped.
+        val shelvedRichItems = richItems
+            .mapNotNull { it.richSectionRenderer?.content?.richShelfRenderer }
+            .flatMap { it.contents.orEmpty() }
+        richItems += shelvedRichItems
+
         val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
         var nextContinuation: String? = null
         richItems.forEach { richItem ->
@@ -1620,6 +1628,21 @@ object YouTube {
             content?.videoRenderer
                 ?.let { parseBrowseVideoRenderer(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
                 ?.let { videos.add(it) }
+            // Shorts delivered under their own renderer key, either inline in
+            // the grid or inside a reel shelf. Previously dropped entirely,
+            // which is one way Shorts leaked in unflagged.
+            content?.shortsLockupViewModel
+                ?.let { parseShortsLockupViewModel(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail) }
+                ?.let { videos.add(it) }
+            richItem.richSectionRenderer?.content?.reelShelfRenderer?.items.orEmpty()
+                .forEach { shelfItem ->
+                    shelfItem.shortsLockupViewModel
+                        ?.let { parseShortsLockupViewModel(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail) }
+                        ?.let { videos.add(it) }
+                    shelfItem.reelItemRenderer
+                        ?.let { parseReelItemRenderer(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail) }
+                        ?.let { videos.add(it) }
+                }
             richItem.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
                 ?.let { nextContinuation = it }
         }
@@ -1698,6 +1721,12 @@ object YouTube {
         }
         val uploadText = segments.firstOrNull { looksLikeRelativeDate(it) }.orEmpty()
 
+        // Shorts must be flagged here: the signed feeds (FEsubscriptions /
+        // FEwhat_to_watch) deliver them as ordinary lockups with no duration
+        // badge, so leaving isShort=false is what made Shorts render as
+        // regular videos and open in the normal player.
+        val short = lockup.isShortsLockup(hasDurationBadge = durationText != null)
+
         return com.omersusin.pitube.data.model.Video(
             id = videoId,
             title = title,
@@ -1709,9 +1738,72 @@ object YouTube {
             uploadDate = uploadText,
             timestamp = parseRelativeUploadDate(uploadText) ?: 0L,
             channelThumbnailUrl = resolvedThumbnail,
-            isLive = isLive || liveBadge != null
-                || viewsText?.contains("watching", ignoreCase = true) == true
-                || viewsText?.contains("izliyor", ignoreCase = true) == true,
+            isShort = short,
+            isLive = !short && (
+                isLive || liveBadge != null
+                    || viewsText?.contains("watching", ignoreCase = true) == true
+                    || viewsText?.contains("izliyor", ignoreCase = true) == true
+                ),
+        )
+    }
+
+    /**
+     * A Short delivered under the `shortsLockupViewModel` key (inline in the
+     * grid or inside a `reelShelfRenderer`). Anything reaching here is a Short
+     * by definition, so [Video.isShort] is unconditionally true.
+     */
+    private fun parseShortsLockupViewModel(
+        lockup: ChannelVideosResponse.ShortsLockupViewModel,
+        channelId: String,
+        channelName: String,
+        channelThumbnailUrl: String,
+    ): com.omersusin.pitube.data.model.Video? {
+        val videoId = lockup.videoId() ?: return null
+        val title = lockup.overlayMetadata?.primaryText?.content?.takeIf { it.isNotBlank() }.orEmpty()
+        val thumbnail = lockup.thumbnail?.sources
+            ?.maxByOrNull { it.width ?: 0 }
+            ?.url
+            ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
+        val viewsText = lockup.overlayMetadata?.secondaryText?.content
+        return com.omersusin.pitube.data.model.Video(
+            id = videoId,
+            title = title,
+            channelName = channelName,
+            channelId = channelId,
+            thumbnailUrl = thumbnail,
+            duration = 0,
+            viewCount = parseViewCountText(viewsText),
+            uploadDate = "",
+            timestamp = 0L,
+            channelThumbnailUrl = channelThumbnailUrl,
+            isShort = true,
+        )
+    }
+
+    /** Legacy Shorts shelf entry (`reelItemRenderer`). Always a Short. */
+    private fun parseReelItemRenderer(
+        renderer: ChannelVideosResponse.RichItem.ReelItemRenderer,
+        channelId: String,
+        channelName: String,
+        channelThumbnailUrl: String,
+    ): com.omersusin.pitube.data.model.Video? {
+        val videoId = renderer.videoId?.takeIf { it.length == 11 } ?: return null
+        val thumbnail = renderer.thumbnail?.thumbnails
+            ?.maxByOrNull { it.width ?: 0 }
+            ?.url
+            ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
+        return com.omersusin.pitube.data.model.Video(
+            id = videoId,
+            title = renderer.headline?.textValue().orEmpty(),
+            channelName = channelName,
+            channelId = channelId,
+            thumbnailUrl = thumbnail,
+            duration = 0,
+            viewCount = parseViewCountText(renderer.viewCountText?.textValue()),
+            uploadDate = "",
+            timestamp = 0L,
+            channelThumbnailUrl = channelThumbnailUrl,
+            isShort = true,
         )
     }
 

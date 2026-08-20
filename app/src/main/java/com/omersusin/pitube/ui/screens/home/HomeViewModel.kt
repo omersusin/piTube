@@ -1446,7 +1446,10 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
 
     private fun isRecentHomeSuggestion(video: Video, now: Long): Boolean {
         val text = video.uploadDate.lowercase()
-        if (text.isBlank() || text == "unknown") return video.isLive
+        // Shorts shelf items (reelShelfRenderer / shortsLockupViewModel) never
+        // carry an upload date, so requiring one would silently empty the
+        // shelf. Treat a dateless Short as fresh — the shelf is inherently so.
+        if (text.isBlank() || text == "unknown") return video.isLive || video.isShort
 
         // The parser fills a real epoch for relative dates in any language —
         // prefer it over keyword matching, which only understands English.

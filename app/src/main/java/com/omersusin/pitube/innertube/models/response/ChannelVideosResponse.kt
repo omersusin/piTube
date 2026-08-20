@@ -188,10 +188,16 @@ data class ChannelVideosResponse(
     data class LockupViewModel(
         @SerialName("contentId")
         val contentId: String? = null,
+        @SerialName("contentType")
+        val contentType: String? = null,
         @SerialName("metadata")
         val metadata: MetadataContainer? = null,
         @SerialName("contentImage")
         val contentImage: ContentImage? = null,
+        @SerialName("rendererContext")
+        val rendererContext: RendererContext? = null,
+        @SerialName("onTap")
+        val onTap: TapCommand? = null,
     ) {
         @Serializable
         data class MetadataContainer(
@@ -358,12 +364,128 @@ data class ChannelVideosResponse(
                 val text: String? = null,
             )
         }
+
+        /**
+         * Navigation wrapper. Modern lockups put the tap command under
+         * `rendererContext.commandContext.onTap`; older payloads keep a
+         * top-level `onTap`. Both eventually reach the same
+         * `commandMetadata.webCommandMetadata.url`, which is `/shorts/<id>`
+         * for Shorts and `/watch?v=<id>` for regular videos.
+         */
+        @Serializable
+        data class RendererContext(
+            @SerialName("commandContext")
+            val commandContext: CommandContext? = null,
+        )
+
+        @Serializable
+        data class CommandContext(
+            @SerialName("onTap")
+            val onTap: TapCommand? = null,
+        )
+
+        @Serializable
+        data class TapCommand(
+            @SerialName("innertubeCommand")
+            val innertubeCommand: InnertubeCommand? = null,
+        )
+
+        @Serializable
+        data class InnertubeCommand(
+            @SerialName("commandMetadata")
+            val commandMetadata: CommandMetadata? = null,
+            @SerialName("reelWatchEndpoint")
+            val reelWatchEndpoint: ReelWatchEndpoint? = null,
+        )
+
+        @Serializable
+        data class CommandMetadata(
+            @SerialName("webCommandMetadata")
+            val webCommandMetadata: WebCommandMetadata? = null,
+        )
+
+        @Serializable
+        data class WebCommandMetadata(
+            @SerialName("url")
+            val url: String? = null,
+        )
+
+        @Serializable
+        data class ReelWatchEndpoint(
+            @SerialName("videoId")
+            val videoId: String? = null,
+        )
+
+        /**
+         * The tap URL for this lockup, from either the modern
+         * `rendererContext.commandContext.onTap` path or the legacy
+         * top-level `onTap`.
+         */
+        fun tapUrl(): String? =
+            (
+                rendererContext?.commandContext?.onTap
+                    ?: onTap
+            )?.innertubeCommand?.commandMetadata?.webCommandMetadata?.url
+                ?.takeIf { it.isNotBlank() }
+
+        /** True when the tap command is a Shorts (reel) watch endpoint. */
+        fun hasReelEndpoint(): Boolean =
+            (
+                rendererContext?.commandContext?.onTap
+                    ?: onTap
+            )?.innertubeCommand?.reelWatchEndpoint != null
+    }
+
+    /**
+     * Shorts delivered under their own renderer key. YouTube emits these for
+     * Shorts in the subscriptions / what-to-watch grids (and inside
+     * `reelShelfRenderer`), and the shape is completely different from
+     * `lockupViewModel`: the video id lives in the tap URL, and the title /
+     * view count in `overlayMetadata`. Anything parsed from this key is a
+     * Short by definition.
+     */
+    @Serializable
+    data class ShortsLockupViewModel(
+        @SerialName("entityId")
+        val entityId: String? = null,
+        @SerialName("onTap")
+        val onTap: LockupViewModel.TapCommand? = null,
+        @SerialName("overlayMetadata")
+        val overlayMetadata: ShortsOverlayMetadata? = null,
+        @SerialName("thumbnail")
+        val thumbnail: LockupViewModel.Image? = null,
+    ) {
+        @Serializable
+        data class ShortsOverlayMetadata(
+            @SerialName("primaryText")
+            val primaryText: LockupViewModel.TextContent? = null,
+            @SerialName("secondaryText")
+            val secondaryText: LockupViewModel.TextContent? = null,
+        )
+
+        /**
+         * Video id, preferring the reel endpoint, then the `/shorts/<id>` tap
+         * URL, then the `shorts-<id>` entity id.
+         */
+        fun videoId(): String? {
+            val command = onTap?.innertubeCommand
+            command?.reelWatchEndpoint?.videoId?.takeIf { it.length == 11 }?.let { return it }
+            command?.commandMetadata?.webCommandMetadata?.url
+                ?.substringAfter("/shorts/", "")
+                ?.substringBefore("?")
+                ?.substringBefore("/")
+                ?.takeIf { it.length == 11 }
+                ?.let { return it }
+            return entityId?.substringAfterLast("-")?.takeIf { it.length == 11 }
+        }
     }
 
     @Serializable
     data class RichItem(
         @SerialName("richItemRenderer")
         val richItemRenderer: RichItemRenderer? = null,
+        @SerialName("richSectionRenderer")
+        val richSectionRenderer: RichSectionRenderer? = null,
         @SerialName("continuationItemRenderer")
         val continuationItemRenderer: ContinuationItemRenderer? = null,
     ) {
@@ -379,6 +501,59 @@ data class ChannelVideosResponse(
             val lockupViewModel: LockupViewModel? = null,
             @SerialName("videoRenderer")
             val videoRenderer: VideoRenderer? = null,
+            @SerialName("shortsLockupViewModel")
+            val shortsLockupViewModel: ShortsLockupViewModel? = null,
+        )
+
+        /**
+         * Shelf wrapper. The Shorts shelf on the subscriptions / what-to-watch
+         * grids arrives as `richSectionRenderer > reelShelfRenderer > items[] >
+         * shortsLockupViewModel`, which the plain rich-item path never sees.
+         */
+        @Serializable
+        data class RichSectionRenderer(
+            @SerialName("content")
+            val content: RichSectionContent? = null,
+        )
+
+        @Serializable
+        data class RichSectionContent(
+            @SerialName("reelShelfRenderer")
+            val reelShelfRenderer: ReelShelfRenderer? = null,
+            @SerialName("richShelfRenderer")
+            val richShelfRenderer: RichShelfRenderer? = null,
+        )
+
+        @Serializable
+        data class ReelShelfRenderer(
+            @SerialName("items")
+            val items: List<ReelShelfItem>? = null,
+        )
+
+        @Serializable
+        data class RichShelfRenderer(
+            @SerialName("contents")
+            val contents: List<RichItem>? = null,
+        )
+
+        @Serializable
+        data class ReelShelfItem(
+            @SerialName("shortsLockupViewModel")
+            val shortsLockupViewModel: ShortsLockupViewModel? = null,
+            @SerialName("reelItemRenderer")
+            val reelItemRenderer: ReelItemRenderer? = null,
+        )
+
+        @Serializable
+        data class ReelItemRenderer(
+            @SerialName("videoId")
+            val videoId: String? = null,
+            @SerialName("headline")
+            val headline: SimpleText? = null,
+            @SerialName("viewCountText")
+            val viewCountText: SimpleText? = null,
+            @SerialName("thumbnail")
+            val thumbnail: ThumbnailContainer? = null,
         )
     }
 
@@ -509,4 +684,51 @@ internal fun ChannelVideosResponse.channelVideoCountText(): String? {
         ?.content
         ?.trim()
         ?.takeIf(String::isNotEmpty)
+}
+
+/** InnerTube's `contentType` marker for a Shorts lockup. */
+internal const val LOCKUP_CONTENT_TYPE_SHORTS = "LOCKUP_CONTENT_TYPE_SHORTS"
+
+/**
+ * Whether this feed lockup is a Short.
+ *
+ * YouTube does not expose a single reliable "isShort" boolean on the
+ * FEsubscriptions / FEwhat_to_watch grids, and the wire shape has changed more
+ * than once, so three independent signals are checked in order of reliability
+ * (Koda and NewPipe both rely on the first two):
+ *
+ *  1. `contentType == LOCKUP_CONTENT_TYPE_SHORTS` — the explicit marker.
+ *  2. The tap command is a reel endpoint, or its URL is `/shorts/<id>`.
+ *  3. Fallback: no duration badge **and** a portrait thumbnail. Regular video
+ *     thumbnails are always 16:9 landscape and always carry a duration badge;
+ *     Shorts carry neither. Used only when 1 and 2 are absent, so a normal
+ *     video can never be misclassified by it while a badge is present.
+ *
+ * [hasDurationBadge] is supplied by the caller because badge extraction lives
+ * in the parser (it must distinguish a duration badge from a LIVE/MIX badge).
+ */
+internal fun ChannelVideosResponse.LockupViewModel.isShortsLockup(
+    hasDurationBadge: Boolean,
+): Boolean {
+    if (contentType == LOCKUP_CONTENT_TYPE_SHORTS) return true
+    if (contentType != null && contentType != "LOCKUP_CONTENT_TYPE_VIDEO") {
+        // An explicitly non-video, non-shorts lockup (playlist/channel/podcast)
+        // is not a Short — bail out before the heuristic below.
+        return false
+    }
+    if (hasReelEndpoint()) return true
+    if (tapUrl()?.contains("/shorts/") == true) return true
+    return !hasDurationBadge && hasPortraitThumbnail()
+}
+
+/**
+ * True when the largest thumbnail source is taller than it is wide. Shorts use
+ * portrait art; regular videos are always 16:9 landscape.
+ */
+internal fun ChannelVideosResponse.LockupViewModel.hasPortraitThumbnail(): Boolean {
+    val largest = contentImage?.thumbnailViewModel?.image?.sources
+        ?.filter { (it.width ?: 0) > 0 && (it.height ?: 0) > 0 }
+        ?.maxByOrNull { (it.width ?: 0) * (it.height ?: 0) }
+        ?: return false
+    return (largest.height ?: 0) > (largest.width ?: 0)
 }
