@@ -1,6 +1,5 @@
 package com.omersusin.pitube.ui.screens.player
 
-import android.os.SystemClock
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -36,8 +35,6 @@ import com.omersusin.pitube.ui.screens.player.components.rememberSponsorSegmentC
 import com.omersusin.pitube.ui.screens.player.util.VideoPlayerUtils
 import com.omersusin.pitube.player.EnhancedPlayerManager
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,8 +49,6 @@ import com.omersusin.pitube.ui.components.pressScale
 import org.schabi.newpipe.extractor.stream.StreamSegment
 import kotlin.math.abs
 
-private const val LIVE_SCRUB_SEEK_INTERVAL_MS = 80L
-private const val LIVE_SCRUB_IMMEDIATE_DELTA_MS = 750L
 private val OverlayActionButtonSize = 40.dp
 private val OverlayActionIconSize = 24.dp
 private val OverlayActionSpacing = 8.dp
@@ -133,13 +128,8 @@ fun PremiumControlsOverlay(
         stringResource(R.string.resize_fill),
         stringResource(R.string.resize_zoom)
     )
-    val scrubScope = rememberCoroutineScope()
-    
     var scrubPosition by remember { mutableStateOf<Long?>(null) }
     var isScrubbing by remember { mutableStateOf(false) }
-    var lastScrubSeekAt by remember { mutableLongStateOf(0L) }
-    var lastScrubSeekPosition by remember { mutableLongStateOf(Long.MIN_VALUE) }
-    var pendingScrubSeekJob by remember { mutableStateOf<Job?>(null) }
 
     val displayedPosition: () -> Long = { scrubPosition ?: livePosition() }
 
@@ -174,7 +164,6 @@ fun PremiumControlsOverlay(
 
     DisposableEffect(Unit) {
         onDispose {
-            pendingScrubSeekJob?.cancel()
             EnhancedPlayerManager.getInstance().setScrubbingModeEnabled(false)
         }
     }
@@ -843,49 +832,14 @@ fun PremiumControlsOverlay(
                         },
                         onValueChange = { progress ->
                             val newPosition = (progress * seekDuration).toLong()
-                            val playerManager = EnhancedPlayerManager.getInstance()
-
                             scrubPosition = newPosition
-
                             if (!isScrubbing) {
                                 isScrubbing = true
-                                playerManager.setScrubbingModeEnabled(true)
-                            }
-
-                            if (isLive) {
-                                return@SeekbarWithPreview
-                            }
-
-                            pendingScrubSeekJob?.cancel()
-
-                            val now = SystemClock.elapsedRealtime()
-                            val remainingDelay = (LIVE_SCRUB_SEEK_INTERVAL_MS - (now - lastScrubSeekAt)).coerceAtLeast(0L)
-                            val movedFarEnough = lastScrubSeekPosition == Long.MIN_VALUE ||
-                                abs(newPosition - lastScrubSeekPosition) >= LIVE_SCRUB_IMMEDIATE_DELTA_MS
-
-                            if (remainingDelay == 0L || movedFarEnough) {
-                                onSeek(newPosition)
-                                lastScrubSeekAt = now
-                                lastScrubSeekPosition = newPosition
-                            } else {
-                                pendingScrubSeekJob = scrubScope.launch {
-                                    delay(remainingDelay)
-                                    val targetPosition = scrubPosition ?: return@launch
-                                    onSeek(targetPosition)
-                                    lastScrubSeekAt = SystemClock.elapsedRealtime()
-                                    lastScrubSeekPosition = targetPosition
-                                }
+                                EnhancedPlayerManager.getInstance().setScrubbingModeEnabled(true)
                             }
                         },
                         onValueChangeFinished = {
-                            pendingScrubSeekJob?.cancel()
-                            pendingScrubSeekJob = null
-                            scrubPosition?.let { targetPosition ->
-                                onSeek(targetPosition)
-                                lastScrubSeekPosition = targetPosition
-                            }
-                            lastScrubSeekAt = 0L
-                            lastScrubSeekPosition = Long.MIN_VALUE
+                            scrubPosition?.let { onSeek(it) }
                             isScrubbing = false
                             EnhancedPlayerManager.getInstance().setScrubbingModeEnabled(false)
                         },
@@ -935,49 +889,14 @@ fun PremiumControlsOverlay(
                         },
                         onValueChange = { progress ->
                             val newPosition = (progress * seekDuration).toLong()
-                            val playerManager = EnhancedPlayerManager.getInstance()
-
                             scrubPosition = newPosition
-
                             if (!isScrubbing) {
                                 isScrubbing = true
-                                playerManager.setScrubbingModeEnabled(true)
-                            }
-
-                            if (isLive) {
-                                return@SeekbarWithPreview
-                            }
-
-                            pendingScrubSeekJob?.cancel()
-
-                            val now = SystemClock.elapsedRealtime()
-                            val remainingDelay = (LIVE_SCRUB_SEEK_INTERVAL_MS - (now - lastScrubSeekAt)).coerceAtLeast(0L)
-                            val movedFarEnough = lastScrubSeekPosition == Long.MIN_VALUE ||
-                                abs(newPosition - lastScrubSeekPosition) >= LIVE_SCRUB_IMMEDIATE_DELTA_MS
-
-                            if (remainingDelay == 0L || movedFarEnough) {
-                                onSeek(newPosition)
-                                lastScrubSeekAt = now
-                                lastScrubSeekPosition = newPosition
-                            } else {
-                                pendingScrubSeekJob = scrubScope.launch {
-                                    delay(remainingDelay)
-                                    val targetPosition = scrubPosition ?: return@launch
-                                    onSeek(targetPosition)
-                                    lastScrubSeekAt = SystemClock.elapsedRealtime()
-                                    lastScrubSeekPosition = targetPosition
-                                }
+                                EnhancedPlayerManager.getInstance().setScrubbingModeEnabled(true)
                             }
                         },
                         onValueChangeFinished = {
-                            pendingScrubSeekJob?.cancel()
-                            pendingScrubSeekJob = null
-                            scrubPosition?.let { targetPosition ->
-                                onSeek(targetPosition)
-                                lastScrubSeekPosition = targetPosition
-                            }
-                            lastScrubSeekAt = 0L
-                            lastScrubSeekPosition = Long.MIN_VALUE
+                            scrubPosition?.let { onSeek(it) }
                             isScrubbing = false
                             EnhancedPlayerManager.getInstance().setScrubbingModeEnabled(false)
                         },

@@ -162,6 +162,7 @@ class EnhancedPlayerManager private constructor() {
 
     private var isAudioOnlyMode = false
     private var videoTracksDisabled = false
+    private var isVideoSuspended = false
 
     @Volatile private var videoSurfaceRestorePending = false
     private var currentLocalFilePath: String? = null
@@ -1360,6 +1361,18 @@ class EnhancedPlayerManager private constructor() {
             )
         }
         mediaLoader?.getActiveSabrOrchestrator()?.setAudioOnly(disabled)
+    }
+
+    fun onEnterBackground() {
+        if (isVideoSuspended || currentVideoId == null) return
+        isVideoSuspended = true
+        setVideoTracksDisabled(true)
+    }
+
+    fun onEnterForeground() {
+        if (!isVideoSuspended) return
+        isVideoSuspended = false
+        if (!isAudioOnlyMode) setVideoTracksDisabled(false)
     }
 
     private fun configureTrackSelectorForLocalFile() {

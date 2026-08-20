@@ -20,10 +20,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -355,14 +358,16 @@ fun YouTubeLoginScreen(
             }
         }
     ) { paddingValues ->
+        val isTokenMode = loginMode == LoginMode.TOKEN.ordinal
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .then(if (isTokenMode) Modifier.verticalScroll(rememberScrollState()) else Modifier)
+                .navigationBarsPadding()
                 .imePadding()
                 .padding(horizontal = 20.dp)
-                .padding(bottom = 28.dp)
+                .padding(bottom = 12.dp)
         ) {
             Spacer(Modifier.height(4.dp))
 
@@ -400,17 +405,27 @@ fun YouTubeLoginScreen(
                     enabled = !isFinishing,
                     isFinishing = isFinishing
                 )
-                else -> WebViewLoginPane(
-                    isLoading = isFinishing,
-                    errorMessage = errorMessage,
-                    forceNewLogin = forceNewLogin,
-                    onRetry = {
-                        errorMessage = null
-                        webViewRef?.reload()
-                    },
-                    onCookiesCaptured = ::handleCookiesCaptured,
-                    onWebViewReady = { webViewRef = it }
-                )
+                else -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .heightIn(min = 280.dp)
+                            .navigationBarsPadding()
+                    ) {
+                        WebViewLoginPane(
+                            isLoading = isFinishing,
+                            errorMessage = errorMessage,
+                            forceNewLogin = forceNewLogin,
+                            onRetry = {
+                                errorMessage = null
+                                webViewRef?.reload()
+                            },
+                            onCookiesCaptured = ::handleCookiesCaptured,
+                            onWebViewReady = { webViewRef = it }
+                        )
+                    }
+                }
             }
 
             errorMessage?.let { message ->
@@ -599,10 +614,10 @@ private fun WebViewLoginPane(
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(420.dp)
+            .fillMaxSize()
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
+            .navigationBarsPadding()
     ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
@@ -641,14 +656,12 @@ private fun WebViewLoginPane(
 
                         override fun onPageFinished(view: WebView, url: String?) {
                             super.onPageFinished(view, url)
-                            val currentUrl = url.orEmpty()
-                            if (currentUrl.startsWith("https://music.youtube.com") ||
-                                currentUrl.startsWith("https://www.youtube.com")
+                            val cookies = CookieManager.getInstance().getCookie("https://music.youtube.com")
+                            if (!cookies.isNullOrEmpty() &&
+                                com.omersusin.pitube.data.local.YouTubeAuthUtils.missingRequiredCookies(cookies).isEmpty()
                             ) {
-                                val cookies = cookieManager.getCookie(currentUrl)
-                                if (!cookies.isNullOrEmpty() && cookies.contains("SAPISID")) {
-                                    onCookiesCaptured(cookies)
-                                }
+                                CookieManager.getInstance().flush()
+                                onCookiesCaptured(cookies)
                             }
                         }
                     }

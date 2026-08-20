@@ -39,6 +39,7 @@ class PlayerFactory {
         val bufferForPlaybackMs: Int,
         val bufferRebufferMs: Int,
         val playDuringCalls: Boolean,
+        val seekIncrementMs: Int,
     )
 
     private var cachedPrefs: CachedPrefs? = null
@@ -55,6 +56,7 @@ class PlayerFactory {
                     bufferForPlaybackMs = prefs.bufferForPlaybackMs.first(),
                     bufferRebufferMs = prefs.bufferForPlaybackAfterRebufferMs.first(),
                     playDuringCalls = prefs.playDuringCalls.first(),
+                    seekIncrementMs = prefs.doubleTapSeekSeconds.first() * 1000,
                 )
             }
         cachedPrefs = result
@@ -72,6 +74,7 @@ class PlayerFactory {
                 bufferForPlaybackMs = prefs.bufferForPlaybackMs.first(),
                 bufferRebufferMs = prefs.bufferForPlaybackAfterRebufferMs.first(),
                 playDuringCalls = prefs.playDuringCalls.first(),
+                seekIncrementMs = prefs.doubleTapSeekSeconds.first() * 1000,
             )
     }
 
@@ -216,6 +219,8 @@ class PlayerFactory {
             .build()
             .also {
                 it.setSeekParameters(SeekParameters.CLOSEST_SYNC)
+                it.setSeekBackIncrementMs((prefs.seekIncrementMs.takeIf { it > 0 } ?: 10_000).toLong())
+                it.setSeekForwardIncrementMs((prefs.seekIncrementMs.takeIf { it > 0 } ?: 10_000).toLong())
                 it.setWakeMode(C.WAKE_MODE_LOCAL)
                 Log.d(TAG, "ExoPlayer instance created")
             }

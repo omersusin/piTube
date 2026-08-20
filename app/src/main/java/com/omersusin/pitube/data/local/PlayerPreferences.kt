@@ -912,7 +912,7 @@ class PlayerPreferences(context: Context) {
     // Background play
     val backgroundPlayEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data
         .map { preferences ->
-            preferences[Keys.BACKGROUND_PLAY_ENABLED] ?: false
+            preferences[Keys.BACKGROUND_PLAY_ENABLED] ?: true
         }
     
     suspend fun setBackgroundPlayEnabled(enabled: Boolean) {

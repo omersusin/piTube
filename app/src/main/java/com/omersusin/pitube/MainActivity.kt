@@ -588,15 +588,22 @@ class MainActivity : ComponentActivity() {
                 lifecycleScope.launch {
                     delay(350L)
                     val stillBackgrounded = !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-                    if (stillBackgrounded && !isInPictureInPictureMode) {
-                        GlobalPlayerState.requestDismiss()
-                        com.omersusin.pitube.player.EnhancedPlayerManager
-                            .getInstance()
-                            .stop()
-                        com.omersusin.pitube.player.EnhancedPlayerManager
-                            .getInstance()
-                            .stopBackgroundService()
-                    }
+                    if (!stillBackgrounded || isInPictureInPictureMode) return@launch
+                    val playerManager = com.omersusin.pitube.player.EnhancedPlayerManager.getInstance()
+                    val playerState = playerManager.playerState.value
+                    val hasActiveVideo =
+                        playerState.currentVideoId != null &&
+                            (playerState.playWhenReady || playerState.isPlaying || playerState.isBuffering)
+                    val shouldKeep =
+                        BackgroundPlaybackPolicy.shouldKeepPlaybackInBackground(
+                            backgroundPlaybackPreferenceEnabled = cachedBackgroundPlayEnabled,
+                            explicitBackgroundPlaybackActive = GlobalPlayerState.isExplicitBackgroundPlaybackActive.value,
+                            hasActiveVideo = hasActiveVideo,
+                        )
+                    if (shouldKeep) return@launch
+                    GlobalPlayerState.requestDismiss()
+                    playerManager.stop()
+                    playerManager.stopBackgroundService()
                 }
         }
     }
@@ -616,6 +623,7 @@ class MainActivity : ComponentActivity() {
         pendingAutoPip = false
         pipDismissCheckJob?.cancel()
         PictureInPictureHelper.dismissPopup(this)
+        com.omersusin.pitube.player.EnhancedPlayerManager.getInstance().onEnterForeground()
     }
 
     override fun onKeyDown(
@@ -814,7 +822,8 @@ class MainActivity : ComponentActivity() {
             )
 
         if (shouldKeepBackgroundPlayback) {
-            videoLifecycleLog("handleBackgroundPlaybackOnStop handoff")
+            videoLifecycleLog("handleBackgroundPlaybackOnStop handoff keepAudio")
+            playerManager.onEnterBackground()
             handOffVideoPlaybackToBackground()
         } else {
             videoLifecycleLog("handleBackgroundPlaybackOnStop pause")

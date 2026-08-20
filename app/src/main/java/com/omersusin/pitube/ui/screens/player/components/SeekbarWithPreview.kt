@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -172,6 +173,7 @@ fun SeekbarWithPreview(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .graphicsLayer(clip = false)
             .onSizeChanged { seekbarWidth = it.width.toFloat() },
         contentAlignment = if (edgeAligned) Alignment.BottomCenter else Alignment.TopStart
     ) {
