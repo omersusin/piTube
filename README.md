@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://img.shields.io/badge/DEVELOPMENT%20STOPPED-Will%20be%20continued%20as%20soon%20as%20possible-dc143c?style=for-the-badge" alt="Development stopped — will be continued as soon as possible">
+</p>
+
 # piTube
 
 > **The privacy-first YouTube client for Android — rebuilt from the Flow codebase with high changes, powered by the NewPipeExtractor pipeline and the free-software YouTube ecosystem.**
