@@ -24,9 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -94,19 +92,11 @@ fun RecognitionScreen(
         latestOnSearch(query)
     }
 
-    // Mode-branched backdrop: Voice keeps a fixed dark vertical gradient,
-    // Song slowly crossfades between two gradient palettes.
-    val backgroundBrush =
-        when (uiState.mode) {
-            RecognitionMode.VOICE -> voiceBackgroundBrush()
-            RecognitionMode.SONG -> songBackgroundBrush()
-        }
-
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(backgroundBrush)
+                .background(MaterialTheme.colorScheme.background)
                 .windowInsetsPadding(WindowInsets.statusBars),
     ) {
         Column(
@@ -125,6 +115,7 @@ fun RecognitionScreen(
                     Icon(
                         imageVector = Icons.Filled.Close,
                         contentDescription = stringResource(R.string.close),
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -139,6 +130,7 @@ fun RecognitionScreen(
                     Icon(
                         imageVector = Icons.Outlined.Settings,
                         contentDescription = stringResource(R.string.settings),
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -154,10 +146,12 @@ fun RecognitionScreen(
                             when (uiState.mode) {
                                 RecognitionMode.VOICE -> TalkingFace(
                                     amplitude = uiState.levels.lastOrNull() ?: 0f,
-                                    modifier = Modifier.size(208.dp),
+                                    levels = uiState.levels,
+                                    modifier = Modifier.size(224.dp),
                                 )
                                 RecognitionMode.SONG -> MorphingBlob(
                                     amplitude = uiState.levels.lastOrNull() ?: 0f,
+                                    levels = uiState.levels,
                                     modifier = Modifier.size(224.dp),
                                 )
                             }
@@ -171,6 +165,7 @@ fun RecognitionScreen(
                                     },
                                 ),
                                 style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
@@ -252,10 +247,12 @@ fun RecognitionScreen(
                             when (uiState.mode) {
                                 RecognitionMode.VOICE -> TalkingFace(
                                     amplitude = 0f,
-                                    modifier = Modifier.size(208.dp),
+                                    levels = emptyList(),
+                                    modifier = Modifier.size(224.dp),
                                 )
                                 RecognitionMode.SONG -> MorphingBlob(
                                     amplitude = 0f,
+                                    levels = emptyList(),
                                     modifier = Modifier.size(224.dp),
                                 )
                             }
@@ -326,48 +323,6 @@ fun RecognitionScreen(
             }
         }
     }
-}
-
-@Composable
-private fun voiceBackgroundBrush(): Brush {
-    val onSurface = MaterialTheme.colorScheme.onSurface
-    return Brush.verticalGradient(
-        0f to onSurface.copy(alpha = 0.10f),
-        0.45f to Color.Transparent,
-        1f to onSurface.copy(alpha = 0.16f),
-    )
-}
-
-@Composable
-private fun songBackgroundBrush(): Brush {
-    val primary = MaterialTheme.colorScheme.primary
-    val tertiary = MaterialTheme.colorScheme.tertiary
-    val secondary = MaterialTheme.colorScheme.secondary
-    val background = MaterialTheme.colorScheme.background
-    val transition = rememberInfiniteTransition(label = "songBgTransition")
-    val phase by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3600, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "songBgPhase",
-    )
-    // Continuous crossfade between two gradient palettes: the blend factor
-    // runs 0 → 1 → 0 each cycle, lerping every stop of palette A into B.
-    val blend = kotlin.math.sin(phase * kotlin.math.PI).toFloat()
-    val top = lerp(
-        primary.copy(alpha = 0.34f),
-        tertiary.copy(alpha = 0.32f),
-        blend,
-    )
-    val mid = lerp(
-        tertiary.copy(alpha = 0.16f),
-        secondary.copy(alpha = 0.20f),
-        blend,
-    )
-    return Brush.verticalGradient(listOf(top, mid, background))
 }
 
 @Composable

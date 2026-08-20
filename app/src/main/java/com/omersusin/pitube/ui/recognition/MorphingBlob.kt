@@ -1,29 +1,11 @@
-/*
- * MorphingBlob — Aurora "aurora" listening animation.
- *
- * Ported from skydoves' hot-reload-animations `AnimationExample19`
- * (Apache-2.0):
- *
- * Designed and developed by 2026 skydoves (Jaewoong Eum)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.omersusin.pitube.ui.recognition
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -44,52 +27,66 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-/**
- * Morphing "aurora" for the Song listening state (B5): colorful orbs orbit
- * their anchor points and blend additively into a shifting aurora wash, with a
- * 0..1 [amplitude] input (the live microphone level) scaling the glow size so
- * the animation visibly reacts to ambient audio. Painted with the palette from
- * the reference AnimationExample19. No external dependencies.
- */
 @Composable
 fun MorphingBlob(
     amplitude: Float,
+    levels: List<Float> = emptyList(),
     modifier: Modifier = Modifier,
 ) {
-    val ORB_COUNT = 16
-    val ORB_GLOW_RADIUS_DP = 70f
-    val ORBIT_RADIUS_MIN_DP = 30f
-    val ORBIT_RADIUS_MAX_DP = 140f
-    val ANGULAR_SPEED_MIN = 0.15f
-    val ANGULAR_SPEED_MAX = 0.55f
-    val VERTICAL_SQUASH = 0.6f
-    val HUE_ROTATION_SPEED = 14f
-    val PALETTE =
+    val colorScheme = MaterialTheme.colorScheme
+    val palette = remember(colorScheme) {
         listOf(
-            Color(0xFFEBE361),
-            Color(0xFF00E5FF),
-            Color(0xFF9251D8),
-            Color(0xFFEC7DF0),
-            Color(0xFF18FFFF),
+            colorScheme.primary,
+            colorScheme.secondary,
+            colorScheme.tertiary,
+            colorScheme.primaryContainer,
+            colorScheme.secondaryContainer,
         )
-    val BG_COLOR = Color(0xFF0B0E1A)
+    }
+
+    val ORB_COUNT = 12
+    val ORB_GLOW_RADIUS_DP = 68f
+    val ORBIT_RADIUS_MIN_DP = 28f
+    val ORBIT_RADIUS_MAX_DP = 110f
+    val ANGULAR_SPEED_MIN = 0.18f
+    val ANGULAR_SPEED_MAX = 0.62f
+    val VERTICAL_SQUASH = 0.68f
+    val HUE_ROTATION_SPEED = 10f
     val MID_STOP = 0.42f
-    val MID_ALPHA = 0.55f
+    val MID_ALPHA = 0.52f
 
     val density = LocalDensity.current
     val glowRadiusPx = with(density) { ORB_GLOW_RADIUS_DP.dp.toPx() }
     val orbitMinPx = with(density) { ORBIT_RADIUS_MIN_DP.dp.toPx() }
     val orbitMaxPx = with(density) { ORBIT_RADIUS_MAX_DP.dp.toPx() }
 
-    // Live microphone level (0..1) scales how far the orbs sweep and how big
-    // the glow gets, so the aurora breathes with the sound.
     val smoothedAmp by animateFloatAsState(
         targetValue = amplitude.coerceIn(0f, 1f),
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 380f),
         label = "blobAmp",
     )
 
-    BoxWithConstraints(modifier = modifier) {
+    val beatPulse = remember(levels) {
+        if (levels.size < 8) 0f
+        else {
+            val recent = levels.takeLast(12)
+            val avg = recent.average().toFloat()
+            val last = recent.lastOrNull() ?: 0f
+            val prev = recent.getOrNull(recent.size - 2) ?: 0f
+            val isRising = last > prev && last > avg * 1.45f && last > 0.14f
+            val isPeak = last > 0.18f && last == recent.maxOrNull()
+            if (isRising || isPeak) ((last - avg).coerceIn(0f, 0.6f) / 0.6f) else 0f
+        }
+    }
+    val animatedBeat by animateFloatAsState(
+        targetValue = beatPulse,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 700f),
+        label = "beatPulse",
+    )
+
+    BoxWithConstraints(
+        modifier = modifier.clip(CircleShape)
+    ) {
         val widthPx = with(density) { maxWidth.toPx() }
         val heightPx = with(density) { maxHeight.toPx() }
 
@@ -125,44 +122,40 @@ fun MorphingBlob(
         }
 
         Canvas(
-            modifier =
-                Modifier
-                    .matchParentSize()
-                    .graphicsLayer(
-                        compositingStrategy = CompositingStrategy.Offscreen,
-                    ),
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen),
         ) {
             @Suppress("UNUSED_EXPRESSION")
             tick
 
-            drawRect(color = BG_COLOR, size = size)
-
-            val ampScale = 0.6f + smoothedAmp * 0.8f
+            val rhythmScale = 1f + smoothedAmp * 0.35f + animatedBeat * 0.28f
+            val wobble = sin(time * 1.8f) * 0.06f * smoothedAmp
+            val ampScale = (0.62f + smoothedAmp * 0.82f + animatedBeat * 0.22f + wobble).coerceIn(0.5f, 1.7f)
 
             orbs.forEach { orb ->
                 val orbitR =
                     (orbitMinPx + orb.orbitT * (orbitMaxPx - orbitMinPx).coerceAtLeast(0f)) *
-                        (0.8f + smoothedAmp * 0.6f)
+                        (0.78f + smoothedAmp * 0.65f + animatedBeat * 0.32f)
                 val angularSpeed =
-                    ANGULAR_SPEED_MIN +
-                        orb.angularT * (ANGULAR_SPEED_MAX - ANGULAR_SPEED_MIN).coerceAtLeast(0f)
-                val baseColor = PALETTE[orb.colorIndex % PALETTE.size]
-                val angle = orb.phase + angularSpeed * time
+                    ANGULAR_SPEED_MIN + orb.angularT * (ANGULAR_SPEED_MAX - ANGULAR_SPEED_MIN)
+                val speedBoost = 1f + animatedBeat * 0.9f + smoothedAmp * 0.4f
+                val baseColor = palette[orb.colorIndex % palette.size]
+                val angle = orb.phase + angularSpeed * speedBoost * time
                 val px = orb.centerX + cos(angle) * orbitR
                 val py = orb.centerY + sin(angle) * orbitR * VERTICAL_SQUASH
                 val shifted = shiftHue(baseColor, orb.hueSeed + time * HUE_ROTATION_SPEED)
 
-                val brush =
-                    Brush.radialGradient(
-                        colorStops =
-                            arrayOf(
-                                0f to shifted,
-                                MID_STOP to shifted.copy(alpha = MID_ALPHA),
-                                1f to Color.Transparent,
-                            ),
-                        center = Offset(px, py),
-                        radius = glowRadiusPx * ampScale,
-                    )
+                val pulseAlpha = (0.72f + animatedBeat * 0.28f).coerceIn(0f, 1f)
+                val brush = Brush.radialGradient(
+                    colorStops = arrayOf(
+                        0f to shifted.copy(alpha = pulseAlpha),
+                        MID_STOP to shifted.copy(alpha = MID_ALPHA * pulseAlpha),
+                        1f to Color.Transparent,
+                    ),
+                    center = Offset(px, py),
+                    radius = glowRadiusPx * ampScale,
+                )
 
                 drawCircle(
                     brush = brush,
