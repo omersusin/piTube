@@ -97,7 +97,7 @@ object YouTube {
     private const val CHANNEL_LIVE_PARAMS = "EgdzdHJlYW1z8gYECgJ6AA%3D%3D"
     private const val CHANNEL_POSTS_PARAMS = "EgVwb3N0c_IGBAoCSgA="
     /** Max FEchannels browse pages per crawl (safety cap; ~94 channels/page). */
-    private const val CHANNEL_PAGE_CAP = 10
+    private const val CHANNEL_PAGE_CAP = 50
     /** Signed-out marker YouTube embeds in authenticated response bodies. */
     private val LOGGED_OUT_REGEX = Regex("\"loggedIn\"\\s*:\\s*(false|0)|\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"0\"")
 

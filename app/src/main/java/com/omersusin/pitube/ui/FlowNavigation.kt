@@ -359,7 +359,10 @@ fun NavGraphBuilder.flowAppGraph(
             onNavigateToSponsorBlockSettings = { navController.navigate("settings/sponsorblock") },
             onNavigateToTranslation = { navController.navigate("settings/translation") },
             onNavigateToGoogleLogin = { navController.navigate("account") },
-            onAddYouTubeAccount = { navController.navigate("account?add=true") }
+            onAddYouTubeAccount = { navController.navigate("account?add=true") },
+            onNavigateToLyrics = { navController.navigate("settings/lyrics") },
+            onNavigateToActionRow = { navController.navigate("settings/action_row") },
+            onNavigateToRecognitionAppearance = { navController.navigate("settings/recognition_appearance") }
         )
     }
 
@@ -502,6 +505,22 @@ fun NavGraphBuilder.flowAppGraph(
         com.omersusin.pitube.ui.screens.settings.PlayerAppearanceScreen(
             onNavigateBack = { navController.popBackStack() }
         )
+    }
+
+    composable("settings/lyrics") {
+        currentRoute.value = "settings/lyrics"
+        showBottomNav.value = false
+        com.omersusin.pitube.ui.screens.settings.LyricsSettingsScreen(onBack = { navController.popBackStack() })
+    }
+    composable("settings/action_row") {
+        currentRoute.value = "settings/action_row"
+        showBottomNav.value = false
+        com.omersusin.pitube.ui.screens.settings.ActionRowSettingsScreen(onBack = { navController.popBackStack() })
+    }
+    composable("settings/recognition_appearance") {
+        currentRoute.value = "settings/recognition_appearance"
+        showBottomNav.value = false
+        com.omersusin.pitube.ui.screens.settings.RecognitionAppearanceScreen(onBack = { navController.popBackStack() })
     }
 
     composable("settings/downloads") {

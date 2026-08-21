@@ -105,6 +105,9 @@ fun SettingsScreen(
     onNavigateToTranslation: () -> Unit,
     onNavigateToGoogleLogin: () -> Unit,
     onAddYouTubeAccount: () -> Unit,
+    onNavigateToLyrics: () -> Unit = {},
+    onNavigateToActionRow: () -> Unit = {},
+    onNavigateToRecognitionAppearance: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -682,6 +685,15 @@ fun SettingsScreen(
                 onNavigateToDonations,
             ),
         ) +
+            listOf(
+                SettingSearchEntry(Icons.Outlined.MusicNote, "Lyrics", "Animation, position, providers", secAppearance, onNavigateToLyrics),
+                SettingSearchEntry(Icons.Outlined.Tune, "Action Row", "Group, reorder, show/hide", secAppearance, onNavigateToActionRow),
+                SettingSearchEntry(Icons.Outlined.GraphicEq, "Recognition Appearance", "Card & floating button style", secAppearance, onNavigateToRecognitionAppearance),
+                SettingSearchEntry(Icons.Outlined.Tune, "Player Appearance", "Customize player controls & seekbar", secContentPlayback, onNavigateToPlayerAppearance),
+                SettingSearchEntry(Icons.Outlined.HighQuality, "Video Quality", "Default quality Wi-Fi & cellular", secContentPlayback, onNavigateToVideoQuality),
+                SettingSearchEntry(Icons.Outlined.Speed, "Buffer", "Buffer profile & sizes", secContentPlayback, onNavigateToBufferSettings),
+                SettingSearchEntry(Icons.Outlined.Download, "Downloads", "Threads & download settings", secContentPlayback, onNavigateToDownloads),
+            ) +
             if (BuildConfig.UPDATER_ENABLED) {
                 listOf(
                     SettingSearchEntry(
@@ -696,13 +708,17 @@ fun SettingsScreen(
                 emptyList()
             }
     val filteredEntries =
-        if (searchQuery.isBlank()) {
-            emptyList()
-        } else {
-            allSettingsEntries.filter { entry ->
-                entry.title.contains(searchQuery, ignoreCase = true) ||
-                    entry.subtitle.contains(searchQuery, ignoreCase = true) ||
-                    entry.sectionLabel.contains(searchQuery, ignoreCase = true)
+        if (searchQuery.isBlank()) emptyList()
+        else {
+            val scored = allSettingsEntries.mapNotNull { e ->
+                com.omersusin.pitube.util.fuzzyScore(searchQuery,
+                    com.omersusin.pitube.util.MatchField(e.title, 3),
+                    com.omersusin.pitube.util.MatchField(e.subtitle.ifBlank { e.sectionLabel }, 2),
+                    com.omersusin.pitube.util.MatchField(e.sectionLabel, 1)
+                )?.let { e to it }
+            }.sortedByDescending { it.second }.take(12).map { it.first }
+            if (scored.isNotEmpty()) scored else allSettingsEntries.filter { e ->
+                e.title.contains(searchQuery, ignoreCase = true) || e.subtitle.contains(searchQuery, ignoreCase = true) || e.sectionLabel.contains(searchQuery, ignoreCase = true)
             }
         }
 
@@ -1032,6 +1048,12 @@ fun SettingsScreen(
                             subtitle = stringResource(R.string.settings_item_datetime_subtitle),
                             onClick = onNavigateToDateTimeSettings,
                         )
+                        HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        SettingsItem(icon = Icons.Outlined.MusicNote, title = "Lyrics", subtitle = "Animation, position, providers", onClick = onNavigateToLyrics)
+                        HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        SettingsItem(icon = Icons.Outlined.Tune, title = "Action Row", subtitle = "Group, reorder, show/hide", onClick = onNavigateToActionRow)
+                        HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        SettingsItem(icon = Icons.Outlined.GraphicEq, title = "Recognition Appearance", subtitle = "Card & floating button style", onClick = onNavigateToRecognitionAppearance)
                     }
                 }
 

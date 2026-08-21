@@ -77,13 +77,7 @@ data class YouTubeClient(
 
         val WEB = YouTubeClient(
             clientName = "WEB",
-            // Current InnerTube client versions, kept in sync with yt-dlp
-            // upstream (same values as the working Koda build). YouTube
-            // rejects clients older than a few months — stale versions answer
-            // personalized browse as signed out. Bump these together with
-            // WEB_REMIX when refreshing; re-derive from the YouTube bootstrap
-            // HTML.
-            clientVersion = "2.20260817.01.00",
+            clientVersion = "2.20261107.01.00",
             clientId = "1",
             userAgent = USER_AGENT_WEB,
             originalUrl = ORIGIN_YOUTUBE,
@@ -111,11 +105,7 @@ data class YouTubeClient(
 
         val WEB_REMIX = YouTubeClient(
             clientName = "WEB_REMIX",
-            // Kept in sync with the WEB bump above (yt-dlp upstream values,
-            // matching the working Koda build). Carries the account menu and
-            // all music-origin signed calls, which answer as signed out on
-            // stale versions.
-            clientVersion = "1.20260816.07.00",
+            clientVersion = "1.20261106.05.00",
             clientId = "67",
             userAgent = USER_AGENT_WEB,
             loginSupported = true,

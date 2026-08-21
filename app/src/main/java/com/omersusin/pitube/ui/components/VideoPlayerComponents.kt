@@ -272,6 +272,15 @@ fun VideoInfoSection(
         Spacer(modifier = Modifier.height(8.dp))
 
         // ============ ACTION ROW ============
+        val ctx2 = LocalContext.current
+        val prefs2 = remember { PlayerPreferences(ctx2) }
+        val showLyricsAction by remember { prefs2.lyricsAnimation }.collectAsState(initial = LyricsAnimationStyle.VIVIMUSIC_FLUID.name).let { _ -> remember { mutableStateOf(video.isMusic) } }
+        val shareGrouped by prefs2.actionRowGrouped.collectAsState(initial = true)
+        val orderCsv by prefs2.actionRowOrder.collectAsState(initial = "")
+        val visCsv by prefs2.actionRowVisibility.collectAsState(initial = "")
+        val ordered = remember(orderCsv) { orderCsv.split(",").map { it.trim() }.filter { it.isNotEmpty() }.takeIf { it.isNotEmpty() } }
+        val visMap = remember(visCsv) { if (visCsv.isBlank()) null else visCsv.split(",").mapNotNull { val p = it.split(":"); if (p.size==2) p[0] to (p[1]!="0") else null }.toMap() }
+        var showShareSheet by remember { mutableStateOf(false) }
         VideoActionRow(
             likeState = likeState,
             likeCount = likeCount,
@@ -287,7 +296,15 @@ fun VideoInfoSection(
             onLyricsClick = onLyricsClick,
             isSaved = isSaved,
             isDownloaded = isDownloaded,
+            showLyrics = video.isMusic,
+            shareGrouped = shareGrouped,
+            onShareGroupClick = { showShareSheet = true },
+            orderedIds = ordered,
+            visibility = visMap,
         )
+        if (showShareSheet) {
+            com.omersusin.pitube.ui.screens.player.components.ShareGroupSheet(onCopyLink = onCopyLinkClick, onCopyAtTime = onCopyLinkAtTimeClick, onShare = onShareClick, onDismiss = { showShareSheet = false })
+        }
     }
 
     if (showCollaborators) {
@@ -497,77 +514,51 @@ fun VideoActionRow(
     onLyricsClick: () -> Unit = {},
     isSaved: Boolean = false,
     isDownloaded: Boolean = false,
+    showLyrics: Boolean = true,
+    shareGrouped: Boolean = true,
+    onShareGroupClick: (() -> Unit)? = null,
+    orderedIds: List<String>? = null,
+    visibility: Map<String, Boolean>? = null,
 ) {
+    val defaultIds = listOf("like", "save", "download", "background", "share_group", "lyrics")
+    val ids = orderedIds?.takeIf { it.isNotEmpty() } ?: defaultIds
+    val vis = visibility
+    fun isVis(id: String) = vis?.get(id) ?: true
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        item {
-            SegmentedLikeDislikeButton(
-                likeState = likeState,
-                likeCount = likeCount,
-                dislikeCount = dislikeCount,
-                onLikeClick = onLikeClick,
-                onDislikeClick = onDislikeClick,
-            )
+        for (id in ids) {
+            when (id) {
+                "like" -> if (isVis("like")) item {
+                    SegmentedLikeDislikeButton(likeState = likeState, likeCount = likeCount, dislikeCount = dislikeCount, onLikeClick = onLikeClick, onDislikeClick = onDislikeClick)
+                }
+                "save" -> if (isVis("save")) item {
+                    ActionChip(icon = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder, label = if (isSaved) stringResource(R.string.saved) else stringResource(R.string.save), onClick = onSaveClick, tint = if (isSaved) MaterialTheme.colorScheme.primary else null)
+                }
+                "download" -> if (isVis("download")) item {
+                    ActionChip(icon = if (isDownloaded) Icons.Outlined.CheckCircle else Icons.Outlined.Download, label = if (isDownloaded) stringResource(R.string.downloaded) else stringResource(R.string.download), onClick = onDownloadClick, tint = if (isDownloaded) MaterialTheme.colorScheme.primary else null)
+                }
+                "background" -> if (isVis("background")) item {
+                    ActionChip(icon = Icons.Outlined.Headphones, label = stringResource(R.string.player_action_background), onClick = onBackgroundPlayClick)
+                }
+                "share_group" -> if (isVis("share_group")) {
+                    if (shareGrouped) {
+                        item { ActionChip(icon = Icons.Outlined.Share, label = stringResource(R.string.share), onClick = { (onShareGroupClick ?: onShareClick)() }) }
+                    } else {
+                        if (isVis("share")) item { ActionChip(icon = Icons.Outlined.Share, label = stringResource(R.string.share), onClick = onShareClick) }
+                        if (isVis("copy_link")) item { ActionChip(icon = Icons.Outlined.Link, label = stringResource(R.string.player_action_copy_link), onClick = onCopyLinkClick) }
+                        if (isVis("copy_at_time")) item { ActionChip(icon = Icons.Outlined.Timer, label = stringResource(R.string.player_action_copy_link_at_time), onClick = onCopyLinkAtTimeClick) }
+                    }
+                }
+                "share" -> if (!ids.contains("share_group") && isVis("share")) item { ActionChip(icon = Icons.Outlined.Share, label = stringResource(R.string.share), onClick = onShareClick) }
+                "copy_link" -> if (!ids.contains("share_group") && isVis("copy_link")) item { ActionChip(icon = Icons.Outlined.Link, label = stringResource(R.string.player_action_copy_link), onClick = onCopyLinkClick) }
+                "copy_at_time" -> if (!ids.contains("share_group") && isVis("copy_at_time")) item { ActionChip(icon = Icons.Outlined.Timer, label = stringResource(R.string.player_action_copy_link_at_time), onClick = onCopyLinkAtTimeClick) }
+                "lyrics" -> if (showLyrics && isVis("lyrics")) item { ActionChip(icon = Icons.Outlined.Lyrics, label = stringResource(R.string.player_action_lyrics), onClick = onLyricsClick) }
+            }
         }
-
-        item {
-            ActionChip(
-                icon = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                label = if (isSaved) stringResource(R.string.saved) else stringResource(R.string.save),
-                onClick = onSaveClick,
-                tint = if (isSaved) MaterialTheme.colorScheme.primary else null,
-            )
-        }
-
-        item {
-            ActionChip(
-                icon = if (isDownloaded) Icons.Outlined.CheckCircle else Icons.Outlined.Download,
-                label = if (isDownloaded) stringResource(R.string.downloaded) else stringResource(R.string.download),
-                onClick = onDownloadClick,
-                tint = if (isDownloaded) MaterialTheme.colorScheme.primary else null,
-            )
-        }
-
-        item {
-            ActionChip(
-                icon = Icons.Outlined.Headphones,
-                label = stringResource(R.string.player_action_background),
-                onClick = onBackgroundPlayClick,
-            )
-        }
-
-        item {
-            ActionChip(
-                icon = Icons.Outlined.Share,
-                label = stringResource(R.string.share),
-                onClick = onShareClick,
-            )
-        }
-
-        item {
-            ActionChip(
-                icon = Icons.Outlined.Link,
-                label = stringResource(R.string.player_action_copy_link),
-                onClick = onCopyLinkClick,
-            )
-        }
-
-        item {
-            ActionChip(
-                icon = Icons.Outlined.Timer,
-                label = stringResource(R.string.player_action_copy_link_at_time),
-                onClick = onCopyLinkAtTimeClick,
-            )
-        }
-
-        item {
-            ActionChip(
-                icon = Icons.Outlined.Lyrics,
-                label = stringResource(R.string.player_action_lyrics),
-                onClick = onLyricsClick,
-            )
+        if (ids == defaultIds) {
+            // backwards compat: if caller still expects old default without orderedIds, lyrics fallback already handled
         }
     }
 }

@@ -381,28 +381,14 @@ class RecognitionOverlayService : Service() {
 
     private fun updateButton() {
         val icon = overlayView?.findViewById<ImageView>(R.id.recognition_overlay_icon) ?: return
+        val prefColor = try { (getSharedPreferences("player_preferences", MODE_PRIVATE).getString("recognition_floating_color", null)) } catch (_: Exception) { null }
+        val primary = 0xFF6750A4.toInt(); val tertiary = 0xFF7D5260.toInt()
         val (color, drawable, description) =
             when (state) {
-                ButtonState.IDLE -> Triple(
-                    0xE6FF0000.toInt(),
-                    R.drawable.ic_recognition_mic,
-                    R.string.recognition_overlay_content_description,
-                )
-                ButtonState.RECOGNIZING -> Triple(
-                    0xE62196F3.toInt(),
-                    R.drawable.ic_recognition_mic,
-                    R.string.recognition_overlay_recognizing_description,
-                )
-                ButtonState.DONE -> Triple(
-                    0xE64CAF50.toInt(),
-                    R.drawable.ic_music_note,
-                    R.string.recognition_overlay_done_description,
-                )
-                ButtonState.FAILED -> Triple(
-                    0xE678909C.toInt(),
-                    R.drawable.ic_close,
-                    R.string.recognition_overlay_failed_description,
-                )
+                ButtonState.IDLE -> Triple(prefColor?.toIntOrNull() ?: primary, R.drawable.ic_recognition_mic, R.string.recognition_overlay_content_description)
+                ButtonState.RECOGNIZING -> Triple(0xFF5B6EF5.toInt(), R.drawable.ic_recognition_mic, R.string.recognition_overlay_recognizing_description)
+                ButtonState.DONE -> Triple(0xFF2E7D32.toInt(), R.drawable.ic_music_note, R.string.recognition_overlay_done_description)
+                ButtonState.FAILED -> Triple(tertiary, R.drawable.ic_close, R.string.recognition_overlay_failed_description)
             }
         icon.background =
             GradientDrawable().apply {

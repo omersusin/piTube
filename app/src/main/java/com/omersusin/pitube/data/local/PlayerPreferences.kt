@@ -340,6 +340,29 @@ class PlayerPreferences(context: Context) {
         val DATE_MODE_LISTS = stringPreferencesKey("date_mode_lists")
         val DATE_MODE_WATCH = stringPreferencesKey("date_mode_watch")
         val DATE_MODE_DESCRIPTION = stringPreferencesKey("date_mode_description")
+
+        // Lyrics settings (vivimusic parity)
+        val LYRICS_ANIMATION = stringPreferencesKey("lyrics_animation")
+        val LYRICS_TEXT_POSITION = stringPreferencesKey("lyrics_text_position")
+        val LYRICS_GLOW_ENABLED = booleanPreferencesKey("lyrics_glow_enabled")
+        val LYRICS_STANDARD_BLUR = floatPreferencesKey("lyrics_standard_blur")
+        val LYRICS_TEXT_SIZE = floatPreferencesKey("lyrics_text_size")
+        val LYRICS_LINE_SPACING = floatPreferencesKey("lyrics_line_spacing")
+        val LYRICS_CHANGE_ON_CLICK = booleanPreferencesKey("lyrics_change_on_click")
+        val LYRICS_AUTO_SCROLL = booleanPreferencesKey("lyrics_auto_scroll")
+        val LYRICS_SWIPE_TO_CHANGE_SONG = booleanPreferencesKey("lyrics_swipe_to_change_song")
+        val LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL = booleanPreferencesKey("lyrics_show_playpause_on_thumbnail")
+        val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
+
+        // Action row customization
+        val ACTION_ROW_ORDER = stringPreferencesKey("action_row_order")
+        val ACTION_ROW_GROUPED = booleanPreferencesKey("action_row_grouped")
+        val ACTION_ROW_VISIBILITY = stringPreferencesKey("action_row_visibility")
+
+        // Recognition appearance
+        val RECOGNITION_CARD_STYLE = stringPreferencesKey("recognition_card_style")
+        val RECOGNITION_CARD_CORNER_RADIUS = floatPreferencesKey("recognition_card_corner_radius")
+        val RECOGNITION_ART_SIZE = intPreferencesKey("recognition_art_size")
     }
     
     // Grid item size preference
@@ -2644,6 +2667,48 @@ class PlayerPreferences(context: Context) {
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_CHANNELS)
         }
     }
+
+    val lyricsAnimation: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_ANIMATION] ?: LyricsAnimationStyle.VIVIMUSIC_FLUID.name }
+    suspend fun setLyricsAnimation(style: LyricsAnimationStyle) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_ANIMATION] = style.name } }
+    val lyricsTextPosition: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_TEXT_POSITION] ?: "CENTER" }
+    suspend fun setLyricsTextPosition(pos: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TEXT_POSITION] = pos } }
+    val lyricsGlowEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_GLOW_ENABLED] ?: true }
+    suspend fun setLyricsGlowEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_GLOW_ENABLED] = v } }
+    val lyricsStandardBlur: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_STANDARD_BLUR] ?: 0f }
+    suspend fun setLyricsStandardBlur(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_STANDARD_BLUR] = v } }
+    val lyricsTextSize: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_TEXT_SIZE] ?: 20f }
+    suspend fun setLyricsTextSize(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TEXT_SIZE] = v.coerceIn(12f, 28f) } }
+    val lyricsLineSpacing: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_LINE_SPACING] ?: 1.4f }
+    suspend fun setLyricsLineSpacing(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_LINE_SPACING] = v.coerceIn(0.8f, 2.2f) } }
+    val lyricsChangeOnClick: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_CHANGE_ON_CLICK] ?: false }
+    suspend fun setLyricsChangeOnClick(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_CHANGE_ON_CLICK] = v } }
+    val lyricsAutoScroll: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_AUTO_SCROLL] ?: true }
+    suspend fun setLyricsAutoScroll(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_AUTO_SCROLL] = v } }
+    val lyricsSwipeToChangeSong: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_SWIPE_TO_CHANGE_SONG] ?: false }
+    suspend fun setLyricsSwipeToChangeSong(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SWIPE_TO_CHANGE_SONG] = v } }
+    val lyricsShowPlayPauseOnThumbnail: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL] ?: true }
+    suspend fun setLyricsShowPlayPauseOnThumbnail(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL] = v } }
+    val lyricsProviderOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_PROVIDER_ORDER] ?: "lrclib,kugou,transcript" }
+    suspend fun setLyricsProviderOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_PROVIDER_ORDER] = order } }
+
+    val actionRowOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.ACTION_ROW_ORDER] ?: "" }
+    suspend fun setActionRowOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.ACTION_ROW_ORDER] = order } }
+    val actionRowGrouped: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.ACTION_ROW_GROUPED] ?: true }
+    suspend fun setActionRowGrouped(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.ACTION_ROW_GROUPED] = v } }
+    val actionRowVisibility: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.ACTION_ROW_VISIBILITY] ?: "" }
+    suspend fun setActionRowVisibility(v: String) { context.playerPreferencesDataStore.edit { it[Keys.ACTION_ROW_VISIBILITY] = v } }
+
+    val recognitionCardStyle: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_CARD_STYLE] ?: "default" }
+    suspend fun setRecognitionCardStyle(v: String) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_CARD_STYLE] = v } }
+    val recognitionCardCornerRadius: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_CARD_CORNER_RADIUS] ?: 20f }
+    suspend fun setRecognitionCardCornerRadius(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_CARD_CORNER_RADIUS] = v.coerceIn(8f, 28f) } }
+    val recognitionArtSize: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_ART_SIZE] ?: 72 }
+    suspend fun setRecognitionArtSize(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_ART_SIZE] = v.coerceIn(48, 96) } }
+}
+
+enum class LyricsAnimationStyle {
+    NONE, FADE, GLOW, SLIDE, KARAOKE, APPLE_MUSIC, APPLE_MUSIC_V2_LETTER, VIVIMUSIC_FLUID, LYRICS_V2_FLUID, METRO_LYRICS;
+    companion object { fun fromString(name: String): LyricsAnimationStyle = values().find { it.name == name } ?: VIVIMUSIC_FLUID }
 }
 
 /** Action to take when a SponsorBlock segment is encountered. */

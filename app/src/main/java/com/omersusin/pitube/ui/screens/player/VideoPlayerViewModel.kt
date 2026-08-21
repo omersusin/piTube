@@ -3370,25 +3370,29 @@ class VideoPlayerViewModel @Inject constructor(
         EnhancedPlayerManager.getInstance().toggleLoop(enabled)
     }
 
+    val isLyricsVisible: StateFlow<Boolean> =
+        uiState.map { s -> s.cachedVideo?.isMusic == true || s.streamInfo?.uploaderName?.contains(" - Topic", ignoreCase = true) == true }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     fun requestLyrics(videoId: String) {
         if (isLocalMediaId(videoId)) {
-            lyricsJob?.cancel()
-            lyricsVideoId = null
-            _lyricsState.value = LyricsUiState.Unavailable
-            return
+            lyricsJob?.cancel(); lyricsVideoId = null; _lyricsState.value = LyricsUiState.Unavailable; return
         }
         if (lyricsVideoId == videoId) return
-        lyricsJob?.cancel()
-        lyricsVideoId = videoId
-        _lyricsState.value = LyricsUiState.Loading
+        lyricsJob?.cancel(); lyricsVideoId = videoId; _lyricsState.value = LyricsUiState.Loading
         lyricsJob = viewModelScope.launch {
-            val result = repository.getLyrics(videoId)
-            if (lyricsVideoId != videoId) return@launch
-            _lyricsState.value = when (result) {
-                is LyricsResult.Synced -> LyricsUiState.Synced(result.lines)
-                is LyricsResult.Plain -> LyricsUiState.Plain(result.text)
-                LyricsResult.Unavailable -> LyricsUiState.Unavailable
-            }
+            try {
+                val v = _uiState.value.cachedVideo
+                val title = v?.title ?: ""; val artist = v?.channelName ?: ""; val durMs = (v?.duration?.toLong() ?: 0L) * 1000L
+                val lr = com.omersusin.pitube.data.lyrics.LyricsRepository(repository, PlayerPreferences(context), context)
+                val res = lr.fetchLyrics(videoId, title, artist, durationMs = durMs)
+                if (lyricsVideoId != videoId) return@launch
+                _lyricsState.value = when (res) {
+                    is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success -> LyricsUiState.Synced(res.lines.map { com.omersusin.pitube.innertube.pages.TranscriptLine(it.timeMs, it.text) })
+                    is com.omersusin.pitube.data.lyrics.LyricsFetchResult.NotFound -> LyricsUiState.Unavailable
+                    is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Error -> LyricsUiState.Unavailable
+                }
+            } catch (_: Exception) { if (lyricsVideoId == videoId) _lyricsState.value = LyricsUiState.Unavailable }
         }
     }
 

@@ -59,24 +59,24 @@ object SubscriptionTransfer {
         return validChannels(channels)
     }
 
+    private fun splitCsvLine(line: String): List<String> {
+        val out = mutableListOf<String>(); val cur = StringBuilder(); var inQ = false; var i = 0
+        while (i < line.length) { val c = line[i]; if (c == '"') { if (inQ && i + 1 < line.length && line[i+1] == '"') { cur.append('"'); i += 2; continue } else { inQ = !inQ; i++; continue } }; if (c == ',' && !inQ) { out.add(cur.toString().trim()); cur.clear(); i++; continue }; cur.append(c); i++ }
+        out.add(cur.toString().trim()); return out
+    }
     fun parseTakeoutCsv(raw: String): List<ImportedChannel> {
         val lines = raw.lines().filter { it.isNotBlank() }
         if (lines.isEmpty()) return emptyList()
-        val header = lines.first().split(',').map { it.trim().lowercase() }
+        val header = splitCsvLine(lines.first()).map { it.trim().trim('"').lowercase() }
         val idIndex = header.indexOfFirst { it.contains("channel id") }
         val urlIndex = header.indexOfFirst { it.contains("channel url") }
         val titleIndex = header.indexOfFirst { it.contains("channel title") }
         if (idIndex < 0 && urlIndex < 0) return emptyList()
-
         val channels = mutableListOf<ImportedChannel>()
         for (line in lines.drop(1)) {
-            // Takeout escapes commas inside quotes — a simple split is enough
-            // for the channel columns we need (ids/urls contain no commas).
-            val cells = line.split(',')
+            val cells = splitCsvLine(line)
             fun cellAt(index: Int): String = cells.getOrNull(index)?.trim()?.trim('"').orEmpty()
-            val id = cellAt(idIndex).takeIf { it.startsWith("UC") }
-                ?: extractChannelIdFromUrl(cellAt(urlIndex))
-                ?: continue
+            val id = cellAt(idIndex).takeIf { it.startsWith("UC") } ?: extractChannelIdFromUrl(cellAt(urlIndex)) ?: continue
             channels += ImportedChannel(channelId = id, name = cellAt(titleIndex))
         }
         return validChannels(channels)
