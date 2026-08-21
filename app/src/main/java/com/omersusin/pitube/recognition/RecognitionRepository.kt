@@ -43,8 +43,10 @@ class RecognitionRepository(
     private val voiceRecognizer = OnDeviceVoiceRecognizer(context)
 
     companion object {
-        const val VOICE_RECORDING_MS = 12_000L
+        const val VOICE_RECORDING_MS = 8_000L
         const val SONG_RECORDING_MS = 12_000L
+        const val SONG_PROGRESSIVE_WINDOW_MS = 4_000L
+        const val SONG_PROGRESSIVE_WINDOWS = 3
 
         /**
          * After the person stops talking, end the voice capture this quickly
@@ -127,13 +129,121 @@ class RecognitionRepository(
         transcript to VoiceRecognitionSource.ON_DEVICE
     }
 
-    /** Full song-recognition pass with fallback policy applied. */
+    /** Full song-recognition pass withFallback policy applied — progressive like Audile. */
     suspend fun recognizeSong(
         interrupted: () -> Boolean = { false },
         onLevel: (Float) -> Unit = {},
     ): SongRecognitionOutcome = withContext(Dispatchers.IO) {
-        val captured = capturer.record(SONG_RECORDING_MS, interrupted, onLevel)
-        recognizeCapturedSong(captured)
+        val provider = preferences.provider.first()
+        val allPcm = mutableListOf<Short>()
+        val allLevels = mutableListOf<Float>()
+        var capturedWav: ByteArray? = null
+        var lastError: RecognitionException? = null
+
+        for (window in 0 until SONG_PROGRESSIVE_WINDOWS) {
+            if (interrupted()) break
+            val captured = capturer.record(SONG_PROGRESSIVE_WINDOW_MS, interrupted, onLevel)
+            if (captured.pcm.isEmpty()) continue
+            allPcm.addAll(captured.pcm.toList())
+            allLevels.addAll(captured.levels)
+            capturedWav = captured.wavBytes
+
+            val pcmSlice = allPcm.toShortArray()
+            val attempt: Result<TrackMatch> = runCatching {
+                when (provider) {
+                    RecognitionProvider.SHAZAM -> {
+                        val g = ShazamSignatureGenerator()
+                        g.feedPcm16Mono(pcmSlice)
+                        val sig = g.nextSignatureOrNull()
+                            ?: throw RecognitionException(RecognitionFailureType.NO_MATCH, "No signature")
+                        ShazamRecognizer.recognize(sig.uri, sig.sampleDurationMs)
+                    }
+                    RecognitionProvider.AUDD -> {
+                        val wav = encodeWavFromPcm(pcmSlice)
+                        AuddRecognizer.recognize(wav)
+                    }
+                    RecognitionProvider.ACRCLOUD -> {
+                        val wav = encodeWavFromPcm(pcmSlice)
+                        AcrCloudRecognizer.recognize(wav)
+                    }
+                }
+            }
+            val match = attempt.getOrNull()
+            if (match != null) {
+                Log.i("Recognition", "Song matched at window ${window + 1}/${SONG_PROGRESSIVE_WINDOWS} via $provider: ${match.title} — ${match.artist}")
+                return@withContext SongRecognitionOutcome.Matched(match)
+            }
+            val err = attempt.exceptionOrNull() as? RecognitionException
+            if (err != null) {
+                if (err.type == RecognitionFailureType.BAD_CONNECTION) {
+                    lastError = err
+                    break
+                }
+                lastError = err
+            }
+            if (interrupted()) break
+        }
+
+        if (allPcm.isEmpty()) {
+            return@withContext handleFailure(provider, lastError ?: RecognitionException(RecognitionFailureType.NO_MATCH, "No audio captured"), ByteArray(0))
+        }
+        val fullPcm = allPcm.toShortArray()
+        val fullWav = capturedWav ?: encodeWavFromPcm(fullPcm)
+        if (lastError?.type == RecognitionFailureType.BAD_CONNECTION) {
+            return@withContext handleFailure(provider, lastError!!, fullWav)
+        }
+        val final = runCatching {
+            when (provider) {
+                RecognitionProvider.SHAZAM -> recognizeWithShazam(fullPcm)
+                RecognitionProvider.AUDD -> AuddRecognizer.recognize(fullWav)
+                RecognitionProvider.ACRCLOUD -> AcrCloudRecognizer.recognize(fullWav)
+            }
+        }
+        val m = final.getOrNull()
+        if (m != null) {
+            Log.i("Recognition", "Song matched on final pass via $provider: ${m.title} — ${m.artist}")
+            return@withContext SongRecognitionOutcome.Matched(m)
+        }
+        val e = (final.exceptionOrNull() as? RecognitionException) ?: lastError ?: RecognitionException(RecognitionFailureType.NO_MATCH, "No match found")
+        handleFailure(provider, e, fullWav)
+    }
+
+    private fun encodeWavFromPcm(pcm: ShortArray): ByteArray {
+        val pcmBytes = ByteArray(pcm.size * 2)
+        val bb = java.nio.ByteBuffer.wrap(pcmBytes).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        for (s in pcm) bb.putShort(s)
+        return encodeWav(pcmBytes, 16000)
+    }
+
+    private fun encodeWav(pcm: ByteArray, sampleRate: Int): ByteArray {
+        val out = java.io.ByteArrayOutputStream(pcm.size + 44)
+        out.write("RIFF".toByteArray(Charsets.US_ASCII))
+        out.writeLittleInt(36 + pcm.size)
+        out.write("WAVE".toByteArray(Charsets.US_ASCII))
+        out.write("fmt ".toByteArray(Charsets.US_ASCII))
+        out.writeLittleInt(16)
+        out.writeLittleShort(1)
+        out.writeLittleShort(1)
+        out.writeLittleInt(sampleRate)
+        out.writeLittleInt(sampleRate * 2)
+        out.writeLittleShort(2)
+        out.writeLittleShort(16)
+        out.write("data".toByteArray(Charsets.US_ASCII))
+        out.writeLittleInt(pcm.size)
+        out.write(pcm)
+        return out.toByteArray()
+    }
+
+    private fun java.io.ByteArrayOutputStream.writeLittleInt(value: Int) {
+        write(value and 0xFF)
+        write((value ushr 8) and 0xFF)
+        write((value ushr 16) and 0xFF)
+        write((value ushr 24) and 0xFF)
+    }
+
+    private fun java.io.ByteArrayOutputStream.writeLittleShort(value: Int) {
+        write(value and 0xFF)
+        write((value ushr 8) and 0xFF)
     }
 
     /** Recognition for an already-captured clip (used by offline retry too). */
