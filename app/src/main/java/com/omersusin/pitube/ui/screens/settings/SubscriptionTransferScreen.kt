@@ -97,8 +97,7 @@ fun SubscriptionTransferScreen(onBackClick: () -> Unit) {
             scope.launch {
                 runCatching {
                     withContext(Dispatchers.IO) {
-                        val subscriptions = SubscriptionRepository.getInstance(context)
-                            .getAllSubscriptions().first()
+                        val subscriptions = SubscriptionTransfer.collectExportChannels(context)
                         val content = SubscriptionTransfer.buildNewPipeJson(subscriptions)
                         context.contentResolver.openOutputStream(uri)?.use { it.write(content.toByteArray()) }
                     }
@@ -112,8 +111,7 @@ fun SubscriptionTransferScreen(onBackClick: () -> Unit) {
             scope.launch {
                 runCatching {
                     withContext(Dispatchers.IO) {
-                        val subscriptions = SubscriptionRepository.getInstance(context)
-                            .getAllSubscriptions().first()
+                        val subscriptions = SubscriptionTransfer.collectExportChannels(context)
                         val content = SubscriptionTransfer.buildOpml(subscriptions)
                         context.contentResolver.openOutputStream(uri)?.use { it.write(content.toByteArray()) }
                     }

@@ -131,7 +131,10 @@ private fun audioLanguageDisplayName(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
+fun PlayerSettingsScreen(
+    onNavigateBack: () -> Unit,
+    onNavigateToDownloadSettings: () -> Unit = {},
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val playerPreferences = remember { PlayerPreferences(context) }
@@ -230,6 +233,13 @@ fun PlayerSettingsScreen(onNavigateBack: () -> Unit) {
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
                 SettingsGroup {
+                    com.omersusin.pitube.ui.screens.settings.SettingsItem(
+                        icon = Icons.Outlined.Download,
+                        title = "Download preferences",
+                        subtitle = "Threads, quality, codec, folders, subtitles",
+                        onClick = onNavigateToDownloadSettings,
+                    )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsSwitchItem(
                         icon = Icons.Outlined.Cast,
                         title = stringResource(R.string.player_settings_overlay_cast),

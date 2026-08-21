@@ -9,25 +9,66 @@ import com.omersusin.pitube.data.local.entity.VideoEntity
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.ui.screens.playlists.PlaylistInfo
 import com.omersusin.pitube.utils.parseRelativeToTimestamp
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class PlaylistRepository @Inject constructor(
     private val playlistDao: PlaylistDao,
-    private val videoDao: VideoDao
+    private val videoDao: VideoDao,
+    private val context: android.content.Context
 ) {
     constructor(context: android.content.Context) : this(
         AppDatabase.getDatabase(context).playlistDao(),
-        AppDatabase.getDatabase(context).videoDao()
+        AppDatabase.getDatabase(context).videoDao(),
+        context.applicationContext
     )
-    // Watch Later Logic (using a special hardcoded playlist ID "watch_later")
+
+    private val profileManager by lazy { ProfileManager(context) }
+
+    /** Active profile id; blank when signed-out (rows stay legacy device-wide). */
+    private suspend fun pid(): String =
+        try { profileManager.activeProfileId.first() } catch (_: Exception) { "" }
+
+    /**
+     * Per-profile system playlist ids. Same base id is namespaced per profile so
+     * each account has its own Watch Later / Saved Shorts. Legacy un-suffixed rows
+     * are adopted at startup via [ensureScopeMigration].
+     */
     companion object {
         const val WATCH_LATER_ID = "watch_later"
         const val SAVED_SHORTS_ID = "saved_shorts"
+        fun scopedId(base: String, profileId: String) =
+            if (profileId.isBlank()) base else "$base@$profileId"
+    }
+
+    private suspend fun watchLaterId(): String = scopedId(WATCH_LATER_ID, pid())
+    private suspend fun savedShortsId(): String = scopedId(SAVED_SHORTS_ID, pid())
+
+    /**
+     * One-time adoption of pre-scope rows into the active profile:
+     * stamps profileId on legacy rows and renames the system playlists to their
+     * per-profile ids (moving cross-refs along). Nothing stays device-wide.
+     */
+    suspend fun ensureScopeMigration() {
+        val active = pid()
+        if (active.isBlank()) return
+        playlistDao.adoptLegacyRows(active)
+        if (playlistDao.getPlaylist(WATCH_LATER_ID, active) != null &&
+            playlistDao.getPlaylist(scopedId(WATCH_LATER_ID, active), active) == null) {
+            playlistDao.renamePlaylistId(WATCH_LATER_ID, scopedId(WATCH_LATER_ID, active), active)
+        }
+        if (playlistDao.getPlaylist(SAVED_SHORTS_ID, active) != null &&
+            playlistDao.getPlaylist(scopedId(SAVED_SHORTS_ID, active), active) == null) {
+            playlistDao.renamePlaylistId(SAVED_SHORTS_ID, scopedId(SAVED_SHORTS_ID, active), active)
+        }
     }
 
     suspend fun updateVideoMetadata(video: Video) {
@@ -58,29 +99,31 @@ class PlaylistRepository @Inject constructor(
 
     // Saved Shorts Logic
     suspend fun addToSavedShorts(video: Video) {
+        val shortsId = savedShortsId()
         // Ensure saved shorts playlist exists
-        val savedShorts = playlistDao.getPlaylist(SAVED_SHORTS_ID)
+        val savedShorts = playlistDao.getPlaylist(shortsId, pid())
         if (savedShorts == null) {
             playlistDao.insertPlaylist(
                 PlaylistEntity(
-                    id = SAVED_SHORTS_ID,
+                    id = shortsId,
                     name = "Saved Shorts",
                     description = "Your saved shorts",
                     thumbnailUrl = "",
                     isPrivate = true,
-                    createdAt = System.currentTimeMillis()
+                    createdAt = System.currentTimeMillis(),
+                    profileId = pid()
                 )
             )
         }
-        
+
         // Save video
         updateVideoMetadata(video)
-        
+
         // Add relationship
         val position = System.currentTimeMillis()
         playlistDao.insertPlaylistVideoCrossRef(
             PlaylistVideoCrossRef(
-                playlistId = SAVED_SHORTS_ID,
+                playlistId = shortsId,
                 videoId = video.id,
                 position = -position
             )
@@ -88,50 +131,54 @@ class PlaylistRepository @Inject constructor(
     }
 
     suspend fun removeFromSavedShorts(videoId: String) {
-        playlistDao.removeVideoFromPlaylist(SAVED_SHORTS_ID, videoId)
+        playlistDao.removeVideoFromPlaylist(savedShortsId(), videoId)
     }
 
-    fun getSavedShortsFlow(): Flow<List<Video>> = 
-        playlistDao.getVideosForPlaylist(SAVED_SHORTS_ID).map { entities ->
-            entities.map { it.toDomain() }
+    fun getSavedShortsFlow(): Flow<List<Video>> =
+        profileManager.activeProfileId.flatMapLatest { p ->
+            playlistDao.getVideosForPlaylist(scopedId(SAVED_SHORTS_ID, p)).map { entities ->
+                entities.map { it.toDomain() }
+            }
         }
 
-    fun getVideoOnlySavedShortsFlow(): Flow<List<Video>> = 
+    fun getVideoOnlySavedShortsFlow(): Flow<List<Video>> =
         getSavedShortsFlow().map { list -> list.filter { !it.isMusic } }
 
     suspend fun isInSavedShorts(videoId: String): Boolean {
-        val videos = playlistDao.getVideosForPlaylist(SAVED_SHORTS_ID).firstOrNull() ?: emptyList()
+        val videos = playlistDao.getVideosForPlaylist(savedShortsId()).firstOrNull() ?: emptyList()
         return videos.any { it.id == videoId }
     }
 
     suspend fun addToWatchLater(video: Video) {
         try {
+            val wlId = watchLaterId()
             android.util.Log.d("PlaylistRepository", "Adding video to Watch Later: ${video.id}")
-            val watchLater = playlistDao.getPlaylist(WATCH_LATER_ID)
+            val watchLater = playlistDao.getPlaylist(wlId, pid())
             if (watchLater == null) {
                 android.util.Log.d("PlaylistRepository", "Creating Watch Later playlist")
                 playlistDao.insertPlaylist(
                     PlaylistEntity(
-                        id = WATCH_LATER_ID,
+                        id = wlId,
                         name = "Watch Later",
                         description = "Your watch later list",
                         thumbnailUrl = "",
                         isPrivate = true,
-                        createdAt = System.currentTimeMillis()
+                        createdAt = System.currentTimeMillis(),
+                        profileId = pid()
                     )
                 )
             }
-            
+
             // Save video
             android.util.Log.d("PlaylistRepository", "Inserting video metadata")
             updateVideoMetadata(video)
-            
+
             // Add relationship
             val position = System.currentTimeMillis()
             android.util.Log.d("PlaylistRepository", "Inserting cross-ref")
             playlistDao.insertPlaylistVideoCrossRef(
                 PlaylistVideoCrossRef(
-                    playlistId = WATCH_LATER_ID,
+                    playlistId = wlId,
                     videoId = video.id,
                     position = -position
                 )
@@ -144,35 +191,41 @@ class PlaylistRepository @Inject constructor(
     }
 
     suspend fun removeFromWatchLater(videoId: String) {
-        playlistDao.removeVideoFromPlaylist(WATCH_LATER_ID, videoId)
-    }
-    
-    suspend fun clearWatchLater() {
-        playlistDao.deletePlaylist(WATCH_LATER_ID)
+        playlistDao.removeVideoFromPlaylist(watchLaterId(), videoId)
     }
 
-    fun getWatchLaterVideosFlow(): Flow<List<Video>> = 
-        playlistDao.getVideosForPlaylist(WATCH_LATER_ID).map { entities ->
-            entities.map { it.toDomain() }
+    suspend fun clearWatchLater() {
+        playlistDao.deletePlaylist(watchLaterId(), pid())
+    }
+
+    fun getWatchLaterVideosFlow(): Flow<List<Video>> =
+        profileManager.activeProfileId.flatMapLatest { p ->
+            playlistDao.getVideosForPlaylist(scopedId(WATCH_LATER_ID, p)).map { entities ->
+                entities.map { it.toDomain() }
+            }
         }
 
-    fun getVideoOnlyWatchLaterFlow(): Flow<List<Video>> = 
+    fun getVideoOnlyWatchLaterFlow(): Flow<List<Video>> =
         getWatchLaterVideosFlow().map { list -> list.filter { !it.isMusic } }
-    
-    fun getMusicOnlyWatchLaterFlow(): Flow<List<Video>> = 
+
+    fun getMusicOnlyWatchLaterFlow(): Flow<List<Video>> =
         getWatchLaterVideosFlow().map { list -> list.filter { it.isMusic } }
 
-    fun getWatchLaterIdsFlow(): Flow<Set<String>> = 
-        playlistDao.getVideosForPlaylist(WATCH_LATER_ID).map { entities ->
-            entities.map { it.id }.toSet()
+    fun getWatchLaterIdsFlow(): Flow<Set<String>> =
+        profileManager.activeProfileId.flatMapLatest { p ->
+            playlistDao.getVideosForPlaylist(scopedId(WATCH_LATER_ID, p)).map { entities ->
+                entities.map { it.id }.toSet()
+            }
         }
 
     fun isVideoSavedToAnyPlaylistFlow(videoId: String): Flow<Boolean> =
-        playlistDao.getVideoPlaylistMembershipCount(videoId).map { it > 0 }
+        profileManager.activeProfileId.flatMapLatest { p ->
+            playlistDao.getVideoPlaylistMembershipCount(videoId, p).map { it > 0 }
+        }
 
     suspend fun isInWatchLater(videoId: String): Boolean {
         return try {
-            playlistDao.isVideoInPlaylist(WATCH_LATER_ID, videoId) > 0
+            playlistDao.isVideoInPlaylist(watchLaterId(), videoId) > 0
         } catch (e: Exception) {
             android.util.Log.e("PlaylistRepository", "Error checking watch later status", e)
             false
@@ -198,7 +251,8 @@ class PlaylistRepository @Inject constructor(
             isPrivate = isPrivate,
             createdAt = System.currentTimeMillis(),
             isMusic = isMusic,
-            isUserCreated = true
+            isUserCreated = true,
+            profileId = pid()
         )
         playlistDao.insertPlaylist(entity)
     }
@@ -212,7 +266,8 @@ class PlaylistRepository @Inject constructor(
             isPrivate = false,
             createdAt = System.currentTimeMillis(),
             isMusic = false,
-            isUserCreated = false
+            isUserCreated = false,
+            profileId = pid()
         )
         playlistDao.insertPlaylist(entity)
     }
@@ -226,28 +281,30 @@ class PlaylistRepository @Inject constructor(
             isPrivate = false,
             createdAt = System.currentTimeMillis(),
             isMusic = true,
-            isUserCreated = false
+            isUserCreated = false,
+            profileId = pid()
         )
         playlistDao.insertPlaylist(entity)
     }
 
     suspend fun unsaveExternalPlaylist(playlistId: String) {
-        val entity = playlistDao.getPlaylist(playlistId)
+        val p = pid()
+        val entity = playlistDao.getPlaylist(playlistId, p)
         if (entity != null && !entity.isUserCreated) {
-            playlistDao.deletePlaylist(playlistId)
+            playlistDao.deletePlaylist(playlistId, p)
         }
     }
 
     suspend fun isExternalPlaylistSaved(playlistId: String): Boolean {
-        return playlistDao.isSavedExternalPlaylist(playlistId) > 0
+        return playlistDao.isSavedExternalPlaylist(playlistId, pid()) > 0
     }
 
     suspend fun updatePlaylistName(playlistId: String, name: String) {
-        playlistDao.updatePlaylistName(playlistId, name)
+        playlistDao.updatePlaylistName(playlistId, name, pid())
     }
 
     suspend fun deletePlaylist(playlistId: String) {
-        playlistDao.deletePlaylist(playlistId)
+        playlistDao.deletePlaylist(playlistId, pid())
     }
 
     suspend fun addVideoToPlaylist(playlistId: String, video: Video) {
@@ -267,7 +324,7 @@ class PlaylistRepository @Inject constructor(
             )
 
             val newThumb = playlistDao.getFirstVideoThumbnail(playlistId) ?: video.thumbnailUrl
-            playlistDao.updatePlaylistThumbnail(playlistId, newThumb)
+            playlistDao.updatePlaylistThumbnail(playlistId, newThumb, pid())
             android.util.Log.d("PlaylistRepository", "Successfully added to playlist $playlistId")
         } catch (e: Exception) {
             android.util.Log.e("PlaylistRepository", "Failed to add to playlist $playlistId", e)
@@ -282,7 +339,7 @@ class PlaylistRepository @Inject constructor(
     suspend fun removeVideoFromPlaylist(playlistId: String, videoId: String) {
         playlistDao.removeVideoFromPlaylist(playlistId, videoId)
         val newThumb = playlistDao.getFirstVideoThumbnail(playlistId) ?: ""
-        playlistDao.updatePlaylistThumbnail(playlistId, newThumb)
+        playlistDao.updatePlaylistThumbnail(playlistId, newThumb, pid())
     }
 
     suspend fun reorderVideosInPlaylist(playlistId: String, orderedVideoIds: List<String>) {
@@ -294,95 +351,40 @@ class PlaylistRepository @Inject constructor(
             )
         }
         val newThumb = playlistDao.getFirstVideoThumbnail(playlistId) ?: ""
-        playlistDao.updatePlaylistThumbnail(playlistId, newThumb)
+        playlistDao.updatePlaylistThumbnail(playlistId, newThumb, pid())
     }
 
-    fun getAllPlaylistsFlow(): Flow<List<PlaylistInfo>> = playlistDao.getVideoPlaylistsWithCount().map { items ->
-        items.map { item ->
-            PlaylistInfo(
-                id = item.playlist.id,
-                name = item.playlist.name,
-                description = item.playlist.description,
-                videoCount = item.videoCount,
-                thumbnailUrl = item.playlist.thumbnailUrl,
-                isPrivate = item.playlist.isPrivate,
-                createdAt = item.playlist.createdAt
-            )
+    private fun scopedPlaylistsWithCount(
+        query: (String) -> Flow<List<PlaylistWithCount>>
+    ): Flow<List<PlaylistInfo>> =
+        profileManager.activeProfileId.flatMapLatest { p ->
+            query(p).map { items ->
+                items.map { item ->
+                    PlaylistInfo(
+                        id = item.playlist.id,
+                        name = item.playlist.name,
+                        description = item.playlist.description,
+                        videoCount = item.videoCount,
+                        thumbnailUrl = item.playlist.thumbnailUrl,
+                        isPrivate = item.playlist.isPrivate,
+                        createdAt = item.playlist.createdAt
+                    )
+                }
+            }
         }
-    }
 
-    fun getUserCreatedVideoPlaylistsFlow(): Flow<List<PlaylistInfo>> = playlistDao.getUserCreatedVideoPlaylistsWithCount().map { items ->
-        items.map { item ->
-            PlaylistInfo(
-                id = item.playlist.id,
-                name = item.playlist.name,
-                description = item.playlist.description,
-                videoCount = item.videoCount,
-                thumbnailUrl = item.playlist.thumbnailUrl,
-                isPrivate = item.playlist.isPrivate,
-                createdAt = item.playlist.createdAt
-            )
-        }
-    }
+    fun getUserCreatedVideoPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getUserCreatedVideoPlaylistsWithCount(it) }
 
-    fun getSavedVideoPlaylistsFlow(): Flow<List<PlaylistInfo>> = playlistDao.getSavedVideoPlaylistsWithCount().map { items ->
-        items.map { item ->
-            PlaylistInfo(
-                id = item.playlist.id,
-                name = item.playlist.name,
-                description = item.playlist.description,
-                videoCount = item.videoCount,
-                thumbnailUrl = item.playlist.thumbnailUrl,
-                isPrivate = item.playlist.isPrivate,
-                createdAt = item.playlist.createdAt
-            )
-        }
-    }
+    fun getSavedVideoPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getSavedVideoPlaylistsWithCount(it) }
 
-    fun getMusicPlaylistsFlow(): Flow<List<PlaylistInfo>> = playlistDao.getMusicPlaylistsWithCount().map { items ->
-        items.map { item ->
-            PlaylistInfo(
-                id = item.playlist.id,
-                name = item.playlist.name,
-                description = item.playlist.description,
-                videoCount = item.videoCount,
-                thumbnailUrl = item.playlist.thumbnailUrl,
-                isPrivate = item.playlist.isPrivate,
-                createdAt = item.playlist.createdAt
-            )
-        }
-    }
+    fun getMusicPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getMusicPlaylistsWithCount(it) }
 
-    fun getUserCreatedMusicPlaylistsFlow(): Flow<List<PlaylistInfo>> = playlistDao.getUserCreatedMusicPlaylistsWithCount().map { items ->
-        items.map { item ->
-            PlaylistInfo(
-                id = item.playlist.id,
-                name = item.playlist.name,
-                description = item.playlist.description,
-                videoCount = item.videoCount,
-                thumbnailUrl = item.playlist.thumbnailUrl,
-                isPrivate = item.playlist.isPrivate,
-                createdAt = item.playlist.createdAt
-            )
-        }
-    }
+    fun getUserCreatedMusicPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getUserCreatedMusicPlaylistsWithCount(it) }
 
-    fun getSavedMusicPlaylistsFlow(): Flow<List<PlaylistInfo>> = playlistDao.getSavedMusicPlaylistsWithCount().map { items ->
-        items.map { item ->
-            PlaylistInfo(
-                id = item.playlist.id,
-                name = item.playlist.name,
-                description = item.playlist.description,
-                videoCount = item.videoCount,
-                thumbnailUrl = item.playlist.thumbnailUrl,
-                isPrivate = item.playlist.isPrivate,
-                createdAt = item.playlist.createdAt
-            )
-        }
-    }
+    fun getSavedMusicPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getSavedMusicPlaylistsWithCount(it) }
 
     suspend fun getSavedVideoPlaylistVideos(): List<Video> =
-        playlistDao.getSavedVideoPlaylistVideos().map { it.toDomain() }
+        playlistDao.getSavedVideoPlaylistVideos(pid()).map { it.toDomain() }
 
     fun getPlaylistVideosFlow(playlistId: String): Flow<List<Video>> =
         playlistDao.getVideosForPlaylist(playlistId).map { entities ->
@@ -422,11 +424,11 @@ class PlaylistRepository @Inject constructor(
             playlistDao.removeVideoFromPlaylist(playlistId, videoId)
         }
         val newThumb = playlistDao.getFirstVideoThumbnail(playlistId) ?: ""
-        playlistDao.updatePlaylistThumbnail(playlistId, newThumb)
+        playlistDao.updatePlaylistThumbnail(playlistId, newThumb, pid())
     }
 
     suspend fun getPlaylistInfo(playlistId: String): PlaylistInfo? {
-        val entity = playlistDao.getPlaylist(playlistId) ?: return null
+        val entity = playlistDao.getPlaylist(playlistId, pid()) ?: return null
         return PlaylistInfo(
             id = entity.id,
             name = entity.name,

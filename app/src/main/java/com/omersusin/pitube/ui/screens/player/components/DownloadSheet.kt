@@ -193,11 +193,12 @@ fun DownloadSheet(
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.88f)) {
         LazyColumn(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.88f)
+                    .weight(1f)
                     .navigationBarsPadding(),
             contentPadding = PaddingValues(bottom = 16.dp),
         ) {
@@ -496,39 +497,40 @@ fun DownloadSheet(
                         }
                     }
 
-                    item {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = {
-                                val plan = buildPlan(
-                                    video = video,
-                                    audioOnly = audioOnly,
-                                    plannerInput = plannerInput,
-                                    selectedCandidate = selectedCandidate,
-                                    selectedAudio = selectedAudio,
-                                    threads = downloadThreads,
-                                )
-                                if (plan != null) {
-                                    DownloadLauncher.start(context, plan)
-                                    onDismiss()
-                                }
-                            },
-                            enabled = canStart(audioOnly, selectedCandidate, selectedAudio),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Download,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.download))
-                        }
-                    }
                 }
             }
+        }
+
+        // Sticky footer: download action always reachable without scrolling.
+        Button(
+            onClick = {
+                val plan = buildPlan(
+                    video = video,
+                    audioOnly = audioOnly,
+                    plannerInput = plannerInput,
+                    selectedCandidate = selectedCandidate,
+                    selectedAudio = selectedAudio,
+                    threads = downloadThreads,
+                )
+                if (plan != null) {
+                    DownloadLauncher.start(context, plan)
+                    onDismiss()
+                }
+            },
+            enabled = canStart(audioOnly, selectedCandidate, selectedAudio),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .navigationBarsPadding(),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Download,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.download))
+        }
         }
     }
 }

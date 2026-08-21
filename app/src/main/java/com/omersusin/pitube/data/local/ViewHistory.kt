@@ -12,9 +12,12 @@ import com.omersusin.pitube.data.local.entity.WatchHistoryEntity
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,10 +32,12 @@ private val Context.viewHistoryDataStore: DataStore<Preferences> by safePreferen
 /**
  * Watch-history repository backed by Room SQLite.
 */
+@OptIn(ExperimentalCoroutinesApi::class)
 class ViewHistory private constructor(private val context: Context) {
 
     private val dao = AppDatabase.getDatabase(context).watchHistoryDao()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val profileManager = ProfileManager(context)
 
     companion object {
         private const val TAG = "ViewHistory"
@@ -44,7 +49,11 @@ class ViewHistory private constructor(private val context: Context) {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: ViewHistory(context.applicationContext).also { instance ->
                     INSTANCE = instance
-                    instance.scope.launch { instance.migrateFromDataStoreIfNeeded() }
+                    instance.scope.launch {
+                        instance.migrateFromDataStoreIfNeeded()
+                        runCatching { instance.ensureScopeMigration() }
+                            .onFailure { Log.w(TAG, "Watch-history scope migration failed", it) }
+                    }
                 }
             }
         }
@@ -60,6 +69,20 @@ class ViewHistory private constructor(private val context: Context) {
     }
 
     // ── Writes ───────────────────────────────────────────────────────────────
+
+    /** Active profile for scoping; blank when signed-out (legacy device-wide rows). */
+    private suspend fun pid(): String =
+        try { profileManager.activeProfileId.first() } catch (_: Exception) { "" }
+
+    /**
+     * One-time adoption of pre-scope rows (profileId = '') into the active profile.
+     * Per user requirement, nothing stays device-wide: after adoption no '' rows remain.
+     */
+    suspend fun ensureScopeMigration() {
+        val active = pid()
+        if (active.isBlank()) return
+        dao.adoptLegacyRows(active)
+    }
 
     /**
      * Save / update playback position (called during real playback).
@@ -90,12 +113,13 @@ class ViewHistory private constructor(private val context: Context) {
                 channelId    = channelId,
                 isMusic      = isMusic,
                 isShort      = isShort,
-                isLocal      = isLocal
+                isLocal      = isLocal,
+                profileId    = pid()
             )
         )
     }
 
-    suspend fun getSavedPosition(videoId: String): Long = dao.getPosition(videoId) ?: 0L
+    suspend fun getSavedPosition(videoId: String): Long = dao.getPosition(videoId, pid()) ?: 0L
 
     /**
      * Create-or-touch a history entry **without** overwriting an already-saved
@@ -112,7 +136,7 @@ class ViewHistory private constructor(private val context: Context) {
         isShort: Boolean = false
     ) {
         val thumbnail = ThumbnailUrlResolver.normalizeVideoThumbnail(videoId, thumbnailUrl)
-        val existingPosition = dao.getPosition(videoId) ?: 0L  // preserve saved progress
+        val existingPosition = dao.getPosition(videoId, pid()) ?: 0L  // preserve saved progress
         dao.upsert(
             WatchHistoryEntity(
                 videoId      = videoId,
@@ -124,7 +148,8 @@ class ViewHistory private constructor(private val context: Context) {
                 channelName  = channelName,
                 channelId    = channelId,
                 isMusic      = false,
-                isShort      = isShort
+                isShort      = isShort,
+                profileId    = pid()
             )
         )
         incrementPlayCount(videoId)
@@ -184,6 +209,7 @@ class ViewHistory private constructor(private val context: Context) {
      */
     suspend fun bulkSaveHistoryEntries(entries: List<VideoHistoryEntry>) {
         if (entries.isEmpty()) return
+        val profileId = pid()
         val entities = entries.map { entry ->
             WatchHistoryEntity(
                 videoId      = entry.videoId,
@@ -195,14 +221,15 @@ class ViewHistory private constructor(private val context: Context) {
                 channelName  = entry.channelName,
                 channelId    = entry.channelId,
                 isMusic      = entry.isMusic,
-                isShort      = entry.isShort
+                isShort      = entry.isShort,
+                profileId    = profileId
             )
         }
         dao.insertAll(entities)
     }
 
     suspend fun clearVideoHistory(videoId: String) {
-        dao.deleteEntry(videoId)
+        dao.deleteEntry(videoId, pid())
         clearPlayCount(videoId)
     }
 
@@ -211,54 +238,62 @@ class ViewHistory private constructor(private val context: Context) {
      * appears in the continue-watching mini-player popup on the next app launch.
      */
     suspend fun markAsWatched(videoId: String) {
-        dao.markAsWatched(videoId)
+        dao.markAsWatched(videoId, pid())
     }
 
     suspend fun clearAllHistory() {
-        dao.clearAll()
+        dao.clearAll(pid())
     }
 
     suspend fun clearShortsHistory() {
-        dao.clearShorts()
+        dao.clearShorts(pid())
     }
 
     // ── Reads ────────────────────────────────────────────────────────────────
 
     fun getPlaybackPosition(videoId: String): Flow<Long> =
-        dao.getEntry(videoId).map { it?.position ?: 0L }
+        profileManager.activeProfileId
+            .flatMapLatest { p -> dao.getEntry(videoId, p).map { it?.position ?: 0L } }
 
     fun getVideoHistory(videoId: String): Flow<VideoHistoryEntry?> =
-        dao.getEntry(videoId).map { it?.toDomain() }
+        profileManager.activeProfileId
+            .flatMapLatest { p -> dao.getEntry(videoId, p).map { it?.toDomain() } }
 
     /** All history, newest first. */
     fun getAllHistory(): Flow<List<VideoHistoryEntry>> =
-        dao.getAllHistory().map { list -> list.map { it.toDomain() } }
+        profileManager.activeProfileId
+            .flatMapLatest { p -> dao.getAllHistory(p).map { list -> list.map { it.toDomain() } } }
 
     /** All video IDs currently in history (for idempotent YouTube reimports). */
-    suspend fun getAllHistoryIds(): Set<String> = dao.getAllHistoryIds().toHashSet()
+    suspend fun getAllHistoryIds(): Set<String> = dao.getAllHistoryIds(pid()).toHashSet()
 
     fun getRecentLibraryHistory(limit: Int): Flow<List<VideoHistoryEntry>> =
-        dao.getRecentLibraryHistory(limit).map { list -> list.map { it.toDomain() } }
+        profileManager.activeProfileId
+            .flatMapLatest { p -> dao.getRecentLibraryHistory(p, limit).map { list -> list.map { it.toDomain() } } }
 
     /** Video (non-music) history, newest first. */
     fun getVideoHistoryFlow(): Flow<List<VideoHistoryEntry>> =
-        dao.getVideoHistory().map { list -> list.map { it.toDomain() } }
+        profileManager.activeProfileId
+            .flatMapLatest { p -> dao.getVideoHistory(p).map { list -> list.map { it.toDomain() } } }
 
     /** Music history, newest first. */
     fun getMusicHistoryFlow(): Flow<List<VideoHistoryEntry>> =
-        dao.getMusicHistory().map { list -> list.map { it.toDomain() } }
+        profileManager.activeProfileId
+            .flatMapLatest { p -> dao.getMusicHistory(p).map { list -> list.map { it.toDomain() } } }
 
     suspend fun getWatchedShortIdsAboveThreshold(minPercent: Float = 99f, maxRemainingMs: Long = Long.MAX_VALUE): Set<String> =
-        dao.getWatchedShortIdsAboveThreshold(minPercent, maxRemainingMs).toHashSet()
+        dao.getWatchedShortIdsAboveThreshold(pid(), minPercent, maxRemainingMs).toHashSet()
 
     /** Efficient count without loading all rows — use this instead of list.size. */
-    fun getVideoCount(): Flow<Int> = dao.getVideoCount()
+    fun getVideoCount(): Flow<Int> =
+        profileManager.activeProfileId
+            .flatMapLatest { p -> dao.getVideoCount(p) }
 
     /**
      * Returns the most recently watched unfinished video (<95% complete).
      * Used to restore the "resume" mini player on app launch.
      */
-    suspend fun getLatestUnfinishedVideo() = dao.getLatestUnfinishedVideo()
+    suspend fun getLatestUnfinishedVideo() = dao.getLatestUnfinishedVideo(pid())
 
 
     /**
@@ -268,7 +303,7 @@ class ViewHistory private constructor(private val context: Context) {
      */
     private suspend fun migrateFromDataStoreIfNeeded() {
         try {
-            val roomCount = dao.getCount().first()
+            val roomCount = dao.getCountOnce(pid())
             if (roomCount > 0) return
 
             val prefs = context.viewHistoryDataStore.data.first()
@@ -325,7 +360,8 @@ data class VideoHistoryEntry(
     val channelId: String = "",
     val isMusic: Boolean = false,
     val isShort: Boolean = false,
-    val isLocal: Boolean = false
+    val isLocal: Boolean = false,
+    val profileId: String = ""
 ) {
     val progressPercentage: Float
         get() = if (duration > 0) (position.toFloat() / duration.toFloat()) * 100f else 0f

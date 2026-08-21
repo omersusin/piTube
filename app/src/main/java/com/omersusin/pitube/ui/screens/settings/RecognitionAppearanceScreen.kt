@@ -24,6 +24,7 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
     val cardStyle by prefs.recognitionCardStyle.collectAsState(initial = "default")
     val radius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
     val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
+    val floatingSize by prefs.recognitionFloatingSize.collectAsState(initial = 64)
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
         topBar = {
@@ -63,7 +64,12 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
             item { SectionHeader(text = "Floating button") }
             item {
                 SettingsGroup {
-                    Text("Color follows app theme. Change it in Appearance.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Button size: ${floatingSize} dp", style = MaterialTheme.typography.bodyMedium)
+                        Slider(value = floatingSize.toFloat(), onValueChange = { scope.launch { prefs.setRecognitionFloatingSize(it.toInt()) } }, valueRange = 48f..96f)
+                    }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Text("Color follows the app theme automatically.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
                 }
             }
         }

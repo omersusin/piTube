@@ -352,6 +352,8 @@ class PlayerPreferences(context: Context) {
         val LYRICS_AUTO_SCROLL = booleanPreferencesKey("lyrics_auto_scroll")
         val LYRICS_SWIPE_TO_CHANGE_SONG = booleanPreferencesKey("lyrics_swipe_to_change_song")
         val LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL = booleanPreferencesKey("lyrics_show_playpause_on_thumbnail")
+        val LIBRARY_SHELF_ENABLED = booleanPreferencesKey("library_shelf_enabled")
+        val RECOGNITION_FLOATING_SIZE = intPreferencesKey("recognition_floating_size_dp")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
 
         // Action row customization
@@ -2688,6 +2690,12 @@ class PlayerPreferences(context: Context) {
     suspend fun setLyricsSwipeToChangeSong(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SWIPE_TO_CHANGE_SONG] = v } }
     val lyricsShowPlayPauseOnThumbnail: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL] ?: true }
     suspend fun setLyricsShowPlayPauseOnThumbnail(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL] = v } }
+
+    val libraryShelfEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LIBRARY_SHELF_ENABLED] ?: true }
+    suspend fun setLibraryShelfEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LIBRARY_SHELF_ENABLED] = v } }
+
+    val recognitionFloatingSize: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_FLOATING_SIZE] ?: 64 }
+    suspend fun setRecognitionFloatingSize(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_FLOATING_SIZE] = v } }
     val lyricsProviderOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_PROVIDER_ORDER] ?: com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER }
     suspend fun setLyricsProviderOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_PROVIDER_ORDER] = order } }
 

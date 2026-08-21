@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Subscriptions
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Share
@@ -90,6 +91,7 @@ fun ContentSettingsScreen(
     val currentRelatedCardStyle by preferences.playerRelatedCardStyle.collectAsState(initial = PlayerRelatedCardStyle.COMPACT)
     val hideWatchedVideosFromHome by preferences.hideWatchedVideosFromHome.collectAsState(initial = false)
     val hideUnplayableVideosFromSubscriptions by preferences.hideUnplayableVideosFromSubscriptions.collectAsState(initial = false)
+    val libraryShelfEnabled by preferences.libraryShelfEnabled.collectAsState(initial = true)
     val watchedThreshold by preferences.watchedThreshold.collectAsState(initial = com.omersusin.pitube.data.local.WatchedThreshold.ALMOST_FINISHED)
     var showWatchedThresholdDialog by remember { mutableStateOf(false) }
     val blockedChannelIds by preferences.blockedChannelIds.collectAsState(initial = emptySet())
@@ -308,6 +310,22 @@ fun ContentSettingsScreen(
                             }
                         }
                     )
+                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    // Library layout
+                    SectionHeader(text = stringResource(R.string.settings_library_section))
+                    SettingsGroup {
+                        SettingsSwitchItem(
+                            icon = Icons.Outlined.Subscriptions,
+                            title = stringResource(R.string.library_shelf_enabled),
+                            subtitle = stringResource(R.string.library_shelf_enabled_subtitle),
+                            checked = libraryShelfEnabled,
+                            onCheckedChange = { enabled ->
+                                coroutineScope.launch {
+                                    preferences.setLibraryShelfEnabled(enabled)
+                                }
+                            }
+                        )
+                    }
                     HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     DismissedContentRow(
                         icon = Icons.Outlined.History,

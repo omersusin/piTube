@@ -521,7 +521,14 @@ fun VideoActionRow(
     visibility: Map<String, Boolean>? = null,
 ) {
     val defaultIds = listOf("like", "save", "download", "background", "share_group", "lyrics")
-    val ids = orderedIds?.takeIf { it.isNotEmpty() } ?: defaultIds
+    // Known chip ids; anything else in a stale/custom CSV is ignored, and any
+    // known chip missing from a saved order is appended so newly added chips
+    // never silently disappear.
+    val knownIds = defaultIds + listOf("share", "copy_link", "copy_at_time")
+    val sanitizedOrder = orderedIds.orEmpty().filter { it in knownIds }
+    val ids =
+        if (sanitizedOrder.isEmpty()) defaultIds
+        else (sanitizedOrder + defaultIds.filter { it !in sanitizedOrder })
     val vis = visibility
     fun isVis(id: String) = vis?.get(id) ?: true
     LazyRow(

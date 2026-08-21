@@ -378,7 +378,8 @@ fun NavGraphBuilder.flowAppGraph(
         currentRoute.value = "settings/player"
         showBottomNav.value = false
         com.omersusin.pitube.ui.screens.settings.PlayerSettingsScreen(
-            onNavigateBack = { navController.popBackStack() }
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToDownloadSettings = { navController.navigate("settings/downloads") },
         )
     }
 

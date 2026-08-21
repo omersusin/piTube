@@ -40,15 +40,18 @@ class SyncDataAccess @Inject constructor(
 
     // --- watch history ---
 
+    // Sync is a device-level backup: it spans every profile. Legacy '' rows and
+    // per-profile rows are both included; entities are written with their
+    // existing profileId (blank = legacy, adopted at startup).
     suspend fun readWatchHistory(node: String): List<CanonicalWatchHistory> =
-        watchHistoryDao.getAllHistory().first()
+        watchHistoryDao.getAllHistoryUnscoped()
             .filter { !it.isLocal } // device-local media files don't sync
             .map { WatchHistoryMapper.toCanonical(it, node) }
 
     suspend fun writeWatchHistory(merged: List<CanonicalWatchHistory>) {
         val toUpsert = merged.filter { !it.deleted }.map { WatchHistoryMapper.toEntity(it) }
         if (toUpsert.isNotEmpty()) watchHistoryDao.upsertAll(toUpsert)
-        for (d in merged) if (d.deleted) watchHistoryDao.deleteEntry(d.videoId)
+        for (d in merged) if (d.deleted) watchHistoryDao.deleteEntryUnscoped(d.videoId)
     }
 
     // --- likes (export is liked-only; apply handles all 3 states) ---
@@ -115,7 +118,7 @@ class SyncDataAccess @Inject constructor(
     // --- playlists ---
 
     suspend fun readPlaylists(hlc: String): List<CanonicalPlaylist> {
-        val playlists = playlistDao.getAllPlaylists().first()
+        val playlists = playlistDao.getAllPlaylistsUnscoped()
         val refsByPlaylist = playlistDao.getAllPlaylistVideoCrossRefs().groupBy { it.playlistId }
         val videosById = videoDao.getAllVideos().associateBy { it.id }
         return playlists.map { p ->
@@ -127,7 +130,7 @@ class SyncDataAccess @Inject constructor(
     }
 
     suspend fun writePlaylists(merged: List<CanonicalPlaylist>) {
-        val locals = playlistDao.getAllPlaylists().first()
+        val locals = playlistDao.getAllPlaylistsUnscoped()
         val bySyncId = locals.associateBy { it.syncId ?: it.id }
         val byYoutubeId = locals.filter { !it.isUserCreated }.associateBy { it.id }
         val allRefs = playlistDao.getAllPlaylistVideoCrossRefs().groupBy { it.playlistId }
@@ -138,7 +141,7 @@ class SyncDataAccess @Inject constructor(
                 if (localId != null && localId != PlaylistMapper.WATCH_LATER_ID &&
                     localId != PlaylistMapper.SAVED_SHORTS_ID
                 ) {
-                    playlistDao.deletePlaylist(localId)
+                    playlistDao.deletePlaylistAnyProfile(localId)
                 }
                 continue
             }

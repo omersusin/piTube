@@ -31,7 +31,11 @@ fun ActionRowSettingsScreen(onBack: () -> Unit) {
     val orderCsv by prefs.actionRowOrder.collectAsState(initial = "")
     val grouped by prefs.actionRowGrouped.collectAsState(initial = true)
     val visibilityCsv by prefs.actionRowVisibility.collectAsState(initial = "")
-    val order = remember(orderCsv) { if (orderCsv.isBlank()) DEFAULT_ORDER else orderCsv.split(",").filter { it.isNotBlank() } }
+    val knownIds = DEFAULT_ORDER + listOf("share", "copy_link", "copy_at_time")
+    val order = remember(orderCsv) {
+        val parsed = orderCsv.split(",").filter { it.isNotBlank() && it in knownIds }
+        if (parsed.isEmpty()) DEFAULT_ORDER else parsed + DEFAULT_ORDER.filter { it !in parsed }
+    }
     val visibility = remember(visibilityCsv) { if (visibilityCsv.isBlank()) order.associateWith { true } else visibilityCsv.split(",").associate { val p = it.split(":"); p[0] to (p.getOrNull(1) != "0") } }
 
     Scaffold(

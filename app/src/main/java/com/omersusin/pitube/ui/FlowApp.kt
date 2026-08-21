@@ -770,6 +770,19 @@ private fun ApplyStatusBarStyle(
             }
 
         insetsController.isAppearanceLightStatusBars = !isDarkTheme && !shouldDrawBehindStatusBar
+
+        // Publish the resolved palette for non-Compose surfaces (recognition
+        // overlay button + dismiss target) so they follow the live app theme.
+        runCatching {
+            activity.getSharedPreferences("player_preferences", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putInt("theme_primary", colorScheme.primary.toArgb())
+                .putInt("theme_secondary", colorScheme.secondary.toArgb())
+                .putInt("theme_error_container", colorScheme.errorContainer.toArgb())
+                .putInt("theme_on_error_container", colorScheme.onErrorContainer.toArgb())
+                .putBoolean("theme_is_dark", isDarkTheme)
+                .apply()
+        }
     }
 }
 

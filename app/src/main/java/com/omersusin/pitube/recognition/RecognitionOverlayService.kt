@@ -164,6 +164,18 @@ class RecognitionOverlayService : Service() {
             LayoutInflater.from(this).inflate(R.layout.view_recognition_overlay_button, null)
                 as FrameLayout
 
+        // User-configurable button size (Settings > Recognition Appearance).
+        val sizeDp = runCatching {
+            kotlinx.coroutines.runBlocking {
+                com.omersusin.pitube.data.local.PlayerPreferences(this@RecognitionOverlayService)
+                    .recognitionFloatingSize.first()
+            }
+        }.getOrDefault(64).coerceIn(48, 96)
+        val densityDp = resources.displayMetrics.density
+        val sizePx = (sizeDp * densityDp).toInt()
+        view.layoutParams = FrameLayout.LayoutParams(sizePx, sizePx)
+        view.findViewById<ImageView>(R.id.recognition_overlay_icon)?.setPadding(sizePx / 4, sizePx / 4, sizePx / 4, sizePx / 4)
+
         val params =
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -289,26 +301,11 @@ class RecognitionOverlayService : Service() {
                 var outcome: SongRecognitionOutcome? = null
                 try {
                     val repository = RecognitionRepository(this@RecognitionOverlayService)
-                    // Recording + fingerprinting are blocking; run off the main
-                    // thread. State updates after it resume back on Main.
+                    // Progressive matching (3×4s windows, first attempt after the
+                    // first window) instead of a fixed 12s capture, matching the
+                    // in-app recognition path for consistent latency.
                     outcome =
-                        withContext(Dispatchers.IO) {
-                            val capturer = MicAudioCapturer()
-                            try {
-                                val captured =
-                                    capturer.record(
-                                        RecognitionRepository.SONG_RECORDING_MS,
-                                        interrupted = { cancelRequested },
-                                    )
-                                if (cancelRequested) {
-                                    null
-                                } else {
-                                    repository.recognizeCapturedSong(captured)
-                                }
-                            } finally {
-                                capturer.stop()
-                            }
-                        }
+                        repository.recognizeSong(interrupted = { cancelRequested })
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -381,12 +378,18 @@ class RecognitionOverlayService : Service() {
 
     private fun updateButton() {
         val icon = overlayView?.findViewById<ImageView>(R.id.recognition_overlay_icon) ?: return
-        val prefColor = try { (getSharedPreferences("player_preferences", MODE_PRIVATE).getString("recognition_floating_color", null)) } catch (_: Exception) { null }
-        val primary = 0xFF6750A4.toInt(); val tertiary = 0xFF7D5260.toInt()
+        // Palette resolved from the live app theme (published by FlowApp's SideEffect);
+        // falls back to M3 baseline when the app hasn't composed yet.
+        val prefs = getSharedPreferences("player_preferences", MODE_PRIVATE)
+        val prefColor = runCatching { prefs.getString("recognition_floating_color", null)?.toIntOrNull() }.getOrNull()
+        val themePrimary = if (prefs.contains("theme_primary")) prefs.getInt("theme_primary", 0xFF6750A4.toInt()) else 0xFF6750A4.toInt()
+        val themeSecondary = prefs.getInt("theme_secondary", 0xFF625B71.toInt())
+        val themedErrorContainer = prefs.getInt("theme_error_container", dismissErrorContainer)
+        val primary = themePrimary; val tertiary = themeSecondary
         val (color, drawable, description) =
             when (state) {
-                ButtonState.IDLE -> Triple(prefColor?.toIntOrNull() ?: primary, R.drawable.ic_recognition_mic, R.string.recognition_overlay_content_description)
-                ButtonState.RECOGNIZING -> Triple(0xFF5B6EF5.toInt(), R.drawable.ic_recognition_mic, R.string.recognition_overlay_recognizing_description)
+                ButtonState.IDLE -> Triple(prefColor ?: primary, R.drawable.ic_recognition_mic, R.string.recognition_overlay_content_description)
+                ButtonState.RECOGNIZING -> Triple(themeSecondary, R.drawable.ic_recognition_mic, R.string.recognition_overlay_recognizing_description)
                 ButtonState.DONE -> Triple(0xFF2E7D32.toInt(), R.drawable.ic_music_note, R.string.recognition_overlay_done_description)
                 ButtonState.FAILED -> Triple(tertiary, R.drawable.ic_close, R.string.recognition_overlay_failed_description)
             }
@@ -443,10 +446,17 @@ class RecognitionOverlayService : Service() {
         val screenWidth = resources.displayMetrics.widthPixels
         val screenHeight = resources.displayMetrics.heightPixels
 
+        // Palette follows the live app theme (light/dark aware), published by FlowApp.
+        val themePrefs = getSharedPreferences("player_preferences", MODE_PRIVATE)
+        val isDark = themePrefs.getBoolean("theme_is_dark", true)
+        val errorContainer = themePrefs.getInt("theme_error_container", dismissErrorContainer)
+        val onErrorContainer = themePrefs.getInt("theme_on_error_container", dismissOnErrorContainer)
+        val scrimSurface =
+            (if (isDark) 0x99151515 else 0x99EBEBEB).toInt() // surface at ~60% alpha
+
         // Bottom-half scrim matching Audile: a gradient box (transparent at its
         // top fading down to surface@0.6) anchored to the bottom of the screen.
         val scrimHeight = (screenHeight / 2f).toInt()
-        val scrimSurface = 0x99151515.toInt() // surface #151515 at ~60% alpha
         val scrimView =
             FrameLayout(this).apply {
                 background =
@@ -479,13 +489,13 @@ class RecognitionOverlayService : Service() {
                 val circleBg =
                     GradientDrawable().apply {
                         shape = GradientDrawable.OVAL
-                        setColor(dismissErrorContainer)
+                        setColor(errorContainer)
                     }
                 background = circleBg
                 val close =
                     ImageView(context).apply {
                         setImageResource(R.drawable.ic_close)
-                        setColorFilter(dismissOnErrorContainer)
+                        setColorFilter(onErrorContainer)
                         contentDescription =
                             getString(R.string.recognition_overlay_delete_description)
                         layoutParams =

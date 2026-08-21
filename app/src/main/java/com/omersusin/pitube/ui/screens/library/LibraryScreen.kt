@@ -61,9 +61,12 @@ fun LibraryScreen(
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val historyTitle = stringResource(R.string.library_history_label)
     val playlistsTitle = stringResource(R.string.library_playlists_label)
     val likesTitle = stringResource(R.string.library_liked_videos_label)
+    val libraryShelfEnabled by remember { com.omersusin.pitube.data.local.PlayerPreferences(context).libraryShelfEnabled }
+        .collectAsState(initial = true)
     val downloadsTitle = stringResource(R.string.library_downloads_label)
     val watchLaterTitle = stringResource(R.string.library_watch_later_label)
     val savedShortsTitle = stringResource(R.string.library_saved_shorts_label)
@@ -81,7 +84,7 @@ fun LibraryScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             item(key = "subscriptions-shelf", contentType = "subs-shelf") {
-                SubscriptionsHybridShelf(
+                if (libraryShelfEnabled) SubscriptionsHybridShelf(
                     viewModel = viewModel,
                     onNavigateToSubscriptions = onNavigateToSubscriptions,
                     onChannelClick = { channelId -> onVideoClick(Video(id = channelId, title = "", channelName = "", channelId = channelId, thumbnailUrl = "", duration = 0, viewCount = 0, uploadDate = "")) }
@@ -164,10 +167,10 @@ internal fun SubscriptionsHybridShelf(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Abonelikler", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Text(text = stringResource(R.string.library_subscriptions_shelf), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             AssistChip(
                 onClick = onNavigateToSubscriptions,
-                label = { Text("Tümünü Gör") },
+                label = { Text(stringResource(R.string.see_all)) },
                 colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             )
         }

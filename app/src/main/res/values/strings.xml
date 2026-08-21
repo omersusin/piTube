@@ -2203,4 +2203,11 @@
     <string name="recognition_overlay_delete_description">Drag here to remove the button</string>
     <string name="recognition_overlay_foreground_title">Song Recognition</string>
     <string name="recognition_overlay_not_recording">Couldn\'t start recording. Open piTube to allow the microphone.</string>
+
+    <!-- Library shelf -->
+    <string name="library_subscriptions_shelf">Subscriptions</string>
+    <string name="see_all">See all</string>
+    <string name="settings_library_section">Library</string>
+    <string name="library_shelf_enabled">Subscriptions shelf</string>
+    <string name="library_shelf_enabled_subtitle">Channel rail at the top of the Library page</string>
 </resources>

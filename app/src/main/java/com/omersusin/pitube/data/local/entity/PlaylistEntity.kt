@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "playlists",
-    indices = [Index(value = ["syncId"])],
+    indices = [Index(value = ["syncId"]), Index(value = ["profileId"])],
 )
 data class PlaylistEntity(
     @PrimaryKey val id: String,
@@ -19,4 +19,6 @@ data class PlaylistEntity(
     val isMusic: Boolean = false,
     val isUserCreated: Boolean = true,
     val syncId: String? = null,
+    /** Owning profile/account. Empty = legacy device-wide playlist (pre-scope migration). */
+    val profileId: String = "",
 )

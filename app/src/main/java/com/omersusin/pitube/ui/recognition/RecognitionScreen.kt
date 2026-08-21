@@ -471,12 +471,23 @@ private fun TrackResultCard(
     coverArtUrl: String?,
     onSearch: () -> Unit,
 ) {
+    // Recognition appearance settings (default = auto theme; optional customization).
+    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val cardStyle by prefs.recognitionCardStyle.collectAsState(initial = "default")
+    val cornerRadius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
+    val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
+    val cardPadding = when (cardStyle) {
+        "compact" -> 12.dp
+        "full" -> 24.dp
+        else -> 20.dp
+    }
     Card(
-        modifier = Modifier.padding(horizontal = 24.dp),
-        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.padding(horizontal = if (cardStyle == "full") 16.dp else 24.dp),
+        shape = RoundedCornerShape(cornerRadius.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (cardStyle == "full") 4.dp else 0.dp),
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(cardPadding)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (!coverArtUrl.isNullOrBlank()) {
                     AsyncImage(
@@ -484,15 +495,15 @@ private fun TrackResultCard(
                         contentDescription = album ?: title,
                         modifier =
                             Modifier
-                                .size(72.dp)
-                                .clip(RoundedCornerShape(12.dp)),
+                                .size(artSize.dp)
+                                .clip(RoundedCornerShape((cornerRadius * 0.6f).dp)),
                     )
                 } else {
                     Box(
                         modifier =
                             Modifier
-                                .size(72.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .size(artSize.dp)
+                                .clip(RoundedCornerShape((cornerRadius * 0.6f).dp))
                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center,
                     ) {

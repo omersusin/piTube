@@ -16,8 +16,9 @@ import com.omersusin.pitube.data.model.Video
  */
 @Entity(
     tableName = "watch_history",
+    primaryKeys = ["videoId", "profileId"],
     indices = [
-        Index(value = ["videoId"], unique = true),
+        Index(value = ["videoId"]),
         Index(value = ["timestamp"]),
         Index(value = ["isMusic"]),
         Index(value = ["isShort"]),
@@ -25,7 +26,7 @@ import com.omersusin.pitube.data.model.Video
     ]
 )
 data class WatchHistoryEntity(
-    @PrimaryKey val videoId: String,
+    val videoId: String,
     val position: Long,
     val duration: Long,
     val timestamp: Long,
@@ -35,7 +36,9 @@ data class WatchHistoryEntity(
     val channelId: String,
     val isMusic: Boolean,
     val isShort: Boolean = false,
-    val isLocal: Boolean = false
+    val isLocal: Boolean = false,
+    /** Owning profile/account. Empty = legacy device-wide row (pre-scope migration). */
+    val profileId: String = ""
 ) {
     fun toDomain() = VideoHistoryEntry(
         videoId = videoId,
@@ -48,7 +51,8 @@ data class WatchHistoryEntity(
         channelId = channelId,
         isMusic = isMusic,
         isShort = isShort,
-        isLocal = isLocal
+        isLocal = isLocal,
+        profileId = profileId
     )
 
     /** Reconstruct a lightweight [Video] from history metadata (no stream info). */
@@ -65,7 +69,7 @@ data class WatchHistoryEntity(
     )
 
     companion object {
-        fun fromDomain(entry: VideoHistoryEntry) = WatchHistoryEntity(
+        fun fromDomain(entry: VideoHistoryEntry, profileId: String = "") = WatchHistoryEntity(
             videoId      = entry.videoId,
             position     = entry.position,
             duration     = entry.duration,
@@ -76,7 +80,8 @@ data class WatchHistoryEntity(
             channelId    = entry.channelId,
             isMusic      = entry.isMusic,
             isShort      = entry.isShort,
-            isLocal      = entry.isLocal
+            isLocal      = entry.isLocal,
+            profileId    = profileId
         )
     }
 }

@@ -2,6 +2,7 @@ package com.omersusin.pitube.data.local
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.flow.firstOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -99,8 +100,8 @@ object SubscriptionTransfer {
         val trimmed = raw.trim()
         return when {
             trimmed.startsWith("{") || trimmed.startsWith("[") -> {
-                val channels = parseNewPipeJson(trimmed)
-                if (channels.isNotEmpty()) ParseResult(channels, "NewPipe JSON") else null
+                val channels = parseSubscriptionsJson(trimmed)
+                if (channels.isNotEmpty()) ParseResult(channels, "JSON") else null
             }
             trimmed.startsWith("<?xml") || trimmed.contains("<opml") -> {
                 val channels = parseOpml(trimmed)
@@ -114,26 +115,130 @@ object SubscriptionTransfer {
         }
     }
 
-    suspend fun apply(context: Context, channels: List<ImportedChannel>): Int {
-        val repository = SubscriptionRepository.getInstance(context)
-        var added = 0
-        channels.forEach { channel ->
-            runCatching {
-                repository.subscribe(
-                    ChannelSubscription(
-                        channelId = channel.channelId,
-                        channelName = channel.name.ifBlank { channel.channelId },
-                        channelThumbnail = channel.avatarUrl,
-                    )
-                )
-                added++
-            }.onFailure { Log.w(TAG, "Failed subscribing ${channel.channelId}", it) }
+    /**
+     * JSON subscriptions in any de-facto client shape:
+     *  - NewPipe / PipePipe / Piped: `{"app_version":..,"subscriptions":[{"url","name","avatar_url"}]}`
+     *  - LibreTube backup:          `{"subscriptions":[{"channel_id","name","avatar":[...]}]}` (+ metadata keys)
+     *  - FreeTube:                  bare `[{"id","name","thumbnail"}]`
+     */
+    fun parseSubscriptionsJson(raw: String): List<ImportedChannel> {
+        val root = runCatching { JSONObject(raw) }.getOrNull()
+        val array = when {
+            root != null -> root.optJSONArray("subscriptions")
+                ?: root.optJSONArray("channels")
+                ?: JSONArray()
+            else -> runCatching { JSONArray(raw) }.getOrNull() ?: JSONArray()
         }
-        return added
+        val channels = mutableListOf<ImportedChannel>()
+        for (i in 0 until array.length()) {
+            val item = array.optJSONObject(i) ?: continue
+
+            // id: NewPipe/Piped carry it inside `url`; LibreTube uses `channel_id`;
+            // FreeTube uses `id`.
+            val id = extractChannelIdFromUrl(item.optString("url"))
+                ?: item.optString("channel_id").takeIf { it.startsWith("UC") }
+                ?: item.optString("id").takeIf { it.startsWith("UC") }
+                ?: continue
+
+            // avatar: string (NewPipe/Piped) or array of URL strings (LibreTube).
+            val avatar = when {
+                item.optString("avatar_url").isNotBlank() -> item.optString("avatar_url")
+                item.optString("thumbnail").isNotBlank() -> item.optString("thumbnail")
+                else -> {
+                    val arr = item.optJSONArray("avatar")
+                    if (arr != null && arr.length() > 0) {
+                        // Prefer the largest variant (usually last), as LibreTube orders by size.
+                        var best = ""
+                        for (k in 0 until arr.length()) {
+                            val v = when (val e = arr.opt(k)) {
+                                is String -> e
+                                is JSONObject -> e.optString("url")
+                                else -> ""
+                            }
+                            if (v.isNotBlank()) best = v
+                        }
+                        best
+                    } else ""
+                }
+            }
+
+            channels += ImportedChannel(
+                channelId = id,
+                name = item.optString("name").ifBlank { item.optString("title") },
+                avatarUrl = avatar,
+            )
+        }
+        return validChannels(channels)
     }
 
-    fun buildNewPipeJson(channels: List<ChannelSubscription>): String {
-        val array = JSONArray()
+    /**
+     * Import the given channels:
+     *  - local store updated in ONE batched transaction ([SubscriptionRepository.subscribeAll]),
+     *    which is what makes 2000+ channel imports fast;
+     *  - when signed in, every canonical channel is also pushed to the YouTube account
+     *    so a later library sync does not silently prune freshly imported rows.
+     *
+     * Returns the number of channels present locally after the import.
+     */
+    suspend fun apply(
+        context: Context,
+        channels: List<ImportedChannel>,
+        pushToAccount: Boolean = true,
+        onProgress: (done: Int, total: Int) -> Unit = { _, _ -> },
+    ): Int {
+        val repository = SubscriptionRepository.getInstance(context)
+        val entities = channels.map { channel ->
+            ChannelSubscription(
+                channelId = channel.channelId,
+                channelName = channel.name.ifBlank { channel.channelId },
+                channelThumbnail = channel.avatarUrl,
+            )
+        }
+        runCatching { repository.subscribeAll(entities) }
+            .onFailure { Log.w(TAG, "Batch subscribe failed", it) }
+
+        if (pushToAccount && entities.isNotEmpty()) {
+            val actions = AccountActions(context)
+            if (actions.canWriteBack()) {
+                var done = 0
+                for (channel in entities) {
+                    done++
+                    if (done % 25 == 0) onProgress(done, entities.size)
+                    // Best-effort; a remote failure never aborts the import.
+                    runCatching { actions.setSubscribed(channel.channelId, true) }
+                }
+            }
+        }
+        return entities.size
+    }
+
+    /**
+     * Channels to export: local store merged with the signed-in account's REAL
+     * subscriptions (account rows win — fresher names/avatars). Signed-out
+     * exports fall back to the local store only.
+     */
+    suspend fun collectExportChannels(context: Context): List<ChannelSubscription> {
+        val repository = SubscriptionRepository.getInstance(context)
+        val local = runCatching { repository.getAllSubscriptions().firstOrNull().orEmpty() }
+            .getOrDefault(emptyList())
+        val actions = AccountActions(context)
+        if (!actions.canWriteBack()) return local
+        return runCatching {
+            val crawl = com.omersusin.pitube.innertube.YouTube.webSubscribedChannels().getOrNull()
+            if (crawl == null || crawl.channels.isEmpty()) return local
+            val byId = local.associateBy { it.channelId }.toMutableMap()
+            crawl.channels.forEach { remote ->
+                byId[remote.id] = ChannelSubscription(
+                    channelId = remote.id,
+                    channelName = remote.name.ifBlank { byId[remote.id]?.channelName ?: remote.id },
+                    channelThumbnail = remote.thumbnail.ifBlank { byId[remote.id]?.channelThumbnail.orEmpty() },
+                )
+            }
+            byId.values.toList()
+        }.getOrDefault(local)
+    }
+
+    fun buildNewPipeJson(channels: List<ChannelSubscription>): String {        val array = JSONArray()
         channels.forEach { channel ->
             val item = JSONObject()
                 .put("service_id", 0)

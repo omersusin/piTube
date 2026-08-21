@@ -202,6 +202,9 @@ class FlowApplication :
                 }
                 runCatching { com.omersusin.pitube.data.local.LikedVideosRepository.getInstance(this@FlowApplication).ensureScopeMigration() }
                 runCatching { com.omersusin.pitube.data.local.SearchHistoryRepository(this@FlowApplication).ensureScopeMigration() }
+                // Adopt legacy device-wide watch history + playlists into the active profile.
+                runCatching { com.omersusin.pitube.data.local.ViewHistory.getInstance(this@FlowApplication).ensureScopeMigration() }
+                runCatching { com.omersusin.pitube.data.local.PlaylistRepository(this@FlowApplication).ensureScopeMigration() }
                 // Restore the active profile's session. The source of truth is
                 // the encrypted per-profile store (ProfileManager); the DataStore
                 // key is only a mirror so existing UI that reads it stays in step.
