@@ -418,5 +418,6 @@ class FlowApplication :
                 okHttpClient.connectionPool.evictAll()
             }
         }
+        System.gc()
     }
 }

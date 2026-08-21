@@ -51,6 +51,8 @@ class SubscriptionRepository private constructor(
         private const val LEGACY_ORDER_KEY = "subscriptions_order"
         private const val LEGACY_CHANNEL_PREFIX = "channel_"
         private const val MIGRATED_KEY = "subscriptions_scoped_v1"
+        private const val MAX_ORDER_IDS = 8000
+        private const val MAX_ORDER_CHARS = 180_000
 
         private fun channelKey(profileId: String, channelId: String) =
             stringPreferencesKey("$profileId|channel_$channelId")
@@ -246,7 +248,7 @@ class SubscriptionRepository private constructor(
         }
 
     /**
-     * Get all subscription IDs as a Set
+     * Get all subscription IDs as a Set — hardened against corrupt/huge order strings.
      */
     suspend fun getAllSubscriptionIds(): Set<String> {
         val profileId = profileManager.activeProfileId.value
@@ -257,11 +259,28 @@ class SubscriptionRepository private constructor(
                     preferences[orderKey(profileId)] ?: ""
                 }.first()
 
-        return if (orderString.isEmpty()) {
-            emptySet()
-        } else {
-            orderString.split(",").toSet()
+        if (orderString.isEmpty()) return emptySet()
+        if (orderString.length > MAX_ORDER_CHARS) {
+            android.util.Log.e("SubscriptionRepository", "order string huge (${orderString.length} chars) — truncating to $MAX_ORDER_CHARS and repairing")
+            trimCorruptOrder(profileId)
+            return getAllSubscriptionIds()
         }
+        val ids = orderString.splitToSequence(",").map { it.trim() }.filter { it.isNotEmpty() && it.length <= 64 && it.startsWith("UC") }.take(MAX_ORDER_IDS).toCollection(LinkedHashSet())
+        if (ids.size >= MAX_ORDER_IDS) {
+            android.util.Log.w("SubscriptionRepository", "subscription count capped at $MAX_ORDER_IDS")
+        }
+        return ids
+    }
+
+    private suspend fun trimCorruptOrder(profileId: String) {
+        try {
+            context.subscriptionsDataStore.edit { prefs ->
+                val raw = prefs[orderKey(profileId)] ?: return@edit
+                if (raw.length <= MAX_ORDER_CHARS) return@edit
+                val repaired = raw.splitToSequence(",").map { it.trim() }.filter { it.isNotEmpty() && it.startsWith("UC") && it.length <= 64 }.take(MAX_ORDER_IDS).joinToString(",")
+                prefs[orderKey(profileId)] = repaired
+            }
+        } catch (_: Exception) {}
     }
 
     /**
