@@ -3378,17 +3378,25 @@ class VideoPlayerViewModel @Inject constructor(
         if (isLocalMediaId(videoId)) {
             lyricsJob?.cancel(); lyricsVideoId = null; _lyricsState.value = LyricsUiState.Unavailable; return
         }
-        if (lyricsVideoId == videoId) return
+        if (lyricsVideoId == videoId && _lyricsState.value !is LyricsUiState.Idle) return
         lyricsJob?.cancel(); lyricsVideoId = videoId; _lyricsState.value = LyricsUiState.Loading
         lyricsJob = viewModelScope.launch {
             try {
-                val v = _uiState.value.cachedVideo
-                val title = v?.title ?: ""; val artist = v?.channelName ?: ""; val durMs = (v?.duration?.toLong() ?: 0L) * 1000L
+                val v = _uiState.value.cachedVideo ?: _uiState.value.streamInfo?.let {
+                    com.omersusin.pitube.data.model.Video(id = videoId, title = it.name ?: "", channelName = it.uploaderName ?: "", channelId = "", thumbnailUrl = "", duration = it.duration.toInt(), viewCount = 0L, uploadDate = "")
+                }
+                val title = v?.title?.takeIf { it.isNotBlank() } ?: _uiState.value.streamInfo?.name ?: ""
+                val artist = v?.channelName?.takeIf { it.isNotBlank() } ?: _uiState.value.streamInfo?.uploaderName ?: ""
+                val durMs = (v?.duration?.toLong() ?: (_uiState.value.streamInfo?.duration ?: 0L)) * 1000L
                 val lr = com.omersusin.pitube.data.lyrics.LyricsRepository(repository, PlayerPreferences(context), context)
                 val res = lr.fetchLyrics(videoId, title, artist, durationMs = durMs)
                 if (lyricsVideoId != videoId) return@launch
                 _lyricsState.value = when (res) {
-                    is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success -> LyricsUiState.Synced(res.lines.map { com.omersusin.pitube.innertube.pages.TranscriptLine(it.timeMs, it.text) })
+                    is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success -> {
+                        val mapped = res.lines.map { l -> com.omersusin.pitube.innertube.pages.TranscriptLine(l.timeMs, l.text) to l.contentSpans }
+                        val wordSpans = res.lines.associate { it.timeMs to it.contentSpans }
+                        LyricsUiState.SyncedWithWords(mapped.map { it.first }, wordSpans)
+                    }
                     is com.omersusin.pitube.data.lyrics.LyricsFetchResult.NotFound -> LyricsUiState.Unavailable
                     is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Error -> LyricsUiState.Unavailable
                 }
@@ -3930,6 +3938,7 @@ sealed interface LyricsUiState {
     data object Idle : LyricsUiState
     data object Loading : LyricsUiState
     data class Synced(val lines: List<TranscriptLine>) : LyricsUiState
+    data class SyncedWithWords(val lines: List<TranscriptLine>, val wordSpans: Map<Long, List<com.omersusin.pitube.data.lyrics.LrcContentSpan>> = emptyMap()) : LyricsUiState
     data class Plain(val text: String) : LyricsUiState
     data object Unavailable : LyricsUiState
 }

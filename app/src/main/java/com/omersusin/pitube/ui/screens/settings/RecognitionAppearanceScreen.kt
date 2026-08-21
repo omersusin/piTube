@@ -1,11 +1,16 @@
 package com.omersusin.pitube.ui.screens.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.omersusin.pitube.data.local.PlayerPreferences
 import kotlinx.coroutines.launch
@@ -19,11 +24,48 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
     val cardStyle by prefs.recognitionCardStyle.collectAsState(initial = "default")
     val radius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
     val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
-    Scaffold(topBar = { TopAppBar(title = { Text("Recognition Appearance") }, navigationIcon = { TextButton(onClick = onBack) { Text("Back") } }) }) { pad ->
-        LazyColumn(Modifier.fillMaxSize().padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            item { Text("Card style: $cardStyle"); Row { listOf("default","compact","full").forEach { s -> FilterChip(selected = s == cardStyle, onClick = { scope.launch { prefs.setRecognitionCardStyle(s) } }, label = { Text(s) }, modifier = Modifier.padding(end = 8.dp)) } } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Corner radius: ${radius.toInt()}"); Slider(value = radius, onValueChange = { scope.launch { prefs.setRecognitionCardCornerRadius(it) } }, valueRange = 8f..28f, modifier = Modifier.width(160.dp)) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Art size: $artSize"); Slider(value = artSize.toFloat(), onValueChange = { scope.launch { prefs.setRecognitionArtSize(it.toInt()) } }, valueRange = 48f..96f, steps = 5, modifier = Modifier.width(160.dp)) } }
+    Scaffold(
+        contentWindowInsets = WindowInsets(0.dp),
+        topBar = {
+            Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background) {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
+                    Text(text = "Recognition", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+                }
+            }
+        }
+    ) { pad ->
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(pad).background(MaterialTheme.colorScheme.background), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            item { SectionHeader(text = "Card") }
+            item {
+                SettingsGroup {
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Style", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("default","compact","full").forEach { s ->
+                                FilterChip(selected = s == cardStyle, onClick = { scope.launch { prefs.setRecognitionCardStyle(s) } }, label = { Text(s) })
+                            }
+                        }
+                    }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Corner radius: ${radius.toInt()} dp", style = MaterialTheme.typography.bodyMedium)
+                        Slider(value = radius, onValueChange = { scope.launch { prefs.setRecognitionCardCornerRadius(it) } }, valueRange = 8f..28f)
+                    }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Artwork size: $artSize dp", style = MaterialTheme.typography.bodyMedium)
+                        Slider(value = artSize.toFloat(), onValueChange = { scope.launch { prefs.setRecognitionArtSize(it.toInt()) } }, valueRange = 48f..96f, steps = 5)
+                    }
+                }
+            }
+            item { SectionHeader(text = "Floating button") }
+            item {
+                SettingsGroup {
+                    Text("Color follows app theme. Change it in Appearance.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
+                }
+            }
         }
     }
 }

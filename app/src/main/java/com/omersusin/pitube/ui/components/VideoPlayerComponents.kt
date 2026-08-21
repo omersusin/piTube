@@ -49,6 +49,7 @@ import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.ui.theme.extendedColors
+import com.omersusin.pitube.utils.isSongVideoLenient
 import com.omersusin.pitube.ui.translation.rememberTranslatedText
 import com.omersusin.pitube.utils.DateContext
 import com.omersusin.pitube.utils.avatarImageIdentityKey
@@ -295,7 +296,7 @@ fun VideoInfoSection(
             onLyricsClick = onLyricsClick,
             isSaved = isSaved,
             isDownloaded = isDownloaded,
-            showLyrics = video.isMusic,
+            showLyrics = isSongVideoLenient(video, _uiState.value.streamInfo),
             shareGrouped = shareGrouped,
             onShareGroupClick = { showShareSheet = true },
             orderedIds = ordered,

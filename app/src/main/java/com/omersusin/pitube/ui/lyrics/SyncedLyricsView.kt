@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.omersusin.pitube.data.local.LyricsAnimationStyle
+import com.omersusin.pitube.data.local.LyricsTextPosition
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.lyrics.LrcLine
 import com.omersusin.pitube.data.lyrics.LyricsFetchResult
@@ -55,7 +56,8 @@ fun SyncedLyricsView(
     val animName by prefs.lyricsAnimation.collectAsState(initial = LyricsAnimationStyle.VIVIMUSIC_FLUID.name)
     val anim = remember(animName) { LyricsAnimationStyle.fromString(animName) }
     val glow by prefs.lyricsGlowEnabled.collectAsState(initial = true)
-    val textPos by prefs.lyricsTextPosition.collectAsState(initial = "CENTER")
+    val textPosName by prefs.lyricsTextPosition.collectAsState(initial = LyricsTextPosition.CENTER.name)
+    val textPos = remember(textPosName) { LyricsTextPosition.fromString(textPosName) }
     val textSize by prefs.lyricsTextSize.collectAsState(initial = 20f)
     val spacing by prefs.lyricsLineSpacing.collectAsState(initial = 1.4f)
     val blurVal by prefs.lyricsStandardBlur.collectAsState(initial = 0f)
@@ -85,7 +87,7 @@ fun SyncedLyricsView(
 private fun LyricsContent(
     lines: List<LrcLine>, currentPositionMs: Long, onSeekTo: (Long) -> Unit,
     anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float,
-    autoScroll: Boolean, textPos: String, swipeEnabled: Boolean,
+    autoScroll: Boolean, textPos: LyricsTextPosition, swipeEnabled: Boolean,
     onSwipeNext: (() -> Unit)?, onSwipePrev: (() -> Unit)?
 ) {
     val listState = rememberLazyListState()
@@ -95,7 +97,7 @@ private fun LyricsContent(
         try { listState.animateScrollToItem(index = currentIndex.coerceAtLeast(0), scrollOffset = 0) } catch (_: Exception) {}
     }
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val centerPadding = when (textPos) { "TOP" -> 24.dp; "BOTTOM" -> maxHeight - 120.dp; else -> maxHeight / 2 }
+        val centerPadding = when (textPos) { LyricsTextPosition.TOP -> 24.dp; LyricsTextPosition.BOTTOM -> maxHeight - 120.dp; else -> maxHeight / 2 }
         val swipeMod = if (swipeEnabled && onSwipeNext != null) Modifier.pointerInput(Unit) {
             var drag = 0f
             detectHorizontalDragGestures(onDragEnd = {

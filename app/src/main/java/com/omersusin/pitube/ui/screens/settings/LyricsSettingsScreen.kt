@@ -1,13 +1,21 @@
 package com.omersusin.pitube.ui.screens.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.LyricsAnimationStyle
+import com.omersusin.pitube.data.local.LyricsTextPosition
 import com.omersusin.pitube.data.local.PlayerPreferences
 import kotlinx.coroutines.launch
 
@@ -18,7 +26,8 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val prefs = remember { PlayerPreferences(ctx) }
     val scope = rememberCoroutineScope()
     val anim by prefs.lyricsAnimation.collectAsState(initial = LyricsAnimationStyle.VIVIMUSIC_FLUID.name)
-    val pos by prefs.lyricsTextPosition.collectAsState(initial = "CENTER")
+    val posName by prefs.lyricsTextPosition.collectAsState(initial = LyricsTextPosition.CENTER.name)
+    val pos = remember(posName) { LyricsTextPosition.fromString(posName) }
     val glow by prefs.lyricsGlowEnabled.collectAsState(initial = true)
     val blur by prefs.lyricsStandardBlur.collectAsState(initial = 0f)
     val size by prefs.lyricsTextSize.collectAsState(initial = 20f)
@@ -28,28 +37,97 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val swipe by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
     val showPP by prefs.lyricsShowPlayPauseOnThumbnail.collectAsState(initial = true)
     val order by prefs.lyricsProviderOrder.collectAsState(initial = "lrclib,kugou,transcript")
-    Scaffold(topBar = { TopAppBar(title = { Text("Lyrics") }, navigationIcon = { TextButton(onClick = onBack) { Text("Back") } }) }) { pad ->
-        LazyColumn(Modifier.fillMaxSize().padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+    Scaffold(
+        contentWindowInsets = WindowInsets(0.dp),
+        topBar = {
+            Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.background) {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
+                    Text(text = "Lyrics", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+                }
+            }
+        }
+    ) { pad ->
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(pad).background(MaterialTheme.colorScheme.background), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            item { SectionHeader(text = "Animation") }
             item {
-                Text("Animation", style = MaterialTheme.typography.titleMedium)
-                LyricsAnimationStyle.values().forEach { s ->
-                    Row(Modifier.fillMaxWidth()) {
-                        RadioButton(selected = s.name == anim, onClick = { scope.launch { prefs.setLyricsAnimation(s) } })
-                        TextButton(onClick = { scope.launch { prefs.setLyricsAnimation(s) } }) { Text(s.name) }
+                SettingsGroup {
+                    LyricsAnimationStyle.values().forEachIndexed { idx, s ->
+                        val selected = s.name == anim
+                        Row(modifier = Modifier.fillMaxWidth().clickable { scope.launch { prefs.setLyricsAnimation(s) } }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(selected = selected, onClick = null)
+                            Spacer(Modifier.width(16.dp))
+                            Column(Modifier.weight(1f)) { Text(s.displayName, style = MaterialTheme.typography.bodyLarge); if (selected) Text("Selected", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
+                        }
+                        if (idx < LyricsAnimationStyle.values().lastIndex) HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     }
                 }
             }
-            item { HorizontalDivider() }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Text position: $pos"); TextButton(onClick = { scope.launch { prefs.setLyricsTextPosition(if (pos == "CENTER") "TOP" else if (pos == "TOP") "BOTTOM" else "CENTER") } }) { Text("Change") } } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Glow"); Switch(checked = glow, onCheckedChange = { scope.launch { prefs.setLyricsGlowEnabled(it) } }) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Text size: ${size.toInt()}"); Slider(value = size, onValueChange = { scope.launch { prefs.setLyricsTextSize(it) } }, valueRange = 12f..28f, modifier = Modifier.width(160.dp)) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Line spacing: $spacing"); Slider(value = spacing, onValueChange = { scope.launch { prefs.setLyricsLineSpacing(it) } }, valueRange = 0.8f..2.2f, modifier = Modifier.width(160.dp)) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Blur: $blur"); Slider(value = blur, onValueChange = { scope.launch { prefs.setLyricsStandardBlur(it) } }, valueRange = 0f..1f, modifier = Modifier.width(160.dp)) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Auto scroll"); Switch(checked = autoScroll, onCheckedChange = { scope.launch { prefs.setLyricsAutoScroll(it) } }) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Change on click"); Switch(checked = changeOnClick, onCheckedChange = { scope.launch { prefs.setLyricsChangeOnClick(it) } }) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Swipe to change song"); Switch(checked = swipe, onCheckedChange = { scope.launch { prefs.setLyricsSwipeToChangeSong(it) } }) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Show play/pause on thumbnail"); Switch(checked = showPP, onCheckedChange = { scope.launch { prefs.setLyricsShowPlayPauseOnThumbnail(it) } }) } }
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Provider order: $order"); TextButton(onClick = { scope.launch { prefs.setLyricsProviderOrder(if (order.startsWith("lrclib")) "transcript,lrclib,kugou" else "lrclib,kugou,transcript") } }) { Text("Toggle") } } }
+            item { SectionHeader(text = "Position") }
+            item {
+                SettingsGroup {
+                    LyricsTextPosition.values().forEachIndexed { idx, p ->
+                        val selected = p == pos
+                        Row(modifier = Modifier.fillMaxWidth().clickable { scope.launch { prefs.setLyricsTextPosition(p) } }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(selected = selected, onClick = null)
+                            Spacer(Modifier.width(16.dp))
+                            Text(p.displayName, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        }
+                        if (idx < LyricsTextPosition.values().lastIndex) HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    }
+                }
+            }
+            item { SectionHeader(text = "Effects") }
+            item {
+                SettingsGroup {
+                    SettingsSwitchItem(icon = null, title = "Glowing lyrics", subtitle = "Highlight active line with glow", checked = glow, onCheckedChange = { scope.launch { prefs.setLyricsGlowEnabled(it) } })
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Standard blur: ${(blur * 10).toInt() / 10f}", style = MaterialTheme.typography.bodyMedium)
+                        Slider(value = blur, onValueChange = { scope.launch { prefs.setLyricsStandardBlur(it) } }, valueRange = 0f..1f)
+                    }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Text size: ${size.toInt()} sp", style = MaterialTheme.typography.bodyMedium)
+                        Slider(value = size, onValueChange = { scope.launch { prefs.setLyricsTextSize(it) } }, valueRange = 12f..28f)
+                    }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Line spacing: ${(spacing * 10).toInt() / 10f}x", style = MaterialTheme.typography.bodyMedium)
+                        Slider(value = spacing, onValueChange = { scope.launch { prefs.setLyricsLineSpacing(it) } }, valueRange = 0.8f..2.2f)
+                    }
+                }
+            }
+            item { SectionHeader(text = "Behavior") }
+            item {
+                SettingsGroup {
+                    SettingsSwitchItem(icon = null, title = "Auto scroll", subtitle = "Follow playback position", checked = autoScroll, onCheckedChange = { scope.launch { prefs.setLyricsAutoScroll(it) } })
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(icon = null, title = "Change on tap", subtitle = "Tap line to seek", checked = changeOnClick, onCheckedChange = { scope.launch { prefs.setLyricsChangeOnClick(it) } })
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(icon = null, title = "Swipe to change song", subtitle = "Horizontal swipe skips track", checked = swipe, onCheckedChange = { scope.launch { prefs.setLyricsSwipeToChangeSong(it) } })
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    SettingsSwitchItem(icon = null, title = "Play/pause on thumbnail", subtitle = "Show control on artwork", checked = showPP, onCheckedChange = { scope.launch { prefs.setLyricsShowPlayPauseOnThumbnail(it) } })
+                }
+            }
+            item { SectionHeader(text = "Providers") }
+            item {
+                val orderList = remember(order) { order.split(",").map { it.trim() }.filter { it.isNotBlank() } }
+                val allProviders = listOf("lrclib" to "LRCLIB", "kugou" to "KuGou", "transcript" to "YouTube Transcript")
+                SettingsGroup {
+                    allProviders.forEachIndexed { idx, (id, label) ->
+                        val posIdx = orderList.indexOf(id)
+                        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("${if (posIdx >= 0) posIdx + 1 else "-"}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.width(28.dp))
+                            Column(Modifier.weight(1f)) { Text(label, style = MaterialTheme.typography.bodyLarge); Text(id, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                            if (posIdx > 0) TextButton(onClick = { val m = orderList.toMutableList(); val a = m.removeAt(posIdx); m.add(posIdx - 1, a); scope.launch { prefs.setLyricsProviderOrder(m.joinToString(",")) } }) { Text("Up") }
+                            if (posIdx in 0 until orderList.lastIndex) TextButton(onClick = { val m = orderList.toMutableList(); val a = m.removeAt(posIdx); m.add(posIdx + 1, a); scope.launch { prefs.setLyricsProviderOrder(m.joinToString(",")) } }) { Text("Down") }
+                        }
+                        if (idx < allProviders.lastIndex) HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    }
+                }
+            }
         }
     }
 }

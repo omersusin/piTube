@@ -2670,8 +2670,8 @@ class PlayerPreferences(context: Context) {
 
     val lyricsAnimation: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_ANIMATION] ?: LyricsAnimationStyle.VIVIMUSIC_FLUID.name }
     suspend fun setLyricsAnimation(style: LyricsAnimationStyle) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_ANIMATION] = style.name } }
-    val lyricsTextPosition: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_TEXT_POSITION] ?: "CENTER" }
-    suspend fun setLyricsTextPosition(pos: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TEXT_POSITION] = pos } }
+    val lyricsTextPosition: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_TEXT_POSITION] ?: LyricsTextPosition.CENTER.name }
+    suspend fun setLyricsTextPosition(pos: LyricsTextPosition) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TEXT_POSITION] = pos.name } }
     val lyricsGlowEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_GLOW_ENABLED] ?: true }
     suspend fun setLyricsGlowEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_GLOW_ENABLED] = v } }
     val lyricsStandardBlur: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_STANDARD_BLUR] ?: 0f }
@@ -2706,9 +2706,15 @@ class PlayerPreferences(context: Context) {
     suspend fun setRecognitionArtSize(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_ART_SIZE] = v.coerceIn(48, 96) } }
 }
 
-enum class LyricsAnimationStyle {
-    NONE, FADE, GLOW, SLIDE, KARAOKE, APPLE_MUSIC, APPLE_MUSIC_V2_LETTER, VIVIMUSIC_FLUID, LYRICS_V2_FLUID, METRO_LYRICS;
+enum class LyricsAnimationStyle(val displayName: String) {
+    NONE("None"), FADE("Fade"), GLOW("Glow"), SLIDE("Slide"), KARAOKE("Karaoke"),
+    APPLE_MUSIC("Apple Music"), APPLE_MUSIC_V2_LETTER("Apple Music V2"), VIVIMUSIC_FLUID("Vivimusic Fluid"), LYRICS_V2_FLUID("Lyrics V2 Fluid"), METRO_LYRICS("MetroLyrics");
     companion object { fun fromString(name: String): LyricsAnimationStyle = values().find { it.name == name } ?: VIVIMUSIC_FLUID }
+}
+
+enum class LyricsTextPosition(val displayName: String) {
+    TOP("Top"), CENTER("Center"), BOTTOM("Bottom");
+    companion object { fun fromString(name: String): LyricsTextPosition = values().find { it.name == name } ?: CENTER }
 }
 
 /** Action to take when a SponsorBlock segment is encountered. */
