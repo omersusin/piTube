@@ -18,10 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.LyricsAnimationStyle
 import com.omersusin.pitube.data.local.LyricsTextPosition
 import com.omersusin.pitube.data.local.PlayerPreferences
-import com.omersusin.pitube.data.lyrics.LyricsProviders
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +41,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val changeOnClick by prefs.lyricsChangeOnClick.collectAsState(initial = false)
     val swipe by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
     val showPP by prefs.lyricsShowPlayPauseOnThumbnail.collectAsState(initial = true)
-    val order by prefs.lyricsProviderOrder.collectAsState(initial = LyricsProviders.defaultOrderCsv())
+    val order by prefs.lyricsProviderOrder.collectAsState(initial = "lrclib,kugou,transcript")
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -118,8 +118,8 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
             }
             item { SectionHeader(text = "Providers") }
             item {
-                val orderList = remember(order) { order.split(",").map { it.trim().lowercase() }.filter { it.isNotBlank() } }
-                val allProviders = listOf("betterlyrics" to "BetterLyrics", "youlyplus" to "YouLyPlus", "netease" to "NetEase", "simpmusic" to "SimpMusic", "lrclib" to "LRCLIB", "kugou" to "KuGou", "unison" to "Unison", "transcript" to "YouTube Transcript")
+                val orderList = remember(order) { order.split(",").map { it.trim() }.filter { it.isNotBlank() } }
+                val allProviders = listOf("lrclib" to "LRCLIB", "kugou" to "KuGou", "transcript" to "YouTube Transcript")
                 SettingsGroup {
                     allProviders.forEachIndexed { idx, (id, label) ->
                         val posIdx = orderList.indexOf(id)
@@ -132,7 +132,6 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                         if (idx < allProviders.lastIndex) HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     }
                 }
-                TextButton(onClick = { scope.launch { prefs.setLyricsProviderOrder(LyricsProviders.defaultOrderCsv()) } }, modifier = Modifier.fillMaxWidth()) { Text("Reset to default order") }
             }
         }
     }

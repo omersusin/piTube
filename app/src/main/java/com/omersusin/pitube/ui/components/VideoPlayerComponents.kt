@@ -51,7 +51,6 @@ import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.ui.theme.extendedColors
 import com.omersusin.pitube.utils.isSongVideoLenient
 import com.omersusin.pitube.ui.translation.rememberTranslatedText
-import org.schabi.newpipe.extractor.stream.StreamInfo
 import com.omersusin.pitube.utils.DateContext
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.formatRichText
