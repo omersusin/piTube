@@ -28,19 +28,13 @@ interface PlaylistDao {
     @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 1 GROUP BY playlists.id ORDER BY createdAt DESC")
     fun getMusicPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
 
-    @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND playlists.id NOT IN ('watch_later', 'saved_shorts')
-        AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\'
-        AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
+    @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND playlists.id NOT IN ('watch_later', 'saved_shorts') AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\' AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
     fun getVideoPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
 
-    @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND isUserCreated = 1 AND playlists.id NOT IN ('watch_later', 'saved_shorts')
-        AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\'
-        AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
+    @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND isUserCreated = 1 AND playlists.id NOT IN ('watch_later', 'saved_shorts') AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\' AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
     fun getUserCreatedVideoPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
 
-    @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND isUserCreated = 0 AND playlists.id NOT IN ('watch_later', 'saved_shorts')
-        AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\'
-        AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
+    @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND isUserCreated = 0 AND playlists.id NOT IN ('watch_later', 'saved_shorts') AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\' AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
     fun getSavedVideoPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
 
     @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 1 AND isUserCreated = 1 GROUP BY playlists.id ORDER BY createdAt DESC")
