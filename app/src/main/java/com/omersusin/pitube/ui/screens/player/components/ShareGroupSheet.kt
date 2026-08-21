@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.omersusin.pitube.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareGroupSheet(onCopyLink: () -> Unit, onCopyAtTime: () -> Unit, onShare: () -> Unit, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss) {

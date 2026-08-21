@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.omersusin.pitube.data.local.PlayerPreferences
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecognitionAppearanceScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current

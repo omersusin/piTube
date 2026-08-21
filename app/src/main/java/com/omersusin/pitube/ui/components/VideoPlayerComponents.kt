@@ -274,7 +274,6 @@ fun VideoInfoSection(
         // ============ ACTION ROW ============
         val ctx2 = LocalContext.current
         val prefs2 = remember { PlayerPreferences(ctx2) }
-        val showLyricsAction by remember { prefs2.lyricsAnimation }.collectAsState(initial = LyricsAnimationStyle.VIVIMUSIC_FLUID.name).let { _ -> remember { mutableStateOf(video.isMusic) } }
         val shareGrouped by prefs2.actionRowGrouped.collectAsState(initial = true)
         val orderCsv by prefs2.actionRowOrder.collectAsState(initial = "")
         val visCsv by prefs2.actionRowVisibility.collectAsState(initial = "")

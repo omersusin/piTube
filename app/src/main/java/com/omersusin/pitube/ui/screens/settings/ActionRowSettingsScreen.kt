@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 private val DEFAULT_ORDER = listOf("like","save","download","background","share_group","lyrics")
 private val SHARE_MEMBERS = setOf("share","copy_link","copy_at_time")
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActionRowSettingsScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current
