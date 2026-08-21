@@ -1,5 +1,6 @@
 package com.omersusin.pitube.data.local
 
+import android.content.Context
 import com.omersusin.pitube.data.local.dao.PlaylistDao
 import com.omersusin.pitube.data.local.dao.PlaylistWithCount
 import com.omersusin.pitube.data.local.dao.VideoDao
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +25,7 @@ import javax.inject.Singleton
 class PlaylistRepository @Inject constructor(
     private val playlistDao: PlaylistDao,
     private val videoDao: VideoDao,
-    private val context: android.content.Context
+    @ApplicationContext private val context: Context
 ) {
     constructor(context: android.content.Context) : this(
         AppDatabase.getDatabase(context).playlistDao(),
