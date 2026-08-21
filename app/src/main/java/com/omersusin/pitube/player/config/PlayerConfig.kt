@@ -129,6 +129,9 @@ object PlayerConfig {
 
     /** Prolonged-buffering watchdog: escalate to stream re-resolution after this long frozen. */
     const val STALL_ESCALATION_MS = 20_000L
+
+    /** Coalescing window for rapid SABR seeks (e.g. lyric-tap seeking). */
+    const val SABR_SEEK_COALESCE_MS = 150L
     
     // ===== Surface Configuration =====
     /** Default surface ready timeout in milliseconds */

@@ -80,6 +80,14 @@ fun PlayerBottomSheetsContainer(
     val queueSwipeToRemoveEnabled by remember { PlayerPreferences(context).queueSwipeToRemoveEnabled }
         .collectAsStateWithLifecycle(initialValue = true)
 
+    val lyricsPrefs = remember { PlayerPreferences(context) }
+    val lyricsShowPlayPause by lyricsPrefs.lyricsShowPlayPauseOnThumbnail
+        .collectAsStateWithLifecycle(initialValue = true)
+    val lyricsSwipeToChangeSong by lyricsPrefs.lyricsSwipeToChangeSong
+        .collectAsStateWithLifecycle(initialValue = false)
+    val playerIsPlaying by EnhancedPlayerManager.getInstance().playerState
+        .collectAsStateWithLifecycle()
+
     val sortedComments =
         remember(comments, screenState.commentSortFilter) {
             sortCommentsByFilter(comments, screenState.commentSortFilter)
@@ -187,6 +195,14 @@ fun PlayerBottomSheetsContainer(
             currentPosition = screenState.currentPosition,
             onLyricsLineClick = { positionMs ->
                 EnhancedPlayerManager.getInstance().seekTo(positionMs)
+            },
+            onSwipeNextTrack = if (lyricsSwipeToChangeSong) { { EnhancedPlayerManager.getInstance().playNext() } } else null,
+            onSwipePrevTrack = if (lyricsSwipeToChangeSong) { { EnhancedPlayerManager.getInstance().playPrevious() } } else null,
+            showPlayPauseControl = lyricsShowPlayPause,
+            isPlaying = playerIsPlaying.isPlaying,
+            onTogglePlayPause = {
+                val p = EnhancedPlayerManager.getInstance().getPlayer()
+                if (p != null) { if (p.isPlaying) p.pause() else p.play() }
             },
             onRequestLyrics = { onRequestLyrics(video.id) },
             expandedHeight = mediaSheetExpandedHeight,

@@ -41,7 +41,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val changeOnClick by prefs.lyricsChangeOnClick.collectAsState(initial = false)
     val swipe by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
     val showPP by prefs.lyricsShowPlayPauseOnThumbnail.collectAsState(initial = true)
-    val order by prefs.lyricsProviderOrder.collectAsState(initial = "lrclib,kugou,transcript")
+    val order by prefs.lyricsProviderOrder.collectAsState(initial = com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER)
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -119,7 +119,14 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
             item { SectionHeader(text = "Providers") }
             item {
                 val orderList = remember(order) { order.split(",").map { it.trim() }.filter { it.isNotBlank() } }
-                val allProviders = listOf("lrclib" to "LRCLIB", "kugou" to "KuGou", "transcript" to "YouTube Transcript")
+                val allProviders = listOf(
+                    "lrclib" to "LRCLIB",
+                    "betterlyrics" to "BetterLyrics",
+                    "simpmusic" to "SimpMusic",
+                    "kugou" to "KuGou",
+                    "youlyplus" to "YouLyPlus",
+                    "transcript" to "YouTube Transcript",
+                )
                 SettingsGroup {
                     allProviders.forEachIndexed { idx, (id, label) ->
                         val posIdx = orderList.indexOf(id)

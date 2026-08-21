@@ -60,13 +60,15 @@ fun SyncedLyricsView(
     val blurVal by prefs.lyricsStandardBlur.collectAsState(initial = 0f)
     val autoScroll by prefs.lyricsAutoScroll.collectAsState(initial = true)
     val swipeEnabled by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
+    val changeOnClick by prefs.lyricsChangeOnClick.collectAsState(initial = false)
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         when (lyricsResult) {
             is LyricsFetchResult.Success -> LyricsContent(
                 lines = lyricsResult.lines, currentPositionMs = currentPositionMs, onSeekTo = onSeekTo,
                 anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal,
-                autoScroll = autoScroll, textPos = textPos, swipeEnabled = swipeEnabled, onSwipeNext = onSwipeNext, onSwipePrev = onSwipePrev
+                autoScroll = autoScroll, textPos = textPos, swipeEnabled = swipeEnabled, onSwipeNext = onSwipeNext, onSwipePrev = onSwipePrev,
+                changeOnClick = changeOnClick
             )
             is LyricsFetchResult.NotFound -> Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
                 Icon(Icons.Rounded.MusicOff, null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
@@ -85,7 +87,8 @@ private fun LyricsContent(
     lines: List<LrcLine>, currentPositionMs: Long, onSeekTo: (Long) -> Unit,
     anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float,
     autoScroll: Boolean, textPos: LyricsTextPosition, swipeEnabled: Boolean,
-    onSwipeNext: (() -> Unit)?, onSwipePrev: (() -> Unit)?
+    onSwipeNext: (() -> Unit)?, onSwipePrev: (() -> Unit)?,
+    changeOnClick: Boolean
 ) {
     val listState = rememberLazyListState()
     val currentIndex by remember(currentPositionMs, lines) { derivedStateOf { lines.indexOfLast { it.timeMs <= currentPositionMs } } }
@@ -138,7 +141,7 @@ private fun LyricsContent(
             itemsIndexed(lines, key = { i, l -> "${i}_${l.timeMs}" }) { idx, line ->
                 val nextTime = lines.getOrNull(idx + 1)?.timeMs ?: (line.timeMs + 4000L)
                 val duration = (nextTime - line.timeMs).coerceAtLeast(800L)
-                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, currentPositionMs = currentPositionMs, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { onSeekTo(line.timeMs) })
+                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, currentPositionMs = currentPositionMs, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) })
             }
         }
     }

@@ -204,6 +204,7 @@ class EnhancedPlayerManager private constructor() {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val mainHandler = Handler(Looper.getMainLooper())
     private var pendingReloadJob: Job? = null
+    private var sabrSeekJob: Job? = null
 
     private var lastReloadAttemptAtMs = 0L
     private var rapidReloadCount = 0
@@ -2937,15 +2938,27 @@ class EnhancedPlayerManager private constructor() {
         val shouldPlay = player?.playWhenReady ?: true
         Log.d(TAG, "SABR seek: rebuilding session at ${positionMs}ms")
         _playerState.value = _playerState.value.copy(isBuffering = true)
-        scope.launch {
-            mediaLoader?.releaseSabr()
-            player?.stop()
-            player?.clearMediaItems()
-            val loaded = loadMediaInternal(currentVideoStream, currentAudioStream, positionMs)
-            if (loaded) {
-                player?.playWhenReady = shouldPlay
+        // Coalesce rapid lyric-tap seeks into one rebuild; each rebuild tears down the
+        // whole SABR session so overlapping ones race and can leave the player cleared.
+        sabrSeekJob?.cancel()
+        sabrSeekJob =
+            scope.launch {
+                delay(PlayerConfig.SABR_SEEK_COALESCE_MS)
+                if (!isActive) return@launch
+                mediaLoader?.releaseSabr()
+                player?.stop()
+                player?.clearMediaItems()
+                val loaded = loadMediaInternal(currentVideoStream, currentAudioStream, positionMs)
+                if (loaded) {
+                    player?.playWhenReady = shouldPlay
+                } else {
+                    // Reload failed (stale stream URLs / source build error) — without this
+                    // the player stays cleared and the video freezes forever. Escalate to the
+                    // full re-extraction recovery chain, resuming at the requested position.
+                    Log.w(TAG, "SABR seek reload failed at ${positionMs}ms — escalating to stream re-resolution")
+                    _streamExpiredEvent.emit(positionMs.coerceAtLeast(0L))
+                }
             }
-        }
     }
 
     fun seekToLiveTimeline(position: Long) {

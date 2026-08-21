@@ -2688,7 +2688,7 @@ class PlayerPreferences(context: Context) {
     suspend fun setLyricsSwipeToChangeSong(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SWIPE_TO_CHANGE_SONG] = v } }
     val lyricsShowPlayPauseOnThumbnail: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL] ?: true }
     suspend fun setLyricsShowPlayPauseOnThumbnail(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL] = v } }
-    val lyricsProviderOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_PROVIDER_ORDER] ?: "lrclib,kugou,transcript" }
+    val lyricsProviderOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_PROVIDER_ORDER] ?: com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER }
     suspend fun setLyricsProviderOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_PROVIDER_ORDER] = order } }
 
     val actionRowOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.ACTION_ROW_ORDER] ?: "" }

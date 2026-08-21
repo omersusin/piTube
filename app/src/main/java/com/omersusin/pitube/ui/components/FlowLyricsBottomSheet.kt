@@ -8,6 +8,8 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,6 +43,11 @@ fun FlowLyricsBottomSheet(
     collapsedHeight: Dp = 0.dp,
     enableVerticalDismiss: Boolean = true,
     onSheetProgressChange: (Float) -> Unit = {},
+    onSwipeNextTrack: (() -> Unit)? = null,
+    onSwipePrevTrack: (() -> Unit)? = null,
+    showPlayPauseControl: Boolean = false,
+    isPlaying: Boolean = false,
+    onTogglePlayPause: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val configuration = LocalConfiguration.current
@@ -109,6 +116,15 @@ fun FlowLyricsBottomSheet(
                             Text(text = stringResource(R.string.lyrics_synced), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
+                    if (showPlayPauseControl) {
+                        IconButton(onClick = onTogglePlayPause, modifier = Modifier.size(40.dp)) {
+                            Icon(
+                                imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                                contentDescription = stringResource(if (isPlaying) R.string.pause else R.string.play),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.18f))
                 when (lyricsState) {
@@ -122,11 +138,11 @@ fun FlowLyricsBottomSheet(
                     }
                     is LyricsUiState.Synced -> {
                         val injected = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text) } }
-                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, modifier = Modifier.fillMaxWidth().weight(1f))
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, modifier = Modifier.fillMaxWidth().weight(1f))
                     }
                     is LyricsUiState.SyncedWithWords -> {
                         val withWords = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text, lyricsState.wordSpans[tl.startMs].orEmpty()) } }
-                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(withWords), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, modifier = Modifier.fillMaxWidth().weight(1f))
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(withWords), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, modifier = Modifier.fillMaxWidth().weight(1f))
                     }
                     is LyricsUiState.Plain -> {
                         Box(modifier = Modifier.fillMaxWidth().weight(1f).padding(16.dp), contentAlignment = Alignment.TopStart) {

@@ -2,7 +2,6 @@ package com.omersusin.pitube.data.lyrics
 
 import android.util.Log
 import com.omersusin.pitube.data.repository.YouTubeRepository
-import com.omersusin.pitube.innertube.YouTube
 import com.omersusin.pitube.data.local.PlayerPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -22,33 +21,15 @@ class LyricsRepository @Inject constructor(
     suspend fun fetchLyrics(videoId: String, title: String, artist: String, album: String = "", durationMs: Long = 0L): LyricsFetchResult = withContext(Dispatchers.IO) {
         memCache[videoId]?.let { return@withContext LyricsFetchResult.Success(it) }
         loadDiskCache(videoId)?.let { memCache[videoId] = it; return@withContext LyricsFetchResult.Success(it) }
-        val order = try { playerPreferences.lyricsProviderOrder.first() } catch (_: Exception) { "lrclib,kugou,transcript" }
-        // 1) try external providers
+        val order = try { playerPreferences.lyricsProviderOrder.first() } catch (_: Exception) { LyricsProviders.DEFAULT_ORDER }
+        // 1) try external providers (transcript included as an orderable provider)
         for (p in LyricsProviders.ordered(order)) {
-            if (p.id == "transcript") continue
             try {
-                val raw = p.fetch(title, artist, album, durationMs) ?: continue
+                val raw = p.fetch(title, artist, album, durationMs, videoId) ?: continue
                 val parsed = LrcParser.parse(raw)
                 if (parsed.isNotEmpty()) { memCache[videoId] = parsed; saveDiskCache(videoId, raw); return@withContext LyricsFetchResult.Success(parsed) }
             } catch (e: Exception) { Log.d("LyricsRepository", "provider ${p.id} failed ${e.message}") }
         }
-        // 2) transcript fallback
-        try {
-            val lines = YouTube.transcript(videoId).getOrNull().orEmpty()
-            if (lines.isNotEmpty()) {
-                val converted = lines.map { LrcLine(it.startMs, it.text) }
-                memCache[videoId] = converted; return@withContext LyricsFetchResult.Success(converted)
-            }
-            val ep = YouTube.lyricsEndpoint(videoId).getOrNull()
-            if (ep != null) {
-                val text = YouTube.lyrics(ep).getOrNull().orEmpty()
-                if (text.isNotBlank()) {
-                    val lrc = text.lines().joinToString("\n") { "[00:00.00]$it" }
-                    val parsed = LrcParser.parse(lrc)
-                    if (parsed.isNotEmpty()) return@withContext LyricsFetchResult.Success(parsed)
-                }
-            }
-        } catch (e: Exception) { Log.d("LyricsRepository", "transcript failed ${e.message}") }
         LyricsFetchResult.NotFound
     }
 
