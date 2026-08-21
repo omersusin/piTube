@@ -107,7 +107,7 @@ class BackupRepository(private val context: Context) {
                 viewHistory = viewHistory.getAllHistory().first(),
                 searchHistory = searchHistoryRepo.getSearchHistoryFlow().first(),
                 subscriptions = subscriptionRepo.getAllSubscriptions().first(),
-                playlists = database.playlistDao().getAllPlaylists().first(),
+                playlists = database.playlistDao().getAllPlaylistsUnscoped(),
                 playlistVideos = database.playlistDao().getAllPlaylistVideoCrossRefs(),
                 videos = database.videoDao().getAllVideos(),
                 subscriptionGroups = database.subscriptionGroupDao().getAllGroupsOnce(),

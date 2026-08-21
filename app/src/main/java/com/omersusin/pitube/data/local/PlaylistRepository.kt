@@ -373,6 +373,8 @@ class PlaylistRepository @Inject constructor(
             }
         }
 
+    fun getAllPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getAllPlaylistsWithCount(it) }
+
     fun getUserCreatedVideoPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getUserCreatedVideoPlaylistsWithCount(it) }
 
     fun getSavedVideoPlaylistsFlow(): Flow<List<PlaylistInfo>> = scopedPlaylistsWithCount { playlistDao.getSavedVideoPlaylistsWithCount(it) }

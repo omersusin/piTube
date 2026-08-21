@@ -472,7 +472,8 @@ private fun TrackResultCard(
     onSearch: () -> Unit,
 ) {
     // Recognition appearance settings (default = auto theme; optional customization).
-    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val context = LocalContext.current
+    val prefs = remember(context) { com.omersusin.pitube.data.local.PlayerPreferences(context) }
     val cardStyle by prefs.recognitionCardStyle.collectAsState(initial = "default")
     val cornerRadius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
     val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
