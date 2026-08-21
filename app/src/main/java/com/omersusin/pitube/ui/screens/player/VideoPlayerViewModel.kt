@@ -346,19 +346,20 @@ class VideoPlayerViewModel @Inject constructor(
         // from PlaybackTracker even when the player screen isn't composed (audio-only,
         // background playback, mid-play stalls).
         EnhancedPlayerManager.getInstance().onPlaybackPositionPersist = { positionMs ->
-            val video = _uiState.value.cachedVideo ?: return@onPlaybackPositionPersist
-            val durationMs = (video.duration.takeIf { it > 0 } ?: 0) * 1000L
-            if (durationMs <= 0L || positionMs <= 0L) return@onPlaybackPositionPersist
-            savePlaybackPosition(
-                videoId = video.id,
-                position = positionMs,
-                duration = durationMs,
-                title = video.title,
-                thumbnailUrl = video.thumbnailUrl,
-                channelName = video.channelName,
-                channelId = video.channelId,
-                isShort = video.isShort
-            )
+            val video = _uiState.value.cachedVideo
+            val durationMs = (video?.duration?.takeIf { it > 0 } ?: 0) * 1000L
+            if (video != null && durationMs > 0L && positionMs > 0L) {
+                savePlaybackPosition(
+                    videoId = video.id,
+                    position = positionMs,
+                    duration = durationMs,
+                    title = video.title,
+                    thumbnailUrl = video.thumbnailUrl,
+                    channelName = video.channelName,
+                    channelId = video.channelId,
+                    isShort = video.isShort
+                )
+            }
         }
 
         viewModelScope.launch {
