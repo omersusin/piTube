@@ -81,17 +81,6 @@ fun RecognitionScreen(
         }
     }
 
-    // Auto-submit the final result as a piTube search query (per spec: the
-    // recognized track / transcript immediately becomes the search). The short
-    // beat lets the result card be seen before the modal closes.
-    val latestOnSearch by rememberUpdatedState(onSearch)
-    LaunchedEffect(uiState.phase, uiState.transcript, uiState.track) {
-        if (uiState.phase != RecognitionPhase.SUCCESS) return@LaunchedEffect
-        val query = uiState.transcript ?: uiState.track?.searchQuery ?: return@LaunchedEffect
-        delay(500)
-        latestOnSearch(query)
-    }
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,

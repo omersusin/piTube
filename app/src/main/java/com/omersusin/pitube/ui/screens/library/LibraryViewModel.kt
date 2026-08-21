@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.omersusin.pitube.data.local.LikedVideosRepository
 import com.omersusin.pitube.data.local.PlaylistRepository
+import com.omersusin.pitube.data.local.SubscriptionRepository
 import com.omersusin.pitube.data.local.ViewHistory
 import com.omersusin.pitube.data.video.VideoDownloadManager
 import javax.inject.Inject
@@ -21,11 +22,16 @@ import kotlinx.coroutines.flow.stateIn
 class LibraryViewModel @Inject constructor(
     @ApplicationContext context: Context,
     playlistRepository: PlaylistRepository,
-    videoDownloadManager: VideoDownloadManager
+    videoDownloadManager: VideoDownloadManager,
+    subscriptionRepository: SubscriptionRepository = SubscriptionRepository.getInstance(context)
 ) : ViewModel() {
 
     private val likedVideosRepository = LikedVideosRepository.getInstance(context)
     private val viewHistory = ViewHistory.getInstance(context)
+    val subscriptions = subscriptionRepository.getAllSubscriptions()
+        .map { it.take(20) }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     private val sharing = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000L)
 
     internal val history = viewHistory.getRecentLibraryHistory(LIBRARY_SHELF_ITEM_LIMIT)

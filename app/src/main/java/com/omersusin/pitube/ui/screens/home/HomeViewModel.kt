@@ -891,24 +891,32 @@ class HomeViewModel @Inject constructor(
 
                 Log.d(TAG, "Wave 1 fetch completed in ${System.currentTimeMillis() - fetchStart}ms")
 
-                val subAvatarMap: Map<String, String> = runCatching {
+                val subMap: Map<String, com.omersusin.pitube.data.local.ChannelSubscription> = runCatching {
                     subscriptionRepository.getAllSubscriptions().first()
-                        .filter { it.channelThumbnail.isNotEmpty() }
-                        .associate { it.channelId to it.channelThumbnail }
+                        .associateBy { it.channelId }
                 }.getOrElse { emptyMap() }
 
                 fun List<Video>.enrichAvatars(): List<Video> =
-                    if (subAvatarMap.isEmpty()) this
+                    if (subMap.isEmpty()) this
                     else map { v ->
-                        if (v.channelThumbnailUrl.isEmpty() && subAvatarMap.containsKey(v.channelId))
-                            v.copy(
-                                channelThumbnailUrl = subAvatarMap.getValue(v.channelId),
-                                channelThumbnailUrls = v.channelThumbnailUrls.ifEmpty {
-                                    listOf(subAvatarMap.getValue(v.channelId))
-                                }
-                            )
-                        else v
+                        val sub = subMap[v.channelId] ?: return@map v
+                        val needAvatar = v.channelThumbnailUrl.isBlank()
+                        val needName = v.channelName.isBlank()
+                        if (!needAvatar && !needName) return@map v
+                        v.copy(
+                            channelName = if (needName) sub.channelName.ifBlank { v.channelName } else v.channelName,
+                            channelThumbnailUrl = if (needAvatar) sub.channelThumbnail.ifBlank { v.channelThumbnailUrl } else v.channelThumbnailUrl,
+                            channelThumbnailUrls = if (needAvatar && sub.channelThumbnail.isNotBlank()) {
+                                v.channelThumbnailUrls.ifEmpty { listOf(sub.channelThumbnail) }
+                            } else v.channelThumbnailUrls
+                        )
                     }
+
+                fun Video.fallbackChannelName(): String =
+                    channelName.ifBlank { channelId.ifBlank { "" }.takeIf { it.startsWith("UC") } ?: channelId }
+
+                fun List<Video>.withFallbackNames(): List<Video> =
+                    map { v -> if (v.channelName.isBlank()) v.copy(channelName = v.fallbackChannelName()) else v }
 
                 val now = System.currentTimeMillis()
 
@@ -926,11 +934,11 @@ class HomeViewModel @Inject constructor(
                 // Filter to regular videos for the main feed
                 val watched = watchedVideoIds.value
                 val unplayable = unplayableVideoIds.value
-                val subsPool = rawSubs.filterSignedValid().filterWatched(watched).filterUnplayable(unplayable).enrichAvatars()
+                val subsPool = rawSubs.filterSignedValid().filterWatched(watched).filterUnplayable(unplayable).enrichAvatars().withFallbackNames()
                 val discoveryPool = rawDiscovery.filterValid().filterWatched(watched).filterUnplayable(unplayable)
-                    .filterRecentHomeSuggestion(now)
+                    .filterRecentHomeSuggestion(now).enrichAvatars().withFallbackNames()
                 val viralPool = rawViral.filterValid().filterWatched(watched).filterUnplayable(unplayable)
-                    .filterRecentHomeSuggestion(now)
+                    .filterRecentHomeSuggestion(now).enrichAvatars().withFallbackNames()
 
                 Log.d(
                     TAG,

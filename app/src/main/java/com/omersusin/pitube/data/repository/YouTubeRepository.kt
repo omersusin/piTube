@@ -136,7 +136,8 @@ class YouTubeRepository
                                 (
                                     video.channelId.isBlank() ||
                                         !video.channelId.startsWith("UC") ||
-                                        video.channelThumbnailUrl.isBlank()
+                                        video.channelThumbnailUrl.isBlank() ||
+                                        video.channelName.isBlank()
                                 )
                         }.take(limit)
                 if (candidates.isEmpty()) return@supervisorScope videos

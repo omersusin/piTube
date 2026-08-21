@@ -3,9 +3,12 @@ package com.omersusin.pitube.data.local
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 internal val Context.likedVideosDataStore: DataStore<Preferences> by safePreferencesDataStore(name = "liked_videos")
@@ -14,6 +17,7 @@ class LikedVideosRepository private constructor(
     private val context: Context,
     private val dataStore: DataStore<Preferences>
 ) {
+    private val profileManager = ProfileManager(context)
     
     companion object {
         @Volatile
@@ -28,32 +32,53 @@ class LikedVideosRepository private constructor(
             }
         }
         
-        // Keys format: "video_{videoId}" -> JSON string with video info
-        private fun videoKey(videoId: String) = stringPreferencesKey("video_$videoId")
-        private fun likeStateKey(videoId: String) = stringPreferencesKey("like_state_$videoId")
-        private const val LIKED_VIDEOS_ORDER_KEY = "liked_videos_order"
+        private fun scopedKey(profileId: String, base: String) = stringPreferencesKey("${profileId}|$base")
+        private fun videoKey(profileId: String, videoId: String) = scopedKey(profileId, "video_$videoId")
+        private fun likeStateKey(profileId: String, videoId: String) = scopedKey(profileId, "like_state_$videoId")
+        private fun orderKey(profileId: String) = scopedKey(profileId, "liked_videos_order")
+        private const val LEGACY_MIGRATED_KEY = "liked_videos_scoped_v1"
+        private fun legacyVideoKey(videoId: String) = stringPreferencesKey("video_$videoId")
+        private fun legacyLikeStateKey(videoId: String) = stringPreferencesKey("like_state_$videoId")
+        private const val LEGACY_ORDER_KEY = "liked_videos_order"
     }
     
+    suspend fun ensureScopeMigration() {
+        dataStore.edit { preferences ->
+            if (preferences[booleanPreferencesKey(LEGACY_MIGRATED_KEY)] == true) return@edit
+            val profileId = profileManager.activeProfileId.value
+            if (profileId.isBlank()) return@edit
+            val legacyOrder = preferences[stringPreferencesKey(LEGACY_ORDER_KEY)]
+            if (!legacyOrder.isNullOrEmpty()) {
+                if (preferences[orderKey(profileId)] == null) preferences[orderKey(profileId)] = legacyOrder
+                preferences.remove(stringPreferencesKey(LEGACY_ORDER_KEY))
+            }
+            val keysToMove = preferences.asMap().keys.filter { k ->
+                val n = k.name
+                (n.startsWith("video_") || n.startsWith("like_state_")) && !n.contains("|")
+            }.toList()
+            keysToMove.forEach { key ->
+                val v = preferences[key] as? String ?: return@forEach
+                preferences[scopedKey(profileId, key.name)] = v
+                preferences.remove(key)
+            }
+            preferences[booleanPreferencesKey(LEGACY_MIGRATED_KEY)] = true
+        }
+    }
+
     /**
-     * Like a video
+     * Like a video — scoped to active profile
      */
     suspend fun likeVideo(videoInfo: LikedVideoInfo) {
         dataStore.edit { preferences ->
-            // Save video data
-            preferences[videoKey(videoInfo.videoId)] = serializeVideo(videoInfo)
-            preferences[likeStateKey(videoInfo.videoId)] = "LIKED"
-            
-            // Update order list
-            val currentOrder = preferences[stringPreferencesKey(LIKED_VIDEOS_ORDER_KEY)] ?: ""
-            val orderList = if (currentOrder.isEmpty()) {
-                mutableListOf()
-            } else {
-                currentOrder.split(",").toMutableList()
-            }
-            
+            val profileId = profileManager.activeProfileId.value
+            if (profileId.isBlank()) return@edit
+            preferences[videoKey(profileId, videoInfo.videoId)] = serializeVideo(videoInfo)
+            preferences[likeStateKey(profileId, videoInfo.videoId)] = "LIKED"
+            val currentOrder = preferences[orderKey(profileId)] ?: ""
+            val orderList = if (currentOrder.isEmpty()) mutableListOf() else currentOrder.split(",").toMutableList()
             if (!orderList.contains(videoInfo.videoId)) {
-                orderList.add(0, videoInfo.videoId) // Add to front
-                preferences[stringPreferencesKey(LIKED_VIDEOS_ORDER_KEY)] = orderList.joinToString(",")
+                orderList.add(0, videoInfo.videoId)
+                preferences[orderKey(profileId)] = orderList.joinToString(",")
             }
         }
     }
@@ -63,14 +88,14 @@ class LikedVideosRepository private constructor(
      */
     suspend fun dislikeVideo(videoId: String) {
         dataStore.edit { preferences ->
-            preferences[likeStateKey(videoId)] = "DISLIKED"
-            
-            // Remove from liked videos list
-            val currentOrder = preferences[stringPreferencesKey(LIKED_VIDEOS_ORDER_KEY)] ?: ""
+            val profileId = profileManager.activeProfileId.value
+            if (profileId.isBlank()) return@edit
+            preferences[likeStateKey(profileId, videoId)] = "DISLIKED"
+            val currentOrder = preferences[orderKey(profileId)] ?: ""
             if (currentOrder.isNotEmpty()) {
                 val orderList = currentOrder.split(",").toMutableList()
                 orderList.remove(videoId)
-                preferences[stringPreferencesKey(LIKED_VIDEOS_ORDER_KEY)] = orderList.joinToString(",")
+                preferences[orderKey(profileId)] = orderList.joinToString(",")
             }
         }
     }
@@ -79,8 +104,8 @@ class LikedVideosRepository private constructor(
      * Get like state for a video (LIKED, DISLIKED, or null)
      */
     fun getLikeState(videoId: String): Flow<String?> {
-        return dataStore.data.map { preferences ->
-            preferences[likeStateKey(videoId)]
+        return combine(profileManager.activeProfileId, dataStore.data) { profileId, preferences ->
+            if (profileId.isBlank()) null else preferences[likeStateKey(profileId, videoId)]
         }
     }
     
@@ -89,30 +114,29 @@ class LikedVideosRepository private constructor(
      */
     suspend fun removeLikeState(videoId: String) {
         dataStore.edit { preferences ->
-            preferences.remove(likeStateKey(videoId))
-            
-            // Remove from liked videos list
-            val currentOrder = preferences[stringPreferencesKey(LIKED_VIDEOS_ORDER_KEY)] ?: ""
+            val profileId = profileManager.activeProfileId.value
+            if (profileId.isBlank()) return@edit
+            preferences.remove(likeStateKey(profileId, videoId))
+            val currentOrder = preferences[orderKey(profileId)] ?: ""
             if (currentOrder.isNotEmpty()) {
                 val orderList = currentOrder.split(",").toMutableList()
                 orderList.remove(videoId)
-                preferences[stringPreferencesKey(LIKED_VIDEOS_ORDER_KEY)] = orderList.joinToString(",")
+                preferences[orderKey(profileId)] = orderList.joinToString(",")
             }
         }
     }
     
     /**
-     * Get all liked videos (mixed)
+     * Get all liked videos (mixed) — scoped to active profile
      */
     fun getAllLikedVideos(): Flow<List<LikedVideoInfo>> {
-        return dataStore.data.map { preferences ->
-            val orderString = preferences[stringPreferencesKey(LIKED_VIDEOS_ORDER_KEY)] ?: ""
-            if (orderString.isEmpty()) {
-                emptyList()
-            } else {
+        return combine(profileManager.activeProfileId, dataStore.data) { profileId, preferences ->
+            if (profileId.isBlank()) return@combine emptyList()
+            val orderString = preferences[orderKey(profileId)] ?: ""
+            if (orderString.isEmpty()) emptyList() else {
                 val orderList = orderString.split(",")
                 orderList.mapNotNull { videoId ->
-                    val videoData = preferences[videoKey(videoId)]
+                    val videoData = preferences[videoKey(profileId, videoId)]
                     videoData?.let { deserializeVideo(it) }
                 }
             }

@@ -1673,12 +1673,12 @@ object YouTube {
         val resolvedChannelId = channelPart?.runs
             ?.firstNotNullOfOrNull { it.navigationEndpoint?.browseEndpoint?.browseId }
             ?: channelId
-        val resolvedChannelName =
-            if (resolvedChannelId != channelId) {
-                channelPart?.text?.content?.takeIf { it.isNotBlank() } ?: channelName
-            } else {
-                channelName
-            }
+        val rawChannelName = if (resolvedChannelId != channelId) {
+            channelPart?.text?.content?.takeIf { it.isNotBlank() } ?: channelName
+        } else {
+            channelName
+        }
+        val resolvedChannelName = rawChannelName.ifBlank { channelName.ifBlank { resolvedChannelId.takeIf { it.startsWith("UC") } ?: channelId } }
         val resolvedThumbnail = metadata.image
             ?.decoratedAvatarViewModel?.avatar?.avatarViewModel?.image?.sources
             ?.maxByOrNull { it.width ?: 0 }
