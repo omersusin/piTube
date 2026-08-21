@@ -167,15 +167,9 @@ private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, i
         LyricsAnimationStyle.APPLE_MUSIC, LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> 12f
         else -> 0f
     }
-    val springSpec = when (anim) {
-        LyricsAnimationStyle.VIVIMUSIC_FLUID -> spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)
-        LyricsAnimationStyle.LYRICS_V2_FLUID -> spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow)
-        LyricsAnimationStyle.SLIDE -> spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium)
-        else -> spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)
-    }
-    val scale by animateFloatAsState(targetValue = scaleTarget, animationSpec = springSpec, label = "scale")
-    val alpha by animateFloatAsState(targetValue = alphaTarget, animationSpec = spring(stiffness = Spring.StiffnessLow), label = "alpha")
-    val offset by animateFloatAsState(targetValue = offsetTarget, animationSpec = spring(stiffness = Spring.StiffnessLow), label = "offset")
+    val scale by animateFloatAsState(targetValue = scaleTarget, animationSpec = spring<Float>(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow), label = "scale")
+    val alpha by animateFloatAsState(targetValue = alphaTarget, animationSpec = spring<Float>(stiffness = Spring.StiffnessLow), label = "alpha")
+    val offset by animateFloatAsState(targetValue = offsetTarget, animationSpec = spring<Float>(stiffness = Spring.StiffnessLow), label = "offset")
 
     val blurMod = when {
         !isCurrent && anim == LyricsAnimationStyle.APPLE_MUSIC -> Modifier.blur(10.dp)

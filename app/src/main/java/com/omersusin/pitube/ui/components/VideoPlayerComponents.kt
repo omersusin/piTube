@@ -296,7 +296,7 @@ fun VideoInfoSection(
             onLyricsClick = onLyricsClick,
             isSaved = isSaved,
             isDownloaded = isDownloaded,
-            showLyrics = isSongVideoLenient(video, _uiState.value.streamInfo),
+            showLyrics = isSongVideoLenient(video, null),
             shareGrouped = shareGrouped,
             onShareGroupClick = { showShareSheet = true },
             orderedIds = ordered,

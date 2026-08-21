@@ -6,6 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Swipe
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.VerticalAlignCenter
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -81,7 +86,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
             item { SectionHeader(text = "Effects") }
             item {
                 SettingsGroup {
-                    SettingsSwitchItem(icon = null, title = "Glowing lyrics", subtitle = "Highlight active line with glow", checked = glow, onCheckedChange = { scope.launch { prefs.setLyricsGlowEnabled(it) } })
+                    SettingsSwitchItem(icon = Icons.Outlined.AutoAwesome, title = "Glowing lyrics", subtitle = "Highlight active line with glow", checked = glow, onCheckedChange = { scope.launch { prefs.setLyricsGlowEnabled(it) } })
                     HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Standard blur: ${(blur * 10).toInt() / 10f}", style = MaterialTheme.typography.bodyMedium)
@@ -102,13 +107,13 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
             item { SectionHeader(text = "Behavior") }
             item {
                 SettingsGroup {
-                    SettingsSwitchItem(icon = null, title = "Auto scroll", subtitle = "Follow playback position", checked = autoScroll, onCheckedChange = { scope.launch { prefs.setLyricsAutoScroll(it) } })
+                    SettingsSwitchItem(icon = Icons.Outlined.VerticalAlignCenter, title = "Auto scroll", subtitle = "Follow playback position", checked = autoScroll, onCheckedChange = { scope.launch { prefs.setLyricsAutoScroll(it) } })
                     HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    SettingsSwitchItem(icon = null, title = "Change on tap", subtitle = "Tap line to seek", checked = changeOnClick, onCheckedChange = { scope.launch { prefs.setLyricsChangeOnClick(it) } })
+                    SettingsSwitchItem(icon = Icons.Outlined.TouchApp, title = "Change on tap", subtitle = "Tap line to seek", checked = changeOnClick, onCheckedChange = { scope.launch { prefs.setLyricsChangeOnClick(it) } })
                     HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    SettingsSwitchItem(icon = null, title = "Swipe to change song", subtitle = "Horizontal swipe skips track", checked = swipe, onCheckedChange = { scope.launch { prefs.setLyricsSwipeToChangeSong(it) } })
+                    SettingsSwitchItem(icon = Icons.Outlined.Swipe, title = "Swipe to change song", subtitle = "Horizontal swipe skips track", checked = swipe, onCheckedChange = { scope.launch { prefs.setLyricsSwipeToChangeSong(it) } })
                     HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    SettingsSwitchItem(icon = null, title = "Play/pause on thumbnail", subtitle = "Show control on artwork", checked = showPP, onCheckedChange = { scope.launch { prefs.setLyricsShowPlayPauseOnThumbnail(it) } })
+                    SettingsSwitchItem(icon = Icons.Outlined.PlayArrow, title = "Play/pause on thumbnail", subtitle = "Show control on artwork", checked = showPP, onCheckedChange = { scope.launch { prefs.setLyricsShowPlayPauseOnThumbnail(it) } })
                 }
             }
             item { SectionHeader(text = "Providers") }

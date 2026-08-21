@@ -48,7 +48,7 @@ fun ActionRowSettingsScreen(onBack: () -> Unit) {
             item { SectionHeader(text = "Grouping") }
             item {
                 SettingsGroup {
-                    SettingsSwitchItem(icon = null, title = "Group share actions", subtitle = "Collapse Share / Copy link / Copy at time into one chip", checked = grouped, onCheckedChange = { scope.launch { prefs.setActionRowGrouped(it) } })
+                    SettingsSwitchItem(icon = Icons.Filled.Share, title = "Group share actions", subtitle = "Collapse Share / Copy link / Copy at time into one chip", checked = grouped, onCheckedChange = { scope.launch { prefs.setActionRowGrouped(it) } })
                 }
                 Text("When off, three separate chips show.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, start = 4.dp))
             }
