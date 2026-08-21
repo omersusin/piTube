@@ -45,34 +45,29 @@ fun MorphingBlob(
     )
 
     val bass = remember(levels, smoothedAmp) {
-        if (levels.size >= 12) levels.takeLast(12).take(4).average().toFloat().coerceIn(0f, 1f)
-        else smoothedAmp * 0.92f
+        if (levels.size >= 8) levels.takeLast(8).take(3).average().toFloat().coerceIn(0f, 1f)
+        else smoothedAmp
     }
     val mid = remember(levels, smoothedAmp) {
-        if (levels.size >= 12) levels.takeLast(12).drop(4).take(4).average().toFloat().coerceIn(0f, 1f)
-        else smoothedAmp * 0.72f
+        if (levels.size >= 8) levels.takeLast(8).drop(3).take(3).average().toFloat().coerceIn(0f, 1f)
+        else smoothedAmp * 0.75f
     }
     val treble = remember(levels, smoothedAmp) {
-        if (levels.size >= 12) levels.takeLast(12).drop(8).average().toFloat().coerceIn(0f, 1f)
-        else smoothedAmp * 0.55f
+        if (levels.size >= 8) levels.takeLast(8).drop(6).take(2).average().toFloat().coerceIn(0f, 1f)
+        else smoothedAmp * 0.60f
     }
-
     val beatPulse = remember(levels) {
-        if (levels.size < 8) 0f else {
-            val recent = levels.takeLast(12)
+        if (levels.size < 6) 0f else {
+            val recent = levels.takeLast(8)
             val avg = recent.average().toFloat()
             val last = recent.lastOrNull() ?: 0f
             val prev = recent.getOrNull(recent.size - 2) ?: 0f
-            val isRising = last > prev && last > avg * 1.42f && last > 0.13f
-            val isPeak = last > 0.17f && last == recent.maxOrNull()
+            val isRising = last > prev && last > avg * 1.25f && last > 0.10f
+            val isPeak = last > 0.14f && last + 1e-6f >= (recent.maxOrNull() ?: 0f)
             if (isRising || isPeak) ((last - avg).coerceIn(0f, 0.6f) / 0.6f) else 0f
         }
     }
-    val animatedBeat by animateFloatAsState(
-        targetValue = beatPulse,
-        animationSpec = spring(dampingRatio = 0.45f, stiffness = 680f),
-        label = "beatPulse",
-    )
+    val animatedBeat by animateFloatAsState(targetValue = beatPulse, animationSpec = spring(dampingRatio = 0.35f, stiffness = 720f), label = "beatPulse")
 
     val density = LocalDensity.current
     var time by remember { mutableStateOf(0f) }
@@ -109,11 +104,10 @@ fun MorphingBlob(
         ) {
             @Suppress("UNUSED_EXPRESSION") tick
 
-            val rhythmScale = 1f + bass * 0.42f + animatedBeat * 0.34f
-            val hueShift = time * (6f + mid * 14f)
-
+            val rhythmScale = 1f + bass * 0.55f + animatedBeat * 0.42f + treble * 0.10f
+            val hueShift = time * (6f + mid * 18f)
             val pointCount = 8
-            val outerGlow = baseRadius * (1.55f + bass * 0.35f + animatedBeat * 0.18f)
+            val outerGlow = baseRadius * (1.50f + bass * 0.45f + animatedBeat * 0.22f)
             val innerRadius = baseRadius * rhythmScale
 
             val glowPalette = palette
@@ -134,10 +128,10 @@ fun MorphingBlob(
             drawCircle(brush = outerBrush, radius = outerGlow, center = Offset(cx, cy))
 
             val points = List(pointCount) { i ->
-                val angle = (2f * PI.toFloat() * i / pointCount) + time * (0.22f + mid * 0.28f)
-                val wobble = sin(time * 1.7f + i * 0.9f) * 0.07f * (0.6f + treble)
-                val bassBump = bass * 0.22f * sin(time * 2.1f + i * 1.3f).coerceIn(-1f, 1f)
-                val beatBump = animatedBeat * 0.26f * cos(time * 3.2f + i).coerceIn(-1f, 1f)
+                val angle = (2f * PI.toFloat() * i / pointCount) + time * (0.22f + mid * 0.32f + animatedBeat * 0.15f)
+                val wobble = sin(time * 1.7f + i * 0.9f) * (0.09f + treble * 0.05f) * (0.7f + bass * 0.6f)
+                val bassBump = bass * 0.28f * sin(time * 2.2f + i * 1.3f).coerceIn(-1f, 1f)
+                val beatBump = animatedBeat * 0.32f * cos(time * 3.4f + i).coerceIn(-1f, 1f)
                 val r = innerRadius * (1f + wobble + bassBump + beatBump)
                 Offset(cx + cos(angle) * r, cy + sin(angle) * r)
             }

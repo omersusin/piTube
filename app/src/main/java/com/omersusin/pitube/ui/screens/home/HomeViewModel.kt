@@ -79,37 +79,18 @@ internal fun homeFeedQuotas(
     hasPersonalFeed: Boolean = false
 ): Map<FeedSource, Int> {
     val slots = remaining.coerceAtLeast(0)
-    if (slots == 0) {
-        return FeedSource.entries.associateWith { 0 }
+    if (slots == 0) return FeedSource.entries.associateWith { 0 }
+    if (hasPersonalFeed) {
+        return mapOf(FeedSource.PERSONAL to slots, FeedSource.SUBS to 0, FeedSource.RELATED to 0, FeedSource.DISCOVERY to 0, FeedSource.VIRAL to 0)
     }
-
-    val personal = if (hasPersonalFeed) (slots * 0.55).toInt().coerceAtLeast(0) else 0
-    val remainingAfterPersonal = (slots - personal).coerceAtLeast(0)
-    // Subscribed channels are the heart of the feed: when the user follows
-    // channels, give them the largest share so their uploads actually surface.
-    val subs = when {
-        subCount <= 0 -> 0
-        totalInteractions > 50 -> (remainingAfterPersonal * 0.50).toInt()
-        else -> (remainingAfterPersonal * 0.45).toInt()
-    }.coerceAtLeast(0)
-    val related = when {
-        subCount <= 0 -> (remainingAfterPersonal * 0.30).toInt()
-        totalInteractions > 50 -> (remainingAfterPersonal * 0.20).toInt()
-        else -> (remainingAfterPersonal * 0.25).toInt()
-    }.coerceAtLeast(0)
-    val discovery = when {
-        subCount <= 0 -> (remainingAfterPersonal * 0.40).toInt()
-        else -> (remainingAfterPersonal * 0.20).toInt()
-    }.coerceAtLeast(0)
-    val viral = (remainingAfterPersonal - subs - related - discovery).coerceAtLeast(0)
-
-    return mapOf(
-        FeedSource.PERSONAL to personal,
-        FeedSource.SUBS to subs,
-        FeedSource.RELATED to related,
-        FeedSource.DISCOVERY to discovery,
-        FeedSource.VIRAL to viral
-    )
+    if (subCount > 0) {
+        val subs = (slots * 0.65).toInt().coerceAtLeast(6)
+        val related = (slots * 0.18).toInt()
+        val discovery = (slots * 0.12).toInt()
+        val viral = (slots - subs - related - discovery).coerceAtLeast(0)
+        return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to subs, FeedSource.RELATED to related, FeedSource.DISCOVERY to discovery, FeedSource.VIRAL to viral)
+    }
+    return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to 0, FeedSource.RELATED to (slots * 0.45).toInt(), FeedSource.DISCOVERY to (slots * 0.30).toInt(), FeedSource.VIRAL to (slots - (slots * 0.45).toInt() - (slots * 0.30).toInt()).coerceAtLeast(0))
 }
 
 internal fun addUniqueVideo(
@@ -1054,58 +1035,58 @@ class HomeViewModel @Inject constructor(
                     persistentHomeFeedCache.saveLastFeed(it)
                 }
 
-                // ── Wave 2: remaining queries loaded in background ──
-                val wave2Queries = discoveryQueries.drop(currentQueryIndex)
-                if (wave2Queries.isNotEmpty()) {
-                    val wave2FinalMixIds = finalMix.map { it.id }.toHashSet()
-                    wave2Job = viewModelScope.launch(PerformanceDispatcher.networkIO) wave2@{
-                        try {
-                            val wave2Raw = wave2Queries.map { q ->
-                                async {
-                                    withTimeoutOrNull(6_000L) {
-                                        try {
-                                            repository.searchVideos(q).first
-                                        } catch (cancellation: CancellationException) {
-                                            throw cancellation
-                                        } catch (error: Exception) {
-                                            Log.d(TAG, "Wave 2 query failed for $q: ${error.message}")
-                                            emptyList()
-                                        }
-                                    } ?: emptyList()
-                                }
-                            }.awaitAll().flatten()
-
-                            val wave2Watched = watchedVideoIds.value
-                            val wave2Valid = wave2Raw.filterValid().filterWatched(wave2Watched)
-                                .filterUnplayable(unplayableVideoIds.value)
-                                .filter { !wave2FinalMixIds.contains(it.id) }
-                            if (wave2Valid.isEmpty()) return@wave2
-
-                            val wave2Ranked = wave2Valid.take(15)
-
-                            if (wave2Ranked.isNotEmpty()) {
-                                var updatedSnapshot: List<Video>? = null
-                                _uiState.update { state ->
-                                    val currentIds = state.videos.map { it.id }.toHashSet()
-                                    val uniqueNew = wave2Ranked
-                                        .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
-                                        .filterUnplayable(unplayableVideoIds.value)
-                                        .filter { !currentIds.contains(it.id) }
-                                        .distinctBy { it.channelId }
-                                    if (uniqueNew.isEmpty()) return@update state
-                                    val updated = state.videos + uniqueNew
-                                    updatedSnapshot = updated
+                if (personalizedPool.isNotEmpty()) {
+                    Log.d(TAG, "Wave 2 skipped — personalized feed is authoritative, no discovery injection")
+                } else {
+                    val wave2Queries = discoveryQueries.drop(currentQueryIndex)
+                    if (wave2Queries.isNotEmpty()) {
+                        val wave2FinalMixIds = finalMix.map { it.id }.toHashSet()
+                        wave2Job = viewModelScope.launch(PerformanceDispatcher.networkIO) wave2@{
+                            try {
+                                val wave2Raw = wave2Queries.map { q ->
+                                    async {
+                                        withTimeoutOrNull(6_000L) {
+                                            try {
+                                                repository.searchVideos(q).first
+                                            } catch (cancellation: CancellationException) {
+                                                throw cancellation
+                                            } catch (error: Exception) {
+                                                Log.d(TAG, "Wave 2 query failed for $q: ${error.message}")
+                                                emptyList()
+                                            }
+                                        } ?: emptyList()
+                                    }
+                                }.awaitAll().flatten()
+                                val wave2Watched = watchedVideoIds.value
+                                val wave2Valid = wave2Raw.filterValid().filterWatched(wave2Watched)
+                                    .filterUnplayable(unplayableVideoIds.value)
+                                    .filter { !wave2FinalMixIds.contains(it.id) }
+                                if (wave2Valid.isEmpty()) return@wave2
+                                val wave2Ranked = wave2Valid.take(15)
+                                if (wave2Ranked.isNotEmpty()) {
+                                    var updatedSnapshot: List<Video>? = null
+                                    _uiState.update { state ->
+                                        val currentIds = state.videos.map { it.id }.toHashSet()
+                                        val uniqueNew = wave2Ranked
+                                            .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
+                                            .filterUnplayable(unplayableVideoIds.value)
+                                            .filter { !currentIds.contains(it.id) }
+                                            .distinctBy { it.channelId }
+                                        if (uniqueNew.isEmpty()) return@update state
+                                        val updated = state.videos + uniqueNew
+                                        updatedSnapshot = updated
 HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.innertube.YouTube.cookie != null)
-                                    state.copy(videos = updated)
+                                        state.copy(videos = updated)
+                                    }
+                                    updatedSnapshot?.let { persistentHomeFeedCache.saveLastFeed(it) }
+                                    currentQueryIndex = discoveryQueries.size
+                                    Log.d(TAG, "Wave 2 merged ${wave2Ranked.size} extra candidates")
                                 }
-                                updatedSnapshot?.let { persistentHomeFeedCache.saveLastFeed(it) }
-                                currentQueryIndex = discoveryQueries.size
-                                Log.d(TAG, "Wave 2 merged ${wave2Ranked.size} extra candidates")
+                            } catch (cancellation: CancellationException) {
+                                throw cancellation
+                            } catch (error: Exception) {
+                                Log.d(TAG, "Wave 2 failed: ${error.message}")
                             }
-                        } catch (cancellation: CancellationException) {
-                            throw cancellation
-                        } catch (error: Exception) {
-                            Log.d(TAG, "Wave 2 failed: ${error.message}")
                         }
                     }
                 }
@@ -1149,63 +1130,27 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                 val channelCounts = HashMap<String, Int>()
                 val pageIds = HashSet<String>(currentIds).apply { addAll(shownVideoIds) }
 
-                val reserveVideos = try {
-                    persistentHomeFeedCache.loadReservePage(cacheFilters()).map { it.video }
-                } catch (cancellation: CancellationException) {
-                    throw cancellation
-                } catch (error: Exception) {
-                    Log.d(TAG, "Reserve prefetch unavailable: ${error.message}")
-                    emptyList()
+                if (_uiState.value.feedContinuation != null) {
+                    Log.d(TAG, "Prefetch skipped — personalized continuation still available")
+                    return false
                 }
-                    .filterValid()
-                    .filterRecentHomeSuggestion(now)
-                val reserveAdded = addUniquePageVideos(
-                    candidates = reserveVideos,
-                    targetList = page,
-                    channelCounts = channelCounts,
-                    usedVideoIds = pageIds,
-                    targetSize = MIN_PAGE_SIZE
-                )
-                if (page.size >= MIN_PAGE_SIZE) {
-                    val appended = appendLoadMorePage(page, generation)
-                    appended?.let { persistentHomeFeedCache.saveLastFeed(it) }
-                    Log.d(TAG, "Load-more filled from reserve: +$reserveAdded")
-                    return appended != null
-                }
-
                 if (currentQueryIndex >= discoveryQueries.size) {
-                    // Exhausted the seed order: rotate a fresh shuffled order
-                    // instead of appending the same list over and over, so long
-                    // scroll sessions keep surfacing new material.
                     seedDiscoveryQueries(shuffle = true)
                 }
-                
                 val queryA = discoveryQueries.getOrNull(currentQueryIndex++)
                 val queryB = discoveryQueries.getOrNull(currentQueryIndex++)
-                
                 val searchQueries = listOfNotNull(queryA, queryB)
-                
                 val finalQueries = if (searchQueries.isEmpty()) listOf("Viral") else searchQueries
-
                 val rawVideos = coroutineScope {
                     finalQueries.map { query ->
                         async {
                             withTimeoutOrNull(6_000L) {
-                                try {
-                                    repository.searchVideos(query).first
-                                } catch (cancellation: CancellationException) {
-                                    throw cancellation
-                                } catch (error: Exception) {
-                                    Log.d(TAG, "Prefetch query failed for $query: ${error.message}")
-                                    emptyList()
-                                }
+                                try { repository.searchVideos(query).first } catch (cancellation: CancellationException) { throw cancellation } catch (error: Exception) { Log.d(TAG, "Prefetch query failed for $query: ${error.message}"); emptyList() }
                             } ?: emptyList()
                         }
                     }.awaitAll().flatten()
                 }
                 if (!homePrefetchQueue.isCurrent(generation)) return false
-
-                // Extract shorts for shelf
                 val moreShorts = rawVideos.extractShorts()
                     .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                     .filterUnplayable(unplayableVideoIds.value)

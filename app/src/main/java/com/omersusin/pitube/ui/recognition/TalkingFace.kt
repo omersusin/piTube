@@ -98,12 +98,13 @@ fun TalkingFace(
             val cy = h / 2f
             val baseRadius = minOf(w, h) * 0.30f
             val breath = sin(breathPhase * 2 * PI).toFloat()
-            val pulseRadius = baseRadius * (1f + smoothed * 0.38f + breath * 0.025f)
-            val outerRadius = pulseRadius * 1.72f
+            val voiceEnergy = if (levels.isNotEmpty()) levels.takeLast(6).average().toFloat().coerceIn(0f, 1f) else smoothed
+            val pulseRadius = baseRadius * (1f + smoothed * 0.42f + voiceEnergy * 0.18f + breath * 0.020f)
+            val outerRadius = pulseRadius * (1.72f + voiceEnergy * 0.12f)
 
             val glowBrush = Brush.radialGradient(
-                0f to primary.copy(alpha = 0.36f + smoothed * 0.24f),
-                0.52f to secondary.copy(alpha = 0.20f + smoothed * 0.14f),
+                0f to primary.copy(alpha = 0.36f + smoothed * 0.28f + voiceEnergy * 0.12f),
+                0.52f to secondary.copy(alpha = 0.20f + smoothed * 0.16f),
                 0.82f to tertiary.copy(alpha = 0.10f),
                 1f to Color.Transparent,
                 center = Offset(cx, cy),
@@ -134,19 +135,16 @@ fun TalkingFace(
 
             val ringPoints = 48
             val ringBase = pulseRadius * 1.18f
-            val maxWave = h * 0.095f
-            val minWave = h * 0.006f
+            val maxWave = h * (0.085f + voiceEnergy * 0.04f)
             val points = List(ringPoints) { i ->
                 val angle = (2 * PI * i / ringPoints - PI / 2).toFloat()
-                val levelIdx = if (levels.isNotEmpty()) {
-                    (i * levels.size / ringPoints).coerceIn(0, levels.size - 1)
-                } else -1
+                val levelIdx = if (levels.isNotEmpty()) (i * levels.size / ringPoints).coerceIn(0, levels.size - 1) else -1
                 val raw = if (levelIdx >= 0) levels[levelIdx].coerceIn(0f, 1f)
                 else {
-                    val idle = (sin(time * 1.6 + i * 0.55).toFloat() * 0.5f + 0.5f) * 0.12f
-                    (smoothed * 0.45f + idle).coerceIn(0f, 1f)
+                    val idle = (sin(time * 1.6 + i * 0.55).toFloat() * 0.5f + 0.5f) * 0.08f
+                    (smoothed * 0.42f + idle).coerceIn(0f, 1f)
                 }
-                val r = ringBase + raw * maxWave + smoothed * h * 0.012f + breath * h * 0.004f
+                val r = ringBase + raw * maxWave + smoothed * h * 0.010f + voiceEnergy * h * 0.008f + breath * h * 0.003f
                 Offset(cx + cos(angle) * r, cy + sin(angle) * r)
             }
 
