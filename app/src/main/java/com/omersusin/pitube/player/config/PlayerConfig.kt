@@ -126,6 +126,9 @@ object PlayerConfig {
     
     /** Stuck detection threshold (number of checks with no position change) */
     const val STUCK_DETECTION_THRESHOLD = 2
+
+    /** Prolonged-buffering watchdog: escalate to stream re-resolution after this long frozen. */
+    const val STALL_ESCALATION_MS = 20_000L
     
     // ===== Surface Configuration =====
     /** Default surface ready timeout in milliseconds */

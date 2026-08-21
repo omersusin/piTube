@@ -342,9 +342,27 @@ class VideoPlayerViewModel @Inject constructor(
             }
         }
 
-        // Re-fetch streams whenever an expired URL is detected (HTTP 403/410 "data changed")
+        // Register background-safe position persistence: fires every AUTO_SAVE_INTERVAL_MS
+        // from PlaybackTracker even when the player screen isn't composed (audio-only,
+        // background playback, mid-play stalls).
+        EnhancedPlayerManager.getInstance().onPlaybackPositionPersist = { positionMs ->
+            val video = _uiState.value.cachedVideo ?: return@onPlaybackPositionPersist
+            val durationMs = (video.duration.takeIf { it > 0 } ?: 0) * 1000L
+            if (durationMs <= 0L || positionMs <= 0L) return@onPlaybackPositionPersist
+            savePlaybackPosition(
+                videoId = video.id,
+                position = positionMs,
+                duration = durationMs,
+                title = video.title,
+                thumbnailUrl = video.thumbnailUrl,
+                channelName = video.channelName,
+                channelId = video.channelId,
+                isShort = video.isShort
+            )
+        }
+
         viewModelScope.launch {
-            EnhancedPlayerManager.getInstance().streamExpiredEvent.collect {
+            EnhancedPlayerManager.getInstance().streamExpiredEvent.collect { recoveryEvent ->
                 val videoId = _uiState.value.cachedVideo?.id ?: return@collect
                 if (playbackAbandonedVideoId == videoId) {
                     Log.d("VideoPlayerViewModel", "Ignoring stream expiry for abandoned playback $videoId")
@@ -382,10 +400,13 @@ class VideoPlayerViewModel @Inject constructor(
 
                 Log.w("VideoPlayerViewModel", "Stream expired — re-fetching streams for $videoId (attempt $streamExpiryCount/$MAX_STREAM_EXPIRY_RETRIES)")
 
-                var recoveryPositionMs = 0L
+                // Recovery position delivered by the player BEFORE it was stopped/cleared.
+                var recoveryPositionMs = recoveryEvent.coerceAtLeast(0L)
                 EnhancedPlayerManager.getInstance().getPlayer()?.let { player ->
                     val positionMs = player.currentPosition
-                    recoveryPositionMs = positionMs.coerceAtLeast(0L)
+                    if (recoveryPositionMs <= 0L && positionMs > 0L) {
+                        recoveryPositionMs = positionMs.coerceAtLeast(0L)
+                    }
                     val durationMs = player.duration.takeIf { it > 0L }
                         ?: ((_uiState.value.cachedVideo?.duration ?: 0) * 1000L)
                     if (positionMs > 0L && durationMs > 0L) {
@@ -420,7 +441,8 @@ class VideoPlayerViewModel @Inject constructor(
                     isWifi = detectIsWifi(),
                     forceRefresh = true,
                     escalateToSabr = true,
-                    resumePositionOverrideMs = recoveryPositionMs,
+                    // Only pass a real override; 0 would mask the watch-history fallback.
+                    resumePositionOverrideMs = recoveryPositionMs.takeIf { it > 0L },
                 )
             }
         }

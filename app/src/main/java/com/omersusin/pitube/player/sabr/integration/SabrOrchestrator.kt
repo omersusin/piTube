@@ -317,6 +317,11 @@ class SabrOrchestrator(
             val expiresAtMs = state.urlExpiresAtMs()
             if (expiresAtMs > 0 && now >= expiresAtMs - URL_EXPIRY_MARGIN_MS) {
                 Log.w(TAG, "SABR URL expiring (${(expiresAtMs - now) / 1000}s left) — requesting re-extraction")
+                // Signal EOS before exiting so the buffer read() doesn't block forever;
+                // the non-recoverable onError drives fallback/re-extraction.
+                isRunning = false
+                audioBuffer.signalEndOfStream()
+                videoBuffer.signalEndOfStream()
                 onError?.invoke(-4, "SABR streaming URL expiring", false)
                 break
             }
@@ -344,6 +349,11 @@ class SabrOrchestrator(
                 }
                 if (poTokenRefreshJob === refreshJob) poTokenRefreshJob = null
                 if (!refreshResult.success && refreshResult.required) {
+                    Log.w(TAG, "SABR poToken refresh failed (required) — ending follow-up loop")
+                    isRunning = false
+                    audioBuffer.signalEndOfStream()
+                    videoBuffer.signalEndOfStream()
+                    onError?.invoke(-3, "SABR poToken refresh failed", false)
                     break
                 }
             }
@@ -357,6 +367,9 @@ class SabrOrchestrator(
                 Log.e(TAG, "Follow-up request failed", e)
                 consecutiveErrors++
                 if (consecutiveErrors >= MAX_FOLLOW_UP_ERRORS) {
+                    isRunning = false
+                    audioBuffer.signalEndOfStream()
+                    videoBuffer.signalEndOfStream()
                     onError?.invoke(-1, "Too many consecutive errors", false)
                     break
                 }

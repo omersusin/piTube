@@ -103,6 +103,10 @@ class EnhancedPlayerManager private constructor() {
         private const val LIVE_QUALITY_KEY_PREFIX = "live:"
         private const val PRELOAD_RETRY_DELAY_MS = 10_000L
         private const val MAX_PRELOAD_RETRIES = 3
+
+        /** Reloads within this window count as a rapid loop (stale stream URLs). */
+        private const val RELOAD_ESCALATION_WINDOW_MS = 60_000L
+        private const val MAX_RAPID_RELOADS = 3
         private const val AUTO_NEXT_TAG = "FlowVideoAutoNext"
         private val QUALITY_HEIGHT_REGEX = Regex("""(\d+)p""")
 
@@ -200,6 +204,9 @@ class EnhancedPlayerManager private constructor() {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val mainHandler = Handler(Looper.getMainLooper())
     private var pendingReloadJob: Job? = null
+
+    private var lastReloadAttemptAtMs = 0L
+    private var rapidReloadCount = 0
 
     private var queuePersistenceJob: Job? = null
 
@@ -402,10 +409,18 @@ class EnhancedPlayerManager private constructor() {
     private var surfaceManager: SurfaceManager? = null
     private var sponsorBlockHandler: SponsorBlockHandler? = null
     private var playbackTracker: PlaybackTracker? = null
+
+    /**
+     * Periodic playback-position persistence hook (fires every AUTO_SAVE_INTERVAL_MS while playing).
+     * The UI layer registers this so watch history keeps updating during background/audio-only
+     * playback and mid-play stalls, where the composable save loop is not running.
+     */
+    @Volatile
+    var onPlaybackPositionPersist: ((Long) -> Unit)? = null
     private var errorHandler: PlayerErrorHandler? = null
 
-    private val _streamExpiredEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    val streamExpiredEvent: SharedFlow<Unit> = _streamExpiredEvent.asSharedFlow()
+    private val _streamExpiredEvent = MutableSharedFlow<Long>(extraBufferCapacity = 1)
+    val streamExpiredEvent: SharedFlow<Long> = _streamExpiredEvent.asSharedFlow()
 
     private val _playbackAbandonedEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val playbackAbandonedEvent: SharedFlow<Unit> = _playbackAbandonedEvent.asSharedFlow()
@@ -555,11 +570,14 @@ class EnhancedPlayerManager private constructor() {
                 loader.onSabrFallbackNeeded = {
                     scope.launch {
                         Log.w(TAG, "SABR fallback triggered — requesting full re-extraction")
+                        // Capture the recovery position BEFORE destroying player state,
+                        // otherwise the ViewModel reads 0 and playback restarts from the start.
+                        val recoveryPositionMs = player?.currentPosition?.coerceAtLeast(0L) ?: 0L
                         currentSabrInfo = null
                         loader.releaseSabr()
                         player?.stop()
                         player?.clearMediaItems()
-                        _streamExpiredEvent.emit(Unit)
+                        _streamExpiredEvent.emit(recoveryPositionMs)
                     }
                 }
             }
@@ -584,7 +602,10 @@ class EnhancedPlayerManager private constructor() {
                 onReloadStream = { position, reason -> reloadCurrentStream(position, reason) },
                 onQualityDowngrade = { attemptQualityDowngrade() },
                 onPlaybackShutdown = { onPlaybackShutdown() },
-                onStreamExpired = { scope.launch { _streamExpiredEvent.emit(Unit) } },
+                onStreamExpired = {
+                    val pos = player?.currentPosition?.coerceAtLeast(0L) ?: 0L
+                    scope.launch { _streamExpiredEvent.emit(pos) }
+                },
                 onPlaybackAbandoned = { scope.launch { _playbackAbandonedEvent.emit(Unit) } },
                 onGatedCodecFallback = { position -> qualityManager?.fallbackToAlternateCodec(position) ?: false },
                 getFailedStreamUrls = {
@@ -627,6 +648,17 @@ class EnhancedPlayerManager private constructor() {
                             qm.updateBandwidthCheckTime()
                             qm.checkAdaptiveQualityUpgrade(player?.currentPosition ?: 0L)
                         }
+                    }
+                },
+                onStallEscalation = { positionMs ->
+                    Log.w(TAG, "Playback stalled ${PlayerConfig.STALL_ESCALATION_MS / 1000}s+ at ${positionMs}ms — triggering stream expiry recovery")
+                    scope.launch { _streamExpiredEvent.emit(positionMs) }
+                },
+                onAutoSavePosition = { positionMs ->
+                    try {
+                        onPlaybackPositionPersist?.invoke(positionMs)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Background position persist failed", e)
                     }
                 },
                 onLivePlaybackTick = { exoPlayer ->
@@ -1988,6 +2020,7 @@ class EnhancedPlayerManager private constructor() {
     private fun playVideoFromServiceLayer(
         video: Video,
         reason: String,
+        startPositionMs: Long = 0L,
     ) {
         val context = appContext ?: return
         val resumeInAudioOnly = isAudioOnlyMode
@@ -2125,7 +2158,8 @@ class EnhancedPlayerManager private constructor() {
                         dashManifestUrl = streamInfo.dashMpdUrl,
                         hlsUrl = streamInfo.hlsUrl,
                         streamType = streamInfo.streamType,
-                        startPosition = 0L,
+                        // Resume the same video at its stalled position instead of restarting.
+                        startPosition = startPositionMs.coerceAtLeast(0L),
                         sabrInfo = sabrInfo,
                         itVideoFormats = extraction?.videoFormats ?: emptyList(),
                         itAudioFormats = extraction?.audioFormats ?: emptyList(),
@@ -3434,6 +3468,9 @@ class EnhancedPlayerManager private constructor() {
 
     fun continueVideoPlaybackInBackground() {
         autoNextLog("continueVideoPlaybackInBackground")
+        // Capture the position BEFORE switchToAudioOnly() may tear down player state;
+        // if handoff reloads the same video it must resume, not restart at 0.
+        val handoffPositionMs = player?.currentPosition?.coerceAtLeast(0L) ?: 0L
         switchToAudioOnly()
         val p = player
         val current = GlobalPlayerState.currentVideo.value
@@ -3442,8 +3479,12 @@ class EnhancedPlayerManager private constructor() {
             state.currentVideoId == current.id &&
             (p?.currentMediaItem == null || p.playbackState == Player.STATE_IDLE || !state.isPrepared)
         ) {
-            autoNextLog("continueVideoPlaybackInBackground service-load current=${current.id}")
-            playVideoFromServiceLayer(current, reason = "background-handoff-unprepared")
+            autoNextLog("continueVideoPlaybackInBackground service-load current=${current.id} resumeAt=$handoffPositionMs")
+            playVideoFromServiceLayer(
+                current,
+                reason = "background-handoff-unprepared",
+                startPositionMs = handoffPositionMs.takeIf { it > 0L } ?: 0L,
+            )
             return
         }
         if (p?.playWhenReady == true && !p.isPlaying && p.playbackState != Player.STATE_ENDED) {
@@ -3751,6 +3792,26 @@ class EnhancedPlayerManager private constructor() {
                     delay(PlayerConfig.ERROR_RETRY_DELAY_MS)
 
                     val pos = player?.currentPosition ?: 0L
+
+                    // If we keep reloading in quick succession, the stream objects themselves
+                    // are stale (expired googlevideo URL) — recycling them just burns retries.
+                    // Escalate to full InnerTube re-resolution via the expiry recovery chain.
+                    val now = System.currentTimeMillis()
+                    if (now - lastReloadAttemptAtMs < RELOAD_ESCALATION_WINDOW_MS) {
+                        rapidReloadCount++
+                    } else {
+                        rapidReloadCount = 0
+                    }
+                    lastReloadAttemptAtMs = now
+                    if (rapidReloadCount >= MAX_RAPID_RELOADS) {
+                        Log.w(TAG, "Rapid reload loop detected ($rapidReloadCount in ${RELOAD_ESCALATION_WINDOW_MS / 1000}s) — escalating to stream re-resolution")
+                        rapidReloadCount = 0
+                        player?.stop()
+                        player?.clearMediaItems()
+                        _streamExpiredEvent.emit(pos)
+                        return@launch
+                    }
+
                     player?.stop()
                     player?.clearMediaItems()
 
@@ -3789,7 +3850,8 @@ class EnhancedPlayerManager private constructor() {
         val newStream = qualityManager?.attemptQualityDowngrade()
         if (newStream != null) {
             currentVideoStream = newStream
-            loadMediaInternal(newStream, currentAudioStream)
+            // Preserve playback position across the downgrade, mirroring the codec fallback path.
+            loadMediaInternal(newStream, currentAudioStream, player?.currentPosition ?: 0L)
         } else {
             _playerState.value =
                 _playerState.value.copy(

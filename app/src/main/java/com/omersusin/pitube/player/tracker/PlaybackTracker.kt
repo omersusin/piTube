@@ -22,7 +22,9 @@ class PlaybackTracker(
     private val onBufferingDetected: () -> Unit,
     private val onSmoothPlayback: () -> Unit,
     private val onBandwidthCheckNeeded: () -> Unit,
-    private val onLivePlaybackTick: (ExoPlayer) -> Unit = {}
+    private val onLivePlaybackTick: (ExoPlayer) -> Unit = {},
+    private val onStallEscalation: (Long) -> Unit = {}, // Fires with frozen position after prolonged buffering
+    private val onAutoSavePosition: (Long) -> Unit = {}, // Periodic position persist (works in background/audio-only)
 ) {
     companion object {
         private const val TAG = "PlaybackTracker"
@@ -32,6 +34,9 @@ class PlaybackTracker(
     private var lastCheckedPosition = 0L
     private var stuckCount = 0
     private var lastSaveTime = 0L
+    private var stallMs = 0L
+    private var stallEscalated = false
+    private var lastFrozenBufferedPos = -1L
 
     /**
      * Start position tracking.
@@ -96,6 +101,9 @@ class PlaybackTracker(
             if (currentTime - lastSaveTime >= PlayerConfig.AUTO_SAVE_INTERVAL_MS && player.isPlaying) {
                 Log.d(TAG, "Auto-save trigger: at ${currentPos}ms")
                 lastSaveTime = currentTime
+                // Persist outside the UI layer so positions survive background/audio-only
+                // playback and mid-play stalls (the composable save loop pauses then).
+                onAutoSavePosition(currentPos)
             }
 
             // SponsorBlock Skip Logic
@@ -109,16 +117,39 @@ class PlaybackTracker(
             if (player.playbackState == Player.STATE_BUFFERING) {
                 if (currentPos == lastCheckedPosition && player.playWhenReady) {
                     stuckCount++
+                    val bufferFrozen = bufferedPos == lastFrozenBufferedPos
+                    lastFrozenBufferedPos = bufferedPos
+
                     // Only log if actually stuck for more than 1 second
                     if (stuckCount >= PlayerConfig.STUCK_DETECTION_THRESHOLD) {
                         val bufferAhead = bufferedPos - currentPos
                         Log.d(TAG, "STALL: Pos=${currentPos}ms | Buff=${bufferedPos}ms (+${bufferAhead}ms ahead) | StuckFor=${stuckCount * PlayerConfig.POSITION_TRACKER_INTERVAL_MS}ms")
                         onBufferingDetected()
                     }
+
+                    // Watchdog: prolonged buffering with a frozen playhead AND frozen buffer
+                    // means the producer is dead (e.g. expired stream URL, SABR hang).
+                    // Escalate to full stream re-resolution instead of waiting forever.
+                    if (bufferFrozen) {
+                        stallMs += PlayerConfig.POSITION_TRACKER_INTERVAL_MS
+                        if (stallMs >= PlayerConfig.STALL_ESCALATION_MS && !stallEscalated) {
+                            stallEscalated = true
+                            Log.w(
+                                TAG,
+                                "Stall escalation: buffered ${PlayerConfig.STALL_ESCALATION_MS / 1000}s+ " +
+                                    "with frozen position ${currentPos}ms — requesting stream re-resolution"
+                            )
+                            onStallEscalation(currentPos.coerceAtLeast(0L))
+                        }
+                    }
                 } else {
+                    // Position advanced while still buffering — healthy progress,
+                    // not a stall. Reset the watchdog.
+                    resetStallWatchdog()
                     stuckCount = 0
                 }
             } else {
+                resetStallWatchdog()
                 stuckCount = 0
                 onSmoothPlayback()
                 
@@ -139,5 +170,12 @@ class PlaybackTracker(
         lastCheckedPosition = 0L
         stuckCount = 0
         lastSaveTime = 0L
+        resetStallWatchdog()
+    }
+
+    private fun resetStallWatchdog() {
+        stallMs = 0L
+        stallEscalated = false
+        lastFrozenBufferedPos = -1L
     }
 }

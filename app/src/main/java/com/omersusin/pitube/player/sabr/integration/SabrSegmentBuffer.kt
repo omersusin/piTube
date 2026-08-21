@@ -12,9 +12,17 @@ class SabrSegmentBuffer {
     private val closed = AtomicBoolean(false)
     private val endOfStream = AtomicBoolean(false)
 
+    @Volatile
+    private var lastDataAtMs: Long = System.currentTimeMillis()
+
+    companion object {
+        private const val STALL_TIMEOUT_MS = 30_000L
+    }
+
     fun appendSegment(data: ByteArray) {
         if (closed.get()) return
         if (data.isNotEmpty()) {
+            lastDataAtMs = System.currentTimeMillis()
             queue.put(data)
         }
     }
@@ -35,6 +43,7 @@ class SabrSegmentBuffer {
                     queue.poll()
                 } else {
                     var polled: ByteArray? = null
+                    var waitedMs = 0L
                     while (polled == null && !closed.get()) {
                         if (endOfStream.get() && queue.isEmpty()) break
                         polled = try {
@@ -42,6 +51,19 @@ class SabrSegmentBuffer {
                         } catch (error: InterruptedException) {
                             Thread.currentThread().interrupt()
                             throw IOException("Interrupted while waiting for SABR media", error)
+                        }
+                        if (polled == null) {
+                            waitedMs += 250
+                            val idleMs = System.currentTimeMillis() - lastDataAtMs
+                            // Producer died without EOS (e.g. follow-up loop broke on error):
+                            // fail loudly so ExoPlayer raises a real error instead of hanging in
+                            // STATE_BUFFERING forever.
+                            if (idleMs >= STALL_TIMEOUT_MS) {
+                                throw IOException(
+                                    "SABR media stall: no segments for ${idleMs}ms " +
+                                        "(eos=${endOfStream.get()}, closed=${closed.get()})"
+                                )
+                            }
                         }
                     }
                     polled
@@ -85,5 +107,6 @@ class SabrSegmentBuffer {
         currentOffset = 0
         closed.set(false)
         endOfStream.set(false)
+        lastDataAtMs = System.currentTimeMillis()
     }
 }
