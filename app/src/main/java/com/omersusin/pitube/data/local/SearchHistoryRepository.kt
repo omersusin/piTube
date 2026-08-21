@@ -57,6 +57,8 @@ enum class UploadDate {
 
 class SearchHistoryRepository(private val context: Context) {
     private val gson = Gson()
+    private val profileManager = ProfileManager(context)
+    private fun scopedHistoryKey(profileId: String) = stringPreferencesKey("${profileId}|search_history")
     
     companion object {
         private val SEARCH_HISTORY_KEY = stringPreferencesKey("search_history")
@@ -70,13 +72,41 @@ class SearchHistoryRepository(private val context: Context) {
         private const val DEFAULT_RETENTION_DAYS = 90
     }
     
-    // Save search query
+    private suspend fun activeScopedKey(): Preferences.Key<String>? {
+        val pid = profileManager.activeProfileId.first()
+        return if (pid.isBlank()) null else scopedHistoryKey(pid)
+    }
+
+    suspend fun ensureScopeMigration() {
+        context.searchDataStore.edit { p ->
+            if (p[SEARCH_HISTORY_KEY] == null) return@edit
+            val pid = profileManager.activeProfileId.first()
+            if (pid.isBlank()) return@edit
+            val legacy = p[SEARCH_HISTORY_KEY] ?: return@edit
+            if (p[scopedHistoryKey(pid)] == null) p[scopedHistoryKey(pid)] = legacy
+            p.remove(SEARCH_HISTORY_KEY)
+        }
+    }
+
+    private fun readHistory(preferences: Preferences, pid: String?): List<SearchHistoryItem> {
+        val key = pid?.takeIf { it.isNotBlank() }?.let { scopedHistoryKey(it) } ?: SEARCH_HISTORY_KEY
+        val json = preferences[key] ?: preferences[SEARCH_HISTORY_KEY] ?: return emptyList()
+        return try {
+            val type = object : TypeToken<List<SearchHistoryItem>>() {}.type
+            gson.fromJson(json, type) ?: emptyList()
+        } catch (_: Exception) { emptyList() }
+    }
+
+    // Save search query — per-profile
     suspend fun saveSearchQuery(query: String, type: SearchType = SearchType.TEXT) {
         if (!isSearchHistoryEnabled()) return
         if (query.isBlank()) return
         
         context.searchDataStore.edit { preferences ->
-            val currentHistory = getSearchHistoryList(preferences)
+            val pid = profileManager.activeProfileId.first()
+            if (pid.isBlank()) return@edit
+            val key = scopedHistoryKey(pid)
+            val currentHistory = readHistory(preferences, pid)
             
             // Remove duplicate if exists
             val filteredHistory = currentHistory.filter { it.query != query }
@@ -93,20 +123,15 @@ class SearchHistoryRepository(private val context: Context) {
             val maxSize = preferences[MAX_HISTORY_SIZE_KEY] ?: DEFAULT_MAX_HISTORY_SIZE
             val trimmedHistory = updatedHistory.take(maxSize)
             
-            // Save
-            preferences[SEARCH_HISTORY_KEY] = gson.toJson(trimmedHistory)
+            preferences[scopedHistoryKey(pid)] = gson.toJson(trimmedHistory)
+            preferences.remove(SEARCH_HISTORY_KEY)
         }
     }
     
-    // Get search history as Flow
     fun getSearchHistoryFlow(): Flow<List<SearchHistoryItem>> {
-        return context.searchDataStore.data.map { preferences ->
-            if (preferences[SEARCH_HISTORY_ENABLED_KEY] != false) {
-                val history = getSearchHistoryList(preferences)
-                filterExpiredHistory(history, preferences)
-            } else {
-                emptyList()
-            }
+        return kotlinx.coroutines.flow.combine(profileManager.activeProfileId, context.searchDataStore.data) { pid, preferences ->
+            if (preferences[SEARCH_HISTORY_ENABLED_KEY] == false) emptyList()
+            else filterExpiredHistory(readHistory(preferences, pid.takeIf { it.isNotBlank() }), preferences)
         }
     }
     
@@ -115,34 +140,35 @@ class SearchHistoryRepository(private val context: Context) {
         return getSearchHistoryFlow().first().take(limit)
     }
     
-    // Delete specific search item
     suspend fun deleteSearchItem(itemId: String) {
         context.searchDataStore.edit { preferences ->
-            val currentHistory = getSearchHistoryList(preferences)
-            val updatedHistory = currentHistory.filter { it.id != itemId }
-            preferences[SEARCH_HISTORY_KEY] = gson.toJson(updatedHistory)
+            val pid = profileManager.activeProfileId.first()
+            if (pid.isBlank()) return@edit
+            val key = scopedHistoryKey(pid)
+            val current = readHistory(preferences, pid)
+            preferences[key] = gson.toJson(current.filter { it.id != itemId })
+            preferences.remove(SEARCH_HISTORY_KEY)
         }
     }
     
-    // Clear all search history
     suspend fun clearSearchHistory() {
         context.searchDataStore.edit { preferences ->
-            preferences[SEARCH_HISTORY_KEY] = gson.toJson(emptyList<SearchHistoryItem>())
+            val pid = profileManager.activeProfileId.first()
+            if (pid.isBlank()) return@edit
+            preferences[scopedHistoryKey(pid)] = gson.toJson(emptyList<SearchHistoryItem>())
+            preferences.remove(SEARCH_HISTORY_KEY)
         }
     }
 
     suspend fun replaceSearchHistory(items: List<SearchHistoryItem>) {
         context.searchDataStore.edit { preferences ->
+            val pid = profileManager.activeProfileId.first()
+            if (pid.isBlank()) return@edit
             val maxSize = preferences[MAX_HISTORY_SIZE_KEY] ?: DEFAULT_MAX_HISTORY_SIZE
-            val restoredHistory = items
-                .asSequence()
-                .filter { it.query.isNotBlank() }
-                .sortedByDescending { it.timestamp }
-                .distinctBy { it.query.trim().lowercase() }
-                .take(maxSize)
-                .toList()
-
-            preferences[SEARCH_HISTORY_KEY] = gson.toJson(restoredHistory)
+            val restored = items.asSequence().filter { it.query.isNotBlank() }
+                .sortedByDescending { it.timestamp }.distinctBy { it.query.trim().lowercase() }.take(maxSize).toList()
+            preferences[scopedHistoryKey(pid)] = gson.toJson(restored)
+            preferences.remove(SEARCH_HISTORY_KEY)
         }
     }
     
@@ -180,17 +206,14 @@ class SearchHistoryRepository(private val context: Context) {
         return isSearchSuggestionsEnabledFlow().first()
     }
     
-    // Settings: Max history size
     suspend fun setMaxHistorySize(size: Int) {
         context.searchDataStore.edit { preferences ->
             preferences[MAX_HISTORY_SIZE_KEY] = size
-            
-            // Trim existing history if needed
-            val currentHistory = getSearchHistoryList(preferences)
-            if (currentHistory.size > size) {
-                val trimmedHistory = currentHistory.take(size)
-                preferences[SEARCH_HISTORY_KEY] = gson.toJson(trimmedHistory)
-            }
+            val pid = profileManager.activeProfileId.first()
+            if (pid.isBlank()) return@edit
+            val key = scopedHistoryKey(pid)
+            val current = readHistory(preferences, pid)
+            if (current.size > size) preferences[key] = gson.toJson(current.take(size))
         }
     }
     

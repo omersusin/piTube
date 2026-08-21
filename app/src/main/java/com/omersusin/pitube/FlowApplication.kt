@@ -59,7 +59,7 @@ class FlowApplication :
         private const val TAG = "FlowApplication"
         private const val VISITOR_DATA_KEY = "visitor_data"
         private const val VISITOR_DATA_FETCHED_AT_KEY = "visitor_data_fetched_at"
-        private const val VISITOR_DATA_MAX_AGE_MS = 7L * 24L * 60L * 60L * 1_000L
+        private const val VISITOR_DATA_MAX_AGE_MS = 6L * 60L * 60L * 1_000L
         private const val AUTO_LIBRARY_SYNC_INTERVAL_MS = 24L * 60L * 60L * 1_000L
         lateinit var appContext: Context
             private set
@@ -194,12 +194,14 @@ class FlowApplication :
                 if (pm.profiles.value.isEmpty()) {
                     pm.ensureMigrated(legacyCookie, legacyName, legacyAvatar)
                 }
-                // Rehouse any pre-profile install's subscription rows into the
-                // active profile's namespace once (per-profile subscriptions).
+                // Rehouse any pre-profile install's liked/search rows into the
+                // active profile's namespace once (per-profile scoping).
                 runCatching {
                     com.omersusin.pitube.data.local.SubscriptionRepository
                         .getInstance(this@FlowApplication).ensureScopeMigration()
                 }
+                runCatching { com.omersusin.pitube.data.local.LikedVideosRepository.getInstance(this@FlowApplication).ensureScopeMigration() }
+                runCatching { com.omersusin.pitube.data.local.SearchHistoryRepository(this@FlowApplication).ensureScopeMigration() }
                 // Restore the active profile's session. The source of truth is
                 // the encrypted per-profile store (ProfileManager); the DataStore
                 // key is only a mirror so existing UI that reads it stays in step.

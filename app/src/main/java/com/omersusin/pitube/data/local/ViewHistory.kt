@@ -138,27 +138,43 @@ class ViewHistory private constructor(private val context: Context) {
      * [touchHistoryEntry] (i.e. once per playback session start) and read by
      * the history screen's "Most played" sort.
      */
+    private fun scopedPlayCountKey(profileId: String, videoId: String) = "${profileId}|${videoId}"
+    private suspend fun activeProfileId(): String = ProfileManager(context).activeProfileId.first()
+
     private fun playCountsPrefs() =
         context.getSharedPreferences("watch_history_play_counts", Context.MODE_PRIVATE)
 
     fun incrementPlayCount(videoId: String) {
         if (videoId.isBlank()) return
         runCatching {
-            playCountsPrefs().edit().putInt(videoId, playCountsPrefs().getInt(videoId, 0) + 1).apply()
+            val pid = kotlinx.coroutines.runBlocking { activeProfileId() }
+            if (pid.isBlank()) return@runCatching
+            val k = scopedPlayCountKey(pid, videoId)
+            playCountsPrefs().edit().putInt(k, playCountsPrefs().getInt(k, 0) + 1).apply()
         }
     }
 
     suspend fun getPlayCounts(): Map<String, Int> = withContext(Dispatchers.IO) {
         runCatching {
+            val pid = activeProfileId()
+            if (pid.isBlank()) return@withContext emptyMap()
+            val prefix = "${pid}|"
             val prefs = playCountsPrefs()
-            prefs.all.entries.associate { (key, value) ->
-                key to ((value as? Int) ?: 0)
-            }.filterValues { it > 0 }
+            prefs.all.entries.mapNotNull { (key, value) ->
+                if (!key.startsWith(prefix)) return@mapNotNull null
+                val vid = key.removePrefix(prefix)
+                val c = (value as? Int) ?: 0
+                if (c <= 0) null else vid to c
+            }.toMap()
         }.getOrDefault(emptyMap())
     }
 
     fun clearPlayCount(videoId: String) {
-        runCatching { playCountsPrefs().edit().remove(videoId).apply() }
+        runCatching {
+            val pid = kotlinx.coroutines.runBlocking { activeProfileId() }
+            if (pid.isBlank()) return@runCatching
+            playCountsPrefs().edit().remove(scopedPlayCountKey(pid, videoId)).apply()
+        }
     }
 
     /**
