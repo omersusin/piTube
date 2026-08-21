@@ -97,12 +97,12 @@ private fun LyricsContent(
         val centerPadding = when (textPos) {
             LyricsTextPosition.TOP -> 24.dp
             LyricsTextPosition.BOTTOM -> {
-                val h = maxHeight
-                if (h.isSpecified && h != androidx.compose.ui.unit.Dp.Infinity && h.value > 120f) h - 120.dp else 24.dp
+                val hVal = maxHeight.value
+                if (hVal.isFinite() && hVal > 120f) maxHeight - 120.dp else 24.dp
             }
             else -> {
-                val h = maxHeight
-                if (h.isSpecified && h != androidx.compose.ui.unit.Dp.Infinity && h.value > 0f) h / 2 else 24.dp
+                val hVal = maxHeight.value
+                if (hVal.isFinite() && hVal > 0f) maxHeight / 2 else 24.dp
             }
         }.let { pad -> if (pad.value < 0f) 24.dp else pad }
         val swipeMod = if (swipeEnabled && onSwipeNext != null) Modifier.pointerInput(Unit) {
