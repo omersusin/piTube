@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.omersusin.pitube.R
-import com.omersusin.pitube.data.lyrics.LrcContentSpan
 import com.omersusin.pitube.ui.lyrics.SyncedLyricsView
 import com.omersusin.pitube.ui.screens.player.LyricsUiState
 import kotlinx.coroutines.launch
@@ -106,7 +105,7 @@ fun FlowLyricsBottomSheet(
                     Spacer(Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = stringResource(R.string.lyrics), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, fontSize = 22.sp), color = MaterialTheme.colorScheme.onSurface)
-                        if (lyricsState is LyricsUiState.Synced && lyricsState.lines.isNotEmpty()) {
+                        if ((lyricsState is LyricsUiState.Synced && lyricsState.lines.isNotEmpty()) || (lyricsState is LyricsUiState.SyncedWithWords && lyricsState.lines.isNotEmpty())) {
                             Text(text = stringResource(R.string.lyrics_synced), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
@@ -122,21 +121,12 @@ fun FlowLyricsBottomSheet(
                         }
                     }
                     is LyricsUiState.Synced -> {
-                        val mapped = remember(lyricsState) {
-                            lyricsState.lines.map { tl ->
-                                com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text, emptyList())
-                            }
-                        }
-                        val injected = remember(mapped, lyricsState) {
-                            val hasWordSpans = mapped.any { it.contentSpans.isNotEmpty() }
-                            if (hasWordSpans) mapped else mapped
-                        }
-                        SyncedLyricsView(
-                            lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected),
-                            currentPositionMs = currentPosition,
-                            onSeekTo = onLyricsLineClick,
-                            modifier = Modifier.fillMaxWidth().weight(1f)
-                        )
+                        val injected = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text) } }
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, modifier = Modifier.fillMaxWidth().weight(1f))
+                    }
+                    is LyricsUiState.SyncedWithWords -> {
+                        val withWords = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text, lyricsState.wordSpans[tl.startMs].orEmpty()) } }
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(withWords), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, modifier = Modifier.fillMaxWidth().weight(1f))
                     }
                     is LyricsUiState.Plain -> {
                         Box(modifier = Modifier.fillMaxWidth().weight(1f).padding(16.dp), contentAlignment = Alignment.TopStart) {
