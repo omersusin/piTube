@@ -7,7 +7,7 @@ fun isSongVideo(video: Video, streamInfo: StreamInfo?): Boolean {
     if (video.isMusic) return true
     if (video.isLive || video.isShort || video.isUpcoming) return false
     val uploader = (streamInfo?.uploaderName ?: video.channelName).lowercase()
-    if (uploader.contains(" - topic") || uploader.contains("vevo")) return true
+    if (uploader.contains("topic") || uploader.contains("vevo")) return true
     runCatching {
         val cat = streamInfo?.let { si ->
             try { si.javaClass.getMethod("getCategory").invoke(si) as? String } catch (_: Exception) { null }
@@ -16,7 +16,7 @@ fun isSongVideo(video: Video, streamInfo: StreamInfo?): Boolean {
         if (cat?.contains("music") == true) return true
     }
     val name = (streamInfo?.name ?: video.title).lowercase()
-    if (name.contains("official music video") || name.contains("official audio") || name.contains("lyric video") || name.contains("official video") || name.contains("(official)")) return true
+    if (name.contains("official music video") || name.contains("official audio") || name.contains("lyric video") || name.contains("official video") || name.contains("(official)") || name.contains("audio -") || name.contains(" - audio")) return true
     val tags = runCatching { streamInfo?.tags?.joinToString(" ")?.lowercase() }.getOrNull() ?: ""
     if (tags.contains("music")) return true
     return false
@@ -26,6 +26,13 @@ fun isSongVideoLenient(video: Video, streamInfo: StreamInfo?): Boolean {
     if (isSongVideo(video, streamInfo)) return true
     if (video.isLive || video.isShort || video.isUpcoming) return false
     val name = (streamInfo?.name ?: video.title).lowercase()
-    if (name.contains(" - ") && video.duration in 60..600) return true
-    return video.duration in 60..600 && (streamInfo?.uploaderName ?: video.channelName).isNotBlank()
+    val dur = (streamInfo?.duration?.toInt() ?: video.duration)
+    if (dur == 0) {
+        if (name.contains(" - ") || name.contains("official") || name.contains("lyric") || name.contains("audio") || name.contains("music")) return true
+        val uploader = (streamInfo?.uploaderName ?: video.channelName).lowercase()
+        if (uploader.contains("topic") || uploader.contains("vevo")) return true
+        return false
+    }
+    if (name.contains(" - ") && dur in 60..600) return true
+    return dur in 60..600 && (streamInfo?.uploaderName ?: video.channelName).isNotBlank()
 }

@@ -94,7 +94,14 @@ private fun LyricsContent(
         try { listState.animateScrollToItem(index = currentIndex.coerceAtLeast(0), scrollOffset = 0) } catch (_: Exception) {}
     }
     BoxWithConstraints(Modifier.fillMaxSize()) {
-        val centerPadding = when (textPos) { LyricsTextPosition.TOP -> 24.dp; LyricsTextPosition.BOTTOM -> maxHeight - 120.dp; else -> maxHeight / 2 }
+        val centerPadding = when {
+            textPos == LyricsTextPosition.TOP -> 24.dp
+            textPos == LyricsTextPosition.BOTTOM -> {
+                if (maxHeight.isInfinite() || maxHeight.isNaN() || maxHeight < 72.dp) 24.dp
+                else (maxHeight - 120.dp).coerceAtLeast(24.dp)
+            }
+            else -> if (maxHeight.isInfinite() || maxHeight.isNaN() || maxHeight < 72.dp) 120.dp else maxHeight / 2
+        }
         val swipeMod = if (swipeEnabled && onSwipeNext != null) Modifier.pointerInput(Unit) {
             var drag = 0f
             detectHorizontalDragGestures(onDragEnd = {

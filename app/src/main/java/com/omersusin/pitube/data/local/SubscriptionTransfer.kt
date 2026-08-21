@@ -42,19 +42,20 @@ object SubscriptionTransfer {
         channels.filter { it.channelId.startsWith("UC") && it.channelId.length > 10 }
             .distinctBy { it.channelId }
 
+    private fun subscriptionArray(text: String): JSONArray? {
+        val t = text.trim()
+        if (t.startsWith("[")) return try { JSONArray(t) } catch (_: Exception) { null }
+        return try { JSONObject(t).optJSONArray("subscriptions") } catch (_: Exception) { null }
+    }
     fun parseNewPipeJson(raw: String): List<ImportedChannel> {
-        val root = JSONObject(raw)
-        val array = root.optJSONArray("subscriptions") ?: return emptyList()
+        val array = subscriptionArray(raw) ?: return emptyList()
         val channels = mutableListOf<ImportedChannel>()
         for (i in 0 until array.length()) {
-            val item = array.optJSONObject(i) ?: continue
-            val url = item.optString("url")
+            val obj = array.optJSONObject(i) ?: continue
+            if (obj.has("service_id") && obj.optInt("service_id", 0) != 0) continue
+            val url = obj.optString("url").takeIf { it.isNotBlank() } ?: continue
             val id = extractChannelIdFromUrl(url) ?: continue
-            channels += ImportedChannel(
-                channelId = id,
-                name = item.optString("name"),
-                avatarUrl = item.optString("avatar_url"),
-            )
+            channels += ImportedChannel(channelId = id, name = obj.optString("name"), avatarUrl = obj.optString("avatar_url"))
         }
         return validChannels(channels)
     }
@@ -94,23 +95,27 @@ object SubscriptionTransfer {
         return validChannels(channels)
     }
 
+    fun countForeignServiceEntries(text: String): Int {
+        val arr = subscriptionArray(text) ?: return 0
+        return (0 until arr.length()).count { i -> val o = arr.optJSONObject(i) ?: return@count false; o.has("service_id") && o.optInt("service_id", 0) != 0 }
+    }
+
     /** Auto-detect the format and parse. Returns null when nothing matched. */
     fun parse(raw: String): ParseResult? {
-        val trimmed = raw.trim()
+        val trimmed = raw.trimStart('\uFEFF', ' ', '\n', '\r', '\t')
         return when {
             trimmed.startsWith("{") || trimmed.startsWith("[") -> {
                 val channels = parseNewPipeJson(trimmed)
                 if (channels.isNotEmpty()) ParseResult(channels, "NewPipe JSON") else null
             }
-            trimmed.startsWith("<?xml") || trimmed.contains("<opml") -> {
+            trimmed.startsWith("<") -> {
                 val channels = parseOpml(trimmed)
                 if (channels.isNotEmpty()) ParseResult(channels, "OPML") else null
             }
-            trimmed.lines().firstOrNull()?.contains(',') == true -> {
+            else -> {
                 val channels = parseTakeoutCsv(trimmed)
                 if (channels.isNotEmpty()) ParseResult(channels, "Google Takeout CSV") else null
             }
-            else -> null
         }
     }
 

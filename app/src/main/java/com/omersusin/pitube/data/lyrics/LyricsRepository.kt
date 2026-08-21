@@ -22,12 +22,11 @@ class LyricsRepository @Inject constructor(
     suspend fun fetchLyrics(videoId: String, title: String, artist: String, album: String = "", durationMs: Long = 0L): LyricsFetchResult = withContext(Dispatchers.IO) {
         memCache[videoId]?.let { return@withContext LyricsFetchResult.Success(it) }
         loadDiskCache(videoId)?.let { memCache[videoId] = it; return@withContext LyricsFetchResult.Success(it) }
-        val order = try { playerPreferences.lyricsProviderOrder.first() } catch (_: Exception) { "lrclib,kugou,transcript" }
-        // 1) try external providers
+        val order = try { playerPreferences.lyricsProviderOrder.first() } catch (_: Exception) { LyricsProviders.defaultOrderCsv() }
         for (p in LyricsProviders.ordered(order)) {
             if (p.id == "transcript") continue
             try {
-                val raw = p.fetch(title, artist, album, durationMs) ?: continue
+                val raw = p.fetch(title, artist, album, durationMs, songId = videoId) ?: continue
                 val parsed = LrcParser.parse(raw)
                 if (parsed.isNotEmpty()) { memCache[videoId] = parsed; saveDiskCache(videoId, raw); return@withContext LyricsFetchResult.Success(parsed) }
             } catch (e: Exception) { Log.d("LyricsRepository", "provider ${p.id} failed ${e.message}") }
