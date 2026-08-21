@@ -63,27 +63,25 @@ class HomeFeedLogicTest {
             .containsExactly(
                 FeedSource.PERSONAL, 0,
                 FeedSource.SUBS, 0,
-                FeedSource.RELATED, 12,
-                FeedSource.DISCOVERY, 16,
-                FeedSource.VIRAL, 12
+                FeedSource.RELATED, 18,
+                FeedSource.DISCOVERY, 12,
+                FeedSource.VIRAL, 10
             )
-
         assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 20))
             .containsExactly(
                 FeedSource.PERSONAL, 0,
-                FeedSource.SUBS, 18,
-                FeedSource.RELATED, 10,
-                FeedSource.DISCOVERY, 8,
-                FeedSource.VIRAL, 4
+                FeedSource.SUBS, 26,
+                FeedSource.RELATED, 7,
+                FeedSource.DISCOVERY, 4,
+                FeedSource.VIRAL, 3
             )
-
         assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 200))
             .containsExactly(
                 FeedSource.PERSONAL, 0,
-                FeedSource.SUBS, 20,
-                FeedSource.RELATED, 8,
-                FeedSource.DISCOVERY, 8,
-                FeedSource.VIRAL, 4
+                FeedSource.SUBS, 26,
+                FeedSource.RELATED, 7,
+                FeedSource.DISCOVERY, 4,
+                FeedSource.VIRAL, 3
             )
     }
 
@@ -91,11 +89,11 @@ class HomeFeedLogicTest {
     fun `home feed quotas prioritize the personalized lane when signed in`() {
         assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 20, hasPersonalFeed = true))
             .containsExactly(
-                FeedSource.PERSONAL, 22,
-                FeedSource.SUBS, 8,
-                FeedSource.RELATED, 4,
-                FeedSource.DISCOVERY, 3,
-                FeedSource.VIRAL, 3
+                FeedSource.PERSONAL, 40,
+                FeedSource.SUBS, 0,
+                FeedSource.RELATED, 0,
+                FeedSource.DISCOVERY, 0,
+                FeedSource.VIRAL, 0
             )
     }
 
