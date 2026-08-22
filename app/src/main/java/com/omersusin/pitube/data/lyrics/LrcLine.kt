@@ -5,6 +5,9 @@ data class LrcLine(val timeMs: Long, val text: String, val contentSpans: List<Lr
 
 sealed interface LyricsFetchResult {
     data class Success(val lines: List<LrcLine>) : LyricsFetchResult
+
+    /** Unsynced text: usable for display, but has no per-line timing. */
+    data class Plain(val text: String) : LyricsFetchResult
     data object NotFound : LyricsFetchResult
     data class Error(val message: String) : LyricsFetchResult
 }

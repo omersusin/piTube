@@ -1,14 +1,20 @@
 package com.omersusin.pitube.data.lyrics
 
+import com.omersusin.pitube.utils.TitleDecorationStripper
+
 object LrcParser {
     private val timeTagPattern = Regex("""\[(\d{1,2}):(\d{2})\.(\d{2,3})\]""")
     private val wordTagPattern = Regex("""<(\d{1,2}):(\d{2})\.(\d{2,3})>""")
+    private val offsetTagPattern = Regex("""\[offset:\s*([+-]?\d+)\s*\]""", RegexOption.IGNORE_CASE)
 
     fun parse(lrcContent: String): List<LrcLine> {
+        // Standard LRC global shift: positive values shift lyrics EARLIER,
+        // negative later (per the spec's convention used by most editors).
+        val offsetMs = offsetTagPattern.find(normalize(lrcContent))?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val lines = mutableListOf<LrcLine>()
         for (line in normalize(lrcContent).lines()) {
             val trim = line.trim()
-            if (trim.isEmpty()) continue
+            if (trim.isEmpty() || offsetTagPattern.matchEntire(trim) != null) continue
             val times = mutableListOf<Long>()
             var idx = 0
             while (true) {
@@ -21,7 +27,7 @@ object LrcParser {
             if (times.isEmpty() || idx >= trim.length) continue
             val content = trim.substring(idx).trim()
             if (content.isEmpty()) continue
-            val first = times.first(); val repeats = times.drop(1)
+            val first = times.first() - offsetMs; val repeats = times.drop(1).map { it - offsetMs }
             if (wordTagPattern.containsMatchIn(content)) {
                 val spans = mutableListOf<LrcContentSpan>()
                 val wMatches = wordTagPattern.findAll(content).toList()
@@ -30,14 +36,14 @@ object LrcParser {
                     if (f > 0) {
                         val seg = content.substring(0, f).trim()
                         if (seg.isNotEmpty()) {
-                            val nt = parseTime(wMatches[0].groupValues[1], wMatches[0].groupValues[2], wMatches[0].groupValues[3])
+                            val nt = parseTime(wMatches[0].groupValues[1], wMatches[0].groupValues[2], wMatches[0].groupValues[3]) - offsetMs
                             spans.add(LrcContentSpan(first, seg, nt - first))
                         }
                     }
                 }
                 for (i in wMatches.indices) {
                     val cm = wMatches[i]; val (wm, ws, wc) = cm.destructured
-                    val ct = parseTime(wm, ws, wc)
+                    val ct = parseTime(wm, ws, wc) - offsetMs
                     val nextStart = if (i + 1 < wMatches.size) wMatches[i + 1].range.first else content.length
                     val ts = cm.range.last + 1
                     if (ts < nextStart) {
@@ -48,12 +54,16 @@ object LrcParser {
                         }
                     }
                 }
-                val clean = content.replace(wordTagPattern, "").replace(Regex("\\s+"), " ").trim()
-                lines.add(LrcLine(first, clean, spans))
-                repeats.forEach { lines.add(LrcLine(it, clean)) }
+                val clean = TitleDecorationStripper.stripDecorations(
+                    content.replace(wordTagPattern, "").replace(Regex("\\s+"), " ").trim()
+                )
+                lines.add(LrcLine(first.coerceAtLeast(0L), clean, spans))
+                repeats.forEach { lines.add(LrcLine(it.coerceAtLeast(0L), clean)) }
             } else {
-                lines.add(LrcLine(first, content))
-                repeats.forEach { lines.add(LrcLine(it, content)) }
+                val stripped = TitleDecorationStripper.stripDecorations(content)
+                if (stripped.isEmpty()) continue
+                lines.add(LrcLine(first.coerceAtLeast(0L), stripped))
+                repeats.forEach { lines.add(LrcLine(it.coerceAtLeast(0L), stripped)) }
             }
         }
         val sorted = lines.sortedBy { it.timeMs }

@@ -44,6 +44,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val showPP by prefs.lyricsShowPlayPauseOnThumbnail.collectAsState(initial = true)
     val order by prefs.lyricsProviderOrder.collectAsState(initial = com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER)
     val translationEnabled by prefs.lyricsTranslationEnabled.collectAsState(initial = true)
+    val syncOffset by prefs.lyricsSyncOffsetMs.collectAsState(initial = 0)
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -103,6 +104,27 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Line spacing: ${(spacing * 10).toInt() / 10f}x", style = MaterialTheme.typography.bodyMedium)
                         Slider(value = spacing, onValueChange = { scope.launch { prefs.setLyricsLineSpacing(it) } }, valueRange = 0.8f..2.2f)
+                    }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        // ±50 ms steps across a ±5 s window; positive values make
+                        // lyrics highlight EARLIER (shifts the effective clock forward).
+                        val stepped = (syncOffset / 50) * 50
+                        Text(
+                            "Sync offset: ${if (stepped >= 0) "+" else ""}${stepped}ms",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Slider(
+                            value = stepped.toFloat(),
+                            onValueChange = { scope.launch { prefs.setLyricsSyncOffsetMs(((it / 50).toInt() * 50)) } },
+                            valueRange = -5000f..5000f,
+                            steps = ((5000 * 2) / 50) - 1,
+                        )
+                        Text(
+                            "Nudge if lyrics are consistently early or late",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }

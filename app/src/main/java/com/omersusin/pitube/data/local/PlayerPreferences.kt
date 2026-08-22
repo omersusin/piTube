@@ -359,6 +359,7 @@ class PlayerPreferences(context: Context) {
         val INCOGNITO_MODE = booleanPreferencesKey("incognito_mode")
         val DATA_SAVER_ENABLED = booleanPreferencesKey("data_saver_enabled")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
+        val LYRICS_SYNC_OFFSET_MS = intPreferencesKey("lyrics_sync_offset_ms")
 
         // Action row customization
         val ACTION_ROW_ORDER = stringPreferencesKey("action_row_order")
@@ -2714,6 +2715,10 @@ class PlayerPreferences(context: Context) {
     suspend fun setDataSaverEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.DATA_SAVER_ENABLED] = v } }
     val lyricsProviderOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_PROVIDER_ORDER] ?: com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER }
     suspend fun setLyricsProviderOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_PROVIDER_ORDER] = order } }
+
+    /** Global lyric-sync nudge in milliseconds (positive = lyrics earlier). */
+    val lyricsSyncOffsetMs: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_SYNC_OFFSET_MS] ?: 0 }
+    suspend fun setLyricsSyncOffsetMs(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SYNC_OFFSET_MS] = v.coerceIn(-5000, 5000) } }
 
     val actionRowOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.ACTION_ROW_ORDER] ?: "" }
     suspend fun setActionRowOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.ACTION_ROW_ORDER] = order } }

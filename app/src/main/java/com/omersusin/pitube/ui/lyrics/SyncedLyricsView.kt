@@ -62,11 +62,12 @@ fun SyncedLyricsView(
     val autoScroll by prefs.lyricsAutoScroll.collectAsState(initial = true)
     val swipeEnabled by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
     val changeOnClick by prefs.lyricsChangeOnClick.collectAsState(initial = false)
+    val syncOffsetMs by prefs.lyricsSyncOffsetMs.collectAsState(initial = 0)
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         when (lyricsResult) {
             is LyricsFetchResult.Success -> LyricsContent(
-                lines = lyricsResult.lines, currentPositionMs = currentPositionMs, onSeekTo = onSeekTo,
+                lines = lyricsResult.lines, currentPositionMs = currentPositionMs + syncOffsetMs, onSeekTo = onSeekTo,
                 anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal,
                 autoScroll = autoScroll, textPos = textPos, swipeEnabled = swipeEnabled, onSwipeNext = onSwipeNext, onSwipePrev = onSwipePrev,
                 changeOnClick = changeOnClick, translations = translations

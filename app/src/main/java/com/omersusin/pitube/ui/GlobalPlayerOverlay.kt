@@ -1709,13 +1709,7 @@ fun GlobalPlayerOverlay(
             onRequestLyrics = { videoId -> playerViewModel.requestLyrics(videoId) },
             lyricsTranslations = playerViewModel.lyricsTranslations.collectAsStateWithLifecycle(initialValue = emptyMap()).value,
             onApplyManualLyrics = { rawLrc -> playerViewModel.applyManualLyrics(video.id, rawLrc) },
-            initialSearchTitle = video.title
-                // Strip (Official Video)-style and [Lyrics]-style decorations.
-                // NOTE: no \] escapes — Android ICU rejects them inside classes.
-                .replace(Regex("""\([^)]*\)"""), " ")
-                .replace(Regex("""\[[^\u005d]*\u005d"""), " ")
-                .replace(Regex("""\s+"""), " ")
-                .trim(),
+            initialSearchTitle = com.omersusin.pitube.utils.TitleDecorationStripper.stripAll(video.title),
             initialSearchArtist = video.channelName
                 .replace(Regex("""\s*-\s*Topic$"""), "")
                 .removeSuffix("VEVO")

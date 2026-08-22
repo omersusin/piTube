@@ -91,7 +91,8 @@ class VideoPlayerViewModel @Inject constructor(
     private val playerPreferences: PlayerPreferences,
     private val videoDownloadManager: VideoDownloadManager,
     private val sponsorBlockRepository: SponsorBlockRepository,
-    private val liveChatRepository: com.omersusin.pitube.data.repository.LiveChatRepository
+    private val liveChatRepository: com.omersusin.pitube.data.repository.LiveChatRepository,
+    private val translationController: com.omersusin.pitube.data.translation.TranslationController
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(VideoPlayerUiState())
@@ -3512,6 +3513,7 @@ class VideoPlayerViewModel @Inject constructor(
                 // translated lines under the active line as soon as they land.
                 if (res is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success) {
                     val prefsL = PlayerPreferences(context)
+                    val sourceLines = res.lines
                     viewModelScope.launch {
                         _lyricsTranslations.value = emptyMap()
                         val translated = com.omersusin.pitube.data.lyrics.LyricsTranslationRepository
@@ -3521,6 +3523,10 @@ class VideoPlayerViewModel @Inject constructor(
                                 artist = artist,
                                 durationMs = durMs,
                                 enabled = prefsL.lyricsTranslationEnabled.first(),
+                                machineTranslate = { text, targetLang ->
+                                    translationController.translate(text, targetLang)
+                                },
+                                sourceLines = sourceLines,
                             )
                         if (lyricsVideoId == videoId && !translated.isNullOrEmpty()) {
                             _lyricsTranslations.value = translated.associate { it.timeMs to it.text }
@@ -3533,6 +3539,8 @@ class VideoPlayerViewModel @Inject constructor(
                         val wordSpans = res.lines.associate { it.timeMs to it.contentSpans }
                         LyricsUiState.SyncedWithWords(mapped.map { it.first }, wordSpans)
                     }
+                    is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Plain ->
+                        LyricsUiState.Plain(res.text)
                     is com.omersusin.pitube.data.lyrics.LyricsFetchResult.NotFound -> LyricsUiState.Unavailable
                     is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Error -> LyricsUiState.Unavailable
                 }
