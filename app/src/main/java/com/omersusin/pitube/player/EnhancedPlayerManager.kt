@@ -423,6 +423,10 @@ class EnhancedPlayerManager private constructor() {
      */
     @Volatile
     var onPlaybackPositionPersist: ((Long) -> Unit)? = null
+
+    /** Data-saver flag mirrored from preferences; disables speculative preloads. */
+    @Volatile
+    var dataSaverActive: Boolean = false
     private var errorHandler: PlayerErrorHandler? = null
 
     private val _streamExpiredEvent = MutableSharedFlow<Long>(extraBufferCapacity = 1)
@@ -2385,6 +2389,10 @@ class EnhancedPlayerManager private constructor() {
     private fun schedulePreloadNext() {
         if (_playerState.value.isLooping) {
             autoNextLog("schedulePreloadNext skipped looping")
+            return
+        }
+        if (dataSaverActive) {
+            autoNextLog("schedulePreloadNext skipped data saver")
             return
         }
         val p =

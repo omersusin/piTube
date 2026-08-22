@@ -86,16 +86,27 @@ fun RecognitionScreen(
     // Issue 6: mode-branched background. VOICE forces a dark gradient (voice
     // UI reads best on dark); SONG runs a slow infinite gradient behind the
     // blob. Modes crossfade instead of snapping.
-    val backgroundTransition = rememberInfiniteTransition(label = "recogBg")
-    val bgShift by backgroundTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 10_000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "bgShift",
-    )
+    // Ping-pong shift driven ONLY while SONG is active — an always-on infinite
+    // transition recomposed the whole screen every frame even in VOICE/IDLE.
+    var bgShift by remember { mutableStateOf(0f) }
+    LaunchedEffect(uiState.mode) {
+        if (uiState.mode != RecognitionMode.SONG) {
+            bgShift = 0f
+            return@LaunchedEffect
+        }
+        var lastNanos = 0L
+        var elapsed = 0L
+        while (true) {
+            withFrameNanos { now ->
+                if (lastNanos == 0L) lastNanos = now
+                elapsed += (now - lastNanos).coerceAtLeast(0L)
+                lastNanos = now
+                // Triangle wave, 20s full cycle (up 10s, down 10s)
+                val phase = (elapsed % 20_000L) / 1_000f
+                bgShift = if (phase < 10f) phase / 10f else (20f - phase) / 10f
+            }
+        }
+    }
     val songGradient = Brush.verticalGradient(
         colors = listOf(
             MaterialTheme.colorScheme.primary.copy(alpha = 0.25f + 0.15f * bgShift),

@@ -346,6 +346,12 @@ class VideoPlayerViewModel @Inject constructor(
             }
         }
 
+        viewModelScope.launch {
+            playerPreferences.dataSaverEnabled.collect {
+                EnhancedPlayerManager.getInstance().dataSaverActive = it
+            }
+        }
+
         // Register background-safe position persistence: fires every AUTO_SAVE_INTERVAL_MS
         // from PlaybackTracker even when the player screen isn't composed (audio-only,
         // background playback, mid-play stalls).
@@ -1393,10 +1399,17 @@ class VideoPlayerViewModel @Inject constructor(
 
                 val (qualityAndAudioPrefs, downloadedVideo) = supervisorScope {
                     val prefsDeferred = async(PerformanceDispatcher.diskIO) {
-                        val preferredQuality = if (isWifi) {
+                        var preferredQuality = if (isWifi) {
                             playerPreferences.defaultQualityWifi.first()
                         } else {
                             playerPreferences.defaultQualityCellular.first()
+                        }
+                        // Data saver: hard-cap resolution on cellular data.
+                        if (playerPreferences.dataSaverEnabled.first() && !isWifi &&
+                            preferredQuality.height > 480
+                        ) {
+                            Log.d("VideoPlayerViewModel", "Data saver: capping ${preferredQuality.height}p -> 480p")
+                            preferredQuality = com.omersusin.pitube.data.local.VideoQuality.fromString("480p")
                         }
                         val preferredAudioLang = playerPreferences.preferredAudioLanguage.first()
                         val preferredCodec = playerPreferences.defaultVideoCodec.first().codecKey
@@ -2064,10 +2077,13 @@ class VideoPlayerViewModel @Inject constructor(
     }
 
     private suspend fun preferredDefaultQualityHeight(): Int {
-        val quality = if (detectIsWifi()) {
+        var quality = if (detectIsWifi()) {
             playerPreferences.defaultQualityWifi.first()
         } else {
             playerPreferences.defaultQualityCellular.first()
+        }
+        if (playerPreferences.dataSaverEnabled.first() && !detectIsWifi() && quality.height > 480) {
+            quality = com.omersusin.pitube.data.local.VideoQuality.fromString("480p")
         }
         return quality.height
     }

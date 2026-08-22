@@ -126,6 +126,7 @@ class FlowApplication :
 
         // Schedule periodic update checks (every 12 hours) — github flavor only
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            kotlinx.coroutines.delay(15_000L)
             if (BuildConfig.UPDATER_ENABLED) {
                 com.omersusin.pitube.notification.UpdateCheckWorker
                     .schedulePeriodicCheck(this@FlowApplication)
