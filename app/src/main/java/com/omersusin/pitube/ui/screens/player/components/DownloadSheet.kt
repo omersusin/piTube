@@ -82,8 +82,6 @@ fun DownloadSheet(
     val preferredAudioLanguage by prefs.preferredAudioLanguage.collectAsState(initial = "")
 
     var audioOnly by remember { mutableStateOf(false) }
-    var videoAccordionExpanded by remember { mutableStateOf(true) }
-    var audioAccordionExpanded by remember { mutableStateOf(false) }
     var selectedVideoKey by remember { mutableStateOf<String?>(null) }
     var selectedAudioUrl by remember { mutableStateOf<String?>(null) }
     var preferredCodec by remember { mutableStateOf(lastDownloadCodec) }
@@ -258,24 +256,18 @@ fun DownloadSheet(
                 }
 
                 else -> {
-                    item {
-                        AccordionHeader(
-                            title = stringResource(R.string.download_section_video_quality),
-                            subtitle = selectedCandidate?.let {
-                                "${VideoCodecUtils.codecLabelFromKey(VideoCodecUtils.codecKeyFromStream(it))} " +
-                                    "${VideoPlayerUtils.qualityHeightFromStream(it)}p"
-                            },
-                            expanded = videoAccordionExpanded && !audioOnly,
-                            onToggle = { videoAccordionExpanded = !videoAccordionExpanded },
+                    if (!audioOnly) {
+                      item {
+                        // Section label (no accordion — rows are directly visible)
+                        Text(
+                            text = stringResource(R.string.download_section_video_quality),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                         )
-                    }
-                    item {
-                        AnimatedVisibility(
-                            visible = videoAccordionExpanded && !audioOnly,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut(),
-                        ) {
-                            Column {
+                      }
+                      item {
+                        Column {
                                 if (distinctVideoStreams.isEmpty()) {
                                     Text(
                                         text = stringResource(R.string.no_download_streams),
@@ -374,123 +366,100 @@ fun DownloadSheet(
                                         }
                                     }
                                 }
+                      }
+                    }
+                  }
+
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.download_audio_only),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                                Text(
+                                    text = stringResource(R.string.download_audio_only_hint),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
+                            Switch(
+                                checked = audioOnly,
+                                onCheckedChange = { checked ->
+                                    audioOnly = checked
+                                },
+                            )
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        if (!audioOnly && selectedIsMuxed) {
+                            Text(
+                                text = stringResource(R.string.download_audio_builtin_hint),
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        if (audioStreams.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.no_download_streams),
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
 
-                    item {
-                        AccordionHeader(
-                            title = stringResource(R.string.download_section_audio_quality),
-                            subtitle = if (!audioOnly && selectedIsMuxed) {
-                                stringResource(R.string.download_audio_builtin)
-                            } else {
-                                selectedAudio?.let {
+                    // Exactly TWO collapsed audio rows per spec: OPUS and M4A.
+                    // WEBM folds into OPUS; MP3/other containers fold into M4A.
+                    val audioRows = audioStreams
+                        .groupBy { DownloadStreamHelpers.audioGroupLabel(it) }
+                        .let { groups ->
+                            listOf(
+                                "OPUS" to (groups["OPUS"].orEmpty() + groups["WEBM"].orEmpty()),
+                                "M4A" to (groups["M4A"].orEmpty() + groups["MP3"].orEmpty() +
+                                    groups.filterKeys { it !in setOf("OPUS", "M4A", "MP3", "WEBM") }
+                                        .values.flatten()),
+                            )
+                        }
+                    audioRows.forEach { (label, streams) ->
+                        if (streams.isEmpty()) return@forEach
+                        val sorted = streams.sortedByDescending {
+                            DownloadStreamHelpers.audioBitrateKbps(it)
+                        }
+                        val selectedInGroup = sorted.firstOrNull {
+                            it.getContent() == selectedAudioUrl
+                        }
+                        item(key = "audio_$label") {
+                            AudioGroupRow(
+                                group = label,
+                                subtitle = selectedInGroup?.let {
                                     "${DownloadStreamHelpers.audioFormatLabel(it)} " +
                                         "${DownloadStreamHelpers.audioBitrateKbps(it)}kbps"
-                                }
-                            },
-                            expanded = audioAccordionExpanded,
-                            onToggle = { audioAccordionExpanded = !audioAccordionExpanded },
-                        )
-                    }
-                    item {
-                        AnimatedVisibility(
-                            visible = audioAccordionExpanded,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut(),
-                        ) {
-                            Column {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 20.dp, vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = stringResource(R.string.download_audio_only),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.download_audio_only_hint),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-                                    Switch(
-                                        checked = audioOnly,
-                                        onCheckedChange = { checked ->
-                                            audioOnly = checked
-                                            videoAccordionExpanded = !checked
-                                        },
-                                    )
-                                }
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                                if (!audioOnly && selectedIsMuxed) {
-                                    Text(
-                                        text = stringResource(R.string.download_audio_builtin_hint),
-                                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                                if (audioStreams.isEmpty()) {
-                                    Text(
-                                        text = stringResource(R.string.no_download_streams),
-                                        modifier = Modifier.padding(16.dp),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                } else {
-                                    val audioGroups = remember(audioStreams) {
-                                        audioStreams
-                                            .groupBy { DownloadStreamHelpers.audioGroupLabel(it) }
-                                            .map { (group, streams) ->
-                                                group to streams.sortedByDescending {
-                                                    DownloadStreamHelpers.audioBitrateKbps(it)
-                                                }
-                                            }
-                                            .sortedBy { (group, _) ->
-                                                when (group) {
-                                                    "OPUS" -> 0
-                                                    "M4A" -> 1
-                                                    "MP3" -> 2
-                                                    else -> 3
-                                                }
-                                            }
-                                    }
-                                    audioGroups.forEach { (group, streams) ->
-                                        val selectedInGroup = streams.firstOrNull {
-                                            it.getContent() == selectedAudioUrl
-                                        }
-                                        AudioGroupRow(
-                                            group = group,
-                                            subtitle = selectedInGroup?.let {
-                                                "${DownloadStreamHelpers.audioFormatLabel(it)} " +
-                                                    "${DownloadStreamHelpers.audioBitrateKbps(it)}kbps"
-                                            },
-                                            expanded = expandedAudioGroup == group,
+                                },
+                                expanded = expandedAudioGroup == label,
+                                onClick = {
+                                    expandedAudioGroup =
+                                        if (expandedAudioGroup == label) null else label
+                                },
+                            )
+                            AnimatedVisibility(visible = expandedAudioGroup == label) {
+                                Column {
+                                    sorted.forEach { audio ->
+                                        AudioQualityRow(
+                                            audio = audio,
+                                            isSelected = audio.getContent() == selectedAudioUrl,
+                                            enabled = audioOnly || !selectedIsMuxed,
                                             onClick = {
-                                                expandedAudioGroup =
-                                                    if (expandedAudioGroup == group) null else group
+                                                selectedAudioUrl =
+                                                    audio.getContent().takeIf { it.isNotBlank() }
                                             },
                                         )
-                                        AnimatedVisibility(visible = expandedAudioGroup == group) {
-                                            Column {
-                                                streams.forEach { audio ->
-                                                    AudioQualityRow(
-                                                        audio = audio,
-                                                        isSelected = audio.getContent() == selectedAudioUrl,
-                                                        enabled = audioOnly || !selectedIsMuxed,
-                                                        onClick = {
-                                                            selectedAudioUrl =
-                                                                audio.getContent().takeIf { it.isNotBlank() }
-                                                        },
-                                                    )
-                                                }
-                                            }
-                                        }
                                     }
                                 }
                             }
@@ -533,44 +502,6 @@ fun DownloadSheet(
         }
         }
     }
-}
-
-@Composable
-private fun AccordionHeader(
-    title: String,
-    subtitle: String?,
-    expanded: Boolean,
-    onToggle: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onToggle)
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        Icon(
-            imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
 
 @Composable
