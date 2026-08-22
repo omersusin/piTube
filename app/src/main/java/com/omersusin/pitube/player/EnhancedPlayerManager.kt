@@ -431,9 +431,14 @@ class EnhancedPlayerManager private constructor() {
 
     private val _streamExpiredEvent = MutableSharedFlow<Long>(extraBufferCapacity = 1)
     val streamExpiredEvent: SharedFlow<Long> = _streamExpiredEvent.asSharedFlow()
-
     private val _playbackAbandonedEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
     val playbackAbandonedEvent: SharedFlow<Unit> = _playbackAbandonedEvent.asSharedFlow()
+
+    /** Emitted when a setStreams→loadMediaInternal chain fails to produce any playable source. */
+    private val _playbackLoadFailedEvent = MutableSharedFlow<String>(extraBufferCapacity = 1)
+
+    val playbackLoadFailedEvent: SharedFlow<String> = _playbackLoadFailedEvent.asSharedFlow()
 
     private val _queueAutoAdvanceEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val queueAutoAdvanceEvent: SharedFlow<Unit> = _queueAutoAdvanceEvent.asSharedFlow()
@@ -1305,6 +1310,10 @@ class EnhancedPlayerManager private constructor() {
             // The previous item is still queued (see resetPlaybackStateForNewVideo). Drop it so a
             // failed load doesn't leave the notification advertising the video we just left.
             player?.clearMediaItems()
+            // Never die silently: surface the failure so the UI can show an error card
+            // instead of leaving a frozen IDLE player behind.
+            Log.e(TAG, "loadMediaInternal: all sources failed for $currentVideoId — emitting playbackLoadFailedEvent")
+            scope.launch { _playbackLoadFailedEvent.emit(currentVideoId.orEmpty()) }
         }
         return loaded
     }
@@ -1351,8 +1360,18 @@ class EnhancedPlayerManager private constructor() {
             ) ?: false
         }
 
+        // A pure-SABR extraction (YouTube serves no direct URLs under SABR
+        // enforcement) is fully playable through the native SABR session, so it
+        // must count as playable here — otherwise loadMediaInternal bails out
+        // before MediaLoader ever gets a chance to route to SabrMediaSource.
+        val sabrAvailable =
+            currentSabrInfo != null &&
+                currentSabrInfo.streamingUrl.isNotEmpty() &&
+                currentVideoId != null &&
+                currentSabrInfo.audioItag > 0 &&
+                currentSabrInfo.videoItag > 0
         val audio = audioStream ?: availableAudioStreams.firstOrNull()
-        if (audioOnly && audio == null) {
+        if (audioOnly && audio == null && !sabrAvailable) {
             Log.w(TAG, "loadMediaInternal: audio-only load requested without an audio stream")
             return false
         }
@@ -1361,10 +1380,14 @@ class EnhancedPlayerManager private constructor() {
                 currentVideoStream != null ||
                 availableVideoStreams.isNotEmpty() ||
                 !currentDashManifestUrl.isNullOrEmpty() ||
-                !currentHlsUrl.isNullOrEmpty()
+                !currentHlsUrl.isNullOrEmpty() ||
+                sabrAvailable
         if (audio == null && !hasPlayableVideo) {
             Log.w(TAG, "loadMediaInternal: no playable audio/video streams")
             return false
+        }
+        if (sabrAvailable) {
+            Log.w(TAG, "loadMediaInternal: SABR session available for $currentVideoId (prefer=$sabrPreferred)")
         }
         val result =
             mediaLoader?.loadMedia(

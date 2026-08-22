@@ -475,6 +475,24 @@ class VideoPlayerViewModel @Inject constructor(
             }
         }
 
+        // A setStreams→loadMedia chain that produced no playable source used to die silently
+        // (frozen IDLE player, no error). Surface the error card so the user can retry.
+        viewModelScope.launch {
+            EnhancedPlayerManager.getInstance().playbackLoadFailedEvent.collect { failedVideoId ->
+                val videoId = failedVideoId.ifBlank { _uiState.value.cachedVideo?.id } ?: return@collect
+                if (playbackAbandonedVideoId == videoId) return@collect
+                if (_uiState.value.error != null || _uiState.value.isLoading) return@collect
+                Log.e("VideoPlayerViewModel", "Playback load failed for $videoId — surfacing recoverable error")
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = context.getString(R.string.error_all_stream_sources_failed),
+                        errorHint = context.getString(R.string.error_playback_retry_hint)
+                    )
+                }
+            }
+        }
+
         viewModelScope.launch {
             EnhancedPlayerManager.getInstance().playerState.collect { playerState ->
                 _uiState.update {
@@ -1475,7 +1493,30 @@ class VideoPlayerViewModel @Inject constructor(
                     var lateStreamInfoDeferred: Deferred<Pair<StreamInfo?, Throwable?>>? = null
 
                     if (escalateToSabr) {
-                        streamInfoDeferred.cancel()
+                        // Prefer the forced-SABR session, but never throw away a
+                        // finished NewPipe result — its freshly-fetched direct
+                        // URLs are a valid fallback rung after a 403.
+                        streamResolution =
+                            if (streamInfoDeferred.isCompleted) {
+                                val finished =
+                                    runCatching { streamInfoDeferred.getCompleted() }
+                                        .getOrElse { null to null }
+                                if (classifyNewPipePlaybackResult(finished.first) ==
+                                    PlaybackResolverReadiness.PLAYABLE
+                                ) {
+                                    Log.w(
+                                        "VideoPlayerViewModel",
+                                        "Forced-SABR reload: reusing completed NewPipe result for $videoId as direct-URL fallback"
+                                    )
+                                    finished
+                                } else {
+                                    streamInfoDeferred.cancel()
+                                    null to null
+                                }
+                            } else {
+                                streamInfoDeferred.cancel()
+                                null to null
+                            }
                         innerTubeResult = innerTubeDeferred.await()
                     } else {
                         when (val winner = awaitFirstPlaybackResolver(streamInfoDeferred, innerTubeDeferred)) {
@@ -1861,6 +1902,7 @@ class VideoPlayerViewModel @Inject constructor(
                                     preferredAudioLanguage = preferredAudioLanguage,
                                     preferredCodecKey = preferredCodecKey,
                                     resumePositionOverrideMs = resumePositionOverrideMs,
+                                    forcedSabr = escalateToSabr,
                                     loadToken = loadToken
                                 )
                                 lateStreamInfoDeferred?.let {
@@ -2481,6 +2523,7 @@ class VideoPlayerViewModel @Inject constructor(
         preferredAudioLanguage: String,
         preferredCodecKey: String,
         resumePositionOverrideMs: Long? = null,
+        forcedSabr: Boolean = false,
         loadToken: Long
     ) = withContext(Dispatchers.Main) {
         if (!isPlaybackLoadCurrent(loadToken)) return@withContext
@@ -2582,8 +2625,18 @@ class VideoPlayerViewModel @Inject constructor(
         if (manager.isPreparedForPlayback(videoId)) return@withContext
 
         val directMaxHeight = videoStreams.maxOfOrNull { VideoCodecUtils.qualityHeightFromStream(it) } ?: 0
-        val preferSabr = result.sabrInfo != null &&
-            SabrRoutingPolicy.shouldPreferSabr(false, result.sabrInfo.videoHeight, directMaxHeight)
+        // A forced-SABR reload must always route into the native SABR session:
+        // under SABR enforcement the WEB client serves no direct URLs at all, so
+        // the routing decision cannot rely on comparing heights with an empty
+        // direct ladder.
+        val preferSabr =
+            result.sabrInfo != null &&
+                (forcedSabr || SabrRoutingPolicy.shouldPreferSabr(false, result.sabrInfo.videoHeight, directMaxHeight))
+        Log.w(
+            "VideoPlayerViewModel",
+            "VOD fallback routing $videoId: preferSabr=$preferSabr (forced=$forcedSabr, " +
+                "sabrHeight=${result.sabrInfo?.videoHeight}, directMaxHeight=$directMaxHeight)"
+        )
         manager.setStreams(
             videoId = videoId,
             videoStream = if (isAdaptiveMode) null else selected.first,
