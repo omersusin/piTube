@@ -93,7 +93,12 @@ private fun LyricsContent(
     translations: Map<Long, String>
 ) {
     val listState = rememberLazyListState()
-    val currentIndex by remember(currentPositionMs, lines) { derivedStateOf { lines.indexOfLast { it.timeMs <= currentPositionMs } } }
+    // Hold the ticking position in a State so the active-line lookup can observe it
+    // without recreating this whole composable scope on every tick.
+    val positionState = rememberUpdatedState(currentPositionMs)
+    val currentIndex by remember(lines) {
+        derivedStateOf { lines.indexOfLast { it.timeMs <= positionState.value } }
+    }
     LaunchedEffect(currentIndex, autoScroll) {
         if (!autoScroll) return@LaunchedEffect
         try { listState.animateScrollToItem(index = currentIndex.coerceAtLeast(0), scrollOffset = 0) } catch (_: Exception) {}
@@ -143,14 +148,19 @@ private fun LyricsContent(
             itemsIndexed(lines, key = { i, l -> "${i}_${l.timeMs}" }) { idx, line ->
                 val nextTime = lines.getOrNull(idx + 1)?.timeMs ?: (line.timeMs + 4000L)
                 val duration = (nextTime - line.timeMs).coerceAtLeast(800L)
-                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, currentPositionMs = currentPositionMs, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
+                // Only the active line reads the ticking clock — every other item
+                // stays skipped between line changes instead of recomposing per tick.
+                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, positionProvider = { positionState.value }, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
             }
         }
     }
 }
 
 @Composable
-private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, isPast: Boolean, currentPositionMs: Long, anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float, onTap: () -> Unit, translatedText: String? = null) {
+private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, isPast: Boolean, positionProvider: () -> Long, anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float, onTap: () -> Unit, translatedText: String? = null) {
+    // Reading the clock only while this line is active scopes per-tick recomposition
+    // to exactly one list item; inactive lines keep their stable -1 sentinel.
+    val currentPositionMs = if (isCurrent) positionProvider() else -1L
     val scaleTarget = if (!isCurrent) 1f else when (anim) {
         LyricsAnimationStyle.NONE -> 1f
         LyricsAnimationStyle.FADE -> 1f
