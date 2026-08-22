@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
 
 private const val CRASH_PREFS_NAME = "flow_crash_prefs"
 private const val CRASH_PREFS_KEY_LAST = "last_crash"
+private const val CRASH_PREFS_KEY_VERSION = "crash_log_version_code"
 
 /**
  * Global exception handler for crash monitoring and logging.
@@ -43,6 +44,32 @@ class FlowCrashHandler private constructor(
                         Log.i(TAG, "Crash handler installed")
                     }
                 }
+            }
+            discardStaleCrashReports(context)
+        }
+
+        /**
+         * Crash reports persisted by an OLDER build are misleading after an
+         * upgrade (the bugs they describe may already be fixed), so they are
+         * wiped whenever the installed versionCode changes.
+         */
+        private fun discardStaleCrashReports(context: Context) {
+            try {
+                val currentVersionCode = context.packageManager
+                    .getPackageInfo(context.packageName, 0).longVersionCode
+                val prefs = context.getSharedPreferences(CRASH_PREFS_NAME, Context.MODE_PRIVATE)
+                val storedVersionCode = prefs.getLong(CRASH_PREFS_KEY_VERSION, -1L)
+                if (storedVersionCode != currentVersionCode) {
+                    val hadLogs = File(context.filesDir, CRASH_LOG_FILE).exists()
+                    clearCrashLogs(context)
+                    clearLastCrash(context)
+                    prefs.edit().putLong(CRASH_PREFS_KEY_VERSION, currentVersionCode).apply()
+                    if (hadLogs || storedVersionCode != -1L) {
+                        Log.i(TAG, "Discarded stale crash reports from versionCode $storedVersionCode (now $currentVersionCode)")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Stale-crash sweep failed: ${e.message}")
             }
         }
         

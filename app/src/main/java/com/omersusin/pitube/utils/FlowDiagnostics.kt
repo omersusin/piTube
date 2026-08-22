@@ -23,23 +23,24 @@ object FlowDiagnostics {
     // -------------------------------------------------------------------------
 
     /**
-     * Reads recent Logcat entries for this app's process at WARNING level and
-     * above.  Blocks the calling thread; run on [kotlinx.coroutines.Dispatchers.IO].
+     * Reads recent Logcat entries for this app's process at DEBUG level and
+     * above — every log line the app emits, not just warnings. Blocks the
+     * calling thread; run on [kotlinx.coroutines.Dispatchers.IO].
      *
-     * @param maxLines Maximum number of log lines to return (default 600).
+     * @param maxLines Maximum number of log lines to return (default 1500).
      */
-    fun readSessionLogs(maxLines: Int = 600): String {
+    fun readSessionLogs(maxLines: Int = 1500): String {
         return try {
             val pid = android.os.Process.myPid()
-            // --pid restricts output to this process only; *:W = WARN level and above.
+            // --pid restricts output to this process only; *:D = every level the app logs.
             val process = ProcessBuilder(
-                "logcat", "--pid=$pid", "-d", "-t", maxLines.toString(), "*:W"
+                "logcat", "--pid=$pid", "-d", "-t", maxLines.toString(), "*:D"
             )
                 .redirectErrorStream(true)
                 .start()
             val output = process.inputStream.bufferedReader(Charsets.UTF_8).readText()
             process.waitFor()
-            output.ifBlank { "No warnings or errors found in this session." }
+            output.ifBlank { "No logs found in this session." }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to read session logcat", e)
             "Unable to read session logs: ${e.message}\n\n" +
@@ -72,7 +73,7 @@ object FlowDiagnostics {
         appendLine(buildDeviceInfo(context))
         appendLine()
         appendLine("=".repeat(60))
-        appendLine("SESSION LOGS  (W/E level, current session)")
+        appendLine("SESSION LOGS  (Debug+ level, current session)")
         appendLine("=".repeat(60))
         appendLine(sessionLogs)
         val crashes = getCrashLogs(context)
