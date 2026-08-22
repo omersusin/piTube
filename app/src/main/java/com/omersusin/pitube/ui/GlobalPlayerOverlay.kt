@@ -1709,7 +1709,7 @@ fun GlobalPlayerOverlay(
             onRequestLyrics = { videoId -> playerViewModel.requestLyrics(videoId) },
             lyricsTranslations = playerViewModel.lyricsTranslations.collectAsStateWithLifecycle(initialValue = emptyMap()).value,
             onSearchLyricsCandidates = { title, artist, onResult ->
-                playerViewModel.searchLyricsCandidates(title, artist, (playerUiState.cachedVideo?.duration ?: 0L) * 1000L, onResult)
+                playerViewModel.searchLyricsCandidates(title, artist, ((playerUiState.cachedVideo?.duration?.toLong() ?: 0L)) * 1000L, onResult)
             },
             mediaSheetExpandedHeight = mediaSheetExpandedHeight,
             mediaSheetCollapsedHeight = mediaSheetCollapsedHeight,

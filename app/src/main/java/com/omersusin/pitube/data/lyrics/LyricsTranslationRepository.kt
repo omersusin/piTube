@@ -17,10 +17,8 @@ object LyricsTranslationRepository {
     private val cache = Collections.synchronizedMap(mutableMapOf<String, List<LrcLine>>())
     private val inFlight = Collections.synchronizedSet(mutableSetOf<String>())
 
-    fun targetLanguage(): String = runCatching {
-        val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
-        if (!locales.isEmpty) locales[0]!!.language else Locale.getDefault().language
-    }.getOrDefault(Locale.getDefault().language)
+    /** Target language follows the app/system locale (2-letter code). */
+    fun targetLanguage(): String = Locale.getDefault().language
 
     /**
      * Translated lines for the video, or null when unavailable/off.

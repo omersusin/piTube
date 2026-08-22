@@ -94,7 +94,7 @@ fun FlowLyricsBottomSheet(
             initialTitle = "",
             initialArtist = "",
             onDismiss = { showSearchDialog = false },
-            onSearch = { title, artist, onResult -> onManualSearch.invoke(title, artist, onResult) },
+            onSearch = { title, artist, callback -> onManualSearch(title, artist, callback) },
             onPicked = onPickedManualLyrics,
         )
     }

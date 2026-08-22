@@ -343,11 +343,11 @@ class TranscriptLyricsProvider : LyricsProvider() {
     }
 }
 
-private fun defaultClient() = OkHttpClient.Builder().connectTimeout(12, TimeUnit.SECONDS).readTimeout(12, TimeUnit.SECONDS).build()
+internal fun defaultClient() = OkHttpClient.Builder().connectTimeout(12, TimeUnit.SECONDS).readTimeout(12, TimeUnit.SECONDS).build()
 
-private fun shortTimeoutClient() = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS).build()
+internal fun shortTimeoutClient() = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS).build()
 
-private fun veryShortTimeoutClient() = OkHttpClient.Builder().connectTimeout(3, TimeUnit.SECONDS).readTimeout(8, TimeUnit.SECONDS).build()
+internal fun veryShortTimeoutClient() = OkHttpClient.Builder().connectTimeout(3, TimeUnit.SECONDS).readTimeout(8, TimeUnit.SECONDS).build()
 
 object LyricsProviders {
     /** Canonical default ranking — mirrors vivi-music's registry order where applicable. */

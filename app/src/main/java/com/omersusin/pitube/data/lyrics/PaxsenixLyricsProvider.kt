@@ -12,6 +12,7 @@ import org.json.JSONObject
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
 
 /**
@@ -22,7 +23,8 @@ import kotlin.math.abs
  * search the Apple Music catalog → ask paxsenix for that track's lyrics →
  * TTML/word-timed content converted to enhanced inline LRC.
  */
-class PaxsenixLyricsProvider(private val client: OkHttpClient = defaultClient()) : LyricsProvider() {
+class PaxsenixLyricsProvider(private val client: OkHttpClient = OkHttpClient.Builder()
+    .connectTimeout(12, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS).build()) : LyricsProvider() {
     override val id = "paxsenix"
 
     private val appleToken = AtomicReference<String?>(null)
@@ -30,6 +32,8 @@ class PaxsenixLyricsProvider(private val client: OkHttpClient = defaultClient())
 
     private companion object {
         const val TAG = "Paxsenix"
+        const val USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         const val PAX_BASE = "https://lyrics.paxsenix.org"
         const val APPLE_API = "https://amp-api.music.apple.com/v1/catalog/us"
     }

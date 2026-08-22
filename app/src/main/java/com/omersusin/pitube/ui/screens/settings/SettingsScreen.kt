@@ -304,11 +304,13 @@ fun SettingsScreen(
             librarySyncResultText = null
             com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(context) { result ->
                 isSyncingLibrary = false
-                playerPreferences.setYoutubeLibrarySyncCounts(
-                    result.likedVideos,
-                    result.playlists,
-                    result.subscribedChannels
-                )
+                coroutineScope.launch {
+                    playerPreferences.setYoutubeLibrarySyncCounts(
+                        result.likedVideos,
+                        result.playlists,
+                        result.subscribedChannels
+                    )
+                }
                 librarySyncResultText = when {
             result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
             result.sessionExpired && result.subscribedChannels == 0 -> context.getString(

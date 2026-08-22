@@ -28,7 +28,8 @@ import kotlin.math.abs
  * Also exposes [fetchTranslation] for `track.subtitle.translation.get`, which
  * returns translated synced lines used by the lyrics view's translation layer.
  */
-class MusixmatchLyricsProvider(private val client: OkHttpClient = defaultClient()) : LyricsProvider() {
+class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.Builder()
+    .connectTimeout(12, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS).build()) : LyricsProvider() {
     override val id = "musixmatch"
 
     private val secretCache = AtomicReference<String?>(null)
@@ -124,7 +125,7 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = defaultClient(
             if (title.isBlank() || artist.isBlank()) return@withContext null
             try {
                 withTokenRetry { secret, token ->
-                    val trackId = searchTrack(title, artist, durationMs, secret, token)
+                    val trackId = searchTrack(title, artist, (durationMs / 1000).toInt(), secret, token)
                         ?: throw IllegalStateException("track not found")
                     // Tier chain: richsync (word-level) → subtitle (line-synced) → plain
                     richsyncLrc(trackId, secret, token)
@@ -172,7 +173,7 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = defaultClient(
                         if (sub.has("subtitle_body")) sub.optString("subtitle_body") else sub.toString()
                     }.orEmpty()
                 if (subtitleBody.isBlank()) throw IllegalStateException("empty translation body")
-                translationJsonToLrc(subtitleBody)
+                translationOrSubtitleJsonToLrc(subtitleBody)
             }
         } catch (e: Exception) {
             Log.d(TAG, "translation failed: ${e.message}")

@@ -2204,6 +2204,7 @@
     <string name="recognition_overlay_foreground_title">Song Recognition</string>
     <string name="recognition_overlay_not_recording">Couldn\'t start recording. Open piTube to allow the microphone.</string>
 
+    <string name="search">Search</string>
     <!-- Lyrics search -->
     <string name="song_title">Song title</string>
     <string name="artist">Artist</string>

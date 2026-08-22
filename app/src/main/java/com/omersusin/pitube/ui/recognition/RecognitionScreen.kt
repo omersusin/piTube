@@ -359,6 +359,7 @@ fun RecognitionScreen(
             }
         }
     }
+        }
     }
 }
 
