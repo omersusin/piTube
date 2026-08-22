@@ -163,6 +163,9 @@ class FlowApplication :
                     YouTube.visitorData = cached
                     Log.d(TAG, "visitorData restored from prefs")
                 } else {
+                    // Stale/missing visitorData needs a network fetch — defer it a
+                    // few seconds so it doesn't collide with first-frame work.
+                    kotlinx.coroutines.delay(5_000L)
                     YouTube
                         .visitorData()
                         .onSuccess { data ->
@@ -280,28 +283,21 @@ class FlowApplication :
                     }
                 }
             }
-            try {
-                com.omersusin.pitube.utils.potoken.WebPoTokenSession
-                    .prewarm()
-            } catch (e: Exception) {
-                Log.w(TAG, "WebPoTokenSession prewarm failed: ${e.message}")
-            }
-            // Auto-sync the account library (liked videos / playlists /
-            // subscriptions) once a day without opening Settings.
-            try {
-                val loggedIn = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication)
-                    .getCookies()?.isNotBlank() == true
-                val syncedAt = playerPreferences.youtubeLibrarySyncedAt.first()
-                if (loggedIn &&
-                    System.currentTimeMillis() - syncedAt > AUTO_LIBRARY_SYNC_INTERVAL_MS
-                ) {
-                    Log.i(TAG, "Auto-syncing account library (last sync stale)")
-                    com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(this@FlowApplication)
-                    Log.i(TAG, "Auto library sync done")
+            // Stage 2: PoToken prewarm spins up a BotGuard WebView — heavy enough
+            // to compete with the first frame on low-RAM devices. Defer 10s.
+            launch {
+                kotlinx.coroutines.delay(10_000L)
+                try {
+                    com.omersusin.pitube.utils.potoken.WebPoTokenSession
+                        .prewarm()
+                } catch (e: Exception) {
+                    Log.w(TAG, "WebPoTokenSession prewarm failed: ${e.message}")
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "Auto library sync failed: ${e.message}")
             }
+            // Auto-sync of the account library is intentionally NOT run here:
+            // it fires a full account crawl (liked + playlists + subscriptions)
+            // that collided with cold-start work. FeedAndLibrarySyncWorker
+            // already performs this check with network constraint + backoff.
         }
 
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
@@ -364,6 +360,9 @@ class FlowApplication :
 
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
+                // Thumbnail repair issues up to N sequential network calls;
+                // never at T+0 — wait for the app to settle first.
+                kotlinx.coroutines.delay(30_000L)
                 val repository = SubscriptionRepository.getInstance(this@FlowApplication)
                 val youtubeRepository = YouTubeRepository.getInstance(playerPreferences)
                 val repaired =

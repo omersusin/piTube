@@ -137,15 +137,10 @@ fun SyncScreen(
                             accountName = accountName,
                             isSyncing = syncingLibrary,
                             onSyncLibrary = {
+                                // App-scoped: leaving this screen must not cancel the crawl.
                                 syncingLibrary = true
-                                coroutineScope.launch {
-                                    try {
-                                        com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
-                                    } catch (_: Exception) {
-                                        // best-effort: the banner just stops spinning
-                                    } finally {
-                                        syncingLibrary = false
-                                    }
+                                com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(context) {
+                                    syncingLibrary = false
                                 }
                             },
                         )

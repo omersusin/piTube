@@ -11,6 +11,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.omersusin.pitube.BuildConfig
 import com.omersusin.pitube.R
 import com.omersusin.pitube.notification.NotificationHelper
 import com.omersusin.pitube.player.EnhancedPlayerManager
@@ -75,9 +76,15 @@ class VideoPlayerService : MediaSessionService() {
     }
 
     private fun serviceLog(message: String) {
-        val full = "$message | ${serviceSnapshot()}"
-        Log.w(TAG, full)
-        PlayerDiagnostics.logWarning(TAG, full)
+        // Snapshot building is expensive and this fires on every state change;
+        // full detail only in debug builds, quiet info-level in release.
+        if (BuildConfig.DEBUG) {
+            val full = "$message | ${serviceSnapshot()}"
+            Log.d(TAG, full)
+            PlayerDiagnostics.logWarning(TAG, full)
+        } else {
+            Log.d(TAG, message)
+        }
     }
 
     override fun onCreate() {
@@ -130,9 +137,16 @@ class VideoPlayerService : MediaSessionService() {
         EnhancedPlayerManager.getInstance().initialize(applicationContext)
 
         serviceScope.launch {
+            var lastActive: Boolean? = null
             EnhancedPlayerManager.getInstance().playerState.collectLatest {
-                serviceLog("playerState collect update")
-                updateLocks(isPlaybackActiveForLocks())
+                val active = isPlaybackActiveForLocks()
+                // Act (and log) only on playback-active transitions; continuous
+                // playback emits state every second and must not churn locks.
+                if (active != lastActive) {
+                    lastActive = active
+                    serviceLog("playback active=$active")
+                    updateLocks(active)
+                }
             }
         }
     }
@@ -149,11 +163,15 @@ class VideoPlayerService : MediaSessionService() {
         startId: Int,
     ): Int {
         val startResult = super.onStartCommand(intent, flags, startId)
+        // media3 delivers action=null intents on controller connect / sticky
+        // restart; they carry no command — skip phase records, logging and the
+        // unconditional lock update to keep the service quiet.
+        if (intent?.action == null) return startResult
         FlowCrashHandler.recordPhase(
             "video-service",
-            "onStartCommand action=${intent?.action} startId=$startId",
+            "onStartCommand action=${intent.action} startId=$startId",
         )
-        serviceLog("onStartCommand action=${intent?.action}")
+        serviceLog("onStartCommand action=${intent.action}")
 
         when (intent?.action) {
             ACTION_SHOW_POPUP -> showPopupPlayer()

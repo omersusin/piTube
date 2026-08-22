@@ -1200,9 +1200,16 @@ class VideoPlayerViewModel @Inject constructor(
         }
         // Gate on session restore: starting a stream before FlowApplication has
         // assigned YouTube.cookie sends ANONYMOUS requests that YouTube answers
-        // with BOT_WALL on every client ("internet is off" symptom).
-        kotlinx.coroutines.withTimeoutOrNull(2000L) {
-            SessionManager.restored.await()
+        // with BOT_WALL on every client ("internet is off" symptom). Fast path:
+        // already restored -> zero cost; otherwise brief bounded wait.
+        if (!SessionManager.restored.isCompleted) {
+            runCatching {
+                kotlinx.coroutines.runBlocking {
+                    kotlinx.coroutines.withTimeoutOrNull(2000L) {
+                        SessionManager.restored.await()
+                    }
+                }
+            }
         }
         val currentState = _uiState.value
         Log.d("VideoPlayerViewModel", "loadVideoInfo: Request=$videoId. Current=${currentState.streamInfo?.id}, IsLoading=${currentState.isLoading}, ForceRefresh=$forceRefresh, escalateToSabr=$escalateToSabr")

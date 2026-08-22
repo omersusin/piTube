@@ -61,6 +61,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -151,6 +152,9 @@ fun YouTubeLoginScreen(
     var loggedIn by remember { mutableStateOf(false) }
     var checkDone by remember { mutableStateOf(false) }
 
+    // Observe the cookie flow live: a login completing anywhere (including the
+    // background) flips this screen to "signed in" without re-entering it.
+    val liveCookie by playerPreferences.youtubeCookie.collectAsState(initial = null)
     LaunchedEffect(Unit) {
         val cookie = playerPreferences.youtubeCookie.first()
         loggedIn = !cookie.isNullOrEmpty()
@@ -159,6 +163,9 @@ fun YouTubeLoginScreen(
             accountAvatar = playerPreferences.youtubeAccountThumbnail.first()
         }
         checkDone = true
+    }
+    LaunchedEffect(liveCookie) {
+        if (checkDone && !liveCookie.isNullOrEmpty()) loggedIn = true
     }
 
     if (!checkDone) {
@@ -222,7 +229,7 @@ fun YouTubeLoginScreen(
             playerPreferences.setYoutubeAccount(cookie = cookies, name = null, email = null, thumbnailUrl = null)
             kotlinx.coroutines.withContext(Dispatchers.IO) {
                 runCatching { HomeFeedCacheRepository(appContext).clearAll() }
-                runCatching { YouTubeLibrarySync.sync(appContext) }
+                runCatching { com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(appContext) }
                 runCatching {
                     val account = YouTube.accountInfo().getOrNull()
                     if (account != null) {
@@ -277,15 +284,14 @@ fun YouTubeLoginScreen(
         // preferring the live identity over a pasted token marker.
         YouTube.dataSyncId = null
         coroutineScope.launch {
-            // Best-effort identity fetch for dedupe and avatar (never blocks the
-            // sign-in); the live identity is authoritative for the datasyncId.
-            // A pasted `***DATASYNC ID***` marker often belongs to a different
-            // browser/account than the pasted cookies (multi-account setups) —
-            // trusting it pins the wrong account on every signed request, which
-            // reads as an empty subscriptions feed. Only fall back to the token
-            // marker when the identity fetch itself failed.
+            // Best-effort identity fetch for dedupe and avatar. Bounded to 5s:
+            // an unbounded network round-trip here was the visible "login
+            // freeze" — the screen sat silent for tens of seconds before any
+            // navigation happened.
             val identity = runCatching {
-                com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull()
+                kotlinx.coroutines.withTimeoutOrNull(5_000L) {
+                    com.omersusin.pitube.innertube.YouTube.accountInfo().getOrNull()
+                }
             }.getOrNull()
             val appContext = context.applicationContext
             val accountSwitcher = com.omersusin.pitube.data.local.AccountSwitcher(appContext)
@@ -299,9 +305,12 @@ fun YouTubeLoginScreen(
                 poToken = token.poToken
             )
             playerPreferences.setYoutubeAccount(cookie = normalized, name = null, email = null, thumbnailUrl = null)
+            // Session is live and persisted — leave the screen NOW. Everything
+            // below is background polish that must never gate navigation.
+            onLoginComplete()
             kotlinx.coroutines.withContext(Dispatchers.IO) {
                 runCatching { HomeFeedCacheRepository(appContext).clearAll() }
-                runCatching { YouTubeLibrarySync.sync(appContext) }
+                runCatching { com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(appContext) }
                 runCatching {
                     val account = YouTube.accountInfo().getOrNull()
                     if (account != null) {
@@ -330,7 +339,6 @@ fun YouTubeLoginScreen(
                     }
                 }
             }
-            onLoginComplete()
         }
     }
 

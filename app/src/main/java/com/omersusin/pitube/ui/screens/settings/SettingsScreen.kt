@@ -295,18 +295,21 @@ fun SettingsScreen(
     var isSyncingLibrary by remember { mutableStateOf(false) }
     var librarySyncResultText by remember { mutableStateOf<String?>(null) }
 
-    // Shared by the "Sync now" button and the auto-sync below.
-    val performLibrarySync: suspend () -> Unit = {
-        isSyncingLibrary = true
-        librarySyncResultText = null
-        val result = com.omersusin.pitube.data.local.YouTubeLibrarySync.sync(context)
-        playerPreferences.setYoutubeLibrarySyncCounts(
-            result.likedVideos,
-            result.playlists,
-            result.subscribedChannels
-        )
-        isSyncingLibrary = false
-        librarySyncResultText = when {
+    // Shared by the "Sync now" button and the auto-sync below. The sync itself
+    // runs on an app-scoped launcher: navigating away mid-sync must never cancel
+    // the crawl (composition scopes die with the screen and aborted the crawl).
+    val performLibrarySync: () -> Unit = {
+        if (!isSyncingLibrary) {
+            isSyncingLibrary = true
+            librarySyncResultText = null
+            com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(context) { result ->
+                isSyncingLibrary = false
+                playerPreferences.setYoutubeLibrarySyncCounts(
+                    result.likedVideos,
+                    result.playlists,
+                    result.subscribedChannels
+                )
+                librarySyncResultText = when {
             result.notLoggedIn -> context.getString(R.string.settings_google_sign_in_subtitle)
             result.sessionExpired && result.subscribedChannels == 0 -> context.getString(
                 R.string.settings_google_sync_zero_invalid
@@ -319,17 +322,19 @@ fun SettingsScreen(
             result.subscribedChannels == 0 -> context.getString(
                 R.string.settings_google_sync_zero_valid
             )
-            else -> {
-                val base = context.getString(
-                    R.string.settings_google_sync_result,
-                    result.likedVideos,
-                    result.playlists,
-                    result.subscribedChannels
-                )
-                if (result.partial) {
-                    "$base\n${context.getString(R.string.settings_google_sync_partial)}"
-                } else {
-                    base
+                else -> {
+                    val base = context.getString(
+                        R.string.settings_google_sync_result,
+                        result.likedVideos,
+                        result.playlists,
+                        result.subscribedChannels
+                    )
+                    if (result.partial) {
+                        "$base\n${context.getString(R.string.settings_google_sync_partial)}"
+                    } else {
+                        base
+                    }
+                }
                 }
             }
         }

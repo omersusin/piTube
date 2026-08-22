@@ -89,7 +89,11 @@ class PlaybackTracker(
             val bufferedPct = ((bufferedPos.toFloat() / duration.toFloat())
                 .coerceIn(0f, 1f) * 100f).toInt() / 100f
 
-            if (stateFlow.value.bufferedPercentage != bufferedPct) {
+            // Coarsened to 5% steps: writing every 1% tick produced a state
+            // emission every second, which cascaded into per-second service
+            // lock churn and log spam.
+            val lastPct = stateFlow.value.bufferedPercentage
+            if (kotlin.math.abs(bufferedPct - lastPct) >= 0.05f) {
                 stateFlow.value = stateFlow.value.copy(
                     bufferedPercentage = bufferedPct
                 )
