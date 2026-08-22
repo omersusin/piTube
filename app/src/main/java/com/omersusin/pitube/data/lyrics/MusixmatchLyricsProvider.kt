@@ -168,15 +168,17 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
                     ?.optJSONObject("header")?.optInt("status_code") ?: 0
                 if (headerStatus == 401) throw TokenExpiredException()
                 if (headerStatus != 200) throw IllegalStateException("translation status $headerStatus")
-                val subtitleBody = JSONObject(body).optJSONObject("message")?.optJSONObject("body")
-                    ?.optJSONObject("subtitle")?.optJSONObject("subtitle_body")?.let { sub ->
-                        if (sub.has("subtitle_body")) sub.optString("subtitle_body") else sub.toString()
-                    }.orEmpty()
-                if (subtitleBody.isBlank()) throw IllegalStateException("empty translation body")
-                translationOrSubtitleJsonToLrc(subtitleBody)
+                val messageBody = JSONObject(body).optJSONObject("message")?.optJSONObject("body")
+                translationResponseToLrc(messageBody)
+                    ?: run {
+                        // Unknown schema: surface the actual keys so the next
+                        // diagnostics report shows what the endpoint returned.
+                        Log.w(TAG, "translation body keys=${messageBody?.keys()} — unrecognized shape")
+                        throw IllegalStateException("unrecognized translation body shape")
+                    }
             }
         } catch (e: Exception) {
-            Log.d(TAG, "translation failed: ${e.message}")
+            Log.w(TAG, "translation failed: ${e.message}")
             null
         }
     }
@@ -289,6 +291,40 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
             ?.optJSONObject("lyrics")?.optString("lyrics_body").orEmpty()
         if (lyricsBody.isBlank()) return null
         return lyricsBody.lines().joinToString("\n") { "[00:00.00]$it" }
+    }
+
+    /**
+     * `track.subtitle.translation.get` has been observed in several shapes
+     * across deployments. Try each defensively:
+     *  1. body.subtitle.subtitle_body — subtitle-format JSON string
+     *  2. body.translations_list — [{time:{total}, text|translation|match_line}]
+     *  3. body.translations / body.translation_list — same entry shape
+     */
+    private fun translationResponseToLrc(messageBody: JSONObject?): String? {
+        if (messageBody == null) return null
+        messageBody.optJSONObject("subtitle")?.let { sub ->
+            val body = if (sub.has("subtitle_body")) sub.optString("subtitle_body") else sub.toString()
+            translationOrSubtitleJsonToLrc(body)?.let { return it }
+        }
+        for (key in listOf("translations_list", "translations", "translation_list")) {
+            val arr = messageBody.optJSONArray(key) ?: continue
+            val lrc = buildString {
+                for (i in 0 until arr.length()) {
+                    val e = arr.optJSONObject(i) ?: continue
+                    val total = e.optJSONObject("time")?.optDouble("total")
+                    val text = e.optString("text")
+                        .ifBlank { e.optString("translation") }
+                        .ifBlank { e.optString("match_line") }
+                        .ifBlank { e.optString("subtitle_line") }
+                    if (total == null || text.isBlank()) continue
+                    append(formatTag((total * 1000).toLong(), '['))
+                    append(text)
+                    append('\n')
+                }
+            }.trim()
+            if (lrc.isNotBlank()) return lrc
+        }
+        return null
     }
 
     /** Subtitle JSON (`[{time:{total,...},text},...]`) → standard LRC text. */
