@@ -163,11 +163,15 @@ internal fun blendFeedSources(
         FeedSource.DISCOVERY,
         FeedSource.VIRAL
     )
+    // Personal-first STRICT policy: when quota rounds leave the page short,
+    // refill from the user's own lanes FIRST. Discovery/viral may only enter
+    // through genuine leftover space — they must never crowd out a strong
+    // personal/subscriptions feed ("this home screen isn't mine" regression).
     val scarcityOrder = listOf(
-        FeedSource.RELATED,
-        FeedSource.DISCOVERY,
         FeedSource.PERSONAL,
         FeedSource.SUBS,
+        FeedSource.RELATED,
+        FeedSource.DISCOVERY,
         FeedSource.VIRAL
     )
     val addedBySource = mutableMapOf<FeedSource, Int>()
@@ -179,7 +183,11 @@ internal fun blendFeedSources(
             if (out.size >= target) break
             val added = addedBySource[source] ?: 0
             val quota = quotas[source] ?: 0
-            if (added < quota && addUniqueCandidate(queues[source]?.pollFirst(), out, channelCounts, usedVideoIds)) {
+            // The per-channel cap is relaxed for the PERSONAL lane: capping a
+            // user's own subscriptions at 2 used to starve the personal feed
+            // and let discovery content leak into its slots.
+            val channelCap = if (source == FeedSource.PERSONAL) 3 else 2
+            if (added < quota && addUniqueCandidate(queues[source]?.pollFirst(), out, channelCounts, usedVideoIds, channelCap)) {
                 addedBySource[source] = added + 1
                 addedThisRound = true
             }
@@ -420,7 +428,11 @@ class HomeViewModel @Inject constructor(
                     loadFlowFeed(forceRefresh = true)
                     loadHomeShorts()
                 }
-            } catch (_: Exception) { }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Home refresh cycle failed: ${e.message}")
+            }
         }
     }
     
@@ -964,7 +976,7 @@ class HomeViewModel @Inject constructor(
                 val viralPool = rawViral.filterValid().filterWatched(watched).filterUnplayable(unplayable)
                     .filterRecentHomeSuggestion(now).enrichAvatars().withFallbackNames()
 
-                Log.d(
+                Log.w(
                     TAG,
                     "Flow candidates: subs=${subsPool.size}, discovery=${discoveryPool.size}, viral=${viralPool.size}, subCount=${userSubs.size}"
                 )
@@ -1002,11 +1014,18 @@ class HomeViewModel @Inject constructor(
                 // "Strong" personal feed only when it can actually fill the
                 // page; a weak one (bot-walled / fresh account) must fall back
                 // to the SUBS/TASTE quota mix instead of hogging all slots.
+                val hasPersonalFeed = personalizedPool.size >= 5
+                Log.w(
+                    TAG,
+                    "Feed lane decision: personalized=${personalizedPool.size} " +
+                        "(strong=$hasPersonalFeed, signedLane=${_uiState.value.feedContinuation != null}), " +
+                        "subsPool=${bestSubs.size}, taste=${tastePoolFiltered.size}"
+                )
                 val quotas = homeFeedQuotas(
                     remaining,
                     userSubs.size,
                     watched.size,
-                    hasPersonalFeed = personalizedPool.size >= 5
+                    hasPersonalFeed = hasPersonalFeed
                 )
                 val bestPersonal = personalizedPool.take(20)
                 // When the personalized lane is weak the taste lane takes its
@@ -1036,7 +1055,7 @@ class HomeViewModel @Inject constructor(
                    return@launch
                 }
 
-                Log.d(
+                Log.w(
                     TAG,
                     "Flow mix: freshLane=$freshAdded, final=${finalMix.size}, quotas=${quotas}, selected=${sourceMix.sourceCounts}"
                 )
@@ -1139,8 +1158,9 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                 }
 
             } catch (e: Exception) {
+                 Log.w(TAG, "Flow feed failed entirely: ${e.javaClass.simpleName}: ${e.message}")
                  _uiState.update { it.copy(isLoading = false, isRefreshing = false, error = appContext.getString(R.string.error_failed_to_load_feed)) }
-                 loadTrendingFallback() 
+                 loadTrendingFallback()
             }
         }
     }
