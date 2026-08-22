@@ -811,7 +811,10 @@ class HomeViewModel @Inject constructor(
                                 Log.w(TAG, "Feed personal lane: after recency-guard=${filtered.size} (was ${list.size})")
                                 filtered
                             }
-                    } ?: emptyList().also { Log.w(TAG, "Feed personal lane: fetch timed out (12s)") }
+                    } ?: run {
+                        Log.w(TAG, "Feed personal lane: fetch timed out (12s)")
+                        emptyList()
+                    }
                 } else {
                     emptyList()
                 }
