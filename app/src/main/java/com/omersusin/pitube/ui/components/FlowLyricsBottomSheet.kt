@@ -49,6 +49,8 @@ fun FlowLyricsBottomSheet(
     onSwipePrevTrack: (() -> Unit)? = null,
     translations: Map<Long, String> = emptyMap(),
     onPickedManualLyrics: (String) -> Unit = {},
+    initialSearchTitle: String = "",
+    initialSearchArtist: String = 
     onManualSearch: ((title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit)? = null,
     showPlayPauseControl: Boolean = false,
     isPlaying: Boolean = false,
@@ -92,8 +94,8 @@ fun FlowLyricsBottomSheet(
 
     if (showSearchDialog && onManualSearch != null) {
         LyricsSearchDialog(
-            initialTitle = "",
-            initialArtist = "",
+            initialTitle = initialSearchTitle,
+            initialArtist = initialSearchArtist,
             onDismiss = { showSearchDialog = false },
             onSearch = { title, artist, callback -> onManualSearch(title, artist, callback) },
             onPicked = onPickedManualLyrics,

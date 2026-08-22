@@ -1709,6 +1709,13 @@ fun GlobalPlayerOverlay(
             onRequestLyrics = { videoId -> playerViewModel.requestLyrics(videoId) },
             lyricsTranslations = playerViewModel.lyricsTranslations.collectAsStateWithLifecycle(initialValue = emptyMap()).value,
             onApplyManualLyrics = { rawLrc -> playerViewModel.applyManualLyrics(video.id, rawLrc) },
+            initialSearchTitle = video.title
+                .replace(Regex("\\s*[([](official|lyric[s]?|audio|video|hd|4k)[^)\]]*[)\]]", RegexOption.IGNORE_CASE), "")
+                .trim(),
+            initialSearchArtist = video.channelName
+                .replace(Regex("\\s*-\\s*Topic$"), "")
+                .removeSuffix("VEVO")
+                .trim(),
             onSearchLyricsCandidates = { title, artist, onResult ->
                 playerViewModel.searchLyricsCandidates(title, artist, ((playerUiState.cachedVideo?.duration?.toLong() ?: 0L)) * 1000L, onResult)
             },

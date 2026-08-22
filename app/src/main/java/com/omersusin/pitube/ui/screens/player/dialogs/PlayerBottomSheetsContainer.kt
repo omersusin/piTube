@@ -57,6 +57,8 @@ fun PlayerBottomSheetsContainer(
     onLoadMoreComments: (videoId: String) -> Unit = {},
     lyricsState: LyricsUiState = LyricsUiState.Idle,
     lyricsTranslations: Map<Long, String> = emptyMap(),
+    initialSearchTitle: String = "",
+    initialSearchArtist: String = "",
     onSearchLyricsCandidates: (title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit = { _, _, onResult -> onResult(emptyList()) },
     onApplyManualLyrics: (String) -> Unit = {},
     onRequestLyrics: (videoId: String) -> Unit = {},
@@ -204,6 +206,8 @@ fun PlayerBottomSheetsContainer(
             translations = lyricsTranslations,
             onPickedManualLyrics = onApplyManualLyrics,
             onManualSearch = onSearchLyricsCandidates,
+            initialSearchTitle = initialSearchTitle,
+            initialSearchArtist = initialSearchArtist,
             showPlayPauseControl = lyricsShowPlayPause,
             isPlaying = playerIsPlaying.isPlaying,
             onTogglePlayPause = {
