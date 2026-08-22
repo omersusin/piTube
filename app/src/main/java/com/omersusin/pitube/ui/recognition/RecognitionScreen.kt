@@ -114,6 +114,24 @@ fun RecognitionScreen(
         animationSpec = tween(durationMillis = 600),
         label = "songBgProgress",
     )
+    // Forced-dark VOICE must also flip CONTENT colors — drawing a dark
+    // gradient under light-theme text looked inverted. Brand hues
+    // (primary/secondary/tertiary) stay; only neutrals go dark.
+    val baseScheme = MaterialTheme.colorScheme
+    val recognitionScheme = if (uiState.mode == RecognitionMode.VOICE) {
+        baseScheme.copy(
+            background = Color(0xFF06070B),
+            surface = Color(0xFF10131A),
+            surfaceVariant = Color(0xFF20242E),
+            onBackground = Color(0xFFE6E4EA),
+            onSurface = Color(0xFFE6E4EA),
+            onSurfaceVariant = Color(0xFFA9A6B3),
+            outlineVariant = Color(0xFF343845),
+        )
+    } else {
+        baseScheme
+    }
+    androidx.compose.material3.MaterialTheme(colorScheme = recognitionScheme) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
@@ -369,6 +387,7 @@ fun RecognitionScreen(
         }
     }
 }
+    }
 
 @Composable
 private fun RecognitionModeToggle(
