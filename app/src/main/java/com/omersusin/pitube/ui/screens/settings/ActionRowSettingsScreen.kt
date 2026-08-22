@@ -57,19 +57,24 @@ fun ActionRowSettingsScreen(onBack: () -> Unit) {
                 }
                 Text("When off, three separate chips show.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, start = 4.dp))
             }
-            item { SectionHeader(text = "Order & visibility") }
-            itemsIndexed(order) { idx, id ->
-                val visible = visibility[id] ?: true
-                val label = when (id) { "like" -> "Like / Dislike"; "save" -> "Save"; "download" -> "Download"; "background" -> "Background"; "share_group" -> "Share group"; "lyrics" -> "Lyrics"; else -> id }
-                SettingsGroup {
+            item { SectionHeader(text = "Order & visibility (drag handle to reorder)") }
+            item {
+                com.omersusin.pitube.ui.screens.settings.components.DragReorderColumn(
+                    items = order,
+                    itemKey = { it },
+                    onMove = { from, to ->
+                        val n = order.toMutableList().apply { add(to.coerceIn(0, lastIndex), removeAt(from)) }
+                        scope.launch { prefs.setActionRowOrder(n.joinToString(",")) }
+                    },
+                ) { id ->
+                    val visible = visibility[id] ?: true
+                    val label = when (id) { "like" -> "Like / Dislike"; "save" -> "Save"; "download" -> "Download"; "background" -> "Background"; "share_group" -> "Share group"; "lyrics" -> "Lyrics"; else -> id }
                     Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) { Text(label, style = MaterialTheme.typography.bodyLarge); Text(if (visible) "Visible" else "Hidden", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         Switch(checked = visible, onCheckedChange = { v ->
                             val nv = order.associateWith { visibility[it] ?: true }.toMutableMap().also { it[id] = v }
                             scope.launch { prefs.setActionRowVisibility(nv.entries.joinToString(",") { (k, vv) -> "$k:${if (vv) 1 else 0}" }) }
                         })
-                        IconButton(onClick = { if (idx > 0) { val n = order.toMutableList().also { it.add(idx - 1, it.removeAt(idx)) }; scope.launch { prefs.setActionRowOrder(n.joinToString(",")) } } }, enabled = idx > 0) { Icon(Icons.Default.ArrowUpward, null, modifier = Modifier.size(18.dp)) }
-                        IconButton(onClick = { if (idx < order.lastIndex) { val n = order.toMutableList().also { it.add(idx + 1, it.removeAt(idx)) }; scope.launch { prefs.setActionRowOrder(n.joinToString(",")) } } }, enabled = idx < order.lastIndex) { Icon(Icons.Default.ArrowDownward, null, modifier = Modifier.size(18.dp)) }
                     }
                 }
             }

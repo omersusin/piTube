@@ -143,16 +143,23 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                     "youlyplus" to "YouLyPlus",
                     "transcript" to "YouTube Transcript",
                 )
+                // Drag the handle to reorder — persisted on every swap.
                 SettingsGroup {
-                    allProviders.forEachIndexed { idx, (id, label) ->
+                    com.omersusin.pitube.ui.screens.settings.components.DragReorderColumn(
+                        items = allProviders,
+                        itemKey = { it.first },
+                        onMove = { from, to ->
+                            val m = orderList.toMutableList()
+                            val moved = if (from < m.size) m.removeAt(from) else return@DragReorderColumn
+                            m.add(to.coerceIn(0, m.size), moved)
+                            scope.launch { prefs.setLyricsProviderOrder(m.joinToString(",")) }
+                        },
+                    ) { (id, label) ->
                         val posIdx = orderList.indexOf(id)
                         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text("${if (posIdx >= 0) posIdx + 1 else "-"}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.width(28.dp))
                             Column(Modifier.weight(1f)) { Text(label, style = MaterialTheme.typography.bodyLarge); Text(id, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                            if (posIdx > 0) TextButton(onClick = { val m = orderList.toMutableList(); val a = m.removeAt(posIdx); m.add(posIdx - 1, a); scope.launch { prefs.setLyricsProviderOrder(m.joinToString(",")) } }) { Text("Up") }
-                            if (posIdx in 0 until orderList.lastIndex) TextButton(onClick = { val m = orderList.toMutableList(); val a = m.removeAt(posIdx); m.add(posIdx + 1, a); scope.launch { prefs.setLyricsProviderOrder(m.joinToString(",")) } }) { Text("Down") }
                         }
-                        if (idx < allProviders.lastIndex) HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     }
                 }
             }
