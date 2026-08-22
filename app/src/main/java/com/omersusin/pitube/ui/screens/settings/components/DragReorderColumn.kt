@@ -90,7 +90,7 @@ fun <T> DragReorderColumn(
                                     dragOffsetY += dragAmount.y
                                     val h = itemHeightPx.intValue.takeIf { it > 0 }
                                         ?: return@detectDragGesturesAfterLongPress
-                                    val from = currentItems.indexOfFirst { itemKey(it) == draggingKey }
+                                    var from = currentItems.indexOfFirst { itemKey(it) == draggingKey }
                                     if (from < 0) return@detectDragGesturesAfterLongPress
                                     while (dragOffsetY > h / 2f && from < currentItems.lastIndex) {
                                         currentOnMove(from, from + 1)
