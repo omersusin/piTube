@@ -1708,6 +1708,7 @@ fun GlobalPlayerOverlay(
             lyricsState = lyricsState,
             onRequestLyrics = { videoId -> playerViewModel.requestLyrics(videoId) },
             lyricsTranslations = playerViewModel.lyricsTranslations.collectAsStateWithLifecycle(initialValue = emptyMap()).value,
+            onApplyManualLyrics = { rawLrc -> playerViewModel.applyManualLyrics(video.id, rawLrc) },
             onSearchLyricsCandidates = { title, artist, onResult ->
                 playerViewModel.searchLyricsCandidates(title, artist, ((playerUiState.cachedVideo?.duration?.toLong() ?: 0L)) * 1000L, onResult)
             },

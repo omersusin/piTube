@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -48,7 +49,7 @@ fun FlowLyricsBottomSheet(
     onSwipePrevTrack: (() -> Unit)? = null,
     translations: Map<Long, String> = emptyMap(),
     onPickedManualLyrics: (String) -> Unit = {},
-    onManualSearch: ((queryTitle: String, queryArtist: String, onPicked: (String) -> Unit) -> Unit)? = null,
+    onManualSearch: ((title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit)? = null,
     showPlayPauseControl: Boolean = false,
     isPlaying: Boolean = false,
     onTogglePlayPause: () -> Unit = {},
