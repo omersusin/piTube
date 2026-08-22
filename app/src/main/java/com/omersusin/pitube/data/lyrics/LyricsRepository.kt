@@ -33,6 +33,15 @@ class LyricsRepository @Inject constructor(
         LyricsFetchResult.NotFound
     }
 
+    /** Persist a manually searched/selected lyric so requestLyrics returns it. */
+    fun cacheManual(videoId: String, raw: String) {
+        val parsed = LrcParser.parse(raw)
+        if (parsed.isNotEmpty()) {
+            memCache[videoId] = parsed
+            saveDiskCache(videoId, raw)
+        }
+    }
+
     fun clearCache() { memCache.clear() }
 
     private fun cacheFile(videoId: String) = File(File(context.cacheDir, "lyrics"), "$videoId.lrc")

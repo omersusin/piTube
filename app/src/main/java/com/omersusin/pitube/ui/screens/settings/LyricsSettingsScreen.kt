@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Swipe
@@ -42,6 +43,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val swipe by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
     val showPP by prefs.lyricsShowPlayPauseOnThumbnail.collectAsState(initial = true)
     val order by prefs.lyricsProviderOrder.collectAsState(initial = com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER)
+    val translationEnabled by prefs.lyricsTranslationEnabled.collectAsState(initial = true)
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
@@ -116,13 +118,27 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                     SettingsSwitchItem(icon = Icons.Outlined.PlayArrow, title = "Play/pause on thumbnail", subtitle = "Show control on artwork", checked = showPP, onCheckedChange = { scope.launch { prefs.setLyricsShowPlayPauseOnThumbnail(it) } })
                 }
             }
+            item { SectionHeader(text = "Translation") }
+            item {
+                SettingsGroup {
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.Translate,
+                        title = "Translate lyrics",
+                        subtitle = "Show translated line under the active line (Musixmatch, follows app language)",
+                        checked = translationEnabled,
+                        onCheckedChange = { scope.launch { prefs.setLyricsTranslationEnabled(it) } },
+                    )
+                }
+            }
             item { SectionHeader(text = "Providers") }
             item {
                 val orderList = remember(order) { order.split(",").map { it.trim() }.filter { it.isNotBlank() } }
                 val allProviders = listOf(
                     "lrclib" to "LRCLIB",
                     "betterlyrics" to "BetterLyrics",
+                    "musixmatch" to "Musixmatch",
                     "simpmusic" to "SimpMusic",
+                    "paxsenix" to "Paxsenix",
                     "kugou" to "KuGou",
                     "youlyplus" to "YouLyPlus",
                     "transcript" to "YouTube Transcript",

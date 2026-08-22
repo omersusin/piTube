@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,6 +46,9 @@ fun FlowLyricsBottomSheet(
     onSheetProgressChange: (Float) -> Unit = {},
     onSwipeNextTrack: (() -> Unit)? = null,
     onSwipePrevTrack: (() -> Unit)? = null,
+    translations: Map<Long, String> = emptyMap(),
+    onPickedManualLyrics: (String) -> Unit = {},
+    onManualSearch: ((queryTitle: String, queryArtist: String, onPicked: (String) -> Unit) -> Unit)? = null,
     showPlayPauseControl: Boolean = false,
     isPlaying: Boolean = false,
     onTogglePlayPause: () -> Unit = {},
@@ -61,6 +65,7 @@ fun FlowLyricsBottomSheet(
     val dismissThresholdPx = collapsedHeightPx + sheetProgressRangePx * 0.55f
     val sheetHeightPx = remember { Animatable(0f) }
     var isAnimatingOut by remember { mutableStateOf(false) }
+    var showSearchDialog by remember { mutableStateOf(false) }
     val sheetProgress = if (expandedHeightPx > 0f) ((sheetHeightPx.value - collapsedHeightPx) / sheetProgressRangePx).coerceIn(0f, 1f) else 0f
     SideEffect { onSheetProgressChange(sheetProgress) }
 
@@ -83,6 +88,16 @@ fun FlowLyricsBottomSheet(
         sheetHeightPx.animateTo(expandedHeightPx, spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessLow))
     }
     LaunchedEffect(Unit) { onRequestLyrics() }
+
+    if (showSearchDialog && onManualSearch != null) {
+        LyricsSearchDialog(
+            initialTitle = "",
+            initialArtist = "",
+            onDismiss = { showSearchDialog = false },
+            onSearch = { title, artist, onResult -> onManualSearch.invoke(title, artist, onResult) },
+            onPicked = onPickedManualLyrics,
+        )
+    }
     BackHandler(onBack = ::animateToDismiss)
 
     val headerDragModifier = if (enableVerticalDismiss) {
@@ -116,6 +131,16 @@ fun FlowLyricsBottomSheet(
                             Text(text = stringResource(R.string.lyrics_synced), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
+                    if (onManualSearch != null && lyricsState is LyricsUiState.SyncedWithWords ||
+                        onManualSearch != null && lyricsState is LyricsUiState.Unavailable) {
+                        IconButton(onClick = { showSearchDialog = true }, modifier = Modifier.size(40.dp)) {
+                            Icon(
+                                imageVector = Icons.Outlined.Search,
+                                contentDescription = stringResource(R.string.search),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
                     if (showPlayPauseControl) {
                         IconButton(onClick = onTogglePlayPause, modifier = Modifier.size(40.dp)) {
                             Icon(
@@ -138,11 +163,11 @@ fun FlowLyricsBottomSheet(
                     }
                     is LyricsUiState.Synced -> {
                         val injected = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text) } }
-                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, modifier = Modifier.fillMaxWidth().weight(1f))
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, translations = translations, modifier = Modifier.fillMaxWidth().weight(1f))
                     }
                     is LyricsUiState.SyncedWithWords -> {
                         val withWords = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text, lyricsState.wordSpans[tl.startMs].orEmpty()) } }
-                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(withWords), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, modifier = Modifier.fillMaxWidth().weight(1f))
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(withWords), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, translations = translations, modifier = Modifier.fillMaxWidth().weight(1f))
                     }
                     is LyricsUiState.Plain -> {
                         Box(modifier = Modifier.fillMaxWidth().weight(1f).padding(16.dp), contentAlignment = Alignment.TopStart) {
@@ -153,4 +178,86 @@ fun FlowLyricsBottomSheet(
             }
         }
     }
+}
+
+
+/**
+ * Manual lyrics search: queries every enabled provider for the typed
+ * title/artist and lets the user pick a candidate. Picked LRC is cached and
+ * swapped into the visible lyrics immediately.
+ */
+@Composable
+private fun LyricsSearchDialog(
+    initialTitle: String,
+    initialArtist: String,
+    onDismiss: () -> Unit,
+    onSearch: (title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit,
+    onPicked: (String) -> Unit,
+) {
+    val context = LocalContext.current
+    var title by rememberSaveable { mutableStateOf(initialTitle) }
+    var artist by rememberSaveable { mutableStateOf(initialArtist) }
+    var searching by remember { mutableStateOf(false) }
+    var results by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+        },
+        title = { Text(stringResource(R.string.search)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(stringResource(R.string.song_title)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = artist,
+                    onValueChange = { artist = it },
+                    label = { Text(stringResource(R.string.artist)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Button(
+                    onClick = {
+                        searching = true
+                        results = emptyList()
+                        onSearch(title, artist) { found ->
+                            searching = false
+                            results = found
+                        }
+                    },
+                    enabled = !searching && title.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (searching) {
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(stringResource(R.string.search))
+                }
+                results.forEach { (provider, lrc) ->
+                    val preview = lrc.lineSequence()
+                        .firstOrNull { !it.startsWith("[") }?.take(48)
+                        ?: provider
+                    Surface(
+                        onClick = { onPicked(lrc); onDismiss() },
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text(preview, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                            Text(provider, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        },
+    )
 }

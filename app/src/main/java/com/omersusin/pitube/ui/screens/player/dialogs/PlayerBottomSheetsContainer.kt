@@ -56,6 +56,8 @@ fun PlayerBottomSheetsContainer(
     hasMoreComments: Boolean = false,
     onLoadMoreComments: (videoId: String) -> Unit = {},
     lyricsState: LyricsUiState = LyricsUiState.Idle,
+    lyricsTranslations: Map<Long, String> = emptyMap(),
+    onSearchLyricsCandidates: (title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit = { _, _, onResult -> onResult(emptyList()) },
     onRequestLyrics: (videoId: String) -> Unit = {},
     mediaSheetExpandedHeight: Dp? = null,
     mediaSheetCollapsedHeight: Dp = 0.dp,
@@ -198,6 +200,9 @@ fun PlayerBottomSheetsContainer(
             },
             onSwipeNextTrack = if (lyricsSwipeToChangeSong) { { EnhancedPlayerManager.getInstance().playNext() } } else null,
             onSwipePrevTrack = if (lyricsSwipeToChangeSong) { { EnhancedPlayerManager.getInstance().playPrevious() } } else null,
+            translations = lyricsTranslations,
+            onPickedManualLyrics = { rawLrc -> playerViewModel.applyManualLyrics(video.id, rawLrc) },
+            onManualSearch = onSearchLyricsCandidates,
             showPlayPauseControl = lyricsShowPlayPause,
             isPlaying = playerIsPlaying.isPlaying,
             onTogglePlayPause = {

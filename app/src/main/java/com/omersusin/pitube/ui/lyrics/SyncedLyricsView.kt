@@ -46,6 +46,7 @@ fun SyncedLyricsView(
     onSeekTo: (Long) -> Unit,
     onSwipeNext: (() -> Unit)? = null,
     onSwipePrev: (() -> Unit)? = null,
+    translations: Map<Long, String> = emptyMap(),
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -68,7 +69,7 @@ fun SyncedLyricsView(
                 lines = lyricsResult.lines, currentPositionMs = currentPositionMs, onSeekTo = onSeekTo,
                 anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal,
                 autoScroll = autoScroll, textPos = textPos, swipeEnabled = swipeEnabled, onSwipeNext = onSwipeNext, onSwipePrev = onSwipePrev,
-                changeOnClick = changeOnClick
+                changeOnClick = changeOnClick, translations = translations
             )
             is LyricsFetchResult.NotFound -> Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
                 Icon(Icons.Rounded.MusicOff, null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
@@ -88,7 +89,8 @@ private fun LyricsContent(
     anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float,
     autoScroll: Boolean, textPos: LyricsTextPosition, swipeEnabled: Boolean,
     onSwipeNext: (() -> Unit)?, onSwipePrev: (() -> Unit)?,
-    changeOnClick: Boolean
+    changeOnClick: Boolean,
+    translations: Map<Long, String>
 ) {
     val listState = rememberLazyListState()
     val currentIndex by remember(currentPositionMs, lines) { derivedStateOf { lines.indexOfLast { it.timeMs <= currentPositionMs } } }
@@ -141,14 +143,14 @@ private fun LyricsContent(
             itemsIndexed(lines, key = { i, l -> "${i}_${l.timeMs}" }) { idx, line ->
                 val nextTime = lines.getOrNull(idx + 1)?.timeMs ?: (line.timeMs + 4000L)
                 val duration = (nextTime - line.timeMs).coerceAtLeast(800L)
-                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, currentPositionMs = currentPositionMs, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) })
+                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, currentPositionMs = currentPositionMs, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
             }
         }
     }
 }
 
 @Composable
-private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, isPast: Boolean, currentPositionMs: Long, anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float, onTap: () -> Unit) {
+private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, isPast: Boolean, currentPositionMs: Long, anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float, onTap: () -> Unit, translatedText: String? = null) {
     val scaleTarget = if (!isCurrent) 1f else when (anim) {
         LyricsAnimationStyle.NONE -> 1f
         LyricsAnimationStyle.FADE -> 1f
@@ -199,6 +201,9 @@ private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, i
             .padding(vertical = 6.dp),
         contentAlignment = if (anim == LyricsAnimationStyle.METRO_LYRICS) Alignment.CenterStart else Alignment.Center
     ) {
+        androidx.compose.foundation.layout.Column(
+            horizontalAlignment = if (anim == LyricsAnimationStyle.METRO_LYRICS) Alignment.Start else Alignment.CenterHorizontally,
+        ) {
         when (anim) {
             LyricsAnimationStyle.KARAOKE, LyricsAnimationStyle.VIVIMUSIC_FLUID, LyricsAnimationStyle.LYRICS_V2_FLUID -> {
                 if (isCurrent && line.contentSpans.isNotEmpty()) {
@@ -281,6 +286,16 @@ private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, i
                     Text(text = line.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f), textAlign = TextAlign.Center)
                 }
             }
+        }
+        if (isCurrent && !translatedText.isNullOrBlank()) {
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = translatedText,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = (textSize * 0.62f).sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
         }
     }
 }

@@ -123,6 +123,9 @@ class VideoPlayerViewModel @Inject constructor(
 
     private val _lyricsState = MutableStateFlow<LyricsUiState>(LyricsUiState.Idle)
     val lyricsState: StateFlow<LyricsUiState> = _lyricsState.asStateFlow()
+    /** Translated lines (timeMs -> text) for the active video, when enabled. */
+    private val _lyricsTranslations = MutableStateFlow<Map<Long, String>>(emptyMap())
+    val lyricsTranslations: StateFlow<Map<Long, String>> = _lyricsTranslations.asStateFlow()
     private var lyricsVideoId: String? = null
     private var lyricsJob: Job? = null
     
@@ -989,6 +992,7 @@ class VideoPlayerViewModel @Inject constructor(
         lyricsJob?.cancel()
         lyricsVideoId = null
         _lyricsState.value = LyricsUiState.Idle
+        _lyricsTranslations.value = emptyMap()
     }
 
     fun startBackgroundPlayback() {
@@ -3435,6 +3439,25 @@ class VideoPlayerViewModel @Inject constructor(
                 val lr = com.omersusin.pitube.data.lyrics.LyricsRepository(repository, PlayerPreferences(context), context)
                 val res = lr.fetchLyrics(videoId, title, artist, durationMs = durMs)
                 if (lyricsVideoId != videoId) return@launch
+                // Kick off the translation layer in parallel; the view renders
+                // translated lines under the active line as soon as they land.
+                if (res is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success) {
+                    val prefsL = PlayerPreferences(context)
+                    viewModelScope.launch {
+                        _lyricsTranslations.value = emptyMap()
+                        val translated = com.omersusin.pitube.data.lyrics.LyricsTranslationRepository
+                            .translate(
+                                videoId = videoId,
+                                title = title,
+                                artist = artist,
+                                durationMs = durMs,
+                                enabled = prefsL.lyricsTranslationEnabled.first(),
+                            )
+                        if (lyricsVideoId == videoId && !translated.isNullOrEmpty()) {
+                            _lyricsTranslations.value = translated.associate { it.timeMs to it.text }
+                        }
+                    }
+                }
                 _lyricsState.value = when (res) {
                     is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success -> {
                         val mapped = res.lines.map { l -> com.omersusin.pitube.innertube.pages.TranscriptLine(l.timeMs, l.text) to l.contentSpans }
@@ -3445,6 +3468,44 @@ class VideoPlayerViewModel @Inject constructor(
                     is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Error -> LyricsUiState.Unavailable
                 }
             } catch (_: Exception) { if (lyricsVideoId == videoId) _lyricsState.value = LyricsUiState.Unavailable }
+        }
+    }
+
+    /** Apply a manually searched lyric: cache it and swap the visible state immediately. */
+    fun applyManualLyrics(videoId: String, rawLrc: String) {
+        val prefs = PlayerPreferences(context)
+        com.omersusin.pitube.data.lyrics.LyricsRepository(repository, prefs, context).cacheManual(videoId, rawLrc)
+        val parsed = com.omersusin.pitube.data.lyrics.LrcParser.parse(rawLrc)
+        if (parsed.isEmpty() || lyricsVideoId != videoId) return
+        val wordSpans = parsed.associate { it.timeMs to it.contentSpans }
+        _lyricsState.value = LyricsUiState.SyncedWithWords(
+            parsed.map { com.omersusin.pitube.innertube.pages.TranscriptLine(it.timeMs, it.text) },
+            wordSpans,
+        )
+    }
+
+    /** Search all providers for candidate lyrics matching the query. */
+    fun searchLyricsCandidates(
+        title: String,
+        artist: String,
+        durationMs: Long,
+        onResult: (List<Pair<String, String>>) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val results = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val out = mutableListOf<Pair<String, String>>()
+                for (provider in com.omersusin.pitube.data.lyrics.LyricsProviders.ordered(
+                    PlayerPreferences(context).lyricsProviderOrder.first()
+                )) {
+                    if (provider.id == "transcript") continue
+                    try {
+                        provider.fetch(title, artist, "", durationMs)?.takeIf { it.isNotBlank() }
+                            ?.let { out.add(provider.id to it) }
+                    } catch (_: Exception) { }
+                }
+                out
+            }
+            onResult(results)
         }
     }
 

@@ -354,6 +354,7 @@ class PlayerPreferences(context: Context) {
         val LYRICS_SHOW_PLAYPAUSE_ON_THUMBNAIL = booleanPreferencesKey("lyrics_show_playpause_on_thumbnail")
         val LIBRARY_SHELF_ENABLED = booleanPreferencesKey("library_shelf_enabled")
         val RECOGNITION_FLOATING_SIZE = intPreferencesKey("recognition_floating_size_dp")
+        val LYRICS_TRANSLATION_ENABLED = booleanPreferencesKey("lyrics_translation_enabled")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
 
         // Action row customization
@@ -2696,6 +2697,9 @@ class PlayerPreferences(context: Context) {
 
     val recognitionFloatingSize: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_FLOATING_SIZE] ?: 64 }
     suspend fun setRecognitionFloatingSize(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_FLOATING_SIZE] = v } }
+
+    val lyricsTranslationEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_TRANSLATION_ENABLED] ?: true }
+    suspend fun setLyricsTranslationEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TRANSLATION_ENABLED] = v } }
     val lyricsProviderOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_PROVIDER_ORDER] ?: com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER }
     suspend fun setLyricsProviderOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_PROVIDER_ORDER] = order } }
 

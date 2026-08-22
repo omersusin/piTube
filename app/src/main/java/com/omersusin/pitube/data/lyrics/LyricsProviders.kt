@@ -351,12 +351,14 @@ private fun veryShortTimeoutClient() = OkHttpClient.Builder().connectTimeout(3, 
 
 object LyricsProviders {
     /** Canonical default ranking — mirrors vivi-music's registry order where applicable. */
-    val DEFAULT_ORDER = "lrclib,betterlyrics,simpmusic,kugou,youlyplus,transcript"
+    val DEFAULT_ORDER = "lrclib,betterlyrics,musixmatch,simpmusic,paxsenix,kugou,youlyplus,transcript"
 
     fun all(): Map<String, () -> LyricsProvider> = mapOf(
         "lrclib" to { LrclibLyricsProvider() },
         "betterlyrics" to { BetterLyricsProvider() },
         "simpmusic" to { SimpMusicLyricsProvider() },
+        "musixmatch" to { MusixmatchLyricsProvider() },
+        "paxsenix" to { PaxsenixLyricsProvider() },
         "kugou" to { KugouLyricsProvider() },
         "youlyplus" to { YouLyPlusLyricsProvider() },
         "transcript" to { TranscriptLyricsProvider() },
