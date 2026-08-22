@@ -50,7 +50,7 @@ fun FlowLyricsBottomSheet(
     translations: Map<Long, String> = emptyMap(),
     onPickedManualLyrics: (String) -> Unit = {},
     initialSearchTitle: String = "",
-    initialSearchArtist: String = 
+    initialSearchArtist: String = "",
     onManualSearch: ((title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit)? = null,
     showPlayPauseControl: Boolean = false,
     isPlaying: Boolean = false,
