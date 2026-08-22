@@ -83,86 +83,14 @@ fun RecognitionScreen(
         }
     }
 
-    // Issue 6: mode-branched background. VOICE forces a dark gradient (voice
-    // UI reads best on dark); SONG runs a slow infinite gradient behind the
-    // blob. Modes crossfade instead of snapping.
-    // Ping-pong shift driven ONLY while SONG is active — an always-on infinite
-    // transition recomposed the whole screen every frame even in VOICE/IDLE.
-    var bgShift by remember { mutableStateOf(0f) }
-    LaunchedEffect(uiState.mode) {
-        if (uiState.mode != RecognitionMode.SONG) {
-            bgShift = 0f
-            return@LaunchedEffect
-        }
-        var lastNanos = 0L
-        var elapsed = 0L
-        while (true) {
-            withFrameNanos { now ->
-                if (lastNanos == 0L) lastNanos = now
-                elapsed += (now - lastNanos).coerceAtLeast(0L)
-                lastNanos = now
-                // Triangle wave, 20s full cycle (up 10s, down 10s)
-                val phase = (elapsed % 20_000L) / 1_000f
-                bgShift = if (phase < 10f) phase / 10f else (20f - phase) / 10f
-            }
-        }
-    }
-    val songGradient = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.25f + 0.15f * bgShift),
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.18f + 0.14f * (1f - bgShift)),
-        ),
-    )
-    val voiceGradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF10131A), Color(0xFF06070B)),
-    )
-    // Single animated progress drives a true crossfade between the two
-    // gradients on top of the themed surface — never an opaque white/black
-    // base (that washed the whole screen out and broke light-theme contrast).
-    val songProgress by animateFloatAsState(
-        targetValue = if (uiState.mode == RecognitionMode.SONG) 1f else 0f,
-        animationSpec = tween(durationMillis = 600),
-        label = "songBgProgress",
-    )
-    // Forced-dark VOICE must also flip CONTENT colors — drawing a dark
-    // gradient under light-theme text looked inverted. Brand hues
-    // (primary/secondary/tertiary) stay; only neutrals go dark.
-    val baseScheme = MaterialTheme.colorScheme
-    val recognitionScheme = if (uiState.mode == RecognitionMode.VOICE) {
-        baseScheme.copy(
-            background = Color(0xFF06070B),
-            surface = Color(0xFF10131A),
-            surfaceVariant = Color(0xFF20242E),
-            onBackground = Color(0xFFE6E4EA),
-            onSurface = Color(0xFFE6E4EA),
-            onSurfaceVariant = Color(0xFFA9A6B3),
-            outlineVariant = Color(0xFF343845),
-        )
-    } else {
-        baseScheme
-    }
-    androidx.compose.material3.MaterialTheme(colorScheme = recognitionScheme) {
+    // Theme-consistent redesign: both modes render on the app's own themed
+    // surface — no forced-dark scheme, no hardcoded gradient. All color
+    // personality lives in the blob/face widgets, which read theme tokens.
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
-        // Full-bleed background layer; content keeps its own inset-padded Box.
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .drawWithContent {
-                        if (songProgress < 1f) {
-                            drawRect(voiceGradient, alpha = 1f - songProgress)
-                        }
-                        if (songProgress > 0f) {
-                            drawRect(songGradient, alpha = songProgress)
-                        }
-                        drawContent()
-                    },
-        ) {
         Box(
             modifier =
                 Modifier
@@ -395,10 +323,7 @@ fun RecognitionScreen(
             }
         }
     }
-        }
-    }
 }
-    }
 
 @Composable
 private fun RecognitionModeToggle(
