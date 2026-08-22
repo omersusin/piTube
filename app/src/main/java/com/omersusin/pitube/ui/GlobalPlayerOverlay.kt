@@ -1710,7 +1710,11 @@ fun GlobalPlayerOverlay(
             lyricsTranslations = playerViewModel.lyricsTranslations.collectAsStateWithLifecycle(initialValue = emptyMap()).value,
             onApplyManualLyrics = { rawLrc -> playerViewModel.applyManualLyrics(video.id, rawLrc) },
             initialSearchTitle = video.title
-                .replace(Regex("""\s*[([](?:official|lyrics?|audio|video|hd|4k)[^)\]]*[)\]]""", RegexOption.IGNORE_CASE), "")
+                // Strip (Official Video)-style and [Lyrics]-style decorations.
+                // NOTE: no \] escapes — Android ICU rejects them inside classes.
+                .replace(Regex("""\([^)]*\)"""), " ")
+                .replace(Regex("""\[[^\u005d]*\u005d]"""), " ")
+                .replace(Regex("""\s+"""), " ")
                 .trim(),
             initialSearchArtist = video.channelName
                 .replace(Regex("""\s*-\s*Topic$"""), "")
