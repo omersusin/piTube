@@ -106,10 +106,13 @@ fun RecognitionScreen(
     val voiceGradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF10131A), Color(0xFF06070B)),
     )
-    val modeBackground by animateColorAsState(
-        targetValue = if (uiState.mode == RecognitionMode.SONG) Color.White else Color.Black,
-        animationSpec = tween(600),
-        label = "modeBg",
+    // Single animated progress drives a true crossfade between the two
+    // gradients on top of the themed surface — never an opaque white/black
+    // base (that washed the whole screen out and broke light-theme contrast).
+    val songProgress by animateFloatAsState(
+        targetValue = if (uiState.mode == RecognitionMode.SONG) 1f else 0f,
+        animationSpec = tween(durationMillis = 600),
+        label = "songBgProgress",
     )
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -122,8 +125,12 @@ fun RecognitionScreen(
                 Modifier
                     .fillMaxSize()
                     .drawWithContent {
-                        drawRect(modeBackground)
-                        drawRect(if (uiState.mode == RecognitionMode.SONG) songGradient else voiceGradient, alpha = 0.92f)
+                        if (songProgress < 1f) {
+                            drawRect(voiceGradient, alpha = 1f - songProgress)
+                        }
+                        if (songProgress > 0f) {
+                            drawRect(songGradient, alpha = songProgress)
+                        }
                         drawContent()
                     },
         ) {
