@@ -208,6 +208,12 @@ object NewPipeExtractor {
         videoId: String
     ): String? {
         init()
+        // The nsig deobfuscator and the signature path share the same JS engine;
+        // while nsig is suppressed the sig lane burns per-format latency on a
+        // broken interpreter too, so skip it during the cooldown.
+        if (System.currentTimeMillis() < nsigSuppressedUntil) {
+            return null
+        }
         return newPipeUtils?.getStreamUrl(format, videoId)
     }
 

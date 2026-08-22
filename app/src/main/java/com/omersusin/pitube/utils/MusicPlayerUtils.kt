@@ -362,10 +362,12 @@ object MusicPlayerUtils {
 
         val streamUrl = if (resolved.needsNTransform) {
             try {
-                var transformedUrl = NewPipeExtractor.deobfuscateThrottling(videoId, rawStreamUrl)
+                // PipePipe remote decoder first (tracks current player
+                // server-side); NewPipe extractor and the WebView cipher follow.
+                var transformedUrl = com.omersusin.pitube.utils.cipher.PipePipeNsigDecoder.deobfuscateUrl(rawStreamUrl)
                     ?.takeIf { it != rawStreamUrl }
+                    ?: NewPipeExtractor.deobfuscateThrottling(videoId, rawStreamUrl).takeIf { it != rawStreamUrl }
                     ?: CipherDeobfuscator.transformNParamInUrl(rawStreamUrl).takeIf { it != rawStreamUrl }
-                    ?: com.omersusin.pitube.utils.cipher.PipePipeNsigDecoder.deobfuscateUrl(rawStreamUrl)
                     ?: rawStreamUrl
                 if (usedClient.useWebPoTokens) {
                     val streamingPoToken = getPoTokenForWebClient()?.streamingDataPoToken

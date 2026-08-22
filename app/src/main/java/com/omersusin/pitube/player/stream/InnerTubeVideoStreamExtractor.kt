@@ -714,15 +714,20 @@ object InnerTubeVideoStreamExtractor {
     ): String? {
         val rawN = extractNParameter(rawUrl) ?: return rawUrl
         return try {
-            var transformed: String? = NewPipeExtractor.deobfuscateThrottling(videoId, rawUrl)
+            // PipePipe's remote decoder first: it tracks YouTube's current
+            // player server-side, while the bundled NewPipe extractor goes
+            // stale between releases and its rhino interpreter throws on the
+            // 2025+ obfuscation. NewPipe stays as a re-probe, WebView cipher
+            // as last resort.
+            var transformed: String? = PipePipeNsigDecoder.deobfuscateUrl(rawUrl)
                 ?.takeIf { isNParameterTransformed(rawN, it) }
+            if (transformed == null) {
+                transformed = NewPipeExtractor.deobfuscateThrottling(videoId, rawUrl)
+                    ?.takeIf { isNParameterTransformed(rawN, it) }
+            }
             if (transformed == null) {
                 transformed = CipherDeobfuscator.transformNParamInUrl(rawUrl)
                     .takeIf { isNParameterTransformed(rawN, it) }
-            }
-            if (transformed == null) {
-                transformed = PipePipeNsigDecoder.deobfuscateUrl(rawUrl)
-                    ?.takeIf { isNParameterTransformed(rawN, it) }
             }
             if (transformed != null) {
                 Log.d(TAG, "Applied n-transform for $videoId $label")

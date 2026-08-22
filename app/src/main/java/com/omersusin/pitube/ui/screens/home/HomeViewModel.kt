@@ -793,11 +793,25 @@ class HomeViewModel @Inject constructor(
                                 result.videos
                             }
                             .orEmpty()
+                            .also { Log.w(TAG, "Feed personal lane: fetched=${it.size}") }
                             .filterSignedValid()
+                            .also { Log.w(TAG, "Feed personal lane: after signedValid=${it.size} (dropped shorts/≤120s)") }
                             .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
+                            .also { Log.w(TAG, "Feed personal lane: after watched/suppressed=${it.size}") }
                             .filterUnplayable(unplayableVideoIds.value)
-                            .filterRecentHomeSuggestion(System.currentTimeMillis())
-                    } ?: emptyList()
+                            // Recency filtering is an UPLOADS concept; YouTube already
+                            // curates FEwhat_to_watch, and non-English relative dates
+                            // can fail the age check and gut the personal lane. Only
+                            // drop items whose date is provably ancient.
+                            .let { list ->
+                                val filtered = list.filter { v ->
+                                    v.isLive || v.timestamp <= 0L ||
+                                        (System.currentTimeMillis() - v.timestamp) <= HOME_MAX_SUGGESTION_AGE_MS * 30
+                                }
+                                Log.w(TAG, "Feed personal lane: after recency-guard=${filtered.size} (was ${list.size})")
+                                filtered
+                            }
+                    } ?: emptyList().also { Log.w(TAG, "Feed personal lane: fetch timed out (12s)") }
                 } else {
                     emptyList()
                 }

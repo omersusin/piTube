@@ -1364,12 +1364,13 @@ class EnhancedPlayerManager private constructor() {
         // enforcement) is fully playable through the native SABR session, so it
         // must count as playable here — otherwise loadMediaInternal bails out
         // before MediaLoader ever gets a chance to route to SabrMediaSource.
+        val sabrInfoSnapshot = currentSabrInfo
         val sabrAvailable =
-            currentSabrInfo != null &&
-                currentSabrInfo.streamingUrl.isNotEmpty() &&
+            sabrInfoSnapshot != null &&
+                sabrInfoSnapshot.streamingUrl.isNotEmpty() &&
                 currentVideoId != null &&
-                currentSabrInfo.audioItag > 0 &&
-                currentSabrInfo.videoItag > 0
+                sabrInfoSnapshot.audioItag > 0 &&
+                sabrInfoSnapshot.videoItag > 0
         val audio = audioStream ?: availableAudioStreams.firstOrNull()
         if (audioOnly && audio == null && !sabrAvailable) {
             Log.w(TAG, "loadMediaInternal: audio-only load requested without an audio stream")

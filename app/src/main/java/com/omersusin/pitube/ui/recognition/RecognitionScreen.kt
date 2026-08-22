@@ -322,6 +322,7 @@ fun RecognitionScreen(
                 Spacer(Modifier.height(48.dp))
             }
         }
+        }
     }
 }
 
