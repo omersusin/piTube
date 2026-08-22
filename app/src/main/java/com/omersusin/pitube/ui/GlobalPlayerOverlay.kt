@@ -1713,7 +1713,7 @@ fun GlobalPlayerOverlay(
                 // Strip (Official Video)-style and [Lyrics]-style decorations.
                 // NOTE: no \] escapes — Android ICU rejects them inside classes.
                 .replace(Regex("""\([^)]*\)"""), " ")
-                .replace(Regex("""\[[^\u005d]*\u005d]"""), " ")
+                .replace(Regex("""\[[^\u005d]*\u005d"""), " ")
                 .replace(Regex("""\s+"""), " ")
                 .trim(),
             initialSearchArtist = video.channelName
