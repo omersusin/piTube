@@ -411,6 +411,11 @@ class EnhancedPlayerManager private constructor() {
     private var sponsorBlockHandler: SponsorBlockHandler? = null
     private var playbackTracker: PlaybackTracker? = null
 
+    /** Live toggle for pitch-preserving speed changes (see AudioFeaturesManager). */
+    fun setPreservePitch(enabled: Boolean) {
+        audioFeaturesManager?.preservePitch = enabled
+    }
+
     /**
      * Periodic playback-position persistence hook (fires every AUTO_SAVE_INTERVAL_MS while playing).
      * The UI layer registers this so watch history keeps updating during background/audio-only

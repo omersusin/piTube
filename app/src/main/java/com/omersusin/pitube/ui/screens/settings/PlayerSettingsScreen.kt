@@ -237,8 +237,10 @@ fun PlayerSettingsScreen(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
-                // Audio & privacy
-                item { SectionHeader(text = "Audio & privacy") }
+            }
+
+            // Audio & privacy
+            item { SectionHeader(text = "Audio & privacy") }
                 item {
                     SettingsGroup {
                         SettingsSwitchItem(
@@ -248,7 +250,7 @@ fun PlayerSettingsScreen(
                             checked = preservePitch,
                             onCheckedChange = { v ->
                                 coroutineScope.launch { playerPreferences.setPreservePitch(v) }
-                                EnhancedPlayerManager.getInstance().audioFeaturesManager?.preservePitch = v
+                                EnhancedPlayerManager.getInstance().setPreservePitch(v)
                             },
                         )
                         HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
@@ -278,7 +280,17 @@ fun PlayerSettingsScreen(
                         subtitle = "Threads, quality, codec, folders, subtitles",
                         onClick = onNavigateToDownloadSettings,
                     )
-                    HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                }
+                }
+
+            item {
+                Text(
+                    text = stringResource(R.string.player_settings_overlay_controls),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                SettingsGroup {
                     SettingsSwitchItem(
                         icon = Icons.Outlined.Cast,
                         title = stringResource(R.string.player_settings_overlay_cast),
