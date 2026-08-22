@@ -127,7 +127,7 @@ class HomeFeedLogicTest {
     }
 
     @Test
-    fun `blendFeedSources relaxes scarce quota in related discovery subs viral order`() {
+    fun `blendFeedSources relaxes scarce quota in personal-first order`() {
         val result = blendFeedSources(
             lanes = mapOf(
                 FeedSource.SUBS to listOf(vc("s1", "S"), vc("s2", "S")),
@@ -139,10 +139,12 @@ class HomeFeedLogicTest {
             targetSize = 3
         )
 
+        // Personal-first STRICT: forced refill starts from the user's own
+        // lanes; discovery/viral only enter through genuine leftover slots.
         assertThat(result.items.map { it.source })
-            .containsExactly(FeedSource.RELATED, FeedSource.RELATED, FeedSource.DISCOVERY)
+            .containsExactly(FeedSource.SUBS, FeedSource.SUBS, FeedSource.RELATED)
             .inOrder()
-        assertThat(result.videos.map { it.id }).containsExactly("r1", "r2", "d1").inOrder()
+        assertThat(result.videos.map { it.id }).containsExactly("s1", "s2", "r1").inOrder()
     }
 
     @Test
