@@ -1643,7 +1643,7 @@
     <string name="download_settings_filename_templates">Dosya adı şablonları</string>
     <string name="download_settings_template_video">Video şablonu</string>
     <string name="download_settings_template_audio">Ses şablonu</string>
-    <string name="download_settings_template_hint">Belirteçler: %(title)s, %(id)s, %(quality)s, %(ext)s, %(channel)s — boş bırakılırsa varsayılan ad kullanılır</string>
+    <string name="download_settings_template_hint" formatted="false">Belirteçler: %(title)s, %(id)s, %(quality)s, %(ext)s, %(channel)s — boş bırakılırsa varsayılan ad kullanılır</string>
     <string name="download_settings_folder_video">Video indirme klasörü</string>
     <string name="download_settings_folder_audio">Ses indirme klasörü</string>
     <string name="download_settings_folder_default">Varsayılan konum</string>

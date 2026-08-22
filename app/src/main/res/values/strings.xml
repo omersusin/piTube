@@ -816,7 +816,7 @@
     <string name="download_settings_filename_templates">Filename templates</string>
     <string name="download_settings_template_video">Video template</string>
     <string name="download_settings_template_audio">Audio template</string>
-    <string name="download_settings_template_hint">Tokens: %(title)s, %(id)s, %(quality)s, %(ext)s, %(channel)s — empty uses the default name</string>
+    <string name="download_settings_template_hint" formatted="false">Tokens: %(title)s, %(id)s, %(quality)s, %(ext)s, %(channel)s — empty uses the default name</string>
     <string name="download_settings_folder_video">Video download folder</string>
     <string name="download_settings_folder_audio">Audio download folder</string>
     <string name="download_settings_folder_default">Default location</string>

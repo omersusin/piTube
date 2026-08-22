@@ -9,3 +9,11 @@ Piped/
 invidious/
 local.properties
 android-sdk/
+node_modules/
+package-lock.json
+package.json
+.commandcode/
+session-backup.jsonl
+tum_mesajlarim.txt
+RECOVERED.txt
+VERIFY_USER_MESSAGES.txt
