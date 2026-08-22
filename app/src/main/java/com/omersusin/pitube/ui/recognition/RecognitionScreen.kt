@@ -24,6 +24,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -81,11 +83,50 @@ fun RecognitionScreen(
         }
     }
 
+    // Issue 6: mode-branched background. VOICE forces a dark gradient (voice
+    // UI reads best on dark); SONG runs a slow infinite gradient behind the
+    // blob. Modes crossfade instead of snapping.
+    val backgroundTransition = rememberInfiniteTransition(label = "recogBg")
+    val bgShift by backgroundTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 10_000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "bgShift",
+    )
+    val songGradient = Brush.verticalGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.25f + 0.15f * bgShift),
+            MaterialTheme.colorScheme.surface,
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.18f + 0.14f * (1f - bgShift)),
+        ),
+    )
+    val voiceGradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFF10131A), Color(0xFF06070B)),
+    )
+    val modeBackground by animateColorAsState(
+        targetValue = if (uiState.mode == RecognitionMode.SONG) Color.White else Color.Black,
+        animationSpec = tween(600),
+        label = "modeBg",
+    )
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
+        // Full-bleed background layer; content keeps its own inset-padded Box.
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .drawWithContent {
+                        drawRect(modeBackground)
+                        drawRect(if (uiState.mode == RecognitionMode.SONG) songGradient else voiceGradient, alpha = 0.92f)
+                        drawContent()
+                    },
+        ) {
         Box(
             modifier =
                 Modifier

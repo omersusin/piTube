@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,30 +45,31 @@ fun MorphingBlob(
         label = "blobAmp",
     )
 
-    val bass = remember(levels, smoothedAmp) {
-        if (levels.size >= 8) levels.takeLast(8).take(3).average().toFloat().coerceIn(0f, 1f)
-        else smoothedAmp
+    // Band targets are recomputed whenever a fresh chunk arrives; the rendered
+    // values below are per-frame exponential smooths of these targets so the
+    // blob flows between chunk updates instead of stepping discretely.
+    val latestLevels by rememberUpdatedState(levels)
+    fun targetBand(range: IntRange, fallback: Float): Float {
+        val ls = latestLevels
+        return if (ls.size >= 8) ls.takeLast(8).drop(range.first).take(range.count())
+            .average().toFloat().coerceIn(0f, 1f)
+        else fallback
     }
-    val mid = remember(levels, smoothedAmp) {
-        if (levels.size >= 8) levels.takeLast(8).drop(3).take(3).average().toFloat().coerceIn(0f, 1f)
-        else smoothedAmp * 0.75f
+
+    var smoothBass by remember { mutableStateOf(0f) }
+    var smoothMid by remember { mutableStateOf(0f) }
+    var smoothTreble by remember { mutableStateOf(0f) }
+    var smoothBeat by remember { mutableStateOf(0f) }
+    fun targetBeat(): Float {
+        val recent = latestLevels.takeLast(8)
+        if (recent.size < 6) return 0f
+        val avg = recent.average().toFloat()
+        val last = recent.lastOrNull() ?: 0f
+        val prev = recent.getOrNull(recent.size - 2) ?: 0f
+        val isRising = last > prev && last > avg * 1.25f && last > 0.10f
+        val isPeak = last > 0.14f && last + 1e-6f >= (recent.maxOrNull() ?: 0f)
+        return if (isRising || isPeak) ((last - avg).coerceIn(0f, 0.6f) / 0.6f) else 0f
     }
-    val treble = remember(levels, smoothedAmp) {
-        if (levels.size >= 8) levels.takeLast(8).drop(6).take(2).average().toFloat().coerceIn(0f, 1f)
-        else smoothedAmp * 0.60f
-    }
-    val beatPulse = remember(levels) {
-        if (levels.size < 6) 0f else {
-            val recent = levels.takeLast(8)
-            val avg = recent.average().toFloat()
-            val last = recent.lastOrNull() ?: 0f
-            val prev = recent.getOrNull(recent.size - 2) ?: 0f
-            val isRising = last > prev && last > avg * 1.25f && last > 0.10f
-            val isPeak = last > 0.14f && last + 1e-6f >= (recent.maxOrNull() ?: 0f)
-            if (isRising || isPeak) ((last - avg).coerceIn(0f, 0.6f) / 0.6f) else 0f
-        }
-    }
-    val animatedBeat by animateFloatAsState(targetValue = beatPulse, animationSpec = spring(dampingRatio = 0.35f, stiffness = 720f), label = "beatPulse")
 
     val density = LocalDensity.current
     var time by remember { mutableStateOf(0f) }
@@ -78,10 +80,18 @@ fun MorphingBlob(
         while (true) {
             withFrameNanos { now ->
                 if (lastNanos == 0L) lastNanos = now
-                val dt = (now - lastNanos) / 1_000_000_000f
+                val dt = ((now - lastNanos) / 1_000_000_000f).coerceIn(1e-4f, 0.05f)
                 lastNanos = now
                 time += dt
                 tick++
+                // Exponential smoothing toward current band targets — fast
+                // attack (12/s), slower release (5/s) for organic motion.
+                fun follow(current: Float, target: Float): Float =
+                    current + (target - current) * (if (target > current) 1f - kotlin.math.exp(-dt * 12f) else 1f - kotlin.math.exp(-dt * 5f))
+                smoothBass = follow(smoothBass, targetBand(0..2, smoothedAmp))
+                smoothMid = follow(smoothMid, targetBand(3..5, smoothedAmp * 0.75f))
+                smoothTreble = follow(smoothTreble, targetBand(6..7, smoothedAmp * 0.60f))
+                smoothBeat = follow(smoothBeat, targetBeat())
             }
         }
     }
@@ -104,10 +114,10 @@ fun MorphingBlob(
         ) {
             @Suppress("UNUSED_EXPRESSION") tick
 
-            val rhythmScale = 1f + bass * 0.55f + animatedBeat * 0.42f + treble * 0.10f
-            val hueShift = time * (6f + mid * 18f)
+            val rhythmScale = 1f + smoothBass * 0.55f + smoothBeat * 0.42f + smoothTreble * 0.10f
+            val hueShift = time * (6f + smoothMid * 18f)
             val pointCount = 8
-            val outerGlow = baseRadius * (1.50f + bass * 0.45f + animatedBeat * 0.22f)
+            val outerGlow = baseRadius * (1.50f + smoothBass * 0.45f + smoothBeat * 0.22f)
             val innerRadius = baseRadius * rhythmScale
 
             val glowPalette = palette
@@ -117,8 +127,8 @@ fun MorphingBlob(
 
             val outerBrush = Brush.radialGradient(
                 colorStops = arrayOf(
-                    0f to primaryShifted.copy(alpha = 0.42f + bass * 0.22f + animatedBeat * 0.2f),
-                    0.48f to secondaryShifted.copy(alpha = 0.28f + mid * 0.16f),
+                    0f to primaryShifted.copy(alpha = 0.42f + smoothBass * 0.22f + smoothBeat * 0.2f),
+                    0.48f to secondaryShifted.copy(alpha = 0.28f + smoothMid * 0.16f),
                     0.78f to tertiaryShifted.copy(alpha = 0.14f),
                     1f to Color.Transparent,
                 ),
@@ -128,10 +138,10 @@ fun MorphingBlob(
             drawCircle(brush = outerBrush, radius = outerGlow, center = Offset(cx, cy))
 
             val points = List(pointCount) { i ->
-                val angle = (2f * PI.toFloat() * i / pointCount) + time * (0.22f + mid * 0.32f + animatedBeat * 0.15f)
-                val wobble = sin(time * 1.7f + i * 0.9f) * (0.09f + treble * 0.05f) * (0.7f + bass * 0.6f)
-                val bassBump = bass * 0.28f * sin(time * 2.2f + i * 1.3f).coerceIn(-1f, 1f)
-                val beatBump = animatedBeat * 0.32f * cos(time * 3.4f + i).coerceIn(-1f, 1f)
+                val angle = (2f * PI.toFloat() * i / pointCount) + time * (0.22f + smoothMid * 0.32f + smoothBeat * 0.15f)
+                val wobble = sin(time * 1.7f + i * 0.9f) * (0.09f + smoothTreble * 0.05f) * (0.7f + smoothBass * 0.6f)
+                val bassBump = smoothBass * 0.28f * sin(time * 2.2f + i * 1.3f).coerceIn(-1f, 1f)
+                val beatBump = smoothBeat * 0.32f * cos(time * 3.4f + i).coerceIn(-1f, 1f)
                 val r = innerRadius * (1f + wobble + bassBump + beatBump)
                 Offset(cx + cos(angle) * r, cy + sin(angle) * r)
             }
@@ -170,20 +180,20 @@ fun MorphingBlob(
             )
             drawPath(path = path, brush = bodyBrush, style = Fill)
 
-            val highlightRadius = innerRadius * 0.32f * (0.9f + treble * 0.35f + animatedBeat * 0.2f)
+            val highlightRadius = innerRadius * 0.32f * (0.9f + smoothTreble * 0.35f + smoothBeat * 0.2f)
             val hx = cx - innerRadius * 0.22f + sin(time * 0.9f) * innerRadius * 0.06f
             val hy = cy - innerRadius * 0.28f + cos(time * 1.1f) * innerRadius * 0.05f
             val highlightBrush = Brush.radialGradient(
-                0f to Color.White.copy(alpha = 0.34f + treble * 0.18f),
+                0f to Color.White.copy(alpha = 0.34f + smoothTreble * 0.18f),
                 1f to Color.Transparent,
                 center = Offset(hx, hy),
                 radius = highlightRadius,
             )
             drawCircle(brush = highlightBrush, radius = highlightRadius, center = Offset(hx, hy))
 
-            if (animatedBeat > 0.12f || bass > 0.22f) {
-                val ringAlpha = (animatedBeat * 0.42f + bass * 0.18f).coerceIn(0f, 0.42f)
-                val ringRadius = innerRadius * (1.08f + animatedBeat * 0.18f)
+            if (smoothBeat > 0.12f || smoothBass > 0.22f) {
+                val ringAlpha = (smoothBeat * 0.42f + smoothBass * 0.18f).coerceIn(0f, 0.42f)
+                val ringRadius = innerRadius * (1.08f + smoothBeat * 0.18f)
                 drawCircle(
                     color = cs.onPrimary.copy(alpha = ringAlpha),
                     radius = ringRadius,
