@@ -97,13 +97,20 @@ class AudioFeaturesManager(
     /**
      * Set playback speed.
      */
+    /** When true, changing speed keeps the original pitch (no chipmunk effect). */
+    @Volatile
+    var preservePitch: Boolean = true
+
     fun setPlaybackSpeed(player: ExoPlayer?, speed: Float) {
         desiredPlaybackSpeed = speed
         stateFlow.value = stateFlow.value.copy(playbackSpeed = speed)
         val target = player ?: playerRef
         if (target != null) {
-            target.setPlaybackParameters(PlaybackParameters(speed))
-            Log.d(TAG, "Playback speed set to: ${speed}x")
+            // preservePitch=true keeps pitch at 1.0 while time-stretching.
+            target.setPlaybackParameters(
+                if (preservePitch) PlaybackParameters(speed, 1.0f) else PlaybackParameters(speed)
+            )
+            Log.d(TAG, "Playback speed set to: ${speed}x (preservePitch=$preservePitch)")
         } else {
             Log.d(TAG, "Player not ready, queued playback speed: ${speed}x")
         }

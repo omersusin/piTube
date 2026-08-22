@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.rounded.SlowMotionVideo
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -148,6 +149,9 @@ fun PlayerSettingsScreen(
     val overlayLockModeEnabled by playerPreferences.overlayLockModeEnabled.collectAsState(initial = false)
     val overlaySpeedIndicatorEnabled by playerPreferences.overlaySpeedIndicatorEnabled.collectAsState(initial = false)
     val overlayCommentsEnabled by playerPreferences.overlayCommentsEnabled.collectAsState(initial = true)
+    val preservePitch by playerPreferences.preservePitch.collectAsState(initial = true)
+    val incognitoMode by playerPreferences.incognitoMode.collectAsState(initial = false)
+    val dataSaverEnabled by playerPreferences.dataSaverEnabled.collectAsState(initial = false)
 
     val autoplayEnabled by playerPreferences.autoplayEnabled.collectAsState(initial = true)
     val queueAutoplayEnabled by playerPreferences.queueAutoplayEnabled.collectAsState(initial = true)
@@ -232,6 +236,40 @@ fun PlayerSettingsScreen(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
+                // Audio & privacy
+                item { SectionHeader(text = "Audio & privacy") }
+                item {
+                    SettingsGroup {
+                        SettingsSwitchItem(
+                            icon = Icons.Outlined.GraphicEq,
+                            title = "Preserve pitch on speed change",
+                            subtitle = "Speed up/down without chipmunk audio",
+                            checked = preservePitch,
+                            onCheckedChange = { v ->
+                                coroutineScope.launch { playerPreferences.setPreservePitch(v) }
+                                EnhancedPlayerManager.getInstance().audioFeaturesManager?.preservePitch = v
+                            },
+                        )
+                        HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        SettingsSwitchItem(
+                            icon = Icons.Outlined.VisibilityOff,
+                            title = "Incognito mode",
+                            subtitle = "Pause watch history and play counts",
+                            checked = incognitoMode,
+                            onCheckedChange = { v -> coroutineScope.launch { playerPreferences.setIncognitoMode(v) } },
+                        )
+                        HorizontalDivider(Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        SettingsSwitchItem(
+                            icon = Icons.Outlined.DataSaverOn,
+                            title = "Data saver",
+                            subtitle = "Cap resolution and skip preloading on cellular data",
+                            checked = dataSaverEnabled,
+                            onCheckedChange = { v -> coroutineScope.launch { playerPreferences.setDataSaverEnabled(v) } },
+                        )
+                    }
+                }
+                // Downloads link
+                item {
                 SettingsGroup {
                     com.omersusin.pitube.ui.screens.settings.SettingsItem(
                         icon = Icons.Outlined.Download,

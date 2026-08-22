@@ -355,6 +355,9 @@ class PlayerPreferences(context: Context) {
         val LIBRARY_SHELF_ENABLED = booleanPreferencesKey("library_shelf_enabled")
         val RECOGNITION_FLOATING_SIZE = intPreferencesKey("recognition_floating_size_dp")
         val LYRICS_TRANSLATION_ENABLED = booleanPreferencesKey("lyrics_translation_enabled")
+        val PRESERVE_PITCH = booleanPreferencesKey("preserve_pitch_on_speed_change")
+        val INCOGNITO_MODE = booleanPreferencesKey("incognito_mode")
+        val DATA_SAVER_ENABLED = booleanPreferencesKey("data_saver_enabled")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
 
         // Action row customization
@@ -2700,6 +2703,15 @@ class PlayerPreferences(context: Context) {
 
     val lyricsTranslationEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_TRANSLATION_ENABLED] ?: true }
     suspend fun setLyricsTranslationEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TRANSLATION_ENABLED] = v } }
+
+    val preservePitch: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.PRESERVE_PITCH] ?: true }
+    suspend fun setPreservePitch(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.PRESERVE_PITCH] = v } }
+
+    val incognitoMode: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.INCOGNITO_MODE] ?: false }
+    suspend fun setIncognitoMode(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.INCOGNITO_MODE] = v } }
+
+    val dataSaverEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.DATA_SAVER_ENABLED] ?: false }
+    suspend fun setDataSaverEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.DATA_SAVER_ENABLED] = v } }
     val lyricsProviderOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_PROVIDER_ORDER] ?: com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER }
     suspend fun setLyricsProviderOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_PROVIDER_ORDER] = order } }
 

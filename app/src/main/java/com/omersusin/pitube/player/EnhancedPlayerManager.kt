@@ -560,6 +560,14 @@ class EnhancedPlayerManager private constructor() {
 
         // Initialize audio features manager
         audioFeaturesManager = AudioFeaturesManager(scope, _playerState)
+        // Keep pitch natural when the user changes playback speed (opt-out pref).
+        runCatching {
+            kotlinx.coroutines.runBlocking {
+                audioFeaturesManager?.preservePitch =
+                    com.omersusin.pitube.data.local.PlayerPreferences(context.applicationContext)
+                        .preservePitch.first()
+            }
+        }
 
         // Initialize bandwidth meter and track selector via factory
         bandwidthMeter = playerFactory.createBandwidthMeter(context)

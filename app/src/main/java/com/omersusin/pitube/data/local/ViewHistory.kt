@@ -75,6 +75,14 @@ class ViewHistory private constructor(private val context: Context) {
         try { profileManager.activeProfileId.first() } catch (_: Exception) { "" }
 
     /**
+     * Incognito mode: when enabled, nothing is written to watch history or play
+     * counts. Read live from prefs so toggling takes effect immediately.
+     */
+    private suspend fun isIncognito(): Boolean = try {
+        PlayerPreferences(context).incognitoMode.first()
+    } catch (_: Exception) { false }
+
+    /**
      * One-time adoption of pre-scope rows (profileId = '') into the active profile.
      * Per user requirement, nothing stays device-wide: after adoption no '' rows remain.
      */
@@ -100,6 +108,7 @@ class ViewHistory private constructor(private val context: Context) {
         isShort: Boolean = false,
         isLocal: Boolean = false
     ) {
+        if (isIncognito() && !isLocal) return
         val thumbnail = if (isLocal) thumbnailUrl else ThumbnailUrlResolver.normalizeVideoThumbnail(videoId, thumbnailUrl)
         dao.upsert(
             WatchHistoryEntity(
@@ -135,6 +144,7 @@ class ViewHistory private constructor(private val context: Context) {
         duration: Long = 0L,
         isShort: Boolean = false
     ) {
+        if (isIncognito()) return
         val thumbnail = ThumbnailUrlResolver.normalizeVideoThumbnail(videoId, thumbnailUrl)
         val existingPosition = dao.getPosition(videoId, pid()) ?: 0L  // preserve saved progress
         dao.upsert(
