@@ -219,37 +219,24 @@ internal fun JsonElement.toRemotePlaylistVideos(): List<RemotePlaylistVideo> {
     val renderers = mutableListOf<JsonObject>()
     findObjectsByKey(this, "playlistVideoRenderer", renderers)
     if (renderers.isNotEmpty()) {
-        return renderers.mapNotNull { renderer ->
-            val videoId = renderer["videoId"].stringOrNull()
-                ?.takeIf { it.length == 11 } ?: return@mapNotNull null
-            if (renderer["isPlayable"].let { (it as? JsonPrimitive)?.booleanOrNull } == false) {
-                return@mapNotNull null
-            }
-            val title = renderer["title"].youtubeText()
-                ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-            val byline = renderer["shortBylineText"].objectOrNull()
-            val channelName = byline?.youtubeText()?.takeIf { it.isNotBlank() } ?: "Unknown Channel"
-            val channelId = byline?.get("runs").arrayOrNull()
-                ?.firstOrNull()?.objectOrNull()
-                ?.get("navigationEndpoint").objectOrNull()
-                ?.get("browseEndpoint").objectOrNull()
-                ?.get("browseId").stringOrNull()
-                ?.takeIf { it.isNotBlank() }
-                .orEmpty()
-            val thumbs = renderer["thumbnail"].objectOrNull()
-                ?.get("thumbnails").arrayOrNull().orEmpty()
-            val thumbnailUrl = thumbs.lastOrNull()?.objectOrNull()
-                ?.get("url").stringOrNull()
-                ?.takeIf { it.isNotBlank() }
-                ?: "https://i.ytimg.com/vi/$videoId/hqdefault.jpg"
-            RemotePlaylistVideo(
-                id = videoId,
-                title = title,
-                channelName = channelName,
-                channelId = channelId,
-                thumbnail = thumbnailUrl,
-            )
-        }.distinctBy { it.id }
+        return parseVideoRendererList(renderers)
+    }
+
+    // Continuation pages sometimes ship videos as generic videoRenderer /
+    // gridVideoRenderer / richItemRenderer instead of playlistVideoRenderer —
+    // without this fallback page 2+ parsed as 0 videos despite a full body.
+    val generic = mutableListOf<JsonObject>()
+    findObjectsByKey(this, "videoRenderer", generic)
+    findObjectsByKey(this, "gridVideoRenderer", generic)
+    if (generic.isEmpty()) {
+        val richItems = mutableListOf<JsonObject>()
+        findObjectsByKey(this, "richItemRenderer", richItems)
+        richItems.forEach { rich ->
+            (rich["content"]?.objectOrNull()?.get("videoRenderer"))?.objectOrNull()?.let { generic.add(it) }
+        }
+    }
+    if (generic.isNotEmpty()) {
+        return parseVideoRendererList(generic.distinctBy { it["videoId"].stringOrNull() })
     }
 
     val lockups = mutableListOf<JsonObject>()
@@ -298,6 +285,40 @@ internal fun JsonElement.toRemotePlaylistVideos(): List<RemotePlaylistVideo> {
         )
     }.distinctBy { it.id }
 }
+
+/** Shared mapping for playlistVideoRenderer-shaped objects (also videoRenderer/gridVideoRenderer). */
+private fun parseVideoRendererList(renderers: List<JsonObject>): List<RemotePlaylistVideo> =
+    renderers.mapNotNull { renderer ->
+        val videoId = renderer["videoId"].stringOrNull()
+            ?.takeIf { it.length == 11 } ?: return@mapNotNull null
+        if (renderer["isPlayable"].let { (it as? JsonPrimitive)?.booleanOrNull } == false) {
+            return@mapNotNull null
+        }
+        val title = renderer["title"].youtubeText()
+            ?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+        val byline = renderer["shortBylineText"].objectOrNull()
+        val channelName = byline?.youtubeText()?.takeIf { it.isNotBlank() } ?: "Unknown Channel"
+        val channelId = byline?.get("runs").arrayOrNull()
+            ?.firstOrNull()?.objectOrNull()
+            ?.get("navigationEndpoint").objectOrNull()
+            ?.get("browseEndpoint").objectOrNull()
+            ?.get("browseId").stringOrNull()
+            ?.takeIf { it.isNotBlank() }
+            .orEmpty()
+        val thumbs = renderer["thumbnail"].objectOrNull()
+            ?.get("thumbnails").arrayOrNull().orEmpty()
+        val thumbnailUrl = thumbs.lastOrNull()?.objectOrNull()
+            ?.get("url").stringOrNull()
+            ?.takeIf { it.isNotBlank() }
+            ?: "https://i.ytimg.com/vi/$videoId/hqdefault.jpg"
+        RemotePlaylistVideo(
+            id = videoId,
+            title = title,
+            channelName = channelName,
+            channelId = channelId,
+            thumbnail = thumbnailUrl,
+        )
+    }.distinctBy { it.id }
 
 private fun findObjectsByKey(node: JsonElement?, key: String, results: MutableList<JsonObject>) {
     when (node) {

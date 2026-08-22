@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.omersusin.pitube.SessionManager
 import com.omersusin.pitube.data.local.*
 import com.omersusin.pitube.data.model.Video
 import com.omersusin.pitube.data.model.Comment
@@ -1197,6 +1198,12 @@ class VideoPlayerViewModel @Inject constructor(
             Log.d("VideoPlayerViewModel", "loadVideoInfo: $videoId is a local file — skipping all network loading")
             return
         }
+        // Gate on session restore: starting a stream before FlowApplication has
+        // assigned YouTube.cookie sends ANONYMOUS requests that YouTube answers
+        // with BOT_WALL on every client ("internet is off" symptom).
+        kotlinx.coroutines.withTimeoutOrNull(2000L) {
+            SessionManager.restored.await()
+        }
         val currentState = _uiState.value
         Log.d("VideoPlayerViewModel", "loadVideoInfo: Request=$videoId. Current=${currentState.streamInfo?.id}, IsLoading=${currentState.isLoading}, ForceRefresh=$forceRefresh, escalateToSabr=$escalateToSabr")
         if (playbackAbandonedVideoId != null && playbackAbandonedVideoId != videoId) {
@@ -1331,12 +1338,19 @@ class VideoPlayerViewModel @Inject constructor(
 
                 val innerTubeDeferred = async(PerformanceDispatcher.networkIO) {
                     try {
-                        if (escalateToSabr) {
-                            InnerTubeVideoStreamExtractor.extract(videoId, forceSabr = escalateToSabr)
-                        } else {
-                            withTimeoutOrNull(25_000L) {
-                                InnerTubeVideoStreamExtractor.extract(videoId, forceSabr = false)
+                        val first =
+                            if (escalateToSabr) {
+                                InnerTubeVideoStreamExtractor.extract(videoId, forceSabr = true)
+                            } else {
+                                withTimeoutOrNull(25_000L) {
+                                    InnerTubeVideoStreamExtractor.extract(videoId, forceSabr = false)
+                                }
                             }
+                        // Fallback ladder rung 1: every direct client failed — one
+                        // SABR-forced attempt before giving up to error state.
+                        first ?: run {
+                            Log.w("VideoPlayerViewModel", "InnerTube direct failed for $videoId — retrying with forced SABR")
+                            InnerTubeVideoStreamExtractor.extract(videoId, forceSabr = true)
                         }
                     } catch (e: kotlinx.coroutines.CancellationException) {
                         throw e

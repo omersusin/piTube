@@ -202,15 +202,25 @@ class FlowApplication :
                 }
                 runCatching { com.omersusin.pitube.data.local.LikedVideosRepository.getInstance(this@FlowApplication).ensureScopeMigration() }
                 runCatching { com.omersusin.pitube.data.local.SearchHistoryRepository(this@FlowApplication).ensureScopeMigration() }
-                // Adopt legacy device-wide watch history + playlists into the active profile.
-                runCatching { com.omersusin.pitube.data.local.ViewHistory.getInstance(this@FlowApplication).ensureScopeMigration() }
-                runCatching { com.omersusin.pitube.data.local.PlaylistRepository(this@FlowApplication).ensureScopeMigration() }
+                // NOTE: watch-history + playlist scope adoption (potentially large
+                // Room UPDATEs) moved BELOW the session-restore block and deferred:
+                // running them here delayed YouTube.cookie assignment long enough
+                // that early playback requests went out anonymous and hit BOT_WALL
+                // on every client ("internet is off" symptom).
                 // Restore the active profile's session. The source of truth is
                 // the encrypted per-profile store (ProfileManager); the DataStore
                 // key is only a mirror so existing UI that reads it stays in step.
                 val cookie = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).getCookies()
                 YouTube.cookie = cookie
                 YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
+                // Adopt legacy device-wide watch history + playlists into the active
+                // profile — AFTER the session is live and deferred past startup so
+                // first-frame playback never waits behind Room writes.
+                launch {
+                    kotlinx.coroutines.delay(10_000L)
+                    runCatching { com.omersusin.pitube.data.local.ViewHistory.getInstance(this@FlowApplication).ensureScopeMigration() }
+                    runCatching { com.omersusin.pitube.data.local.PlaylistRepository(this@FlowApplication).ensureScopeMigration() }
+                }
                 // A session arriving after an anonymous process start invalidates
                 // any generic feed the pre-restore window could have cached, so
                 // the next Home visit re-fetches signed instead of trusting the
