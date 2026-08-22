@@ -790,6 +790,30 @@ class HomeViewModel @Inject constructor(
                     emptyList()
                 }
 
+                // ── Taste-profile fallback (Koda getTasteBasedVideos pattern) ──
+                // A signed-in session whose personalized feed came back weak
+                // (bot-walled, fresh account, region without FE data) used to
+                // degrade the whole feed to trending/discovery. Seed a lane from
+                // the user's own watch history instead: latest watched videos →
+                // their related items → interleaved as RELATED content.
+                val tastePool = if (signedIn && personalizedPool.size < 5) {
+                    withTimeoutOrNull(10_000L) {
+                        runCatching {
+                            val seeds = viewHistory?.getLatestUnfinishedVideo()
+                                ?.let { listOf(it.videoId) }
+                                .orEmpty()
+                            val historyIds = seeds.ifEmpty {
+                                viewHistory?.getAllHistoryIds()?.take(8).orEmpty()
+                            }
+                            historyIds.take(4).flatMap { seedId ->
+                                runCatching {
+                                    repository.getRelatedVideos(seedId)
+                                }.getOrElse { emptyList() }
+                            }.filterSignedValid()
+                        }.getOrElse { emptyList() }
+                    } ?: emptyList()
+                } else emptyList()
+
                 val userSubs = subscriptionRepository.getAllSubscriptionIds()
                 val region = playerPreferences.trendingRegion.first()
                 val fetchStart = System.currentTimeMillis()
@@ -958,6 +982,12 @@ class HomeViewModel @Inject constructor(
 
                 val bestDiscovery = discoveryPool.take(15)
                 val bestViral = viralPool.take(6)
+                val tastePoolFiltered = tastePool
+                    .filterWatched(watched).filterUnplayable(unplayable)
+                    .filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
+                    .filterRecentHomeSuggestion(now)
+                    .enrichAvatars().withFallbackNames()
+                    .take(12)
 
                 val finalMix = mutableListOf<Video>()
                 val usedChannelCounts = mutableMapOf<String, Int>()
@@ -969,20 +999,29 @@ class HomeViewModel @Inject constructor(
                 }
 
                 val remaining = (HOME_TARGET_SIZE - finalMix.size).coerceAtLeast(0)
+                // "Strong" personal feed only when it can actually fill the
+                // page; a weak one (bot-walled / fresh account) must fall back
+                // to the SUBS/TASTE quota mix instead of hogging all slots.
                 val quotas = homeFeedQuotas(
                     remaining,
                     userSubs.size,
                     watched.size,
-                    hasPersonalFeed = personalizedPool.isNotEmpty()
+                    hasPersonalFeed = personalizedPool.size >= 5
                 )
                 val bestPersonal = personalizedPool.take(20)
+                // When the personalized lane is weak the taste lane takes its
+                // place as RELATED content — history-seeded instead of generic.
+                val lanes = buildMap {
+                    put(FeedSource.PERSONAL, bestPersonal)
+                    put(FeedSource.SUBS, bestSubs)
+                    if (personalizedPool.size < 5 && tastePoolFiltered.isNotEmpty()) {
+                        put(FeedSource.RELATED, tastePoolFiltered)
+                    }
+                    put(FeedSource.DISCOVERY, bestDiscovery)
+                    put(FeedSource.VIRAL, bestViral)
+                }
                 val sourceMix = blendFeedSources(
-                    lanes = mapOf(
-                        FeedSource.PERSONAL to bestPersonal,
-                        FeedSource.SUBS to bestSubs,
-                        FeedSource.DISCOVERY to bestDiscovery,
-                        FeedSource.VIRAL to bestViral
-                    ),
+                    lanes = lanes,
                     quotas = quotas,
                     targetSize = remaining,
                     channelCounts = usedChannelCounts,
@@ -1514,7 +1553,9 @@ private const val FEED_BACKGROUND_REFRESH_AFTER_MS = 60 * 1000L // 1 minute
  * refreshes in the background after publishing the cached list).
  */
 internal object HomeFeedCache {
-    private const val CACHE_TTL_MS = 3 * 60 * 1000L // 3 minutes
+    private const val CACHE_TTL_MS = 60 * 1000L // 1 minute — keeps the feed
+        // genuinely dynamic (Koda-style live sync); a 3-minute TTL served the
+        // same snapshot long after account changes landed.
 
     @Volatile var videos: List<Video> = emptyList()
         private set
