@@ -553,12 +553,19 @@ class PlayerErrorHandler(
                 true
             }
             pbState == Player.STATE_READY && duration <= 0L && position < 1000L -> {
-                Log.w(TAG, "Refocus: ghost READY state (dur=$duration, pos=$position) — requesting extractor reload")
-                PlayerDiagnostics.logWarning(TAG, "Refocus: ghost READY state → extractor reload")
-                onStreamExpired()
-                true
+                // A user-paused video at its start looks exactly like this "ghost
+                // READY" — never force a stream reload over a deliberate pause.
+                if (!player.playWhenReady) {
+                    Log.w(TAG, "Refocus: ghost-READY-like state but user paused — leaving untouched")
+                    false
+                } else {
+                    Log.w(TAG, "Refocus: ghost READY state (dur=$duration, pos=$position) — requesting extractor reload")
+                    PlayerDiagnostics.logWarning(TAG, "Refocus: ghost READY state → extractor reload")
+                    onStreamExpired()
+                    true
+                }
             }
-            pbState == Player.STATE_ENDED && position < 5000L -> {
+            pbState == Player.STATE_ENDED && position < 5000L && player.playWhenReady -> {
                 Log.w(TAG, "Refocus: false STATE_ENDED at pos=$position — seek(0) + play()")
                 PlayerDiagnostics.logWarning(TAG, "Refocus: false STATE_ENDED → seek(0) + play()")
                 player.seekTo(0)

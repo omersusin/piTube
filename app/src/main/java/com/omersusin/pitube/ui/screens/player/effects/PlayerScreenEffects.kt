@@ -97,7 +97,9 @@ private fun captureStartupRecoverySnapshot(
     val playerPosition = player?.currentPosition ?: 0L
 
     return StartupRecoverySnapshot(
-        belongsToVideo = playerState.currentVideoId == videoId || uiState.cachedVideo?.id == videoId,
+        // Strict identity: recovery must never clobber a DIFFERENT video that
+        // autoplay or the service layer has already advanced to.
+        belongsToVideo = playerState.currentVideoId == videoId,
         hasMedia = player?.currentMediaItem != null,
         isIdle = player == null || player.playbackState == Player.STATE_IDLE,
         hasDuration = screenState.duration > 0L || playerDuration > 0L,
@@ -680,9 +682,11 @@ fun PlaybackStartupRecoveryEffect(
         if (!snapshot.belongsToVideo) return@LaunchedEffect
 
         if (snapshot.hasMedia && snapshot.isIdle) {
+            // Only resume automatically when playback was expected to run. A user
+            // pause (playWhenReady=false) must never be overridden here.
             Log.w(TAG, "Startup recovery: player idle for $videoId, preparing again")
             player?.prepare()
-            player?.play()
+            if (player?.playWhenReady == true) player?.play()
             delay(2_000L)
             snapshot = captureStartupRecoverySnapshot(manager, videoId, uiState, screenState)
         }
@@ -695,6 +699,9 @@ fun PlaybackStartupRecoveryEffect(
         val unresolvedStartup = !snapshot.hasDuration && !snapshot.hasStarted
         val stillStuck = snapshot.belongsToVideo &&
             recoveredVideoId != videoId &&
+            // A deliberately paused video with a valid position/duration is never
+            // "stuck" — reloading it restarts the video against the user's intent.
+            player?.playWhenReady == true &&
             (
                 (!snapshot.isActivelyBuffering &&
                     (!manager.isPreparedForPlayback(videoId) || unresolvedStartup)) ||
