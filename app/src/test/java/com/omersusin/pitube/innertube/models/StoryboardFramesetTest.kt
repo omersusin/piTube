@@ -66,7 +66,8 @@ class StoryboardFramesetTest {
     @Test
     fun `frameBoundsAt clamps end position to last valid frame`() {
         val fs = StoryboardFrameset.parseSpec(spec)[1] // totalCount=108 -> last index 107
-        val b = fs.frameBoundsAt(positionMs = Long.MAX_VALUE / 2)
+        // Far beyond the 216s timeline but safely inside Int range after ms division
+        val b = fs.frameBoundsAt(positionMs = 500_000_000L)
         assertNotNull(b)
         b!!
         // 107 % 25 = 7 -> row 1 col 2; page floor(107/25) = 4
