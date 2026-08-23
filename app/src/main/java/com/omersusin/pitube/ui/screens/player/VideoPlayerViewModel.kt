@@ -3606,6 +3606,7 @@ class VideoPlayerViewModel @Inject constructor(
                                     translationController.translate(text, targetLang)
                                 },
                                 sourceLines = sourceLines,
+                                context = context,
                             )
                         if (lyricsVideoId == videoId && !translated.isNullOrEmpty()) {
                             _lyricsTranslations.value = translated.associate { it.timeMs to it.text }

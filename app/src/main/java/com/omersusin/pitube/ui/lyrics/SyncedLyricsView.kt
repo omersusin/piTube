@@ -195,7 +195,15 @@ private fun LyricsContent(
                 val duration = (nextTime - line.timeMs).coerceAtLeast(800L)
                 // Only the active line reads the ticking clock — every other item
                 // stays skipped between line changes instead of recomposing per tick.
-                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, positionProvider = { smoothPosition.longValue }, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
+                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, positionProvider = { smoothPosition.longValue }, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = {
+                    if (changeOnClick) {
+                        onSeekTo(line.timeMs)
+                    } else {
+                        // Diagnosis aid: "tap-to-seek is broken" reports are
+                        // usually just this pref being off.
+                        android.util.Log.w("SyncedLyricsView", "Lyric tap ignored — 'Change on tap' setting is off")
+                    }
+                }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
             }
         }
     }
