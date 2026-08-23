@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class SabrSegmentBuffer {
     private val queue = LinkedBlockingQueue<ByteArray>()
+    private val headQueue = java.util.ArrayDeque<ByteArray>() // init replays land here
     private var currentChunk: ByteArray? = null
     private var currentOffset = 0
     private val closed = AtomicBoolean(false)
@@ -15,8 +16,58 @@ class SabrSegmentBuffer {
     @Volatile
     private var lastDataAtMs: Long = System.currentTimeMillis()
 
+    /** Retained fMP4/WebM init bytes so a bare re-prepare can replay them. */
+    @Volatile
+    private var retainedInit: ByteArray? = null
+
+    @Volatile
+    private var initPendingInQueue = false
+
+    /**
+     * While the user has paused, media delivery legitimately stops; the stall
+     * watchdog must not convert a deliberate pause into a fatal Source error.
+     */
+    @Volatile
+    private var paused = false
+
     companion object {
         private const val STALL_TIMEOUT_MS = 30_000L
+    }
+
+    fun setPaused(value: Boolean) {
+        paused = value
+        if (!value) lastDataAtMs = System.currentTimeMillis() // fresh budget on resume
+    }
+
+    /**
+     * Store the init segment for this track and queue it once for first play.
+     * The retained copy is what [replayInitForReopen] re-serves after a bare
+     * prepare() restarts extraction mid-stream.
+     */
+    fun retainInit(data: ByteArray) {
+        if (closed.get()) return
+        val copy = data.copyOf()
+        retainedInit = copy
+        if (!initPendingInQueue) {
+            headQueue.addLast(copy)
+            initPendingInQueue = true
+        }
+        lastDataAtMs = System.currentTimeMillis()
+    }
+
+    /**
+     * Called from [SabrExoPlayerDataSource.open]. On a RE-open (error recovery,
+     * refocus prepare) the extractor starts sniffing from byte 0 again, so the
+     * retained init segment must be served ahead of any queued media — without
+     * it the extractor fails with NoDeclaredBrand.
+     */
+    fun replayInitForReopen() {
+        val data = retainedInit ?: return
+        if (!initPendingInQueue) {
+            headQueue.addFirst(data.copyOf())
+            initPendingInQueue = true
+            lastDataAtMs = System.currentTimeMillis()
+        }
     }
 
     fun appendSegment(data: ByteArray) {
@@ -40,20 +91,37 @@ class SabrSegmentBuffer {
         while (totalRead < length) {
             if (currentChunk == null || currentOffset >= currentChunk!!.size) {
                 val next = if (totalRead > 0) {
-                    queue.poll()
+                    if (headQueue.isNotEmpty()) {
+                        headQueue.pollFirst().also { if (it === retainedInit) initPendingInQueue = false }
+                    } else {
+                        queue.poll()
+                    }
                 } else {
                     var polled: ByteArray? = null
                     var waitedMs = 0L
                     while (polled == null && !closed.get()) {
                         if (endOfStream.get() && queue.isEmpty()) break
-                        polled = try {
-                            queue.poll(250, TimeUnit.MILLISECONDS)
-                        } catch (error: InterruptedException) {
-                            Thread.currentThread().interrupt()
-                            throw IOException("Interrupted while waiting for SABR media", error)
+                        // Serve a pending init replay before touching the queue.
+                        headQueue.pollFirst()?.let {
+                            polled = it
+                            if (it === retainedInit) initPendingInQueue = false
+                        }
+                        if (polled == null) {
+                            polled = try {
+                                queue.poll(250, TimeUnit.MILLISECONDS)
+                            } catch (error: InterruptedException) {
+                                Thread.currentThread().interrupt()
+                                throw IOException("Interrupted while waiting for SABR media", error)
+                            }
                         }
                         if (polled == null) {
                             waitedMs += 250
+                            if (paused) {
+                                // Deliberate pause: delivery is expected to stop.
+                                // Keep refreshing the budget so resume starts clean.
+                                lastDataAtMs = System.currentTimeMillis()
+                                continue
+                            }
                             val idleMs = System.currentTimeMillis() - lastDataAtMs
                             // Producer died without EOS (e.g. follow-up loop broke on error):
                             // fail loudly so ExoPlayer raises a real error instead of hanging in
@@ -61,7 +129,7 @@ class SabrSegmentBuffer {
                             if (idleMs >= STALL_TIMEOUT_MS) {
                                 throw IOException(
                                     "SABR media stall: no segments for ${idleMs}ms " +
-                                        "(eos=${endOfStream.get()}, closed=${closed.get()})"
+                                        "(eos=${endOfStream.get()}, closed=${closed.get()}, paused=$paused)"
                                 )
                             }
                         }
@@ -97,16 +165,21 @@ class SabrSegmentBuffer {
     fun close() {
         closed.set(true)
         queue.clear()
+        headQueue.clear()
+        initPendingInQueue = false
         currentChunk = null
         currentOffset = 0
     }
 
     fun reset() {
         queue.clear()
+        headQueue.clear()
+        initPendingInQueue = false
         currentChunk = null
         currentOffset = 0
         closed.set(false)
         endOfStream.set(false)
+        paused = false
         lastDataAtMs = System.currentTimeMillis()
     }
 }

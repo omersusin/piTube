@@ -114,18 +114,32 @@ class SabrOrchestrator(
         controller.sessionState.enabledTrackTypes = if (enabled) 1 else -1
     }
 
+    /**
+     * Pause-awareness for the segment buffers: while paused, delivery is
+     * expected to stop, so the stall watchdog suspends instead of throwing a
+     * fatal Source error after 30s.
+     */
+    fun setPlaybackPaused(paused: Boolean) {
+        audioBuffer.setPaused(paused)
+        videoBuffer.setPaused(paused)
+    }
+
     private fun handleEvent(event: SabrEvent) {
         when (event) {
             is SabrEvent.FormatInitialized -> {
                 val metadata = event.metadata
                 val initData = metadata.initData
                 if (initData.isNotEmpty()) {
+                    // retainInit (not plain append): the buffer keeps a copy so
+                    // a bare re-prepare after an error/refocus can replay the
+                    // init segment — without it extraction dies with
+                    // NoDeclaredBrand on the restarted stream.
                     if (metadata.isAudio) {
-                        audioBuffer.appendSegment(initData)
+                        audioBuffer.retainInit(initData)
                         audioInitReceived = true
                         Log.d(TAG, "Audio init received: ${metadata.mimeType} ${metadata.codecs}, ${initData.size}B")
                     } else if (metadata.isVideo) {
-                        videoBuffer.appendSegment(initData)
+                        videoBuffer.retainInit(initData)
                         videoInitReceived = true
                         Log.d(TAG, "Video init received: ${metadata.mimeType} ${metadata.codecs}, ${metadata.width}x${metadata.height}, ${initData.size}B")
                     }
@@ -181,7 +195,12 @@ class SabrOrchestrator(
                 if (event.required) {
                     refreshPoToken(urgent = true)
                 } else {
-                    Log.d(TAG, "PoToken attestation is pending; waiting for the server verdict")
+                    // Pending verdict used to be passive — if delivery was cut
+                    // while we waited, the buffer starved into a fatal stall
+                    // (57s device log). Kick a non-urgent refresh so the
+                    // session re-attests instead of silently starving.
+                    Log.w(TAG, "PoToken attestation pending — refreshing token (non-urgent)")
+                    refreshPoToken(urgent = false)
                 }
             }
         }

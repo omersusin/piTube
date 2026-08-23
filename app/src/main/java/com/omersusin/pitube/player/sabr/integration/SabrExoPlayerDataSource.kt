@@ -18,6 +18,10 @@ class SabrExoPlayerDataSource(
     override fun open(dataSpec: DataSpec): Long {
         uri = dataSpec.uri
         opened = true
+        // Re-open after error recovery / refocus prepare: the extractor starts
+        // from byte 0, so the retained fMP4 init segment must be served ahead
+        // of queued media or sniffing fails with NoDeclaredBrand.
+        buffer.replayInitForReopen()
         transferInitializing(dataSpec)
         transferStarted(dataSpec)
         return C.LENGTH_UNSET.toLong()

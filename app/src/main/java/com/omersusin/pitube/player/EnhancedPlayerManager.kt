@@ -963,6 +963,9 @@ class EnhancedPlayerManager private constructor() {
                     reason: Int,
                 ) {
                     _playerState.value = _playerState.value.copy(playWhenReady = playWhenReady)
+                    // SABR pause-awareness: buffers suspend their stall watchdog
+                    // while paused so a deliberate pause never becomes fatal.
+                    mediaLoader?.getActiveSabrOrchestrator()?.setPlaybackPaused(!playWhenReady)
                     autoNextLog("onPlayWhenReadyChanged playWhenReady=$playWhenReady reason=$reason")
                 }
 
