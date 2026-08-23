@@ -251,6 +251,18 @@ object YouTubeLibrarySync {
         runCatching { syncLikedVideos(context) }
     }
 
+    /**
+     * Light per-open refresh of the two PINNED library lists (Watch Later +
+     * liked videos). Koda-model freshness without the full subscription crawl.
+     */
+    suspend fun refreshPinnedLists(context: Context) {
+        if (YouTube.cookie.isNullOrEmpty()) return
+        coroutineScope {
+            launch { runCatching { syncWatchLater(context) } }
+            launch { runCatching { syncLikedVideos(context) } }
+        }
+    }
+
     /** Incremental subscription-refresh used right after an in-app (un)subscribe. */
     suspend fun syncSubscriptionsOnly(context: Context) {
         if (YouTube.cookie.isNullOrEmpty()) return

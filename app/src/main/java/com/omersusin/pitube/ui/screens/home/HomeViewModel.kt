@@ -811,7 +811,28 @@ class HomeViewModel @Inject constructor(
                                 .orEmpty()
                                 .also { Log.w(TAG, "Feed personal lane: music-home fallback fetched=${it.size}") }
                         }
-                        videos
+                        // KODA continuation-walk (HomeViewModel model): page 1 is
+                        // quasi-static; on a forced refresh keep walking pages
+                        // until ≥15 not-recently-shown items are collected.
+                        var walked = videos
+                        var walkCont = personalizedContinuation
+                        if (forceRefresh) {
+                            var pages = 0
+                            while (walked.size < 15 && walkCont != null && pages < 3) {
+                                val next = runCatching {
+                                    com.omersusin.pitube.innertube.YouTube.personalizedFeedContinuation(walkCont).getOrNull()
+                                }.getOrNull() ?: break
+                                if (next.videos.isEmpty()) break
+                                walked = walked + next.videos.filter { candidate ->
+                                    candidate.id !in shownVideoIds && walked.none { it.id == candidate.id }
+                                }
+                                personalizedContinuation = next.continuation
+                                walkCont = next.continuation
+                                pages++
+                            }
+                            Log.w(TAG, "Feed personal lane: continuation-walk total=${walked.size} (+${walked.size - videos.size}) across $pages extra pages")
+                        }
+                        walked
                             .filterSignedValid()
                             .also { Log.w(TAG, "Feed personal lane: after signedValid=${it.size} (dropped shorts/≤120s)") }
                             .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)

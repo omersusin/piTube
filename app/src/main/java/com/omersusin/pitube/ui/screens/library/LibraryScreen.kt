@@ -72,6 +72,12 @@ fun LibraryScreen(
     val watchLaterTitle = stringResource(R.string.library_watch_later_label)
     val savedShortsTitle = stringResource(R.string.library_saved_shorts_label)
 
+    // Koda-model freshness: every Library entry light-refreshes Watch Later +
+    // liked videos straight from the account (app-scope, fire-and-forget).
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        com.omersusin.pitube.sync.LibrarySyncLauncher.refreshPinnedListsInBackground(context)
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp),
         topBar = { LibraryTopBar() }

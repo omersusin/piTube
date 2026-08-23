@@ -29,6 +29,14 @@ object LibrarySyncLauncher {
         private set
 
     /**
+     * Fire-and-forget LIGHT refresh of the pinned lists (Watch Later + liked
+     * videos) — wired to Library screen entry for Koda-model freshness.
+     */
+    fun refreshPinnedListsInBackground(context: Context) {
+        scope.launch { runCatching { YouTubeLibrarySync.refreshPinnedLists(context.applicationContext) } }
+    }
+
+    /**
      * Fire-and-forget full library sync (liked videos, playlists, subscriptions).
      * Safe to call repeatedly; concurrent calls are coalesced.
      */
