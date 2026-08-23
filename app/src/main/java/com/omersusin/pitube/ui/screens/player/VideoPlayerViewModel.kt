@@ -2410,7 +2410,7 @@ class VideoPlayerViewModel @Inject constructor(
 
     private fun loadRelatedVideosAfterPlayback(
         videoId: String,
-        related: List<Video>,
+        primaryCandidates: List<Video>,
         loadToken: Long,
     ) {
         // VIVI-PARITY prefetch: resolve lyrics availability while playback

@@ -225,11 +225,10 @@ fun VideoInfoContent(
 
     val downloadedVideoIds by viewModel.downloadedVideoIds.collectAsState()
     val isVideoDownloaded = remember(downloadedVideoIds, video.id) { downloadedVideoIds.contains(video.id) }
-    val isVideoSaved by remember(video.id) { viewModel.isVideoSavedToAnyPlaylist(video.id) }
+    val isVideoSaved by remember(video.id) { viewModel.isVideoSavedToAnyPlaylist(video.id).collectAsState(initial = false) }
     // VIVI-PARITY availability: lyrics chip unlocks when a background fetch
     // succeeded for this video, regardless of metadata heuristics.
     val lyricsCachedIds by viewModel.lyricsCachedIds.collectAsStateWithLifecycle()
-        .collectAsState(initial = false)
 
     if (showAddToPlaylistDialog) {
         AddToPlaylistDialog(
