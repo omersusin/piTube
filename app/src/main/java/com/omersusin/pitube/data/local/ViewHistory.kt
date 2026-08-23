@@ -286,18 +286,8 @@ class ViewHistory private constructor(private val context: Context) {
         profileManager.activeProfileId
             .flatMapLatest { p -> dao.getVideoHistory(p).map { list -> list.map { it.toDomain() } } }
 
-    /** Music history, newest first. */
-    fun getMusicHistoryFlow(): Flow<List<VideoHistoryEntry>> =
-        profileManager.activeProfileId
-            .flatMapLatest { p -> dao.getMusicHistory(p).map { list -> list.map { it.toDomain() } } }
-
     suspend fun getWatchedShortIdsAboveThreshold(minPercent: Float = 99f, maxRemainingMs: Long = Long.MAX_VALUE): Set<String> =
         dao.getWatchedShortIdsAboveThreshold(pid(), minPercent, maxRemainingMs).toHashSet()
-
-    /** Efficient count without loading all rows — use this instead of list.size. */
-    fun getVideoCount(): Flow<Int> =
-        profileManager.activeProfileId
-            .flatMapLatest { p -> dao.getVideoCount(p) }
 
     /**
      * Returns the most recently watched unfinished video (<95% complete).

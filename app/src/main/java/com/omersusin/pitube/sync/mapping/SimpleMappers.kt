@@ -1,11 +1,9 @@
 package com.omersusin.pitube.sync.mapping
 
 import com.omersusin.pitube.data.local.LikedVideoInfo
-import com.omersusin.pitube.data.local.entity.SubscriptionGroupEntity
 import com.omersusin.pitube.data.local.entity.WatchHistoryEntity
 import com.omersusin.pitube.sync.canonical.CanonicalLike
 import com.omersusin.pitube.sync.canonical.CanonicalLikeMeta
-import com.omersusin.pitube.sync.canonical.CanonicalSubscriptionGroup
 import com.omersusin.pitube.sync.canonical.CanonicalWatchHistory
 import com.omersusin.pitube.sync.identity.Hlc
 
@@ -53,29 +51,6 @@ object WatchHistoryMapper {
             isLocal = false, // synced rows are never device-local files
         )
     }
-}
-
-object SubscriptionsMapper {
-    private const val DELIM = ","
-
-    fun toCanonical(e: SubscriptionGroupEntity, hlc: String): CanonicalSubscriptionGroup {
-        val ids = if (e.channelIds.isBlank()) emptyList()
-        else e.channelIds.split(DELIM).map { it.trim() }.filter { it.isNotBlank() }
-        return CanonicalSubscriptionGroup(
-            name = e.name,
-            channelIds = ids.toSortedSet().toList(),
-            sortOrder = e.sortOrder,
-            hlc = hlc,
-            deleted = false,
-        )
-    }
-
-    fun toEntity(c: CanonicalSubscriptionGroup): SubscriptionGroupEntity =
-        SubscriptionGroupEntity(
-            name = c.name,
-            channelIds = c.channelIds.filter { it.isNotBlank() }.joinToString(DELIM),
-            sortOrder = c.sortOrder,
-        )
 }
 
 object LikesMapper {

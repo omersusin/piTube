@@ -26,10 +26,4 @@ interface SyncLogDao {
 interface SyncPeerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(peer: SyncPeerEntity)
-
-    @Query("SELECT * FROM sync_peers ORDER BY lastSyncedAt DESC")
-    suspend fun getAll(): List<SyncPeerEntity>
-
-    @Query("DELETE FROM sync_peers WHERE deviceId = :deviceId")
-    suspend fun delete(deviceId: String)
 }

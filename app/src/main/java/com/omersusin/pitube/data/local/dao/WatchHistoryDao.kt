@@ -41,15 +41,8 @@ interface WatchHistoryDao {
     @Query("SELECT * FROM watch_history WHERE profileId = :profileId AND isShort = 0 AND isLocal = 0 ORDER BY timestamp DESC LIMIT :limit")
     fun getRecentLibraryHistory(profileId: String, limit: Int): Flow<List<WatchHistoryEntity>>
 
-    /** Paged version for very large histories (UI only needs recent items). */
-    @Query("SELECT * FROM watch_history WHERE profileId = :profileId ORDER BY timestamp DESC LIMIT :limit OFFSET :offset")
-    suspend fun getHistoryPage(profileId: String, limit: Int, offset: Int): List<WatchHistoryEntity>
-
     @Query("SELECT * FROM watch_history WHERE profileId = :profileId AND isMusic = 0 AND isLocal = 0 ORDER BY timestamp DESC")
     fun getVideoHistory(profileId: String): Flow<List<WatchHistoryEntity>>
-
-    @Query("SELECT * FROM watch_history WHERE profileId = :profileId AND isMusic = 1 AND isLocal = 0 ORDER BY timestamp DESC")
-    fun getMusicHistory(profileId: String): Flow<List<WatchHistoryEntity>>
 
     @Query("SELECT * FROM watch_history WHERE videoId = :videoId AND profileId = :profileId")
     fun getEntry(videoId: String, profileId: String): Flow<WatchHistoryEntity?>
@@ -60,34 +53,9 @@ interface WatchHistoryDao {
     @Query("SELECT COUNT(*) FROM watch_history WHERE profileId = :profileId")
     suspend fun getCountOnce(profileId: String): Int
 
-    @Query("SELECT COUNT(*) FROM watch_history WHERE profileId = :profileId")
-    fun getCount(profileId: String): Flow<Int>
-
-    @Query("SELECT COUNT(*) FROM watch_history WHERE profileId = :profileId AND isMusic = 0 AND isLocal = 0")
-    fun getVideoCount(profileId: String): Flow<Int>
-
-    /**
-     * Returns video IDs that the user has already watched (position > 0 OR appeared in history).
-     * Used to filter watched shorts from the subscription shelf. Local files are excluded so the
-     * recommendation/feed engine never learns from them.
-     */
-    @Query("SELECT videoId FROM watch_history WHERE profileId = :profileId AND isMusic = 0 AND isLocal = 0")
-    suspend fun getAllWatchedVideoIds(profileId: String): List<String>
-
     /** All video IDs currently in history, for idempotent (re)imports. */
     @Query("SELECT videoId FROM watch_history WHERE profileId = :profileId")
     suspend fun getAllHistoryIds(profileId: String): List<String>
-
-    @Query("""
-        SELECT videoId FROM watch_history
-        WHERE profileId = :profileId
-        AND isMusic = 0
-        AND isLocal = 0
-        AND duration > 0
-        AND (CAST(position AS REAL) / CAST(duration AS REAL)) * 100 >= :minPercent
-        AND (duration - position) <= :maxRemainingMs
-    """)
-    suspend fun getWatchedVideoIdsAboveThreshold(profileId: String, minPercent: Float = 99f, maxRemainingMs: Long = Long.MAX_VALUE): List<String>
 
     @Query("""
         SELECT videoId FROM watch_history

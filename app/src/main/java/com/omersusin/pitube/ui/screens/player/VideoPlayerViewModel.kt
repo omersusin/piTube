@@ -634,11 +634,7 @@ class VideoPlayerViewModel @Inject constructor(
             }
         }
     }
-    
-    fun initializeViewHistory(context: Context) {
-        // Handled by Hilt
-    }
-    
+
     /**
      * Called when the user interacts with the restored-session mini player (taps play
      * or expands the sheet). Starts loading streams and transitions to active playback.

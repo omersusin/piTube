@@ -45,20 +45,6 @@ data class SongItem(
         get() = "https://music.youtube.com/watch?v=$id"
 }
 
-data class AlbumItem(
-    val browseId: String,
-    val playlistId: String,
-    override val id: String = browseId,
-    override val title: String,
-    val artists: List<Artist>?,
-    val year: Int? = null,
-    override val thumbnail: String,
-    override val explicit: Boolean = false,
-) : YTItem() {
-    override val shareLink: String
-        get() = "https://music.youtube.com/playlist?list=$playlistId"
-}
-
 data class PlaylistItem(
     override val id: String,
     override val title: String,
@@ -76,31 +62,3 @@ data class PlaylistItem(
         get() = "https://music.youtube.com/playlist?list=$id"
 }
 
-data class ArtistItem(
-    override val id: String,
-    override val title: String,
-    override val thumbnail: String?,
-    val channelId: String? = null,
-    val playEndpoint: WatchEndpoint? = null,
-    val shuffleEndpoint: WatchEndpoint?,
-    val radioEndpoint: WatchEndpoint?,
-) : YTItem() {
-    override val explicit: Boolean
-        get() = false
-    override val shareLink: String
-        get() = "https://music.youtube.com/channel/$id"
-}
-
-fun <T : YTItem> List<T>.filterExplicit(enabled: Boolean = true) =
-    if (enabled) {
-        filter { !it.explicit }
-    } else {
-        this
-    }
-
-fun <T : YTItem> List<T>.filterVideoSongs(disableVideos: Boolean = false) =
-    if (disableVideos) {
-        filterNot { it is SongItem && it.isVideoSong }
-    } else {
-        this
-    }

@@ -1,6 +1,5 @@
 package com.omersusin.pitube.widget.core
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Canvas
@@ -8,16 +7,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Shader
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.Dp
-import androidx.glance.GlanceModifier
-import androidx.glance.Image
-import androidx.glance.ImageProvider
-import androidx.glance.LocalContext
-import androidx.glance.layout.size
-import androidx.glance.unit.ColorProvider
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.star
@@ -104,20 +93,3 @@ class WidgetShapeTransformation(
         return output
     }
 }
-
-private fun solidShapeBitmap(
-    shape: WidgetShape,
-    argb: Int,
-    sizePx: Int,
-): Bitmap {
-    val output = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(output)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = argb }
-    canvas.drawPath(shape.scaledPath(sizePx), paint)
-    return output
-}
-
-/**
- * A solid tonal expressive shape (decorative element per the M3 shape library).
- * Cheap to draw and cached per shape+color+size across recompositions.
- */

@@ -671,6 +671,20 @@ fun SettingsScreen(
                 onNavigateToSyncDevices,
             ),
             SettingSearchEntry(
+                Icons.Outlined.Login,
+                stringResource(R.string.settings_google_login_title),
+                stringResource(R.string.settings_google_sign_in_subtitle),
+                secDataManagement,
+                onNavigateToGoogleLogin,
+            ),
+            SettingSearchEntry(
+                Icons.Outlined.Translate,
+                stringResource(R.string.translation_settings_title),
+                stringResource(R.string.translation_provider_row),
+                secContentPlayback,
+                onNavigateToTranslation,
+            ),
+            SettingSearchEntry(
                 Icons.Outlined.Info,
                 stringResource(R.string.settings_item_about_flow),
                 stringResource(R.string.settings_item_about_flow_subtitle),

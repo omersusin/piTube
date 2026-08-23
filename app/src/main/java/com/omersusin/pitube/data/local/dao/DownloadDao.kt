@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
 import com.omersusin.pitube.data.local.entity.DownloadEntity
 import com.omersusin.pitube.data.local.entity.DownloadItemEntity
 import com.omersusin.pitube.data.local.entity.DownloadItemStatus
@@ -43,9 +42,6 @@ interface DownloadDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItems(items: List<DownloadItemEntity>)
 
-    @Update
-    suspend fun updateItem(item: DownloadItemEntity)
-
     @Query("UPDATE download_items SET downloadedBytes = :downloadedBytes, status = :status WHERE id = :itemId")
     suspend fun updateProgress(itemId: Int, downloadedBytes: Long, status: DownloadItemStatus)
 
@@ -58,14 +54,8 @@ interface DownloadDao {
     @Query("UPDATE download_items SET downloadedBytes = :downloadedBytes, totalBytes = :totalBytes, status = :status WHERE id = :itemId")
     suspend fun updateItemFull(itemId: Int, downloadedBytes: Long, totalBytes: Long, status: DownloadItemStatus)
 
-    @Query("SELECT * FROM download_items WHERE id = :itemId")
-    suspend fun getItemById(itemId: Int): DownloadItemEntity?
-
     @Query("SELECT * FROM download_items WHERE videoId = :videoId")
     suspend fun getItemsByVideoId(videoId: String): List<DownloadItemEntity>
-
-    @Query("DELETE FROM download_items WHERE id = :itemId")
-    suspend fun deleteItem(itemId: Int)
 
     // ===== Combined Queries =====
 
@@ -80,10 +70,6 @@ interface DownloadDao {
     @Transaction
     @Query("SELECT * FROM downloads WHERE videoId = :videoId")
     suspend fun getDownloadWithItems(videoId: String): DownloadWithItems?
-
-    @Transaction
-    @Query("SELECT * FROM downloads WHERE videoId = :videoId")
-    fun getDownloadWithItemsFlow(videoId: String): Flow<DownloadWithItems?>
 
     /** Get downloads that have at least one item with VIDEO fileType */
     @Transaction
@@ -130,10 +116,6 @@ interface DownloadDao {
     /** Get total download storage size */
     @Query("SELECT COALESCE(SUM(totalBytes), 0) FROM download_items WHERE status = 'COMPLETED'")
     suspend fun getTotalDownloadSize(): Long
-
-    /** Count completed downloads */
-    @Query("SELECT COUNT(DISTINCT videoId) FROM download_items WHERE status = 'COMPLETED'")
-    suspend fun getCompletedDownloadCount(): Int
 
     /** Check if a download item already exists for a given file path */
     @Query("SELECT EXISTS(SELECT 1 FROM download_items WHERE filePath = :filePath)")

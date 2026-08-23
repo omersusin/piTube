@@ -126,12 +126,3 @@ object RecognitionSamplesStore {
         }
     }
 }
-
-/** Quick connectivity check used to pick the voice-recognition path. */
-fun hasInternetConnection(context: Context): Boolean {
-    val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            ?: return false
-    return connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-}

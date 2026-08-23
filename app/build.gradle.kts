@@ -18,8 +18,8 @@ android {
         applicationId = "com.omersusin.pitube"
         minSdk = 26
         targetSdk = 36
-        versionCode = 47
-        versionName = "2.6.5"
+        versionCode = 48
+        versionName = "2.6.6"
 
         testInstrumentationRunner = "com.omersusin.pitube.HiltTestRunner"
         vectorDrawables {
@@ -201,9 +201,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    // --- Layouts ---
-    implementation(libs.androidx.constraintlayout.compose)
-
     // --- Image Loading ---
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
@@ -280,7 +277,6 @@ dependencies {
     implementation(libs.apkupdater)
 
     implementation(libs.brotli)
-    implementation(libs.re2j)
 
     // --- Baseline profiles ---
     implementation(libs.androidx.profileinstaller)
@@ -290,7 +286,6 @@ dependencies {
 
     // --- Testing ---
     testImplementation(libs.junit)
-    testImplementation(libs.kxml2)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.truth)
@@ -298,8 +293,6 @@ dependencies {
     testImplementation(libs.hilt.android.testing)
     kspTest(libs.hilt.android.compiler)
 
-    // Room migration tests (device-sync schema 20→23)
-    androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

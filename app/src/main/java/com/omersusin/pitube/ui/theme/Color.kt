@@ -4,8 +4,6 @@ import androidx.compose.ui.graphics.Color
 
 // YouTube Brand Colors
 val YouTubeRed = Color(0xFFFF0000)
-val YouTubeDark = Color(0xFF0F0F0F)
-val YouTubeGray = Color(0xFF282828)
 
 // Dark Theme Colors
 val Black = Color(0xFF000000)
@@ -22,20 +20,12 @@ val LightSurfaceVariant = Color(0xFFEEEEEE)
 // Text Colors
 val TextPrimary = Color(0xFFFFFFFF)
 val TextSecondary = Color(0xFFAAAAAA)
-val TextTertiary = Color(0xFF717171)
 
 // Accent Colors
 val SuccessColor = Color(0xFF4CAF50)
 val ErrorColor = Color(0xFFF44336)
 val Warning = Color(0xFFFF9800)
 val Info = Color(0xFF2196F3)
-
-// Shimmer Colors
-val ShimmerColorShades = listOf(
-    Color(0xFF3A3A3A),
-    Color(0xFF4A4A4A),
-    Color(0xFF3A3A3A)
-)
 
 // Light Theme Color Scheme
 object LightThemeColors {

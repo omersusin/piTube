@@ -4,7 +4,6 @@ import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.SystemClock
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -198,8 +197,3 @@ fun wavToPcm16(wavBytes: ByteArray): ShortArray? {
     }
     return null
 }
-
-/**
- * Thrown when the caller never obtained RECORD_AUDIO permission.
- */
-class MicPermissionException : IOException("Record audio permission is required")

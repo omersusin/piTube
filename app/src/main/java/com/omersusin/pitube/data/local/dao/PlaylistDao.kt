@@ -28,9 +28,6 @@ interface PlaylistDao {
     @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 1 GROUP BY playlists.id ORDER BY createdAt DESC")
     fun getMusicPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
 
-    @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND playlists.id NOT IN ('watch_later', 'saved_shorts') AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\' AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
-    fun getVideoPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
-
     @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 0 AND isUserCreated = 1 AND playlists.id NOT IN ('watch_later', 'saved_shorts') AND playlists.id NOT LIKE 'watch\\_later@%' ESCAPE '\\' AND playlists.id NOT LIKE 'saved\\_shorts@%' ESCAPE '\\' GROUP BY playlists.id ORDER BY createdAt DESC")
     fun getUserCreatedVideoPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
 
@@ -43,18 +40,8 @@ interface PlaylistDao {
     @Query("SELECT playlists.*, COUNT(playlist_video_cross_ref.videoId) as video_count FROM playlists LEFT JOIN playlist_video_cross_ref ON playlists.id = playlist_video_cross_ref.playlistId WHERE playlists.profileId = :profileId AND isMusic = 1 AND isUserCreated = 0 GROUP BY playlists.id ORDER BY createdAt DESC")
     fun getSavedMusicPlaylistsWithCount(profileId: String): Flow<List<PlaylistWithCount>>
 
-    @Query("SELECT * FROM playlists WHERE profileId = :profileId ORDER BY createdAt DESC")
-    fun getAllPlaylists(profileId: String): Flow<List<PlaylistEntity>>
-
-    @Query("SELECT * FROM playlists WHERE profileId = :profileId AND isMusic = 1 ORDER BY createdAt DESC")
-    fun getMusicPlaylists(profileId: String): Flow<List<PlaylistEntity>>
-
     @Query("SELECT * FROM playlists WHERE profileId = :profileId AND isMusic = 0 ORDER BY createdAt DESC")
     fun getVideoPlaylists(profileId: String): Flow<List<PlaylistEntity>>
-
-    /** Unscoped lookup — only for legacy adoption / migration paths. */
-    @Query("SELECT * FROM playlists WHERE id = :id LIMIT 1")
-    suspend fun getPlaylistAnyProfile(id: String): PlaylistEntity?
 
     @Query("SELECT * FROM playlists WHERE id = :id AND profileId = :profileId LIMIT 1")
     suspend fun getPlaylist(id: String, profileId: String): PlaylistEntity?
@@ -82,9 +69,6 @@ interface PlaylistDao {
     @Query("SELECT videos.*, playlist_video_cross_ref.addedAt AS addedAt FROM videos INNER JOIN playlist_video_cross_ref ON videos.id = playlist_video_cross_ref.videoId WHERE playlist_video_cross_ref.playlistId = :playlistId ORDER BY playlist_video_cross_ref.position ASC")
     fun getVideosWithMetaForPlaylist(playlistId: String): Flow<List<PlaylistVideoWithMeta>>
 
-    @Query("SELECT COUNT(*) FROM playlist_video_cross_ref WHERE playlistId = :playlistId")
-    fun getPlaylistVideoCount(playlistId: String): Flow<Int>
-
     @Query("SELECT COUNT(*) FROM playlist_video_cross_ref WHERE playlistId = :playlistId AND videoId = :videoId")
     suspend fun isVideoInPlaylist(playlistId: String, videoId: String): Int
 
@@ -97,9 +81,6 @@ interface PlaylistDao {
 
     @Query("SELECT COUNT(*) FROM playlists WHERE id = :id AND profileId = :profileId AND isUserCreated = 0")
     suspend fun isSavedExternalPlaylist(id: String, profileId: String): Int
-
-    @Query("SELECT COUNT(*) FROM playlists WHERE id = :id AND profileId = :profileId")
-    suspend fun isPlaylistInDb(id: String, profileId: String): Int
 
     @Query("SELECT * FROM playlist_video_cross_ref")
     suspend fun getAllPlaylistVideoCrossRefs(): List<PlaylistVideoCrossRef>
@@ -121,23 +102,6 @@ interface PlaylistDao {
 
     @Query("SELECT v.thumbnailUrl FROM videos v INNER JOIN playlist_video_cross_ref r ON v.id = r.videoId WHERE r.playlistId = :playlistId ORDER BY r.position ASC LIMIT 1")
     suspend fun getFirstVideoThumbnail(playlistId: String): String?
-
-    /**
-     * Returns stub VideoEntities inside music playlists that are missing a title OR a thumbnail.
-     * Used for background enrichment — e.g. synced album tracks arrive with a title but no artwork.
-     */
-    @Query("""
-        SELECT DISTINCT v.* FROM videos v
-        INNER JOIN playlist_video_cross_ref r ON v.id = r.videoId
-        INNER JOIN playlists p ON p.id = r.playlistId
-        WHERE p.profileId = :profileId AND p.isMusic = 1 AND (v.title = '' OR v.title IS NULL OR v.thumbnailUrl = '' OR v.thumbnailUrl IS NULL)
-        LIMIT 200
-    """)
-    suspend fun getMusicPlaylistStubVideos(profileId: String): List<VideoEntity>
-
-    /** Music playlist/album ids whose cover is blank — recompute from the first track after enrichment. */
-    @Query("SELECT id FROM playlists WHERE profileId = :profileId AND isMusic = 1 AND (thumbnailUrl = '' OR thumbnailUrl IS NULL)")
-    suspend fun getMusicPlaylistsMissingThumbnail(profileId: String): List<String>
 
     // ── Legacy adoption (pre-scope rows with profileId = '') ────────────────
 

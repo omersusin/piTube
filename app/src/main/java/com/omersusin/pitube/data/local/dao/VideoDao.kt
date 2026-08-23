@@ -8,14 +8,8 @@ import com.omersusin.pitube.data.local.entity.VideoEntity
 
 @Dao
 interface VideoDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVideo(video: VideoEntity)
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertVideoOrIgnore(video: VideoEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertVideos(videos: List<VideoEntity>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertVideosOrIgnore(videos: List<VideoEntity>)

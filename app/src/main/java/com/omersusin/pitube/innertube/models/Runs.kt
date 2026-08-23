@@ -13,21 +13,6 @@ data class Run(
     val navigationEndpoint: NavigationEndpoint?,
 )
 
-fun List<Run>.splitBySeparator(): List<List<Run>> {
-    val res = mutableListOf<List<Run>>()
-    var tmp = mutableListOf<Run>()
-    forEach { run ->
-        if (run.text == " • ") {
-            res.add(tmp)
-            tmp = mutableListOf()
-        } else {
-            tmp.add(run)
-        }
-    }
-    res.add(tmp)
-    return res
-}
-
 fun List<List<Run>>.clean(): List<List<Run>> =
     if (getOrNull(0)?.getOrNull(0)?.navigationEndpoint != null ||
         (getOrNull(0)?.getOrNull(0)?.text?.contains(regex = Regex("[&,]"))) != false

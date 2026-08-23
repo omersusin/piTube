@@ -33,7 +33,6 @@ import com.omersusin.pitube.ui.components.VideoThumbnailImage
 import com.omersusin.pitube.utils.formatDuration
 
 internal val LibraryShelfCardWidth = 220.dp
-internal val LibraryShelfArtworkHeight = LibraryShelfCardWidth * 9f / 16f
 
 @Composable
 internal fun LibraryVideoCard(
