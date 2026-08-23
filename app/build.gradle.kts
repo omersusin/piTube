@@ -18,17 +18,17 @@ android {
         applicationId = "com.omersusin.pitube"
         minSdk = 26
         targetSdk = 36
-        versionCode = 52
-        versionName = "2.9.0"
+        versionCode = 53
+        versionName = "2.9.1"
 
         testInstrumentationRunner = "com.omersusin.pitube.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
 
-        ndk {
-            abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
-        }
+        // NOTE: no ndk.abiFilters here — it hard-conflicts with splits.abi
+        // below ("Conflicting configuration" AGP error). The splits block is
+        // the single source of truth for emitted ABIs.
 
         buildConfigField("Boolean", "UPDATER_ENABLED", "true")
 
