@@ -38,6 +38,7 @@ data class RecognitionUiState(
     val mode: RecognitionMode = RecognitionMode.VOICE,
     val phase: RecognitionPhase = RecognitionPhase.IDLE,
     val levels: List<Float> = emptyList(),
+    val bands: FloatArray? = null,
     val transcript: String? = null,
     val voiceSource: VoiceRecognitionSource? = null,
     val track: TrackMatch? = null,
@@ -82,6 +83,7 @@ class RecognitionViewModel
                     recordingSaved = false,
                     retryScheduled = false,
                     levels = emptyList(),
+                    bands = null,
                 )
             }
             listeningJob =
@@ -115,6 +117,9 @@ class RecognitionViewModel
                         interrupted = { interrupted.value },
                         onLevel = { level ->
                             _uiState.update { it.copy(levels = (it.levels + level).takeLast(40)) }
+                        },
+                        onBands = { bands ->
+                            _uiState.update { it.copy(bands = bands.copyOf()) }
                         },
                         onProcessing = {
                             _uiState.update { it.copy(phase = RecognitionPhase.PROCESSING) }
@@ -161,6 +166,9 @@ class RecognitionViewModel
                 interrupted = { interrupted.value },
                 onLevel = { level ->
                     _uiState.update { it.copy(levels = (it.levels + level).takeLast(40)) }
+                },
+                onBands = { bands ->
+                    _uiState.update { it.copy(bands = bands.copyOf()) }
                 },
             )
             if (interrupted.value) {

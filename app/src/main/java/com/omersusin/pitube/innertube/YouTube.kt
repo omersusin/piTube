@@ -216,6 +216,30 @@ object YouTube {
         root.findVideoOwnerCollaborators()
     }
 
+    /**
+     * The signed-in user's like state for a video, parsed from the /next
+     * frameworkUpdates (likeStatusEntity). Values: "LIKE" | "DISLIKE" |
+     * "INDIFFERENT"; null when the entity is absent (e.g. anonymous requests).
+     * Display-only: callers must never persist this into local like-state.
+     */
+    suspend fun getVideoLikeStatus(videoId: String): Result<String?> = runCatching {
+        val rawBody = innerTube.next(WEB, videoId, null, null, null, null, null).bodyAsText()
+        val root = json.parseToJsonElement(rawBody)
+        root.findFirstJsonObject("likeStatusEntity")
+            ?.get("likeStatus")
+            ?.jsonPrimitive
+            ?.contentOrNull
+    }
+
+    private fun JsonElement.findFirstJsonObject(key: String): JsonObject? =
+        when (this) {
+            is JsonObject ->
+                (this[key] as? JsonObject)
+                    ?: values.firstNotNullOfOrNull { it.findFirstJsonObject(key) }
+            is JsonArray -> firstNotNullOfOrNull { it.findFirstJsonObject(key) }
+            else -> null
+        }
+
     private fun collectSearchVideoAvatarStacks(
         element: JsonElement,
         result: MutableMap<String, List<String>>,

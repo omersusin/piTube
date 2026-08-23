@@ -143,9 +143,15 @@ object LyricsTranslationRepository {
         return shared > 0 && identical >= (shared * 4) / 5
     }
 
-    /** Cap the work so a 200-line song cannot fire 200 sequential requests. */
-    private const val MACHINE_FALLBACK_MAX_LINES = 60
-
+    /**
+     * Batch translation (vivi-style): all non-empty lines are joined with \n
+     * into ONE translator call, then split back and re-zipped positionally to
+     * the source timestamps. A hard line-count check guards against engines
+     * that collapse newlines — a mismatched batch is DISCARDED (never cached)
+     * and falls back to the legacy per-line path so a silent corruption cannot
+     * reach the disk sidecar. Note: shouldSkip/language heuristics inside the
+     * engine now evaluate the joined text batch-wide instead of per line.
+     */
     private suspend fun machineTranslateFallback(
         videoId: String,
         sourceLines: List<LrcLine>,
@@ -157,13 +163,51 @@ object LyricsTranslationRepository {
             return null
         }
         if (sourceLines.isEmpty()) return null
+
+        val work = sourceLines.filter { it.text.isNotBlank() }
         val out = mutableListOf<LrcLine>()
-        for (line in sourceLines.take(MACHINE_FALLBACK_MAX_LINES)) {
-            val text = line.text.trim()
-            if (text.isEmpty()) continue
+
+        // ── single batched attempt over the whole song ──
+        val joined = work.joinToString("\n") { it.text.trim() }
+        try {
+            val translatedBlock = translator(joined, lang)?.trim()
+            val lines = translatedBlock?.lines().orEmpty().map { it.trim() }
+            val nonEmptyOut = lines.filter { it.isNotEmpty() }
+            val echo = translatedBlock.equals(joined, ignoreCase = true)
+            // Tolerance: allow a couple of merged/split lines from sloppy
+            // engines; anything further off means newlines were collapsed.
+            if (!echo &&
+                nonEmptyOut.size >= work.size - 2 &&
+                nonEmptyOut.size <= work.size + 2
+            ) {
+                var i = 0
+                for (line in work) {
+                    // Positionally zip against the NON-EMPTY output lines so
+                    // engines that insert blank separator lines stay aligned.
+                    val t = nonEmptyOut.getOrNull(i).orEmpty()
+                    i++
+                    out.add(LrcLine(line.timeMs, t.ifBlank { line.text }))
+                }
+                Log.d(
+                    TAG,
+                    "machine-translation BATCH for $videoId produced ${nonEmptyOut.size}/${work.size} lines in one call",
+                )
+                return out.takeIf { it.isNotEmpty() }
+            }
+            Log.d(
+                TAG,
+                "batch rejected for $videoId (echo=$echo out=${nonEmptyOut.size} in=${work.size}) — falling back per-line",
+            )
+        } catch (e: Exception) {
+            Log.d(TAG, "batch translation failed for $videoId: ${e.message} — falling back per-line")
+        }
+
+        // ── legacy per-line fallback (also covers lines beyond tolerance) ──
+        out.clear()
+        for (line in work) {
             try {
+                val text = line.text.trim()
                 val translated = translator(text, lang)?.trim() ?: continue
-                // An engine echoing its input is not a translation.
                 if (translated.equals(text, ignoreCase = true)) continue
                 out.add(LrcLine(line.timeMs, translated))
             } catch (e: Exception) {

@@ -15,8 +15,10 @@ import java.nio.ByteOrder
 class MicAudioCapturer(
     private val sampleRateHz: Int = 16000,
     private val source: Int = MediaRecorder.AudioSource.MIC,
+    private val onBands: ((FloatArray) -> Unit)? = null,
 ) {
     private var audioRecord: AudioRecord? = null
+    private val bandAnalyzer = AudioBandAnalyzer(sampleRateHz)
 
     /** Minimum buffer size guaranteed readable without overflow. */
     private val frameBytes = 1024
@@ -35,6 +37,7 @@ class MicAudioCapturer(
         interrupted: () -> Boolean = { false },
         onLevel: (Float) -> Unit = {},
         stopAfterSilenceMs: Long = 0,
+        onBands: ((FloatArray) -> Unit)? = this.onBands,
     ): CapturedAudio {
         val minBuffer = maxOf(
             AudioRecord.getMinBufferSize(
@@ -74,6 +77,7 @@ class MicAudioCapturer(
                 val read = record.read(chunk, 0, chunk.size)
                 if (read <= 0) break
                 pcmOut.write(chunk, 0, read)
+                onBands?.invoke(bandAnalyzer.analyze(chunk, read).copyOf())
 
                 val samplesRead = read / 2
                 var sumSquares = 0.0

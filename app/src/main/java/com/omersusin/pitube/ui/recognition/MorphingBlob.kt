@@ -33,15 +33,30 @@ fun MorphingBlob(
     amplitude: Float,
     levels: List<Float> = emptyList(),
     modifier: Modifier = Modifier,
+    bands: FloatArray? = null,
+    blobTint: String = "auto",
 ) {
     val cs = MaterialTheme.colorScheme
     // Theme tokens can be near-gray (muted dynamic palettes, light themes),
     // which reads as a dull blob. Normalize every entry to a saturated,
     // mid-lightness color so the blob is ALWAYS vivid, then let the existing
-    // hue-shift animation provide variety.
-    val palette = remember(cs) {
-        listOf(cs.primary, cs.secondary, cs.tertiary, cs.primaryContainer, cs.secondaryContainer)
-            .map { it.vivid() }
+    // hue-shift animation provide variety. A fixed accent replaces the whole
+    // palette with hue-shifted variations of that single role so animation
+    // still has variety.
+    val palette = remember(cs, blobTint) {
+        val base = when (blobTint) {
+            "primary" -> cs.primary
+            "secondary" -> cs.secondary
+            "tertiary" -> cs.tertiary
+            else -> null
+        }
+        if (base != null) {
+            val v = base.vivid()
+            listOf(v, shiftHue(v, 18f), shiftHue(v, -14f), v.rescaleBrightness(0.72f), shiftHue(v, 30f))
+        } else {
+            listOf(cs.primary, cs.secondary, cs.tertiary, cs.primaryContainer, cs.secondaryContainer)
+                .map { it.vivid() }
+        }
     }
 
     val smoothedAmp by animateFloatAsState(
@@ -54,7 +69,17 @@ fun MorphingBlob(
     // values below are per-frame exponential smooths of these targets so the
     // blob flows between chunk updates instead of stepping discretely.
     val latestLevels by rememberUpdatedState(levels)
+    val latestBands by rememberUpdatedState(bands)
     fun targetBand(range: IntRange, fallback: Float): Float {
+        latestBands?.let { b ->
+            if (b.size >= 8) {
+                return when {
+                    range.first <= 2 -> (b[0] + b[1] + b[2]) / 3f
+                    range.first <= 5 -> (b[3] + b[4] + b[5]) / 3f
+                    else -> (b[6] + b[7]) / 2f
+                }.coerceIn(0f, 1f)
+            }
+        }
         val ls = latestLevels
         return if (ls.size >= 8) ls.takeLast(8).drop(range.first).take(range.count())
             .average().toFloat().coerceIn(0f, 1f)
@@ -65,15 +90,35 @@ fun MorphingBlob(
     var smoothMid by remember { mutableStateOf(0f) }
     var smoothTreble by remember { mutableStateOf(0f) }
     var smoothBeat by remember { mutableStateOf(0f) }
+
+    // Real beat detection: track bass (band 0) across successive band
+    // emissions — a rise above the previous chunk that also clears a floor
+    // counts as an onset. State updates only when a fresh array arrives so
+    // per-frame smoothing below stays untouched.
+    var lastBandBass by remember { mutableStateOf(0f) }
+    var pendingBeatTarget by remember { mutableStateOf(0f) }
+    var lastProcessedBands by remember { mutableStateOf<FloatArray?>(null) }
     fun targetBeat(): Float {
-        val recent = latestLevels.takeLast(8)
-        if (recent.size < 6) return 0f
-        val avg = recent.average().toFloat()
-        val last = recent.lastOrNull() ?: 0f
-        val prev = recent.getOrNull(recent.size - 2) ?: 0f
-        val isRising = last > prev && last > avg * 1.25f && last > 0.10f
-        val isPeak = last > 0.14f && last + 1e-6f >= (recent.maxOrNull() ?: 0f)
-        return if (isRising || isPeak) ((last - avg).coerceIn(0f, 0.6f) / 0.6f) else 0f
+        val b = latestBands
+        if (b == null || b.size < 8) {
+            val recent = latestLevels.takeLast(8)
+            if (recent.size < 6) return 0f
+            val avg = recent.average().toFloat()
+            val last = recent.lastOrNull() ?: 0f
+            val prev = recent.getOrNull(recent.size - 2) ?: 0f
+            val isRising = last > prev && last > avg * 1.25f && last > 0.10f
+            val isPeak = last > 0.14f && last + 1e-6f >= (recent.maxOrNull() ?: 0f)
+            return if (isRising || isPeak) ((last - avg).coerceIn(0f, 0.6f) / 0.6f) else 0f
+        }
+        if (b !== lastProcessedBands) {
+            val bass = b[0].coerceIn(0f, 1f)
+            val isRising = bass > lastBandBass && bass > 0.10f
+            pendingBeatTarget =
+                if (isRising) ((bass - lastBandBass).coerceIn(0f, 0.6f) / 0.6f).coerceIn(0f, 1f) else 0f
+            lastBandBass = bass
+            lastProcessedBands = b
+        }
+        return pendingBeatTarget
     }
 
     val density = LocalDensity.current
@@ -240,6 +285,19 @@ private fun Color.vivid(): Color {
     if (hsv[1] < 0.15f) hsv[0] = (hsv[0] + 40f) % 360f // near-gray token: nudge hue so saturation has visible effect
     hsv[1] = hsv[1].coerceAtLeast(0.78f)
     hsv[2] = hsv[2].coerceIn(0.46f, 0.92f)
+    val rgb = android.graphics.Color.HSVToColor(hsv)
+    return Color(rgb).copy(alpha = alpha)
+}
+
+private fun Color.rescaleBrightness(scale: Float): Color {
+    val hsv = FloatArray(3)
+    android.graphics.Color.RGBToHSV(
+        (red * 255).toInt(),
+        (green * 255).toInt(),
+        (blue * 255).toInt(),
+        hsv,
+    )
+    hsv[2] = (hsv[2] * scale).coerceIn(0.46f, 0.92f)
     val rgb = android.graphics.Color.HSVToColor(hsv)
     return Color(rgb).copy(alpha = alpha)
 }

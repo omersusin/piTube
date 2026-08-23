@@ -24,6 +24,7 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
     val cardStyle by prefs.recognitionCardStyle.collectAsState(initial = "default")
     val cardTint by prefs.recognitionCardTint.collectAsState(initial = "auto")
     val floatingTint by prefs.recognitionFloatingTint.collectAsState(initial = "auto")
+    val blobTint by prefs.recognitionBlobTint.collectAsState(initial = "auto")
     val radius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
     val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
     val floatingSize by prefs.recognitionFloatingSize.collectAsState(initial = 64)
@@ -95,6 +96,26 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
                                 FilterChip(selected = t == floatingTint, onClick = { scope.launch { prefs.setRecognitionFloatingTint(t) } }, label = { Text(t) })
                             }
                         }
+                    }
+                }
+            }
+            item { SectionHeader(text = "Blob") }
+            item {
+                SettingsGroup {
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Blob accent", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("auto", "primary", "secondary", "tertiary").forEach { t ->
+                                FilterChip(selected = t == blobTint, onClick = { scope.launch { prefs.setRecognitionBlobTint(t) } }, label = { Text(t) })
+                            }
+                        }
+                        Text(
+                            "\"auto\" follows the app theme; the others tint the recognition blob with that theme accent.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 6.dp),
+                        )
                     }
                 }
             }

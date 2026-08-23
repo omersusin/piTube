@@ -38,6 +38,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.omersusin.pitube.R
+import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.recognition.VoiceRecognitionSource
 import kotlinx.coroutines.delay
 
@@ -59,6 +60,8 @@ fun RecognitionScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val prefs = remember { PlayerPreferences(context) }
+    val blobTint by prefs.recognitionBlobTint.collectAsState(initial = "auto")
 
     var micPermissionGranted by remember {
         mutableStateOf(
@@ -154,6 +157,8 @@ fun RecognitionScreen(
                                     amplitude = uiState.levels.lastOrNull() ?: 0f,
                                     levels = uiState.levels,
                                     modifier = Modifier.size(224.dp),
+                                    bands = uiState.bands,
+                                    blobTint = blobTint,
                                 )
                             }
                             Spacer(Modifier.height(24.dp))
@@ -255,6 +260,8 @@ fun RecognitionScreen(
                                     amplitude = 0f,
                                     levels = emptyList(),
                                     modifier = Modifier.size(224.dp),
+                                    bands = null,
+                                    blobTint = blobTint,
                                 )
                             }
                             Spacer(Modifier.height(24.dp))

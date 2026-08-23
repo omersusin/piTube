@@ -77,12 +77,13 @@ class RecognitionRepository(
         interrupted: () -> Boolean = { false },
         onLevel: (Float) -> Unit = {},
         onProcessing: () -> Unit = {},
+        onBands: ((FloatArray) -> Unit)? = null,
     ): Pair<String, VoiceRecognitionSource> = withContext(Dispatchers.Default) {
         val provider = preferences.sttProvider.first()
         var cloudFailure: RecognitionException? = null
         if (provider.isCloud) {
             try {
-                val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel, VOICE_STOP_AFTER_SILENCE_MS)
+                val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel, VOICE_STOP_AFTER_SILENCE_MS, onBands)
                 if (interrupted()) {
                     throw CancellationException("Voice recognition cancelled")
                 }
@@ -117,7 +118,7 @@ class RecognitionRepository(
                 ) {
                     Log.w("STT", "On-device STT failed (${e.message}); falling back to Groq")
                     if (interrupted()) throw CancellationException("Voice recognition cancelled")
-                    val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel, VOICE_STOP_AFTER_SILENCE_MS)
+                    val captured = capturer.record(VOICE_RECORDING_MS, interrupted, onLevel, VOICE_STOP_AFTER_SILENCE_MS, onBands)
                     if (interrupted()) throw CancellationException("Voice recognition cancelled")
                     onProcessing()
                     val groqTranscript = CloudSpeechToText.transcribe(context, SttProvider.GROQ, captured.wavBytes)
@@ -133,6 +134,7 @@ class RecognitionRepository(
     suspend fun recognizeSong(
         interrupted: () -> Boolean = { false },
         onLevel: (Float) -> Unit = {},
+        onBands: ((FloatArray) -> Unit)? = null,
     ): SongRecognitionOutcome = withContext(Dispatchers.IO) {
         val provider = preferences.provider.first()
         val allPcm = mutableListOf<Short>()
@@ -142,7 +144,7 @@ class RecognitionRepository(
 
         for (window in 0 until SONG_PROGRESSIVE_WINDOWS) {
             if (interrupted()) break
-            val captured = capturer.record(SONG_PROGRESSIVE_WINDOW_MS, interrupted, onLevel)
+            val captured = capturer.record(SONG_PROGRESSIVE_WINDOW_MS, interrupted, onLevel, 0L, onBands)
             if (captured.pcm.isEmpty()) continue
             allPcm.addAll(captured.pcm.toList())
             allLevels.addAll(captured.levels)

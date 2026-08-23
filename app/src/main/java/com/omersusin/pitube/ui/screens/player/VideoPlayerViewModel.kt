@@ -3490,24 +3490,69 @@ class VideoPlayerViewModel @Inject constructor(
         }
     }
     
+    // Per-video subscription/like collectors. loadSubscriptionAndLikeState fires on
+    // EVERY streamInfo change; without cancelling the previous trio, N videos leave
+    // N live DataStore collectors behind and stale ones clobber likeState across
+    // video switches.
+    private var subscriptionStateJobs: List<Job>? = null
+    private var likeStateOverrideVideoId: String? = null
+    private var likeStateServerOverride: String? = null
+    private var lastLocalLikeState: String? = null
+
     fun loadSubscriptionAndLikeState(channelId: String, videoId: String) {
-        viewModelScope.launch {
-            subscriptionRepository.isSubscribed(channelId).collect { isSubscribed ->
-                _uiState.value = _uiState.value.copy(isSubscribed = isSubscribed)
-            }
-        }
-        viewModelScope.launch {
-            subscriptionRepository.getSubscription(channelId).collect { subscription ->
-                _uiState.value = _uiState.value.copy(
-                    isNotificationsEnabled = subscription?.isNotificationEnabled ?: false
-                )
-            }
-        }
-        viewModelScope.launch {
-            likedVideosRepository.getLikeState(videoId).collect { likeState ->
-                _uiState.value = _uiState.value.copy(likeState = likeState)
-            }
-        }
+        subscriptionStateJobs?.forEach { it.cancel() }
+        likeStateOverrideVideoId = videoId
+        likeStateServerOverride = null
+        lastLocalLikeState = null
+        subscriptionStateJobs =
+            listOf(
+                viewModelScope.launch {
+                    subscriptionRepository.isSubscribed(channelId).collect { isSubscribed ->
+                        _uiState.value = _uiState.value.copy(isSubscribed = isSubscribed)
+                    }
+                },
+                viewModelScope.launch {
+                    subscriptionRepository.getSubscription(channelId).collect { subscription ->
+                        _uiState.value = _uiState.value.copy(
+                            isNotificationsEnabled = subscription?.isNotificationEnabled ?: false
+                        )
+                    }
+                },
+                viewModelScope.launch {
+                    likedVideosRepository.getLikeState(videoId).collect { local ->
+                        lastLocalLikeState = local
+                        // Local user intent always wins; server override only fills
+                        // the gap when this account liked/disliked elsewhere and the
+                        // local store has no record. Display-only — never persisted.
+                        val merged = local
+                            ?: likeStateServerOverride
+                                ?.takeIf { likeStateOverrideVideoId == videoId }
+                        _uiState.value = _uiState.value.copy(likeState = merged)
+                    }
+                },
+                viewModelScope.launch {
+                    val server = YouTube.getVideoLikeStatus(videoId).getOrNull()
+                    if (likeStateOverrideVideoId != videoId) return@launch
+                    val mapped = when (server) {
+                        "LIKE" -> "LIKED"
+                        "DISLIKE" -> "DISLIKED"
+                        else -> null
+                    } ?: return@launch
+                    if (lastLocalLikeState == null) {
+                        likeStateServerOverride = mapped
+                        if (_uiState.value.likeState == null) {
+                            _uiState.value = _uiState.value.copy(
+                                likeState = mapped,
+                                serverLikeState = mapped,
+                            )
+                        } else {
+                            _uiState.value = _uiState.value.copy(serverLikeState = mapped)
+                        }
+                    } else {
+                        _uiState.value = _uiState.value.copy(serverLikeState = mapped)
+                    }
+                },
+            )
     }
     
     fun toggleSubtitles(enabled: Boolean) {
@@ -4155,7 +4200,11 @@ data class VideoPlayerUiState(
     val isFullscreen: Boolean = false,
     val isSubscribed: Boolean = false,
     val isNotificationsEnabled: Boolean = false,
-    val likeState: String? = null, 
+    val likeState: String? = null,
+    // Display-only server truth from /next engagement. Never persisted; the
+    // UI-visible likeState merges local (user intent, authoritative) with this
+    // fallback so a video already liked on the account shows correctly.
+    val serverLikeState: String? = null,
     val channelSubscriberCount: Long? = null,
     val channelAvatarUrl: String? = null,
     val chapters: List<StreamSegment> = emptyList(),
