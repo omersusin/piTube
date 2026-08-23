@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlowLyricsBottomSheet(
+    videoId: String,
     lyricsState: LyricsUiState,
     currentPosition: Long = 0L,
     onLyricsLineClick: (Long) -> Unit = {},
@@ -90,7 +91,9 @@ fun FlowLyricsBottomSheet(
         if (sheetHeightPx.value == 0f || sheetHeightPx.value < collapsedHeightPx) sheetHeightPx.snapTo(collapsedHeightPx)
         sheetHeightPx.animateTo(expandedHeightPx, spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessLow))
     }
-    LaunchedEffect(Unit) { onRequestLyrics() }
+    // Re-request whenever the playing video changes — keyed on videoId, not
+    // Unit (a sheet left open across a track switch must swap lyrics).
+    LaunchedEffect(videoId) { onRequestLyrics() }
 
     if (showSearchDialog && onManualSearch != null) {
         LyricsSearchDialog(

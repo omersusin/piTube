@@ -134,6 +134,22 @@ class VideoPlayerViewModel @Inject constructor(
     val lyricsTranslations: StateFlow<Map<Long, String>> = _lyricsTranslations.asStateFlow()
     private var lyricsVideoId: String? = null
     private var lyricsJob: Job? = null
+    private var translationJob: Job? = null
+    private val prefetchJobs = mutableMapOf<String, Job>()
+
+    /**
+     * Song-switch boundary: cancels BOTH lyric fetch and the escaping
+     * translation coroutine, and wipes per-video lyrics state. Without this,
+     * the previous song's synced lines (and its in-flight translations)
+     * rendered against the new track's position.
+     */
+    private fun resetLyricsForNewVideo() {
+        lyricsJob?.cancel()
+        translationJob?.cancel()
+        lyricsVideoId = null
+        _lyricsState.value = LyricsUiState.Idle
+        _lyricsTranslations.value = emptyMap()
+    }
     
     private val navigationHistory = mutableListOf<String>()
     private var currentHistoryIndex = -1
@@ -1066,9 +1082,12 @@ class VideoPlayerViewModel @Inject constructor(
      */
     private fun maybePrefetchLyrics(videoId: String) {
         if (videoId.isBlank() || videoId in _lyricsCachedIds.value) return
-        viewModelScope.launch(PerformanceDispatcher.networkIO) {
+        // Track the prefetch job so a rapid switch cancels it — an untracked
+        // fetch used to race requestLyrics for the NEXT video.
+        prefetchJobs[videoId]?.cancel()
+        prefetchJobs[videoId] = viewModelScope.launch(PerformanceDispatcher.networkIO) {
             val v = _uiState.value.cachedVideo?.takeIf { it.id == videoId }
-                ?: _uiState.value.streamInfo?.let {
+                ?: _uiState.value.streamInfo?.takeIf { it.id == videoId }?.let {
                     com.omersusin.pitube.data.model.Video(
                         id = videoId, title = it.name ?: "", channelName = it.uploaderName ?: "",
                         channelId = "", thumbnailUrl = "", duration = it.duration.toInt(), viewCount = 0L, uploadDate = ""
@@ -1092,6 +1111,7 @@ class VideoPlayerViewModel @Inject constructor(
             } else {
                 Log.d("VideoPlayerViewModel", "Lyrics prefetch: none for $videoId")
             }
+            prefetchJobs.remove(videoId)
         }
     }
 
@@ -1268,6 +1288,9 @@ class VideoPlayerViewModel @Inject constructor(
             Log.d("VideoPlayerViewModel", "loadVideoInfo: $videoId is a local file — skipping all network loading")
             return
         }
+        // Song-switch boundary: drop the previous video's lyrics state and any
+        // in-flight fetches so nothing from it can render against this one.
+        if (lyricsVideoId != videoId) resetLyricsForNewVideo()
         // Gate on session restore: starting a stream before FlowApplication has
         // assigned YouTube.cookie sends ANONYMOUS requests that YouTube answers
         // with BOT_WALL on every client ("internet is off" symptom). Fast path:
@@ -3545,15 +3568,22 @@ class VideoPlayerViewModel @Inject constructor(
             lyricsJob?.cancel(); lyricsVideoId = null; _lyricsState.value = LyricsUiState.Unavailable; return
         }
         if (lyricsVideoId == videoId && _lyricsState.value !is LyricsUiState.Idle) return
-        lyricsJob?.cancel(); lyricsVideoId = videoId; _lyricsState.value = LyricsUiState.Loading
+        resetLyricsForNewVideo()
+        lyricsVideoId = videoId
+        _lyricsState.value = LyricsUiState.Loading
         lyricsJob = viewModelScope.launch {
             try {
-                val v = _uiState.value.cachedVideo ?: _uiState.value.streamInfo?.let {
-                    com.omersusin.pitube.data.model.Video(id = videoId, title = it.name ?: "", channelName = it.uploaderName ?: "", channelId = "", thumbnailUrl = "", duration = it.duration.toInt(), viewCount = 0L, uploadDate = "")
-                }
-                val title = v?.title?.takeIf { it.isNotBlank() } ?: _uiState.value.streamInfo?.name ?: ""
-                val artist = v?.channelName?.takeIf { it.isNotBlank() } ?: _uiState.value.streamInfo?.uploaderName ?: ""
-                val durMs = (v?.duration?.toLong() ?: (_uiState.value.streamInfo?.duration ?: 0L)) * 1000L
+                // Metadata id-guard: during a transition cachedVideo can still
+                // belong to the PREVIOUS video — fetching with its title/artist
+                // poisons the disk cache with wrong-song lyrics (device bug).
+                val v = _uiState.value.cachedVideo?.takeIf { it.id == videoId }
+                    ?: _uiState.value.streamInfo?.takeIf { it.id == videoId }?.let {
+                        com.omersusin.pitube.data.model.Video(id = videoId, title = it.name ?: "", channelName = it.uploaderName ?: "", channelId = "", thumbnailUrl = "", duration = it.duration.toInt(), viewCount = 0L, uploadDate = "")
+                    }
+                    ?: com.omersusin.pitube.data.model.Video(id = videoId, title = "", channelName = "", channelId = "", thumbnailUrl = "", duration = 0, viewCount = 0L, uploadDate = "")
+                val title = v.title.takeIf { it.isNotBlank() } ?: _uiState.value.streamInfo?.name?.takeIf { _uiState.value.streamInfo?.id == videoId } ?: ""
+                val artist = v.channelName.takeIf { it.isNotBlank() } ?: _uiState.value.streamInfo?.uploaderName?.takeIf { _uiState.value.streamInfo?.id == videoId } ?: ""
+                val durMs = v.duration.toLong() * 1000L
                 val lr = com.omersusin.pitube.data.lyrics.LyricsRepository(repository, PlayerPreferences(context), context)
                 val res = lr.fetchLyrics(videoId, title, artist, durationMs = durMs)
                 if (lyricsVideoId != videoId) return@launch
@@ -3562,8 +3592,8 @@ class VideoPlayerViewModel @Inject constructor(
                 if (res is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success) {
                     val prefsL = PlayerPreferences(context)
                     val sourceLines = res.lines
-                    viewModelScope.launch {
-                        _lyricsTranslations.value = emptyMap()
+                    translationJob = viewModelScope.launch {
+                        if (lyricsVideoId == videoId) _lyricsTranslations.value = emptyMap()
                         val translated = com.omersusin.pitube.data.lyrics.LyricsTranslationRepository
                             .translate(
                                 videoId = videoId,

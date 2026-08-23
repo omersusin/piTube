@@ -196,6 +196,7 @@ fun PlayerBottomSheetsContainer(
     // Lyrics Bottom Sheet
     if (screenState.showLyricsSheet) {
         FlowLyricsBottomSheet(
+            videoId = video.id,
             lyricsState = lyricsState,
             currentPosition = screenState.currentPosition,
             onLyricsLineClick = { positionMs ->

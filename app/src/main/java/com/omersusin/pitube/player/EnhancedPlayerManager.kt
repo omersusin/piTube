@@ -1206,6 +1206,10 @@ class EnhancedPlayerManager private constructor() {
         clearAutoplayCountdownInternal()
         crossfadeJob?.cancel()
         player?.volume = 1f
+        // A stale preloaded next-video window attached to the timeline is the
+        // "wrong audio plays" source when a manual selection races gapless
+        // advance — drop it on every new-video reset.
+        clearPreload()
         currentVideoId = videoId
         liveQualityHeights = emptyList()
         pendingLiveQualityHeight = 0
