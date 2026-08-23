@@ -758,10 +758,13 @@ class HomeViewModel @Inject constructor(
         
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
-                // Rotate the anonymous visitor identity on a forced refresh/pull
-                // so the personalized "what to watch" lane stops pinning the same
-                // items week after week (the visitor id anchors its response).
-                if (forceRefresh) {
+                // Rotate the ANONYMOUS visitor identity on a forced refresh so the
+                // discovery lane stops pinning the same items week after week.
+                // NEVER rotate while signed in: re-pairing a fresh visitor id with
+                // the account cookies is exactly the combination YouTube answers
+                // with an empty FEwhat_to_watch (log evidence: fetched=0).
+                val rotationAllowed = !SessionManager.isLoggedIn()
+                if (forceRefresh && rotationAllowed) {
                     runCatching { com.omersusin.pitube.innertube.YouTube.rotateVisitorData() }
                     seedDiscoveryQueries(shuffle = true)
                 } else {

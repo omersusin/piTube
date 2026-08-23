@@ -643,7 +643,22 @@ object YouTube {
         innerTube.noteResponseState(rawBody)
         val lenientJson = json
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
-        return parseChannelVideosResponse(response, "", "", "", false)
+        val parsed = parseChannelVideosResponse(response, "", "", "", false)
+        if (parsed.videos.isEmpty() && continuation == null) {
+            // Empty first page is THE symptom this lane exists to fix. Surface
+            // enough context for the diagnostics report to distinguish a
+            // bot-wall/login banner from a genuinely empty grid.
+            val marker = when {
+                "signin" in rawBody || "LOGIN_REQUIRED" in rawBody -> "login-required banner"
+                "consistency" in rawBody || "botguard" in rawBody.lowercase() -> "bot-guard interstitial"
+                rawBody.length < 500 -> "suspiciously tiny body (${rawBody.length} chars)"
+                else -> "parsed-empty (body=${rawBody.length} chars)"
+            }
+            Log.w("YouTube", "personalizedFeed($browseId): EMPTY response — $marker")
+        } else if (continuation == null) {
+            Log.w("YouTube", "personalizedFeed($browseId): ${parsed.videos.size} videos, cont=${parsed.continuation != null}")
+        }
+        return parsed
     }
 
     // ============================================================
