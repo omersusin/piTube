@@ -179,6 +179,18 @@ fun DownloadSheet(
         selectedAudioUrl = defaultAudio?.getContent()?.takeIf { it.isNotBlank() }
     }
 
+    // Codec chips must visibly change the selection: picking H264/VP9/AV1
+    // re-selects the best available height rendered in that codec. Without
+    // this the chips updated state nothing ever read -> they felt dead.
+    LaunchedEffect(preferredCodec, plannerInput) {
+        val codec = preferredCodec ?: return@LaunchedEffect
+        val match = plannerInput.allCandidates
+            .filter { it.codecKey == codec }
+            .maxByOrNull { it.height }
+            ?: return@LaunchedEffect
+        selectedVideoKey = "${match.height}_${match.codecKey}"
+    }
+
     val selectedCandidate = distinctVideoStreams.firstOrNull {
         "${VideoPlayerUtils.qualityHeightFromStream(it)}_${VideoCodecUtils.codecKeyFromStream(it)}" == selectedVideoKey
     }
