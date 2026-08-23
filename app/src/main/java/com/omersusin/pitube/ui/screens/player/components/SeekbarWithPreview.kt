@@ -50,6 +50,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import com.omersusin.pitube.data.model.SponsorBlockSegment
@@ -525,10 +526,13 @@ private fun StoryboardPreviewBubble(
     // long videos have many multi-megabyte pages and caching them all exhausts
     // the heap after a full-timeline scrub. Compressed pages stay on disk.
     val context = LocalContext.current
-    val imageRequest = remember(sheetUrl) {
+    val density = LocalDensity.current
+    val sheetWidthPx = with(density) { sheetWidth.roundToPx() }
+    val sheetHeightPx = with(density) { sheetHeight.roundToPx() }
+    val imageRequest = remember(sheetUrl, sheetWidthPx, sheetHeightPx) {
         ImageRequest.Builder(context)
             .data(sheetUrl)
-            .size(sheetWidth.roundToInt(), sheetHeight.roundToInt())
+            .size(sheetWidthPx, sheetHeightPx)
             .memoryCachePolicy(CachePolicy.DISABLED)
             .diskCachePolicy(CachePolicy.ENABLED)
             .allowRgb565(true)

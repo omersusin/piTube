@@ -7,7 +7,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-internal class Fft(
+internal class BandFft(
     private val n: Int,
 ) {
     private val cosTable = DoubleArray(n / 2) { i -> cos(2.0 * PI * i / n) }
@@ -90,7 +90,7 @@ internal class AudioBandAnalyzer(
     private val fftSize: Int = 512,
     private val bandCount: Int = 8,
 ) {
-    private val fft = Fft(fftSize)
+    private val fft = BandFft(fftSize)
     private val real = DoubleArray(fftSize)
     private val imag = DoubleArray(fftSize)
     private val hann = DoubleArray(fftSize) { i ->
