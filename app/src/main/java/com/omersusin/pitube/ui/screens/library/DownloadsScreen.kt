@@ -444,6 +444,8 @@ private fun VideoDownloadCard(
             R.string.cd_delete_download,
             video.video.title,
         )
+    val saveContext = androidx.compose.ui.platform.LocalContext.current
+    val saveScope = androidx.compose.runtime.rememberCoroutineScope()
     val selectDesc =
         stringResource(
             R.string.download_action_select,
@@ -562,6 +564,26 @@ private fun VideoDownloadCard(
                     onClick = {
                         menuExpanded = false
                         onClick()
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Save to device") },
+                    onClick = {
+                        menuExpanded = false
+                        saveScope.launch {
+                            val result = com.omersusin.pitube.utils.DeviceSaver.saveToDevice(
+                                context = saveContext,
+                                sourceFile = java.io.File(video.filePath),
+                                title = video.video.title,
+                                isAudio = video.isAudioOnly,
+                            )
+                            android.widget.Toast.makeText(
+                                context,
+                                if (result.isSuccess) "Saved to device library"
+                                else "Save failed: ${result.exceptionOrNull()?.message}",
+                                android.widget.Toast.LENGTH_SHORT,
+                            ).show()
+                        }
                     },
                 )
                 DropdownMenuItem(
