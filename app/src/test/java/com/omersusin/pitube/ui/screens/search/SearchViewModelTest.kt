@@ -22,7 +22,7 @@ import org.junit.Test
 class SearchViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val repository: YouTubeRepository = mockk(relaxed = true)
-    private val playlistRepository: com.omersusin.pitube.data.repository.PlaylistRepository =
+    private val playlistRepository: com.omersusin.pitube.data.local.PlaylistRepository =
         mockk(relaxed = true)
 
     @Before

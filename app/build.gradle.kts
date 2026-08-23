@@ -18,8 +18,8 @@ android {
         applicationId = "com.omersusin.pitube"
         minSdk = 26
         targetSdk = 36
-        versionCode = 57
-        versionName = "3.0.3"
+        versionCode = 58
+        versionName = "3.0.4"
 
         testInstrumentationRunner = "com.omersusin.pitube.HiltTestRunner"
         vectorDrawables {
