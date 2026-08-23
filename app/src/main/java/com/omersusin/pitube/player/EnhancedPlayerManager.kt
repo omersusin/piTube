@@ -927,9 +927,39 @@ class EnhancedPlayerManager private constructor() {
                         reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK
                     ) {
                         val idx = player?.currentMediaItemIndex ?: 0
-                        if (idx >= 1 && preloadedNext != null) {
-                            releaseAdvanceWakeLock()
-                            promotePreloadedItem()
+                        val pre = preloadedNext
+                        val expectedId = pre?.data?.enrichedVideo?.id
+                        val transitionedId = mediaItem?.mediaId
+                        if (idx >= 1 && pre != null) {
+                            if (!transitionedId.isNullOrEmpty() && transitionedId != expectedId) {
+                                // Defensive guard: the timeline advanced into a window our
+                                // preload did not build. Never silently skip bookkeeping here
+                                // (the UI would keep showing the PREVIOUS video while other
+                                // audio plays) and never blindly promote either — align the
+                                // tracking state to what is actually playing, drop the stale
+                                // preload, and let the owning code path manage its own item.
+                                autoNextLog(
+                                    "onMediaItemTransition preload-id mismatch expected=$expectedId actual=$transitionedId — clearing stale preload",
+                                )
+                                Log.w(
+                                    TAG,
+                                    "Gapless: transitioned into non-preloaded window expected=$expectedId actual=$transitionedId",
+                                )
+                                releaseAdvanceWakeLock()
+                                preloadedNext = null
+                                preloadJob?.cancel()
+                                preloadJob = null
+                                preloadRetryJob?.cancel()
+                                preloadRetryJob = null
+                                preloadAttemptVideoId = null
+                                preloadAttemptNextVideoId = null
+                                currentVideoId = transitionedId
+                                _playerState.value =
+                                    _playerState.value.copy(currentVideoId = transitionedId)
+                            } else {
+                                releaseAdvanceWakeLock()
+                                promotePreloadedItem()
+                            }
                         }
                     }
                 }
@@ -2479,7 +2509,11 @@ class EnhancedPlayerManager private constructor() {
         preloadRetryJob?.cancel()
         preloadRetryJob = null
         autoNextLog("schedulePreloadNext start next=${nextVideo.id} fromQueue=$fromQueue")
-        preloadJob =
+        // Capture the job reference so the finally block below can tell whether
+        // the slot still belongs to THIS attempt. Without this guard, a cancelled
+        // attempt's finally wipes the reference of a successor job launched by
+        // clearPreload()+re-arm in between (bookkeeping claims "idle" while B runs).
+        val thisPreloadJob =
             scope.launch {
                 var success = false
                 var shouldRetry = false
@@ -2507,6 +2541,11 @@ class EnhancedPlayerManager private constructor() {
                         autoNextLog("schedulePreloadNext stale before append next=${nextVideo.id}")
                         return@launch
                     }
+                    // INVARIANT (do not break silently): [scope] runs on Dispatchers.Main and
+                    // buildPreloadMediaSource below is NOT suspend — therefore stale-predicate →
+                    // addMediaSource is one atomic main-thread block. If anyone makes the builder
+                    // suspend or moves this scope off Main, re-run the stale predicate immediately
+                    // before addMediaSource or the wrong-song race window reopens.
                     val source =
                         mediaLoader?.buildPreloadMediaSource(
                             context = ctx,
@@ -2541,7 +2580,7 @@ class EnhancedPlayerManager private constructor() {
                     shouldRetry = true
                     Log.w(TAG, "Gapless preload failed", e)
                 } finally {
-                    preloadJob = null
+                    if (preloadJob === thisPreloadJob) preloadJob = null
                     if (!success && currentVideoId == currentId && preloadedNext == null) {
                         preloadAttemptVideoId = null
                         preloadAttemptNextVideoId = null
@@ -2549,6 +2588,7 @@ class EnhancedPlayerManager private constructor() {
                     }
                 }
             }
+        preloadJob = thisPreloadJob
     }
 
     private fun schedulePreloadRetry(
