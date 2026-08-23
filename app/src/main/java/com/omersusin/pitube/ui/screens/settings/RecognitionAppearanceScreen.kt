@@ -22,6 +22,8 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
     val prefs = remember { PlayerPreferences(ctx) }
     val scope = rememberCoroutineScope()
     val cardStyle by prefs.recognitionCardStyle.collectAsState(initial = "default")
+    val cardTint by prefs.recognitionCardTint.collectAsState(initial = "auto")
+    val floatingTint by prefs.recognitionFloatingTint.collectAsState(initial = "auto")
     val radius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
     val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
     val floatingSize by prefs.recognitionFloatingSize.collectAsState(initial = 64)
@@ -59,6 +61,22 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
                         Text("Artwork size: $artSize dp", style = MaterialTheme.typography.bodyMedium)
                         Slider(value = artSize.toFloat(), onValueChange = { scope.launch { prefs.setRecognitionArtSize(it.toInt()) } }, valueRange = 48f..96f, steps = 5)
                     }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Card accent", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("auto", "primary", "secondary", "tertiary").forEach { t ->
+                                FilterChip(selected = t == cardTint, onClick = { scope.launch { prefs.setRecognitionCardTint(t) } }, label = { Text(t) })
+                            }
+                        }
+                        Text(
+                            "\"auto\" follows the app theme; the others tint the card with that theme accent.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 6.dp),
+                        )
+                    }
                 }
             }
             item { SectionHeader(text = "Floating button") }
@@ -69,7 +87,15 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
                         Slider(value = floatingSize.toFloat(), onValueChange = { scope.launch { prefs.setRecognitionFloatingSize(it.toInt()) } }, valueRange = 48f..96f)
                     }
                     HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    Text("Color follows the app theme automatically.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Button accent", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("auto", "primary", "secondary", "tertiary").forEach { t ->
+                                FilterChip(selected = t == floatingTint, onClick = { scope.launch { prefs.setRecognitionFloatingTint(t) } }, label = { Text(t) })
+                            }
+                        }
+                    }
                 }
             }
         }

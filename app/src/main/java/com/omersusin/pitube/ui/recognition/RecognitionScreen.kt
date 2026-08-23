@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.MicOff
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.RecordVoiceOver
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -302,6 +303,7 @@ fun RecognitionScreen(
             if (uiState.phase != RecognitionPhase.SUCCESS) {
                 RecognitionMicButton(
                     isListening = uiState.phase == RecognitionPhase.LISTENING,
+                    isSongMode = uiState.mode == RecognitionMode.SONG,
                     onClick = onMicClick,
                 )
                 Spacer(Modifier.height(20.dp))
@@ -324,6 +326,19 @@ fun RecognitionScreen(
         }
         }
     }
+}
+
+/**
+ * Accent-tint resolution shared by the recognition cards and the floating
+ * button. "auto" keeps the themed surfaceVariant; the other options swap in
+ * the matching theme accent's container tone.
+ */
+@Composable
+private fun recognitionAccentContainer(tint: String): Color = when (tint) {
+    "primary" -> MaterialTheme.colorScheme.primaryContainer
+    "secondary" -> MaterialTheme.colorScheme.secondaryContainer
+    "tertiary" -> MaterialTheme.colorScheme.tertiaryContainer
+    else -> MaterialTheme.colorScheme.surfaceVariant
 }
 
 @Composable
@@ -389,11 +404,14 @@ private fun ModeSegment(
 @Composable
 private fun RecognitionMicButton(
     isListening: Boolean,
+    isSongMode: Boolean,
     onClick: () -> Unit,
 ) {
+    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val floatingTint by prefs.recognitionFloatingTint.collectAsState(initial = "auto")
     val background by animateColorAsState(
         targetValue = if (isListening) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.primaryContainer,
+        else recognitionAccentContainer(floatingTint),
         label = "micBg",
     )
     val contentColor by animateColorAsState(
@@ -411,7 +429,7 @@ private fun RecognitionMicButton(
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = Icons.Filled.Mic,
+            imageVector = if (isSongMode) Icons.Rounded.GraphicEq else Icons.Filled.Mic,
             contentDescription = stringResource(R.string.recognition_mic_content_description),
             tint = contentColor,
             modifier = Modifier.size(40.dp),
@@ -425,10 +443,12 @@ private fun VoiceResultCard(
     source: VoiceRecognitionSource?,
     onSearch: () -> Unit,
 ) {
+    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val cardTint by prefs.recognitionCardTint.collectAsState(initial = "auto")
     Card(
         modifier = Modifier.padding(horizontal = 24.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = recognitionAccentContainer(cardTint)),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
@@ -480,6 +500,7 @@ private fun TrackResultCard(
     val context = LocalContext.current
     val prefs = remember(context) { com.omersusin.pitube.data.local.PlayerPreferences(context) }
     val cardStyle by prefs.recognitionCardStyle.collectAsState(initial = "default")
+    val cardTint by prefs.recognitionCardTint.collectAsState(initial = "auto")
     val cornerRadius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
     val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
     val cardPadding = when (cardStyle) {
@@ -490,7 +511,7 @@ private fun TrackResultCard(
     Card(
         modifier = Modifier.padding(horizontal = if (cardStyle == "full") 16.dp else 24.dp),
         shape = RoundedCornerShape(cornerRadius.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = recognitionAccentContainer(cardTint)),
         elevation = CardDefaults.cardElevation(defaultElevation = if (cardStyle == "full") 4.dp else 0.dp),
     ) {
         Column(modifier = Modifier.padding(cardPadding)) {

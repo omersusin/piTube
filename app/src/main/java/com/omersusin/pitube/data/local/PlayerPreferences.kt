@@ -369,6 +369,8 @@ class PlayerPreferences(context: Context) {
 
         // Recognition appearance
         val RECOGNITION_CARD_STYLE = stringPreferencesKey("recognition_card_style")
+        val RECOGNITION_CARD_TINT = stringPreferencesKey("recognition_card_tint")
+        val RECOGNITION_FLOATING_TINT = stringPreferencesKey("recognition_floating_tint")
         val RECOGNITION_CARD_CORNER_RADIUS = floatPreferencesKey("recognition_card_corner_radius")
         val RECOGNITION_ART_SIZE = intPreferencesKey("recognition_art_size")
     }
@@ -2737,6 +2739,12 @@ class PlayerPreferences(context: Context) {
 
     val recognitionCardStyle: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_CARD_STYLE] ?: "default" }
     suspend fun setRecognitionCardStyle(v: String) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_CARD_STYLE] = v } }
+
+    /** Accent token tinting recognition surfaces: "auto"|"primary"|"secondary"|"tertiary". */
+    val recognitionCardTint: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_CARD_TINT] ?: "auto" }
+    suspend fun setRecognitionCardTint(v: String) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_CARD_TINT] = v } }
+    val recognitionFloatingTint: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_FLOATING_TINT] ?: "auto" }
+    suspend fun setRecognitionFloatingTint(v: String) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_FLOATING_TINT] = v } }
     val recognitionCardCornerRadius: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_CARD_CORNER_RADIUS] ?: 20f }
     suspend fun setRecognitionCardCornerRadius(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_CARD_CORNER_RADIUS] = v.coerceIn(8f, 28f) } }
     val recognitionArtSize: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_ART_SIZE] ?: 72 }

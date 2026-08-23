@@ -35,8 +35,13 @@ fun MorphingBlob(
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
+    // Theme tokens can be near-gray (muted dynamic palettes, light themes),
+    // which reads as a dull blob. Normalize every entry to a saturated,
+    // mid-lightness color so the blob is ALWAYS vivid, then let the existing
+    // hue-shift animation provide variety.
     val palette = remember(cs) {
         listOf(cs.primary, cs.secondary, cs.tertiary, cs.primaryContainer, cs.secondaryContainer)
+            .map { it.vivid() }
     }
 
     val smoothedAmp by animateFloatAsState(
@@ -216,4 +221,23 @@ private fun shiftHue(c: Color, deg: Float): Color {
     hsv[0] = ((hsv[0] + deg) % 360f + 360f) % 360f
     val rgb = android.graphics.Color.HSVToColor(hsv)
     return Color(rgb).copy(alpha = c.alpha)
+}
+
+/**
+ * Forces a theme color into the vivid range: saturation >= 0.60 and
+ * brightness clamped to 0.40..0.85. Keeps hue (and alpha untouched), so the
+ * blob keeps the account's palette personality without ever looking gray.
+ */
+private fun Color.vivid(): Color {
+    val hsv = FloatArray(3)
+    android.graphics.Color.RGBToHSV(
+        (red * 255).toInt(),
+        (green * 255).toInt(),
+        (blue * 255).toInt(),
+        hsv,
+    )
+    hsv[1] = hsv[1].coerceAtLeast(0.60f)
+    hsv[2] = hsv[2].coerceIn(0.40f, 0.85f)
+    val rgb = android.graphics.Color.HSVToColor(hsv)
+    return Color(rgb).copy(alpha = alpha)
 }
