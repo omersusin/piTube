@@ -1564,7 +1564,7 @@
     <string name="download_settings_metadata_subtitle">ਡਾਊਨਲੋਡਾਂ ਦੇ ਨਾਲ ਸਿਰਲੇਖ/ਚੈਨਲ ਜਾਣਕਾਰੀ ਅਤੇ ਕਵਰ ਤਸਵੀਰ ਸੁਰੱਖਿਅਤ ਕਰੋ</string>
     <string name="download_settings_metadata_title">ਮੈਟਾਡੇਟਾ ਫ਼ਾਈਲਾਂ ਲਿਖੋ</string>
     <string name="download_settings_notification_actions">ਡਾਊਨਲੋਡ ਸੂਚਨਾ ਕਾਰਵਾਈਆਂ</string>
-    <string name="download_settings_notification_actions_subtitle">ਚੱਲ ਰਹੇ ਡਾਊਨਲੋਡ ਸੂਚਨਾਵਾਂ 'ਤੇ ਰੋਕੋ, ਮੁੜ ਸ਼ੁਰੂ ਕਰੋ ਅਤੇ ਰੱਦ ਕਰੋ ਬਟਨ ਦਿਖਾਓ</string>
+    <string name="download_settings_notification_actions_subtitle">ਚੱਲ ਰਹੇ ਡਾਊਨਲੋਡ ਸੂਚਨਾਵਾਂ \'ਤੇ ਰੋਕੋ, ਮੁੜ ਸ਼ੁਰੂ ਕਰੋ ਅਤੇ ਰੱਦ ਕਰੋ ਬਟਨ ਦਿਖਾਓ</string>
     <string name="download_settings_subtitle_language">ਸਬਟਾਈਟਲ ਭਾਸ਼ਾ</string>
     <string name="download_settings_subtitle_language_subtitle">en ਜਾਂ pa ਵਰਗਾ ਭਾਸ਼ਾ ਕੋਡ — ਖਾਲੀ ਛੱਡੋ ਤਾਂ ਕੋਈ ਵੀ ਚੁਣਿਆ ਜਾਵੇਗਾ</string>
     <string name="download_settings_subtitles">ਸਬਟਾਈਟਲ</string>
@@ -1586,11 +1586,11 @@
     <string name="not_interested">ਦਿਲਚਸਪੀ ਨਹੀਂ</string>
     <string name="not_interested_toast">ਵੀਡੀਓ ਲੁਕਾਇਆ ਗਿਆ — ਦੁਬਾਰਾ ਨਹੀਂ ਦਿਖੇਗਾ</string>
     <string name="notif_button_dislike">ਨਾਪਸੰਦ ਬਟਨ</string>
-    <string name="notif_button_dislike_subtitle">ਪਲੇਬੈਕ ਸੂਚਨਾ 'ਤੇ ਨਾਪਸੰਦ ਬਟਨ ਦਿਖਾਓ</string>
+    <string name="notif_button_dislike_subtitle">ਪਲੇਬੈਕ ਸੂਚਨਾ \'ਤੇ ਨਾਪਸੰਦ ਬਟਨ ਦਿਖਾਓ</string>
     <string name="notif_button_like">ਪਸੰਦ ਬਟਨ</string>
-    <string name="notif_button_like_subtitle">ਪਲੇਬੈਕ ਸੂਚਨਾ 'ਤੇ ਪਸੰਦ ਬਟਨ ਦਿਖਾਓ</string>
+    <string name="notif_button_like_subtitle">ਪਲੇਬੈਕ ਸੂਚਨਾ \'ਤੇ ਪਸੰਦ ਬਟਨ ਦਿਖਾਓ</string>
     <string name="notif_button_radio">ਰੇਡੀਓ ਬਟਨ</string>
-    <string name="notif_button_radio_subtitle">ਪਲੇਬੈਕ ਸੂਚਨਾ 'ਤੇ ਰੇਡੀਓ ਮੋਡ ਟੌਗਲ ਦਿਖਾਓ</string>
+    <string name="notif_button_radio_subtitle">ਪਲੇਬੈਕ ਸੂਚਨਾ \'ਤੇ ਰੇਡੀਓ ਮੋਡ ਟੌਗਲ ਦਿਖਾਓ</string>
     <string name="notif_settings_playback_buttons_header">ਪਲੇਬੈਕ ਸੂਚਨਾ ਬਟਨ</string>
     <string name="player_settings_crossfade">ਕਰਾਸਫ਼ੇਡ</string>
     <string name="player_settings_crossfade_duration">ਕਰਾਸਫ਼ੇਡ ਮਿਆਦ</string>
@@ -1599,7 +1599,7 @@
     <string name="player_settings_queue_swipe_to_remove">ਸਵਾਈਪ ਕਰਕੇ ਕਤਾਰ ਵਿੱਚੋਂ ਹਟਾਓ</string>
     <string name="player_settings_queue_swipe_to_remove_subtitle">ਕਤਾਰ ਦੀ ਚੀਜ਼ ਨੂੰ ਸਾਈਡ ਵੱਲ ਸਵਾਈਪ ਕਰਕੇ ਹਟਾਓ</string>
     <string name="player_settings_radio_mode">ਰੇਡੀਓ ਮੋਡ</string>
-    <string name="player_settings_radio_mode_subtitle">ਕਤਾਰ ਖ਼ਤਮ ਹੋਣ 'ਤੇ ਸਬੰਧਤ ਵੀਡੀਓ ਲਗਾਤਾਰ ਚਲਾਉਂਦਾ ਰਹਿੰਦਾ ਹੈ</string>
+    <string name="player_settings_radio_mode_subtitle">ਕਤਾਰ ਖ਼ਤਮ ਹੋਣ \'ਤੇ ਸਬੰਧਤ ਵੀਡੀਓ ਲਗਾਤਾਰ ਚਲਾਉਂਦਾ ਰਹਿੰਦਾ ਹੈ</string>
     <string name="recognition_grant_permission">ਇਜਾਜ਼ਤ ਦਿਓ</string>
     <string name="search">ਖੋਜ</string>
     <string name="see_all">ਸਭ ਦੇਖੋ</string>
@@ -1621,9 +1621,9 @@
     <string name="subscription_transfer_import_header">ਇੰਪੋਰਟ</string>
     <string name="subscription_transfer_import_subtitle">NewPipe ਦੀ subscriptions.json, Google Takeout ਦੀ subscriptions.csv ਜਾਂ OPML ਫ਼ਾਈਲ ਚੁਣੋ</string>
     <string name="subscription_transfer_imported_template">%2$s ਤੋਂ %1$d ਚੈਨਲ ਇੰਪੋਰਟ ਕੀਤੇ</string>
-    <string name="toast_like_write_failed">YouTube 'ਤੇ ਤੁਹਾਡੀ ਰੇਟਿੰਗ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋ ਸਕੀ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
-    <string name="toast_subscribe_write_failed">YouTube 'ਤੇ ਤੁਹਾਡੀ ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋ ਸਕੀ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
-    <string name="toast_watch_later_write_failed">YouTube 'ਤੇ ਬਾਅਦ ਵਿੱਚ ਦੇਖੋ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋਇਆ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
+    <string name="toast_like_write_failed">YouTube \'ਤੇ ਤੁਹਾਡੀ ਰੇਟਿੰਗ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋ ਸਕੀ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
+    <string name="toast_subscribe_write_failed">YouTube \'ਤੇ ਤੁਹਾਡੀ ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋ ਸਕੀ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
+    <string name="toast_watch_later_write_failed">YouTube \'ਤੇ ਬਾਅਦ ਵਿੱਚ ਦੇਖੋ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋਇਆ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
 
     <string name="sort_newest">ਸਭ ਤੋਂ ਨਵਾਂ</string>
     <string name="sort_most_viewed">ਸਭ ਤੋਂ ਵੱਧ ਦੇਖੇ ਗਏ</string>
