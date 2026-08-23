@@ -22,6 +22,8 @@ import org.junit.Test
 class SearchViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val repository: YouTubeRepository = mockk(relaxed = true)
+    private val playlistRepository: com.omersusin.pitube.data.repository.PlaylistRepository =
+        mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -36,14 +38,14 @@ class SearchViewModelTest {
 
     @Test
     fun `initial ui state has empty query and null filters`() {
-        val viewModel = SearchViewModel(repository)
+        val viewModel = SearchViewModel(repository, playlistRepository)
         assertThat(viewModel.uiState.value.query).isEmpty()
         assertThat(viewModel.uiState.value.filters).isNull()
     }
 
     @Test
     fun `search with valid query updates uiState`() {
-        val viewModel = SearchViewModel(repository)
+        val viewModel = SearchViewModel(repository, playlistRepository)
         viewModel.search("Kotlin Compose")
 
         val uiState = viewModel.uiState.value
@@ -52,7 +54,7 @@ class SearchViewModelTest {
 
     @Test
     fun `search with empty query resets uiState`() {
-        val viewModel = SearchViewModel(repository)
+        val viewModel = SearchViewModel(repository, playlistRepository)
         viewModel.search("Kotlin")
         viewModel.search("")
 
@@ -63,7 +65,7 @@ class SearchViewModelTest {
 
     @Test
     fun `updateFilters updates filters in uiState when query is active`() {
-        val viewModel = SearchViewModel(repository)
+        val viewModel = SearchViewModel(repository, playlistRepository)
         viewModel.search("Music")
 
         val filter = SearchFilter(contentType = ContentType.VIDEOS)
@@ -74,7 +76,7 @@ class SearchViewModelTest {
 
     @Test
     fun `clearSearch resets search query and filters`() {
-        val viewModel = SearchViewModel(repository)
+        val viewModel = SearchViewModel(repository, playlistRepository)
         viewModel.search("Android", SearchFilter(contentType = ContentType.PLAYLISTS))
 
         viewModel.clearSearch()
@@ -89,7 +91,7 @@ class SearchViewModelTest {
             val suggestions = listOf("kotlin tutorial", "kotlin android")
             coEvery { repository.getSearchSuggestions("kotlin") } returns suggestions
 
-            val viewModel = SearchViewModel(repository)
+            val viewModel = SearchViewModel(repository, playlistRepository)
             val result = viewModel.getSearchSuggestions("kotlin")
 
             assertThat(result).isEqualTo(suggestions)

@@ -28,6 +28,8 @@ class HistoryViewModelTest {
     private val youTubeRepository: YouTubeRepository = mockk(relaxed = true)
     private val videoDao: VideoDao = mockk(relaxed = true)
     private val watchHistoryDao: WatchHistoryDao = mockk(relaxed = true)
+    private val historyAccountSync: com.omersusin.pitube.data.local.HistoryAccountSync =
+        mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -59,7 +61,7 @@ class HistoryViewModelTest {
             coEvery { viewHistory.getAllHistory() } returns flowOf(historyList)
             coEvery { videoDao.getVideo("vid_1") } returns null
 
-            val viewModel = HistoryViewModel(viewHistory, youTubeRepository, videoDao, watchHistoryDao)
+            val viewModel = HistoryViewModel(viewHistory, youTubeRepository, videoDao, watchHistoryDao, historyAccountSync)
             testDispatcher.scheduler.advanceUntilIdle()
 
             val uiState = viewModel.uiState.value
@@ -73,7 +75,7 @@ class HistoryViewModelTest {
         runTest {
             coEvery { viewHistory.getAllHistory() } returns flowOf(emptyList())
 
-            val viewModel = HistoryViewModel(viewHistory, youTubeRepository, videoDao, watchHistoryDao)
+            val viewModel = HistoryViewModel(viewHistory, youTubeRepository, videoDao, watchHistoryDao, historyAccountSync)
             viewModel.clearHistory()
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -85,7 +87,7 @@ class HistoryViewModelTest {
         runTest {
             coEvery { viewHistory.getAllHistory() } returns flowOf(emptyList())
 
-            val viewModel = HistoryViewModel(viewHistory, youTubeRepository, videoDao, watchHistoryDao)
+            val viewModel = HistoryViewModel(viewHistory, youTubeRepository, videoDao, watchHistoryDao, historyAccountSync)
             viewModel.removeFromHistory("vid_123")
             testDispatcher.scheduler.advanceUntilIdle()
 

@@ -26,7 +26,7 @@ class ViewSortedSearchMappingTest {
                 SearchFilter(
                     contentType = contentType,
                     sortType = SortType.VIEWS,
-                ).toViewSortedSearchParams(),
+                ).toServerSearchParams(),
             )
         }
     }
@@ -40,7 +40,7 @@ class ViewSortedSearchMappingTest {
             sortType = SortType.VIEWS,
         )
 
-        assertEquals("CAMSBggCEAEYAw%3D%3D", filter.toViewSortedSearchParams())
+        assertEquals("CAMSBggCEAEYAw%3D%3D", filter.toServerSearchParams())
     }
 
     @Test
@@ -50,7 +50,7 @@ class ViewSortedSearchMappingTest {
             sortType = SortType.VIEWS,
         )
 
-        assertEquals("CAMSBBABQAE%3D", filter.toViewSortedSearchParams())
+        assertEquals("CAMSBBABQAE%3D", filter.toServerSearchParams())
     }
 
     @Test
@@ -66,7 +66,7 @@ class ViewSortedSearchMappingTest {
                 sortType = SortType.VIEWS,
             )
 
-            assertEquals(expected, filter.toViewSortedSearchParams())
+            assertEquals(expected, filter.toServerSearchParams())
         }
     }
 }
