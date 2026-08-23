@@ -1505,6 +1505,17 @@ object YouTube {
             return@runCatching emptyList()
         }
         val playlists = Json.parseToJsonElement(response.bodyAsText()).toRemotePlaylists()
+        if (playlists.isEmpty()) {
+            // Empty playlist aggregation is the "playlists stay blank" symptom —
+            // surface the response shape for the diagnostics report.
+            val body = response.bodyAsText()
+            val marker = when {
+                "signin" in body || "LOGIN_REQUIRED" in body -> "login-required banner"
+                body.length < 500 -> "tiny body (${body.length} chars)"
+                else -> "parsed-empty (body=${body.length} chars)"
+            }
+            Log.w("YouTube", "webUserPlaylists: EMPTY — $marker")
+        }
         if (playlists.isEmpty()) Log.w("YouTube", "webUserPlaylists: parser returned 0 playlists (body len ${response.bodyAsText().length})")
         playlists
     }
