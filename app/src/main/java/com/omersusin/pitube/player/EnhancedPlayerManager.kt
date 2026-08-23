@@ -2513,7 +2513,8 @@ class EnhancedPlayerManager private constructor() {
         // the slot still belongs to THIS attempt. Without this guard, a cancelled
         // attempt's finally wipes the reference of a successor job launched by
         // clearPreload()+re-arm in between (bookkeeping claims "idle" while B runs).
-        val thisPreloadJob =
+        var thisPreloadJob: Job? = null
+        thisPreloadJob =
             scope.launch {
                 var success = false
                 var shouldRetry = false
