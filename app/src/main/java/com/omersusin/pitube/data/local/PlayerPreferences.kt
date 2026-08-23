@@ -360,6 +360,7 @@ class PlayerPreferences(context: Context) {
         val DATA_SAVER_ENABLED = booleanPreferencesKey("data_saver_enabled")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
         val LYRICS_SYNC_OFFSET_MS = intPreferencesKey("lyrics_sync_offset_ms")
+        val LYRICS_TRANSLATION_TARGET_LANG = stringPreferencesKey("lyrics_translation_target_lang")
 
         // Action row customization
         val ACTION_ROW_ORDER = stringPreferencesKey("action_row_order")
@@ -2719,6 +2720,13 @@ class PlayerPreferences(context: Context) {
     /** Global lyric-sync nudge in milliseconds (positive = lyrics earlier). */
     val lyricsSyncOffsetMs: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_SYNC_OFFSET_MS] ?: 0 }
     suspend fun setLyricsSyncOffsetMs(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_SYNC_OFFSET_MS] = v.coerceIn(-5000, 5000) } }
+
+    /**
+     * Lyric-translation target language as an ISO code ("tr", "en", ...).
+     * Blank = follow the app/system locale.
+     */
+    val lyricsTranslationTargetLang: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_TRANSLATION_TARGET_LANG] ?: "" }
+    suspend fun setLyricsTranslationTargetLang(v: String) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TRANSLATION_TARGET_LANG] = v.trim().lowercase().take(8) } }
 
     val actionRowOrder: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.ACTION_ROW_ORDER] ?: "" }
     suspend fun setActionRowOrder(order: String) { context.playerPreferencesDataStore.edit { it[Keys.ACTION_ROW_ORDER] = order } }

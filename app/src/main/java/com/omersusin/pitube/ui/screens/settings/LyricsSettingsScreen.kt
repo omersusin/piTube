@@ -25,7 +25,7 @@ import com.omersusin.pitube.data.local.LyricsTextPosition
 import com.omersusin.pitube.data.local.PlayerPreferences
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalLayoutApi::class)
 @Composable
 fun LyricsSettingsScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current
@@ -44,6 +44,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val showPP by prefs.lyricsShowPlayPauseOnThumbnail.collectAsState(initial = true)
     val order by prefs.lyricsProviderOrder.collectAsState(initial = com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER)
     val translationEnabled by prefs.lyricsTranslationEnabled.collectAsState(initial = true)
+    val translationTargetLang by prefs.lyricsTranslationTargetLang.collectAsState(initial = "")
     val syncOffset by prefs.lyricsSyncOffsetMs.collectAsState(initial = 0)
 
     Scaffold(
@@ -150,6 +151,36 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                         checked = translationEnabled,
                         onCheckedChange = { scope.launch { prefs.setLyricsTranslationEnabled(it) } },
                     )
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    // Target language: blank follows the app/system locale.
+                    val langOptions = listOf(
+                        "" to "Follow app language",
+                        "tr" to "Turkish",
+                        "en" to "English",
+                        "de" to "German",
+                        "fr" to "French",
+                        "es" to "Spanish",
+                        "it" to "Italian",
+                        "ru" to "Russian",
+                        "ar" to "Arabic",
+                        "az" to "Azerbaijani",
+                    )
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Translation language", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            langOptions.forEach { (code, label) ->
+                                val selected = translationTargetLang == code
+                                androidx.compose.material3.FilterChip(
+                                    selected = selected,
+                                    onClick = { scope.launch { prefs.setLyricsTranslationTargetLang(code) } },
+                                    label = { Text(label) },
+                                )
+                            }
+                        }
+                    }
                 }
             }
             item { SectionHeader(text = "Providers") }

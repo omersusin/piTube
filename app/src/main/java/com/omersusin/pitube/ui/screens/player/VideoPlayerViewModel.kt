@@ -3527,6 +3527,7 @@ class VideoPlayerViewModel @Inject constructor(
                                 artist = artist,
                                 durationMs = durMs,
                                 enabled = prefsL.lyricsTranslationEnabled.first(),
+                                targetLangOverride = prefsL.lyricsTranslationTargetLang.first(),
                                 machineTranslate = { text, targetLang ->
                                     translationController.translate(text, targetLang)
                                 },
