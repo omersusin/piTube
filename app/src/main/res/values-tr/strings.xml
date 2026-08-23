@@ -2222,4 +2222,18 @@
     <string name="view_replies">Yanıtları gör</string>
     <string name="not_interested">İlgilenmiyorum</string>
     <string name="not_interested_toast">Tamamdır! Bundan sonra bu tür içerikleri daha az göreceksin.</string>
+    <string name="artist">Sanatçı</string>
+    <string name="download_codec_auto">Otomatik</string>
+    <string name="library_shelf_enabled">Abonelikler rafı</string>
+    <string name="library_shelf_enabled_subtitle">Kitaplık sayfasının üstündeki kanal şeridi</string>
+    <string name="library_subscriptions_shelf">Abonelikler</string>
+    <string name="recognition_grant_permission">İzin ver</string>
+    <string name="search">Ara</string>
+    <string name="see_all">Tümünü gör</string>
+    <string name="settings_google_sync_zero_invalid">0 kanal, oturum geçersiz</string>
+    <string name="settings_google_sync_zero_valid">0 kanal, oturum geçerli olarak doğrulandı</string>
+    <string name="settings_library_section">Kitaplık</string>
+    <string name="settings_session_expired">Oturum süresi doldu — yeniden giriş yapmak için dokunun</string>
+    <string name="song_title">Şarkı adı</string>
+
 </resources>
