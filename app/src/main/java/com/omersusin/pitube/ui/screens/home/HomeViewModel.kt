@@ -812,7 +812,6 @@ class HomeViewModel @Inject constructor(
                                 .also { Log.w(TAG, "Feed personal lane: music-home fallback fetched=${it.size}") }
                         }
                         videos
-                    }
                             .filterSignedValid()
                             .also { Log.w(TAG, "Feed personal lane: after signedValid=${it.size} (dropped shorts/≤120s)") }
                             .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
