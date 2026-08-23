@@ -20,13 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.ExperimentalLayoutApi
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.LyricsAnimationStyle
 import com.omersusin.pitube.data.local.LyricsTextPosition
 import com.omersusin.pitube.data.local.PlayerPreferences
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun LyricsSettingsScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current

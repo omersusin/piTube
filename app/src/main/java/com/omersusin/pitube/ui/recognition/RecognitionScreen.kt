@@ -407,11 +407,12 @@ private fun RecognitionMicButton(
     isSongMode: Boolean,
     onClick: () -> Unit,
 ) {
-    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val ctx = LocalContext.current
+    val prefs = remember(ctx) { com.omersusin.pitube.data.local.PlayerPreferences(ctx) }
     val floatingTint by prefs.recognitionFloatingTint.collectAsState(initial = "auto")
+    val idleColor = recognitionAccentContainer(floatingTint)
     val background by animateColorAsState(
-        targetValue = if (isListening) MaterialTheme.colorScheme.primary
-        else recognitionAccentContainer(floatingTint),
+        targetValue = if (isListening) MaterialTheme.colorScheme.primary else idleColor,
         label = "micBg",
     )
     val contentColor by animateColorAsState(
@@ -443,7 +444,8 @@ private fun VoiceResultCard(
     source: VoiceRecognitionSource?,
     onSearch: () -> Unit,
 ) {
-    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val ctx = LocalContext.current
+    val prefs = remember(ctx) { com.omersusin.pitube.data.local.PlayerPreferences(ctx) }
     val cardTint by prefs.recognitionCardTint.collectAsState(initial = "auto")
     Card(
         modifier = Modifier.padding(horizontal = 24.dp),

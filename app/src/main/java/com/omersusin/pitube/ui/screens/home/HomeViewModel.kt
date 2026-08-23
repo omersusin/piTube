@@ -763,7 +763,7 @@ class HomeViewModel @Inject constructor(
                 // NEVER rotate while signed in: re-pairing a fresh visitor id with
                 // the account cookies is exactly the combination YouTube answers
                 // with an empty FEwhat_to_watch (log evidence: fetched=0).
-                val rotationAllowed = !SessionManager.isLoggedIn()
+                val rotationAllowed = com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()
                 if (forceRefresh && rotationAllowed) {
                     runCatching { com.omersusin.pitube.innertube.YouTube.rotateVisitorData() }
                     seedDiscoveryQueries(shuffle = true)

@@ -578,7 +578,7 @@ private fun VideoDownloadCard(
                                 isAudio = video.isAudioOnly,
                             )
                             android.widget.Toast.makeText(
-                                context,
+                                saveContext,
                                 if (result.isSuccess) "Saved to device library"
                                 else "Save failed: ${result.exceptionOrNull()?.message}",
                                 android.widget.Toast.LENGTH_SHORT,

@@ -24,9 +24,6 @@ class PoTokenGenerator {
     // The bad-WebView latch used to be process-lifetime, but WebView updates
     // (Play Store) can fix a broken implementation while the app is installed.
     // Re-probe hourly instead of never.
-    private companion object {
-        const val BAD_WEBVIEW_RETRY_MS = 60L * 60L * 1000L
-    }
     @Volatile
     private var webViewBadImplAt = 0L
     private fun webViewBad(): Boolean =
@@ -184,6 +181,7 @@ class PoTokenGenerator {
     }
 
     companion object {
+        private const val BAD_WEBVIEW_RETRY_MS = 60L * 60L * 1000L
         // BgUtils documents full-trust content-bound PoTokens at 110-128 bytes; short (~88 byte)
         // tokens are cold/low-trust attestations that GVS rejects shortly into playback.
         private const val MIN_TRUSTED_POT_BYTES = 100

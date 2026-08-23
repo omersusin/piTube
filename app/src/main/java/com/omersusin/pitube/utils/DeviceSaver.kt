@@ -46,7 +46,7 @@ object DeviceSaver {
             val relativeDir = (if (isAudio) Environment.DIRECTORY_MUSIC else Environment.DIRECTORY_MOVIES) + "/piTube"
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, "$safeTitle.$extension")
-                put(MediaStore.MediaColumns.MIME_TYPE, finalMime)
+                put(MediaStore.MediaColumns.MIME_TYPE, mime)
                 put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDir)
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
             }
@@ -67,7 +67,7 @@ object DeviceSaver {
             val targetDir = File(publicDir, "piTube").apply { mkdirs() }
             val target = File(targetDir, "$safeTitle.$extension")
             sourceFile.copyTo(target, overwrite = true)
-            MediaScannerConnection.scanFile(context, arrayOf(target.absolutePath), arrayOf(finalMime), null)
+            MediaScannerConnection.scanFile(context, arrayOf(target.absolutePath), arrayOf(mime), null)
             Uri.fromFile(target)
         }
     }
