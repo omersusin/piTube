@@ -246,6 +246,13 @@ class FlowApplication :
                 }
                 Log.d(TAG, "YouTube session restored, signedIn=${!cookie.isNullOrEmpty()}")
                 SessionManager.restored.complete(true)
+                // KODA-MODEL freshness: every app open re-pulls the account
+                // library (liked videos, playlists, Watch Later, subscriptions)
+                // so changes made on real YouTube appear within minutes — not
+                // on the next 12-hour worker tick.
+                if (!cookie.isNullOrEmpty()) {
+                    com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(this)
+                }
             } catch (e: Exception) {
                 Log.w(TAG, "session restore error: ${e.message}")
                 SessionManager.restored.complete(false)
