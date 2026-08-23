@@ -49,6 +49,7 @@ fun SyncedLyricsView(
     onSwipeNext: (() -> Unit)? = null,
     onSwipePrev: (() -> Unit)? = null,
     translations: Map<Long, String> = emptyMap(),
+    isPlaying: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -72,7 +73,7 @@ fun SyncedLyricsView(
                 lines = lyricsResult.lines, currentPositionMs = currentPositionMs + syncOffsetMs, onSeekTo = onSeekTo,
                 anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal,
                 autoScroll = autoScroll, textPos = textPos, swipeEnabled = swipeEnabled, onSwipeNext = onSwipeNext, onSwipePrev = onSwipePrev,
-                changeOnClick = changeOnClick, translations = translations
+                changeOnClick = changeOnClick, translations = translations, isPlaying = isPlaying
             )
             is LyricsFetchResult.Plain -> Text(
                 text = lyricsResult.text,
@@ -102,14 +103,46 @@ private fun LyricsContent(
     autoScroll: Boolean, textPos: LyricsTextPosition, swipeEnabled: Boolean,
     onSwipeNext: (() -> Unit)?, onSwipePrev: (() -> Unit)?,
     changeOnClick: Boolean,
-    translations: Map<Long, String>
+    translations: Map<Long, String>,
+    isPlaying: Boolean
 ) {
     val listState = rememberLazyListState()
-    // Hold the ticking position in a State so the active-line lookup can observe it
-    // without recreating this whole composable scope on every tick.
+    // VIVI-STYLE DEAD RECKONING (port of vivi Lyrics.kt:769-791): the external
+    // position ticker only fires every 250ms-1s; between ticks we advance an
+    // interpolated clock every frame so line changes never lag. A >350ms
+    // divergence means a seek or fresh tick — snap to it. While paused the
+    // external value wins.
     val positionState = rememberUpdatedState(currentPositionMs)
+    val smoothPosition = remember { mutableLongStateOf(currentPositionMs) }
+    LaunchedEffect(isPlaying) {
+        var anchor = positionState.value
+        var anchorAt = 0L
+        withFrameNanos { now ->
+            anchor = positionState.value
+            anchorAt = now
+            smoothPosition.longValue = anchor
+        }
+        while (true) {
+            withFrameNanos { now ->
+                val ext = positionState.value
+                val predicted = anchor + (now - anchorAt) / 1_000_000L
+                if (!isPlaying || kotlin.math.abs(ext - predicted) > 350L) {
+                    anchor = ext
+                    anchorAt = now
+                    smoothPosition.longValue = ext
+                } else {
+                    smoothPosition.longValue = predicted
+                }
+            }
+        }
+    }
+    // +250ms lookahead when lines carry no word timings — vivi Lyrics.kt:798.
+    val hasWordTimings = remember(lines) { lines.any { it.contentSpans.isNotEmpty() } }
     val currentIndex by remember(lines) {
-        derivedStateOf { lines.indexOfLast { it.timeMs <= positionState.value } }
+        derivedStateOf {
+            val pos = smoothPosition.longValue + if (hasWordTimings) 0L else 250L
+            lines.indexOfLast { it.timeMs <= pos }
+        }
     }
     LaunchedEffect(currentIndex, autoScroll) {
         if (!autoScroll) return@LaunchedEffect
@@ -162,7 +195,7 @@ private fun LyricsContent(
                 val duration = (nextTime - line.timeMs).coerceAtLeast(800L)
                 // Only the active line reads the ticking clock — every other item
                 // stays skipped between line changes instead of recomposing per tick.
-                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, positionProvider = { positionState.value }, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
+                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, positionProvider = { smoothPosition.longValue }, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = { if (changeOnClick) onSeekTo(line.timeMs) }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
             }
         }
     }

@@ -166,11 +166,11 @@ fun FlowLyricsBottomSheet(
                     }
                     is LyricsUiState.Synced -> {
                         val injected = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text) } }
-                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, translations = translations, modifier = Modifier.fillMaxWidth().weight(1f))
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(injected), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, translations = translations, isPlaying = isPlaying, modifier = Modifier.fillMaxWidth().weight(1f))
                     }
                     is LyricsUiState.SyncedWithWords -> {
                         val withWords = remember(lyricsState) { lyricsState.lines.map { tl -> com.omersusin.pitube.data.lyrics.LrcLine(tl.startMs, tl.text, lyricsState.wordSpans[tl.startMs].orEmpty()) } }
-                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(withWords), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, translations = translations, modifier = Modifier.fillMaxWidth().weight(1f))
+                        SyncedLyricsView(lyricsResult = com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success(withWords), currentPositionMs = currentPosition, onSeekTo = onLyricsLineClick, onSwipeNext = onSwipeNextTrack, onSwipePrev = onSwipePrevTrack, translations = translations, isPlaying = isPlaying, modifier = Modifier.fillMaxWidth().weight(1f))
                     }
                     is LyricsUiState.Plain -> {
                         Box(modifier = Modifier.fillMaxWidth().weight(1f).padding(16.dp), contentAlignment = Alignment.TopStart) {
