@@ -1,6 +1,5 @@
 package com.omersusin.pitube.ui.screens.history
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,25 +30,21 @@ class HistoryViewModel
         private val youTubeRepository: YouTubeRepository,
         private val videoDao: VideoDao,
         private val watchHistoryDao: WatchHistoryDao,
+        private val historyAccountSync: com.omersusin.pitube.data.local.HistoryAccountSync,
     ) : ViewModel() {
         private val isEnriching = AtomicBoolean(false)
-        private val autoImportedFromAccount = AtomicBoolean(false)
 
         private val _uiState = MutableStateFlow(HistoryUiState())
         val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
         init {
-            // Keep play counts ("Most played" sort) fresh alongside history.
-            viewModelScope.launch {
-                viewHistory.getAllHistory().collect {
-                    val playCounts = viewHistory.getPlayCounts()
-                    _uiState.update { state -> state.copy(playCounts = playCounts) }
-                }
-            }
-            // Load history and enrich any entries that are missing metadata
+            // Load history, enrich metadata stubs, and auto-sync the account's
+            // real YouTube history through the SHARED sync point (one fetch per
+            // process staleness window — TimeManagement shares it too).
             viewModelScope.launch {
                 _uiState.update { it.copy(isLoading = true) }
                 viewHistory.getAllHistory().collect { history ->
+                    val playCounts = viewHistory.getPlayCounts()
                     val enriched =
                         history.map { entry ->
                             var e = entry
@@ -103,6 +98,7 @@ class HistoryViewModel
                         it.copy(
                             historyEntries = enriched,
                             shortVideos = shortVideos,
+                            playCounts = playCounts,
                             isLoading = false,
                         )
                     }
@@ -121,14 +117,10 @@ class HistoryViewModel
                         enrichFromApi(stubs)
                     }
 
-                    // Auto-sync the account's real YouTube history (idempotent): the
-                    // last local playback may be older than what the account
-                    // has, and this keeps the History screen matching the real
-                    // YouTube history without a manual menu tap.
-                    if (youTubeRepository.isSignedIn && !autoImportedFromAccount.get()) {
-                        autoImportedFromAccount.set(true)
-                        importFromYouTube(silent = true)
-                    }
+                    // Shared, staleness-gated account-history materialization
+                    // (feeds resume/taste-profile/stats consumers; see
+                    // HistoryAccountSync for the one-fetch-per-window policy).
+                    historyAccountSync.importIfStale()
                 }
             }
         }
@@ -204,42 +196,6 @@ class HistoryViewModel
                 viewHistory.clearVideoHistory(videoId)
             }
         }
-
-        /**
-         * Pull the signed-in account's real YouTube watch history (FEhistory)
-         * into local history, then auto-run once when signed in so the screen
-         * shows actual YouTube history without a manual menu tap.
-         *
-         * Idempotent: entries already seen by the local history are left
-         * untouched (their real timestamp and progress preserved) so re-runs
-         * never re-sort history to "now".
-         */
-        fun importFromYouTube(silent: Boolean = false) {
-            if (_uiState.value.isImporting) return
-            viewModelScope.launch {
-                if (!silent) _uiState.update { it.copy(isImporting = true) }
-                try {
-                    val videos = youTubeRepository.getYouTubeHistory()
-                    val existingIds = viewHistory.getAllHistoryIds()
-                    val fresh = videos.filter { it.id !in existingIds }
-                    fresh.forEach { video ->
-                        videoDao.insertVideoOrIgnore(VideoEntity.fromDomain(video))
-                        viewHistory.touchHistoryEntry(
-                            videoId = video.id,
-                            title = video.title,
-                            thumbnailUrl = video.thumbnailUrl,
-                            channelName = video.channelName,
-                            channelId = video.channelId,
-                            duration = video.duration * 1000L,
-                        )
-                    }
-                } catch (e: Exception) {
-                    Log.w("HistoryViewModel", "Failed to import YouTube history", e)
-                } finally {
-                    _uiState.update { it.copy(isImporting = false) }
-                }
-            }
-        }
     }
 
 data class HistoryUiState(
@@ -247,5 +203,4 @@ data class HistoryUiState(
     val shortVideos: Map<String, Video> = emptyMap(),
     val playCounts: Map<String, Int> = emptyMap(),
     val isLoading: Boolean = false,
-    val isImporting: Boolean = false,
 )

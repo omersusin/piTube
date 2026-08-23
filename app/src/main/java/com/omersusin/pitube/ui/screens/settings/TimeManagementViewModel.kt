@@ -26,7 +26,7 @@ class TimeManagementViewModel
     constructor(
         private val viewHistory: ViewHistory,
         private val localDataManager: LocalDataManager,
-        private val youTubeRepository: com.omersusin.pitube.data.repository.YouTubeRepository,
+        private val historyAccountSync: com.omersusin.pitube.data.local.HistoryAccountSync,
         @ApplicationContext private val applicationContext: Context,
     ) : ViewModel() {
         private val initialDuration = applicationContext.getString(R.string.duration_minutes, 0)
@@ -82,23 +82,12 @@ class TimeManagementViewModel
 
         /**
          * When signed in, the account's real YouTube watch history is pulled
-         * (idempotent) so the watch-time stats count time spent on the Google
-         * account (all devices), not just this one.
+         * through the SHARED staleness-gated sync point so watch-time stats
+         * count time on the Google account (all devices) — and History screen
+         * + Time Management never double-fetch in the same session.
          */
         private suspend fun importAccountHistoryIfSignedIn() {
-            if (com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()) return
-            val existingIds = viewHistory.getAllHistoryIds()
-            youTubeRepository.getYouTubeHistory().forEach { video ->
-                if (video.id in existingIds) return@forEach
-                viewHistory.touchHistoryEntry(
-                    videoId = video.id,
-                    title = video.title,
-                    thumbnailUrl = video.thumbnailUrl,
-                    channelName = video.channelName,
-                    channelId = video.channelId,
-                    duration = video.duration * 1000L,
-                )
-            }
+            historyAccountSync.importIfStale()
         }
 
         private suspend fun loadHistoryStats() {

@@ -193,14 +193,9 @@ fun HistoryScreen(
                             expanded = showMenu,
                             onDismissRequest = { showMenu = false },
                         ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.history_sync_youtube)) },
-                                enabled = !uiState.isImporting,
-                                onClick = {
-                                    showMenu = false
-                                    viewModel.importFromYouTube()
-                                },
-                            )
+                            // Manual "Sync YouTube history" removed: the account
+                            // history materializes automatically through the shared
+                            // staleness-gated HistoryAccountSync.
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.history_delete_shorts)) },
                                 enabled = uiState.historyEntries.any { it.isShort },
