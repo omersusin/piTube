@@ -7,10 +7,12 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+# Two parallel jobs instead of one sequential chain: the release build
+# (R8 minification dominates, ~5-7 min alone) no longer sits on the hot
+# path of tests + debug APK. Wall clock drops from ~11-14 min to ~6-8 min.
 jobs:
-  build:
+  test-debug:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -41,24 +43,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run unit tests
-        run: ./gradlew testDebugUnitTest --stacktrace
+      # Single invocation: one daemon warm-up + one configuration pass for both tasks.
+      - name: Unit tests + Debug APK
+        run: ./gradlew testDebugUnitTest assembleDebug --stacktrace
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
-
-      - name: Build Release APK
-        run: ./gradlew assembleRelease --stacktrace
-
-      # ABI splits are configured in app/build.gradle.kts, so each assemble task
-      # already emits one APK per ABI plus a universal one. List them so a
-      # missing split is obvious in the log rather than a silent upload failure.
-      - name: List built APKs
-        run: |
-          echo "── debug ──"
-          ls -l app/build/outputs/apk/debug/
-          echo "── release ──"
-          ls -l app/build/outputs/apk/release/
+      - name: List built debug APKs
+        run: ls -l app/build/outputs/apk/debug/
 
       - name: Upload Debug APKs
         if: always()
@@ -68,6 +58,54 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: warn
           retention-days: 14
+
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Decode signing keystore
+        run: |
+          mkdir -p ./keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ./keystore/piTube-release.jks
+          echo "Keystore decoded to ./keystore/piTube-release.jks"
+          ls -l ./keystore/piTube-release.jks
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      - name: Setup Gradle with signing properties
+        run: |
+          echo "KEYSTORE_FILE=$GITHUB_WORKSPACE/keystore/piTube-release.jks" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Universal APK is built only for manual dispatch / tag builds so routine
+      # pushes skip the duplicated dex+package pass (~1-2 min).
+      - name: Release APKs
+        run: |
+          EXTRA=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            EXTRA="-PuniversalApk"
+            echo "Building universal APK too (manual/tag build)"
+          fi
+          ./gradlew assembleRelease $EXTRA --stacktrace
+
+      # ABI splits are configured in app/build.gradle.kts; list them so a missing
+      # split is obvious in the log rather than a silent upload failure.
+      - name: List built release APKs
+        run: ls -l app/build/outputs/apk/release/
 
       - name: Upload Release APKs
         if: always()

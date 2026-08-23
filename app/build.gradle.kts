@@ -18,8 +18,8 @@ android {
         applicationId = "com.omersusin.pitube"
         minSdk = 26
         targetSdk = 36
-        versionCode = 46
-        versionName = "2.6.4"
+        versionCode = 47
+        versionName = "2.6.5"
 
         testInstrumentationRunner = "com.omersusin.pitube.HiltTestRunner"
         vectorDrawables {
@@ -66,7 +66,10 @@ android {
             isEnable = true
             reset()
             include("arm64-v8a", "armeabi-v7a")
-            isUniversalApk = true
+            // Universal APK duplicates the full dex+package work (~1-2 min in CI).
+            // Routine builds emit ABI splits only; pass -PuniversalApk for a
+            // universal artifact (CI does this on manual dispatch / tag builds).
+            isUniversalApk = project.hasProperty("universalApk")
         }
     }
 
