@@ -25,6 +25,7 @@ class FlowCrashHandler private constructor(
         private const val TAG = "FlowCrashHandler"
         private const val CRASH_LOG_FILE = "flow_crashes.log"
         private const val MAX_CRASH_LOG_SIZE = 500_000L // 500KB
+        private const val MAX_CRASH_ENTRIES = 10 // keep the newest N reports
         private const val MAX_BREADCRUMBS = 40
         private val breadcrumbs = ConcurrentLinkedDeque<FlowCrashBreadcrumb>()
         
@@ -177,10 +178,35 @@ class FlowCrashHandler private constructor(
             }
             
             file.appendText(crashReport)
+            trimCrashLogToNewestEntries(file)
             Log.i(TAG, "Crash saved to ${file.absolutePath}")
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to save crash to file", e)
+        }
+    }
+
+    /**
+     * Keeps only the newest [MAX_CRASH_ENTRIES] reports. Old builds' reports
+     * piling up forever made the diagnostics tab misleading; the version gate
+     * clears them on upgrade, and this caps growth within one build.
+     */
+    private fun trimCrashLogToNewestEntries(file: File) {
+        try {
+            val content = file.readText()
+            val marker = "CRASH REPORT - "
+            val firstLineEnd = content.indexOf('\n')
+            val header = if (firstLineEnd > 0) content.substring(0, firstLineEnd + 1) else ""
+            val body = content.removePrefix(header)
+            // Split on the separator lines that precede each report title.
+            val reports = body.split(Regex("(?=={20,}\\s*\\nCRASH REPORT - )"))
+                .filter { it.contains(marker) }
+            if (reports.size <= MAX_CRASH_ENTRIES) return
+            val newest = reports.takeLast(MAX_CRASH_ENTRIES)
+            file.writeText(newest.joinToString(separator = "") { it })
+            Log.i(TAG, "Trimmed crash log to newest $MAX_CRASH_ENTRIES entries")
+        } catch (e: Exception) {
+            Log.w(TAG, "Crash log trim failed: ${e.message}")
         }
     }
     

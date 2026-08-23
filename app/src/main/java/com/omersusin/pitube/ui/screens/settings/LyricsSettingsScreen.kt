@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Swipe
 import androidx.compose.material.icons.outlined.TouchApp
@@ -196,22 +197,34 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                     "youlyplus" to "YouLyPlus",
                     "transcript" to "YouTube Transcript",
                 )
-                // Drag the handle to reorder — persisted on every swap.
+                // THE FIX for the dead-feeling drag: the displayed list must BE
+                // the persisted order. Passing the static catalog meant rows
+                // never moved on screen — only the number badges reshuffled.
+                val displayItems = remember(order) {
+                    val known = allProviders.associateBy { it.first }
+                    orderList.mapNotNull { known[it] } +
+                        allProviders.filter { it.first !in orderList.toSet() }
+                }
+                // Drag rows to reorder — persisted on every swap.
                 SettingsGroup {
                     com.omersusin.pitube.ui.screens.settings.components.DragReorderColumn(
-                        items = allProviders,
+                        items = displayItems,
                         itemKey = { it.first },
                         onMove = { from, to ->
-                            val m = orderList.toMutableList()
-                            val moved = if (from < m.size) m.removeAt(from) else return@DragReorderColumn
-                            m.add(to.coerceIn(0, m.size), moved)
-                            scope.launch { prefs.setLyricsProviderOrder(m.joinToString(",")) }
+                            val ids = displayItems.map { it.first }.toMutableList()
+                            val moved = ids.getOrNull(from) ?: return@DragReorderColumn
+                            ids.removeAt(from)
+                            ids.add(to.coerceIn(0, ids.size), moved)
+                            scope.launch { prefs.setLyricsProviderOrder(ids.joinToString(",")) }
                         },
                     ) { (id, label) ->
-                        val posIdx = orderList.indexOf(id)
                         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text("${if (posIdx >= 0) posIdx + 1 else "-"}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, modifier = Modifier.width(28.dp))
                             Column(Modifier.weight(1f)) { Text(label, style = MaterialTheme.typography.bodyLarge); Text(id, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                            Icon(
+                                Icons.Outlined.DragIndicator,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                 }

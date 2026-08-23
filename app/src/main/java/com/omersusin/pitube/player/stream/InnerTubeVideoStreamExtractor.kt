@@ -12,6 +12,7 @@ import com.omersusin.pitube.player.sabr.SabrRoutingPolicy
 import com.omersusin.pitube.player.sabr.core.SabrCpn
 import com.omersusin.pitube.player.sabr.integration.SabrStreamInfo
 import com.omersusin.pitube.player.sabr.integration.SabrUrlResolver
+import com.omersusin.pitube.utils.FlowCrashHandler
 import com.omersusin.pitube.utils.cipher.CipherDeobfuscator
 import com.omersusin.pitube.utils.cipher.PipePipeNsigDecoder
 import com.omersusin.pitube.utils.potoken.WebPoTokenSession
@@ -128,6 +129,7 @@ object InnerTubeVideoStreamExtractor {
         forceSabr: Boolean,
     ): VideoExtractionResult? = withContext(Dispatchers.IO) {
         Log.w(TAG, "Extraction start for $videoId (forceSabr=$forceSabr)")
+        com.omersusin.pitube.utils.FlowCrashHandler.recordPhase("extract", "start $videoId sabr=$forceSabr")
         PlayerDiagnostics.logWarning(TAG, "extract start $videoId forceSabr=$forceSabr")
         val failureReasons = mutableListOf<String>()
         val liveDetected = booleanArrayOf(false)
@@ -146,14 +148,14 @@ object InnerTubeVideoStreamExtractor {
         // 1) Fast path: token-free clients with direct URLs
         tryDirectClients(videoId, FAST_CLIENTS, failureReasons, liveDetected = liveDetected)?.let { direct ->
             val result = maybeUpgradeToSabr(videoId, direct, failureReasons)
-            Log.w(TAG, "Extraction OK for $videoId via ${result.usedClient.clientName} (mode=${resultMode(result)})")
+            Log.w(TAG, "Extraction OK for $videoId via ${result.usedClient.clientName} (mode=${resultMode(result)})"); FlowCrashHandler.recordPhase("extract", "ok $videoId ${result.usedClient.clientName}")
             PlayerDiagnostics.logWarning(TAG, "extract OK $videoId via ${result.usedClient.clientName} mode=${resultMode(result)}")
             return@withContext result
         }
 
         tryDirectClients(videoId, BOT_RESISTANT_CLIENTS, failureReasons, liveDetected = liveDetected)?.let { direct ->
             val result = maybeUpgradeToSabr(videoId, direct, failureReasons)
-            Log.w(TAG, "Extraction OK for $videoId via ${result.usedClient.clientName} (mode=${resultMode(result)})")
+            Log.w(TAG, "Extraction OK for $videoId via ${result.usedClient.clientName} (mode=${resultMode(result)})"); FlowCrashHandler.recordPhase("extract", "ok $videoId ${result.usedClient.clientName}")
             return@withContext result
         }
 
@@ -166,7 +168,7 @@ object InnerTubeVideoStreamExtractor {
 
         // 2) Durable path: WEB + BotGuard PoToken + SABR. Survives the LOGIN_REQUIRED bot wall
         tryWebSabr(videoId, failureReasons)?.let {
-            Log.w(TAG, "Extraction OK for $videoId via WEB (mode=SABR)")
+            Log.w(TAG, "Extraction OK for $videoId via WEB (mode=SABR)"); FlowCrashHandler.recordPhase("extract", "ok $videoId WEB/SABR")
             PlayerDiagnostics.logWarning(TAG, "extract OK $videoId mode=SABR (durable)")
             return@withContext if (liveDetected[0] && !it.isLive) it.copy(isLive = true) else it
         }

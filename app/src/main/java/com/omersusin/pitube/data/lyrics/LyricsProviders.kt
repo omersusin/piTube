@@ -52,7 +52,7 @@ class LrclibLyricsProvider(private val client: OkHttpClient = defaultClient()) :
             if (d <= 3) return synced
             if (d < bestDiff) { bestDiff = d; best = item }
         }
-        return if (best != null && bestDiff <= 10) syncedOf(best) else null
+        return if (best != null && bestDiff <= 6) syncedOf(best) else null
     }
     private fun syncedOf(j: JSONObject): String? { if (j.isNull("syncedLyrics")) return null; return j.optString("syncedLyrics").takeIf { it.isNotBlank() && it != "null" } }
     private fun fetchJson(url: String): JSONObject? = try {
@@ -233,7 +233,7 @@ class SimpMusicLyricsProvider(private val client: OkHttpClient = defaultClient()
                 if (diff < bestDiff) { bestDiff = diff; best = t }
             }
             val track = best ?: continue
-            if (durSec > 0 && bestDiff > 10) continue
+            if (durSec > 0 && bestDiff > 6) continue
             track.optString("richSyncLyrics").takeIf { it.isNotBlank() }?.let { return@withContext it }
             track.optString("syncedLyrics").takeIf { it.isNotBlank() }?.let { return@withContext it }
             track.optString("plainLyric").takeIf { it.isNotBlank() }?.let { return@withContext it }

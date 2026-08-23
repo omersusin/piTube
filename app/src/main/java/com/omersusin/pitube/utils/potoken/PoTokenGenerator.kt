@@ -21,6 +21,17 @@ class PoTokenGenerator {
     private val webViewSupported by lazy { runCatching { CookieManager.getInstance() }.isSuccess }
     private var webViewBadImpl = false // whether the system has a bad WebView implementation
 
+    // The bad-WebView latch used to be process-lifetime, but WebView updates
+    // (Play Store) can fix a broken implementation while the app is installed.
+    // Re-probe hourly instead of never.
+    private companion object {
+        const val BAD_WEBVIEW_RETRY_MS = 60L * 60L * 1000L
+    }
+    @Volatile
+    private var webViewBadImplAt = 0L
+    private fun webViewBad(): Boolean =
+        webViewBadImpl && (System.currentTimeMillis() - webViewBadImplAt) < BAD_WEBVIEW_RETRY_MS
+
     private val webPoTokenGenLock = Mutex()
     private var webPoTokenSessionId: String? = null
     private var webPoTokenStreamingPot: String? = null
@@ -42,7 +53,7 @@ class PoTokenGenerator {
     ): PoTokenResult? {
         Log.d(TAG, "getWebClientPoToken called: videoId=$videoId, sessionId=$sessionId")
         Log.d(TAG, "WebView state: supported=$webViewSupported, badImpl=$webViewBadImpl")
-        if (!webViewSupported || webViewBadImpl) {
+        if (!webViewSupported || webViewBad()) {
             Log.d(TAG, "WebView not available: supported=$webViewSupported, badImpl=$webViewBadImpl")
             return null
         }
@@ -55,6 +66,7 @@ class PoTokenGenerator {
                 is BadWebViewException -> {
                     Log.e(TAG, "Could not obtain poToken because WebView is broken", e)
                     webViewBadImpl = true
+                    webViewBadImplAt = System.currentTimeMillis()
                     null
                 }
                 else -> throw e // includes PoTokenException
@@ -63,7 +75,7 @@ class PoTokenGenerator {
     }
 
     fun prewarmWebClient(sessionId: String): Boolean {
-        if (sessionId.isBlank() || !webViewSupported || webViewBadImpl) return false
+        if (sessionId.isBlank() || !webViewSupported || webViewBad()) return false
         return try {
             runBlocking { ensureWebPoTokenGenerator(sessionId, forceRecreate = false) }
             true
@@ -71,7 +83,7 @@ class PoTokenGenerator {
             throw e
         } catch (e: Exception) {
             Log.w(TAG, "Web poToken prewarm failed: ${e.message}", e)
-            if (e is BadWebViewException) webViewBadImpl = true
+            if (e is BadWebViewException) webViewBadImpl = true; webViewBadImplAt = System.currentTimeMillis()
             false
         }
     }
