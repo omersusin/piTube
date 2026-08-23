@@ -2,6 +2,7 @@
 
 package com.omersusin.pitube.ui.screens.search
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -70,12 +71,8 @@ fun SearchScreen(
 ) {
     val context = LocalContext.current
     val searchHistoryRepo = remember { SearchHistoryRepository(context) }
-    val preferences =
-        remember {
-            com.omersusin.pitube.data.local
-                .PlayerPreferences(context)
-        }
     val uiState by viewModel.uiState.collectAsState()
+    val savedPlaylistIds by viewModel.savedPlaylistIds.collectAsState()
 
     var searchQuery by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
@@ -86,7 +83,6 @@ fun SearchScreen(
         )
     }
     var isSearchFocused by remember { mutableStateOf(false) }
-    val isGridMode by preferences.searchIsGridMode.collectAsState(initial = false)
 
     var hasPerformedSearch by rememberSaveable { mutableStateOf(false) }
     var isNavigatingAway by remember { mutableStateOf(false) }
@@ -180,6 +176,22 @@ fun SearchScreen(
             }
         }
 
+    val togglePlaylistSaved: (Playlist) -> Unit =
+        remember(context) {
+            { playlist ->
+                scope.launch {
+                    val nowSaved = viewModel.togglePlaylistSave(playlist)
+                    Toast.makeText(
+                        context,
+                        context.getString(
+                            if (nowSaved) R.string.ui_playlist_saved_to_library else R.string.ui_playlist_removed_from_library,
+                        ),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
+        }
+
     LaunchedEffect(Unit) {
         if (!hasPerformedSearch) {
             delay(200)
@@ -250,13 +262,7 @@ fun SearchScreen(
         }
     }
 
-    val sortByTypes =
-        listOf(
-            SortType.RELEVANCE,
-            SortType.RATING,
-            SortType.VIEWS,
-        )
-    val selectedContentType = uiState.filters?.contentType ?: ContentType.ALL
+    val selectedContentType = uiState.filters?.contentType ?: ContentType.VIDEOS
     val sharedVideoTitle = stringResource(R.string.shared_video)
 
     Column(
@@ -372,30 +378,33 @@ fun SearchScreen(
                 },
             )
         } else {
-            SearchFiltersBar(
+            SearchContentTabs(
                 selectedContentType = selectedContentType,
                 onContentTypeSelected = { type ->
                     val base = uiState.filters ?: SearchFilter()
                     viewModel.updateFilters(base.copy(contentType = type))
                 },
-                selectedDuration = uiState.filters?.duration ?: Duration.ANY,
-                onDurationSelected = { dur ->
-                    val base = uiState.filters ?: SearchFilter()
-                    viewModel.updateFilters(base.copy(duration = dur))
-                },
-                selectedUploadDate = uiState.filters?.uploadDate ?: UploadDate.ANY,
-                onUploadDateSelected = { date ->
-                    val base = uiState.filters ?: SearchFilter()
-                    viewModel.updateFilters(base.copy(uploadDate = date))
-                },
-                isGridMode = isGridMode,
-                onToggleGridMode = { scope.launch { preferences.setSearchIsGridMode(!isGridMode) } },
-                selectedSortType = uiState.filters?.sortType ?: SortType.RELEVANCE,
-                onSelectedSortType = {
-                    val base = uiState.filters ?: SearchFilter()
-                    viewModel.updateFilters(base.copy(sortType = it))
-                },
             )
+
+            if (selectedContentType == ContentType.VIDEOS) {
+                VideoFilterChipRows(
+                    selectedUploadDate = uiState.filters?.uploadDate ?: UploadDate.ANY,
+                    onUploadDateSelected = { date ->
+                        val base = uiState.filters ?: SearchFilter()
+                        viewModel.updateFilters(base.copy(uploadDate = date))
+                    },
+                    selectedDuration = uiState.filters?.duration ?: Duration.ANY,
+                    onDurationSelected = { dur ->
+                        val base = uiState.filters ?: SearchFilter()
+                        viewModel.updateFilters(base.copy(duration = dur))
+                    },
+                    selectedSortType = uiState.filters?.sortType ?: SortType.RELEVANCE,
+                    onSortTypeSelected = {
+                        val base = uiState.filters ?: SearchFilter()
+                        viewModel.updateFilters(base.copy(sortType = it))
+                    },
+                )
+            }
 
             val isInitialLoading =
                 pagingItems.loadState.refresh is LoadState.Loading
@@ -405,29 +414,24 @@ fun SearchScreen(
                 pagingItems.loadState.refresh is LoadState.NotLoading &&
                     pagingItems.itemCount == 0 &&
                     !isInitialLoading
+            val resultCount =
+                remember(pagingItems.loadState.refresh, pagingItems.itemCount) {
+                    (0 until pagingItems.itemCount).count {
+                        pagingItems.peek(it) !is SearchResultItem.ShortsShelfResult
+                    }
+                }
+
+            if (!isInitialLoading && !isInitialError && !isEmptyResults) {
+                ResultsSectionHeader(
+                    contentType = selectedContentType,
+                    resultCount = resultCount,
+                )
+            }
 
             BoxWithConstraints(modifier = Modifier.weight(1f)) {
-                val responsiveColumns =
-                    when {
-                        maxWidth < 700.dp -> 1
-                        maxWidth < 900.dp -> 2
-                        maxWidth < 1200.dp -> 3
-                        else -> 4
-                    }
-
-                val responsiveGridColumns =
-                    when {
-                        maxWidth < 600.dp -> 1
-                        maxWidth < 900.dp -> 2
-                        maxWidth < 1200.dp -> 3
-                        else -> 4
-                    }
-
-                val columns = if (isGridMode) responsiveGridColumns else responsiveColumns
-
                 when {
                     isInitialLoading -> {
-                        ShimmerResultsScreen(isGridMode, columns)
+                        ShimmerResultsScreen(false, 1)
                     }
 
                     isInitialError -> {
@@ -450,38 +454,17 @@ fun SearchScreen(
                         )
                     }
 
-                    selectedContentType == ContentType.SHORTS -> {
-                        SearchShortsGrid(
+                    else -> {
+                        SearchResultList(
                             pagingItems,
                             gridState,
-                            maxOf(columns, 2),
+                            savedPlaylistIds,
+                            togglePlaylistSaved,
                             navigateToVideo,
+                            navigateToChannel,
+                            navigateToPlaylist,
                             dismissKeyboard,
                         )
-                    }
-
-                    else -> {
-                        if (isGridMode) {
-                            SearchResultGrid(
-                                pagingItems,
-                                gridState,
-                                columns,
-                                navigateToVideo,
-                                navigateToChannel,
-                                navigateToPlaylist,
-                                dismissKeyboard,
-                            )
-                        } else {
-                            SearchResultList(
-                                pagingItems,
-                                gridState,
-                                columns,
-                                navigateToVideo,
-                                navigateToChannel,
-                                navigateToPlaylist,
-                                dismissKeyboard,
-                            )
-                        }
                     }
                 }
             }
@@ -674,42 +657,67 @@ private fun SearchBarRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchFiltersBar(
+private fun SearchContentTabs(
     selectedContentType: ContentType,
     onContentTypeSelected: (ContentType) -> Unit,
-    selectedDuration: Duration,
-    onDurationSelected: (Duration) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val tabIndex =
+        when (selectedContentType) {
+            ContentType.PLAYLISTS -> 1
+            ContentType.CHANNELS -> 2
+            else -> 0
+        }
+    PrimaryTabRow(
+        selectedTabIndex = tabIndex,
+        modifier = modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.background,
+    ) {
+        Tab(
+            selected = tabIndex == 0,
+            onClick = { onContentTypeSelected(ContentType.VIDEOS) },
+            text = {
+                Text(
+                    stringResource(R.string.videos_header),
+                    fontWeight = if (tabIndex == 0) FontWeight.Bold else FontWeight.Normal,
+                )
+            },
+        )
+        Tab(
+            selected = tabIndex == 1,
+            onClick = { onContentTypeSelected(ContentType.PLAYLISTS) },
+            text = {
+                Text(
+                    stringResource(R.string.tab_playlists),
+                    fontWeight = if (tabIndex == 1) FontWeight.Bold else FontWeight.Normal,
+                )
+            },
+        )
+        Tab(
+            selected = tabIndex == 2,
+            onClick = { onContentTypeSelected(ContentType.CHANNELS) },
+            text = {
+                Text(
+                    stringResource(R.string.channels_header),
+                    fontWeight = if (tabIndex == 2) FontWeight.Bold else FontWeight.Normal,
+                )
+            },
+        )
+    }
+}
+
+@Composable
+private fun VideoFilterChipRows(
     selectedUploadDate: UploadDate,
     onUploadDateSelected: (UploadDate) -> Unit,
+    selectedDuration: Duration,
+    onDurationSelected: (Duration) -> Unit,
     selectedSortType: SortType,
-    onSelectedSortType: (SortType) -> Unit,
-    isGridMode: Boolean,
-    onToggleGridMode: () -> Unit,
+    onSortTypeSelected: (SortType) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val showVideoFilters =
-        selectedContentType in
-            listOf(
-                ContentType.ALL,
-                ContentType.VIDEOS,
-                ContentType.LIVE,
-            )
-    val typeLabels =
-        listOf(
-            ContentType.ALL to R.string.search_filter_all,
-            ContentType.VIDEOS to R.string.videos_header,
-            ContentType.SHORTS to R.string.tab_shorts,
-            ContentType.CHANNELS to R.string.channels_header,
-            ContentType.PLAYLISTS to R.string.tab_playlists,
-            ContentType.LIVE to R.string.tab_live,
-        )
-    val durationLabels =
-        listOf(
-            Duration.ANY to R.string.duration_any,
-            Duration.UNDER_4_MINUTES to R.string.duration_under_4,
-            Duration.FROM_4_TO_20_MINUTES to R.string.duration_4_20,
-            Duration.OVER_20_MINUTES to R.string.duration_over_20,
-        )
     val uploadDateLabels =
         listOf(
             UploadDate.ANY to R.string.date_any,
@@ -718,202 +726,104 @@ private fun SearchFiltersBar(
             UploadDate.THIS_MONTH to R.string.date_this_month,
             UploadDate.THIS_YEAR to R.string.date_this_year,
         )
+    val durationLabels =
+        listOf(
+            Duration.ANY to R.string.duration_any,
+            Duration.UNDER_4_MINUTES to R.string.duration_under_4,
+            Duration.FROM_4_TO_20_MINUTES to R.string.duration_4_20,
+            Duration.OVER_20_MINUTES to R.string.duration_over_20,
+        )
     val sortTypeLabels =
         listOf(
             SortType.RELEVANCE to R.string.sort_relevance,
+            SortType.NEWEST to R.string.sort_newest,
+            SortType.VIEWS to R.string.sort_most_viewed,
             SortType.RATING to R.string.sort_rating,
-            SortType.VIEWS to R.string.views,
         )
 
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         LazyRow(
-            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 8.dp),
+        ) {
+            items(uploadDateLabels, key = { it.first.name }) { (value, labelRes) ->
+                ContentFilterChip(
+                    title = stringResource(labelRes),
+                    isSelected = value == selectedUploadDate,
+                    onClick = { onUploadDateSelected(value) },
+                )
+            }
+        }
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            item {
-                var typeExpanded by remember { mutableStateOf(false) }
-                Box {
-                    FilterChip(
-                        selected = selectedContentType != ContentType.ALL,
-                        onClick = { typeExpanded = true },
-                        label = {
-                            Text(stringResource(typeLabels.first { it.first == selectedContentType }.second))
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Default.FilterList, null, Modifier.size(16.dp))
-                        },
-                        trailingIcon = {
-                            Icon(Icons.Default.ArrowDropDown, null, Modifier.size(16.dp))
-                        },
-                    )
-                    DropdownMenu(
-                        expanded = typeExpanded,
-                        onDismissRequest = { typeExpanded = false },
-                    ) {
-                        typeLabels.forEach { (type, labelRes) ->
-                            DropdownMenuItem(
-                                text = { Text(stringResource(labelRes)) },
-                                leadingIcon =
-                                    if (type == selectedContentType) {
-                                        { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
-                                    } else {
-                                        null
-                                    },
-                                onClick = {
-                                    onContentTypeSelected(type)
-                                    typeExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
+            items(durationLabels, key = { "d_${it.first.name}" }) { (value, labelRes) ->
+                ContentFilterChip(
+                    title = stringResource(labelRes),
+                    isSelected = value == selectedDuration,
+                    onClick = { onDurationSelected(value) },
+                )
             }
-
-            if (showVideoFilters) {
-                item {
-                    var durationExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        FilterChip(
-                            selected = selectedDuration != Duration.ANY,
-                            onClick = { durationExpanded = true },
-                            label = {
-                                Text(stringResource(durationLabels.first { it.first == selectedDuration }.second))
-                            },
-                            trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.size(16.dp))
-                            },
-                        )
-                        DropdownMenu(
-                            expanded = durationExpanded,
-                            onDismissRequest = { durationExpanded = false },
-                        ) {
-                            durationLabels.forEach { (dur, labelRes) ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(labelRes)) },
-                                    leadingIcon =
-                                        if (dur == selectedDuration) {
-                                            { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
-                                        } else {
-                                            null
-                                        },
-                                    onClick = {
-                                        onDurationSelected(dur)
-                                        durationExpanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    var dateExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        FilterChip(
-                            selected = selectedUploadDate != UploadDate.ANY,
-                            onClick = { dateExpanded = true },
-                            label = {
-                                Text(stringResource(uploadDateLabels.first { it.first == selectedUploadDate }.second))
-                            },
-                            trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.size(16.dp))
-                            },
-                        )
-                        DropdownMenu(
-                            expanded = dateExpanded,
-                            onDismissRequest = { dateExpanded = false },
-                        ) {
-                            uploadDateLabels.forEach { (date, labelRes) ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(labelRes)) },
-                                    leadingIcon =
-                                        if (date == selectedUploadDate) {
-                                            { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
-                                        } else {
-                                            null
-                                        },
-                                    onClick = {
-                                        onUploadDateSelected(date)
-                                        dateExpanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-                item {
-                    var sortExpanded by remember { mutableStateOf(false) }
-                    Box {
-                        FilterChip(
-                            selected = selectedSortType != SortType.RELEVANCE,
-                            onClick = { sortExpanded = true },
-                            label = {
-                                Text(stringResource(sortTypeLabels.first { it.first == selectedSortType }.second))
-                            },
-                            trailingIcon = {
-                                Icon(Icons.Default.ArrowDropDown, null, Modifier.size(16.dp))
-                            },
-                        )
-                        DropdownMenu(
-                            expanded = sortExpanded,
-                            onDismissRequest = { sortExpanded = false },
-                        ) {
-                            sortTypeLabels.forEach { (sort, labelRes) ->
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(labelRes)) },
-                                    leadingIcon =
-                                        if (sort == selectedSortType) {
-                                            { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
-                                        } else {
-                                            null
-                                        },
-                                    onClick = {
-                                        onSelectedSortType(sort)
-                                        sortExpanded = false
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
+            item(key = "divider") {
+                VerticalDivider(
+                    modifier = Modifier.height(20.dp).padding(horizontal = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                )
+            }
+            items(sortTypeLabels, key = { "s_${it.first.name}" }) { (value, labelRes) ->
+                ContentFilterChip(
+                    title = stringResource(labelRes),
+                    isSelected = value == selectedSortType,
+                    onClick = { onSortTypeSelected(value) },
+                )
             }
         }
+    }
+}
 
-        Box(
-            modifier =
-                Modifier
-                    .padding(start = 2.dp, end = 6.dp)
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (isGridMode) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            Color.Transparent
-                        },
-                    ).clickable(onClick = onToggleGridMode),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                if (isGridMode) Icons.AutoMirrored.Outlined.ViewList else Icons.Outlined.GridView,
-                contentDescription = stringResource(R.string.search_toggle_view_mode),
-                tint =
-                    if (isGridMode) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                modifier = Modifier.size(20.dp),
-            )
+@Composable
+private fun ResultsSectionHeader(
+    contentType: ContentType,
+    resultCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    val (icon, labelRes) =
+        when (contentType) {
+            ContentType.PLAYLISTS -> Icons.Outlined.VideoLibrary to R.string.tab_playlists
+            ContentType.CHANNELS -> Icons.Outlined.People to R.string.channels_header
+            else -> Icons.Outlined.SmartDisplay to R.string.videos_header
         }
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp),
+        )
+        Text(
+            stringResource(labelRes),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            stringResource(R.string.search_results_count, resultCount),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -944,16 +854,17 @@ private const val SHORTS_SHELF_KEY = "shortsShelf"
 @Composable
 private fun SearchResultList(
     pagingItems: androidx.paging.compose.LazyPagingItems<SearchResultItem>,
-    gridState: LazyGridState,
-    columns: Int,
+    listState: LazyGridState,
+    savedPlaylistIds: Set<String>,
+    onToggleSavePlaylist: (Playlist) -> Unit,
     onVideoClick: (Video) -> Unit,
     onChannelClick: (Channel) -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
     dismissKeyboard: () -> Unit,
 ) {
     LazyVerticalGrid(
-        state = gridState,
-        columns = GridCells.Fixed(columns),
+        state = listState,
+        columns = GridCells.Fixed(1),
         modifier =
             Modifier
                 .fillMaxSize()
@@ -970,33 +881,12 @@ private fun SearchResultList(
                         }
                     }
                 },
-        contentPadding =
-            PaddingValues(
-                start = if (columns == 1) 0.dp else 16.dp,
-                end = if (columns == 1) 0.dp else 16.dp,
-                top = 8.dp,
-                bottom = 90.dp,
-            ),
-        horizontalArrangement =
-            Arrangement.spacedBy(
-                if (columns == 1) 0.dp else 12.dp,
-            ),
-        verticalArrangement =
-            Arrangement.spacedBy(
-                if (columns == 1) 0.dp else 12.dp,
-            ),
+        contentPadding = PaddingValues(top = 8.dp, bottom = 90.dp),
     ) {
         items(
             count = pagingItems.itemCount,
             key = { i -> searchItemKey(pagingItems.peek(i), i) },
             contentType = { i -> searchItemContentType(pagingItems.peek(i)) },
-            span = { i ->
-                if (pagingItems.peek(i) is SearchResultItem.ShortsShelfResult) {
-                    GridItemSpan(maxLineSpan)
-                } else {
-                    GridItemSpan(1)
-                }
-            },
         ) { i ->
             when (val item = pagingItems[i]) {
                 is SearchResultItem.VideoResult -> {
@@ -1033,6 +923,9 @@ private fun SearchResultList(
                         onClick = {
                             onPlaylistClick(item.playlist)
                         },
+                        showSaveAction = true,
+                        isSaved = item.playlist.id in savedPlaylistIds,
+                        onSaveClick = { onToggleSavePlaylist(item.playlist) },
                     )
                 }
 
@@ -1041,163 +934,6 @@ private fun SearchResultList(
                 }
 
                 null -> {}
-            }
-        }
-
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            PagingFooter(
-                pagingItems.loadState.append,
-                pagingItems::retry,
-                pagingItems.itemCount,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SearchResultGrid(
-    pagingItems: androidx.paging.compose.LazyPagingItems<SearchResultItem>,
-    gridState: LazyGridState,
-    columns: Int,
-    onVideoClick: (Video) -> Unit,
-    onChannelClick: (Channel) -> Unit,
-    onPlaylistClick: (Playlist) -> Unit,
-    dismissKeyboard: () -> Unit,
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
-        state = gridState,
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event =
-                                awaitPointerEvent(
-                                    pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial,
-                                )
-                            if (event.changes.any { it.pressed }) {
-                                dismissKeyboard()
-                            }
-                        }
-                    }
-                },
-        contentPadding = PaddingValues(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        items(
-            count = pagingItems.itemCount,
-            key = { i -> searchItemKey(pagingItems.peek(i), i) },
-            contentType = { i -> searchItemContentType(pagingItems.peek(i)) },
-            span = { i ->
-                if (pagingItems.peek(i) is SearchResultItem.ShortsShelfResult) {
-                    GridItemSpan(maxLineSpan)
-                } else {
-                    GridItemSpan(1)
-                }
-            },
-        ) { i ->
-            val item = pagingItems[i] ?: return@items
-            when (item) {
-                is SearchResultItem.VideoResult -> {
-                    CompactVideoCard(
-                        video = item.video,
-                        onClick = {
-                            onVideoClick(item.video)
-                        },
-                        onChannelClick = { channelId ->
-                            onChannelClick(
-                                Channel(
-                                    id = channelId,
-                                    name = item.video.channelName,
-                                    thumbnailUrl = item.video.channelThumbnailUrl,
-                                    subscriberCount = 0,
-                                    url = "https://www.youtube.com/channel/$channelId",
-                                ),
-                            )
-                        },
-                    )
-                }
-
-                is SearchResultItem.ChannelResult -> {
-                    SearchChannelCardCompact(
-                        item.channel,
-                        onClick = {
-                            onChannelClick(item.channel)
-                        },
-                    )
-                }
-
-                is SearchResultItem.PlaylistResult -> {
-                    SearchPlaylistCardCompact(
-                        item.playlist,
-                        onClick = {
-                            onPlaylistClick(item.playlist)
-                        },
-                    )
-                }
-
-                is SearchResultItem.ShortsShelfResult -> {
-                    ShortsShelf(shorts = item.shorts, onShortClick = onVideoClick)
-                }
-            }
-        }
-
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            PagingFooter(
-                pagingItems.loadState.append,
-                pagingItems::retry,
-                pagingItems.itemCount,
-            )
-        }
-    }
-}
-
-/** Shorts tab: a portrait grid of [ShortsCard]s. */
-@Composable
-private fun SearchShortsGrid(
-    pagingItems: androidx.paging.compose.LazyPagingItems<SearchResultItem>,
-    gridState: LazyGridState,
-    columns: Int,
-    onVideoClick: (Video) -> Unit,
-    dismissKeyboard: () -> Unit,
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columns),
-        state = gridState,
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event =
-                                awaitPointerEvent(
-                                    pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial,
-                                )
-                            if (event.changes.any { it.pressed }) {
-                                dismissKeyboard()
-                            }
-                        }
-                    }
-                },
-        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 90.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        items(
-            count = pagingItems.itemCount,
-            key = { i -> searchItemKey(pagingItems.peek(i), i) },
-            contentType = { i -> searchItemContentType(pagingItems.peek(i)) },
-        ) { i ->
-            (pagingItems[i] as? SearchResultItem.VideoResult)?.let {
-                ShortsCard(
-                    video = it.video,
-                    onClick = { onVideoClick(it.video) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
         }
 
@@ -1557,177 +1293,6 @@ private fun SuggestionRow(
         }
     }
 }
-
-@Composable
-private fun SearchChannelCard(
-    channel: Channel,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val primary = MaterialTheme.colorScheme.primary
-    Surface(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 5.dp)
-                .clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-        tonalElevation = 1.dp,
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            Arrangement.spacedBy(14.dp),
-            Alignment.CenterVertically,
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Box(
-                    Modifier
-                        .size(72.dp)
-                        .background(
-                            Brush.sweepGradient(
-                                listOf(
-                                    primary,
-                                    primary.copy(0.3f),
-                                    primary,
-                                ),
-                            ),
-                            CircleShape,
-                        ),
-                )
-                AsyncImage(
-                    channel.thumbnailUrl,
-                    channel.name,
-                    Modifier
-                        .size(66.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-            Column(Modifier.weight(1f)) {
-                Text(
-                    channel.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (channel.subscriberCount > 0) {
-                    Spacer(Modifier.height(3.dp))
-                    Text(
-                        stringResource(
-                            R.string.subscribers_count_template,
-                            formatSubscriberCount(channel.subscriberCount),
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (channel.description.isNotBlank()) {
-                    Spacer(Modifier.height(3.dp))
-                    Text(
-                        channel.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-            Icon(
-                Icons.Default.ChevronRight,
-                null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(22.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun SearchChannelCardCompact(
-    channel: Channel,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier =
-            modifier
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    MaterialTheme.colorScheme.surfaceVariant.copy(0.35f),
-                ).clickable(onClick = onClick)
-                .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        AsyncImage(
-            channel.thumbnailUrl,
-            channel.name,
-            Modifier
-                .size(60.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentScale = ContentScale.Crop,
-        )
-        Text(
-            channel.name,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-}
-
-@Composable
-private fun SearchPlaylistCardCompact(
-    playlist: Playlist,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier =
-            modifier
-                .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = onClick),
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-        ) {
-            AsyncImage(
-                playlist.thumbnailUrl,
-                playlist.name,
-                Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            playlist.name,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Text(
-            "${playlist.videoCount} videos",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
 @Composable
 private fun SearchErrorState(
     message: String,

@@ -1723,4 +1723,7 @@
     <string name="toast_watch_later_write_failed">Nije uspjelo ažuriranje Gledaj kasnije na YouTube. Izmjena je opozvana.</string>
 
     <string name="history_sort_most_played">Najviše reproducirano</string>
+    <string name="sort_newest">Najnovije</string>
+    <string name="sort_most_viewed">Najviše pregleda</string>
+    <string name="search_results_count">%1$d rezultata</string>
 </resources>

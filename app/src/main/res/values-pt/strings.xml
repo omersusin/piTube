@@ -1700,4 +1700,7 @@ para criar a sua lista de reprodução</string>
     <string name="toast_subscribe_write_failed">Não foi possível atualizar a sua subscrição no YouTube. A alteração foi anulada.</string>
     <string name="toast_watch_later_write_failed">Não foi possível atualizar Ver mais tarde no YouTube. A alteração foi anulada.</string>
 
+    <string name="sort_newest">Mais recentes</string>
+    <string name="sort_most_viewed">Mais vistos</string>
+    <string name="search_results_count">%1$d resultados</string>
 </resources>

@@ -2277,4 +2277,7 @@
     <string name="toast_watch_later_write_failed">Impossible de mettre à jour « À regarder plus tard » sur YouTube. La modification a été annulée.</string>
 
     <string name="history_sort_most_played">Les plus visionnés</string>
+    <string name="sort_newest">Plus récentes</string>
+    <string name="sort_most_viewed">Les plus visionnés</string>
+    <string name="search_results_count">%1$d résultats</string>
 </resources>

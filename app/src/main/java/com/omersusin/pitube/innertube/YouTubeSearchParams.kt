@@ -24,7 +24,20 @@ internal object YouTubeSearchParams {
         THIS_YEAR(5),
     }
 
-    fun sortedByViewCount(
+    enum class Sort(val value: Int) {
+        RELEVANCE(0),
+        RATING(1),
+        UPLOAD_DATE(2),
+        VIEW_COUNT(3),
+    }
+
+    /**
+     * Builds the base64 /search `params` protobuf: sort order (field 1) plus a
+     * filter block (field 2) — the same values youtube.com's filter sheet puts
+     * in the `sp` URL param. RELEVANCE writes no sort field (server default).
+     */
+    fun build(
+        sort: Sort = Sort.RELEVANCE,
         contentType: ContentType? = null,
         duration: Duration? = null,
         uploadDate: UploadDate? = null,
@@ -38,7 +51,7 @@ internal object YouTubeSearchParams {
         }
 
         val request = ProtobufWriter.encode {
-            writeInt32(SORT_FIELD, SORT_BY_VIEW_COUNT)
+            if (sort != Sort.RELEVANCE) writeInt32(SORT_FIELD, sort.value)
             if (filters.isNotEmpty()) writeBytes(FILTERS_FIELD, filters)
         }
 
@@ -46,11 +59,24 @@ internal object YouTubeSearchParams {
         return URLEncoder.encode(encodedRequest, Charsets.UTF_8.name())
     }
 
+    fun sortedByViewCount(
+        contentType: ContentType? = null,
+        duration: Duration? = null,
+        uploadDate: UploadDate? = null,
+        liveOnly: Boolean = false,
+    ): String = build(
+        sort = Sort.VIEW_COUNT,
+        contentType = contentType,
+        duration = duration,
+        uploadDate = uploadDate,
+        liveOnly = liveOnly,
+    )
+
     private const val SORT_FIELD = 1
     private const val FILTERS_FIELD = 2
     private const val FILTER_DATE_FIELD = 1
     private const val FILTER_TYPE_FIELD = 2
     private const val FILTER_DURATION_FIELD = 3
     private const val FILTER_LIVE_FIELD = 8
-    private const val SORT_BY_VIEW_COUNT = 3
+
 }

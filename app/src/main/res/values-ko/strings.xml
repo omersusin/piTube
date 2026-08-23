@@ -2232,4 +2232,7 @@
     <string name="toast_subscribe_write_failed">YouTube 구독을 업데이트할 수 없습니다. 변경 사항이 되돌려졌습니다.</string>
     <string name="toast_watch_later_write_failed">YouTube에서 나중에 볼 동영상을 업데이트할 수 없습니다. 변경 사항이 되돌려졌습니다.</string>
 
+    <string name="sort_newest">최신순</string>
+    <string name="sort_most_viewed">조회수순</string>
+    <string name="search_results_count">결과 %1$d개</string>
 </resources>

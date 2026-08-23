@@ -11,6 +11,8 @@ import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.omersusin.pitube.data.local.ContentType
 import com.omersusin.pitube.data.local.SearchFilter
+import com.omersusin.pitube.data.local.PlaylistRepository
+import com.omersusin.pitube.data.model.Playlist
 import com.omersusin.pitube.data.paging.SearchPagingSource
 import com.omersusin.pitube.data.paging.SearchResultItem
 import com.omersusin.pitube.data.repository.YouTubeRepository
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // ── UI state ─────────────────────────────────────────────────────────────────
@@ -39,9 +42,23 @@ class SearchViewModel
     @Inject
     constructor(
         private val repository: YouTubeRepository,
+        private val playlistRepository: PlaylistRepository,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SearchUiState())
         val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+
+        private val _savedPlaylistIds = MutableStateFlow<Set<String>>(emptySet())
+
+        /** Ids of remote playlists saved to the library for the active profile. */
+        val savedPlaylistIds: StateFlow<Set<String>> = _savedPlaylistIds.asStateFlow()
+
+        init {
+            viewModelScope.launch {
+                playlistRepository.getSavedVideoPlaylistsFlow().collect { playlists ->
+                    _savedPlaylistIds.value = playlists.map { it.id }.toSet()
+                }
+            }
+        }
 
         /**
          * Internal trigger: emitting a new value here restarts the pager from page 0.
@@ -87,8 +104,9 @@ class SearchViewModel
                 _searchKey.value = null
                 return
             }
-            _uiState.value = SearchUiState(query = query, filters = filters)
-            _searchKey.value = SearchKey(query, buildContentFilters(filters), filters)
+            val effectiveFilters = filters ?: SearchFilter(contentType = ContentType.VIDEOS)
+            _uiState.value = SearchUiState(query = query, filters = effectiveFilters)
+            _searchKey.value = SearchKey(query, buildContentFilters(effectiveFilters), effectiveFilters)
         }
 
         fun updateFilters(filters: SearchFilter) {
@@ -111,6 +129,20 @@ class SearchViewModel
                 filters.uploadDate != com.omersusin.pitube.data.local.UploadDate.ANY ||
                 filters.sortType != com.omersusin.pitube.data.local.SortType.RELEVANCE
         }
+
+        suspend fun togglePlaylistSave(playlist: Playlist): Boolean =
+            if (playlistRepository.isExternalPlaylistSaved(playlist.id)) {
+                playlistRepository.unsaveExternalPlaylist(playlist.id)
+                false
+            } else {
+                playlistRepository.saveExternalVideoPlaylist(
+                    id = playlist.id,
+                    name = playlist.name,
+                    description = playlist.description,
+                    thumbnailUrl = playlist.thumbnailUrl,
+                )
+                true
+            }
 
         suspend fun getSearchSuggestions(query: String): List<String> {
             if (query.length < 2) return emptyList()

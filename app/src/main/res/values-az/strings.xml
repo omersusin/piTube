@@ -2232,4 +2232,7 @@
     <string name="toast_watch_later_write_failed">YouTube-da “Sonra bax” yenilənə bilmədi. Dəyişiklik geri alındı.</string>
 
     <string name="history_sort_most_played">Ən çox oynadılan</string>
+    <string name="sort_newest">Ən yeni</string>
+    <string name="sort_most_viewed">Ən çox baxılan</string>
+    <string name="search_results_count">%1$d nəticə</string>
 </resources>

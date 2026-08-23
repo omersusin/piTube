@@ -1660,4 +1660,7 @@
     <string name="toast_watch_later_write_failed">無法在 YouTube 更新稍後觀看。變更已復原。</string>
 
     <string name="history_sort_most_played">播放次數最多</string>
+    <string name="sort_newest">最新</string>
+    <string name="sort_most_viewed">觀看次數最多</string>
+    <string name="search_results_count">%1$d 項結果</string>
 </resources>

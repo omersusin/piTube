@@ -2238,4 +2238,7 @@
     <string name="toast_watch_later_write_failed">Не вдалося оновити "Переглянути пізніше" на YouTube. Зміну скасовано.</string>
 
     <string name="history_sort_most_played">Найбільше відтворювані</string>
+    <string name="sort_newest">Найновіші</string>
+    <string name="sort_most_viewed">Найперегляданіші</string>
+    <string name="search_results_count">Результатів: %1$d</string>
 </resources>

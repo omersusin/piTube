@@ -44,7 +44,7 @@ enum class ContentType {
 }
 
 enum class SortType {
-   RELEVANCE, RATING, VIEWS
+   RELEVANCE, RATING, VIEWS, NEWEST
 }
 
 enum class Duration {

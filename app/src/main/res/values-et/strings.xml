@@ -1706,4 +1706,7 @@
     <string name="toast_watch_later_write_failed">YouTube\'is ei õnnestunud valikut Vaata hiljem värskendada. Muudatus tühistati.</string>
 
     <string name="history_sort_most_played">Kõige rohkem esitatud</string>
+    <string name="sort_newest">Uusimad</string>
+    <string name="sort_most_viewed">Enim vaadatud</string>
+    <string name="search_results_count">%1$d tulemust</string>
 </resources>

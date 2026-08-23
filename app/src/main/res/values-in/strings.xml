@@ -2221,4 +2221,7 @@
     <string name="toast_watch_later_write_failed">Tidak dapat memperbarui Tonton Nanti di YouTube. Perubahan dibatalkan.</string>
 
     <string name="history_sort_most_played">Paling sering diputar</string>
+    <string name="sort_newest">Terbaru</string>
+    <string name="sort_most_viewed">Paling banyak ditonton</string>
+    <string name="search_results_count">%1$d hasil</string>
 </resources>

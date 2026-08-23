@@ -2134,4 +2134,7 @@
     <string name="toast_subscribe_write_failed">Nie można zaktualizować subskrypcji na YouTube. Zmiana została cofnięta.</string>
     <string name="toast_watch_later_write_failed">Nie można zaktualizować listy „Do obejrzenia” na YouTube. Zmiana została cofnięta.</string>
 
+    <string name="sort_newest">Najnowsze</string>
+    <string name="sort_most_viewed">Najczęściej oglądane</string>
+    <string name="search_results_count">%1$d wyników</string>
 </resources>

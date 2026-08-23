@@ -1643,4 +1643,7 @@
     <string name="toast_watch_later_write_failed">Није могуће ажурирати Гледај касније на ИоуТубе-у. Измена је опозвана.</string>
 
     <string name="history_sort_most_played">Највише репродуковано</string>
+    <string name="sort_newest">Најновије</string>
+    <string name="sort_most_viewed">Најгледаније</string>
+    <string name="search_results_count">%1$d резултата</string>
 </resources>

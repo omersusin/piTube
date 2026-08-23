@@ -3,6 +3,7 @@ package com.omersusin.pitube.data.paging
 import com.omersusin.pitube.data.local.ContentType
 import com.omersusin.pitube.data.local.Duration
 import com.omersusin.pitube.data.local.SearchFilter
+import com.omersusin.pitube.data.local.SortType
 import com.omersusin.pitube.data.local.UploadDate
 import com.omersusin.pitube.data.model.Channel
 import com.omersusin.pitube.data.model.Playlist
@@ -15,8 +16,14 @@ import com.omersusin.pitube.innertube.pages.WebSearchItem
 import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 
-internal fun SearchFilter.toViewSortedSearchParams(): String =
-    YouTubeSearchParams.sortedByViewCount(
+internal fun SearchFilter.toServerSearchParams(): String =
+    YouTubeSearchParams.build(
+        sort = when (sortType) {
+            SortType.RELEVANCE -> YouTubeSearchParams.Sort.RELEVANCE
+            SortType.RATING -> YouTubeSearchParams.Sort.RATING
+            SortType.VIEWS -> YouTubeSearchParams.Sort.VIEW_COUNT
+            SortType.NEWEST -> YouTubeSearchParams.Sort.UPLOAD_DATE
+        },
         contentType = when (contentType) {
             ContentType.ALL -> null
             ContentType.VIDEOS, ContentType.SHORTS, ContentType.LIVE ->

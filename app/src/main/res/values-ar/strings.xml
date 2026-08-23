@@ -2229,4 +2229,7 @@
     <string name="toast_watch_later_write_failed">تعذّر تحديث "المشاهدة لاحقًا" على YouTube. تم التراجع عن التغيير.</string>
 
     <string name="history_sort_most_played">الأكثر تشغيلاً</string>
+    <string name="sort_newest">الأحدث</string>
+    <string name="sort_most_viewed">الأكثر مشاهدةً</string>
+    <string name="search_results_count">%1$d من النتائج</string>
 </resources>

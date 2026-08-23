@@ -1625,4 +1625,7 @@
     <string name="toast_subscribe_write_failed">YouTube 'ਤੇ ਤੁਹਾਡੀ ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋ ਸਕੀ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
     <string name="toast_watch_later_write_failed">YouTube 'ਤੇ ਬਾਅਦ ਵਿੱਚ ਦੇਖੋ ਅੱਪਡੇਟ ਨਹੀਂ ਹੋਇਆ। ਤਬਦੀਲੀ ਵਾਪਸ ਲਈ ਗਈ।</string>
 
+    <string name="sort_newest">ਸਭ ਤੋਂ ਨਵਾਂ</string>
+    <string name="sort_most_viewed">ਸਭ ਤੋਂ ਵੱਧ ਦੇਖੇ ਗਏ</string>
+    <string name="search_results_count">%1$d ਨਤੀਜੇ</string>
 </resources>

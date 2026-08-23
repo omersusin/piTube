@@ -80,8 +80,20 @@ class SearchPagingSource(
                     )
                 }
 
-                if (searchFilter?.sortType == SortType.VIEWS) {
-                    return@withContext loadViewSortedPage(page)
+                // Video-ish content with any active server-side filter or a
+                // non-relevance sort goes through InnerTube so filtering/sorting
+                // happen on the server (true continuations, no string heuristics).
+                // Plain relevance searches stay on NewPipe (shorts shelf +
+                // avatar-stack enrichment ride that path).
+                val useServerPath = searchFilter != null &&
+                    searchFilter.contentType != ContentType.CHANNELS &&
+                    searchFilter.contentType != ContentType.PLAYLISTS && (
+                    searchFilter.sortType != SortType.RELEVANCE ||
+                        searchFilter.uploadDate != UploadDate.ANY ||
+                        searchFilter.duration != Duration.ANY
+                    )
+                if (useServerPath) {
+                    return@withContext loadServerFilteredPage(page)
                 }
 
                 val extractor = service.getSearchExtractor(query, contentFilters, "")
@@ -214,11 +226,11 @@ class SearchPagingSource(
 
     // ── helpers ──────────────────────────────────────────────────────────────
 
-    private suspend fun loadViewSortedPage(page: Page?): LoadResult.Page<Page, SearchResultItem> {
+    private suspend fun loadServerFilteredPage(page: Page?): LoadResult.Page<Page, SearchResultItem> {
         val filter = requireNotNull(searchFilter)
         val result = YouTube.searchByViews(
             query = query,
-            searchParams = filter.toViewSortedSearchParams(),
+            searchParams = filter.toServerSearchParams(),
             continuation = page?.id,
         ).getOrThrow()
 
@@ -380,13 +392,8 @@ class SearchPagingSource(
 
     private fun sortVideoItemsLocally(searchFilter: SearchFilter?, items: List<SearchResultItem>): List<SearchResultItem> =
         when (searchFilter?.sortType) {
-            SortType.RELEVANCE -> items
-            SortType.RATING -> items.sortedByDescending { item ->
-                if (item is SearchResultItem.VideoResult) item.video.likeCount else 0L
-            }
-
-            SortType.VIEWS -> items
-
+            // RATING/VIEWS/NEWEST are server-side now (InnerTube params);
+            // only the plain NewPipe relevance path reaches this function.
             else -> items
         }
 

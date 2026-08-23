@@ -17,8 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -61,6 +63,9 @@ fun PlaylistCard(
     onDeleteClick: (() -> Unit)? = null,
     layout: PlaylistCardLayout = PlaylistCardLayout.LIST,
     modifier: Modifier = Modifier,
+    showSaveAction: Boolean = false,
+    isSaved: Boolean = false,
+    onSaveClick: (() -> Unit)? = null,
 ) {
     PlaylistCardContent(
         title = playlist.name,
@@ -74,6 +79,9 @@ fun PlaylistCard(
         onClick = onClick,
         onDeleteClick = onDeleteClick,
         layout = layout,
+        showSaveAction = showSaveAction,
+        isSaved = isSaved,
+        onSaveClick = onSaveClick,
         modifier = modifier,
     )
 }
@@ -84,6 +92,9 @@ fun PlaylistCard(
     onClick: () -> Unit,
     layout: PlaylistCardLayout = PlaylistCardLayout.LIST,
     modifier: Modifier = Modifier,
+    showSaveAction: Boolean = false,
+    isSaved: Boolean = false,
+    onSaveClick: (() -> Unit)? = null,
 ) {
     PlaylistCardContent(
         title = playlist.name,
@@ -94,6 +105,9 @@ fun PlaylistCard(
         onClick = onClick,
         onDeleteClick = null,
         layout = layout,
+        showSaveAction = showSaveAction,
+        isSaved = isSaved,
+        onSaveClick = onSaveClick,
         modifier = modifier,
     )
 }
@@ -109,6 +123,9 @@ private fun PlaylistCardContent(
     onDeleteClick: (() -> Unit)?,
     layout: PlaylistCardLayout,
     modifier: Modifier,
+    showSaveAction: Boolean = false,
+    isSaved: Boolean = false,
+    onSaveClick: (() -> Unit)? = null,
 ) {
     val metadata =
         visibilityLabel?.let {
@@ -180,6 +197,26 @@ private fun PlaylistCardContent(
             compact = false,
             modifier = Modifier.weight(1f),
         )
+
+        if (showSaveAction) {
+            IconButton(onClick = { onSaveClick?.invoke() }) {
+                Icon(
+                    imageVector =
+                        if (isSaved) {
+                            Icons.Filled.Bookmark
+                        } else {
+                            Icons.Outlined.Bookmark
+                        },
+                    contentDescription = stringResource(if (isSaved) R.string.saved else R.string.save),
+                    tint =
+                        if (isSaved) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                )
+            }
+        }
 
         if (onDeleteClick != null) {
             Box {

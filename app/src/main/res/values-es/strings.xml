@@ -2231,4 +2231,7 @@
     <string name="toast_watch_later_write_failed">No se pudo actualizar "Ver más tarde" en YouTube. Se deshizo el cambio.</string>
 
     <string name="history_sort_most_played">Más reproducidos</string>
+    <string name="sort_newest">Más recientes</string>
+    <string name="sort_most_viewed">Más vistos</string>
+    <string name="search_results_count">%1$d resultados</string>
 </resources>

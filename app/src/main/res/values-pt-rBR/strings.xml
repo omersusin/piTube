@@ -2083,4 +2083,7 @@
     <string name="toast_subscribe_write_failed">Não foi possível atualizar sua inscrição no YouTube. A alteração foi desfeita.</string>
     <string name="toast_watch_later_write_failed">Não foi possível atualizar Assistir mais tarde no YouTube. A alteração foi desfeita.</string>
 
+    <string name="sort_newest">Mais recentes</string>
+    <string name="sort_most_viewed">Mais assistidos</string>
+    <string name="search_results_count">%1$d resultados</string>
 </resources>

@@ -1659,4 +1659,7 @@
     <string name="toast_subscribe_write_failed">YouTube හි ඔබේ දායකත්වය යාවත්කාලීන කළ නොහැකි විය. වෙනස ඉවත් කරන ලදී.</string>
     <string name="toast_watch_later_write_failed">YouTube හි පසුව නැරඹීම යාවත්කාලීන කළ නොහැකි විය. වෙනස ඉවත් කරන ලදී.</string>
 
+    <string name="sort_newest">අලුත්ම</string>
+    <string name="sort_most_viewed">වැඩිපුරම නැරඹූ</string>
+    <string name="search_results_count">ප්‍රතිඵල %1$d</string>
 </resources>

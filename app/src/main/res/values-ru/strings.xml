@@ -2241,4 +2241,7 @@
     <string name="toast_subscribe_write_failed">Не удалось обновить подписку на YouTube. Изменение отменено.</string>
     <string name="toast_watch_later_write_failed">Не удалось обновить «Смотреть позже» на YouTube. Изменение отменено.</string>
 
+    <string name="sort_newest">Новые</string>
+    <string name="sort_most_viewed">Самые просматриваемые</string>
+    <string name="search_results_count">Результатов: %1$d</string>
 </resources>

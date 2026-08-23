@@ -2239,4 +2239,7 @@
     <string name="toast_watch_later_write_failed">Không thể cập nhật Xem sau trên YouTube. Thay đổi đã được hoàn tác.</string>
 
     <string name="history_sort_most_played">Phát nhiều nhất</string>
+    <string name="sort_newest">Mới nhất</string>
+    <string name="sort_most_viewed">Xem nhiều nhất</string>
+    <string name="search_results_count">%1$d kết quả</string>
 </resources>

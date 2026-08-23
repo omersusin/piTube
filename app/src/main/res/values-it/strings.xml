@@ -2177,4 +2177,7 @@
     <string name="toast_watch_later_write_failed">Impossibile aggiornare Guarda più tardi su YouTube. La modifica è stata annullata.</string>
 
     <string name="history_sort_most_played">I più riprodotti</string>
+    <string name="sort_newest">Più recenti</string>
+    <string name="sort_most_viewed">Più visti</string>
+    <string name="search_results_count">%1$d risultati</string>
 </resources>

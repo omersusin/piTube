@@ -1658,4 +1658,7 @@
     <string name="toast_watch_later_write_failed">Nepodařilo se aktualizovat „Přehrát později“ na YouTube. Změna byla vrácena zpět.</string>
 
     <string name="history_sort_most_played">Nejčastěji přehrávané</string>
+    <string name="sort_newest">Nejnovější</string>
+    <string name="sort_most_viewed">Nejvíce zhlédnutí</string>
+    <string name="search_results_count">%1$d výsledků</string>
 </resources>

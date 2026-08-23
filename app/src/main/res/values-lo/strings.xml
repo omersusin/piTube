@@ -1625,4 +1625,7 @@
     <string name="toast_subscribe_write_failed">ອັບເດດການຕິດຕາມໃນ YouTube ບໍ່ໄດ້. ການປ່ຽນແປງຖືກຍົກເລີກແລ້ວ.</string>
     <string name="toast_watch_later_write_failed">ອັບເດດເບິ່ງພາຍຫຼັງໃນ YouTube ບໍ່ໄດ້. ການປ່ຽນແປງຖືກຍົກເລີກແລ້ວ.</string>
 
+    <string name="sort_newest">ໃໝ່ລ່າສຸດ</string>
+    <string name="sort_most_viewed">ເບິ່ງຫຼາຍທີ່ສຸດ</string>
+    <string name="search_results_count">%1$d ຜົນໄດ້ຮັບ</string>
 </resources>

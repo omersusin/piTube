@@ -1635,4 +1635,7 @@
     <string name="toast_subscribe_write_failed">Ur yezmir ara ad ibeddel ajerraḍ-inek deg YouTube. Abeḍdel yerra-d ɣer deffir.</string>
     <string name="toast_watch_later_write_failed">Ur yezmir ara ad ibeddel "Ẓer Seld" deg YouTube. Abeḍdel yerra-d ɣer deffir.</string>
 
+    <string name="sort_newest">Imaynuten</string>
+    <string name="sort_most_viewed">Timezriyin aṭas</string>
+    <string name="search_results_count">%1$d igettiwen</string>
 </resources>

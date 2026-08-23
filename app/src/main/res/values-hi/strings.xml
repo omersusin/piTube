@@ -1937,4 +1937,7 @@
     <string name="toast_watch_later_write_failed">YouTube पर \'बाद में देखें\' अपडेट नहीं हो सका। बदलाव पूर्ववत कर दिया गया।</string>
 
     <string name="history_sort_most_played">सबसे अधिक चलाए गए</string>
+    <string name="sort_newest">नवीनतम</string>
+    <string name="sort_most_viewed">सबसे अधिक देखे गए</string>
+    <string name="search_results_count">%1$d परिणाम</string>
 </resources>

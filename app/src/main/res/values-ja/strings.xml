@@ -1625,4 +1625,7 @@
     <string name="toast_subscribe_write_failed">YouTube の登録チャンネルを更新できませんでした。変更は元に戻されました。</string>
     <string name="toast_watch_later_write_failed">YouTube の「後で見る」を更新できませんでした。変更は元に戻されました。</string>
 
+    <string name="sort_newest">新しい</string>
+    <string name="sort_most_viewed">再生回数が多い</string>
+    <string name="search_results_count">%1$d件の結果</string>
 </resources>

@@ -2236,4 +2236,7 @@
     <string name="settings_session_expired">Oturum süresi doldu — yeniden giriş yapmak için dokunun</string>
     <string name="song_title">Şarkı adı</string>
 
+    <string name="sort_newest">En yeni</string>
+    <string name="sort_most_viewed">En çok izlenen</string>
+    <string name="search_results_count">%1$d sonuç</string>
 </resources>

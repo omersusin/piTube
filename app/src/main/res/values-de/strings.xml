@@ -2088,4 +2088,7 @@
     <string name="toast_watch_later_write_failed">„Später ansehen“ auf YouTube konnte nicht aktualisiert werden. Die Änderung wurde rückgängig gemacht.</string>
 
     <string name="history_sort_most_played">Am häufigsten abgespielt</string>
+    <string name="sort_newest">Neueste</string>
+    <string name="sort_most_viewed">Meistgesehen</string>
+    <string name="search_results_count">%1$d Ergebnisse</string>
 </resources>
