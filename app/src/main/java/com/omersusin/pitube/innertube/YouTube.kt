@@ -623,6 +623,25 @@ object YouTube {
         personalizedFeedPage(browseId = "FEwhat_to_watch")
     }
 
+    /**
+     * Second personal lane: FEmusic_home on the WEB_REMIX client against
+     * music.youtube.com — the exact combination upstream Flow uses, which
+     * tolerates app clients where www-WEB FEwhat_to_watch gets bot-walled.
+     * DATA SOURCE ONLY: there is no separate Music tab/UI; results feed the
+     * regular home grid when the primary lane comes back empty.
+     */
+    suspend fun musicHomeFeed(): Result<ChannelVideoSearchResult> = runCatching {
+        val httpResponse = innerTube.browse(
+            client = YouTubeClient.WEB_REMIX,
+            browseId = "FEmusic_home",
+            setLogin = true,
+        )
+        val rawBody = httpResponse.bodyAsText()
+        innerTube.noteResponseState(rawBody)
+        val response = json.decodeFromString<ChannelVideosResponse>(rawBody)
+        parseChannelVideosResponse(response, "", "", "", false)
+    }
+
     suspend fun personalizedFeedContinuation(
         continuation: String,
     ): Result<ChannelVideoSearchResult> = runCatching {

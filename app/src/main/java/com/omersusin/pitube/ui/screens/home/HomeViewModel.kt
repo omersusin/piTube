@@ -787,7 +787,7 @@ class HomeViewModel @Inject constructor(
                 // next personalized page (feedContinuation drives load-more).
                 val personalizedPool = if (signedIn) {
                     withTimeoutOrNull(12_000L) {
-                        com.omersusin.pitube.innertube.YouTube.personalizedFeed()
+                        val primary = com.omersusin.pitube.innertube.YouTube.personalizedFeed()
                             .getOrNull()
                             ?.let { result ->
                                 if (result.videos.isNotEmpty()) {
@@ -796,7 +796,23 @@ class HomeViewModel @Inject constructor(
                                 result.videos
                             }
                             .orEmpty()
-                            .also { Log.w(TAG, "Feed personal lane: fetched=${it.size}") }
+                        // FEmusic_home / WEB_REMIX second lane (upstream Flow's
+                        // combination) when the www-WEB lane is bot-walled empty.
+                        val videos = if (primary.isNotEmpty()) primary else {
+                            Log.w(TAG, "Feed personal lane: FEwhat_to_watch empty — trying FEmusic_home fallback")
+                            com.omersusin.pitube.innertube.YouTube.musicHomeFeed()
+                                .getOrNull()
+                                ?.let { result ->
+                                    if (result.videos.isNotEmpty()) {
+                                        personalizedContinuation = result.continuation
+                                    }
+                                    result.videos
+                                }
+                                .orEmpty()
+                                .also { Log.w(TAG, "Feed personal lane: music-home fallback fetched=${it.size}") }
+                        }
+                        videos
+                    }
                             .filterSignedValid()
                             .also { Log.w(TAG, "Feed personal lane: after signedValid=${it.size} (dropped shorts/≤120s)") }
                             .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
