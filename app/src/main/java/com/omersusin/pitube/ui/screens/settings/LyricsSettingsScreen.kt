@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.LyricsAnimationStyle
 import com.omersusin.pitube.data.local.LyricsTextPosition
