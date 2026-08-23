@@ -13,11 +13,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,9 +49,12 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import com.omersusin.pitube.data.model.SponsorBlockSegment
 import com.omersusin.pitube.innertube.models.StoryboardFrameset
+import com.omersusin.pitube.utils.formatDuration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -56,6 +62,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.allowRgb565
+import coil3.request.crossfade
 import org.schabi.newpipe.extractor.stream.StreamSegment
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -140,7 +150,6 @@ fun SeekbarWithPreview(
     // Storyboard preview bubble geometry
     var seekbarWidth by remember { mutableFloatStateOf(0f) }
     val storyboardPreview: StoryboardPreviewData? = if (
-        !edgeAligned &&
         isInteracting &&
         storyboardFrameset != null &&
         duration > 0 &&
@@ -150,7 +159,7 @@ fun SeekbarWithPreview(
         val frame = storyboardFrameset.frameBoundsAt(positionMs)
         val sheetUrl = frame?.let { storyboardFrameset.urls.getOrNull(it.urlIndex) }
         if (frame != null && sheetUrl != null) {
-            StoryboardPreviewData(storyboardFrameset, frame, sheetUrl)
+            StoryboardPreviewData(storyboardFrameset, frame, sheetUrl, positionMs)
         } else {
             null
         }
@@ -473,6 +482,7 @@ fun SeekbarWithPreview(
                 sheetUrl = preview.sheetUrl,
                 frameset = preview.frameset,
                 frame = preview.frame,
+                positionMs = preview.positionMs,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .offset {
@@ -494,6 +504,7 @@ private data class StoryboardPreviewData(
     val frameset: StoryboardFrameset,
     val frame: StoryboardFrameset.FrameBounds,
     val sheetUrl: String,
+    val positionMs: Long,
 )
 
 @Composable
@@ -501,33 +512,61 @@ private fun StoryboardPreviewBubble(
     sheetUrl: String,
     frameset: StoryboardFrameset,
     frame: StoryboardFrameset.FrameBounds,
+    positionMs: Long,
     modifier: Modifier = Modifier
 ) {
-    val cellScale = StoryboardPreviewWidth / frameset.frameWidth
     val bubbleWidth = StoryboardPreviewWidth
+    val cellScale = bubbleWidth / frameset.frameWidth
     val bubbleHeight = cellScale * frameset.frameHeight
     val sheetWidth = cellScale * frameset.framesPerPageX * frameset.frameWidth
     val sheetHeight = cellScale * frameset.framesPerPageY * frameset.frameHeight
 
-    Box(
-        modifier = modifier
-            .size(bubbleWidth, bubbleHeight)
-            .clip(RoundedCornerShape(6.dp))
-            .background(Color.Black.copy(alpha = 0.85f))
-            .border(1.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
-    ) {
-        AsyncImage(
-            model = sheetUrl,
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
+    // Decode at the sheet's true pixel grid and disable the memory cache:
+    // long videos have many multi-megabyte pages and caching them all exhausts
+    // the heap after a full-timeline scrub. Compressed pages stay on disk.
+    val context = LocalContext.current
+    val imageRequest = remember(sheetUrl) {
+        ImageRequest.Builder(context)
+            .data(sheetUrl)
+            .size(sheetWidth.roundToInt(), sheetHeight.roundToInt())
+            .memoryCachePolicy(CachePolicy.DISABLED)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .allowRgb565(true)
+            .crossfade(false)
+            .build()
+    }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+        Box(
             modifier = Modifier
-                .offset {
-                    IntOffset(
-                        x = -(cellScale * frame.left).roundToPx(),
-                        y = -(cellScale * frame.top).roundToPx()
-                    )
-                }
-                .size(sheetWidth, sheetHeight)
+                .size(bubbleWidth, bubbleHeight)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color.Black.copy(alpha = 0.85f))
+                .border(1.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
+        ) {
+            AsyncImage(
+                model = imageRequest,
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            x = -(cellScale * frame.left).roundToPx(),
+                            y = -(cellScale * frame.top).roundToPx()
+                        )
+                    }
+                    .size(sheetWidth, sheetHeight)
+            )
+        }
+        Text(
+            text = formatDuration((positionMs / 1000L).toInt()),
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .padding(top = 3.dp)
+                .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
+                .padding(horizontal = 6.dp, vertical = 1.dp)
         )
     }
 }

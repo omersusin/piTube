@@ -848,8 +848,8 @@ fun PremiumControlsOverlay(
                         sponsorSegmentColors = sponsorSegmentColors,
                         duration = seekDuration,
                         bufferedValue = bufferedPercentage,
-                        edgeAligned = !isFullscreen,
-                        storyboardFrameset = storyboardFramesets.firstOrNull(),
+                       edgeAligned = !isFullscreen,
+                       storyboardFrameset = storyboardFramesets.maxByOrNull { it.frameWidth * it.frameHeight },
                         modifier = Modifier
                             .fillMaxWidth()
                             .zIndex(2f)

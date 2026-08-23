@@ -1220,12 +1220,23 @@ class EnhancedPlayerManager private constructor() {
         }
     }
 
-    private fun refreshStoryboardsFor(videoId: String) {
+    private fun refreshStoryboardsFor(
+        videoId: String,
+        isShort: Boolean = false,
+    ) {
         storyboardLoadJob?.cancel()
         storyboardLoadJob = null
         _storyboardFramesets.value = emptyList()
         if (videoId.isBlank() || videoId.startsWith("local_")) return
+        // Shorts never render a storyboard preview (Shorts player has no seekbar
+        // bubble) — skip the extra /player POST entirely.
+        if (isShort) return
         storyboardLoadJob = scope.launch(Dispatchers.IO) {
+            // Belt-and-suspenders: callers that don't know shortness may still be
+            // playing a short — GlobalPlayerState knows by the time we're on IO.
+            if (GlobalPlayerState.currentVideo.value?.let { it.id == videoId && it.isShort } == true) {
+                return@launch
+            }
             val result = YouTube.getStoryboards(videoId)
             if (!isActive) return@launch
             val framesets = result.getOrDefault(emptyList())
@@ -1235,7 +1246,10 @@ class EnhancedPlayerManager private constructor() {
         }
     }
 
-    private fun resetPlaybackStateForNewVideo(videoId: String) {
+    private fun resetPlaybackStateForNewVideo(
+        videoId: String,
+        isShort: Boolean = false,
+    ) {
         clearAutoplayCountdownInternal()
         crossfadeJob?.cancel()
         player?.volume = 1f
@@ -1266,7 +1280,7 @@ class EnhancedPlayerManager private constructor() {
         pendingLiveDisplaySeekPositionMs = null
         pendingLiveDisplaySeekAtMs = 0L
         pendingInitialLiveEdgeSeek = false
-        refreshStoryboardsFor(videoId)
+        refreshStoryboardsFor(videoId, isShort)
 
         player?.stop()
 
@@ -1771,7 +1785,7 @@ class EnhancedPlayerManager private constructor() {
         }
 
         // Reset player state for new video
-        resetPlaybackStateForNewVideo(video.id)
+        resetPlaybackStateForNewVideo(video.id, video.isShort)
 
         _playerState.value =
             _playerState.value.copy(

@@ -37,8 +37,10 @@ data class StoryboardFrameset(
      */
     fun frameBoundsAt(positionMs: Long): FrameBounds? {
         if (totalCount <= 0 || durationPerFrame <= 0) return null
+        // Clamp to totalCount-1: frame numbers are 0-based, so clamping to
+        // totalCount can index one past the last valid cell at video end.
         val absoluteFrameNumber =
-            min((positionMs / durationPerFrame).toInt(), totalCount)
+            min((positionMs / durationPerFrame).toInt(), totalCount - 1)
         val relativeFrameNumber = absoluteFrameNumber % framesPerStoryboard
         val rowIndex = relativeFrameNumber / framesPerPageX
         val columnIndex = relativeFrameNumber % framesPerPageX
