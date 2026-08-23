@@ -123,6 +123,11 @@ class VideoPlayerViewModel @Inject constructor(
     val isPostingComment: StateFlow<Boolean> = _isPostingComment.asStateFlow()
 
     private val _lyricsState = MutableStateFlow<LyricsUiState>(LyricsUiState.Idle)
+    /** Videos whose lyrics are known to exist (fetched or cached) — vivi-style
+     *  availability: the lyrics button shows when fetch succeeded, not only on
+     *  metadata heuristics. */
+    private val _lyricsCachedIds = MutableStateFlow<Set<String>>(emptySet())
+    val lyricsCachedIds: StateFlow<Set<String>> = _lyricsCachedIds.asStateFlow()
     val lyricsState: StateFlow<LyricsUiState> = _lyricsState.asStateFlow()
     /** Translated lines (timeMs -> text) for the active video, when enabled. */
     private val _lyricsTranslations = MutableStateFlow<Map<Long, String>>(emptyMap())
@@ -1051,6 +1056,42 @@ class VideoPlayerViewModel @Inject constructor(
                 shouldDismissPlayer = false,
                 isBackgroundPlaybackMode = false
             )
+        }
+    }
+
+    /**
+     * VIVI-PARITY prefetch (vivi MusicService.kt:717-737): fetch lyrics for the
+     * playing video in the background and record availability. The lyrics
+     * button then shows when fetch succeeded — not only on metadata heuristics.
+     */
+    private fun maybePrefetchLyrics(videoId: String) {
+        if (videoId.isBlank() || videoId in _lyricsCachedIds.value) return
+        viewModelScope.launch(PerformanceDispatcher.networkIO) {
+            val v = _uiState.value.cachedVideo?.takeIf { it.id == videoId }
+                ?: _uiState.value.streamInfo?.let {
+                    com.omersusin.pitube.data.model.Video(
+                        id = videoId, title = it.name ?: "", channelName = it.uploaderName ?: "",
+                        channelId = "", thumbnailUrl = "", duration = it.duration.toInt(), viewCount = 0L, uploadDate = ""
+                    )
+                } ?: return@launch
+            val res = runCatching {
+                com.omersusin.pitube.data.lyrics.LyricsRepository(
+                    repository, PlayerPreferences(context), context
+                ).fetchLyrics(
+                    videoId = videoId,
+                    title = v.title,
+                    artist = v.channelName,
+                    durationMs = v.duration.toLong() * 1000L,
+                )
+            }.getOrNull()
+            val available = res is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Success ||
+                res is com.omersusin.pitube.data.lyrics.LyricsFetchResult.Plain
+            if (available) {
+                Log.w("VideoPlayerViewModel", "Lyrics prefetch OK for $videoId — button unlocked")
+                _lyricsCachedIds.update { it + videoId }
+            } else {
+                Log.d("VideoPlayerViewModel", "Lyrics prefetch: none for $videoId")
+            }
         }
     }
 
@@ -2369,9 +2410,12 @@ class VideoPlayerViewModel @Inject constructor(
 
     private fun loadRelatedVideosAfterPlayback(
         videoId: String,
-        primaryCandidates: List<Video>,
-        loadToken: Long
+        related: List<Video>,
+        loadToken: Long,
     ) {
+        // VIVI-PARITY prefetch: resolve lyrics availability while playback
+        // starts, so the lyrics button reflects real fetch results.
+        maybePrefetchLyrics(videoId)
         val manager = EnhancedPlayerManager.getInstance()
         val currentCandidates = _uiState.value
             .takeIf { it.cachedVideo?.id == videoId || it.streamInfo?.id == videoId }

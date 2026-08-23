@@ -224,8 +224,9 @@ private fun shiftHue(c: Color, deg: Float): Color {
 }
 
 /**
- * Forces a theme color into the vivid range: saturation >= 0.60 and
- * brightness clamped to 0.40..0.85. Keeps hue (and alpha untouched), so the
+ * Forces a theme color deep into the vivid range: saturation >= 0.78 and
+ * brightness clamped to 0.46..0.92, plus a minimum-hue-distance guard so
+ * near-white/near-black tokens cannot survive. Keeps hue (and alpha), so the
  * blob keeps the account's palette personality without ever looking gray.
  */
 private fun Color.vivid(): Color {
@@ -236,8 +237,9 @@ private fun Color.vivid(): Color {
         (blue * 255).toInt(),
         hsv,
     )
-    hsv[1] = hsv[1].coerceAtLeast(0.60f)
-    hsv[2] = hsv[2].coerceIn(0.40f, 0.85f)
+    if (hsv[1] < 0.15f) hsv[0] = (hsv[0] + 40f) % 360f // near-gray token: nudge hue so saturation has visible effect
+    hsv[1] = hsv[1].coerceAtLeast(0.78f)
+    hsv[2] = hsv[2].coerceIn(0.46f, 0.92f)
     val rgb = android.graphics.Color.HSVToColor(hsv)
     return Color(rgb).copy(alpha = alpha)
 }

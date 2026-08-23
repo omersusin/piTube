@@ -93,6 +93,9 @@ fun VideoInfoSection(
     onDescriptionClick: () -> Unit,
     isSaved: Boolean = false,
     isDownloaded: Boolean = false,
+    /** VIVI-PARITY: when true the lyrics chip shows even if metadata
+     *  heuristics don't flag the video — a background lyrics fetch succeeded. */
+    lyricsAvailableOverride: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     var showCollaborators by remember { mutableStateOf(false) }
@@ -296,7 +299,7 @@ fun VideoInfoSection(
             onLyricsClick = onLyricsClick,
             isSaved = isSaved,
             isDownloaded = isDownloaded,
-            showLyrics = isSongVideoLenient(video, null),
+            showLyrics = lyricsAvailableOverride || isSongVideoLenient(video, null),
             shareGrouped = shareGrouped,
             onShareGroupClick = { showShareSheet = true },
             orderedIds = ordered,
