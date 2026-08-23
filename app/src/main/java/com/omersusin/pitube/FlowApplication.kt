@@ -251,7 +251,7 @@ class FlowApplication :
                 // so changes made on real YouTube appear within minutes — not
                 // on the next 12-hour worker tick.
                 if (!cookie.isNullOrEmpty()) {
-                    com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(this)
+                    com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(applicationContext)
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "session restore error: ${e.message}")
