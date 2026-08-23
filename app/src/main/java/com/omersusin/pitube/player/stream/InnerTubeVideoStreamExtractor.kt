@@ -31,6 +31,16 @@ object InnerTubeVideoStreamExtractor {
     private const val PER_CLIENT_TIMEOUT_MS = 6000L
     private const val WEB_PLAYER_TIMEOUT_MS = 10000L
     private val N_PARAM_REGEX = Regex("""(?:^|[?&])n=([^&]+)""")
+
+    /**
+     * Timestamp of the most recent ALL-clients BOT_WALL failure. Preload
+     * scheduling reads this to back off — an IP-level bot flag is extended by
+     * hammering the client ladder per candidate video.
+     */
+    @Volatile
+    var lastUniversalBotWallAtMs: Long = 0L
+        private set
+
     private val extractionCoalescer = InFlightRequestCoalescer<ExtractionKey, VideoExtractionResult?>(
         CoroutineScope(SupervisorJob() + Dispatchers.IO)
     )
@@ -182,6 +192,13 @@ object InnerTubeVideoStreamExtractor {
 
         Log.e(TAG, "All clients failed for $videoId (forceSabr=$forceSabr). Reasons: ${failureReasons.joinToString(" | ")}")
         PlayerDiagnostics.logError(TAG, "ALL clients failed $videoId: ${failureReasons.joinToString(" | ")}")
+        // Universal bot-wall stamp: when EVERY client (even cookie-backed WEB)
+        // answers with the bot wall, the IP is temporarily flagged — hammering
+        // the ladder per preload candidate only extends the flag. Preload
+        // scheduling reads this timestamp and backs off for a cooldown.
+        if (failureReasons.any { it.contains("BOT_WALL", ignoreCase = true) }) {
+            lastUniversalBotWallAtMs = System.currentTimeMillis()
+        }
         null
     }
 

@@ -104,6 +104,9 @@ class EnhancedPlayerManager private constructor() {
         private const val PRELOAD_RETRY_DELAY_MS = 10_000L
         private const val MAX_PRELOAD_RETRIES = 3
 
+        /** After a universal BOT_WALL, preload stays off this long (IP flag cools down). */
+        private const val PRELOAD_BOT_WALL_COOLDOWN_MS = 10L * 60L * 1000L
+
         /** Reloads within this window count as a rapid loop (stale stream URLs). */
         private const val RELOAD_ESCALATION_WINDOW_MS = 60_000L
         private const val MAX_RAPID_RELOADS = 3
@@ -2418,6 +2421,15 @@ class EnhancedPlayerManager private constructor() {
     }
 
     private fun schedulePreloadNext() {
+        // Universal BOT_WALL cooldown: when every client answered the bot wall,
+        // the IP is flagged — retrying per candidate only extends the flag and
+        // burns the client ladder. Back off 10 minutes, then re-probe once.
+        val botWallAt = com.omersusin.pitube.player.stream.InnerTubeVideoStreamExtractor
+            .lastUniversalBotWallAtMs
+        if (botWallAt > 0L && System.currentTimeMillis() - botWallAt < PRELOAD_BOT_WALL_COOLDOWN_MS) {
+            autoNextLog("schedulePreloadNext skipped bot-wall cooldown (preload disabled until probe)")
+            return
+        }
         if (_playerState.value.isLooping) {
             autoNextLog("schedulePreloadNext skipped looping")
             return
