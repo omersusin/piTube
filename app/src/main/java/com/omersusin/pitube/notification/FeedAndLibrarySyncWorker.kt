@@ -76,11 +76,18 @@ class FeedAndLibrarySyncWorker(
         withContext(Dispatchers.IO) {
             val preferences = PlayerPreferences(applicationContext)
 
-            // 1. Rotate the anonymous visitor identity so home/trending stop
-            //    returning the same pinned items between visits.
-            runCatching { YouTube.rotateVisitorData() }
-                .onSuccess { Log.d(TAG, "Feed visitor data rotated") }
-                .onFailure { Log.w(TAG, "Visitor rotation failed: ${it.message}") }
+            // 1. Rotate the ANONYMOUS visitor identity so home/trending stop
+            //    returning the same pinned items between visits. Signed-in
+            //    sessions must never rotate: pairing a fresh visitor id with
+            //    account cookies is what empties FEwhat_to_watch.
+            val loggedInEarly =
+                com.omersusin.pitube.data.local.SessionManager(applicationContext)
+                    .getCookies()?.isNotBlank() == true
+            if (!loggedInEarly) {
+                runCatching { YouTube.rotateVisitorData() }
+                    .onSuccess { Log.d(TAG, "Feed visitor data rotated") }
+                    .onFailure { Log.w(TAG, "Visitor rotation failed: ${it.message}") }
+            }
 
             // 2. Drop the in-memory feed cache + persisted Room feed so the next
             //    Home screen visit fetches a genuinely fresh mix, and bump the
@@ -99,12 +106,12 @@ class FeedAndLibrarySyncWorker(
             }.onFailure { Log.w(TAG, "Discovery rotation reset failed: ${it.message}") }
 
             // 3. Re-pull the account library when signed in and the last sync is
-            //    older than the auto interval.
-            val loggedIn = com.omersusin.pitube.data.local.SessionManager(applicationContext)
-                .getCookies()?.isNotBlank() == true
+            //    older than the auto interval (matches the 12h worker cadence —
+            //    the user wants continuously-fresh account data, not snapshots).
+            val loggedIn = loggedInEarly
             if (loggedIn) {
                 val syncedAt = runCatching { preferences.youtubeLibrarySyncedAt.first() }.getOrNull() ?: 0L
-                val autoIntervalMs = TimeUnit.HOURS.toMillis(24)
+                val autoIntervalMs = TimeUnit.HOURS.toMillis(12)
                 if (System.currentTimeMillis() - syncedAt > autoIntervalMs) {
                     runCatching { YouTubeLibrarySync.sync(applicationContext) }
                         .onSuccess { result ->

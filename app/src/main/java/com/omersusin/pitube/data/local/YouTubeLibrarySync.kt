@@ -8,6 +8,7 @@ import com.omersusin.pitube.innertube.pages.RemotePlaylistVideo
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -17,6 +18,7 @@ data class LibrarySyncResult(
     val likedVideos: Int = 0,
     val playlists: Int = 0,
     val subscribedChannels: Int = 0,
+    val watchLater: Int = 0,
     val notLoggedIn: Boolean = false,
     /** YouTube only returned part of the library (page cap hit) — counts are a lower bound. */
     val partial: Boolean = false,
@@ -58,6 +60,7 @@ object YouTubeLibrarySync {
         var likedVideos = 0
         var playlists = 0
         var channels = 0
+        var watchLater = 0
         var partial = false
         var sessionExpired = false
 
@@ -66,6 +69,10 @@ object YouTubeLibrarySync {
             launch {
                 runCatching { likedVideos = syncLikedVideos(context) }
                     .onFailure { Log.w(TAG, "Liked videos sync failed", it); firstError.compareAndSet(null, it.message) }
+            }
+            launch {
+                runCatching { watchLater = syncWatchLater(context) }
+                    .onFailure { Log.w(TAG, "Watch Later sync failed", it); firstError.compareAndSet(null, it.message) }
             }
             launch {
                 runCatching { playlists = syncPlaylists(context) }
@@ -88,7 +95,7 @@ object YouTubeLibrarySync {
             Log.w(TAG, "Account sync hit a signed-out session — counts not persisted")
             firstError.compareAndSet(null, "session expired")
         }
-        if (likedVideos == 0 && playlists == 0 && channels == 0 && !firstError.get().isNullOrBlank()) {
+        if (likedVideos == 0 && playlists == 0 && channels == 0 && watchLater == 0 && !firstError.get().isNullOrBlank()) {
             Log.w(TAG, "Account sync returned all-zero with error: ${firstError.get()}")
         }
 
@@ -101,10 +108,40 @@ object YouTubeLibrarySync {
             likedVideos = likedVideos,
             playlists = playlists,
             subscribedChannels = channels,
+            watchLater = watchLater,
             partial = partial && firstError.get().isNullOrBlank(),
             sessionExpired = sessionExpired,
             error = firstError.get(),
         )
+    }
+
+    /**
+     * Pull the account's Watch Later playlist (WL) into the local scoped
+     * watch-later playlist. The ACCOUNT is authoritative for items that exist
+     * on both sides; local-only entries are kept (they may predate login or
+     * be pending a write-through), but remote items always land locally.
+     */
+    private suspend fun syncWatchLater(context: Context): Int {
+        val playlistRepository = PlaylistRepository(context)
+        val videos = YouTube.webPlaylistVideos("WL").getOrNull().orEmpty()
+        if (videos.isEmpty()) {
+            Log.w(TAG, "Watch Later: remote returned 0 items (empty account or parser miss)")
+            return 0
+        }
+        // No unique index backs the cross-ref table, so dedupe locally before
+        // applying — repeated syncs must never multiply Watch Later rows.
+        val existing = playlistRepository.getWatchLaterVideosFlow().first().mapTo(HashSet()) { it.id }
+        var applied = 0
+        videos.forEach { video ->
+            if (video.id in existing) return@forEach
+            runCatching {
+                playlistRepository.addToWatchLater(video.toSyncVideo())
+                existing.add(video.id)
+                applied++
+            }.onFailure { Log.w(TAG, "Watch Later apply failed for ${video.id}: ${it.message}") }
+        }
+        Log.d(TAG, "Watch Later synced: $applied new / ${videos.size} remote items")
+        return applied
     }
 
     private suspend fun syncLikedVideos(context: Context): Int {
