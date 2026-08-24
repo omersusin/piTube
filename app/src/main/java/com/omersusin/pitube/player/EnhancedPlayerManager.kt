@@ -171,6 +171,15 @@ class EnhancedPlayerManager private constructor() {
     private var videoTracksDisabled = false
     private var isVideoSuspended = false
 
+    /**
+     * Resume target for SABR loads. SABR sessions stream from t=0 regardless of the
+     * requested start offset (the server ignores playerTimeMs on a fresh session),
+     * and MediaLoader skips the post-prepare seekTo because the byte-pipe cannot
+     * serve a bare seek. Once the source reaches READY, applyPendingSabrResume()
+     * performs a coordinated seek (buffer reset + playhead move BEFORE Exo seeks).
+     */
+    @Volatile private var pendingSabrSeekPositionMs = 0L
+
     @Volatile private var videoSurfaceRestorePending = false
     private var currentLocalFilePath: String? = null
     private val clearedMediaRecoveryState = ClearedMediaRecoveryState()
@@ -894,6 +903,7 @@ class EnhancedPlayerManager private constructor() {
 
                     if (playbackState == Player.STATE_READY) {
                         releaseAdvanceWakeLock()
+                        applyPendingSabrResume()
                         autoNextLog("STATE_READY scheduling preload")
                         schedulePreloadNext()
                     }
@@ -1363,6 +1373,9 @@ class EnhancedPlayerManager private constructor() {
                 audioOnly = audioOnly,
                 playWhenReady = playWhenReady,
             )
+        if (loaded) {
+            armSabrResume(preservePosition, localFilePath)
+        }
         if (!loaded) {
             // The previous item is still queued (see resetPlaybackStateForNewVideo). Drop it so a
             // failed load doesn't leave the notification advertising the video we just left.
@@ -1477,6 +1490,48 @@ class EnhancedPlayerManager private constructor() {
             qualityManager?.isDashSource = !currentDashManifestUrl.isNullOrEmpty()
         }
         return result
+    }
+
+    /**
+     * Arm a coordinated SABR resume for a load that just succeeded. Cleared on every
+     * load so stale targets never leak into unrelated videos.
+     */
+    private fun armSabrResume(preservePosition: Long?, localFilePath: String?) {
+        pendingSabrSeekPositionMs = 0L
+        if (localFilePath != null) return
+        val target = preservePosition ?: return
+        val info = currentSabrInfo ?: return
+        if (target <= 0L || info.streamingUrl.isEmpty() || info.audioItag <= 0 || info.videoItag <= 0) return
+        pendingSabrSeekPositionMs = target
+        Log.d(TAG, "SABR resume armed at ${target}ms for $currentVideoId")
+    }
+
+    /**
+     * SABR sources stream from t=0 regardless of the requested start offset, and the
+     * byte-pipe cannot serve a bare seek (the datasource ignores DataSpec.position),
+     * so MediaLoader skips its post-prepare seekTo for SABR. Once READY — formats
+     * initialized, buffer primed — perform the coordinated seek instead: reset the
+     * buffers and move the session playhead BEFORE ExoPlayer seeks, so the re-opened
+     * extractors read init + fragments from the resume point instead of stale bytes.
+     */
+    private fun applyPendingSabrResume() {
+        val target = pendingSabrSeekPositionMs
+        if (target <= 0L) return
+        pendingSabrSeekPositionMs = 0L
+        val p = player ?: return
+        val orchestrator = mediaLoader?.getActiveSabrOrchestrator()
+        if (orchestrator == null || !orchestrator.isRunning) {
+            Log.d(TAG, "SABR resume dropped: no active session")
+            return
+        }
+        val currentPos = p.currentPosition.coerceAtLeast(0L)
+        if (currentPos >= target - 1500L) {
+            Log.d(TAG, "SABR resume unnecessary: pos=$currentPos >= target=$target")
+            return
+        }
+        Log.w(TAG, "SABR resume: coordinated seek $currentPos -> ${target}ms")
+        orchestrator.notifySeek(target)
+        p.seekTo(target)
     }
 
     private fun setVideoTracksDisabled(disabled: Boolean) {
@@ -3579,12 +3634,23 @@ class EnhancedPlayerManager private constructor() {
                 }
             }
             if (resyncPausedVideo) {
-                val position = p.currentPosition
-                Log.w(
-                    "FlowVideoLifecycle",
-                    "surfaceReattachResync video=$currentVideoId pos=$position",
-                )
-                p.seekTo(position)
+                if (mediaLoader?.getActiveSabrOrchestrator() != null) {
+                    // A bare Exo seek desyncs the SABR byte-pipe (the datasource ignores
+                    // DataSpec.position), leaving the player in permanent BUFFERING with a
+                    // frozen playhead — the background-freeze root cause. The resync is
+                    // cosmetic (frame refresh after reattach); skip it for SABR sources.
+                    Log.w(
+                        "FlowVideoLifecycle",
+                        "surfaceReattachResync skipped for SABR source video=$currentVideoId pos=${p.currentPosition}",
+                    )
+                } else {
+                    val position = p.currentPosition
+                    Log.w(
+                        "FlowVideoLifecycle",
+                        "surfaceReattachResync video=$currentVideoId pos=$position",
+                    )
+                    p.seekTo(position)
+                }
             }
         }
         return attached

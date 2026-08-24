@@ -174,6 +174,18 @@ class SabrStreamController(
         sessionState.playheadPositionMs = positionMs
     }
 
+    /**
+     * Client-initiated seek handshake (state side): reposition the session
+     * playhead and drop buffered-range bookkeeping so the next follow-up request
+     * asks the server for segments from the new position. The media buffers are
+     * reset by [SabrOrchestrator.notifySeek] BEFORE ExoPlayer.seekTo() re-opens
+     * extraction, so the extractor never reads bytes from the old cursor.
+     */
+    fun prepareForSeek(positionMs: Long) {
+        sessionState.seekTo(positionMs)
+        sessionState.backoffDeadlineMs = 0
+    }
+
     fun selectFormats(audioItag: Int, audioLmt: Long, videoItag: Int, videoLmt: Long) {
         sessionState.selectedAudioItag = audioItag
         sessionState.selectedAudioLmt = audioLmt

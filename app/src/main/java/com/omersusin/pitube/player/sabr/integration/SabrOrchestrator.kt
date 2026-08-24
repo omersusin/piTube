@@ -28,6 +28,7 @@ class SabrOrchestrator(
         private const val MIN_TARGET_READAHEAD_MS = 5_000L
         private const val URL_EXPIRY_MARGIN_MS = 60_000L
         private const val MAX_PLAYER_RESPONSE_RELOADS = 2
+        private const val ATTESTATION_REFRESH_MIN_INTERVAL_MS = 60_000L
     }
 
     val audioBuffer = SabrSegmentBuffer()
@@ -44,6 +45,10 @@ class SabrOrchestrator(
     private var playerResponseReloadJob: Deferred<Boolean>? = null
     private var playerResponseReloads = 0
     private var consecutiveErrors = 0
+    @Volatile
+    private var seekWakeUpPending = false
+    @Volatile
+    private var lastNonUrgentAttestationRefreshMs = 0L
 
     @Volatile
     var isRunning = false
@@ -107,6 +112,23 @@ class SabrOrchestrator(
 
     fun updatePlayhead(positionMs: Long) {
         controller.updatePlayheadPosition(positionMs)
+    }
+
+    /**
+     * Client-initiated seek support. The SABR byte-pipe cannot serve an Exo seek
+     * on its own ([SabrExoPlayerDataSource] ignores DataSpec.position), so a seek
+     * must be coordinated: move the session playhead, drop buffered media so the
+     * re-opened extractors read init + fragments from the new position instead of
+     * stale bytes (the background-freeze root cause), then let the follow-up loop
+     * request segments from there. Call BEFORE player.seekTo().
+     */
+    fun notifySeek(positionMs: Long) {
+        if (!isRunning) return
+        controller.prepareForSeek(positionMs)
+        audioBuffer.resetForSeek()
+        videoBuffer.resetForSeek()
+        seekWakeUpPending = true
+        Log.d(TAG, "Client seek to ${positionMs}ms — buffers reset, follow-up wake-up armed")
     }
 
     /** Background audio-only mode: tells the server to stop sending video segments. */
@@ -198,9 +220,17 @@ class SabrOrchestrator(
                     // Pending verdict used to be passive — if delivery was cut
                     // while we waited, the buffer starved into a fatal stall
                     // (57s device log). Kick a non-urgent refresh so the
-                    // session re-attests instead of silently starving.
-                    Log.w(TAG, "PoToken attestation pending — refreshing token (non-urgent)")
-                    refreshPoToken(urgent = false)
+                    // session re-attests instead of silently starving. Throttled:
+                    // the server keeps answering status=2 for a while even with
+                    // fresh tokens, and each refresh spins up a WebView mint.
+                    val now = System.currentTimeMillis()
+                    if (now - lastNonUrgentAttestationRefreshMs >= ATTESTATION_REFRESH_MIN_INTERVAL_MS) {
+                        lastNonUrgentAttestationRefreshMs = now
+                        Log.w(TAG, "PoToken attestation pending — refreshing token (non-urgent)")
+                        refreshPoToken(urgent = false)
+                    } else {
+                        Log.d(TAG, "PoToken attestation pending — non-urgent refresh throttled")
+                    }
                 }
             }
         }
@@ -348,7 +378,11 @@ class SabrOrchestrator(
             val maxGapMs = state.maxTimeSinceLastRequestMs.takeIf { it > 0 }
                 ?: DEFAULT_MAX_REQUEST_GAP_MS
             val heartbeatDue = now - lastRequestAtMs >= maxGapMs
-            if (!heartbeatDue && bufferedAheadMs(state) >= targetReadaheadMs(state)) {
+            // A client seek clears the buffered ranges, so bufferedAheadMs alone would
+            // also trigger a request — the explicit flag just removes the poll latency.
+            val seekDue = seekWakeUpPending
+            if (seekWakeUpPending) seekWakeUpPending = false
+            if (!seekDue && !heartbeatDue && bufferedAheadMs(state) >= targetReadaheadMs(state)) {
                 continue
             }
 

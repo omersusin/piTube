@@ -171,6 +171,22 @@ class SabrSegmentBuffer {
         currentOffset = 0
     }
 
+    /**
+     * Seek support: drop all queued media so extractors re-opening after a seek
+     * read a clean init + fragments-from-the-new-playhead sequence instead of
+     * stale bytes from the old read cursor. Keeps the retained init segment.
+     */
+    fun resetForSeek() {
+        queue.clear()
+        headQueue.clear()
+        currentChunk = null
+        currentOffset = 0
+        endOfStream.set(false)
+        initPendingInQueue = false
+        replayInitForReopen()
+        lastDataAtMs = System.currentTimeMillis()
+    }
+
     fun reset() {
         queue.clear()
         headQueue.clear()
