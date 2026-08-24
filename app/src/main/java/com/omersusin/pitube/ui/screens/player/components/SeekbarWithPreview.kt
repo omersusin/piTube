@@ -74,7 +74,6 @@ import coil3.request.ImageRequest
 import coil3.request.allowRgb565
 import coil3.request.crossfade
 import android.util.Log
-import coil3.request.listener
 import org.schabi.newpipe.extractor.stream.StreamSegment
 import kotlin.math.abs
 import kotlin.math.roundToInt
