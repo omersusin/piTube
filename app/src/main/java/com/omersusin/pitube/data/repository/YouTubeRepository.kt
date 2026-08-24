@@ -1296,9 +1296,15 @@ class YouTubeRepository
                 val videos = mutableListOf<Video>()
                 var continuation: String? = null
                 repeat(maxPages) {
-                    val page = YouTube.history(continuation).getOrNull() ?: return@repeat
+                    val page =
+                        YouTube.history(continuation)
+                            .onFailure { Log.w("YTRepo", "history page failed: ${it.message}") }
+                            .getOrNull() ?: return@repeat
                     videos += page.videos
                     continuation = page.continuation ?: return@repeat
+                }
+                if (videos.isEmpty()) {
+                    Log.w("YTRepo", "history fetch produced 0 videos across $maxPages page(s)")
                 }
                 videos.distinctBy { it.id }
             }

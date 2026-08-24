@@ -263,6 +263,7 @@ fun SearchScreen(
     }
 
     val selectedContentType = uiState.filters?.contentType ?: ContentType.VIDEOS
+    val activeOrPendingFilters = uiState.filters ?: SearchFilter(contentType = selectedContentType)
     val sharedVideoTitle = stringResource(R.string.shared_video)
 
     Column(
@@ -302,7 +303,7 @@ fun SearchScreen(
                         return@SearchBarRow
                     }
 
-                    viewModel.search(queryText)
+                    viewModel.search(queryText, activeOrPendingFilters)
                 }
             },
             onClear = {
@@ -352,7 +353,7 @@ fun SearchScreen(
                             ),
                         )
                     } else {
-                        viewModel.search(s)
+                        viewModel.search(s, activeOrPendingFilters)
                     }
                 },
                 onFillClick = { setSearchQueryToEnd(it) },
@@ -362,13 +363,41 @@ fun SearchScreen(
 
         val hasQuery = uiState.query.isNotBlank()
 
+        SearchContentTabs(
+            selectedContentType = selectedContentType,
+            onContentTypeSelected = { type ->
+                val base = uiState.filters ?: SearchFilter()
+                viewModel.updateFilters(base.copy(contentType = type))
+            },
+        )
+
+        if (selectedContentType == ContentType.VIDEOS) {
+            VideoFilterChipRows(
+                selectedUploadDate = uiState.filters?.uploadDate ?: UploadDate.ANY,
+                onUploadDateSelected = { date ->
+                    val base = uiState.filters ?: SearchFilter()
+                    viewModel.updateFilters(base.copy(uploadDate = date))
+                },
+                selectedDuration = uiState.filters?.duration ?: Duration.ANY,
+                onDurationSelected = { dur ->
+                    val base = uiState.filters ?: SearchFilter()
+                    viewModel.updateFilters(base.copy(duration = dur))
+                },
+                selectedSortType = uiState.filters?.sortType ?: SortType.RELEVANCE,
+                onSortTypeSelected = {
+                    val base = uiState.filters ?: SearchFilter()
+                    viewModel.updateFilters(base.copy(sortType = it))
+                },
+            )
+        }
+
         if (!hasQuery) {
             DiscoverScreen(
                 searchHistory = searchHistory,
                 onHistoryClick = { q ->
                     dismissKeyboard()
                     setSearchQueryToEnd(q)
-                    viewModel.search(q)
+                    viewModel.search(q, activeOrPendingFilters)
                 },
                 onHistoryDelete = { item ->
                     scope.launch { searchHistoryRepo.deleteSearchItem(item.id) }
@@ -378,34 +407,6 @@ fun SearchScreen(
                 },
             )
         } else {
-            SearchContentTabs(
-                selectedContentType = selectedContentType,
-                onContentTypeSelected = { type ->
-                    val base = uiState.filters ?: SearchFilter()
-                    viewModel.updateFilters(base.copy(contentType = type))
-                },
-            )
-
-            if (selectedContentType == ContentType.VIDEOS) {
-                VideoFilterChipRows(
-                    selectedUploadDate = uiState.filters?.uploadDate ?: UploadDate.ANY,
-                    onUploadDateSelected = { date ->
-                        val base = uiState.filters ?: SearchFilter()
-                        viewModel.updateFilters(base.copy(uploadDate = date))
-                    },
-                    selectedDuration = uiState.filters?.duration ?: Duration.ANY,
-                    onDurationSelected = { dur ->
-                        val base = uiState.filters ?: SearchFilter()
-                        viewModel.updateFilters(base.copy(duration = dur))
-                    },
-                    selectedSortType = uiState.filters?.sortType ?: SortType.RELEVANCE,
-                    onSortTypeSelected = {
-                        val base = uiState.filters ?: SearchFilter()
-                        viewModel.updateFilters(base.copy(sortType = it))
-                    },
-                )
-            }
-
             val isInitialLoading =
                 pagingItems.loadState.refresh is LoadState.Loading
             val isInitialError =

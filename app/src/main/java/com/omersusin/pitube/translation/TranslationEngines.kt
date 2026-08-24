@@ -25,15 +25,19 @@ import com.omersusin.pitube.translation.engines.pons.PonsEngine
 import com.omersusin.pitube.translation.engines.simplytranslate.SimplyTranslateEngine
 import com.omersusin.pitube.translation.engines.yandex.YandexEngine
 
-/**
- * The registry of every translation provider in the app. Order is the order
- * shown in the provider picker; the first entry is the default.
- *
- * The AI families come first (ViVi's provider list), followed by the free /
- * keyless engines ported from Translate You. The default is OpenRouter: with
- * no key configured every surface gracefully falls back to the original
- * text, and the settings screen explains how to unlock it.
- */
+    /**
+     * The registry of every translation provider in the app. Order is the order
+     * shown in the provider picker; the first entry is the default.
+     *
+     * The AI families come first (ViVi's provider list), followed by the free /
+     * keyless engines ported from Translate You. The DEFAULT is no longer the
+     * first entry (OpenRouter): with no key it throws on every call, so every
+     * surface silently produced null and the lyrics fallback yielded 0 lines.
+     * findByName() now falls back to the first ALIVE keyless engine instead —
+     * live-probed 2026: Mozhi (trnslt.oddte.ch) and MyMemory answer; Lingva
+     * instances are dead/Cloudflare-blocked/Google-rate-limited, and
+     * libretranslate.com requires a paid key.
+     */
 object TranslationEngines {
 
     fun getAllEngines(settingsProvider: EngineSettingsProvider): List<TranslationEngine> = listOf(
@@ -63,10 +67,18 @@ object TranslationEngines {
         LaraTranslateEngine(settingsProvider),
     )
 
+    /**
+     * Keyless engines that answered a live probe (2026), in preference order.
+     * The registry default resolves to the first of these so a fresh install
+     * with no API key still translates instead of failing on every call.
+     */
+    private val defaultKeylessOrder = listOf("Mozhi", "MyMemory")
+
     fun findByName(
         name: String?,
         settingsProvider: EngineSettingsProvider,
     ): TranslationEngine = getAllEngines(settingsProvider)
         .firstOrNull { it.name == name }
+        ?: getAllEngines(settingsProvider).firstOrNull { it.name in defaultKeylessOrder }
         ?: getAllEngines(settingsProvider).first()
 }

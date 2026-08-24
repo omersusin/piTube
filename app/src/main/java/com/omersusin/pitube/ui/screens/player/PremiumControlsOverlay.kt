@@ -906,6 +906,12 @@ fun PremiumControlsOverlay(
                         duration = seekDuration,
                         bufferedValue = bufferedPercentage,
                         edgeAligned = true,
+                        // This always-on mini bar is the later sibling in the Box and
+                        // stays hit-testable during the controls fade-out — without a
+                        // frameset it steals the first portrait drag and no preview
+                        // shows even though the visible-controls instance has one.
+                        storyboardFrameset =
+                            storyboardFramesets.maxByOrNull { it.frameWidth * it.frameHeight },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = seekbarHorizontalPadding)

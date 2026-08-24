@@ -1233,8 +1233,11 @@ class EnhancedPlayerManager private constructor() {
         if (isShort) return
         storyboardLoadJob = scope.launch(Dispatchers.IO) {
             // Belt-and-suspenders: callers that don't know shortness may still be
-            // playing a short — GlobalPlayerState knows by the time we're on IO.
-            if (GlobalPlayerState.currentVideo.value?.let { it.id == videoId && it.isShort } == true) {
+            // playing a short — but search-derived Video objects flag isShort purely
+            // by duration<=60s, which would wrongly skip storyboards for legit
+            // sub-minute videos. Only trust the flag when duration agrees.
+            val cur = GlobalPlayerState.currentVideo.value
+            if (cur?.id == videoId && cur.isShort && cur.duration in 1..60) {
                 return@launch
             }
             val result = YouTube.getStoryboards(videoId)
@@ -1784,6 +1787,10 @@ class EnhancedPlayerManager private constructor() {
             crossfadeJob?.cancel()
         }
 
+        // Set global state BEFORE reset: the reset launches the storyboard
+        // fetch whose short-skip check reads GlobalPlayerState on IO.
+        GlobalPlayerState.setCurrentVideo(video)
+
         // Reset player state for new video
         resetPlaybackStateForNewVideo(video.id, video.isShort)
 
@@ -1795,7 +1802,6 @@ class EnhancedPlayerManager private constructor() {
                 isBuffering = true,
             )
 
-        GlobalPlayerState.setCurrentVideo(video)
         startBackgroundService(
             videoId = video.id,
             title = video.title,

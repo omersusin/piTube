@@ -171,6 +171,9 @@ object LyricsTranslationRepository {
         val joined = work.joinToString("\n") { it.text.trim() }
         try {
             val translatedBlock = translator(joined, lang)?.trim()
+            if (translatedBlock == null) {
+                Log.d(TAG, "batch for $videoId: translator returned NULL (provider failure or suppressed echo) — falling back per-line")
+            }
             val lines = translatedBlock?.lines().orEmpty().map { it.trim() }
             val nonEmptyOut = lines.filter { it.isNotEmpty() }
             val echo = translatedBlock.equals(joined, ignoreCase = true)
@@ -204,17 +207,35 @@ object LyricsTranslationRepository {
 
         // ── legacy per-line fallback (also covers lines beyond tolerance) ──
         out.clear()
+        var nullCount = 0
+        var echoCount = 0
+        var failCount = 0
         for (line in work) {
             try {
                 val text = line.text.trim()
-                val translated = translator(text, lang)?.trim() ?: continue
-                if (translated.equals(text, ignoreCase = true)) continue
+                val translated = translator(text, lang)?.trim()
+                if (translated == null) {
+                    // Provider failure OR a strict translator suppressing an
+                    // echo — both mean "no translation", never "already done".
+                    nullCount++
+                    continue
+                }
+                if (translated.equals(text, ignoreCase = true)) {
+                    // A permissive translator handed the original back.
+                    echoCount++
+                    continue
+                }
                 out.add(LrcLine(line.timeMs, translated))
             } catch (e: Exception) {
+                failCount++
                 Log.d(TAG, "machine line translation failed at ${line.timeMs}: ${e.message}")
             }
         }
-        Log.d(TAG, "machine-translation fallback for $videoId produced ${out.size}/${sourceLines.size} lines")
+        Log.d(
+            TAG,
+            "machine-translation fallback for $videoId produced ${out.size}/${sourceLines.size} lines " +
+                "(null=$nullCount echo=$echoCount failed=$failCount)",
+        )
         return out.takeIf { it.isNotEmpty() }
     }
 

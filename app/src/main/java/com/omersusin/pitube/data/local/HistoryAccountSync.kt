@@ -35,7 +35,10 @@ class HistoryAccountSync
             force: Boolean = false,
             staleMs: Long = STALE_MS,
         ): Int {
-            if (!youTubeRepository.isSignedIn) return 0
+            if (!youTubeRepository.isSignedIn) {
+                Log.w(TAG, "HistorySync skipped: not-signed-in")
+                return 0
+            }
             val now = System.currentTimeMillis()
             if (!force && now - lastImportAtMs.get() < staleMs) return 0
             if (!inFlight.compareAndSet(false, true)) return 0
@@ -55,10 +58,14 @@ class HistoryAccountSync
                     )
                     inserted++
                 }
-                lastImportAtMs.set(System.currentTimeMillis())
-                if (inserted > 0) {
-                    Log.i(TAG, "Account history sync: +$inserted new entries")
-                }
+                // Stamp the window only on a non-empty fetch so a transient
+                // empty shell (parse drift, network) retries on next open
+                // instead of being suppressed for the whole staleness period.
+                if (videos.isNotEmpty()) lastImportAtMs.set(System.currentTimeMillis())
+                Log.i(
+                    TAG,
+                    "HistorySync done: fetched=${videos.size} existing=${existingIds.size} new=$inserted",
+                )
                 return inserted
             } catch (e: Exception) {
                 Log.w(TAG, "Account history sync failed", e)

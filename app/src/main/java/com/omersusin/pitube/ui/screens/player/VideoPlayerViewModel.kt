@@ -3644,7 +3644,11 @@ class VideoPlayerViewModel @Inject constructor(
                                 enabled = prefsL.lyricsTranslationEnabled.first(),
                                 targetLangOverride = prefsL.lyricsTranslationTargetLang.first(),
                                 machineTranslate = { text, targetLang ->
-                                    translationController.translate(text, targetLang)
+                                    // Strict variant: a same-language skip or
+                                    // engine echo must surface as null so the
+                                    // lyrics fallback logs/retries the line
+                                    // instead of treating it as translated.
+                                    translationController.translateOrNull(text, targetLang)
                                 },
                                 sourceLines = sourceLines,
                                 context = context,

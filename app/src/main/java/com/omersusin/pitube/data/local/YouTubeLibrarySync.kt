@@ -148,7 +148,10 @@ object YouTubeLibrarySync {
         val repository = LikedVideosRepository.getInstance(context)
         val videos = YouTube.webPlaylistVideos("LL").getOrNull().orEmpty()
         var applied = 0
-        videos.forEach { video ->
+        // LL is newest-first: offset likedAt per import index so imported rows
+        // don't all share one timestamp and sort arbitrarily against local likes.
+        val now = System.currentTimeMillis()
+        videos.forEachIndexed { index, video ->
             runCatching {
                 repository.likeVideo(
                     LikedVideoInfo(
@@ -156,7 +159,8 @@ object YouTubeLibrarySync {
                         title = video.title,
                         thumbnail = video.thumbnail,
                         channelName = video.channelName,
-                        isMusic = false
+                        isMusic = false,
+                        likedAt = now - index * 1_000L
                     )
                 )
             }.onSuccess { applied++ }

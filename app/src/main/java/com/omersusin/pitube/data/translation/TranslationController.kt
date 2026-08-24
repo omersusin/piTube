@@ -7,6 +7,7 @@ import com.omersusin.pitube.translation.MaskedText
 import com.omersusin.pitube.translation.TimestampProtection
 import com.omersusin.pitube.translation.TranslationEngine
 import com.omersusin.pitube.translation.TranslationEngines
+import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -83,7 +84,32 @@ class TranslationController @Inject constructor(
      * null). Returns null on any failure so callers fall back to the
      * original; never throws.
      */
-    suspend fun translate(text: String, targetCode: String? = null): String? {
+    suspend fun translate(text: String, targetCode: String? = null): String? =
+        translateInternal(text, targetCode)
+
+    /**
+     * Strict variant of [translate] for callers that must tell "no
+     * translation happened" apart from a successful result. Every
+     * same-language early-return ([LanguageScriptUtil.shouldSkip], the
+     * engine's own detected-language echo) yields the ORIGINAL text back
+     * from [translate]; here that echo is converted to `null` so batch /
+     * per-line fallbacks treat it as a failed line instead of silently
+     * dropping it as "already translated".
+     */
+    suspend fun translateOrNull(text: String, targetCode: String? = null): String? {
+        val result = translateInternal(text, targetCode)
+        if (result == null) {
+            Log.d(TAG, "translateOrNull: provider failure (lastError=$_lastError) -> null")
+            return null
+        }
+        if (result.trim().equals(text.trim(), ignoreCase = true)) {
+            Log.d(TAG, "translateOrNull: engine ECHOED the original text -> null")
+            return null
+        }
+        return result
+    }
+
+    private suspend fun translateInternal(text: String, targetCode: String?): String? {
         if (text.isBlank()) return text
         val target = effectiveTarget(targetCode)
         val engine = currentEngine()
@@ -242,6 +268,8 @@ class TranslationController @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "TranslationController"
+
         /** Provider calls run concurrently up to this many. */
         const val MAX_CONCURRENT_TRANSLATIONS = 4
 

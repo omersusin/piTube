@@ -501,18 +501,33 @@ object YouTube {
         val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
         var nextContinuation: String? = null
 
-        val tabContents = response.contents
-            ?.twoColumnBrowseResultsRenderer?.tabs
-            ?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer?.contents
-        if (!tabContents.isNullOrEmpty()) {
-            tabContents.forEach { section ->
-                section.itemSectionRenderer?.contents?.forEach { item ->
-                    item.videoRenderer
+        // Prefer the SELECTED tab; some FEhistory responses lead with a
+        // placeholder/expandable tab whose content is null. Support both the
+        // classic sectionListRenderer layout and the newer richGridRenderer.
+        val tabs = response.contents?.twoColumnBrowseResultsRenderer?.tabs.orEmpty()
+        val historyTab = tabs.firstOrNull { it.tabRenderer?.selected == true } ?: tabs.firstOrNull()
+        val tabContent = historyTab?.tabRenderer?.content
+
+        when {
+            tabContent?.sectionListRenderer?.contents != null -> {
+                tabContent.sectionListRenderer.contents.forEach { section ->
+                    section.itemSectionRenderer?.contents?.forEach { item ->
+                        item.videoRenderer
+                            ?.let { parseVideoRenderer(it, "", "", "") }
+                            ?.let { videos.add(it) }
+                    }
+                    section.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
+                        ?.let { nextContinuation = it }
+                }
+            }
+            tabContent?.richGridRenderer?.contents != null -> {
+                tabContent.richGridRenderer.contents.forEach { item ->
+                    item.richItemRenderer?.content?.videoRenderer
                         ?.let { parseVideoRenderer(it, "", "", "") }
                         ?.let { videos.add(it) }
+                    item.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
+                        ?.let { nextContinuation = it }
                 }
-                section.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
-                    ?.let { nextContinuation = it }
             }
         }
 
@@ -520,6 +535,10 @@ object YouTube {
             nextContinuation = response.continuationContents
                 ?.sectionListContinuation?.continuations
                 ?.firstOrNull()?.nextContinuationData?.continuation
+        }
+
+        if (videos.isEmpty()) {
+            Log.w("YouTube", "FEhistory parsed 0 videos — rawBody=${rawBody.length}B selectedTab=${historyTab != null}")
         }
 
         HistoryPage(videos = videos.distinctBy { it.id }, continuation = nextContinuation)
