@@ -53,6 +53,22 @@ object LyricsTranslationRepository {
         }
     }
 
+    // A translated line carrying a time-tag-shaped fragment would be re-split
+    // by LrcParser on the next sidecar load into EXTRA timed entries,
+    // injecting phantom lines at other timestamps. Raw newlines inside a
+    // translation likewise break the one-line-per-tag file format.
+    private val lrcTagShapes = Regex("""\[\d{1,2}:\d{2}\.\d{2,3}]|<\d{1,2}:\d{2}\.\d{2,3}>""")
+
+    private fun sanitizeLrcLine(text: String): String = text
+        .replace("\r", " ")
+        .replace("\n", " ")
+        .replace(lrcTagShapes, " ")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+
+    private fun sanitized(lines: List<LrcLine>): List<LrcLine> =
+        lines.map { it.copy(text = sanitizeLrcLine(it.text)) }.filter { it.text.isNotBlank() }
+
     /** Target language follows the app/system locale (2-letter code). */
     fun targetLanguage(): String = Locale.getDefault().language
 
@@ -80,7 +96,12 @@ object LyricsTranslationRepository {
     ): List<LrcLine>? {
         if (!enabled || title.isBlank() || artist.isBlank()) return null
         val lang = targetLangOverride?.trim()?.takeIf { it.isNotBlank() } ?: targetLanguage()
-        if (lang.isBlank() || lang == "en") return null // source language — nothing to do
+        // Only the DEVICE-default English target is skipped outright (English
+        // lyrics are the overwhelmingly common case). An explicit picker
+        // choice of "English" must be honoured — e.g. a French user picking
+        // en needs fr→en machine translation; the per-text echo/skip
+        // heuristics downstream already suppress pointless en→en calls.
+        if (lang.isBlank() || (lang == "en" && targetLangOverride.isNullOrBlank())) return null
         // Disk sidecar first: translations survive process death.
         val key = "$videoId|$lang"
         loadTranslationDisk(context, videoId, lang)?.let { cached ->
@@ -103,13 +124,16 @@ object LyricsTranslationRepository {
                 parsed
             }
             if (!usable.isNullOrEmpty()) {
-                cache[key] = usable
-                saveTranslationDisk(context, videoId, lang, usable)
-                return usable
+                val clean = sanitized(usable)
+                if (clean.isNotEmpty()) {
+                    cache[key] = clean
+                    saveTranslationDisk(context, videoId, lang, clean)
+                    return clean
+                }
             }
             // Fallback: line-by-line machine translation of the synced lyrics,
             // keeping every original timestamp so the view can match lines.
-            val fallback = machineTranslateFallback(videoId, sourceLines, lang, machineTranslate)
+            val fallback = machineTranslateFallback(videoId, sourceLines, lang, machineTranslate)?.let { sanitized(it) }
             cache[key] = fallback.orEmpty()
             fallback?.let { saveTranslationDisk(context, videoId, lang, it) }
             return fallback

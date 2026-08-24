@@ -130,7 +130,14 @@ class TranslationController @Inject constructor(
         if (!cached.isNullOrBlank() &&
             !cached.trim().equals(text.trim(), ignoreCase = true)
         ) {
-            return cached
+            // Rows written before leftover-token stripping may contain raw
+            // "@@TS0@@" residue — re-translate live instead of serving them.
+            if (TimestampProtection.hasLeftoverTokens(cached)) {
+                Log.w(TAG, "cache row with placeholder residue healed for engine=${engine.name} target=$target")
+                cacheDao.delete(cacheId)
+            } else {
+                return cached
+            }
         }
         if (cached != null) {
             Log.w(TAG, "poisoned cache row healed for engine=${engine.name} target=$target")
@@ -206,6 +213,44 @@ class TranslationController @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            // The named/current provider never answered (DNS / refused /
+            // timed out — i.e. no bytes were ever received). As a one-shot
+            // safety net, try the next ALIVE keyless engine once so a dead
+            // instance does not silence translation entirely. Parse errors
+            // and HTTP failures are NOT retried: a wrong API shape must stay
+            // visible instead of being silently masked by a fallback.
+            if (failedBeforeResponse(e)) {
+                val alt = TranslationEngines.getAllEngines(enginePrefs)
+                    .firstOrNull { it.name != engine.name && it.name in TranslationEngines.defaultKeylessOrder }
+                if (alt != null) {
+                    Log.w(TAG, "translate via ${engine.name} unreachable — retrying once via ${alt.name}")
+                    val retried = try {
+                        alt.translate(masked.text, "", target)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        null
+                    }
+                    if (retried != null) {
+                        val translated = TimestampProtection.restore(retried.translatedText, masked.tokens)
+                        if (translated.isNotBlank() &&
+                            !translated.trim().equals(original.trim(), ignoreCase = true)
+                        ) {
+                            cacheDao.insert(
+                                CachedTranslationEntity(
+                                    id = cacheId,
+                                    engine = alt.name,
+                                    targetLanguage = target,
+                                    sourceText = original,
+                                    translatedText = translated,
+                                ),
+                            )
+                            maybePrune()
+                            return translated
+                        }
+                    }
+                }
+            }
             val msg = friendlyMessage(e, engine)
             _lastError.value = msg
             // Surface the REAL underlying error — friendlyMessage can collapse
@@ -261,6 +306,22 @@ class TranslationController @Inject constructor(
      * status text; none of that is useful to the user, so it is collapsed to
      * one of a few canned explanations (never raw parser / socket text).
      */
+    /** True when [e] means the request never got a response byte. */
+    private fun failedBeforeResponse(e: Throwable): Boolean {
+        var t: Throwable? = e
+        while (t != null) {
+            when (t) {
+                is java.net.UnknownHostException,
+                is java.net.ConnectException,
+                is java.net.SocketTimeoutException,
+                is java.io.IOException,
+                -> return true
+            }
+            t = t.cause
+        }
+        return false
+    }
+
     private fun friendlyMessage(e: Throwable, engine: TranslationEngine): String {
         val name = engine.name
         val type = e.javaClass

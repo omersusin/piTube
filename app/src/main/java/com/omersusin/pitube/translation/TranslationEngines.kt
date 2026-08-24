@@ -72,7 +72,7 @@ object TranslationEngines {
      * The registry default resolves to the first of these so a fresh install
      * with no API key still translates instead of failing on every call.
      */
-    private val defaultKeylessOrder = listOf("Mozhi", "MyMemory")
+    val defaultKeylessOrder = listOf("Mozhi", "MyMemory")
 
     fun findByName(
         name: String?,

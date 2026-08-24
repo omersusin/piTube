@@ -76,7 +76,17 @@ object LrcParser {
         }
     }
 
-    private fun normalize(s: String) = s.replace("\ufeff", "").replace("&apos;", "'")
+    // Musixmatch subtitle/translation bodies occasionally carry HTML entities
+    // that would otherwise render as literal "&amp;"-style artifacts.
+    // &amp; is decoded LAST so double-encoded input isn't over-decoded.
+    private fun normalize(s: String) = s
+        .replace("\ufeff", "")
+        .replace("&apos;", "'")
+        .replace("&#39;", "'")
+        .replace("&quot;", "\"")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&amp;", "&")
     private fun parseTime(m: String, s: String, c: String): Long {
         val mm = m.toIntOrNull() ?: 0; val ss = s.toIntOrNull() ?: 0; val cc = c.toIntOrNull() ?: 0
         val ms = if (c.length == 2) cc * 10 else cc
