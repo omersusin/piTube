@@ -2132,6 +2132,8 @@
     <string name="translation_toggle_descriptions">Deskripsi video</string>
     <string name="translation_toggle_double_tap_original">Ketuk dua kali untuk menampilkan</string>
     <string name="translation_toggle_double_tap_original_subtitle">asli Ketuk dua kali teks yang diterjemahkan untuk menampilkan bahasa aslinya</string>
+    <string name="translation_lyrics_row">Lirik</string>
+    <string name="translation_lyrics_row_subtitle">Terjemahkan lirik yang disinkronkan di bawah baris asli</string>
     <string name="translation_toggle_master">Terjemahkan konten</string>
     <string name="translation_toggle_playlist_titles">Judul daftar putar</string>
     <string name="translation_toggle_titles">Judul video</string>

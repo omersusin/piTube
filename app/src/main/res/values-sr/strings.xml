@@ -1492,6 +1492,8 @@
     <string name="translation_toggle_descriptions">Видео описи</string>
     <string name="translation_toggle_double_tap_original">Двапут додирните да бисте приказали оригинал</string>
     <string name="translation_toggle_double_tap_original_subtitle">Двапут додирните преведени текст да бисте приказали оригинални језик</string>
+    <string name="translation_lyrics_row">Текстови песама</string>
+    <string name="translation_lyrics_row_subtitle">Преведи синхронизоване текстове песама испод оригиналног реда</string>
     <string name="translation_toggle_master">Преведите садржај</string>
     <string name="translation_toggle_playlist_titles">Наслови плејлиста</string>
     <string name="translation_toggle_titles">Наслови видео записа</string>

@@ -2149,6 +2149,8 @@
     <string name="translation_toggle_descriptions">Опис відео</string>
     <string name="translation_toggle_double_tap_original">Двічі торкніться, щоб показати оригінал</string>
     <string name="translation_toggle_double_tap_original_subtitle">Двічі торкніться перекладеного тексту, щоб показати мову оригіналу</string>
+    <string name="translation_lyrics_row">Тексти пісень</string>
+    <string name="translation_lyrics_row_subtitle">Перекладати синхронізований текст під оригінальним рядком</string>
     <string name="translation_toggle_master">Перекласти вміст</string>
     <string name="translation_toggle_playlist_titles">Назви списків відтворення</string>
     <string name="translation_toggle_titles">Назви відео</string>

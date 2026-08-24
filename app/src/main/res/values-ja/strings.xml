@@ -226,6 +226,8 @@
     <string name="translation_toggle_descriptions">ビデオの説明</string>
     <string name="translation_toggle_double_tap_original">ダブルタップしてオリジナルを表示します</string>
     <string name="translation_toggle_double_tap_original_subtitle">翻訳されたテキストをダブルタップすると、元の言語が表示されます</string>
+    <string name="translation_lyrics_row">歌詞</string>
+    <string name="translation_lyrics_row_subtitle">同期された歌詞を原文の行の下に翻訳して表示</string>
     <string name="translation_toggle_master">コンテンツを翻訳する</string>
     <string name="translation_toggle_playlist_titles">プレイリストのタイトル</string>
     <string name="translation_toggle_titles">ビデオのタイトル</string>

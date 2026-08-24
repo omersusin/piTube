@@ -1561,6 +1561,8 @@
     <string name="translation_toggle_descriptions">Video kirjeldused</string>
     <string name="translation_toggle_double_tap_original">Topeltpuudutage, et kuvada originaal</string>
     <string name="translation_toggle_double_tap_original_subtitle">Topeltpuudutage tõlgitud teksti, et kuvada originaalkeel</string>
+    <string name="translation_lyrics_row">Laulusõnad</string>
+    <string name="translation_lyrics_row_subtitle">Tõlgi sünkroonitud laulusõnad originaalrea alla</string>
     <string name="translation_toggle_master">Tõlgi sisu</string>
     <string name="translation_toggle_playlist_titles">Esitusloendite pealkirjad</string>
     <string name="translation_toggle_titles">Videote pealkirjad</string>

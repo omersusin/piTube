@@ -2140,6 +2140,8 @@
     <string name="translation_toggle_descriptions">أوصاف الفيديو</string>
     <string name="translation_toggle_double_tap_original">انقر نقرًا مزدوجًا لإظهار الأصل</string>
     <string name="translation_toggle_double_tap_original_subtitle">انقر نقرًا مزدوجًا على النص المترجم لإظهار اللغة الأصلية</string>
+    <string name="translation_lyrics_row">كلمات الأغاني</string>
+    <string name="translation_lyrics_row_subtitle">ترجمة كلمات الأغاني المتزامنة أسفل السطر الأصلي</string>
     <string name="translation_toggle_master">ترجمة المحتوى</string>
     <string name="translation_toggle_playlist_titles">عناوين قائمة التشغيل</string>
     <string name="translation_toggle_titles">عناوين الفيديو</string>

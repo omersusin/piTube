@@ -1497,6 +1497,8 @@
     <string name="translation_toggle_descriptions">Popisy videí</string>
     <string name="translation_toggle_double_tap_original">Dvojitým klepnutím zobrazíte originál</string>
     <string name="translation_toggle_double_tap_original_subtitle">Dvojitým klepnutím přeložený text zobrazíte původní jazyk</string>
+    <string name="translation_lyrics_row">Texty písní</string>
+    <string name="translation_lyrics_row_subtitle">Přeložit synchronizované texty pod původní řádek</string>
     <string name="translation_toggle_master">Přeložit obsah</string>
     <string name="translation_toggle_playlist_titles">Názvy playlistů</string>
     <string name="translation_toggle_titles">Názvy videí</string>

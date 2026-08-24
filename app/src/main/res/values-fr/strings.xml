@@ -2188,6 +2188,8 @@
     <string name="translation_toggle_descriptions">Descriptions des vidéos</string>
     <string name="translation_toggle_double_tap_original">Appuyez deux fois pour afficher l\'original</string>
     <string name="translation_toggle_double_tap_original_subtitle">Appuyez deux fois sur le texte traduit pour afficher la langue d\'origine</string>
+    <string name="translation_lyrics_row">Paroles</string>
+    <string name="translation_lyrics_row_subtitle">Traduire les paroles synchronisées sous la ligne d\'origine</string>
     <string name="translation_toggle_master">Traduire le contenu</string>
     <string name="translation_toggle_playlist_titles">Titres de la liste de lecture</string>
     <string name="translation_toggle_titles">Titres vidéo</string>

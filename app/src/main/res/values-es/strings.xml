@@ -2142,6 +2142,8 @@
     <string name="translation_toggle_descriptions">Descripciones de vídeos</string>
     <string name="translation_toggle_double_tap_original">Toca dos veces para mostrar el original</string>
     <string name="translation_toggle_double_tap_original_subtitle">Toca dos veces el texto traducido para mostrar el idioma original</string>
+    <string name="translation_lyrics_row">Letras</string>
+    <string name="translation_lyrics_row_subtitle">Traducir letras sincronizadas debajo de la línea original</string>
     <string name="translation_toggle_master">Traducir contenido</string>
     <string name="translation_toggle_playlist_titles">Títulos de la lista de reproducción</string>
     <string name="translation_toggle_titles">Títulos de vídeos</string>

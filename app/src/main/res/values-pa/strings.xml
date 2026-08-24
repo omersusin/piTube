@@ -1459,6 +1459,8 @@
     <string name="translation_toggle_descriptions">ਅਸਲੀ</string>
     <string name="translation_toggle_double_tap_original">ਦਿਖਾਉਣ ਲਈ ਡਬਲ-ਟੈਪ ਕਰੋ</string>
     <string name="translation_toggle_double_tap_original_subtitle">ਮੂਲ ਭਾਸ਼ਾ ਦਿਖਾਉਣ ਲਈ ਅਨੁਵਾਦਿਤ ਟੈਕਸਟ ਨੂੰ ਡਬਲ-ਟੈਪ ਕਰੋ</string>
+    <string name="translation_lyrics_row">ਗੀਤ ਦੇ ਬੋਲ</string>
+    <string name="translation_lyrics_row_subtitle">ਅਸਲ ਲਾਈਨ ਦੇ ਹੇਠਾਂ ਸਿੰਕ ਕੀਤੇ ਗੀਤਾਂ ਦੇ ਬੋਲਾਂ ਦਾ ਅਨੁਵਾਦ ਕਰੋ</string>
     <string name="translation_toggle_master">ਸਮੱਗਰੀ ਦਾ ਅਨੁਵਾਦ ਕਰੋ</string>
     <string name="translation_toggle_playlist_titles">ਪਲੇਲਿਸਟ ਸਿਰਲੇਖ1</string>
     <string name="translation_toggle_titles">ਵੀਡੀਓ ਟਾਈਟਲ 1</string>

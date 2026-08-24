@@ -2063,6 +2063,8 @@
     <string name="translation_toggle_descriptions">视频说明</string>
     <string name="translation_toggle_double_tap_original">双击显示原始</string>
     <string name="translation_toggle_double_tap_original_subtitle">双击翻译文本即可显示原始语言</string>
+    <string name="translation_lyrics_row">歌词</string>
+    <string name="translation_lyrics_row_subtitle">将同步歌词翻译并显示在原始行下方</string>
     <string name="translation_toggle_master">翻译内容</string>
     <string name="translation_toggle_playlist_titles">播放列表标题</string>
     <string name="translation_toggle_titles">视频标题</string>

@@ -1552,6 +1552,8 @@ para criar a sua lista de reprodução</string>
     <string name="translation_toggle_descriptions">Descrições de vídeos</string>
     <string name="translation_toggle_double_tap_original">Toque duas vezes para mostrar o</string>
     <string name="translation_toggle_double_tap_original_subtitle">original Toque duas vezes no texto traduzido para mostrar o idioma original</string>
+    <string name="translation_lyrics_row">Letras</string>
+    <string name="translation_lyrics_row_subtitle">Traduzir letras sincronizadas abaixo da linha original</string>
     <string name="translation_toggle_master">Traduzir conteúdo</string>
     <string name="translation_toggle_playlist_titles">Títulos da lista de reprodução</string>
     <string name="translation_toggle_titles">Títulos de vídeo</string>

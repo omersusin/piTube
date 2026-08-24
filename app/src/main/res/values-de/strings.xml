@@ -1958,6 +1958,8 @@
     <string name="translation_toggle_descriptions">Videobeschreibungen</string>
     <string name="translation_toggle_double_tap_original">Doppeltippen, um das Original</string>
     <string name="translation_toggle_double_tap_original_subtitle">anzuzeigen Doppeltippen Sie auf den übersetzten Text, um die Originalsprache anzuzeigen</string>
+    <string name="translation_lyrics_row">Songtexte</string>
+    <string name="translation_lyrics_row_subtitle">Synchronisierte Songtexte unter der Originalzeile übersetzen</string>
     <string name="translation_toggle_master">Inhalt übersetzen</string>
     <string name="translation_toggle_playlist_titles">Playlist-Titel</string>
     <string name="translation_toggle_titles">Videotitel</string>

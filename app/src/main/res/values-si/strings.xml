@@ -1499,6 +1499,8 @@
     <string name="translation_toggle_descriptions">වීඩියෝ විස්තර</string>
     <string name="translation_toggle_double_tap_original">මුල්</string>
     <string name="translation_toggle_double_tap_original_subtitle">පෙන්වීමට දෙවරක් තට්ටු කරන්න මුල් භාෂාව පෙන්වීමට පරිවර්තනය කළ පෙළ දෙවරක් තට්ටු කරන්න</string>
+    <string name="translation_lyrics_row">ගී පද</string>
+    <string name="translation_lyrics_row_subtitle">මුල් පේළියේ යටින් සමමුහුර්ත ගී පද පරිවර්තනය කරන්න</string>
     <string name="translation_toggle_master">අන්තර්ගතය පරිවර්තනය කරන්න</string>
     <string name="translation_toggle_playlist_titles">ධාවන ලැයිස්තු මාතෘකා</string>
     <string name="translation_toggle_titles">වීඩියෝ මාතෘකා</string>

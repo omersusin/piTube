@@ -2050,6 +2050,8 @@
     <string name="translation_toggle_descriptions">Descrizioni video</string>
     <string name="translation_toggle_double_tap_original">Tocca due volte per mostrare l\'originale</string>
     <string name="translation_toggle_double_tap_original_subtitle">Tocca due volte il testo tradotto per mostrare la lingua originale</string>
+    <string name="translation_lyrics_row">Testi delle canzoni</string>
+    <string name="translation_lyrics_row_subtitle">Traduci i testi sincronizzati sotto la riga originale</string>
     <string name="translation_toggle_master">Traduci il contenuto</string>
     <string name="translation_toggle_playlist_titles">Titoli della playlist</string>
     <string name="translation_toggle_titles">Titoli video</string>

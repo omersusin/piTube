@@ -1472,6 +1472,8 @@
     <string name="translation_toggle_playlist_titles">Izwilen n umuɣen</string>
     <string name="translation_toggle_double_tap_original">Sin n tqeffalin akken ad twaliḍ taḥeqqit</string>
     <string name="translation_toggle_double_tap_original_subtitle">Sin n tqeffalin ɣef udris yettwasuɣlen akken ad d-sskeneḍ tutlayt taḥeqqit</string>
+    <string name="translation_lyrics_row">Izlan</string>
+    <string name="translation_lyrics_row_subtitle">Suɣel izlan imyigawen ddaw wawrig amezwaru</string>
     <string name="translation_caption_note">Tiḍebrit yesseqdacent iktilen yettwasuɣlen n YouTube mi llan i tutlayt taneggarut.</string>
     <string name="translation_missing_key_hint" formatted="false">Asuɣel yermed, maca %1$s yeḥwaǧ tsarut API: rnu yiwen sennig neɣ fren adeffay ilelli, d ugbur ad yqqim deg tutlayt taḥeqqit.</string>
     <string name="settings_header_speech_to_text">Tameslayt ɣer Uḍris</string>

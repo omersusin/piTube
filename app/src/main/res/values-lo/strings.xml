@@ -1459,6 +1459,8 @@
     <string name="translation_toggle_descriptions">ຄຳອະທິບາຍວິດີໂອ</string>
     <string name="translation_toggle_double_tap_original">ແຕະສອງເທື່ອເພື່ອສະແດງ</string>
     <string name="translation_toggle_double_tap_original_subtitle">ແຕະສອງຄັ້ງເພື່ອສະແດງພາສາຕົ້ນສະບັບ</string>
+    <string name="translation_lyrics_row">ເນື້ອເພງ</string>
+    <string name="translation_lyrics_row_subtitle">ແປເນື້ອເພງທີ່ຊິງຄ໌ໄວ້ຢູ່ດ້ານລຸ່ມແຖວຕົ້ນສະບັບ</string>
     <string name="translation_toggle_master">ແປພາສາເນື້ອຫາ</string>
     <string name="translation_toggle_playlist_titles">ຊື່ລາຍການຫຼິ້ນ</string>
     <string name="translation_toggle_titles">ຊື່ວິດີໂອ</string>

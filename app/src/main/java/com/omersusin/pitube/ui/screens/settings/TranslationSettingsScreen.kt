@@ -85,6 +85,7 @@ fun TranslationSettingsScreen(
     val doubleTapOriginal by preferences.translationDoubleTapOriginal.collectAsState(initial = true)
     val targetLanguage by preferences.translationTargetLanguage.collectAsState(initial = "")
     val displayMode by preferences.translationMode.collectAsState(initial = "REPLACE")
+    val lyricsTranslationEnabled by preferences.lyricsTranslationEnabled.collectAsState(initial = true)
 
     val engine = viewModel.currentEngine()
     val providerKeyMissing = engine.apiKeyState == ApiKeyState.REQUIRED && !viewModel.hasApiKey(engine)
@@ -348,6 +349,14 @@ fun TranslationSettingsScreen(
                         checked = translatePlaylistTitles,
                         onCheckedChange = {
                             coroutineScope.launch { preferences.setTranslatePlaylistTitles(it) }
+                        },
+                    )
+                    TranslationToggleRow(
+                        title = stringResource(R.string.translation_lyrics_row),
+                        subtitle = stringResource(R.string.translation_lyrics_row_subtitle),
+                        checked = lyricsTranslationEnabled,
+                        onCheckedChange = {
+                            coroutineScope.launch { preferences.setLyricsTranslationEnabled(it) }
                         },
                     )
                     TranslationToggleRow(

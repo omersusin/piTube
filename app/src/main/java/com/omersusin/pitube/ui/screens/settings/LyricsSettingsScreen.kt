@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -45,8 +44,6 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val swipe by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
     val showPP by prefs.lyricsShowPlayPauseOnThumbnail.collectAsState(initial = true)
     val order by prefs.lyricsProviderOrder.collectAsState(initial = com.omersusin.pitube.data.lyrics.LyricsProviders.DEFAULT_ORDER)
-    val translationEnabled by prefs.lyricsTranslationEnabled.collectAsState(initial = true)
-    val translationTargetLang by prefs.lyricsTranslationTargetLang.collectAsState(initial = "")
     val syncOffset by prefs.lyricsSyncOffsetMs.collectAsState(initial = 0)
 
     Scaffold(
@@ -141,48 +138,6 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                     SettingsSwitchItem(icon = Icons.Outlined.Swipe, title = "Swipe to change song", subtitle = "Horizontal swipe skips track", checked = swipe, onCheckedChange = { scope.launch { prefs.setLyricsSwipeToChangeSong(it) } })
                     HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     SettingsSwitchItem(icon = Icons.Outlined.PlayArrow, title = "Play/pause on thumbnail", subtitle = "Show control on artwork", checked = showPP, onCheckedChange = { scope.launch { prefs.setLyricsShowPlayPauseOnThumbnail(it) } })
-                }
-            }
-            item { SectionHeader(text = "Translation") }
-            item {
-                SettingsGroup {
-                    SettingsSwitchItem(
-                        icon = Icons.Outlined.Translate,
-                        title = "Translate lyrics",
-                        subtitle = "Show translated line under the active line (Musixmatch, follows app language)",
-                        checked = translationEnabled,
-                        onCheckedChange = { scope.launch { prefs.setLyricsTranslationEnabled(it) } },
-                    )
-                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    // Target language: blank follows the app/system locale.
-                    val langOptions = listOf(
-                        "" to "Follow app language",
-                        "tr" to "Turkish",
-                        "en" to "English",
-                        "de" to "German",
-                        "fr" to "French",
-                        "es" to "Spanish",
-                        "it" to "Italian",
-                        "ru" to "Russian",
-                        "ar" to "Arabic",
-                        "az" to "Azerbaijani",
-                    )
-                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
-                        Text("Translation language", style = MaterialTheme.typography.bodyMedium)
-                        Spacer(Modifier.height(8.dp))
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            langOptions.forEach { (code, label) ->
-                                val selected = translationTargetLang == code
-                                androidx.compose.material3.FilterChip(
-                                    selected = selected,
-                                    onClick = { scope.launch { prefs.setLyricsTranslationTargetLang(code) } },
-                                    label = { Text(label) },
-                                )
-                            }
-                        }
-                    }
                 }
             }
             item { SectionHeader(text = "Providers") }

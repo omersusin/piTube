@@ -2143,6 +2143,8 @@
     <string name="translation_toggle_descriptions">Video təsvirləri</string>
     <string name="translation_toggle_double_tap_original">Orijinal</string>
     <string name="translation_toggle_double_tap_original_subtitle">göstərmək üçün iki dəfə toxunun Orijinal dili göstərmək üçün tərcümə edilmiş mətnə ​​iki dəfə toxunun</string>
+    <string name="translation_lyrics_row">Mahnı sözləri</string>
+    <string name="translation_lyrics_row_subtitle">Sinxronlaşdırılmış mahnı sözlərini orijinal sətirin altında tərcümə edin</string>
     <string name="translation_toggle_master">Məzmunu tərcümə edin</string>
     <string name="translation_toggle_playlist_titles">Pleylist başlıqları</string>
     <string name="translation_toggle_titles">Video başlıqları</string>

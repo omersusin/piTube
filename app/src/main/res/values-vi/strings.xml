@@ -2150,6 +2150,8 @@
     <string name="translation_toggle_descriptions">Mô tả video</string>
     <string name="translation_toggle_double_tap_original">Nhấn đúp để hiển thị</string>
     <string name="translation_toggle_double_tap_original_subtitle">gốc Nhấn đúp vào văn bản đã dịch để hiển thị ngôn ngữ gốc</string>
+    <string name="translation_lyrics_row">Lời bài hát</string>
+    <string name="translation_lyrics_row_subtitle">Dịch lời bài hát đồng bộ bên dưới dòng gốc</string>
     <string name="translation_toggle_master">Dịch nội dung</string>
     <string name="translation_toggle_playlist_titles">Tiêu đề danh sách phát</string>
     <string name="translation_toggle_titles">Tiêu đề video</string>

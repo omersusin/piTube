@@ -2153,6 +2153,8 @@
     <string name="translation_toggle_descriptions">Описания видео</string>
     <string name="translation_toggle_double_tap_original">Нажмите дважды, чтобы показать оригинал</string>
     <string name="translation_toggle_double_tap_original_subtitle">Дважды нажмите переведенный текст, чтобы отобразить язык оригинала</string>
+    <string name="translation_lyrics_row">Тексты песен</string>
+    <string name="translation_lyrics_row_subtitle">Переводить синхронизированный текст под оригинальной строкой</string>
     <string name="translation_toggle_master">Перевести контент</string>
     <string name="translation_toggle_playlist_titles">Названия плейлистов</string>
     <string name="translation_toggle_titles">Названия видео</string>

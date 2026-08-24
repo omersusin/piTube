@@ -1802,6 +1802,8 @@
     <string name="translation_toggle_descriptions">वीडियो विवरण</string>
     <string name="translation_toggle_double_tap_original">मूल दिखाने के लिए डबल-टैप करें</string>
     <string name="translation_toggle_double_tap_original_subtitle">मूल भाषा दिखाने के लिए अनुवादित पाठ पर डबल-टैप करें</string>
+    <string name="translation_lyrics_row">गीत के बोल</string>
+    <string name="translation_lyrics_row_subtitle">मूल पंक्ति के नीचे सिंक किए गए गीत के बोल का अनुवाद करें</string>
     <string name="translation_toggle_master">सामग्री का अनुवाद करें</string>
     <string name="translation_toggle_playlist_titles">प्लेलिस्ट शीर्षक</string>
     <string name="translation_toggle_titles">वीडियो शीर्षक</string>

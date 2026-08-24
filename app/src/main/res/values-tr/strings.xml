@@ -2218,6 +2218,8 @@
     <string name="sync_account_title">%1$s olarak oturum açılıyor</string>
     <string name="translation_toggle_double_tap_original">Orijinali göstermek için çift dokunun</string>
     <string name="translation_toggle_double_tap_original_subtitle">Çevrilmiş metne çift dokunarak orijinal dili gösterin</string>
+    <string name="translation_lyrics_row">Şarkı sözleri</string>
+    <string name="translation_lyrics_row_subtitle">Senkronize şarkı sözlerini orijinal satırın altında çevir</string>
     <string name="ui_clear_search">Aramayı temizle</string>
     <string name="view_replies">Yanıtları gör</string>
     <string name="not_interested">İlgilenmiyorum</string>

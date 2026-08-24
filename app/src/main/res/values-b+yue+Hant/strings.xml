@@ -1458,6 +1458,8 @@
     <string name="translation_toggle_descriptions">影片說明</string>
     <string name="translation_toggle_double_tap_original">輕按兩下以顯示原文</string>
     <string name="translation_toggle_double_tap_original_subtitle">雙擊翻譯文字以顯示原文</string>
+    <string name="translation_lyrics_row">歌詞</string>
+    <string name="translation_lyrics_row_subtitle">將同步歌詞翻譯並顯示在原文歌詞下方</string>
     <string name="translation_toggle_master">翻譯內容</string>
     <string name="translation_toggle_playlist_titles">播放清單標題</string>
     <string name="translation_toggle_titles">影片標題</string>

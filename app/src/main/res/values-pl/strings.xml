@@ -2017,6 +2017,8 @@
     <string name="translation_toggle_descriptions">Opisy filmów</string>
     <string name="translation_toggle_double_tap_original">Kliknij dwukrotnie, aby wyświetlić oryginał</string>
     <string name="translation_toggle_double_tap_original_subtitle">Kliknij dwukrotnie przetłumaczony tekst, aby wyświetlić język oryginalny</string>
+    <string name="translation_lyrics_row">Teksty utworów</string>
+    <string name="translation_lyrics_row_subtitle">Przetłumacz zsynchronizowane teksty pod oryginalną linią</string>
     <string name="translation_toggle_master">Przetłumacz treść</string>
     <string name="translation_toggle_playlist_titles">Tytuły playlist</string>
     <string name="translation_toggle_titles">Tytuły filmów</string>

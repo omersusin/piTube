@@ -1577,6 +1577,8 @@
     <string name="translation_toggle_descriptions">Opisi videa</string>
     <string name="translation_toggle_double_tap_original">Dvaput dodirnite za prikaz originalnog</string>
     <string name="translation_toggle_double_tap_original_subtitle">Dvaput dodirnite prevedeni tekst za prikaz originalnog jezika</string>
+    <string name="translation_lyrics_row">Tekstovi pjesama</string>
+    <string name="translation_lyrics_row_subtitle">Prevedi sinhronizirane tekstove ispod originalnog retka</string>
     <string name="translation_toggle_master">Prevedi sadržaj</string>
     <string name="translation_toggle_playlist_titles">Naslovi plejliste</string>
     <string name="translation_toggle_titles">Naslovi videa</string>
