@@ -2386,7 +2386,7 @@ object YouTube {
             val spec = response.storyboards?.playerStoryboardSpecRenderer?.spec
             if (!spec.isNullOrBlank()) {
                 val framesets = StoryboardFrameset.parseSpec(spec)
-                Log.d("YouTube", "storyboard fetched via ${client.name}: ${framesets.size} framesets")
+                Log.d("YouTube", "storyboard fetched via ${client.clientName}: ${framesets.size} framesets")
                 return@runCatching framesets
             }
             lastSpec = null
