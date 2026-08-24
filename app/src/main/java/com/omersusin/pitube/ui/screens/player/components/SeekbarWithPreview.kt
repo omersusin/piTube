@@ -33,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -157,6 +158,7 @@ fun SeekbarWithPreview(
 
     // Storyboard preview bubble geometry
     var seekbarWidth by remember { mutableFloatStateOf(0f) }
+    var lastStoryboardLogAt by remember { mutableLongStateOf(0L) }
     val storyboardPreview: StoryboardPreviewData? = if (
         isInteracting &&
         storyboardFrameset != null &&
@@ -166,6 +168,25 @@ fun SeekbarWithPreview(
         val positionMs = (internalValue.coerceIn(0f, 1f) * duration).toLong()
         val frame = storyboardFrameset.frameBoundsAt(positionMs)
         val sheetUrl = frame?.let { storyboardFrameset.urls.getOrNull(it.urlIndex) }
+        // Diagnostics: a scrub recomposes constantly, so throttle to one line
+        // per state class — enough to tell "bubble never composes" apart from
+        // "bubble composes but the image renders blank".
+        val now = System.currentTimeMillis()
+        if (now - lastStoryboardLogAt > 1500) {
+            lastStoryboardLogAt = now
+            if (frame == null) {
+                Log.w(TAG, "preview SUPPRESSED frame=null pos=$positionMs urls=${storyboardFrameset.urls.size}")
+            } else if (sheetUrl == null) {
+                Log.w(TAG, "preview SUPPRESSED urlIndex=${frame.urlIndex} out-of-range urls=${storyboardFrameset.urls.size}")
+            } else {
+                Log.d(
+                    TAG,
+                    "preview ACTIVE urls=${storyboardFrameset.urls.size} cell=${storyboardFrameset.frameWidth}x" +
+                        "${storyboardFrameset.frameHeight} idx=${frame.urlIndex} bounds=(${frame.left},${frame.top}," +
+                        "${frame.right},${frame.bottom})",
+                )
+            }
+        }
         if (frame != null && sheetUrl != null) {
             StoryboardPreviewData(storyboardFrameset, frame, sheetUrl, positionMs)
         } else {
@@ -568,9 +589,15 @@ private fun StoryboardPreviewBubble(
             .diskCachePolicy(CachePolicy.ENABLED)
             .allowRgb565(true)
             .crossfade(false)
-            .listener(onError = { _, result ->
-                Log.w(TAG, "storyboard sheet failed $sheetUrl: ${result.throwable}")
-            })
+            .listener(
+                onStart = { Log.d(TAG, "sheet START $sheetUrl") },
+                onSuccess = { _, result ->
+                    Log.d(TAG, "sheet OK via ${result.dataSource} $sheetUrl")
+                },
+                onError = { _, result ->
+                    Log.w(TAG, "storyboard sheet failed $sheetUrl: ${result.throwable}")
+                },
+            )
             .build()
     }
 
