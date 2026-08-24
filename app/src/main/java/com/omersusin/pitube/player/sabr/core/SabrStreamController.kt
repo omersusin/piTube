@@ -118,6 +118,7 @@ class SabrStreamController(
     private var sawMediaInResponse = false
     private var consecutiveMedialessResponses = 0
     private var attestationRetried = false
+    private var offsetCheckDone = false
     private var malformedPartsInResponse = 0
 
     // A RELOAD_PLAYER_RESPONSE is a control signal: the server stops serving media until we
@@ -133,6 +134,7 @@ class SabrStreamController(
         consecutiveMedialessResponses = 0
         attestationRetried = false
         sawMediaInResponse = false
+        offsetCheckDone = false
         frameDecoder.reset()
 
         Log.d(TAG, "Starting SABR session: video=${sessionState.videoId}, " +
@@ -168,6 +170,7 @@ class SabrStreamController(
         reloadPending = false
         sawMediaInResponse = false
         attestationRetried = false
+        offsetCheckDone = false
     }
 
     fun updatePlayheadPosition(positionMs: Long) {
@@ -416,6 +419,25 @@ class SabrStreamController(
         Log.d(TAG, "Segment complete: itag=${header.itag}, seq=${header.sequenceNumber}, " +
             "init=${header.isInitSegment}, ${if (isAudio) "audio" else "video"}, " +
             "size=${data.size}, time=${header.timeRangeStartMs}ms")
+
+        // Offset diagnostics: if the server ignored our requested playhead
+        // (fresh-session semantics), the first media segment lands near 0 while
+        // the player timeline sits at the seek target — content and position
+        // desync. One log per session/seek makes that visible in reports.
+        if (!header.isInitSegment && !offsetCheckDone) {
+            offsetCheckDone = true
+            val requested = sessionState.playheadPositionMs
+            val served = header.timeRangeStartMs
+            if (requested > 5_000L && served < requested - 3_000L) {
+                Log.w(
+                    TAG,
+                    "SABR OFFSET MISMATCH: requested playhead=${requested}ms " +
+                        "but server started streaming at ${served}ms — seek offset not honored"
+                )
+            } else {
+                Log.d(TAG, "SABR offset check: requested=${requested}ms first-segment=${served}ms OK")
+            }
+        }
 
         _events.emit(SabrEvent.SegmentReady(segment))
     }

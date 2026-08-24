@@ -55,12 +55,12 @@ object LrcParser {
                     }
                 }
                 val clean = TitleDecorationStripper.stripDecorations(
-                    content.replace(wordTagPattern, "").replace(Regex("\\s+"), " ").trim()
+                    decodeEntities(content.replace(wordTagPattern, "").replace(Regex("\\s+"), " ").trim())
                 )
                 lines.add(LrcLine(first.coerceAtLeast(0L), clean, spans))
                 repeats.forEach { lines.add(LrcLine(it.coerceAtLeast(0L), clean)) }
             } else {
-                val stripped = TitleDecorationStripper.stripDecorations(content)
+                val stripped = TitleDecorationStripper.stripDecorations(decodeEntities(content))
                 if (stripped.isEmpty()) continue
                 lines.add(LrcLine(first.coerceAtLeast(0L), stripped))
                 repeats.forEach { lines.add(LrcLine(it.coerceAtLeast(0L), stripped)) }
@@ -87,6 +87,26 @@ object LrcParser {
         .replace("&lt;", "<")
         .replace("&gt;", ">")
         .replace("&amp;", "&")
+
+    /**
+     * Generic HTML-entity decode for extracted TEXT ONLY — never applied to raw
+     * lines, where the HTML parser would eat enhanced-LRC word tags like
+     * <01:23.45>. Covers numeric (&#8217;) and named entities beyond the fixed
+     * chain above; two passes handle double-encoded bodies.
+     */
+    private fun decodeEntities(s: String): String {
+        if (!s.contains('&')) return s
+        var out = s
+        repeat(2) {
+            val prev = out
+            out = android.text.Html.fromHtml(out, android.text.Html.FROM_HTML_MODE_LEGACY)
+                .toString()
+                .trim()
+            if (out == prev) return out
+        }
+        return out
+    }
+
     private fun parseTime(m: String, s: String, c: String): Long {
         val mm = m.toIntOrNull() ?: 0; val ss = s.toIntOrNull() ?: 0; val cc = c.toIntOrNull() ?: 0
         val ms = if (c.length == 2) cc * 10 else cc

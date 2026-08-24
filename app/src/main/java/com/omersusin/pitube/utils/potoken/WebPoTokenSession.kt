@@ -45,9 +45,11 @@ object WebPoTokenSession {
     }
 
     // Mint with a bounded wait for the fast extraction path.
-    suspend fun mintBounded(videoId: String, maxWaitMs: Long = 15_000L): PoTokenResult? {
-        // 15s: the BotGuard WebView can take >10s on low-RAM devices under load;
-        // a timeout here means unattested direct requests that die in ~60s anyway.
+    suspend fun mintBounded(videoId: String, maxWaitMs: Long = 8_000L): PoTokenResult? {
+        // 8s cap: the WebView mint is usually <1s when warm; when it hangs the
+        // old 15s wait was pure black-screen before the IOS ladder rescued
+        // playback. Unattested direct requests can die sooner anyway — failing
+        // fast into the ladder beats stalling.
         return withTimeoutOrNull(maxWaitMs) {
             val vd = sessionVisitorData() ?: return@withTimeoutOrNull null
             try {

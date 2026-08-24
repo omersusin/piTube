@@ -15,9 +15,6 @@ interface SyncLogDao {
     @Query("SELECT COUNT(*) FROM sync_log WHERE peerDeviceId = :peer AND collection = :collection AND payloadHash = :hash")
     suspend fun count(peer: String, collection: String, hash: String): Int
 
-    @Query("SELECT hwmHlc FROM sync_log WHERE peerDeviceId = :peer AND collection = :collection ORDER BY appliedAt DESC LIMIT 1")
-    suspend fun highWaterMark(peer: String, collection: String): String?
-
     suspend fun isAlreadyApplied(peer: String, collection: String, hash: String): Boolean =
         count(peer, collection, hash) > 0
 }

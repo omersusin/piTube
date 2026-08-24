@@ -5,7 +5,6 @@ import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 import com.omersusin.pitube.data.local.dao.CacheDao
 import com.omersusin.pitube.data.local.dao.DownloadDao
-import com.omersusin.pitube.data.local.dao.DownloadedSongDao
 import com.omersusin.pitube.data.local.dao.HomeFeedCacheDao
 import com.omersusin.pitube.data.local.dao.NotificationDao
 import com.omersusin.pitube.data.local.dao.PlaylistDao
@@ -19,7 +18,6 @@ import com.omersusin.pitube.data.local.dao.WatchHistoryDao
 import com.omersusin.pitube.data.local.entity.CachedTranslationEntity
 import com.omersusin.pitube.data.local.entity.DownloadEntity
 import com.omersusin.pitube.data.local.entity.DownloadItemEntity
-import com.omersusin.pitube.data.local.entity.DownloadedSongEntity
 import com.omersusin.pitube.data.local.entity.HomeFeedCacheEntity
 import com.omersusin.pitube.data.local.entity.MusicHomeCacheEntity
 import com.omersusin.pitube.data.local.entity.MusicHomeChipEntity
@@ -42,7 +40,6 @@ import com.omersusin.pitube.data.local.migrations.MIGRATIONS
         NotificationEntity::class,
         MusicHomeCacheEntity::class,
         MusicHomeChipEntity::class,
-        DownloadedSongEntity::class,
         DownloadEntity::class,
         DownloadItemEntity::class,
         WatchHistoryEntity::class,
@@ -53,7 +50,7 @@ import com.omersusin.pitube.data.local.migrations.MIGRATIONS
         SyncPeerEntity::class,
         CachedTranslationEntity::class,
     ],
-    version = 28,
+    version = 29,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -65,7 +62,6 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun cacheDao(): CacheDao
 
-    abstract fun downloadedSongDao(): DownloadedSongDao
 
     abstract fun downloadDao(): DownloadDao
 

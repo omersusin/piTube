@@ -213,52 +213,64 @@ class TranslationController @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            // The named/current provider never answered (DNS / refused /
-            // timed out — i.e. no bytes were ever received). As a one-shot
-            // safety net, try the next ALIVE keyless engine once so a dead
-            // instance does not silence translation entirely. Parse errors
-            // and HTTP failures are NOT retried: a wrong API shape must stay
-            // visible instead of being silently masked by a fallback.
-            if (failedBeforeResponse(e)) {
-                val alt = TranslationEngines.getAllEngines(enginePrefs)
-                    .firstOrNull { it.name != engine.name && it.name in TranslationEngines.defaultKeylessOrder }
-                if (alt != null) {
-                    Log.w(TAG, "translate via ${engine.name} unreachable — retrying once via ${alt.name}")
-                    val retried = try {
-                        alt.translate(masked.text, "", target)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (_: Exception) {
-                        null
-                    }
-                    if (retried != null) {
-                        val translated = TimestampProtection.restore(retried.translatedText, masked.tokens)
-                        if (translated.isNotBlank() &&
-                            !translated.trim().equals(original.trim(), ignoreCase = true)
-                        ) {
-                            cacheDao.insert(
-                                CachedTranslationEntity(
-                                    id = cacheId,
-                                    engine = alt.name,
-                                    targetLanguage = target,
-                                    sourceText = original,
-                                    translatedText = translated,
-                                ),
-                            )
-                            maybePrune()
-                            return translated
-                        }
-                    }
-                }
-            }
             val msg = friendlyMessage(e, engine)
             _lastError.value = msg
             // Surface the REAL underlying error — friendlyMessage can collapse
             // the cause chain and the settings StateFlow alone made diagnosis
             // impossible on device logs.
             Log.w(TAG, "translate via ${engine.name} failed: ${e.message} (cause=${e.cause?.message})")
-            return null
+            // Engine-chain fallback: ANY failure — rate-limit, HTTP status,
+            // parse shape, network — must not silence translation entirely.
+            // Walk the preference order to the next alive engine; the user's
+            // selection only sets priority, every combination has to work.
+            return translateViaFallbackChain(masked, target, cacheId, original, skipEngine = engine.name)
         }
+    }
+
+    /**
+     * Try every remaining engine in preference order (keyless ones first so a
+     * dead API-key config can't block a working keyless instance). First
+     * non-blank, non-echo result wins and is cached under ITS engine id, so
+     * subsequent lines keep riding the working engine via the cache.
+     */
+    private suspend fun translateViaFallbackChain(
+        masked: MaskedText,
+        target: String,
+        cacheId: String,
+        original: String,
+        skipEngine: String,
+    ): String? {
+        val candidates =
+            TranslationEngines.getAllEngines(enginePrefs)
+                .filter { it.name != skipEngine }
+                .sortedBy { it.name !in TranslationEngines.defaultKeylessOrder }
+        for (alt in candidates) {
+            try {
+                Log.w(TAG, "translate fallback -> ${alt.name}")
+                val retried = alt.translate(masked.text, "", target)
+                val translated = TimestampProtection.restore(retried.translatedText, masked.tokens)
+                if (translated.isNotBlank() &&
+                    !translated.trim().equals(original.trim(), ignoreCase = true)
+                ) {
+                    cacheDao.insert(
+                        CachedTranslationEntity(
+                            id = cacheId(alt, target, original),
+                            engine = alt.name,
+                            targetLanguage = target,
+                            sourceText = original,
+                            translatedText = translated,
+                        ),
+                    )
+                    maybePrune()
+                    return translated
+                }
+            } catch (ce: kotlinx.coroutines.CancellationException) {
+                throw ce
+            } catch (e2: Exception) {
+                Log.w(TAG, "translate via ${alt.name} failed too: ${e2.message}")
+            }
+        }
+        return null
     }
 
     /**
@@ -306,22 +318,6 @@ class TranslationController @Inject constructor(
      * status text; none of that is useful to the user, so it is collapsed to
      * one of a few canned explanations (never raw parser / socket text).
      */
-    /** True when [e] means the request never got a response byte. */
-    private fun failedBeforeResponse(e: Throwable): Boolean {
-        var t: Throwable? = e
-        while (t != null) {
-            when (t) {
-                is java.net.UnknownHostException,
-                is java.net.ConnectException,
-                is java.net.SocketTimeoutException,
-                is java.io.IOException,
-                -> return true
-            }
-            t = t.cause
-        }
-        return false
-    }
-
     private fun friendlyMessage(e: Throwable, engine: TranslationEngine): String {
         val name = engine.name
         val type = e.javaClass

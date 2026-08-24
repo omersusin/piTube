@@ -41,6 +41,19 @@ object InnerTubeVideoStreamExtractor {
     var lastUniversalBotWallAtMs: Long = 0L
         private set
 
+    /**
+     * Last time ANDROID_VR answered the bot wall. While inside
+     * [ANDROID_VR_BOT_WALL_COOLDOWN_MS] the ladder skips the VR family
+     * outright — each wasted round-trip was adding ~0.5-1.5s of black screen
+     * before IOS won anyway.
+     */
+    @Volatile
+    private var androidVrBotWallAtMs = 0L
+
+    private companion object {
+        private const val ANDROID_VR_BOT_WALL_COOLDOWN_MS = 10 * 60_000L
+    }
+
     private val extractionCoalescer = InFlightRequestCoalescer<ExtractionKey, VideoExtractionResult?>(
         CoroutineScope(SupervisorJob() + Dispatchers.IO)
     )
@@ -383,6 +396,19 @@ object InnerTubeVideoStreamExtractor {
 
         for (client in clients) {
             try {
+                // Bot-wall cooldown: ANDROID_VR has been answering "Sign in to
+                // confirm you're not a bot" for long stretches. Re-asking every
+                // extraction burns a per-client round-trip (~0.5-1.5s of black
+                // screen) before the ladder reaches IOS anyway. Skip the whole
+                // VR family while the cooldown is active.
+                if (client.clientName == "ANDROID_VR" &&
+                    System.currentTimeMillis() - androidVrBotWallAtMs < ANDROID_VR_BOT_WALL_COOLDOWN_MS
+                ) {
+                    failureReasons.add("${client.clientName}: skipped (bot-wall cooldown)")
+                    Log.d(TAG, "Skipping ${client.clientName} v${client.clientVersion}: bot-wall cooldown")
+                    continue
+                }
+
                 Log.d(TAG, "Trying ${client.clientName} v${client.clientVersion}")
 
                 // ANDROID_VR returns clean direct adaptive formats (that survive GVS past ~70s) ONLY
@@ -418,6 +444,9 @@ object InnerTubeVideoStreamExtractor {
                 if (status != "OK") {
                     val reason = playerResponse.playabilityStatus.reason
                     val tag = if (isBotWall(reason)) "BOT_WALL" else "status=$status"
+                    if (isBotWall(reason) && client.clientName == "ANDROID_VR") {
+                        androidVrBotWallAtMs = System.currentTimeMillis()
+                    }
                     failureReasons.add("${client.clientName}: $tag, reason=$reason")
                     Log.w(TAG, "${client.clientName}: $tag, reason=$reason")
                     PlayerDiagnostics.logWarning(TAG, "skip ${client.clientName} v${client.clientVersion}: $tag reason=$reason pot=${clientPoToken != null}")

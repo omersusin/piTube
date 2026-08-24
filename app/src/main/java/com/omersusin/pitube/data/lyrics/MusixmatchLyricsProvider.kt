@@ -42,7 +42,19 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         const val FALLBACK_SECRET = "b3dc8788299f5806a70a6a20a0cb0ffc"
         const val APP_ID = "web-desktop-app-v1.0"
+
+        // Android player scheme (musixmatch-inofficial v0.5.x, maintained 2026):
+        // static secret + HMAC-SHA1(date-signed URL) — no fragile web scraping.
+        const val ANDROID_APP_ID = "android-player-v1.0"
+        const val ANDROID_BUILD = "2022090901"
+        const val ANDROID_SIGNING_SECRET = "mNdca@6W7TeEcFn6*3.s97sJ*yPMd"
+        const val USER_AGENT_ANDROID =
+            "Dalvik/2.1.0 (Linux; U; Android 13; Pixel 6 Build/TQ3A.230901.001)"
     }
+
+    @Volatile private var useAndroidScheme = true
+    private val androidGuid: String by lazy { (1..16).map { "0123456789abcdef".random() }.joinToString("") }
+    private val androidAdvId: String by lazy { java.util.UUID.randomUUID().toString() }
 
     // ── Auth / signing ───────────────────────────────────────────────────────
 
@@ -74,6 +86,50 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
         return secret
     }
 
+    /**
+     * Android player signing: HmacSHA1 over (full URL + UTC yyyyMMdd), base64
+     * std with a trailing newline (reference implementations carry it),
+     * URL-encoded into signature/signature_protocol=sha1.
+     */
+    private fun signAndroid(url: String): String {
+        val normalized = url.replace("%20", "+").replace(" ", "+")
+        val date = SimpleDateFormat("yyyyMMdd", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+        val mac = Mac.getInstance("HmacSHA1").apply {
+            init(SecretKeySpec(ANDROID_SIGNING_SECRET.toByteArray(StandardCharsets.UTF_8), "HmacSHA1"))
+        }
+        val sig = Base64.encodeToString(
+            mac.doFinal((normalized + date).toByteArray(StandardCharsets.UTF_8)),
+            Base64.NO_WRAP,
+        ) + "\n"
+        return "$normalized&signature=${URLEncoder.encode(sig, StandardCharsets.UTF_8.name())}&signature_protocol=sha1"
+    }
+
+    /** Android player requests carry device params on every endpoint. */
+    private fun androidify(url: String): String {
+        val ts = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+        return url.replace("app_id=$APP_ID", "app_id=$ANDROID_APP_ID") +
+            "&adv_id=$androidAdvId&root=0&sideloaded=0&build_number=$ANDROID_BUILD" +
+            "&guid=$androidGuid&lang=en_US&model=Google/Pixel 6/Pixel 6&timestamp=$ts"
+    }
+
+    /** Signs per the active scheme; desktop keeps the scraped-secret sha256 flow. */
+    private fun signed(url: String, secret: String): String =
+        if (useAndroidScheme) signAndroid(androidify(url)) else sign(url, secret)
+
+    private fun Request.Builder.authHeaders(): Request.Builder = apply {
+        if (useAndroidScheme) {
+            header("User-Agent", USER_AGENT_ANDROID)
+            header("Cookie", "AWSELBCORS=0; AWSELB=0")
+        } else {
+            header("User-Agent", USER_AGENT)
+        }
+        header("Accept", "application/json, text/plain, */*")
+    }
+
     private fun sign(url: String, secret: String): String {
         val normalized = url.replace("%20", "+").replace(" ", "+")
         val date = SimpleDateFormat("yyyyMMdd", Locale.US).apply {
@@ -91,6 +147,30 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
 
     private fun getUserToken(secret: String): String {
         tokenCache.get()?.let { return it }
+        if (useAndroidScheme) {
+            try {
+                val url = signAndroid(androidify("${BASE_URL}token.get?app_id=$APP_ID&format=json"))
+                val body = fetchBody(url) {
+                    header("User-Agent", USER_AGENT_ANDROID)
+                    header("Cookie", "AWSELBCORS=0; AWSELB=0")
+                    header("Accept", "application/json")
+                } ?: throw IllegalStateException("token endpoint unreachable")
+                val root = JSONObject(body)
+                val status = root.optJSONObject("message")?.optJSONObject("header")?.optInt("status_code") ?: 0
+                if (status != 200) throw TokenMintException("token status $status (android)")
+                val token = root.optJSONObject("message")?.optJSONObject("body")
+                    ?.optString("user_token").orEmpty()
+                if (token.isBlank()) throw IllegalStateException("empty user_token (android)")
+                tokenCache.set(token)
+                Log.i(TAG, "usertoken minted via ANDROID scheme")
+                return token
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "android-scheme mint failed (${e.message}) — downgrading to desktop scheme for this session")
+                useAndroidScheme = false
+            }
+        }
         val url = sign("${BASE_URL}token.get?app_id=$APP_ID&format=json", secret)
         val body = fetchBody(url) {
             header("User-Agent", USER_AGENT)
@@ -183,10 +263,8 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
                 val lang = targetLang.take(2).lowercase()
                 val url = "${BASE_URL}track.subtitle.translation.get?app_id=$APP_ID&format=json" +
                     "&track_id=$trackId&translation_list_source=auto&lang=$lang&usertoken=$token"
-                val body = fetchBody(sign(url, secret)) {
-                    header("User-Agent", USER_AGENT)
-                    header("Accept", "application/json, text/plain, */*")
-                } ?: throw IllegalStateException("translation endpoint unreachable")
+                val body = fetchBody(signed(url, secret)) { authHeaders() }
+                    ?: throw IllegalStateException("translation endpoint unreachable")
                 val headerStatus = JSONObject(body).optJSONObject("message")
                     ?.optJSONObject("header")?.optInt("status_code") ?: 0
                 if (headerStatus == 401) throw TokenExpiredException()
@@ -213,10 +291,7 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
         val encArtist = URLEncoder.encode(artist, StandardCharsets.UTF_8.name())
         val url = "${BASE_URL}track.search?app_id=$APP_ID&format=json&q_track=$encTitle" +
             "&q_artist=$encArtist&f_has_lyrics=true&page_size=10&usertoken=$token"
-        val body = fetchBody(sign(url, secret)) {
-            header("User-Agent", USER_AGENT)
-            header("Accept", "application/json, text/plain, */*")
-        } ?: return null
+        val body = fetchBody(signed(url, secret)) { authHeaders() } ?: return null
         val root = JSONObject(body)
         val status = root.optJSONObject("message")?.optJSONObject("header")?.optInt("status_code") ?: 0
         if (status == 401) throw TokenExpiredException()
@@ -253,9 +328,7 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
 
     private fun richsyncLrc(trackId: Long, secret: String, token: String): String? {
         val url = "${BASE_URL}track.richsync.get?app_id=$APP_ID&format=json&track_id=$trackId&usertoken=$token"
-        val body = fetchBody(sign(url, secret)) {
-            header("User-Agent", USER_AGENT); header("Accept", "application/json, text/plain, */*")
-        } ?: return null
+        val body = fetchBody(signed(url, secret)) { authHeaders() } ?: return null
         val headerStatus = JSONObject(body).optJSONObject("message")?.optJSONObject("header")?.optInt("status_code") ?: 0
         if (headerStatus == 401) throw TokenExpiredException()
         val richsyncBody = JSONObject(body).optJSONObject("message")?.optJSONObject("body")
@@ -292,9 +365,7 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
 
     private fun subtitleLrc(trackId: Long, secret: String, token: String): String? {
         val url = "${BASE_URL}track.subtitle.get?app_id=$APP_ID&format=json&track_id=$trackId&usertoken=$token"
-        val body = fetchBody(sign(url, secret)) {
-            header("User-Agent", USER_AGENT); header("Accept", "application/json, text/plain, */*")
-        } ?: return null
+        val body = fetchBody(signed(url, secret)) { authHeaders() } ?: return null
         val headerStatus = JSONObject(body).optJSONObject("message")?.optJSONObject("header")?.optInt("status_code") ?: 0
         if (headerStatus == 401) throw TokenExpiredException()
         val subtitleBody = JSONObject(body).optJSONObject("message")?.optJSONObject("body")
@@ -305,9 +376,7 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
 
     private fun plainLyrics(trackId: Long, secret: String, token: String): String? {
         val url = "${BASE_URL}track.lyrics.get?app_id=$APP_ID&format=json&track_id=$trackId&usertoken=$token"
-        val body = fetchBody(sign(url, secret)) {
-            header("User-Agent", USER_AGENT); header("Accept", "application/json, text/plain, */*")
-        } ?: return null
+        val body = fetchBody(signed(url, secret)) { authHeaders() } ?: return null
         val headerStatus = JSONObject(body).optJSONObject("message")?.optJSONObject("header")?.optInt("status_code") ?: 0
         if (headerStatus == 401) throw TokenExpiredException()
         val lyricsBody = JSONObject(body).optJSONObject("message")?.optJSONObject("body")

@@ -23,18 +23,21 @@ object FlowDiagnostics {
     // -------------------------------------------------------------------------
 
     /**
-     * Reads recent Logcat entries for this app's process at DEBUG level and
-     * above — every log line the app emits, not just warnings. Blocks the
-     * calling thread; run on [kotlinx.coroutines.Dispatchers.IO].
+     * Reads recent Logcat entries for this app's process at VERBOSE level and
+     * above — every log line the app can emit, not just debug. The high line
+     * cap exists because the old 1500-line window truncated the START of long
+     * sessions, hiding exactly the events (lyric taps, seeks, first errors)
+     * that diagnostics need most. Blocks the calling thread; run on
+     * [kotlinx.coroutines.Dispatchers.IO].
      *
-     * @param maxLines Maximum number of log lines to return (default 1500).
+     * @param maxLines Maximum number of log lines to return (default 8000).
      */
-    fun readSessionLogs(maxLines: Int = 1500): String {
+    fun readSessionLogs(maxLines: Int = 8000): String {
         return try {
             val pid = android.os.Process.myPid()
-            // --pid restricts output to this process only; *:D = every level the app logs.
+            // --pid restricts output to this process only; *:V = every level.
             val process = ProcessBuilder(
-                "logcat", "--pid=$pid", "-d", "-t", maxLines.toString(), "*:D"
+                "logcat", "--pid=$pid", "-d", "-t", maxLines.toString(), "-v", "threadtime", "*:V"
             )
                 .redirectErrorStream(true)
                 .start()
@@ -73,7 +76,7 @@ object FlowDiagnostics {
         appendLine(buildDeviceInfo(context))
         appendLine()
         appendLine("=".repeat(60))
-        appendLine("SESSION LOGS  (Debug+ level, current session)")
+        appendLine("SESSION LOGS  (Verbose+ level, last $maxLines lines)")
         appendLine("=".repeat(60))
         appendLine(sessionLogs)
         val crashes = getCrashLogs(context)

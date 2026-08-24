@@ -17,9 +17,16 @@ object SabrRequestBuilder {
         state.requestSequence++
 
         val playheadMs = state.playheadPositionMs
+        // Selected formats MUST go out on every request, including the initial
+        // one and the first post-seek follow-up (formats are known from the
+        // player response long before FormatInitialization arrives). Gating
+        // them behind initializedFormats sent an empty selection, which the
+        // server reads as a fresh session and answers with a stream starting
+        // at t=0 regardless of playerTimeMs — the lyric-tap / quality-switch /
+        // reload-resume "rewinds to beginning" root cause.
         val selected = listOfNotNull(
-            state.selectedVideoFormatId.takeIf { state.selectedVideoItag in state.initializedFormats },
-            state.selectedAudioFormatId.takeIf { state.selectedAudioItag in state.initializedFormats }
+            state.selectedVideoFormatId.takeIf { state.selectedVideoItag > 0 },
+            state.selectedAudioFormatId.takeIf { state.selectedAudioItag > 0 }
         )
         val buffered = if (isInitial) emptyList() else (state.videoBufferedRanges + state.audioBufferedRanges)
         val timeSinceSeekMs = if (state.lastSeekAtMs > 0) {
