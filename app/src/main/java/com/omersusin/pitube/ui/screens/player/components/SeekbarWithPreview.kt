@@ -53,6 +53,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import com.omersusin.pitube.data.model.SponsorBlockSegment
 import com.omersusin.pitube.innertube.models.StoryboardFrameset
 import com.omersusin.pitube.utils.formatDuration
@@ -479,23 +485,46 @@ fun SeekbarWithPreview(
         }
 
         storyboardPreview?.let { preview ->
-            StoryboardPreviewBubble(
-                sheetUrl = preview.sheetUrl,
-                frameset = preview.frameset,
-                frame = preview.frame,
-                positionMs = preview.positionMs,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset {
-                        val bubbleWidthPx = StoryboardPreviewWidth.toPx()
-                        val bubbleHeightPx = bubbleWidthPx *
-                            (preview.frameset.frameHeight.toFloat() / preview.frameset.frameWidth.toFloat())
-                        val thumbX = seekbarWidth * internalValue.coerceIn(0f, 1f)
-                        val bubbleX = (thumbX - bubbleWidthPx / 2f)
-                            .coerceIn(0f, (seekbarWidth - bubbleWidthPx).coerceAtLeast(0f))
-                        IntOffset(bubbleX.roundToInt(), (-bubbleHeightPx - 12.dp.toPx()).roundToInt())
+            // Render through a Popup: the bubble draws in the window overlay
+            // layer, so no ancestor container (video surface wrapper, controls
+            // fade group, edge insets) can clip it — the inline offset version
+            // was getting cut off at the top of the controls stack.
+            val density = LocalDensity.current
+            val bubbleWidthPx = with(density) { StoryboardPreviewWidth.toPx() }
+            val bubbleHeightPx = bubbleWidthPx *
+                (preview.frameset.frameHeight.toFloat() / preview.frameset.frameWidth.toFloat())
+            val thumbX = seekbarWidth * internalValue.coerceIn(0f, 1f)
+            val bubbleX = (thumbX - bubbleWidthPx / 2f)
+                .coerceIn(0f, (seekbarWidth - bubbleWidthPx).coerceAtLeast(0f))
+            val verticalGapPx = with(density) { 12.dp.toPx() }
+            Popup(
+                popupPositionProvider = object : PopupPositionProvider {
+                    override fun calculatePosition(
+                        anchorBounds: IntRect,
+                        windowSize: IntSize,
+                        layoutDirection: LayoutDirection,
+                        popupContentSize: IntSize,
+                    ): IntOffset {
+                        val x = (anchorBounds.left + bubbleX.roundToInt())
+                            .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
+                        val y = (anchorBounds.top - popupContentSize.height - verticalGapPx.roundToInt())
+                            .coerceAtLeast(0)
+                        return IntOffset(x, y)
                     }
-            )
+                },
+                properties = PopupProperties(
+                    focusable = false,
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false,
+                ),
+            ) {
+                StoryboardPreviewBubble(
+                    sheetUrl = preview.sheetUrl,
+                    frameset = preview.frameset,
+                    frame = preview.frame,
+                    positionMs = preview.positionMs,
+                )
+            }
         }
         }
     }

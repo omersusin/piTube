@@ -25,4 +25,7 @@ interface TranslationCacheDao {
         """,
     )
     suspend fun prune()
+
+    @Query("DELETE FROM cached_translations WHERE id = :id")
+    suspend fun delete(id: String)
 }

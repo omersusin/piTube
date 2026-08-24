@@ -99,7 +99,11 @@ class TranslationController @Inject constructor(
     suspend fun translateOrNull(text: String, targetCode: String? = null): String? {
         val result = translateInternal(text, targetCode)
         if (result == null) {
-            Log.d(TAG, "translateOrNull: provider failure (lastError=${_lastError.value}) -> null")
+            Log.d(
+                TAG,
+                "translateOrNull: provider failure (lastError=${_lastError.value}) -> null " +
+                    "[engine=${currentEngine().name} target=${effectiveTarget(targetCode)} text='${text.take(40)}']",
+            )
             return null
         }
         if (result.trim().equals(text.trim(), ignoreCase = true)) {
@@ -116,13 +120,21 @@ class TranslationController @Inject constructor(
 
         if (LanguageScriptUtil.shouldSkip(text, target)) return text
 
-        // A cached answer is served synchronously.
+        // A cached answer is served synchronously — UNLESS it is a poisoned
+        // row (older builds could cache the original text as its own
+        // translation, producing permanent 100% echo). A cached value equal
+        // to the source is treated as invalid and re-translated live.
         val masked = TimestampProtection.mask(text)
         val cacheId = cacheId(engine, target, text)
-        cacheDao.get(cacheId)?.let { cached ->
-            if (cached.isNotBlank()) return cached
-            // A blank entry means the provider answered empty under a broken
-            // configuration; ignore it so a fixed config can retry.
+        val cached = cacheDao.get(cacheId)
+        if (!cached.isNullOrBlank() &&
+            !cached.trim().equals(text.trim(), ignoreCase = true)
+        ) {
+            return cached
+        }
+        if (cached != null) {
+            Log.w(TAG, "poisoned cache row healed for engine=${engine.name} target=$target")
+            cacheDao.delete(cacheId)
         }
 
         // Collapse identical in-flight calls into one provider request; the
