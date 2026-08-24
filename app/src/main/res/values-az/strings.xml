@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
     <string name="view_all_button_label">Hamısı</string>
@@ -36,7 +35,7 @@
     <string name="local_media_permission_title">İcazə tələb olunur</string>
     <string name="local_media_permission_body">piTube-un yerli video və musiqiləri tapıb oxuda bilməsi üçün mediaya giriş icazəsi verin.</string>
     <string name="local_media_grant">Giriş icazəsi ver</string>
-    <string name="library_settings_data_header"><![CDATA[Parametrlər və məlumatlar]]></string>
+    <string name="library_settings_data_header">Parametrlər və məlumatlar</string>
     <string name="library_manage_data_label">Məlumatları idarə et</string>
     <string name="library_manage_data_subtitle">Keşi və tarixçəni təmizlə</string>
     <string name="about">Haqqında</string>
@@ -2077,6 +2076,7 @@
     <string name="settings_item_translation_subtitle">Provayderlər, API açarları, hədəf dili</string>
     <string name="settings_recognition_fallback">Uğursuz matçdan sonra</string>
     <string name="settings_recognition_fallback_dialog_hint">Yenidən cəhd yadda saxlanmış qeyd tələb edir və siz yenidən onlayn olduqda avtomatik işləyir.</string>
+    <string name="settings_recognition_section_voice">Səs rejimi</string>
     <string name="settings_recognition_fallback_dialog_title">Uğursuz matçdan sonra</string>
     <string name="settings_recognition_fallback_subtitle">Səsyazma ilə nə edəcəyinizi seçin</string>
     <string name="settings_recognition_floating_button">Üzən düymə</string>
@@ -2237,4 +2237,4 @@
     <string name="sort_newest">Ən yeni</string>
     <string name="sort_most_viewed">Ən çox baxılan</string>
     <string name="search_results_count">%1$d nəticə</string>
-</resources>
+<string name="liked_filter_music">Musiqi</string><string name="liked_sort_title">Başlıq</string></resources>

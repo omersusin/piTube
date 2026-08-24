@@ -37,11 +37,29 @@ fun TalkingFace(
     amplitude: Float,
     levels: List<Float> = emptyList(),
     modifier: Modifier = Modifier,
+    tint: String = "auto",
 ) {
     val cs = MaterialTheme.colorScheme
-    val primary = cs.primary
-    val secondary = cs.secondary
-    val tertiary = cs.tertiary
+    // Mirrors MorphingBlob's palette handling: "auto" keeps the theme's own
+    // three accents, a fixed role replaces all drawn elements with hue-shifted
+    // variants of that single role so animation still has variety.
+    val primary: Color
+    val secondary: Color
+    val tertiary: Color
+    if (tint == "auto") {
+        primary = cs.primary
+        secondary = cs.secondary
+        tertiary = cs.tertiary
+    } else {
+        val base = when (tint) {
+            "primary" -> cs.primary
+            "secondary" -> cs.secondary
+            else -> cs.tertiary
+        }
+        primary = base
+        secondary = shiftHue(base, 22f)
+        tertiary = shiftHue(base, -18f)
+    }
 
     val smoothed by animateFloatAsState(
         targetValue = amplitude.coerceIn(0f, 1f),

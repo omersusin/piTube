@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
     <string name="view_all_button_label">Tất cả</string>
@@ -33,7 +32,7 @@
     <string name="local_media_permission_title">Cần cấp quyền</string>
     <string name="library_local_media_label">Phương tiện cục bộ</string>
     <string name="local_media_grant">Cấp quyền</string>
-    <string name="library_settings_data_header"><![CDATA[Cài đặt &amp; Dữ liệu]]></string>
+    <string name="library_settings_data_header">Cài đặt &amp;amp; Dữ liệu</string>
     <string name="library_manage_data_label">Quản lý dữ liệu</string>
     <string name="library_manage_data_subtitle">Xóa bộ nhớ đệm và lịch sử</string>
     <string name="about">Giới thiệu</string>
@@ -2085,6 +2084,7 @@
     <string name="settings_item_translation_subtitle">Nhà cung cấp, khóa API, ngôn ngữ đích</string>
     <string name="settings_recognition_fallback">Sau một trận đấu thất bại</string>
     <string name="settings_recognition_fallback_dialog_hint">Thử lại yêu cầu bản ghi đã lưu và chạy tự động khi bạn trực tuyến trở lại.</string>
+    <string name="settings_recognition_section_voice">Chế độ thoại</string>
     <string name="settings_recognition_fallback_dialog_title">Sau một trận đấu thất bại</string>
     <string name="settings_recognition_fallback_subtitle">Chọn việc cần làm với bản ghi</string>
     <string name="settings_recognition_floating_button">Nút nổi</string>
@@ -2244,4 +2244,4 @@
     <string name="sort_newest">Mới nhất</string>
     <string name="sort_most_viewed">Xem nhiều nhất</string>
     <string name="search_results_count">%1$d kết quả</string>
-</resources>
+<string name="liked_filter_music">Nhạc</string><string name="liked_sort_title">Tiêu đề</string></resources>

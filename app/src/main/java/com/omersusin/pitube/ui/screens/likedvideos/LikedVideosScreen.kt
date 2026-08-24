@@ -22,10 +22,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +39,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +68,7 @@ fun LikesScreen(
     viewModel: LikedVideosViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var sortExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -89,6 +97,41 @@ fun LikesScreen(
                         modifier = Modifier.weight(1f),
                     )
                     if (uiState.likedVideos.isNotEmpty()) {
+                        FilterChip(
+                            selected = uiState.typeFilter == LikedTypeFilter.MUSIC,
+                            onClick = {
+                                viewModel.setTypeFilter(
+                                    if (uiState.typeFilter == LikedTypeFilter.MUSIC) {
+                                        LikedTypeFilter.ALL
+                                    } else {
+                                        LikedTypeFilter.MUSIC
+                                    },
+                                )
+                            },
+                            label = { Text(stringResource(R.string.liked_filter_music)) },
+                        )
+                        Box {
+                            IconButton(onClick = { sortExpanded = true }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                                    contentDescription = stringResource(R.string.playlist_sort_options),
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = sortExpanded,
+                                onDismissRequest = { sortExpanded = false },
+                            ) {
+                                LikedSort.entries.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(likedSortLabel(option)) },
+                                        onClick = {
+                                            sortExpanded = false
+                                            viewModel.setSort(option)
+                                        },
+                                    )
+                                }
+                            }
+                        }
                         IconButton(
                             onClick = { onPlayQueue(uiState.likedVideos.map { it.toVideo() }, 0) },
                         ) {
@@ -274,3 +317,11 @@ private fun LikedVideoInfo.toVideo(): Video =
         uploadDate = "",
         isShort = false,
     )
+
+@Composable
+private fun likedSortLabel(sort: LikedSort): String =
+    when (sort) {
+        LikedSort.NEWEST -> stringResource(R.string.history_sort_newest)
+        LikedSort.OLDEST -> stringResource(R.string.history_sort_oldest)
+        LikedSort.TITLE -> stringResource(R.string.liked_sort_title)
+    }

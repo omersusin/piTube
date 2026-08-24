@@ -62,6 +62,7 @@ fun RecognitionScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val prefs = remember { PlayerPreferences(context) }
     val blobTint by prefs.recognitionBlobTint.collectAsState(initial = "auto")
+    val voiceTint by prefs.recognitionVoiceTint.collectAsState(initial = "auto")
 
     var micPermissionGranted by remember {
         mutableStateOf(
@@ -152,6 +153,7 @@ fun RecognitionScreen(
                                     amplitude = uiState.levels.lastOrNull() ?: 0f,
                                     levels = uiState.levels,
                                     modifier = Modifier.size(224.dp),
+                                    tint = voiceTint,
                                 )
                                 RecognitionMode.SONG -> MorphingBlob(
                                     amplitude = uiState.levels.lastOrNull() ?: 0f,
@@ -255,6 +257,7 @@ fun RecognitionScreen(
                                     amplitude = 0f,
                                     levels = emptyList(),
                                     modifier = Modifier.size(224.dp),
+                                    tint = voiceTint,
                                 )
                                 RecognitionMode.SONG -> MorphingBlob(
                                     amplitude = 0f,

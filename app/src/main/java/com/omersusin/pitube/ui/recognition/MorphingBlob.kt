@@ -164,10 +164,10 @@ fun MorphingBlob(
         ) {
             @Suppress("UNUSED_EXPRESSION") tick
 
-            val rhythmScale = 1f + smoothBass * 0.55f + smoothBeat * 0.42f + smoothTreble * 0.10f
+            val rhythmScale = 1f + smoothBass * 0.85f + smoothBeat * 0.60f + smoothTreble * 0.10f
             val hueShift = time * (6f + smoothMid * 18f)
             val pointCount = 8
-            val outerGlow = baseRadius * (1.50f + smoothBass * 0.45f + smoothBeat * 0.22f)
+            val outerGlow = baseRadius * (1.50f + smoothBass * 0.65f + smoothBeat * 0.22f)
             val innerRadius = baseRadius * rhythmScale
 
             val glowPalette = palette
@@ -189,9 +189,9 @@ fun MorphingBlob(
 
             val points = List(pointCount) { i ->
                 val angle = (2f * PI.toFloat() * i / pointCount) + time * (0.22f + smoothMid * 0.32f + smoothBeat * 0.15f)
-                val wobble = sin(time * 1.7f + i * 0.9f) * (0.09f + smoothTreble * 0.05f) * (0.7f + smoothBass * 0.6f)
-                val bassBump = smoothBass * 0.28f * sin(time * 2.2f + i * 1.3f).coerceIn(-1f, 1f)
-                val beatBump = smoothBeat * 0.32f * cos(time * 3.4f + i).coerceIn(-1f, 1f)
+                val wobble = sin(time * 1.7f + i * 0.9f) * (0.13f + smoothTreble * 0.05f) * (0.7f + smoothBass * 0.6f)
+                val bassBump = smoothBass * 0.40f * sin(time * 2.2f + i * 1.3f).coerceIn(-1f, 1f)
+                val beatBump = smoothBeat * 0.48f * cos(time * 3.4f + i).coerceIn(-1f, 1f)
                 val r = innerRadius * (1f + wobble + bassBump + beatBump)
                 Offset(cx + cos(angle) * r, cy + sin(angle) * r)
             }
@@ -241,7 +241,7 @@ fun MorphingBlob(
             )
             drawCircle(brush = highlightBrush, radius = highlightRadius, center = Offset(hx, hy))
 
-            if (smoothBeat > 0.12f || smoothBass > 0.22f) {
+            if (smoothBeat > 0.08f || smoothBass > 0.15f) {
                 val ringAlpha = (smoothBeat * 0.42f + smoothBass * 0.18f).coerceIn(0f, 0.42f)
                 val ringRadius = innerRadius * (1.08f + smoothBeat * 0.18f)
                 drawCircle(
@@ -255,7 +255,7 @@ fun MorphingBlob(
     }
 }
 
-private fun shiftHue(c: Color, deg: Float): Color {
+internal fun shiftHue(c: Color, deg: Float): Color {
     val hsv = FloatArray(3)
     android.graphics.Color.RGBToHSV(
         (c.red * 255).toInt(),

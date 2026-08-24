@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
     <string name="subscribers_count_template">%1$s subskrybentów</string>
@@ -31,7 +30,7 @@
     <string name="subscribers">Subskrybenci</string>
     <string name="stats">Statystyki</string>
     
-    <string name="library_settings_data_header"><![CDATA[Ustawienia i Dane]]></string>
+    <string name="library_settings_data_header">Ustawienia i Dane</string>
     <string name="library_manage_data_label">Zarządzaj Danymi</string>
     <string name="library_manage_data_subtitle">Wyczyść cache i historię</string>
     <string name="about">Informacje</string>
@@ -1938,6 +1937,7 @@
     <string name="settings_item_translation_subtitle">Dostawcy, klucze API, język docelowy</string>
     <string name="settings_recognition_fallback">Po nieudanym meczu</string>
     <string name="settings_recognition_fallback_dialog_hint">Ponowna próba wymaga zapisanego nagrania i uruchamia się automatycznie po ponownym połączeniu z Internetem.</string>
+    <string name="settings_recognition_section_voice">Tryb głosowy</string>
     <string name="settings_recognition_fallback_dialog_title">Po nieudanym meczu</string>
     <string name="settings_recognition_fallback_subtitle">Wybierz, co zrobić z nagraniem</string>
     <string name="settings_recognition_floating_button">Pływający przycisk</string>
@@ -2139,4 +2139,4 @@
     <string name="sort_newest">Najnowsze</string>
     <string name="sort_most_viewed">Najczęściej oglądane</string>
     <string name="search_results_count">%1$d wyników</string>
-</resources>
+<string name="liked_filter_music">Muzyka</string><string name="liked_sort_title">Tytuł</string></resources>

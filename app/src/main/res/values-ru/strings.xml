@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
     <string name="view_all_button_label">Все</string>
@@ -19,7 +18,7 @@
     <string name="library_saved_shorts_label">Сохраненные Shorts</string>
     <string name="library_watch_later_label">Смотреть позже</string>
     <string name="library_downloads_label">Загрузки</string>
-    <string name="library_settings_data_header"><![CDATA[Настройки и данные]]></string>
+    <string name="library_settings_data_header">Настройки и данные</string>
     <string name="library_manage_data_label">Управление данными</string>
     <string name="library_manage_data_subtitle">Очистить кэш и историю</string>
     <string name="about">О приложении</string>
@@ -2088,6 +2087,7 @@
     <string name="settings_item_translation_subtitle">Провайдеры, ключи API, целевой язык</string>
     <string name="settings_recognition_fallback">После неудачного матча</string>
     <string name="settings_recognition_fallback_dialog_hint">Повторная попытка требует сохраненной записи и запускается автоматически, когда вы снова подключаетесь к сети.</string>
+    <string name="settings_recognition_section_voice">Голосовой режим</string>
     <string name="settings_recognition_fallback_dialog_title">После неудачного матча</string>
     <string name="settings_recognition_fallback_subtitle">Выберите, что делать с записью</string>
     <string name="settings_recognition_floating_button">Плавающая кнопка</string>
@@ -2246,4 +2246,4 @@
     <string name="sort_newest">Новые</string>
     <string name="sort_most_viewed">Самые просматриваемые</string>
     <string name="search_results_count">Результатов: %1$d</string>
-</resources>
+<string name="liked_filter_music">Музыка</string><string name="liked_sort_title">Название</string></resources>

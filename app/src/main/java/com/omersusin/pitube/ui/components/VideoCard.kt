@@ -1419,6 +1419,7 @@ fun ShortsCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.width(160.dp),
     trailingContent: (@Composable () -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     var showQuickActions by remember { mutableStateOf(false) }
     var showDownloadSheet by remember { mutableStateOf(false) }
@@ -1430,7 +1431,7 @@ fun ShortsCard(
                 .combinedClickable(
                     interactionSource = interactionSource,
                     indication = androidx.compose.material3.ripple(),
-                    onLongClick = { showQuickActions = true },
+                    onLongClick = onLongClick ?: { showQuickActions = true },
                     onClick = onClick,
                 ),
     ) {

@@ -147,7 +147,7 @@ internal class AudioBandAnalyzer(
         for (b in 0 until bandCount) {
             runningPeak[b] = maxOf(bandEnergy[b], runningPeak[b] * 0.995)
             val normalized = (bandEnergy[b] / runningPeak[b]).coerceIn(0.0, 1.0)
-            out[b] = normalized.pow(0.6).toFloat()
+            out[b] = normalized.pow(0.5).toFloat()
         }
         return out
     }

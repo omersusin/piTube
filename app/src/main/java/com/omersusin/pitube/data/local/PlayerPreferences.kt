@@ -371,6 +371,7 @@ class PlayerPreferences(context: Context) {
         val RECOGNITION_CARD_STYLE = stringPreferencesKey("recognition_card_style")
         val RECOGNITION_CARD_TINT = stringPreferencesKey("recognition_card_tint")
         val RECOGNITION_BLOB_TINT = stringPreferencesKey("recognition_blob_tint")
+        val RECOGNITION_VOICE_TINT = stringPreferencesKey("recognition_voice_tint")
         val RECOGNITION_FLOATING_TINT = stringPreferencesKey("recognition_floating_tint")
         val RECOGNITION_CARD_CORNER_RADIUS = floatPreferencesKey("recognition_card_corner_radius")
         val RECOGNITION_ART_SIZE = intPreferencesKey("recognition_art_size")
@@ -2750,6 +2751,10 @@ class PlayerPreferences(context: Context) {
     /** Accent token tinting the morphing blob: "auto"|"primary"|"secondary"|"tertiary". */
     val recognitionBlobTint: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_BLOB_TINT] ?: "auto" }
     suspend fun setRecognitionBlobTint(v: String) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_BLOB_TINT] = v } }
+
+    /** Accent token tinting the voice-mode talking face: "auto"|"primary"|"secondary"|"tertiary". */
+    val recognitionVoiceTint: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_VOICE_TINT] ?: "auto" }
+    suspend fun setRecognitionVoiceTint(v: String) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_VOICE_TINT] = v } }
     val recognitionCardCornerRadius: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_CARD_CORNER_RADIUS] ?: 20f }
     suspend fun setRecognitionCardCornerRadius(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_CARD_CORNER_RADIUS] = v.coerceIn(8f, 28f) } }
     val recognitionArtSize: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_ART_SIZE] ?: 72 }

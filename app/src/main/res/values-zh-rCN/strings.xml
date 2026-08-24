@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
     <string name="view_all_button_label">所有</string>
@@ -1987,6 +1986,7 @@
     <string name="settings_item_translation_subtitle">提供商、API 密钥、目标语言</string>
     <string name="settings_recognition_fallback">匹配失败后</string>
     <string name="settings_recognition_fallback_dialog_hint">重试需要保存录音，并在您重新上线时自动运行。</string>
+    <string name="settings_recognition_section_voice">语音模式</string>
     <string name="settings_recognition_fallback_dialog_title">匹配失败后</string>
     <string name="settings_recognition_fallback_subtitle">选择如何处理录音</string>
     <string name="settings_recognition_floating_button">浮动按钮</string>
@@ -2186,4 +2186,4 @@
     <string name="sort_newest">最新</string>
     <string name="sort_most_viewed">观看次数最多</string>
     <string name="search_results_count">%1$d 条结果</string>
-</resources>
+<string name="liked_filter_music">音乐</string><string name="liked_sort_title">标题</string></resources>

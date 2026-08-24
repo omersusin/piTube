@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">piTube</string>
     <string name="view_all_button_label">All</string>
@@ -35,7 +34,7 @@
     <string name="local_media_permission_title">Permission needed</string>
     <string name="local_media_permission_body">Allow access to your media so piTube can find and play local videos and music.</string>
     <string name="local_media_grant">Grant access</string>
-    <string name="library_settings_data_header"><![CDATA[Settings & Data]]></string>
+    <string name="library_settings_data_header">Settings &amp; Data</string>
     <string name="library_manage_data_label">Manage Data</string>
     <string name="library_manage_data_subtitle">Clear cache and history</string>
     <string name="about">About</string>
@@ -157,7 +156,7 @@
     <string name="cd_delete_download">Delete %1$s</string>
     <string name="cd_video_thumbnail">Video thumbnail for %1$s</string>
     
-    <!-- Save to Playlist Dialog -->
+    
     <string name="save_to">Save to...</string>
     <string name="watch_later">Watch later</string>
     <string name="watch_later_unsave">Unsave Watch Later</string>
@@ -167,14 +166,14 @@
     <string name="playlist_name">Name</string>
     <string name="playlist_description_optional">Description (optional)</string>
     <string name="create">Create</string>
-    <!-- Video Quick Actions -->
+    
     <string name="save_to_playlist">Save to playlist</string>
     <string name="quick_actions_error_template">Error: %1$s</string>
     <string name="details_metadata">Details &amp; Metadata</string>
     <string name="mark_as_watched">Mark as watched</string>
     <string name="mark_as_watched_toast">Marked as watched — your recommendations will improve!</string>
     <string name="go_to_channel">Go to channel</string>
-    <!-- Media Info Dialog -->
+    
     <string name="track_info">Track Information</string>
     <string name="track_info_subtitle">Detailed technical and social metrics</string>
     <string name="views">Views</string>
@@ -184,7 +183,7 @@
     <string name="uploaded">Uploaded</string>
     <string name="itag">iTag</string>
     <string name="mime_type">Mime Type</string>
-    <!-- Video Status & Metadata -->
+    
     <string name="status_upcoming">UPCOMING</string>
     <string name="status_live">LIVE</string>
     <string name="video_metadata_template">%1$s • %2$s • %3$s</string>
@@ -204,14 +203,14 @@
     <string name="duration">Duration</string>
     <string name="copied_to_clipboard">Copied %1$s</string>
     <string name="unknown">Unknown</string>
-    <!-- Live chat -->
+    
     <string name="live_chat">Live chat</string>
     <string name="live_chat_connecting">Connecting to live chat…</string>
     <string name="live_chat_empty">Waiting for messages…</string>
     
     <string name="live_chat_hide">Hide chat</string>
     <string name="live_chat_jump_to_latest">Jump to latest chat message</string>
-    <!-- Comments -->
+    
     <string name="comments">Comments</string>
     <string name="filter_top">Top</string>
     <string name="filter_newest">Newest</string>
@@ -240,13 +239,13 @@
     <string name="pinned_comment">Pinned comment</string>
     <string name="pinned_by_creator">Pinned by creator</string>
     <string name="tap_to_close">Tap to close</string>
-    <!-- Update Dialog -->
+    
     <string name="new_update_available">New Update Available</string>
     <string name="update_available_template">%1$s is now available</string>
     <string name="release_notes">RELEASE NOTES</string>
     <string name="update_flow">Update piTube</string>
     <string name="maybe_later">Maybe later</string>
-    <!-- Navigation -->
+    
     <string name="nav_home">Home</string>
     <string name="nav_shorts">Shorts</string>
     <string name="nav_library">Library</string>
@@ -291,7 +290,7 @@
     <string name="notification_badge_9_plus">9+</string>
     <string name="personalized_feed">Your personalized feed</string>
     <string name="videos_curated_template">%1$d videos curated just for you</string>
-    <!-- Subscription Groups -->
+    
     
     
     
@@ -316,7 +315,7 @@
     
     <string name="no_videos_saved">No videos saved</string>
     <string name="no_videos_saved_body">Videos you save to watch later will appear here</string>
-    <!-- Search Screen -->
+    
     <string name="search_hint">Search</string>
     <string name="search_videos_channels_placeholder">Search videos, channels...</string>
     <string name="recent_searches">Recent Searches</string>
@@ -326,7 +325,7 @@
     <string name="videos_header">Videos</string>
     
     <string name="clear_search_history">Clear search history</string>
-    <!-- Search Filters -->
+    
     <string name="search_filter_all">All</string>
     <string name="search_toggle_view_mode">Toggle search result view</string>
     
@@ -351,7 +350,7 @@
 
     
     <string name="sort_rating">Rating</string>
-    <!-- Channel Screen -->
+    
     <string name="channel_sort_latest">Latest</string>
     
     <string name="channel_banner">Channel banner</string>
@@ -374,30 +373,30 @@
     <string name="no_playlists_found">No playlists found</string>
     <string name="subscribers_count_template">%1$s subscribers</string>
     <string name="views_count_short_template">%1$s views</string>
-    <!-- Channel Search -->
+    
     <string name="channel_search_hint">Search in channel</string>
     <string name="channel_search_open">Search in channel</string>
     <string name="channel_search_close">Close search</string>
     <string name="channel_search_no_results">No results found for "%1$s"</string>
-    <!-- History Screen -->
+    
     <string name="remove_from_history">Remove from history</string>
     
     <string name="time_today">Today</string>
     <string name="time_yesterday">Yesterday</string>
     <string name="time_earlier">Earlier</string>
-    <!-- Notifications Screen -->
+    
     <string name="clear_all_notifications">Clear all notifications</string>
     <string name="delete">Delete</string>
     <string name="dismiss">Dismiss</string>
     <string name="peace_and_quiet">Peace and quiet</string>
     <string name="notifications_empty_body">You\'re all caught up! New updates from your subscriptions will appear here.</string>
     <string name="refresh_notifications">Refresh notifications</string>
-    <!-- Settings Screen -->
+    
     <string name="settings_title">Settings</string>
     
     
     
-    <!-- Deep Flow Mode -->
+    
     <string name="settings_header_appearance">Appearance</string>
     <string name="settings_header_content_playback">Content &amp; Playback</string>
     <string name="settings_header_data_management">Data Management</string>
@@ -452,7 +451,7 @@
     <string name="settings_region_dialog_title">Select Region</string>
     <string name="settings_language_dialog_title">Select App Language</string>
     <string name="settings_language_system_default">System default</string>
-    <!-- Appearance Screen -->
+    
     <string name="appearance_title">Appearance</string>
     <string name="appearance_subtitle">Personalize your piTube experience</string>
     <string name="appearance_current_theme">CURRENT THEME</string>
@@ -522,7 +521,7 @@
     <string name="appearance_system_defaults_subtitle">Choose which theme is used when your device switches between light and dark mode.</string>
     <string name="appearance_system_light_theme">Light mode theme</string>
     <string name="appearance_system_dark_theme">Dark mode theme</string>
-    <!-- App Icon Picker -->
+    
     <string name="app_icon_picker_subtitle">Choose a launcher icon style. The change takes effect immediately and the launcher will briefly refresh.</string>
     <string name="app_icon_picker_warning">Heads up: switching icons uses an Android system mechanism that may briefly remove the app shortcut from your home screen. Long-press the launcher to add it back if needed.</string>
     <string name="app_icon_apply_toast">Icon updated - your launcher will refresh</string>
@@ -535,7 +534,7 @@
     <string name="icon_name_dynamic">Material You</string>
     <string name="icon_name_material_sky">Material Sky</string>
     <string name="icon_name_material_mint">Material Mint</string>
-    <!-- Player Appearance -->
+    
     <string name="player_appearance_title">Player Appearance</string>
     <string name="player_appearance_header">Customize Player Controls</string>
     
@@ -597,7 +596,7 @@
     <string name="player_fullscreen_seekbar_width_default">Default</string>
     <string name="player_fullscreen_seekbar_width_custom">Custom</string>
     <string name="player_fullscreen_seekbar_width_value">%1$d dp</string>
-    <!-- Theme Names & Descriptions -->
+    
     <string name="theme_name_system_default">System Default</string>
     <string name="theme_desc_system_default">Synchronize with device theme</string>
     <string name="theme_name_material_you">Material You</string>
@@ -654,7 +653,7 @@
     <string name="theme_desc_espresso">Rich &amp; warm</string>
     <string name="theme_name_gunmetal">Gunmetal</string>
     <string name="theme_desc_gunmetal">Industrial edge</string>
-    <!-- Content Settings -->
+    
     <string name="content_settings_title">Content Settings</string>
     <string name="content_settings_header_display">Display</string>
     <string name="content_settings_header_home_layout">Home Layout</string>
@@ -675,7 +674,7 @@
     
     
     
-    <!-- Home Feed -->
+    
     <string name="content_settings_header_home_feed">Home Feed</string>
     <string name="content_settings_hide_unplayable_subscriptions_title">Hide Unplayable Videos from Feed</string>
     <string name="content_settings_hide_unplayable_subscriptions_subtitle">Filter out age-restricted, private, members-only and removed videos after they fail to play</string>
@@ -685,7 +684,7 @@
     
     <string name="content_settings_home_feed_disabled_title">Home Feed Disabled</string>
     <string name="content_settings_home_feed_disabled_body">Personalized recommendations are turned off. You can re-enable this in Content Settings.</string>
-    <!-- Video Player Related Card Style -->
+    
     <string name="content_settings_header_player">Video Player</string>
     <string name="content_settings_related_card_style_title">Related Video Card Style</string>
     <string name="content_settings_related_card_style_subtitle">Choose how related videos appear in the player panel</string>
@@ -750,7 +749,7 @@
     <string name="player_settings_mini_player_continue_watching_title">Continue Watching Mini Player</string>
     <string name="player_settings_mini_player_continue_watching_subtitle">Automatically pop up the last watched video</string>
     <string name="player_mini_player_continue_watching_label">Continue watching</string>
-    <!-- Player Settings -->
+    
     <string name="player_settings_title">Player Settings</string>
     <string name="proxy_settings_title">Proxy Settings</string>
     <string name="proxy_settings_description">Configure an optional HTTP or SOCKS5 proxy for remote requests. Local casting and LAN discovery stay direct.</string>
@@ -879,7 +878,7 @@
     <string name="dearrow_badge_toggle_subtitle">Display a badge on thumbnails corrected by DeArrow</string>
     <string name="global_loop">Global Video Loop</string>
     <string name="global_loop_subtitle">Loop all videos by default</string>
-    <!-- SponsorBlock per-category segment actions (Player Appearance) -->
+    
     <string name="sb_settings_title">SponsorBlock, DeArrow &amp; RYD</string>
     <string name="sb_settings_subtitle">Segment actions, DeArrow controls, and dislike count settings</string>
     <string name="sb_settings_general_header">General</string>
@@ -908,7 +907,7 @@
     <string name="sb_action_mute">Mute</string>
     <string name="sb_action_show_toast">Notify only</string>
     <string name="sb_action_ignore">Ignore</string>
-    <!-- SponsorBlock submit dialog -->
+    
     <string name="sb_submit_dialog_title">Submit Segment</string>
     <string name="sb_submit_start_time">Start time</string>
     <string name="sb_submit_end_time">End time</string>
@@ -917,10 +916,10 @@
     <string name="sb_submit_create">Create Segment</string>
     <string name="sb_submit_success">✓ Segment submitted successfully</string>
     <string name="sb_submit_error">Failed to submit segment. Please try again.</string>
-    <!-- Bottom sheet section labels -->
+    
     <string name="section_channel">Channel</string>
     <string name="section_options">Options</string>
-    <!-- Channel blocking -->
+    
     <string name="dont_show_channel">Don’t show this channel</string>
     <string name="dont_show_channel_desc">Remove from your recommendations</string>
     <string name="channel_metadata_unavailable">Channel information is unavailable</string>
@@ -931,7 +930,7 @@
     <string name="play_external">Play with external player</string>
     <string name="play_external_chooser">Open video in…</string>
     <string name="no_external_player">No app can play this video</string>
-    <!-- Misc -->
+    
     <string name="btn_save">Save</string>
     <string name="btn_reset">Reset</string>
     <string name="btn_change">Change</string>
@@ -952,13 +951,13 @@
     <string name="player_settings_video_codec_dialog_title">Default Video Codec</string>
     <string name="player_settings_video_codec_dialog_body">Choose which codec is used by default at the selected resolution. This does not change which qualities are listed — you can still pick any codec from the quality selector. H.264 is the most compatible and smoothest on most devices; AV1/VP9 save data at higher resolutions but need more decoding power.</string>
     <string name="player_settings_video_codec_auto_desc">Let the app choose (prefers H.264)</string>
-    <!-- Player Gestures -->
+    
     <string name="player_settings_header_gestures">Gestures</string>
     <string name="player_settings_double_tap_seek">Double-Tap Seek Duration</string>
     <string name="player_settings_double_tap_seek_subtitle_template">%ds per side double-tap</string>
     
     
-    <!-- Video and Music Quality Settings -->
+    
     <string name="video_quality_title">Video Quality</string>
     <string name="video_quality_warning">Higher quality uses more data</string>
     <string name="video_quality_wifi_header">Wi-Fi Quality</string>
@@ -971,7 +970,7 @@
     <string name="quality_1080p_full_hd">1080p Full HD</string>
     <string name="quality_1440p_qhd">1440p QHD</string>
     <string name="quality_2160p_4k">2160p 4K</string>
-    <!-- Buffer Settings -->
+    
     <string name="buffer_settings_title">Buffer Settings</string>
     <string name="buffer_settings_desc">Configure video buffering behavior to optimize for your network connection.</string>
     <string name="buffer_settings_header_profile">Performance Profile</string>
@@ -990,7 +989,7 @@
     <string name="buffer_label_max">Max Buffer: %1$ds</string>
     <string name="buffer_label_playback">Start Playback: %1$ds</string>
     <string name="buffer_label_rebuffer">Resume after Rebuffer: %1$ds</string>
-    <!-- Cache Size Settings -->
+    
     <string name="cache_size_header">Media Cache Size</string>
     <string name="cache_size_desc">Maximum disk space used to cache video and audio data. Takes effect after restarting the app.</string>
     <string name="cache_size_100mb">100 MB</string>
@@ -1000,7 +999,7 @@
     <string name="btn_back">Back</string>
     <string name="back">Back</string>
     <string name="btn_close">Close</string>
-    <!-- Shorts Screen -->
+    
     <string name="loading_shorts">Loading Shorts…</string>
     <string name="error_short_load">An error occurred</string>
     <string name="share_short_template">Check out this Shorts: https://youtu.be/%1$s</string>
@@ -1021,7 +1020,7 @@
     
     <string name="action_subscribe">Subscribe</string>
     
-    <!-- User Preferences Screen -->
+    
     
     
     
@@ -1051,7 +1050,7 @@
     <string name="select_all">Select all</string>
     <string name="deselect_all">Deselect all</string>
     <string name="delete_selected">Delete selected</string>
-    <!-- Time Management Screen -->
+    
     <string name="time_management_title">Time management</string>
     <string name="time_management_subtitle">Track and control your screen time</string>
     <string name="stats_disclaimer">Stats are based on your watch history across this app. Actual usage may vary.</string>
@@ -1081,7 +1080,7 @@
     <string name="bedtime_start_title">Bedtime Start</string>
     <string name="bedtime_end_title">Wake Up Time</string>
     <string name="confirm">Confirm</string>
-    <!-- Sleep Timer -->
+    
     <string name="sleep_timer">Sleep Timer</string>
     <string name="sleep_timer_duration">Duration</string>
     <string name="sleep_timer_minutes">%1$d min</string>
@@ -1100,7 +1099,7 @@
     <string name="sleep_timer_close_app">Close app when timer ends</string>
     <string name="sleep_timer_close_app_desc">Exit app to preserve battery</string>
     <string name="sleep_timer_will_close_app">App will close when timer ends</string>
-    <!-- Search History Settings Screen -->
+    
     <string name="search_history_title">Search &amp; History</string>
     <string name="save_search_history_title">Save Search History</string>
     <string name="save_searches_subtitle">Save your searches for quick access</string>
@@ -1126,10 +1125,10 @@
     <string name="period_six_months">6 months</string>
     <string name="period_one_year">1 year</string>
     <string name="days_count_template">%1$d days</string>
-    <!-- Import Data Screen -->
-    <!-- Music Apps Import -->
-    <!-- YouTube Data Import (Watch History & Playlists) -->
-    <!-- Download Settings Screen -->
+    
+    
+    
+    
     <string name="download_settings_title">Download Settings</string>
     <string name="permissions_header">Permissions</string>
     <string name="files_access_title">Files access</string>
@@ -1178,7 +1177,7 @@
     
     <string name="select_threads_count_desc">Select threads count (1-8):</string>
     <string name="threads_count_label">%1$d threads</string>
-    <!-- Donations Screen -->
+    
     <string name="support_donations_title">Support &amp; Donations</string>
     <string name="support_flow_dev_title">Support piTube Development</string>
     <string name="support_flow_dev_desc">If you find piTube useful and would like to support its development, you can support it on Patreon or donate via the crypto addresses below. Your support helps keep the project alive!</string>
@@ -1186,14 +1185,14 @@
     <string name="thank_you_support_message">Thank you for your support! ❤️</string>
     <string name="address_copied_toast">Address copied to clipboard</string>
     <string name="donation_address_clip_label">Donation Address</string>
-    <!-- One-time support prompt -->
+    
     <string name="donation_prompt_title">Enjoying piTube?</string>
     <string name="donation_prompt_message">piTube is free, open-source, and built without ads or trackers. If it has earned a place on your device, please consider supporting its development — it genuinely helps keep the project alive.</string>
     <string name="donation_prompt_methods">Patreon · Bitcoin · Ethereum · Solana · USDT · Monero</string>
     <string name="donation_prompt_support">Support development</string>
     <string name="donation_prompt_later">Maybe later</string>
     <string name="donation_prompt_never">Don\'t show again</string>
-    <!-- About Screen -->
+    
     <string name="about_creator">Creator</string>
     
     <string name="about_website">Website</string>
@@ -1232,7 +1231,7 @@
     <string name="btn_ok">OK</string>
     <string name="btn_copy">Copy</string>
     <string name="github_label">GitHub</string>
-    <!-- Playlists & Playlist Details -->
+    
     
     
     
@@ -1260,7 +1259,7 @@
     <string name="remove_selected_videos_title">Remove %1$d video(s)?</string>
     <string name="remove_selected_playlist_text">They will be removed from this playlist.</string>
     <string name="remove_selected_watch_later_text">They will be removed from Watch later.</string>
-    <!-- Onboarding -->
+    
     <string name="welcome_to_flow">Welcome to piTube</string>
     <string name="onboarding_welcome_subtitle">Watch, subscribe and enjoy — your feed is ready.</string>
     <string name="onboarding_btn_skip">Skip</string>
@@ -1270,7 +1269,7 @@
     
     
     
-    <!-- Categories -->
+    
     <string name="category_gaming">Gaming</string>
     
     
@@ -1281,7 +1280,7 @@
     
     
     
-    <!-- Music Playlists Screen -->
+    
     
     
     
@@ -1323,7 +1322,6 @@
     
     
     
-    <!-- Enhanced Music Screen -->
     
     
     
@@ -1355,9 +1353,10 @@
     
     
     
-    <!-- Music Player Screen -->
     
-    <!-- Audio Settings -->
+    
+    
+    
     <string name="audio_settings_title">Audio Settings</string>
     <string name="label_preset">Preset</string>
     <string name="template_bass_boost">Bass Boost: %1$ddB</string>
@@ -1374,9 +1373,9 @@
     <string name="equalizer">Equalizer</string>
     <string name="action_save_preset">Save preset</string>
     <string name="label_preset_name">Preset name</string>
-    <!-- Player -->
+    
     <string name="now_playing">NOW PLAYING</string>
-    <!-- Music Search Screen -->
+    
     
     <string name="voice_search_cd">Voice Search</string>
     
@@ -1395,7 +1394,6 @@
     
     
     
-    <!-- Library Screen -->
     
     
     
@@ -1409,7 +1407,8 @@
     
     
     
-    <!-- Player Controls -->
+    
+    
     <string name="btn_minimize">Minimize</string>
     <string name="captions">Captions</string>
     <string name="pip_mode">Picture-in-Picture</string>
@@ -1420,20 +1419,20 @@
     <string name="resize_fit">Fit</string>
     <string name="resize_fill">Fill</string>
     <string name="resize_zoom">Zoom</string>
-    <!-- Shorts Player Features -->
+    
     <string name="shorts_audio_track">Audio Track</string>
     <string name="shorts_auto_scroll_active_template">Auto %1$ds</string>
     <string name="shorts_quality">Quality</string>
     
     
     
-    <!-- Shorts Quality Settings -->
+    
     <string name="shorts_quality_settings_title">Shorts Video Quality</string>
     <string name="shorts_quality_settings_subtitle">Quality when watching Shorts</string>
     <string name="shorts_quality_warning">Higher quality uses more data. Shorts use vertical video streams.</string>
     <string name="shorts_quality_wifi_header">Shorts Wi-Fi Quality</string>
     <string name="shorts_quality_cellular_header">Shorts Cellular Quality</string>
-    <!-- Video Queue / Play Next -->
+    
     <string name="play_next_video">Play Next</string>
     <string name="play_next_video_desc">Insert at start of video queue</string>
     <string name="add_video_to_queue">Add to Queue</string>
@@ -1441,7 +1440,7 @@
     <string name="added_to_queue_toast">Added to queue</string>
     <string name="play_next_toast">Will play next</string>
     
-    <!-- Player Dialogs -->
+    
     <string name="download_video">Download Video</string>
     <string name="no_download_streams">No download streams available</string>
     <string name="download_section_video_quality">Video quality</string>
@@ -1453,8 +1452,8 @@
     <string name="download_stream_video_only">Video only</string>
     <string name="download_audio_builtin">Built-in (muxed)</string>
     <string name="download_audio_builtin_hint">Audio is already combined with this video quality.</string>
-    <!-- Compact download dialog -->
-    <!-- Download dialog style (Content settings) -->
+    
+    
     
     <string name="section_incomplete_downloads">Incomplete downloads</string>
     <string name="section_completed">Completed</string>
@@ -1498,7 +1497,7 @@
     <string name="done">Done</string>
     <string name="playlist_queue">Playlist queue</string>
     <string name="next_up">Next</string>
-    <!-- Cast / Chromecast -->
+    
     <string name="cast_to_tv">Cast to TV</string>
     
     <string name="cast_connected">Casting</string>
@@ -1508,7 +1507,7 @@
     <string name="dlna_searching">Searching for DLNA devices...</string>
     <string name="dlna_now_casting">Now casting: %1$s</string>
     <string name="dlna_stop_casting">Stop Casting</string>
-    <!-- Subtitle customization -->
+    
     <string name="subtitle_customization_title">Subtitle Customization</string>
     <string name="subtitle_preview_text">Preview Subtitle Text</string>
     <string name="subtitle_font_size_template">Font Size: %1$d</string>
@@ -1518,15 +1517,15 @@
     <string name="subtitle_background_opacity_template">Background Opacity: %1$d%%</string>
     <string name="subtitle_bold_text">Bold Text</string>
     <string name="subtitle_reset_default">Reset to Default</string>
-    <!-- Check for Updates -->
+    
     <string name="check_for_updates">Check for Updates</string>
     <string name="check_for_updates_subtitle">Tap to check for the latest version</string>
     <string name="checking_for_updates">Checking for updates…</string>
     <string name="flow_is_up_to_date">piTube is up to date!</string>
     <string name="update_check_failed">Couldn\'t check for updates. Check your connection.</string>
-    <!-- Export / Import Flow Engine data (Settings + ImportDataScreen) -->
-    <!-- Master Backup -->
-    <!-- Device Sync (FLOW-SYNC/1) -->
+    
+    
+    
     <string name="sync_devices_title">Sync devices</string>
     <string name="sync_devices_subtitle">Sync library, history &amp; profile over local Wi-Fi</string>
     <string name="sync_account_title">Signing in as %1$s</string>
@@ -1587,9 +1586,9 @@
     <string name="sync_error_qr_wrong_version">Incompatible app version on the other device.</string>
     <string name="sync_error_qr_not_flow">That doesn\'t look like a piTube sync code.</string>
     <string name="sync_error_qr_bad_address">The sync code is missing a valid network address.</string>
-    <!-- Automated Backups -->
-    <!-- Export Data Screen -->
-    <!-- Video Player Errors -->
+    
+    
+    
     <string name="error_age_restricted">Age-restricted content</string>
     <string name="error_age_restricted_hint">This video is only available to signed-in users who have verified their age.</string>
     <string name="error_private_video">Private video</string>
@@ -1632,7 +1631,7 @@
     <string name="error_generic_hint">An unknown error occurred. Please try again.</string>
     <string name="player_lock_controls">Lock controls</string>
     <string name="player_unlock_controls">Unlock controls</string>
-    <!-- New Video Player Strings -->
+    
     <string name="player_settings_overlay_controls">Overlay Controls</string>
     <string name="player_settings_overlay_cast">Cast Button</string>
     <string name="player_settings_overlay_cast_subtitle">Show cast button on the video player overlay</string>
@@ -1659,7 +1658,7 @@
     <string name="link_with_timestamp_copied">Link with timestamp copied</string>
     <string name="player_live_label">LIVE</string>
     <string name="player_action_dislike">Dislike</string>
-    <!-- Diagnostics screen -->
+    
     <string name="settings_item_diagnostics">Diagnostics</string>
     <string name="settings_item_diagnostics_subtitle">View error logs and crash reports</string>
     <string name="diagnostics_title">Diagnostics</string>
@@ -1674,16 +1673,11 @@
     <string name="diagnostics_no_session_logs">No warnings or errors in this session.</string>
     <string name="diagnostics_loading">Reading logs…</string>
     <string name="diagnostics_copied">Report copied to clipboard</string>
-    <!-- Merge/Add entire playlist into another playlist (#263) -->
+    
     <string name="add_all_to_playlist">Add to my playlist</string>
     
     <string name="merge_playlist_success">Added %1$d songs to “%2$s”</string>
     
-    <!-- Profile Export/Import Toasts -->
-    <!-- Profile Maturity Section -->
-    
-    
-    <!-- Taste Shape Section -->
     
     
     
@@ -1695,40 +1689,6 @@
     
     
     
-    <!-- Interest Weights Section -->
-    
-    
-    
-    <!-- Time Patterns Section -->
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <!-- Time Bucket Display Names -->
-    
-    
-    
-    
-    
-    
-    
-    
-    <!-- Time Bucket Windows -->
-    
-    
-    
-    
-    <!-- Channel Affinity Section -->
-    
-    
-    
-    
-    <!-- Discovery Status Section -->
     
     
     
@@ -1739,24 +1699,63 @@
     
     
     
-    <!-- Blocked Content Section -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     <string name="blocked_channels_header">Blocked channels</string>
     
     <string name="blocked_item_unblock_channel">Unblock channel</string>
     
-    <!-- Profile Data Section -->
     
     
     
-    <!-- Reset Profile Dialog -->
     
     
-    <!-- Taste Chart Labels -->
     
     
-    <!-- Topic Evidence -->
+    
+    
+    
+    
     
     <string name="settings_item_datetime_subtitle">Customize how upload dates are shown</string>
     <string name="datetime_title">Date &amp; Time Display</string>
@@ -1778,18 +1777,18 @@
     <string name="datetime_override_relative">Relative</string>
     <string name="datetime_override_exact">Exact</string>
     <string name="datetime_override_both">Both</string>
-    <!-- Volume boost (#491) -->
+    
     <string name="player_appearance_volume_boost_title">Allow extra volume boost</string>
     <string name="player_appearance_volume_boost_subtitle">When off, the volume swipe gesture stops at the maximum system volume. Turn on to make audio even louder.</string>
-    <!-- Shorts playback speed (#496) -->
+    
     <string name="shorts_playback_speed">Playback speed</string>
     
-    <!-- Export / delete watch history (#507) -->
+    
     <string name="history_delete_shorts">Delete Shorts from history</string>
     <string name="history_sync_youtube">Sync from YouTube</string>
     <string name="history_delete_shorts_title">Delete Shorts?</string>
     <string name="history_delete_shorts_body">This removes all Shorts from your watch history. Other videos are kept.</string>
-    <!-- Music recognition (Shazam) -->
+    
     
     
     
@@ -1804,9 +1803,9 @@
     
     <string name="close_popup_player">Close popup player</string>
 
-    <!-- Android TV -->
+    
 
-    <!-- Home-screen widgets -->
+    
     
     
     <string name="widget_quick_actions_label">Quick actions</string>
@@ -1833,7 +1832,7 @@
     <string name="widget_no_recent">Videos you watch will appear here</string>
     <string name="widget_no_downloads">Your downloads will appear here</string>
 
-    <!-- Localization follow-up (#738) -->
+    
     <string name="ui_open_in_youtube">Open in YouTube</string>
     <string name="ui_playback_error">Playback error</string>
     <string name="ui_replay">Replay</string>
@@ -1885,7 +1884,7 @@
     <string name="ui_playlist_removed_from_library">Playlist removed from library</string>
     <string name="ui_skipped_segment">Skipped %1$s</string>
 
-    <!-- Localization follow-up: toasts and feedback (#738) -->
+    
     <string name="toast_unsubscribed_from">Unsubscribed from %1$s</string>
     <string name="toast_subscribed_to">Subscribed to %1$s</string>
     <string name="toast_removed_from_watch_later">Removed from Watch Later</string>
@@ -1910,7 +1909,7 @@
     
     <string name="toast_failed_to_merge_playlist">Failed to merge playlist</string>
 
-    <!-- Localization follow-up: notifications (#738) -->
+    
     <string name="notification_downloading">Downloading: %1$s</string>
     <string name="notification_update_available">Update Available: %1$s</string>
     <string name="notification_tap_to_update">Tap to update to the latest version.</string>
@@ -1931,7 +1930,7 @@
     <string name="notification_channel_reminders">Reminders</string>
     <string name="notification_channel_updates">App Updates</string>
 
-    <!-- Localization follow-up: errors and import screens (#738) -->
+    
     <string name="error_no_internet_found">No internet connection found</string>
     <string name="error_no_videos_for_category">No videos found for this category.</string>
     <string name="error_failed_to_load_videos">Failed to load videos.</string>
@@ -1976,10 +1975,10 @@
     <string name="download_workers_failed">One or more workers failed</string>
     <string name="download_block_failed">Block %1$s failed: %2$s</string>
 
-    <!-- Localization follow-up: fallback labels (#738) -->
+    
     
     <string name="empty_saved_shorts">No saved Shorts yet</string>
-    <string name="settings_search_no_results">No settings found for &quot;%1$s&quot;</string>
+    <string name="settings_search_no_results">No settings found for "%1$s"</string>
     <string name="donations_cryptocurrency">CRYPTOCURRENCY</string>
     <string name="duration_hours_minutes">%1$d hr %2$d min</string>
     <string name="duration_minutes">%1$d min</string>
@@ -2124,7 +2123,7 @@
     <string name="translation_caption_note">Subtitles use YouTube\'s built-in translated captions when they are available for the target language.</string>
     <string name="translation_missing_key_hint" formatted="false">Translation is on, but %1$s needs an API key: add one above or pick a free provider and content stays in the original language.</string>
 
-    <!-- Voice & Song recognition -->
+    
     <string name="settings_header_speech_to_text">Speech to Text</string>
     <string name="settings_stt_provider">Speech-to-text provider</string>
     <string name="settings_stt_api_key">API key</string>
@@ -2159,6 +2158,7 @@
     <string name="settings_recognition_floating_button_subtitle">Quick mic button over other apps</string>
     <string name="settings_recognition_fallback_dialog_title">After a failed match</string>
     <string name="settings_recognition_fallback_dialog_hint">Retry requires a saved recording and runs automatically when you are back online.</string>
+    <string name="settings_recognition_section_voice">Voice mode</string>
     <string name="recognition_provider_shazam">Shazam</string>
     <string name="recognition_provider_audd">AudD</string>
     <string name="recognition_provider_acrcloud">ACRCloud</string>
@@ -2210,14 +2210,14 @@
     <string name="recognition_overlay_not_recording">Couldn\'t start recording. Open piTube to allow the microphone.</string>
 
     <string name="search">Search</string>
-    <!-- Lyrics search -->
+    
     <string name="song_title">Song title</string>
     <string name="artist">Artist</string>
 
-    <!-- Library shelf -->
+    
     <string name="library_subscriptions_shelf">Subscriptions</string>
     <string name="see_all">See all</string>
     <string name="settings_library_section">Library</string>
     <string name="library_shelf_enabled">Subscriptions shelf</string>
     <string name="library_shelf_enabled_subtitle">Channel rail at the top of the Library page</string>
-</resources>
+<string name="liked_filter_music">Music</string><string name="liked_sort_title">Title</string></resources>

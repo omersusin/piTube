@@ -1,7 +1,8 @@
 package com.omersusin.pitube.ui.screens.history
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -94,6 +95,7 @@ fun HistoryScreen(
     var showClearDialog by remember { mutableStateOf(false) }
     var showClearShortsDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    var videoIdToDelete by remember { mutableStateOf<String?>(null) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedFilter by rememberSaveable { mutableStateOf(HistoryContentFilter.All) }
     var selectedSort by rememberSaveable { mutableStateOf(HistorySort.Newest) }
@@ -276,7 +278,7 @@ fun HistoryScreen(
                         selectedFilter = selectedFilter,
                         onVideoClick = onVideoClick,
                         onShortClick = onShortClick,
-                        onRemove = viewModel::removeFromHistory,
+                        onRequestRemove = { videoIdToDelete = it },
                     )
                 }
             }
@@ -323,6 +325,28 @@ fun HistoryScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showClearShortsDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    videoIdToDelete?.let { videoId ->
+        AlertDialog(
+            onDismissRequest = { videoIdToDelete = null },
+            title = { Text(stringResource(R.string.remove_from_history)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.removeFromHistory(videoId)
+                        videoIdToDelete = null
+                    },
+                ) {
+                    Text(stringResource(R.string.delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { videoIdToDelete = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             },
@@ -468,7 +492,7 @@ private fun HistoryList(
     selectedFilter: HistoryContentFilter,
     onVideoClick: (Video) -> Unit,
     onShortClick: (String) -> Unit,
-    onRemove: (String) -> Unit,
+    onRequestRemove: (String) -> Unit,
 ) {
     val groupedEntries =
         remember(entries) {
@@ -496,7 +520,7 @@ private fun HistoryList(
                             entries = sectionEntries,
                             shortVideos = shortVideos,
                             onShortClick = onShortClick,
-                            onRemove = onRemove,
+                            onRequestRemove = onRequestRemove,
                         )
                     }
                 }
@@ -512,7 +536,7 @@ private fun HistoryList(
                         HistoryEntryRow(
                             entry = entry,
                             onVideoClick = onVideoClick,
-                            onRemove = onRemove,
+                            onRequestRemove = onRequestRemove,
                         )
                     }
 
@@ -522,7 +546,7 @@ private fun HistoryList(
                                 entries = shorts,
                                 shortVideos = shortVideos,
                                 onShortClick = onShortClick,
-                                onRemove = onRemove,
+                                onRequestRemove = onRequestRemove,
                             )
                         }
                     }
@@ -536,7 +560,7 @@ private fun HistoryList(
                         HistoryEntryRow(
                             entry = entry,
                             onVideoClick = onVideoClick,
-                            onRemove = onRemove,
+                            onRequestRemove = onRequestRemove,
                         )
                     }
                 }
@@ -549,13 +573,13 @@ private fun HistoryList(
 private fun HistoryEntryRow(
     entry: VideoHistoryEntry,
     onVideoClick: (Video) -> Unit,
-    onRemove: (String) -> Unit,
+    onRequestRemove: (String) -> Unit,
 ) {
     val video = remember(entry) { entry.toShortVideo() }
     HistoryVideoCard(
         entry = entry,
         onClick = { onVideoClick(video) },
-        onDeleteClick = { onRemove(entry.videoId) },
+        onLongClick = { onRequestRemove(entry.videoId) },
     )
 }
 
@@ -564,7 +588,7 @@ private fun ShortsHistoryRow(
     entries: List<VideoHistoryEntry>,
     shortVideos: Map<String, Video>,
     onShortClick: (String) -> Unit,
-    onRemove: (String) -> Unit,
+    onRequestRemove: (String) -> Unit,
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
@@ -577,25 +601,18 @@ private fun ShortsHistoryRow(
             ShortsCard(
                 video = shortVideos[entry.videoId] ?: entry.toShortVideo(),
                 onClick = { onShortClick(entry.videoId) },
-                trailingContent = {
-                    IconButton(onClick = { onRemove(entry.videoId) }) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.remove_from_history),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
+                onLongClick = { onRequestRemove(entry.videoId) },
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HistoryVideoCard(
     entry: VideoHistoryEntry,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val resolvedCollaborators by produceState<List<VideoCollaborator>>(
@@ -624,7 +641,10 @@ private fun HistoryVideoCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                )
                 .padding(vertical = 8.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -676,35 +696,13 @@ private fun HistoryVideoCard(
         }
 
         Column(modifier = Modifier.weight(1f)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top,
-            ) {
-                Text(
-                    text = entry.title.ifBlank { entry.videoId },
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .padding(end = 4.dp),
-                )
-
-                IconButton(
-                    onClick = onDeleteClick,
-                    modifier = Modifier.size(32.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.remove),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
+            Text(
+                text = entry.title.ifBlank { entry.videoId },
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
 
             if (displayChannelName.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))

@@ -10,8 +10,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.omersusin.pitube.R
 import com.omersusin.pitube.data.local.PlayerPreferences
 import kotlinx.coroutines.launch
 
@@ -25,6 +27,7 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
     val cardTint by prefs.recognitionCardTint.collectAsState(initial = "auto")
     val floatingTint by prefs.recognitionFloatingTint.collectAsState(initial = "auto")
     val blobTint by prefs.recognitionBlobTint.collectAsState(initial = "auto")
+    val voiceTint by prefs.recognitionVoiceTint.collectAsState(initial = "auto")
     val radius by prefs.recognitionCardCornerRadius.collectAsState(initial = 20f)
     val artSize by prefs.recognitionArtSize.collectAsState(initial = 72)
     val floatingSize by prefs.recognitionFloatingSize.collectAsState(initial = 64)
@@ -112,6 +115,26 @@ fun RecognitionAppearanceScreen(onBack: () -> Unit) {
                         }
                         Text(
                             "\"auto\" follows the app theme; the others tint the recognition blob with that theme accent.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 6.dp),
+                        )
+                    }
+                }
+            }
+            item { SectionHeader(text = stringResource(R.string.settings_recognition_section_voice)) }
+            item {
+                SettingsGroup {
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Voice accent", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("auto", "primary", "secondary", "tertiary").forEach { t ->
+                                FilterChip(selected = t == voiceTint, onClick = { scope.launch { prefs.setRecognitionVoiceTint(t) } }, label = { Text(t) })
+                            }
+                        }
+                        Text(
+                            "\"auto\" follows the app theme; the others tint the voice-mode face with that theme accent.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 6.dp),
