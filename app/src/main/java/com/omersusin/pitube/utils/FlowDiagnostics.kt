@@ -76,7 +76,7 @@ object FlowDiagnostics {
         appendLine(buildDeviceInfo(context))
         appendLine()
         appendLine("=".repeat(60))
-        appendLine("SESSION LOGS  (Verbose+ level, last $maxLines lines)")
+        appendLine("SESSION LOGS  (Verbose+ level)")
         appendLine("=".repeat(60))
         appendLine(sessionLogs)
         val crashes = getCrashLogs(context)

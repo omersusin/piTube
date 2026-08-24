@@ -50,9 +50,7 @@ object InnerTubeVideoStreamExtractor {
     @Volatile
     private var androidVrBotWallAtMs = 0L
 
-    private companion object {
-        private const val ANDROID_VR_BOT_WALL_COOLDOWN_MS = 10 * 60_000L
-    }
+    private const val ANDROID_VR_BOT_WALL_COOLDOWN_MS = 10 * 60_000L
 
     private val extractionCoalescer = InFlightRequestCoalescer<ExtractionKey, VideoExtractionResult?>(
         CoroutineScope(SupervisorJob() + Dispatchers.IO)
