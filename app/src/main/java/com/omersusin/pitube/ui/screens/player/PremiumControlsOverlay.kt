@@ -848,8 +848,13 @@ fun PremiumControlsOverlay(
                         sponsorSegmentColors = sponsorSegmentColors,
                         duration = seekDuration,
                         bufferedValue = bufferedPercentage,
-                       edgeAligned = !isFullscreen,
-                       storyboardFrameset = storyboardFramesets.maxByOrNull { it.frameWidth * it.frameHeight },
+                        edgeAligned = !isFullscreen,
+                        // Finest time granularity, NOT biggest cells: the hi-res
+                        // level can hold 5-10s per frame, which made the preview
+                        // jump once per second of dragging. The dense low-res
+                        // level updates continuously; 100px-wide cells upscale
+                        // fine at bubble size.
+                        storyboardFrameset = storyboardFramesets.minByOrNull { it.durationPerFrame },
                         modifier = Modifier
                             .fillMaxWidth()
                             .zIndex(2f)
@@ -911,7 +916,7 @@ fun PremiumControlsOverlay(
                         // frameset it steals the first portrait drag and no preview
                         // shows even though the visible-controls instance has one.
                         storyboardFrameset =
-                            storyboardFramesets.maxByOrNull { it.frameWidth * it.frameHeight },
+                            storyboardFramesets.minByOrNull { it.durationPerFrame },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = seekbarHorizontalPadding)

@@ -2386,7 +2386,15 @@ object YouTube {
             val spec = response.storyboards?.playerStoryboardSpecRenderer?.spec
             if (!spec.isNullOrBlank()) {
                 val framesets = StoryboardFrameset.parseSpec(spec)
-                Log.d("YouTube", "storyboard fetched via ${client.clientName}: ${framesets.size} framesets")
+                Log.d(
+                    "YouTube",
+                    "storyboard fetched via ${client.clientName}: ${framesets.size} framesets — " +
+                        framesets.joinToString(" | ") { f ->
+                            "L${framesets.indexOf(f)} cell=${f.frameWidth}x${f.frameHeight} " +
+                                "grid=${f.framesPerPageX}x${f.framesPerPageY} pages=${f.urls.size} " +
+                                "total=${f.totalCount} dpf=${f.durationPerFrame}ms"
+                        },
+                )
                 return@runCatching framesets
             }
             lastSpec = null
