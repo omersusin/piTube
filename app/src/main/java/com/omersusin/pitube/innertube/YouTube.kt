@@ -2367,16 +2367,32 @@ object YouTube {
      * player response, which is the most reliable surface for storyboards.
      * Returns an empty list when YouTube does not serve a storyboard spec.
      */
+    /**
+     * Storyboard spec for seekbar scrubbing previews. ANDROID is permanently
+     * bot-walled on many networks (see extraction ladder) and silently returns
+     * no storyboards — try IOS first, then WEB as fallback, logging the outcome.
+     */
     suspend fun getStoryboards(videoId: String): Result<List<StoryboardFrameset>> = runCatching {
-        val response =
-            innerTube.player(
-                client = YouTubeClient.ANDROID,
-                videoId = videoId,
-                playlistId = null,
-                signatureTimestamp = null,
-            ).body<PlayerResponse>()
-        val spec = response.storyboards?.playerStoryboardSpecRenderer?.spec ?: return@runCatching emptyList()
-        StoryboardFrameset.parseSpec(spec)
+        val clients = listOf(YouTubeClient.IOS, YouTubeClient.WEB, YouTubeClient.ANDROID)
+        var lastSpec: String? = null
+        for (client in clients) {
+            val response =
+                innerTube.player(
+                    client = client,
+                    videoId = videoId,
+                    playlistId = null,
+                    signatureTimestamp = null,
+                ).body<PlayerResponse>()
+            val spec = response.storyboards?.playerStoryboardSpecRenderer?.spec
+            if (!spec.isNullOrBlank()) {
+                val framesets = StoryboardFrameset.parseSpec(spec)
+                Log.d("YouTube", "storyboard fetched via ${client.name}: ${framesets.size} framesets")
+                return@runCatching framesets
+            }
+            lastSpec = null
+        }
+        Log.w("YouTube", "storyboard: no playerStoryboardSpecRenderer from any client for $videoId")
+        emptyList()
     }
 
     suspend fun shorts(

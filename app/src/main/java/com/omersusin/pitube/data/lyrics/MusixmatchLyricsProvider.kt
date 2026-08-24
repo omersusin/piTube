@@ -70,6 +70,7 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
             FALLBACK_SECRET
         }
         secretCache.set(secret)
+        Log.d(TAG, "secret resolved via ${if (secret == FALLBACK_SECRET) "FALLBACK" else "dynamic scrape"}")
         return secret
     }
 
@@ -97,7 +98,12 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
         } ?: throw IllegalStateException("token endpoint unreachable")
         val root = JSONObject(body)
         val status = root.optJSONObject("message")?.optJSONObject("header")?.optInt("status_code") ?: 0
-        if (status != 200) throw IllegalStateException("token status $status")
+        if (status != 200) {
+            // Non-200 from the MINT endpoint means our signing secret is stale
+            // or flagged (not merely an expired user-token) — callers should
+            // re-scrape the secret before giving up.
+            throw TokenMintException("token status $status")
+        }
         val token = root.optJSONObject("message")?.optJSONObject("body")
             ?.optString("user_token").orEmpty()
         if (token.isBlank()) throw IllegalStateException("empty user_token")
@@ -105,18 +111,35 @@ class MusixmatchLyricsProvider(private val client: OkHttpClient = OkHttpClient.B
         return token
     }
 
-    /** Token retry wrapper: 401 means the token expired — mint once and retry. */
+    /** Token retry wrapper: 401 means the token expired — mint once and retry.
+     *  A [TokenMintException] means the mint endpoint itself rejected us — the
+     *  cached secret (often the static fallback) is stale: re-scrape once. */
     private inline fun <T> withTokenRetry(block: (secret: String, token: String) -> T): T {
         val secret = getSecret()
-        return try {
-            block(secret, getUserToken(secret))
-        } catch (e: TokenExpiredException) {
-            tokenCache.set(null)
-            block(secret, getUserToken(secret))
+        try {
+            return try {
+                block(secret, getUserToken(secret))
+            } catch (e: TokenExpiredException) {
+                tokenCache.set(null)
+                block(secret, getUserToken(secret))
+            } catch (e: TokenMintException) {
+                Log.w(TAG, "token mint failed (${e.message}) — re-scraping secret")
+                secretCache.set(null)
+                val fresh = getSecret()
+                block(fresh, getUserToken(fresh))
+            }
+        } finally {
+            if (secretCache.get() == null) {
+                // Both attempts failed to produce a usable secret/token chain;
+                // restore fallback so the next session has a starting point.
+                secretCache.compareAndSet(null, FALLBACK_SECRET)
+            }
         }
     }
 
     private class TokenExpiredException : RuntimeException()
+
+    private class TokenMintException(message: String) : RuntimeException(message)
 
     // ── Lyrics fetch ─────────────────────────────────────────────────────────
 

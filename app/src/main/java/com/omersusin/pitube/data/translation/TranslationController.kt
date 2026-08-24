@@ -99,7 +99,7 @@ class TranslationController @Inject constructor(
     suspend fun translateOrNull(text: String, targetCode: String? = null): String? {
         val result = translateInternal(text, targetCode)
         if (result == null) {
-            Log.d(TAG, "translateOrNull: provider failure (lastError=$_lastError) -> null")
+            Log.d(TAG, "translateOrNull: provider failure (lastError=${_lastError.value}) -> null")
             return null
         }
         if (result.trim().equals(text.trim(), ignoreCase = true)) {
@@ -194,7 +194,12 @@ class TranslationController @Inject constructor(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            _lastError.value = friendlyMessage(e, engine)
+            val msg = friendlyMessage(e, engine)
+            _lastError.value = msg
+            // Surface the REAL underlying error — friendlyMessage can collapse
+            // the cause chain and the settings StateFlow alone made diagnosis
+            // impossible on device logs.
+            Log.w(TAG, "translate via ${engine.name} failed: ${e.message} (cause=${e.cause?.message})")
             return null
         }
     }
