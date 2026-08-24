@@ -573,19 +573,29 @@ private fun StoryboardPreviewBubble(
     val sheetWidth = cellScale * frameset.framesPerPageX * frameset.frameWidth
     val sheetHeight = cellScale * frameset.framesPerPageY * frameset.frameHeight
 
-    // Decode at the SOURCE sprite-sheet's true pixel grid. The old
-    // density-scaled dp size asked Coil for e.g. ~4200px regardless of what
-    // the actual sheet is, and failures surfaced as a permanently empty box.
-    // Memory cache stays off: long videos carry many multi-megabyte pages;
-    // compressed pages stay on disk.
+    // Decode DOWNSCALED. Koda decodes the sprite at full source pixels, but
+    // on-device that full-size RGB565 decode of the hi-res level took ~1s and
+    // the bubble lagged a second behind the finger. Cap the decode at 2x the
+    // on-screen sheet size (aspect preserved); Coil fits the result into the
+    // layout either way, so nothing visually changes — except speed. Small
+    // bitmaps also make memory caching safe again, which kills the repeat
+    // page-decode lag when a scrub revisits an earlier section.
     val context = LocalContext.current
+    val density = LocalDensity.current
     val sheetSourceW = frameset.framesPerPageX * frameset.frameWidth
     val sheetSourceH = frameset.framesPerPageY * frameset.frameHeight
-    val imageRequest = remember(sheetUrl, sheetSourceW, sheetSourceH) {
+    val dispSheetW = with(density) { sheetWidth.roundToPx() }
+    val reqW = minOf(sheetSourceW, dispSheetW * 2)
+    val reqH = if (sheetSourceW > 0) {
+        (reqW.toLong() * sheetSourceH / sheetSourceW).toInt()
+    } else {
+        sheetSourceH
+    }
+    val imageRequest = remember(sheetUrl, reqW, reqH) {
         ImageRequest.Builder(context)
             .data(sheetUrl)
-            .size(sheetSourceW, sheetSourceH)
-            .memoryCachePolicy(CachePolicy.DISABLED)
+            .size(reqW, reqH)
+            .memoryCachePolicy(CachePolicy.ENABLED)
             .diskCachePolicy(CachePolicy.ENABLED)
             .allowRgb565(true)
             .crossfade(false)
