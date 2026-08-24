@@ -73,6 +73,8 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.allowRgb565
 import coil3.request.crossfade
+import android.util.Log
+import coil3.request.listener
 import org.schabi.newpipe.extractor.stream.StreamSegment
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -551,21 +553,25 @@ private fun StoryboardPreviewBubble(
     val sheetWidth = cellScale * frameset.framesPerPageX * frameset.frameWidth
     val sheetHeight = cellScale * frameset.framesPerPageY * frameset.frameHeight
 
-    // Decode at the sheet's true pixel grid and disable the memory cache:
-    // long videos have many multi-megabyte pages and caching them all exhausts
-    // the heap after a full-timeline scrub. Compressed pages stay on disk.
+    // Decode at the SOURCE sprite-sheet's true pixel grid. The old
+    // density-scaled dp size asked Coil for e.g. ~4200px regardless of what
+    // the actual sheet is, and failures surfaced as a permanently empty box.
+    // Memory cache stays off: long videos carry many multi-megabyte pages;
+    // compressed pages stay on disk.
     val context = LocalContext.current
-    val density = LocalDensity.current
-    val sheetWidthPx = with(density) { sheetWidth.roundToPx() }
-    val sheetHeightPx = with(density) { sheetHeight.roundToPx() }
-    val imageRequest = remember(sheetUrl, sheetWidthPx, sheetHeightPx) {
+    val sheetSourceW = frameset.framesPerPageX * frameset.frameWidth
+    val sheetSourceH = frameset.framesPerPageY * frameset.frameHeight
+    val imageRequest = remember(sheetUrl, sheetSourceW, sheetSourceH) {
         ImageRequest.Builder(context)
             .data(sheetUrl)
-            .size(sheetWidthPx, sheetHeightPx)
+            .size(sheetSourceW, sheetSourceH)
             .memoryCachePolicy(CachePolicy.DISABLED)
             .diskCachePolicy(CachePolicy.ENABLED)
             .allowRgb565(true)
             .crossfade(false)
+            .listener(onError = { _, result ->
+                Log.w(TAG, "storyboard sheet failed $sheetUrl: ${result.throwable}")
+            })
             .build()
     }
 
@@ -605,3 +611,5 @@ private fun StoryboardPreviewBubble(
 }
 
 private val StoryboardPreviewWidth = 168.dp
+
+private const val TAG = "SeekbarPreview"

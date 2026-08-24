@@ -108,7 +108,7 @@ object LyricsTranslationRepository {
             cache[key] = cached
             return cached
         }
-        cache[key]?.let { return it.ifEmpty { null } }
+        cache[key]?.takeIf { it.isNotEmpty() }?.let { return it }
         if (!inFlight.add(key)) return null
         try {
             val raw = MusixmatchLyricsProvider().fetchTranslation(title, artist, durationMs, lang)
@@ -133,13 +133,18 @@ object LyricsTranslationRepository {
             }
             // Fallback: line-by-line machine translation of the synced lyrics,
             // keeping every original timestamp so the view can match lines.
+            // No negative caching: a failure here must NOT lock the song into
+            // an empty session cache — the next open retries Musixmatch and
+            // machine translation from scratch (metadata translation never
+            // had such a lock, which is exactly why lyrics looked "10% broken").
             val fallback = machineTranslateFallback(videoId, sourceLines, lang, machineTranslate)?.let { sanitized(it) }
-            cache[key] = fallback.orEmpty()
-            fallback?.let { saveTranslationDisk(context, videoId, lang, it) }
+            if (fallback != null) {
+                cache[key] = fallback
+                saveTranslationDisk(context, videoId, lang, fallback)
+            }
             return fallback
         } catch (e: Exception) {
             Log.d(TAG, "translation failed for $videoId: ${e.message}")
-            cache[key] = emptyList()
             return null
         } finally {
             inFlight.remove(key)

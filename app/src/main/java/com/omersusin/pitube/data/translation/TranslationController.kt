@@ -182,6 +182,14 @@ class TranslationController @Inject constructor(
         cacheId: String,
         original: String,
     ): String? {
+        // Lyrics batches arrive as one ~4k-char newline-joined block; several
+        // engines reject long bodies outright while answering short metadata
+        // happily. Chunk centrally so EVERY caller benefits.
+        val pieces = splitIntoChunks(masked.text)
+        if (pieces.size > 1) {
+            Log.d(TAG, "long text (${masked.text.length} chars) -> ${pieces.size} chunks")
+            return translateChunked(pieces, engine, target, cacheId, original)
+        }
         try {
             val translation = engine.translate(masked.text, "", target)
             if (translation.detectedLanguage != null &&
@@ -228,15 +236,99 @@ class TranslationController @Inject constructor(
     }
 
     /**
+     * Sequentially translate newline-preserving chunks. EVERY chunk must
+     * succeed or the whole call returns null — a partial join would shift
+     * the positional line-zip done by lyrics callers and silently corrupt
+     * alignment, so it must never be cached or shown.
+     */
+    private suspend fun translateChunked(
+        pieces: List<String>,
+        engine: TranslationEngine,
+        target: String,
+        cacheId: String,
+        original: String,
+    ): String? {
+        val out = ArrayList<String>(pieces.size)
+        for (piece in pieces) {
+            val pieceMasked = TimestampProtection.mask(piece)
+            val raw = try {
+                val tr = engine.translate(pieceMasked.text, "", target)
+                if (tr.detectedLanguage != null &&
+                    tr.detectedLanguage.equals(target, ignoreCase = true)
+                ) {
+                    TimestampProtection.restore(pieceMasked.text, pieceMasked.tokens)
+                } else {
+                    TimestampProtection.restore(tr.translatedText, pieceMasked.tokens)
+                }
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (e: Exception) {
+                Log.w(TAG, "chunk via ${engine.name} failed: ${e.message} — walking fallback chain")
+                // cacheId=null: per-chunk results must not poison the
+                // whole-text cache key the caller will re-check.
+                translateViaFallbackChain(
+                    pieceMasked,
+                    target,
+                    null,
+                    pieceMasked.text,
+                    skipEngine = engine.name,
+                ) ?: return null
+            }
+            if (raw.isBlank() || TimestampProtection.hasLeftoverTokens(raw)) return null
+            out.add(raw.trim())
+        }
+        val joined = out.joinToString("\n")
+        if (joined.isBlank()) return null
+        cacheDao.insert(
+            CachedTranslationEntity(
+                id = cacheId,
+                engine = engine.name,
+                targetLanguage = target,
+                sourceText = original,
+                translatedText = joined,
+            ),
+        )
+        maybePrune()
+        return joined
+    }
+
+    /**
+     * Split [text] into ≤[MAX_CHUNK_CHARS]-char pieces, preferring line
+     * boundaries (then spaces). Interior newlines are preserved so the
+     * caller's line-parity check still holds after re-joining.
+     */
+    private fun splitIntoChunks(text: String): List<String> {
+        if (text.length <= MAX_CHUNK_CHARS) return listOf(text)
+        val chunks = mutableListOf<String>()
+        var start = 0
+        while (start < text.length) {
+            var end = minOf(start + MAX_CHUNK_CHARS, text.length)
+            if (end < text.length) {
+                val nl = text.lastIndexOf('\n', end - 1)
+                if (nl > start) {
+                    end = nl + 1
+                } else {
+                    val sp = text.lastIndexOf(' ', end - 1)
+                    if (sp > start) end = sp + 1
+                }
+            }
+            chunks.add(text.substring(start, end).trimEnd('\n'))
+            start = end
+        }
+        return chunks.filter { it.isNotBlank() }.ifEmpty { listOf(text) }
+    }
+
+    /**
      * Try every remaining engine in preference order (keyless ones first so a
      * dead API-key config can't block a working keyless instance). First
      * non-blank, non-echo result wins and is cached under ITS engine id, so
      * subsequent lines keep riding the working engine via the cache.
+     * A null [cacheId] skips caching entirely (chunked pieces share no key).
      */
     private suspend fun translateViaFallbackChain(
         masked: MaskedText,
         target: String,
-        cacheId: String,
+        cacheId: String?,
         original: String,
         skipEngine: String,
     ): String? {
@@ -252,16 +344,18 @@ class TranslationController @Inject constructor(
                 if (translated.isNotBlank() &&
                     !translated.trim().equals(original.trim(), ignoreCase = true)
                 ) {
-                    cacheDao.insert(
-                        CachedTranslationEntity(
-                            id = cacheId(alt, target, original),
-                            engine = alt.name,
-                            targetLanguage = target,
-                            sourceText = original,
-                            translatedText = translated,
-                        ),
-                    )
-                    maybePrune()
+                    if (cacheId != null) {
+                        cacheDao.insert(
+                            CachedTranslationEntity(
+                                id = cacheId(alt, target, original),
+                                engine = alt.name,
+                                targetLanguage = target,
+                                sourceText = original,
+                                translatedText = translated,
+                            ),
+                        )
+                        maybePrune()
+                    }
                     return translated
                 }
             } catch (ce: kotlinx.coroutines.CancellationException) {
@@ -346,6 +440,13 @@ class TranslationController @Inject constructor(
 
         /** Provider calls run concurrently up to this many. */
         const val MAX_CONCURRENT_TRANSLATIONS = 4
+
+        /**
+         * Bodies longer than this are split into newline/space-aligned chunks
+         * before hitting an engine — several engines reject long requests
+         * where short ones succeed (lyrics batches are the main victim).
+         */
+        const val MAX_CHUNK_CHARS = 900
 
         /**
          * Cache key scoped to the engine's active configuration (name, model

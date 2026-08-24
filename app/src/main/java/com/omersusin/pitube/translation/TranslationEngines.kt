@@ -71,8 +71,13 @@ object TranslationEngines {
      * Keyless engines that answered a live probe (2026), in preference order.
      * The registry default resolves to the first of these so a fresh install
      * with no API key still translates instead of failing on every call.
+     * Lingva is deliberately absent: every public instance was re-probed
+     * (lingva.ml/lunar.icu → 500, garudalinux → 403, kuuro → 404, rest
+     * timeout) — keeping it in the chain would burn a dead round-trip on
+     * every fallback. Apertium sits last: it fails fast on unsupported
+     * language pairs without blocking the chain.
      */
-    val defaultKeylessOrder = listOf("Mozhi", "MyMemory")
+    val defaultKeylessOrder = listOf("Mozhi", "MyMemory", "Apertium")
 
     fun findByName(
         name: String?,

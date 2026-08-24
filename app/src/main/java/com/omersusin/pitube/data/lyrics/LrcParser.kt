@@ -37,7 +37,7 @@ object LrcParser {
                         val seg = content.substring(0, f).trim()
                         if (seg.isNotEmpty()) {
                             val nt = parseTime(wMatches[0].groupValues[1], wMatches[0].groupValues[2], wMatches[0].groupValues[3]) - offsetMs
-                            spans.add(LrcContentSpan(first, seg, nt - first))
+                            spans.add(LrcContentSpan(first, decodeEntities(seg), nt - first))
                         }
                     }
                 }
@@ -50,7 +50,7 @@ object LrcParser {
                         val seg = content.substring(ts, nextStart).trim()
                         if (seg.isNotEmpty()) {
                             val nt = if (i + 1 < wMatches.size) { val (nm, ns, nc) = wMatches[i + 1].destructured; parseTime(nm, ns, nc) } else 0L
-                            spans.add(LrcContentSpan(ct, seg, if (nt > 0) nt - ct else 0L))
+                            spans.add(LrcContentSpan(ct, decodeEntities(seg), if (nt > 0) nt - ct else 0L))
                         }
                     }
                 }
