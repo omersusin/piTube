@@ -233,8 +233,6 @@ abstract class PaxsenixSourceProvider : LyricsProvider() {
         }
         return if (bestDiff <= 10 || rawDurations.size == 1) best else -1
     }
-        return if (bestDiff < 10) best else if (sizes.size == 1) 0 else -1
-    }
 }
 
 class PaxsenixNeteaseLyricsProvider : PaxsenixSourceProvider() {
