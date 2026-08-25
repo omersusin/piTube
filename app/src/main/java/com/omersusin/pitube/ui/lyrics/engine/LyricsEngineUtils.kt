@@ -74,10 +74,17 @@ fun buildDisplayItems(lines: List<LrcLine>, songDurationMs: Long = 0L): List<Lyr
         if (next != null) {
             val gap = next.timeMs - line.timeMs
             if (gap >= INTER_LINE_GAP_THRESHOLD_MS) {
-                // Let the previous line finish singing before the note starts
-                // filling — avoids note + vocal line rendering simultaneously.
-                val singHoldMs = minOf(3500L, gap / 2)
-                items.add(LyricsDisplayItem.Break(InstrumentalGap(line.timeMs + singHoldMs, gap - singHoldMs)))
+                // Hand the stage to the note EXACTLY when the previous vocal
+                // ends: prefer the last word-timing end; fall back to a short
+                // hold for line-synced lyrics that carry no word timestamps.
+                val lastWordEnd = line.contentSpans.maxOfOrNull { it.timeMs + it.durationMs }
+                val singHoldMs = lastWordEnd?.let { it - line.timeMs }
+                    ?: minOf(3500L, gap / 2)
+                val startMs = (line.timeMs + singHoldMs).coerceIn(line.timeMs, next.timeMs)
+                val noteWindow = next.timeMs - startMs
+                if (noteWindow >= INTER_LINE_GAP_THRESHOLD_MS / 2) {
+                    items.add(LyricsDisplayItem.Break(InstrumentalGap(startMs, noteWindow)))
+                }
             }
         }
     }
