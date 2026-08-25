@@ -67,15 +67,15 @@ fun MusicSearchResponse.toMusicSearchPage(): MusicSearchPage {
 
     var continuation: String? = null
     for (section in sections) {
-        continuation = section.musicShelfRenderer?.contents?.getContinuation()
+        continuation = section.musicShelfRenderer?.contents?.shelfContinuation()
         if (continuation != null) break
     }
     if (continuation == null) {
         continuation =
             contents?.tabbedSearchResultsRenderer?.tabs?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer
-                ?.let { it.continuations?.getContinuation() }
+                ?.let { it.continuations?.token() }
         if (continuation == null) {
-            continuation = continuationContents?.sectionListContinuation?.continuations?.getContinuation()
+            continuation = continuationContents?.sectionListContinuation?.continuations?.token()
         }
     }
 
@@ -155,9 +155,9 @@ private fun toChannel(renderer: MusicResponsiveListItemRenderer): Channel? {
 private fun List<MusicShelfRenderer.Content>.getItems(): List<MusicResponsiveListItemRenderer> =
     mapNotNull { it.musicResponsiveListItemRenderer }
 
-private fun List<MusicShelfRenderer.Content>.getContinuation(): String? =
+private fun List<MusicShelfRenderer.Content>.shelfContinuation(): String? =
     firstOrNull { it.continuationItemRenderer != null }
         ?.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
 
-private fun List<Continuation>?.getContinuation(): String? =
+private fun List<Continuation>?.token(): String? =
     this?.firstOrNull()?.nextContinuationData?.continuation
