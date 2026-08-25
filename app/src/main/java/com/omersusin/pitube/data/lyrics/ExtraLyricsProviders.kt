@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 /**
- * Provider batch ported from ArchiveTune (lyrics/* modules, GPL-3.0) rewritten
+ * Provider batch ported from ArchiveTune lyrics modules (GPL-3.0), rewritten
  * on OkHttp/org.json to match piTube's provider style - no Ktor dependency.
  * Sources: MegalobizLyricsProvider, UnisonLyricsProvider,
  * BetterLyricsPortatoProvider and the Paxsenix source-specific variants
