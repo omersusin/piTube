@@ -10,7 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,6 +45,7 @@ fun FlowLyricsBottomSheet(
     currentPosition: Long = 0L,
     onLyricsLineClick: (Long) -> Unit = {},
     onRequestLyrics: () -> Unit = {},
+    onRefreshLyrics: (() -> Unit)? = null,
     onDismiss: () -> Unit,
     expandedHeight: Dp? = null,
     collapsedHeight: Dp = 0.dp,
@@ -70,6 +75,9 @@ fun FlowLyricsBottomSheet(
     val sheetHeightPx = remember { Animatable(0f) }
     var isAnimatingOut by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }
+    var showOffsetDialog by remember { mutableStateOf(false) }
+    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val currentSyncOffsetMs by prefs.lyricsSyncOffsetMs.collectAsState(initial = 0)
     val sheetProgress = if (expandedHeightPx > 0f) ((sheetHeightPx.value - collapsedHeightPx) / sheetProgressRangePx).coerceIn(0f, 1f) else 0f
     SideEffect { onSheetProgressChange(sheetProgress) }
 
@@ -102,6 +110,16 @@ fun FlowLyricsBottomSheet(
             onDismiss = { showSearchDialog = false },
             onSearch = { title, artist, callback -> onManualSearch(title, artist, callback) },
             onPicked = onPickedManualLyrics,
+        )
+    }
+    if (showOffsetDialog) {
+        LyricsSyncOffsetDialog(
+            currentOffsetMs = currentSyncOffsetMs,
+            onDismiss = { showOffsetDialog = false },
+            onApply = { v ->
+                showOffsetDialog = false
+                coroutineScope.launch { prefs.setLyricsSyncOffsetMs(v) }
+            },
         )
     }
     BackHandler(onBack = ::animateToDismiss)
@@ -137,8 +155,16 @@ fun FlowLyricsBottomSheet(
                             Text(text = stringResource(R.string.lyrics_synced), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
-                    if (onManualSearch != null && lyricsState is LyricsUiState.SyncedWithWords ||
-                        onManualSearch != null && lyricsState is LyricsUiState.Unavailable) {
+                    if (onRefreshLyrics != null && lyricsState !is LyricsUiState.Loading && lyricsState !is LyricsUiState.Idle) {
+                        IconButton(onClick = onRefreshLyrics, modifier = Modifier.size(40.dp)) {
+                            Icon(
+                                imageVector = Icons.Outlined.Refresh,
+                                contentDescription = "Refresh lyrics",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                    if (onManualSearch != null) {
                         IconButton(onClick = { showSearchDialog = true }, modifier = Modifier.size(40.dp)) {
                             Icon(
                                 imageVector = Icons.Outlined.Search,
@@ -146,6 +172,13 @@ fun FlowLyricsBottomSheet(
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
+                    }
+                    IconButton(onClick = { showOffsetDialog = true }, modifier = Modifier.size(40.dp)) {
+                        Icon(
+                            imageVector = Icons.Outlined.Timer,
+                            contentDescription = "Sync offset",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
                     }
                     if (showPlayPauseControl) {
                         IconButton(onClick = onTogglePlayPause, modifier = Modifier.size(40.dp)) {
@@ -259,11 +292,62 @@ private fun LyricsSearchDialog(
                     ) {
                         Column(Modifier.padding(12.dp)) {
                             Text(preview, style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                            Text(provider, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(com.omersusin.pitube.data.lyrics.LyricsProviderRegistry.displayName(provider), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
             }
         },
+    )
+}
+
+/**
+ * Live sync-offset dialog ported from Metrolist/vivi's ShowOffsetDialog:
+ * slider across ±3000 ms with 50 ms steps; applies instantly through the
+ * shared lyricsSyncOffsetMs preference (SyncedLyricsView re-collects it).
+ */
+@Composable
+private fun LyricsSyncOffsetDialog(
+    currentOffsetMs: Int,
+    onDismiss: () -> Unit,
+    onApply: (Int) -> Unit,
+) {
+    var value by rememberSaveable(currentOffsetMs) { mutableIntStateOf((currentOffsetMs / 50) * 50) }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Lyrics sync offset") },
+        text = {
+            Column {
+                Text(
+                    text = "${if (value >= 0) "+" else ""}${value} ms",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(8.dp))
+                Slider(
+                    value = value.toFloat(),
+                    onValueChange = { v -> value = ((v / 50).toInt() * 50) },
+                    valueRange = -3000f..3000f,
+                )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { value = (value - 50).coerceAtLeast(-3000) }) {
+                        Icon(Icons.Outlined.RemoveCircleOutline, contentDescription = "-50ms")
+                    }
+                    TextButton(onClick = { value = 0 }) { Text("Reset") }
+                    IconButton(onClick = { value = (value + 50).coerceAtMost(3000) }) {
+                        Icon(Icons.Outlined.AddCircleOutline, contentDescription = "+50ms")
+                    }
+                }
+                Text(
+                    "Positive values make lyrics highlight earlier",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        confirmButton = { TextButton(onClick = { onApply(value) }) { Text("OK") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
 }

@@ -1707,6 +1707,7 @@ fun GlobalPlayerOverlay(
             onLoadMoreComments = { videoId -> playerViewModel.loadMoreComments(videoId) },
             lyricsState = lyricsState,
             onRequestLyrics = { videoId -> playerViewModel.requestLyrics(videoId) },
+                onForceRequestLyrics = { videoId -> playerViewModel.requestLyrics(videoId, force = true) },
             lyricsTranslations = playerViewModel.lyricsTranslations.collectAsStateWithLifecycle(initialValue = emptyMap()).value,
             onApplyManualLyrics = { rawLrc -> playerViewModel.applyManualLyrics(video.id, rawLrc) },
             initialSearchTitle = com.omersusin.pitube.utils.TitleDecorationStripper.stripAll(video.title),

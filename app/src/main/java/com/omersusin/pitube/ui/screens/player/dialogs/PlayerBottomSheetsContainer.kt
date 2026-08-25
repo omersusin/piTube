@@ -62,6 +62,7 @@ fun PlayerBottomSheetsContainer(
     onSearchLyricsCandidates: (title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit = { _, _, onResult -> onResult(emptyList()) },
     onApplyManualLyrics: (String) -> Unit = {},
     onRequestLyrics: (videoId: String) -> Unit = {},
+    onForceRequestLyrics: (videoId: String) -> Unit = { onRequestLyrics(it) },
     mediaSheetExpandedHeight: Dp? = null,
     mediaSheetCollapsedHeight: Dp = 0.dp,
     context: Context,
@@ -216,6 +217,9 @@ fun PlayerBottomSheetsContainer(
                 if (p != null) { if (p.isPlaying) p.pause() else p.play() }
             },
             onRequestLyrics = { onRequestLyrics(video.id) },
+            onRefreshLyrics = if (lyricsState !is LyricsUiState.Loading && lyricsState !is LyricsUiState.Idle) {
+                { onForceRequestLyrics(video.id) }
+            } else null,
             expandedHeight = mediaSheetExpandedHeight,
             collapsedHeight = mediaSheetCollapsedHeight,
             onSheetProgressChange = onMediaSheetProgressChange,

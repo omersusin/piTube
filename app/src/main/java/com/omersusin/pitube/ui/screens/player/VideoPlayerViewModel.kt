@@ -3638,16 +3638,22 @@ class VideoPlayerViewModel @Inject constructor(
         uiState.map { s -> s.cachedVideo?.isMusic == true || s.streamInfo?.uploaderName?.contains(" - Topic", ignoreCase = true) == true }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    fun requestLyrics(videoId: String) {
+    fun requestLyrics(videoId: String, force: Boolean = false) {
         if (isLocalMediaId(videoId)) {
             lyricsJob?.cancel(); lyricsVideoId = null; _lyricsState.value = LyricsUiState.Unavailable; return
         }
-        if (lyricsVideoId == videoId && _lyricsState.value !is LyricsUiState.Idle) return
+        if (!force && lyricsVideoId == videoId && _lyricsState.value !is LyricsUiState.Idle) return
         resetLyricsForNewVideo()
         lyricsVideoId = videoId
         _lyricsState.value = LyricsUiState.Loading
         lyricsJob = viewModelScope.launch {
             try {
+                if (force) {
+                    // Refresh action: drop mem+disk copies so providers run again.
+                    com.omersusin.pitube.data.lyrics.LyricsRepository(
+                        repository, PlayerPreferences(context), context
+                    ).clearCacheFor(videoId)
+                }
                 // Metadata id-guard: during a transition cachedVideo can still
                 // belong to the PREVIOUS video — fetching with its title/artist
                 // poisons the disk cache with wrong-song lyrics (device bug).

@@ -350,8 +350,11 @@ internal fun shortTimeoutClient() = OkHttpClient.Builder().connectTimeout(10, Ti
 internal fun veryShortTimeoutClient() = OkHttpClient.Builder().connectTimeout(3, TimeUnit.SECONDS).readTimeout(8, TimeUnit.SECONDS).build()
 
 object LyricsProviders {
-    /** Canonical default ranking — mirrors vivi-music's registry order where applicable. */
-    val DEFAULT_ORDER = "lrclib,betterlyrics,musixmatch,simpmusic,paxsenix,kugou,youlyplus,transcript"
+    /** Canonical default ranking — mirrors vivi-music's registry order where applicable;
+     *  ArchiveTune-parity additions appended at the end. */
+    val DEFAULT_ORDER =
+        "lrclib,betterlyrics,musixmatch,simpmusic,paxsenix,paxsenix-musixmatch,paxsenix-netease," +
+        "paxsenix-spotify,paxsenix-youtube,kugou,youlyplus,unison,betterlyricsportato,megalobiz,transcript"
 
     fun all(): Map<String, () -> LyricsProvider> = mapOf(
         "lrclib" to { LrclibLyricsProvider() },
@@ -359,8 +362,15 @@ object LyricsProviders {
         "simpmusic" to { SimpMusicLyricsProvider() },
         "musixmatch" to { MusixmatchLyricsProvider() },
         "paxsenix" to { PaxsenixLyricsProvider() },
+        "paxsenix-musixmatch" to { PaxsenixMusixmatchLyricsProvider() },
+        "paxsenix-netease" to { PaxsenixNeteaseLyricsProvider() },
+        "paxsenix-spotify" to { PaxsenixSpotifyLyricsProvider() },
+        "paxsenix-youtube" to { PaxsenixYouTubeLyricsProvider() },
         "kugou" to { KugouLyricsProvider() },
         "youlyplus" to { YouLyPlusLyricsProvider() },
+        "unison" to { UnisonLyricsProvider() },
+        "betterlyricsportato" to { BetterLyricsPortatoProvider() },
+        "megalobiz" to { MegalobizLyricsProvider() },
         "transcript" to { TranscriptLyricsProvider() },
     )
 

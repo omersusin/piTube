@@ -77,6 +77,12 @@ class LyricsRepository @Inject constructor(
 
     fun clearCache() { memCache.clear(); plainMemCache.clear() }
 
+    /** Drop every cached copy of one song so a forced refetch hits providers. */
+    fun clearCacheFor(videoId: String) {
+        memCache.remove(videoId); plainMemCache.remove(videoId)
+        try { cacheFile(videoId).delete() } catch (_: Exception) {}
+    }
+
     private fun cacheFile(videoId: String) = File(File(context.cacheDir, "lyrics"), "$videoId.lrc")
     private fun loadDiskCache(videoId: String): List<LrcLine>? = try {
         val f = cacheFile(videoId); if (!f.exists()) return null; if (System.currentTimeMillis() - f.lastModified() > 30L*24*60*60*1000) return null

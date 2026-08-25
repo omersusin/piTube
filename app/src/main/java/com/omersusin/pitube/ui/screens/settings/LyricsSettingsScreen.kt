@@ -149,16 +149,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
             item { SectionHeader(text = "Providers") }
             item {
                 val orderList = remember(order) { order.split(",").map { it.trim() }.filter { it.isNotBlank() } }
-                val allProviders = listOf(
-                    "lrclib" to "LRCLIB",
-                    "betterlyrics" to "BetterLyrics",
-                    "musixmatch" to "Musixmatch",
-                    "simpmusic" to "SimpMusic",
-                    "paxsenix" to "Paxsenix",
-                    "kugou" to "KuGou",
-                    "youlyplus" to "YouLyPlus",
-                    "transcript" to "YouTube Transcript",
-                )
+                val allProviders = com.omersusin.pitube.data.lyrics.LyricsProviderRegistry.CATALOG
                 // THE FIX for the dead-feeling drag: the displayed list must BE
                 // the persisted order. Passing the static catalog meant rows
                 // never moved on screen — only the number badges reshuffled.
@@ -182,11 +173,6 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                     ) { (id, label) ->
                         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) { Text(label, style = MaterialTheme.typography.bodyLarge); Text(id, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                            Icon(
-                                Icons.Outlined.DragIndicator,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
                         }
                     }
                 }
