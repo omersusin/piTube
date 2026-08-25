@@ -71,6 +71,7 @@ fun MetroCanvasLayout(
     currentDisplayIndex: Int,
     currentLineIndex: Int,
     translations: Map<Long, String>,
+    noteSizeDp: Float,
     positionProvider: () -> Long,
     autoScroll: Boolean,
     accent: Color,
@@ -295,7 +296,7 @@ fun MetroCanvasLayout(
                                         startTimeMs = item.gap.startMs,
                                         textColor = accent,
                                         inactiveAlpha = 0.35f,
-                                        modifier = Modifier.size(48.dp).wrapContentSize(Alignment.Center),
+                                        modifier = Modifier.size(noteSizeDp.dp).wrapContentSize(Alignment.Center),
                                     )
                                 }
                             }

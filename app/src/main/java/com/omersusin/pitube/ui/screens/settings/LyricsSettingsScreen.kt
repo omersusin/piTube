@@ -39,6 +39,7 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
     val blur by prefs.lyricsStandardBlur.collectAsState(initial = 0f)
     val size by prefs.lyricsTextSize.collectAsState(initial = 20f)
     val spacing by prefs.lyricsLineSpacing.collectAsState(initial = 1.4f)
+    val noteSize by prefs.lyricsNoteSize.collectAsState(initial = 48f)
     val autoScroll by prefs.lyricsAutoScroll.collectAsState(initial = true)
     val changeOnClick by prefs.lyricsChangeOnClick.collectAsState(initial = false)
     val swipe by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
@@ -104,6 +105,11 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Line spacing: ${(spacing * 10).toInt() / 10f}x", style = MaterialTheme.typography.bodyMedium)
                         Slider(value = spacing, onValueChange = { scope.launch { prefs.setLyricsLineSpacing(it) } }, valueRange = 0.8f..2.2f)
+                    }
+                    HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Instrumental note size: ${noteSize.toInt()} dp", style = MaterialTheme.typography.bodyMedium)
+                        Slider(value = noteSize, onValueChange = { scope.launch { prefs.setLyricsNoteSize(it) } }, valueRange = 28f..96f)
                     }
                     HorizontalDivider(Modifier.padding(start = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {

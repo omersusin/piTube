@@ -67,6 +67,7 @@ fun SyncedLyricsView(
     val swipeEnabled by prefs.lyricsSwipeToChangeSong.collectAsState(initial = false)
     val changeOnClick by prefs.lyricsChangeOnClick.collectAsState(initial = false)
     val syncOffsetMs by prefs.lyricsSyncOffsetMs.collectAsState(initial = 0)
+    val noteSize by prefs.lyricsNoteSize.collectAsState(initial = 48f)
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         when (lyricsResult) {
@@ -74,7 +75,7 @@ fun SyncedLyricsView(
                 lines = lyricsResult.lines, currentPositionMs = currentPositionMs + syncOffsetMs, onSeekTo = onSeekTo,
                 anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal,
                 autoScroll = autoScroll, textPos = textPos, swipeEnabled = swipeEnabled, onSwipeNext = onSwipeNext, onSwipePrev = onSwipePrev,
-                changeOnClick = changeOnClick, translations = translations, isPlaying = isPlaying
+                changeOnClick = changeOnClick, translations = translations, isPlaying = isPlaying, noteSizeDp = noteSize
             )
             is LyricsFetchResult.Plain -> Text(
                 text = lyricsResult.text,
@@ -105,7 +106,8 @@ private fun LyricsContent(
     onSwipeNext: (() -> Unit)?, onSwipePrev: (() -> Unit)?,
     changeOnClick: Boolean,
     translations: Map<Long, String>,
-    isPlaying: Boolean
+    isPlaying: Boolean,
+    noteSizeDp: Float
 ) {
     // Frame-anchored dead reckoning: the external position ticker fires every
     // 250ms-1s; between ticks an interpolated clock advances every frame so
@@ -169,6 +171,7 @@ private fun LyricsContent(
             currentDisplayIndex = lineToDisplay[currentIndex] ?: -1,
             currentLineIndex = currentIndex,
             translations = translations,
+            noteSizeDp = noteSizeDp,
             positionProvider = { smoothPosition.longValue },
             autoScroll = autoScroll,
             accent = accent,
@@ -288,7 +291,7 @@ private fun LyricsContent(
                                     startTimeMs = item.gap.startMs,
                                     textColor = accent,
                                     inactiveAlpha = 0.35f,
-                                    modifier = Modifier.size(48.dp),
+                                    modifier = Modifier.size(noteSizeDp.dp),
                                 )
                             }
                         }
@@ -363,12 +366,22 @@ private fun LyricLine(
     val inactiveColor = textColor.copy(alpha = 0.85f)
     val lineHeightFactor = spacing
 
+    // High-scale styles grow the rendered layer beyond layout bounds; the extra
+    // padding keeps the scaled content inside the item so LazyColumn edges
+    // never clip it (APPLE/V2 were visibly cut top+bottom).
+    val verticalInset = when (anim) {
+        LyricsAnimationStyle.APPLE_MUSIC, LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> 18.dp
+        LyricsAnimationStyle.KARAOKE -> 12.dp
+        LyricsAnimationStyle.VIVIMUSIC_FLUID -> 8.dp
+        else -> 6.dp
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth()
             .graphicsLayer { translationY = offset; scaleX = scale; scaleY = scale; this.alpha = alpha }
             .then(blurMod)
             .clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) { onTap() }
-            .padding(vertical = 6.dp),
+            .padding(vertical = verticalInset),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

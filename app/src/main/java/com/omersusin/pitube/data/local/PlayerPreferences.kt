@@ -348,6 +348,7 @@ class PlayerPreferences(context: Context) {
         val LYRICS_STANDARD_BLUR = floatPreferencesKey("lyrics_standard_blur")
         val LYRICS_TEXT_SIZE = floatPreferencesKey("lyrics_text_size")
         val LYRICS_LINE_SPACING = floatPreferencesKey("lyrics_line_spacing")
+        val LYRICS_NOTE_SIZE = floatPreferencesKey("lyrics_note_size")
         val LYRICS_CHANGE_ON_CLICK = booleanPreferencesKey("lyrics_change_on_click")
         val LYRICS_AUTO_SCROLL = booleanPreferencesKey("lyrics_auto_scroll")
         val LYRICS_SWIPE_TO_CHANGE_SONG = booleanPreferencesKey("lyrics_swipe_to_change_song")
@@ -2692,6 +2693,9 @@ class PlayerPreferences(context: Context) {
     suspend fun setLyricsTextSize(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_TEXT_SIZE] = v.coerceIn(12f, 28f) } }
     val lyricsLineSpacing: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_LINE_SPACING] ?: 1.4f }
     suspend fun setLyricsLineSpacing(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_LINE_SPACING] = v.coerceIn(0.8f, 2.2f) } }
+    /** Instrumental-break music-note icon size in dp. */
+    val lyricsNoteSize: Flow<Float> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_NOTE_SIZE] ?: 48f }
+    suspend fun setLyricsNoteSize(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_NOTE_SIZE] = v.coerceIn(28f, 96f) } }
     val lyricsChangeOnClick: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_CHANGE_ON_CLICK] ?: false }
     suspend fun setLyricsChangeOnClick(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.LYRICS_CHANGE_ON_CLICK] = v } }
     val lyricsAutoScroll: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.LYRICS_AUTO_SCROLL] ?: true }
