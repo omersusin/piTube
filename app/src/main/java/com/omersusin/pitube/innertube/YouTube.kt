@@ -22,6 +22,9 @@ import com.omersusin.pitube.innertube.models.response.channelVideoCountText
 import com.omersusin.pitube.innertube.models.response.GetTranscriptResponse
 import com.omersusin.pitube.innertube.models.response.NextResponse
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
+import com.omersusin.pitube.innertube.pages.MusicSearchPage
+import com.omersusin.pitube.innertube.pages.MusicSearchResponse
+import com.omersusin.pitube.innertube.pages.toMusicSearchPage
 import com.omersusin.pitube.innertube.pages.CommunityCommentsPage
 import com.omersusin.pitube.innertube.pages.CommunityPostsPage
 import com.omersusin.pitube.innertube.pages.HistoryPage
@@ -175,6 +178,22 @@ object YouTube {
             includeVisitorData = true,
         ).body<JsonObject>().toSearchVideosPage()
     }
+
+    /**
+     * YouTube Music search (WEB_REMIX against the music host, which is the
+     * InnerTube default base URL). Experimental opt-in surface — callers gate
+     * this behind the music-search-categories preference so no request leaves
+     * the device while it is off.
+     */
+    suspend fun musicSearch(query: String, continuation: String? = null): Result<MusicSearchPage> = runCatching {
+        val response = innerTube.search(
+            client = WEB_REMIX,
+            query = query.takeIf { continuation == null },
+            continuation = continuation,
+        ).body<MusicSearchResponse>()
+        response.toMusicSearchPage()
+    }.onSuccess { Log.d("MusicSearch", "query='$query' songs=${it.songs.size} artists=${it.artists.size} cont=${it.continuation != null}") }
+        .onFailure { Log.w("MusicSearch", "query='$query' failed: ${it.message}") }
 
     private suspend fun ensureVisitorData() {
         if (!visitorData.isNullOrBlank()) return

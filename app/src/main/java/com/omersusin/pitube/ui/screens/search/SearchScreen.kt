@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.*
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -73,6 +74,10 @@ fun SearchScreen(
     val searchHistoryRepo = remember { SearchHistoryRepository(context) }
     val uiState by viewModel.uiState.collectAsState()
     val savedPlaylistIds by viewModel.savedPlaylistIds.collectAsState()
+    val musicEnabled by viewModel.musicCategoriesEnabled.collectAsState()
+    val musicResults by viewModel.musicResults.collectAsState()
+    val discoverViewModel: DiscoverViewModel = hiltViewModel()
+    val discoverState by discoverViewModel.state.collectAsState()
 
     var searchQuery by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
@@ -262,7 +267,7 @@ fun SearchScreen(
         }
     }
 
-    val selectedContentType = uiState.filters?.contentType ?: ContentType.VIDEOS
+    val selectedContentType = uiState.filters?.contentType ?: ContentType.ALL
     val activeOrPendingFilters = uiState.filters ?: SearchFilter(contentType = selectedContentType)
     val sharedVideoTitle = stringResource(R.string.shared_video)
 
@@ -363,15 +368,18 @@ fun SearchScreen(
 
         val hasQuery = uiState.query.isNotBlank()
 
-        SearchContentTabs(
+        SearchContentChips(
             selectedContentType = selectedContentType,
             onContentTypeSelected = { type ->
                 val base = uiState.filters ?: SearchFilter()
                 viewModel.updateFilters(base.copy(contentType = type))
             },
+            musicCategory = uiState.musicCategory,
+            onMusicCategorySelected = viewModel::selectMusicCategory,
+            musicEnabled = musicEnabled,
         )
 
-        if (selectedContentType == ContentType.VIDEOS) {
+        if (selectedContentType == ContentType.VIDEOS && uiState.musicCategory == null) {
             VideoFilterChipRows(
                 selectedUploadDate = uiState.filters?.uploadDate ?: UploadDate.ANY,
                 onUploadDateSelected = { date ->
@@ -394,6 +402,15 @@ fun SearchScreen(
         if (!hasQuery) {
             DiscoverScreen(
                 searchHistory = searchHistory,
+                discoverState = discoverState,
+                onLoadMoreDiscover = discoverViewModel::loadMore,
+                onTopicClick = { topic ->
+                    dismissKeyboard()
+                    setSearchQueryToEnd(topic)
+                    viewModel.search(topic, activeOrPendingFilters)
+                },
+                onVideoClick = navigateToVideo,
+                onChannelClick = navigateToChannel,
                 onHistoryClick = { q ->
                     dismissKeyboard()
                     setSearchQueryToEnd(q)
@@ -406,6 +423,17 @@ fun SearchScreen(
                     scope.launch { searchHistoryRepo.clearSearchHistory() }
                 },
             )
+        } else if (uiState.musicCategory != null) {
+            BoxWithConstraints(modifier = Modifier.weight(1f)) {
+                MusicResultsList(
+                    category = uiState.musicCategory!!,
+                    results = musicResults,
+                    onVideoClick = navigateToVideo,
+                    onChannelClick = navigateToChannel,
+                    onRetry = { viewModel.selectMusicCategory(uiState.musicCategory) },
+                    onLoadMore = viewModel::loadMoreMusicResults,
+                )
+            }
         } else {
             val isInitialLoading =
                 pagingItems.loadState.refresh is LoadState.Loading
@@ -422,7 +450,8 @@ fun SearchScreen(
                     }
                 }
 
-            if (!isInitialLoading && !isInitialError && !isEmptyResults) {
+            val grouped = selectedContentType == ContentType.ALL
+            if (!grouped && !isInitialLoading && !isInitialError && !isEmptyResults) {
                 ResultsSectionHeader(
                     contentType = selectedContentType,
                     resultCount = resultCount,
@@ -465,6 +494,12 @@ fun SearchScreen(
                             navigateToChannel,
                             navigateToPlaylist,
                             dismissKeyboard,
+                            grouped = grouped,
+                            onSelectTab = { type ->
+                                viewModel.updateFilters(
+                                    (uiState.filters ?: SearchFilter()).copy(contentType = type),
+                                )
+                            },
                         )
                     }
                 }
@@ -658,54 +693,82 @@ private fun SearchBarRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchContentTabs(
+private fun SearchContentChips(
     selectedContentType: ContentType,
     onContentTypeSelected: (ContentType) -> Unit,
+    musicCategory: MusicCategory?,
+    onMusicCategorySelected: (MusicCategory?) -> Unit,
+    musicEnabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val tabIndex =
-        when (selectedContentType) {
-            ContentType.PLAYLISTS -> 1
-            ContentType.CHANNELS -> 2
-            else -> 0
-        }
-    PrimaryTabRow(
-        selectedTabIndex = tabIndex,
-        modifier = modifier.fillMaxWidth(),
-        containerColor = MaterialTheme.colorScheme.background,
-    ) {
-        Tab(
-            selected = tabIndex == 0,
-            onClick = { onContentTypeSelected(ContentType.VIDEOS) },
-            text = {
-                Text(
+    data class ChipRef(
+        val key: String,
+        val label: String,
+        val selected: Boolean,
+        val onClick: () -> Unit,
+    )
+
+    val chips =
+        buildList {
+            add(
+                ChipRef(
+                    "all",
+                    stringResource(R.string.tab_all),
+                    selected = selectedContentType == ContentType.ALL && musicCategory == null,
+                ) { onContentTypeSelected(ContentType.ALL) },
+            )
+            add(
+                ChipRef(
+                    "videos",
                     stringResource(R.string.videos_header),
-                    fontWeight = if (tabIndex == 0) FontWeight.Bold else FontWeight.Normal,
+                    selected = selectedContentType == ContentType.VIDEOS && musicCategory == null,
+                ) { onContentTypeSelected(ContentType.VIDEOS) },
+            )
+            if (musicEnabled) {
+                add(
+                    ChipRef(
+                        "songs",
+                        stringResource(R.string.tab_songs),
+                        selected = musicCategory == MusicCategory.SONGS,
+                    ) { onMusicCategorySelected(MusicCategory.SONGS) },
                 )
-            },
-        )
-        Tab(
-            selected = tabIndex == 1,
-            onClick = { onContentTypeSelected(ContentType.PLAYLISTS) },
-            text = {
-                Text(
+                add(
+                    ChipRef(
+                        "artists",
+                        stringResource(R.string.tab_artists),
+                        selected = musicCategory == MusicCategory.ARTISTS,
+                    ) { onMusicCategorySelected(MusicCategory.ARTISTS) },
+                )
+            }
+            add(
+                ChipRef(
+                    "playlists",
                     stringResource(R.string.tab_playlists),
-                    fontWeight = if (tabIndex == 1) FontWeight.Bold else FontWeight.Normal,
-                )
-            },
-        )
-        Tab(
-            selected = tabIndex == 2,
-            onClick = { onContentTypeSelected(ContentType.CHANNELS) },
-            text = {
-                Text(
+                    selected = selectedContentType == ContentType.PLAYLISTS && musicCategory == null,
+                ) { onContentTypeSelected(ContentType.PLAYLISTS) },
+            )
+            add(
+                ChipRef(
+                    "channels",
                     stringResource(R.string.channels_header),
-                    fontWeight = if (tabIndex == 2) FontWeight.Bold else FontWeight.Normal,
-                )
-            },
-        )
+                    selected = selectedContentType == ContentType.CHANNELS && musicCategory == null,
+                ) { onContentTypeSelected(ContentType.CHANNELS) },
+            )
+        }
+
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(chips, key = { it.key }) { chip ->
+            ContentFilterChip(
+                title = chip.label,
+                isSelected = chip.selected,
+                onClick = chip.onClick,
+            )
+        }
     }
 }
 
@@ -852,6 +915,18 @@ private fun searchItemContentType(item: SearchResultItem?): Any =
 
 private const val SHORTS_SHELF_KEY = "shortsShelf"
 
+/** One rendered row of the results grid: either a raw paging index or a synthetic section row. */
+private data class GroupedRow(val kind: Int, val index: Int = -1) {
+    companion object {
+        const val HEADER_CHANNELS = 0
+        const val HEADER_PLAYLISTS = 1
+        const val HEADER_VIDEOS = 2
+        const val SEE_ALL_CHANNELS = 3
+        const val SEE_ALL_PLAYLISTS = 4
+        const val RAW = 5
+    }
+}
+
 @Composable
 private fun SearchResultList(
     pagingItems: androidx.paging.compose.LazyPagingItems<SearchResultItem>,
@@ -862,7 +937,38 @@ private fun SearchResultList(
     onChannelClick: (Channel) -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
     dismissKeyboard: () -> Unit,
+    grouped: Boolean,
+    onSelectTab: (ContentType) -> Unit,
 ) {
+    // Hybrid grouped layout ("Tümü" tab): hoist the channel and playlist hits
+    // into digest sections above the paged video stream, Koda-style.
+    val rows: List<Any> =
+        remember(pagingItems.itemCount, grouped) {
+            if (!grouped) {
+                (0 until pagingItems.itemCount).toList()
+            } else {
+                val channelIndices =
+                    (0 until pagingItems.itemCount).filter { pagingItems.peek(it) is SearchResultItem.ChannelResult }
+                val playlistIndices =
+                    (0 until pagingItems.itemCount).filter { pagingItems.peek(it) is SearchResultItem.PlaylistResult }
+                buildList {
+                    if (channelIndices.isNotEmpty()) {
+                        add(GroupedRow(GroupedRow.HEADER_CHANNELS))
+                        channelIndices.forEach { add(it) }
+                        add(GroupedRow(GroupedRow.SEE_ALL_CHANNELS))
+                    }
+                    if (playlistIndices.isNotEmpty()) {
+                        add(GroupedRow(GroupedRow.HEADER_PLAYLISTS))
+                        playlistIndices.forEach { add(it) }
+                        add(GroupedRow(GroupedRow.SEE_ALL_PLAYLISTS))
+                    }
+                    add(GroupedRow(GroupedRow.HEADER_VIDEOS))
+                    val hoisted = channelIndices.toSet() + playlistIndices.toSet()
+                    (0 until pagingItems.itemCount).filterNot { it in hoisted }.forEach { add(it) }
+                }
+            }
+        }
+
     LazyVerticalGrid(
         state = listState,
         columns = GridCells.Fixed(1),
@@ -885,56 +991,109 @@ private fun SearchResultList(
         contentPadding = PaddingValues(top = 8.dp, bottom = 90.dp),
     ) {
         items(
-            count = pagingItems.itemCount,
-            key = { i -> searchItemKey(pagingItems.peek(i), i) },
-            contentType = { i -> searchItemContentType(pagingItems.peek(i)) },
-        ) { i ->
-            when (val item = pagingItems[i]) {
-                is SearchResultItem.VideoResult -> {
-                    VideoCardFullWidth(
-                        video = item.video,
-                        modifier = Modifier.padding(vertical = 4.dp),
-                        onClick = { onVideoClick(item.video) },
-                        onChannelClick = { channelId ->
-                            onChannelClick(
-                                Channel(
-                                    id = channelId,
-                                    name = item.video.channelName,
-                                    thumbnailUrl = item.video.channelThumbnailUrl,
-                                    subscriberCount = 0,
-                                    url = "https://www.youtube.com/channel/$channelId",
-                                ),
+            count = rows.size,
+            key = { r ->
+                when (val row = rows[r]) {
+                    is Int -> searchItemKey(pagingItems.peek(row), row)
+                    is GroupedRow ->
+                        when (row.kind) {
+                            GroupedRow.HEADER_CHANNELS -> "hdr_channels"
+                            GroupedRow.HEADER_PLAYLISTS -> "hdr_playlists"
+                            GroupedRow.HEADER_VIDEOS -> "hdr_videos"
+                            GroupedRow.SEE_ALL_CHANNELS -> "see_all_channels"
+                            else -> "see_all_playlists"
+                        }
+                    else -> "row_$r"
+                }
+            },
+            contentType = { r ->
+                when (val row = rows[r]) {
+                    is Int -> searchItemContentType(pagingItems.peek(row))
+                    is GroupedRow ->
+                        if (row.kind == GroupedRow.RAW) "" else "section"
+                    else -> "placeholder"
+                }
+            },
+        ) { r ->
+            when (val row = rows[r]) {
+                is GroupedRow ->
+                    when (row.kind) {
+                        GroupedRow.HEADER_CHANNELS ->
+                            GroupSectionHeader(
+                                icon = Icons.Outlined.People,
+                                label = stringResource(R.string.channels_header),
+                                showSeeAll = true,
+                                onSeeAll = { onSelectTab(ContentType.CHANNELS) },
                             )
-                        },
-                    )
-                }
+                        GroupedRow.HEADER_PLAYLISTS ->
+                            GroupSectionHeader(
+                                icon = Icons.Outlined.VideoLibrary,
+                                label = stringResource(R.string.tab_playlists),
+                                showSeeAll = true,
+                                onSeeAll = { onSelectTab(ContentType.PLAYLISTS) },
+                            )
+                        GroupedRow.HEADER_VIDEOS ->
+                            GroupSectionHeader(
+                                icon = Icons.Outlined.SmartDisplay,
+                                label = stringResource(R.string.videos_header),
+                                showSeeAll = false,
+                                onSeeAll = {},
+                            )
+                        GroupedRow.SEE_ALL_CHANNELS ->
+                            SeeAllRow(stringResource(R.string.channels_header)) { onSelectTab(ContentType.CHANNELS) }
+                        else ->
+                            SeeAllRow(stringResource(R.string.tab_playlists)) { onSelectTab(ContentType.PLAYLISTS) }
+                    }
 
-                is SearchResultItem.ChannelResult -> {
-                    SearchChannelCard(
-                        item.channel,
-                        onClick = {
-                            onChannelClick(item.channel)
-                        },
-                    )
-                }
+                is Int -> {
+                    when (val item = pagingItems[row]) {
+                        is SearchResultItem.VideoResult -> {
+                            VideoCardFullWidth(
+                                video = item.video,
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                onClick = { onVideoClick(item.video) },
+                                onChannelClick = { channelId ->
+                                    onChannelClick(
+                                        Channel(
+                                            id = channelId,
+                                            name = item.video.channelName,
+                                            thumbnailUrl = item.video.channelThumbnailUrl,
+                                            subscriberCount = 0,
+                                            url = "https://www.youtube.com/channel/$channelId",
+                                        ),
+                                    )
+                                },
+                            )
+                        }
 
-                is SearchResultItem.PlaylistResult -> {
-                    PlaylistCard(
-                        item.playlist,
-                        onClick = {
-                            onPlaylistClick(item.playlist)
-                        },
-                        showSaveAction = true,
-                        isSaved = item.playlist.id in savedPlaylistIds,
-                        onSaveClick = { onToggleSavePlaylist(item.playlist) },
-                    )
-                }
+                        is SearchResultItem.ChannelResult -> {
+                            SearchChannelCard(
+                                item.channel,
+                                onClick = {
+                                    onChannelClick(item.channel)
+                                },
+                            )
+                        }
 
-                is SearchResultItem.ShortsShelfResult -> {
-                    ShortsShelf(shorts = item.shorts, onShortClick = onVideoClick)
-                }
+                        is SearchResultItem.PlaylistResult -> {
+                            PlaylistCard(
+                                item.playlist,
+                                onClick = {
+                                    onPlaylistClick(item.playlist)
+                                },
+                                showSaveAction = true,
+                                isSaved = item.playlist.id in savedPlaylistIds,
+                                onSaveClick = { onToggleSavePlaylist(item.playlist) },
+                            )
+                        }
 
-                null -> {}
+                        is SearchResultItem.ShortsShelfResult -> {
+                            ShortsShelf(shorts = item.shorts, onShortClick = onVideoClick)
+                        }
+
+                        null -> {}
+                    }
+                }
             }
         }
 
@@ -945,6 +1104,66 @@ private fun SearchResultList(
                 pagingItems.itemCount,
             )
         }
+    }
+}
+
+@Composable
+private fun GroupSectionHeader(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    showSeeAll: Boolean,
+    onSeeAll: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(
+            label,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.weight(1f),
+        )
+        if (showSeeAll) {
+            TextButton(onClick = onSeeAll) {
+                Text(stringResource(R.string.see_all), style = MaterialTheme.typography.labelMedium)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeeAllRow(
+    label: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(R.string.see_all),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(Modifier.width(4.dp))
+        Icon(
+            Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = label,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(16.dp),
+        )
     }
 }
 
@@ -1063,9 +1282,27 @@ private fun ShimmerResultsScreen(
     }
 }
 
+private val EXPLORE_TOPICS =
+    listOf(
+        R.string.topic_gaming,
+        R.string.topic_music,
+        R.string.topic_news,
+        R.string.topic_live,
+        R.string.topic_podcasts,
+        R.string.topic_movies,
+        R.string.topic_tech,
+        R.string.topic_sports,
+        R.string.topic_learning,
+    )
+
 @Composable
 private fun DiscoverScreen(
     searchHistory: List<SearchHistoryItem>,
+    discoverState: DiscoverViewModel.DiscoverState,
+    onLoadMoreDiscover: () -> Unit,
+    onTopicClick: (String) -> Unit,
+    onVideoClick: (Video) -> Unit,
+    onChannelClick: (Channel) -> Unit,
     onHistoryClick: (String) -> Unit,
     onHistoryDelete: (SearchHistoryItem) -> Unit,
     onClearHistory: () -> Unit,
@@ -1074,6 +1311,31 @@ private fun DiscoverScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 90.dp),
     ) {
+        // Explore topics — tap a chip to search that topic (Koda's video-mode explore).
+        item {
+            Text(
+                stringResource(R.string.discover_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            )
+        }
+        item {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(EXPLORE_TOPICS, key = { it }) { res ->
+                    ContentFilterChip(
+                        title = stringResource(res),
+                        isSelected = false,
+                        onClick = { onTopicClick(stringResource(res)) },
+                    )
+                }
+            }
+        }
+
         if (searchHistory.isNotEmpty()) {
             item {
                 Row(
@@ -1098,48 +1360,189 @@ private fun DiscoverScreen(
                     }
                 }
             }
-            items(searchHistory.take(8), key = { it.id }) { item ->
+            items(searchHistory.take(8), key = { "h_${it.id}" }) { item ->
                 HistoryRow(
                     item = item,
                     onClick = { onHistoryClick(item.query) },
                     onDelete = { onHistoryDelete(item) },
                 )
             }
-            item {
-                HorizontalDivider(
-                    Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+        }
+
+        // Discover feed: personal → taste → trending, with load-more.
+        item {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    Icons.Outlined.Explore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp),
+                )
+                Text(
+                    stringResource(discoverSourceLabel(discoverState.source)),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
 
-        if (searchHistory.isEmpty()) {
+        if (discoverState.isLoading && discoverState.videos.isEmpty()) {
+            items(4, key = { "discover_shimmer_$it" }, contentType = { "shimmer" }) {
+                ShimmerVideoCardFullWidth()
+            }
+        } else if (discoverState.videos.isEmpty()) {
             item {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillParentMaxSize()
-                            .padding(bottom = 100.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            Icons.Outlined.Search,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint =
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                    alpha = 0.2f,
+                Text(
+                    stringResource(R.string.discover_empty),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+        } else {
+            items(
+                discoverState.videos,
+                key = { "d_${it.id}" },
+                contentType = { "discover_video" },
+            ) { video ->
+                VideoCardHorizontal(
+                    video = video,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    onClick = { onVideoClick(video) },
+                    onChannelClick = { channelId ->
+                        channelId.takeIf { it.isNotBlank() }?.let {
+                            onChannelClick(
+                                Channel(
+                                    id = it,
+                                    name = video.channelName,
+                                    thumbnailUrl = video.channelThumbnailUrl,
+                                    subscriberCount = 0,
+                                    url = "https://www.youtube.com/channel/$it",
                                 ),
+                            )
+                        }
+                    },
+                )
+            }
+            if (!discoverState.endReached) {
+                item(key = "discover_more") {
+                    Box(Modifier.fillMaxWidth().padding(vertical = 10.dp), Alignment.Center) {
+                        OutlinedButton(onClick = onLoadMoreDiscover) {
+                            Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(stringResource(R.string.load_more))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun discoverSourceLabel(source: DiscoverViewModel.Source): Int =
+    when (source) {
+        DiscoverViewModel.Source.PERSONALIZED -> R.string.discover_for_you
+        DiscoverViewModel.Source.TASTE -> R.string.discover_taste
+        else -> R.string.discover_trending
+    }
+
+@Composable
+private fun MusicResultsList(
+    category: MusicCategory,
+    results: MusicResults,
+    onVideoClick: (Video) -> Unit,
+    onChannelClick: (Channel) -> Unit,
+    onRetry: () -> Unit,
+    onLoadMore: () -> Unit,
+) {
+    when {
+        results.isLoading && results.songs.isEmpty() && results.artists.isEmpty() -> {
+            ShimmerResultsScreen(false, 1)
+        }
+
+        results.error && results.songs.isEmpty() && results.artists.isEmpty() -> {
+            SearchErrorState(
+                message = stringResource(R.string.music_search_failed),
+                onRetry = onRetry,
+            )
+        }
+
+        category == MusicCategory.SONGS && results.songs.isEmpty() -> {
+            EmptyState(
+                icon = Icons.Outlined.MusicNote,
+                title = stringResource(R.string.empty_results_title),
+                body = stringResource(R.string.empty_results_body),
+                actionLabel = stringResource(R.string.retry),
+                onAction = onRetry,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        category == MusicCategory.ARTISTS && results.artists.isEmpty() -> {
+            EmptyState(
+                icon = Icons.Outlined.People,
+                title = stringResource(R.string.empty_results_title),
+                body = stringResource(R.string.empty_results_body),
+                actionLabel = stringResource(R.string.retry),
+                onAction = onRetry,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        else -> {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 90.dp),
+            ) {
+                if (category == MusicCategory.SONGS) {
+                    items(results.songs, key = { "ms_${it.id}" }, contentType = { "song" }) { song ->
+                        VideoCardFullWidth(
+                            video = song,
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            onClick = { onVideoClick(song) },
+                            onChannelClick = { channelId ->
+                                channelId.takeIf { it.isNotBlank() }?.let {
+                                    onChannelClick(
+                                        Channel(
+                                            id = it,
+                                            name = song.channelName,
+                                            thumbnailUrl = song.channelThumbnailUrl,
+                                            subscriberCount = 0,
+                                            url = "https://www.youtube.com/channel/$it",
+                                        ),
+                                    )
+                                }
+                            },
                         )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            stringResource(R.string.search_empty_prompt),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color =
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                    alpha = 0.6f,
-                                ),
-                        )
+                    }
+                } else {
+                    items(results.artists, key = { "ma_${it.id}" }, contentType = { "artist" }) { artist ->
+                        SearchChannelCard(artist, onClick = { onChannelClick(artist) })
+                    }
+                }
+                if (!results.endReached) {
+                    item(key = "music_more") {
+                        Box(Modifier.fillMaxWidth().padding(20.dp), Alignment.Center) {
+                            OutlinedButton(onClick = onLoadMore, enabled = !results.isLoading) {
+                                if (results.isLoading) {
+                                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                                } else {
+                                    Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp))
+                                }
+                                Spacer(Modifier.width(6.dp))
+                                Text(stringResource(R.string.load_more))
+                            }
+                        }
                     }
                 }
             }

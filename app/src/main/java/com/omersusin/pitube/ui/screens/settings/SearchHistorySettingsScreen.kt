@@ -29,13 +29,15 @@ fun SearchHistorySettingsScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val searchHistoryRepo = remember { com.omersusin.pitube.data.local.SearchHistoryRepository(context) }
-    
+    val playerPrefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(context) }
+
     // Search settings states
     val searchHistoryEnabled by searchHistoryRepo.isSearchHistoryEnabledFlow().collectAsState(initial = true)
     val searchSuggestionsEnabled by searchHistoryRepo.isSearchSuggestionsEnabledFlow().collectAsState(initial = true)
     val maxHistorySize by searchHistoryRepo.getMaxHistorySizeFlow().collectAsState(initial = 50)
     val autoDeleteHistory by searchHistoryRepo.isAutoDeleteHistoryEnabledFlow().collectAsState(initial = false)
     val historyRetentionDays by searchHistoryRepo.getHistoryRetentionDaysFlow().collectAsState(initial = 90)
+    val musicCategoriesEnabled by playerPrefs.musicSearchCategoriesEnabled.collectAsState(initial = false)
 
     var showClearSearchDialog by remember { mutableStateOf(false) }
     var showHistorySizeDialog by remember { mutableStateOf(false) }
@@ -122,6 +124,18 @@ fun SearchHistorySettingsScreen(
                         title = stringResource(R.string.clear_history_item_title),
                         subtitle = stringResource(R.string.remove_all_queries),
                         onClick = { showClearSearchDialog = true }
+                    )
+                }
+            }
+
+            item {
+                SettingsGroup {
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.MusicNote,
+                        title = stringResource(R.string.settings_music_search_categories),
+                        subtitle = stringResource(R.string.settings_music_search_categories_desc),
+                        checked = musicCategoriesEnabled,
+                        onCheckedChange = { coroutineScope.launch { playerPrefs.setMusicSearchCategoriesEnabled(it) } }
                     )
                 }
             }

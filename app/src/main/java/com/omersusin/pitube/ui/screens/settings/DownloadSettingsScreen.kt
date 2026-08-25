@@ -20,12 +20,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ClosedCaption
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.HighQuality
 import androidx.compose.material.icons.outlined.Language
@@ -90,7 +92,10 @@ fun DownloadSettingsScreen(
     val autoSubtitles by preferences.downloadAutoSubtitles.collectAsState(initial = true)
     val metadataFiles by preferences.downloadMetadataFiles.collectAsState(initial = false)
     val notificationActions by preferences.downloadNotificationActions.collectAsState(initial = true)
+    val externalDownloaderEnabled by preferences.externalDownloaderEnabled.collectAsState(initial = false)
+    val externalDownloaderPackage by preferences.externalDownloaderPackage.collectAsState(initial = "")
     var showSubtitleLanguageDialog by remember { mutableStateOf(false) }
+    var showDownloaderPackageDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         videoTemplate = preferences.downloadFilenameTemplateVideo.first()
@@ -651,6 +656,30 @@ fun DownloadSettingsScreen(
                     )
                 }
             }
+
+            item {
+                SettingsGroup {
+                    SettingsSwitchItem(
+                        icon = Icons.Outlined.FileDownload,
+                        title = stringResource(R.string.settings_external_downloader),
+                        subtitle = stringResource(R.string.settings_external_downloader_desc),
+                        checked = externalDownloaderEnabled,
+                        onCheckedChange = { coroutineScope.launch { preferences.setExternalDownloaderEnabled(it) } }
+                    )
+                    if (externalDownloaderEnabled) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 56.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
+                        SettingsItem(
+                            icon = Icons.Outlined.Apps,
+                            title = stringResource(R.string.settings_external_downloader_package),
+                            subtitle = externalDownloaderPackage.ifBlank { "—" },
+                            onClick = { showDownloaderPackageDialog = true }
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -679,6 +708,38 @@ fun DownloadSettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showSubtitleLanguageDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    if (showDownloaderPackageDialog) {
+        var packageValue by remember { mutableStateOf(externalDownloaderPackage) }
+        AlertDialog(
+            onDismissRequest = { showDownloaderPackageDialog = false },
+            title = { Text(stringResource(R.string.settings_external_downloader_package)) },
+            text = {
+                OutlinedTextField(
+                    value = packageValue,
+                    onValueChange = { packageValue = it },
+                    placeholder = { Text("com.junkfood.seal / com.ytdlnis.downloader") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        coroutineScope.launch { preferences.setExternalDownloaderPackage(packageValue) }
+                        showDownloaderPackageDialog = false
+                    },
+                ) {
+                    Text(stringResource(R.string.btn_save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDownloaderPackageDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             },

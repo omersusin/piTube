@@ -26,8 +26,10 @@ import androidx.compose.material.icons.filled.WatchLater
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.outlined.Radio
 import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material.icons.outlined.PlaylistRemove
@@ -143,6 +145,11 @@ fun VideoQuickActionsBottomSheet(
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
     var showMediaInfo by remember { mutableStateOf(false) }
     var showDownloadSheet by remember { mutableStateOf(false) }
+    var showExternalDownloader by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        showExternalDownloader = viewModel.isExternalDownloaderEnabled()
+    }
 
     // Dialogs
     if (showAddToPlaylistDialog) {
@@ -341,6 +348,15 @@ fun VideoQuickActionsBottomSheet(
                                             context.getString(R.string.added_to_queue_toast),
                                             android.widget.Toast.LENGTH_SHORT,
                                         ).show()
+                                    onDismiss()
+                                },
+                            ),
+                            FlowMenuItemData(
+                                icon = { Icon(Icons.Outlined.Radio, null) },
+                                title = { Text(stringResource(R.string.start_radio)) },
+                                description = { Text(stringResource(R.string.start_radio_desc)) },
+                                onClick = {
+                                    viewModel.startRadio(video)
                                     onDismiss()
                                 },
                             ),
@@ -559,6 +575,20 @@ fun VideoQuickActionsBottomSheet(
                                     },
                                 ),
                             )
+
+                            if (showExternalDownloader) {
+                                add(
+                                    FlowMenuItemData(
+                                        icon = { Icon(Icons.Outlined.FileDownload, null) },
+                                        title = { Text(stringResource(R.string.open_with_downloader)) },
+                                        description = { Text(stringResource(R.string.open_with_downloader_desc)) },
+                                        onClick = {
+                                            viewModel.openWithExternalDownloader(video)
+                                            onDismiss()
+                                        },
+                                    ),
+                                )
+                            }
 
                             add(
                                 FlowMenuItemData(

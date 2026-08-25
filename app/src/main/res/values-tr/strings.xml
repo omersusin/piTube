@@ -2241,4 +2241,34 @@
     <string name="sort_newest">En yeni</string>
     <string name="sort_most_viewed">En çok izlenen</string>
     <string name="search_results_count">%1$d sonuç</string>
-<string name="liked_filter_music">Müzik</string><string name="liked_sort_title">Başlık</string></resources>
+<string name="liked_filter_music">Müzik</string><string name="liked_sort_title">Başlık</string><string name="tab_all">Tümü</string>
+    <string name="tab_songs">Şarkılar</string>
+    <string name="tab_artists">Sanatçılar</string>
+    <string name="start_radio">Radyo başlat</string>
+    <string name="start_radio_desc">Bu videoyu karışık radyo kuyruğuyla oynat</string>
+    <string name="radio_started_toast">Radyo başlatıldı</string>
+    <string name="radio_unavailable_toast">Radyo kuyruğu oluşturulamadı</string>
+    <string name="open_with_downloader">Harici indiriciyle aç</string>
+    <string name="open_with_downloader_desc">Bağlantıyı indirici uygulamanıza gönder</string>
+    <string name="downloader_not_installed_toast">İndirici uygulama bulunamadı</string>
+    <string name="discover_title">Keşfet</string>
+    <string name="discover_for_you">Sana özel</string>
+    <string name="discover_taste">İlgi alanlarına göre</string>
+    <string name="discover_trending">Trend videolar</string>
+    <string name="discover_empty">Şu an öneri yok - bir arama dene.</string>
+    <string name="load_more">Daha fazla</string>
+    <string name="music_search_failed">Müzik araması başarısız</string>
+    <string name="topic_gaming">Oyun</string>
+    <string name="topic_music">Müzik</string>
+    <string name="topic_news">Haberler</string>
+    <string name="topic_live">Canlı</string>
+    <string name="topic_podcasts">Podcast\'ler</string>
+    <string name="topic_movies">Filmler</string>
+    <string name="topic_tech">Teknoloji</string>
+    <string name="topic_sports">Spor</string>
+    <string name="topic_learning">Öğrenme</string>
+    <string name="settings_music_search_categories">YouTube Music kategorileri (deneysel)</string>
+    <string name="settings_music_search_categories_desc">Aramaya Şarkılar ve Sanatçılar sekmeleri ekler. Kapalıyken YouTube Music\'e hiç istek gitmez.</string>
+    <string name="settings_external_downloader">Harici indiriciye gönder</string>
+    <string name="settings_external_downloader_desc">Video menülerine "Harici indiriciyle aç" ekler</string>
+    <string name="settings_external_downloader_package">İndirici paket adı (isteğe bağlı)</string></resources>

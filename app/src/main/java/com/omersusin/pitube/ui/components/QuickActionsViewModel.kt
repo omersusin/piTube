@@ -1,9 +1,11 @@
 package com.omersusin.pitube.ui.components
 
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.first
 import com.omersusin.pitube.data.local.ChannelSubscription
 import com.omersusin.pitube.data.local.PlaylistRepository
 import com.omersusin.pitube.data.local.SubscriptionRepository
@@ -309,4 +311,58 @@ class QuickActionsViewModel @Inject constructor(
         com.omersusin.pitube.player.EnhancedPlayerManager.getInstance().addVideoToQueue(video)
     }
 
+    /**
+     * Start radio: play [video] now with its watch-next related items
+     * (shuffled) queued behind it — ArchiveTune/Koda's SongMenu radio action.
+     */
+    fun startRadio(video: Video) {
+        viewModelScope.launch {
+            val related =
+                runCatching { repository.getRelatedVideos(video.id) }
+                    .getOrElse { emptyList() }
+                    .filter { it.id != video.id }
+                    .distinctBy { it.id }
+                    .shuffled()
+                    .take(20)
+            if (related.isEmpty()) {
+                Toast.makeText(context, R.string.radio_unavailable_toast, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            com.omersusin.pitube.player.EnhancedPlayerManager.getInstance()
+                .setQueue(listOf(video) + related, 0, video.title)
+            Toast.makeText(context, context.getString(R.string.radio_started_toast), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Hand the video URL to the user's configured external downloader app
+     * (Seal / YTDLnis style handoff). No-ops with feedback when disabled,
+     * unconfigured or not installed.
+     */
+    fun openWithExternalDownloader(video: Video) {
+        viewModelScope.launch {
+            val enabled =
+                runCatching { playerPreferences.externalDownloaderEnabled.first() }.getOrDefault(false)
+            if (!enabled) return@launch
+            val packageName =
+                runCatching { playerPreferences.externalDownloaderPackage.first() }.getOrDefault("").trim()
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=${video.id}")
+            }
+            try {
+                if (packageName.isNotBlank()) {
+                    val target = Intent(intent).apply { setPackage(packageName) }
+                    context.startActivity(target)
+                } else {
+                    context.startActivity(Intent.createChooser(intent, null))
+                }
+            } catch (_: Exception) {
+                Toast.makeText(context, R.string.downloader_not_installed_toast, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    suspend fun isExternalDownloaderEnabled(): Boolean =
+        runCatching { playerPreferences.externalDownloaderEnabled.first() }.getOrDefault(false)
 }

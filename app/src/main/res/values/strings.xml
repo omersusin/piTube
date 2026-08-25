@@ -2220,4 +2220,34 @@
     <string name="settings_library_section">Library</string>
     <string name="library_shelf_enabled">Subscriptions shelf</string>
     <string name="library_shelf_enabled_subtitle">Channel rail at the top of the Library page</string>
-<string name="liked_filter_music">Music</string><string name="liked_sort_title">Title</string></resources>
+<string name="liked_filter_music">Music</string><string name="liked_sort_title">Title</string><string name="tab_all">All</string>
+    <string name="tab_songs">Songs</string>
+    <string name="tab_artists">Artists</string>
+    <string name="start_radio">Start radio</string>
+    <string name="start_radio_desc">Play this video with a shuffled radio queue</string>
+    <string name="radio_started_toast">Radio started</string>
+    <string name="radio_unavailable_toast">Could not build a radio queue</string>
+    <string name="open_with_downloader">Open with downloader app</string>
+    <string name="open_with_downloader_desc">Send the link to your downloader app</string>
+    <string name="downloader_not_installed_toast">Downloader app not found</string>
+    <string name="discover_title">Explore</string>
+    <string name="discover_for_you">For you</string>
+    <string name="discover_taste">Based on your interests</string>
+    <string name="discover_trending">Trending videos</string>
+    <string name="discover_empty">No suggestions right now - try a search.</string>
+    <string name="load_more">Load more</string>
+    <string name="music_search_failed">Music search failed</string>
+    <string name="topic_gaming">Gaming</string>
+    <string name="topic_music">Music</string>
+    <string name="topic_news">News</string>
+    <string name="topic_live">Live</string>
+    <string name="topic_podcasts">Podcasts</string>
+    <string name="topic_movies">Movies</string>
+    <string name="topic_tech">Tech</string>
+    <string name="topic_sports">Sports</string>
+    <string name="topic_learning">Learning</string>
+    <string name="settings_music_search_categories">YouTube Music categories (experimental)</string>
+    <string name="settings_music_search_categories_desc">Adds Songs and Artists tabs to search. Off = no YouTube Music requests are made.</string>
+    <string name="settings_external_downloader">External downloader handoff</string>
+    <string name="settings_external_downloader_desc">Adds "Open with downloader" to video menus</string>
+    <string name="settings_external_downloader_package">Downloader package name (optional)</string></resources>

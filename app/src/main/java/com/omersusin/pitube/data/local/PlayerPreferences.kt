@@ -376,6 +376,11 @@ class PlayerPreferences(context: Context) {
         val RECOGNITION_FLOATING_TINT = stringPreferencesKey("recognition_floating_tint")
         val RECOGNITION_CARD_CORNER_RADIUS = floatPreferencesKey("recognition_card_corner_radius")
         val RECOGNITION_ART_SIZE = intPreferencesKey("recognition_art_size")
+
+        // Search experiments + external downloader handoff
+        val MUSIC_SEARCH_CATEGORIES = booleanPreferencesKey("music_search_categories_enabled")
+        val EXTERNAL_DOWNLOADER_ENABLED = booleanPreferencesKey("external_downloader_enabled")
+        val EXTERNAL_DOWNLOADER_PACKAGE = stringPreferencesKey("external_downloader_package")
     }
     
     // Grid item size preference
@@ -2763,6 +2768,16 @@ class PlayerPreferences(context: Context) {
     suspend fun setRecognitionCardCornerRadius(v: Float) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_CARD_CORNER_RADIUS] = v.coerceIn(8f, 28f) } }
     val recognitionArtSize: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_ART_SIZE] ?: 72 }
     suspend fun setRecognitionArtSize(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_ART_SIZE] = v.coerceIn(48, 96) } }
+
+    /** Experimental YouTube Music search categories (Songs/Artists) — off = no music-host requests at all. */
+    val musicSearchCategoriesEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.MUSIC_SEARCH_CATEGORIES] ?: false }
+    suspend fun setMusicSearchCategoriesEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.MUSIC_SEARCH_CATEGORIES] = v } }
+
+    /** Hand a share intent to the user's preferred external downloader app. */
+    val externalDownloaderEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.EXTERNAL_DOWNLOADER_ENABLED] ?: false }
+    suspend fun setExternalDownloaderEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.EXTERNAL_DOWNLOADER_ENABLED] = v } }
+    val externalDownloaderPackage: Flow<String> = context.playerPreferencesDataStore.data.map { it[Keys.EXTERNAL_DOWNLOADER_PACKAGE] ?: "" }
+    suspend fun setExternalDownloaderPackage(v: String) { context.playerPreferencesDataStore.edit { it[Keys.EXTERNAL_DOWNLOADER_PACKAGE] = v.trim() } }
 }
 
 enum class LyricsAnimationStyle(val displayName: String) {

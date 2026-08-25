@@ -29,9 +29,25 @@ import javax.inject.Inject
 
 // ── UI state ─────────────────────────────────────────────────────────────────
 
+/** Experimental YouTube Music result categories (opt-in preference gated). */
+enum class MusicCategory {
+    SONGS,
+    ARTISTS,
+}
+
 data class SearchUiState(
     val query: String = "",
     val filters: SearchFilter? = null,
+    val musicCategory: MusicCategory? = null,
+)
+
+/** Paged YouTube Music results for the experimental Songs/Artists tabs. */
+data class MusicResults(
+    val isLoading: Boolean = false,
+    val error: Boolean = false,
+    val songs: List<com.omersusin.pitube.data.model.Video> = emptyList(),
+    val artists: List<com.omersusin.pitube.data.model.Channel> = emptyList(),
+    val endReached: Boolean = false,
 )
 
 // ── ViewModel ─────────────────────────────────────────────────────────────────
@@ -43,9 +59,19 @@ class SearchViewModel
     constructor(
         private val repository: YouTubeRepository,
         private val playlistRepository: PlaylistRepository,
+        playerPreferences: com.omersusin.pitube.data.local.PlayerPreferences,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SearchUiState())
         val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+
+        /** Opt-in flag for the YT Music categories — off means zero music-host traffic. */
+        val musicCategoriesEnabled: StateFlow<Boolean> =
+            playerPreferences.musicSearchCategoriesEnabled
+                .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), false)
+
+        private val _musicResults = MutableStateFlow(MusicResults())
+        val musicResults: StateFlow<MusicResults> = _musicResults.asStateFlow()
+        private var musicContinuation: String? = null
 
         private val _savedPlaylistIds = MutableStateFlow<Set<String>>(emptySet())
 
@@ -102,24 +128,77 @@ class SearchViewModel
             if (query.isBlank()) {
                 _uiState.value = SearchUiState()
                 _searchKey.value = null
+                _musicResults.value = MusicResults()
+                musicContinuation = null
                 return
             }
-            val effectiveFilters = filters ?: SearchFilter(contentType = ContentType.VIDEOS)
+            val effectiveFilters = filters ?: SearchFilter()
             _uiState.value = SearchUiState(query = query, filters = effectiveFilters)
             _searchKey.value = SearchKey(query, buildContentFilters(effectiveFilters), effectiveFilters)
+            if (musicCategoriesEnabled.value) {
+                reloadMusicResults()
+            }
         }
 
         fun updateFilters(filters: SearchFilter) {
             val currentQuery = _uiState.value.query
-            _uiState.value = _uiState.value.copy(filters = filters)
+            _uiState.value = _uiState.value.copy(filters = filters, musicCategory = null)
             if (currentQuery.isNotBlank()) {
                 _searchKey.value = SearchKey(currentQuery, buildContentFilters(filters), filters)
+            }
+        }
+
+        /** Switch between the experimental Songs/Artists views (null = regular results). */
+        fun selectMusicCategory(category: MusicCategory?) {
+            _uiState.value = _uiState.value.copy(musicCategory = category)
+            if (category != null && _musicResults.value.songs.isEmpty() && _musicResults.value.artists.isEmpty()) {
+                reloadMusicResults()
+            }
+        }
+
+        fun loadMoreMusicResults() {
+            if (musicContinuation == null || _musicResults.value.isLoading) return
+            fetchMusicPage()
+        }
+
+        private fun reloadMusicResults() {
+            musicContinuation = null
+            _musicResults.value = MusicResults(isLoading = true)
+            fetchMusicPage()
+        }
+
+        private fun fetchMusicPage() {
+            val query = _uiState.value.query
+            if (query.isBlank() || !musicCategoriesEnabled.value) return
+            viewModelScope.launch {
+                val page =
+                    runCatching {
+                        com.omersusin.pitube.innertube.YouTube.musicSearch(query, musicContinuation).getOrNull()
+                    }.getOrNull()
+                if (page == null) {
+                    _musicResults.value =
+                        _musicResults.value.copy(
+                            isLoading = false,
+                            error = true,
+                            endReached = true,
+                        )
+                    return@launch
+                }
+                musicContinuation = page.continuation
+                _musicResults.value =
+                    MusicResults(
+                        songs = (_musicResults.value.songs + page.songs).distinctBy { it.id },
+                        artists = (_musicResults.value.artists + page.artists).distinctBy { it.id },
+                        endReached = page.continuation == null,
+                    )
             }
         }
 
         fun clearSearch() {
             _uiState.value = SearchUiState()
             _searchKey.value = null
+            _musicResults.value = MusicResults()
+            musicContinuation = null
         }
 
         fun hasActiveFilters(filters: SearchFilter?): Boolean {
