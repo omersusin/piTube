@@ -57,6 +57,7 @@ fun FlowLyricsBottomSheet(
     onPickedManualLyrics: (String) -> Unit = {},
     initialSearchTitle: String = "",
     initialSearchArtist: String = "",
+    onLookupSearchPrefill: (() -> Pair<String, String>)? = null,
     onManualSearch: ((title: String, artist: String, onResult: (List<Pair<String, String>>) -> Unit) -> Unit)? = null,
     showPlayPauseControl: Boolean = false,
     isPlaying: Boolean = false,
@@ -105,9 +106,12 @@ fun FlowLyricsBottomSheet(
     LaunchedEffect(videoId) { onRequestLyrics() }
 
     if (showSearchDialog && onManualSearch != null) {
+        // Evaluate the prefill at OPEN time — composition-time values can be
+        // blank while track metadata is still loading.
+        val lookedUp = onLookupSearchPrefill?.invoke()
         LyricsSearchDialog(
-            initialTitle = initialSearchTitle,
-            initialArtist = initialSearchArtist,
+            initialTitle = lookedUp?.first?.takeIf { it.isNotBlank() } ?: initialSearchTitle,
+            initialArtist = lookedUp?.second?.takeIf { it.isNotBlank() } ?: initialSearchArtist,
             onDismiss = { showSearchDialog = false },
             onSearch = { title, artist, callback -> onManualSearch(title, artist, callback) },
             onPicked = onPickedManualLyrics,

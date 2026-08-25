@@ -26,7 +26,31 @@ class LyricsRepository @Inject constructor(
         plainMemCache[videoId]?.let { return@withContext LyricsFetchResult.Plain(it) }
         loadDiskCache(videoId)?.let { memCache[videoId] = it; return@withContext LyricsFetchResult.Success(it) }
         val order = try { playerPreferences.lyricsProviderOrder.first() } catch (_: Exception) { LyricsProviders.DEFAULT_ORDER }
-        // 1) try external providers (transcript included as an orderable provider)
+        // Fallback ladder (vivi LrcLib strategy, adapted): pass 1 queries with
+        // the CLEANED title + lead artist — plain-YouTube titles like
+        // "deadmau5, Stevie Appleton - Science [Official Video]" never match
+        // LRCLIB verbatim; pass 2 retries with the raw strings when they differ.
+        val cleanedTitle = LyricsTitleCleaner.cleanTitle(title).ifBlank { title }
+        val cleanedArtist = LyricsTitleCleaner.primaryArtist(artist).ifBlank { artist }
+        val attempts = mutableListOf(cleanedTitle to cleanedArtist)
+        if (title.isNotBlank() && (title to artist) != (cleanedTitle to cleanedArtist)) attempts.add(title to artist)
+        var lastResort: LyricsFetchResult? = null
+        for ((t, a) in attempts) {
+            val res = fetchFromProviders(order, t, a, album, durationMs, videoId)
+            if (res !is LyricsFetchResult.NotFound && res !is LyricsFetchResult.Error) return@withContext res
+            if (lastResort == null) lastResort = res
+        }
+        lastResort ?: LyricsFetchResult.NotFound
+    }
+
+    private fun fetchFromProviders(
+        order: String,
+        title: String,
+        artist: String,
+        album: String,
+        durationMs: Long,
+        videoId: String,
+    ): LyricsFetchResult {
         for (p in LyricsProviders.ordered(order)) {
             try {
                 val raw = p.fetch(title, artist, album, durationMs, videoId) ?: continue
@@ -34,7 +58,7 @@ class LyricsRepository @Inject constructor(
                 if (parsed.isNotEmpty()) {
                     if (hasUsableSync(parsed)) {
                         memCache[videoId] = parsed; saveDiskCache(videoId, raw)
-                        return@withContext LyricsFetchResult.Success(parsed)
+                        return LyricsFetchResult.Success(parsed)
                     } else {
                         // Degenerate "sync" (e.g. description lyrics stamped all at
                         // 00:00.00) would freeze the view on the last line — show
@@ -42,12 +66,12 @@ class LyricsRepository @Inject constructor(
                         Log.d(TAG, "provider ${p.id} produced unsynced lyrics for $videoId")
                         val text = parsed.joinToString("\n") { it.text }
                         plainMemCache[videoId] = text; saveDiskCache(videoId, raw)
-                        return@withContext LyricsFetchResult.Plain(text)
+                        return LyricsFetchResult.Plain(text)
                     }
                 }
             } catch (e: Exception) { Log.d(TAG, "provider ${p.id} failed ${e.message}") }
         }
-        LyricsFetchResult.NotFound
+        return LyricsFetchResult.NotFound
     }
 
     /**

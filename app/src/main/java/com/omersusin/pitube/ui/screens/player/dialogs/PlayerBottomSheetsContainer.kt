@@ -63,6 +63,7 @@ fun PlayerBottomSheetsContainer(
     onApplyManualLyrics: (String) -> Unit = {},
     onRequestLyrics: (videoId: String) -> Unit = {},
     onForceRequestLyrics: (videoId: String) -> Unit = { onRequestLyrics(it) },
+    onLookupLyricsPrefill: (() -> Pair<String, String>)? = null,
     mediaSheetExpandedHeight: Dp? = null,
     mediaSheetCollapsedHeight: Dp = 0.dp,
     context: Context,
@@ -210,6 +211,7 @@ fun PlayerBottomSheetsContainer(
             onManualSearch = onSearchLyricsCandidates,
             initialSearchTitle = initialSearchTitle,
             initialSearchArtist = initialSearchArtist,
+            onLookupSearchPrefill = onLookupLyricsPrefill,
             showPlayPauseControl = lyricsShowPlayPause,
             isPlaying = playerIsPlaying.isPlaying,
             onTogglePlayPause = {

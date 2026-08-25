@@ -1715,6 +1715,17 @@ fun GlobalPlayerOverlay(
                 .replace(Regex("""\s*-\s*Topic$"""), "")
                 .removeSuffix("VEVO")
                 .trim(),
+            onLookupLyricsPrefill = {
+                // Fresh values at dialog-open time; "A, B - C" video titles
+                // split into clean title + lead artist.
+                val v = playerUiState.cachedVideo ?: video
+                val channelArtist = v.channelName
+                    .replace(Regex("""\s*-\s*Topic$"""), "")
+                    .removeSuffix("VEVO")
+                    .trim()
+                val (t, a) = com.omersusin.pitube.data.lyrics.LyricsTitleCleaner.splitVideoTitle(v.title)
+                t to a.ifBlank { com.omersusin.pitube.data.lyrics.LyricsTitleCleaner.primaryArtist(channelArtist) }
+            },
             onSearchLyricsCandidates = { title, artist, onResult ->
                 playerViewModel.searchLyricsCandidates(title, artist, ((playerUiState.cachedVideo?.duration?.toLong() ?: 0L)) * 1000L, onResult)
             },

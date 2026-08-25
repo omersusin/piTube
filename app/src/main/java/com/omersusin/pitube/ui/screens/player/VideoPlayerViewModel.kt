@@ -3738,14 +3738,24 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             val results = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 val out = mutableListOf<Pair<String, String>>()
+                // Cleaned pair first (dirty YT titles never match LRCLIB),
+                // raw strings as a second sweep when they differ.
+                val cleanedTitle = com.omersusin.pitube.data.lyrics.LyricsTitleCleaner.cleanTitle(title).ifBlank { title }
+                val cleanedArtist = com.omersusin.pitube.data.lyrics.LyricsTitleCleaner.primaryArtist(artist).ifBlank { artist }
+                val queries = buildList {
+                    add(cleanedTitle to cleanedArtist)
+                    if ((cleanedTitle to cleanedArtist) != (title to artist)) add(title to artist)
+                }
                 for (provider in com.omersusin.pitube.data.lyrics.LyricsProviders.ordered(
                     PlayerPreferences(context).lyricsProviderOrder.first()
                 )) {
                     if (provider.id == "transcript") continue
-                    try {
-                        provider.fetch(title, artist, "", durationMs)?.takeIf { it.isNotBlank() }
-                            ?.let { out.add(provider.id to it) }
-                    } catch (_: Exception) { }
+                    for ((t, a) in queries) {
+                        try {
+                            provider.fetch(t, a, "", durationMs)?.takeIf { it.isNotBlank() }
+                                ?.let { out.add(provider.id to it); break }
+                        } catch (_: Exception) { }
+                    }
                 }
                 out
             }

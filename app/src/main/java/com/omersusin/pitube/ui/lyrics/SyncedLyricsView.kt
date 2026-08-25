@@ -333,6 +333,7 @@ private fun LyricLine(
 ) {
     // Only the active line reads the ticking clock — other items stay skipped.
     val currentPositionMs = if (isCurrent) positionProvider() else -1L
+    val engineWords = if (spansCoverLine(line)) line.toEngineWords() else null
 
     val scaleTarget = if (!isCurrent) 1f else when (anim) {
         LyricsAnimationStyle.NONE -> 1f
@@ -399,7 +400,7 @@ private fun LyricLine(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when (anim) {
                 LyricsAnimationStyle.KARAOKE -> {
-                    val words = if (isCurrent) line.toEngineWords() else emptyList()
+                    val words = if (isCurrent) engineWords else emptyList()
                     if (words.isNullOrEmpty()) {
                         PlainStyledLine(line, isCurrent, isPast, glow, textSize, spacing, accent, textColor)
                     } else {
@@ -416,7 +417,9 @@ private fun LyricLine(
                     }
                 }
 
-                LyricsAnimationStyle.VIVIMUSIC_FLUID -> ViviFluidLine(
+                LyricsAnimationStyle.VIVIMUSIC_FLUID -> if (engineWords == null) {
+                    PlainStyledLine(line, isCurrent, isPast, glow, textSize, spacing, accent, textColor)
+                } else ViviFluidLine(
                     line = line,
                     lineDurationMs = lineDurationMs(lines, line),
                     isActiveLine = isCurrent,
@@ -427,7 +430,9 @@ private fun LyricLine(
                     lineHeightFactor = lineHeightFactor,
                 )
 
-                LyricsAnimationStyle.LYRICS_V2_FLUID -> LyricsV2FillLine(
+                LyricsAnimationStyle.LYRICS_V2_FLUID -> if (engineWords == null) {
+                    PlainStyledLine(line, isCurrent, isPast, glow, textSize, spacing, accent, textColor)
+                } else LyricsV2FillLine(
                     line = line,
                     isActiveLine = isCurrent,
                     isPast = isPast,
@@ -439,7 +444,9 @@ private fun LyricLine(
                     lineHeightFactor = lineHeightFactor,
                 )
 
-                LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> AppleV2LetterLine(
+                LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> if (engineWords == null) {
+                    PlainStyledLine(line, isCurrent, isPast, glow, textSize, spacing, accent, textColor)
+                } else AppleV2LetterLine(
                     line = line,
                     isActiveLine = isCurrent,
                     positionMs = currentPositionMs,
@@ -451,7 +458,7 @@ private fun LyricLine(
 
                 LyricsAnimationStyle.NONE, LyricsAnimationStyle.FADE, LyricsAnimationStyle.GLOW,
                 LyricsAnimationStyle.SLIDE, LyricsAnimationStyle.APPLE_MUSIC -> {
-                    val words = line.toEngineWords()
+                    val words = engineWords
                     if (words != null && isCurrent) {
                         WordLevelSpanLine(
                             style = anim,
@@ -482,6 +489,20 @@ private fun LyricLine(
             }
         }
     }
+}
+
+/**
+ * Safety net for word-level engines: some providers return rich-sync lines
+ * whose spans only cover the sentence TAIL ("...in my life for you" instead
+ * of "There's something in my life for you"). When span text doesn't account
+ * for the full line text, engines must not render the partial spans.
+ */
+private fun spansCoverLine(line: LrcLine): Boolean {
+    if (line.contentSpans.isEmpty()) return false
+    fun norm(v: String) = v.replace(Regex("\\s+"), " ").trim().lowercase()
+    val joined = norm(line.contentSpans.joinToString(" ") { it.text })
+    val text = norm(line.text)
+    return joined.length >= text.length * 0.9f && (text.contains(joined) || joined.contains(text))
 }
 
 private fun lineDurationMs(lines: List<LrcLine>, line: LrcLine): Long {
