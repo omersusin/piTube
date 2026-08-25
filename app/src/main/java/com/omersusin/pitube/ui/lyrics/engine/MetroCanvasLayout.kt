@@ -184,19 +184,21 @@ fun MetroCanvasLayout(
                 .clipToBounds()
                 .drawWithContent {
                     drawContent()
-                    // Continuous quadratic-ease mask sampled at many offsets —
-                    // reads as one smooth gradient with no visible bands.
+                    // Continuous smoothstep-ease mask (x²(3-2x)): zero slope at
+                    // both ends blends into the flat region with no gradient
+                    // discontinuity — x² caused Mach banding at the seam.
                     val topEnd = (fadeTopDp / size.height).coerceIn(0.02f, 0.45f)
                     val botStart = 1f - (fadeBottomDp / size.height).coerceIn(0.02f, 0.45f)
                     val steps = 28
+                    fun smoothstep(t: Float) = t * t * (3f - 2f * t)
                     val stops = buildList {
                         for (i in 0..steps) {
                             val x = i.toFloat() / steps
-                            add((topEnd * x) to Color.Black.copy(alpha = x * x))
+                            add((topEnd * x) to Color.Black.copy(alpha = smoothstep(x)))
                         }
                         for (i in 0..steps) {
                             val x = i.toFloat() / steps
-                            add((botStart + (1f - botStart) * x) to Color.Black.copy(alpha = (1f - x) * (1f - x)))
+                            add((botStart + (1f - botStart) * x) to Color.Black.copy(alpha = smoothstep(1f - x)))
                         }
                     }.sortedBy { it.first }
                     drawRect(
