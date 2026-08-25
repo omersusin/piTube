@@ -63,6 +63,10 @@ fun MusicSearchResponse.toMusicSearchPage(): MusicSearchPage {
         section.musicCardShelfRenderer?.contents
             ?.mapNotNull { it.musicResponsiveListItemRenderer }
             ?.let { renderers += it }
+        // Flat anonymous-response shape: one item per itemSectionRenderer.
+        section.itemSectionRenderer?.contents
+            ?.mapNotNull { it.musicResponsiveListItemRenderer }
+            ?.let { renderers += it }
     }
 
     var continuation: String? = null

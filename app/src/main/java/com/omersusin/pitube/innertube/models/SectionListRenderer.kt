@@ -47,5 +47,19 @@ data class SectionListRenderer(
         val musicResponsiveHeaderRenderer: MusicResponsiveHeaderRenderer?,
         val musicEditablePlaylistDetailHeaderRenderer: MusicEditablePlaylistDetailHeaderRenderer?,
         val gridRenderer: GridRenderer?,
-    )
+        // Anonymous WEB_REMIX /search responses (2025+) ship results flat,
+        // one musicResponsiveListItemRenderer per itemSectionRenderer, with no
+        // shelf grouping at all.
+        val itemSectionRenderer: ItemSection?,
+    ) {
+        @Serializable
+        data class ItemSection(
+            val contents: List<ItemSectionContent>?,
+        ) {
+            @Serializable
+            data class ItemSectionContent(
+                val musicResponsiveListItemRenderer: MusicResponsiveListItemRenderer?,
+            )
+        }
+    }
 }
