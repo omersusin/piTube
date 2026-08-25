@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -181,6 +183,11 @@ fun MetroCanvasLayout(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                // Opaque base OUTSIDE the offscreen layer: without isolation,
+                // DstIn multiplied the whole destination (incl. the sheet
+                // surface below us) and leaked whatever sat behind the window.
+                .background(MaterialTheme.colorScheme.surface)
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                 .clipToBounds()
                 .drawWithContent {
                     drawContent()
