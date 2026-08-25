@@ -60,7 +60,9 @@ fun MusicSearchResponse.toMusicSearchPage(): MusicSearchPage {
     val renderers = mutableListOf<MusicResponsiveListItemRenderer>()
     for (section in sections) {
         section.musicShelfRenderer?.contents?.getItems()?.let { renderers += it }
-        section.musicCardShelfRenderer?.musicResponsiveListItemRenderer?.let { renderers += it }
+        section.musicCardShelfRenderer?.contents
+            ?.mapNotNull { it.musicResponsiveListItemRenderer }
+            ?.let { renderers += it }
     }
 
     var continuation: String? = null

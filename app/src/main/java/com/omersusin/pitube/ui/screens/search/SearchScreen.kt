@@ -1327,10 +1327,11 @@ private fun DiscoverScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(EXPLORE_TOPICS, key = { it }) { res ->
+                    val topicLabel = stringResource(res)
                     ContentFilterChip(
-                        title = stringResource(res),
+                        title = topicLabel,
                         isSelected = false,
-                        onClick = { onTopicClick(stringResource(res)) },
+                        onClick = { onTopicClick(topicLabel) },
                     )
                 }
             }
