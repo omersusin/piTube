@@ -259,7 +259,7 @@ class SearchViewModel
          * audience figure in the subtitle.
          */
         private fun growArtistsWithEnrichment() {
-            if (!artistsEnriched) enrichArtists() else growArtists()
+            if (!artistsEnriched) enrichArtists() else viewModelScope.launch { growArtists() }
         }
 
         private fun enrichArtists() {
@@ -416,7 +416,7 @@ class SearchViewModel
          */
         private fun decorateSongs(
             songs: List<com.omersusin.pitube.data.model.Video>,
-            artists: List<com.omersin.pitube.data.model.Channel>,
+            artists: List<com.omersusin.pitube.data.model.Channel>,
             mainArtist: com.omersusin.pitube.data.model.Channel?,
         ): List<com.omersusin.pitube.data.model.Video> {
             if (songs.isEmpty()) return songs
