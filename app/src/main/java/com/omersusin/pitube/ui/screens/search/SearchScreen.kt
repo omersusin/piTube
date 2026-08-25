@@ -1501,6 +1501,10 @@ private fun MusicResultsList(
         }
 
         else -> {
+            val heroArtist = results.mainArtist
+            val relatedArtists =
+                heroArtist?.let { main -> results.artists.filter { it.id != main.id } }
+                    ?: results.artists
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(top = 8.dp, bottom = 90.dp),
@@ -1527,9 +1531,8 @@ private fun MusicResultsList(
                         )
                     }
                 } else {
-                    val mainArtist = results.mainArtist
-                    if (mainArtist != null) {
-                        item(key = "ma_main_${mainArtist.id}") {
+                    if (heroArtist != null) {
+                        item(key = "ma_main_${heroArtist.id}") {
                             Column {
                                 Text(
                                     stringResource(R.string.music_main_artist),
@@ -1538,7 +1541,7 @@ private fun MusicResultsList(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
                                 )
-                                SearchChannelCard(mainArtist, onClick = { onChannelClick(mainArtist) })
+                                SearchChannelCard(heroArtist, onClick = { onChannelClick(heroArtist) })
                                 HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                             }
                         }
@@ -1552,11 +1555,6 @@ private fun MusicResultsList(
                             modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
                         )
                     }
-                    val relatedArtists =
-                        remember(results.artists, mainArtist) {
-                            mainArtist?.let { main -> results.artists.filter { it.id != main.id } }
-                                ?: results.artists
-                        }
                     items(relatedArtists, key = { "ma_${it.id}" }, contentType = { "artist" }) { artist ->
                         SearchChannelCard(artist, onClick = { onChannelClick(artist) })
                     }
