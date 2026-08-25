@@ -155,8 +155,11 @@ private fun toSongVideo(renderer: MusicResponsiveListItemRenderer): Video? {
         duration = renderer.fixedColumns?.firstOrNull()
             ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.firstOrNull()?.text
             .let { text -> text?.parseTime() ?: 0 },
-        viewCount = 0L,
+        // Music rows have no view/date metadata; negative viewCount is the
+        // card's "hide views" sentinel (timestamp 0 avoids a bogus "now").
+        viewCount = -1L,
         uploadDate = "",
+        timestamp = 0L,
         channelThumbnailUrl = "",
     )
 }

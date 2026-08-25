@@ -634,8 +634,11 @@ fun VideoCardFullWidth(
                                 stringResource(R.string.views_template, formatViewCount(video.viewCount)),
                                 displayDate,
                             )
-                        } else {
+                        } else if (video.uploadDate.isNotBlank()) {
                             "${channelStateFW.displayText} · $displayDate"
+                        } else {
+                            // Music rows etc.: no views and no date — channel only
+                            channelStateFW.displayText
                         },
                     style = MaterialTheme.typography.bodySmall,
                     color =

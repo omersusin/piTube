@@ -18,9 +18,9 @@ android {
         applicationId = "com.omersusin.pitube"
         minSdk = 26
         targetSdk = 36
-        versionCode = 102
+        versionCode = 103
 
-        versionName = "3.5.4"
+        versionName = "3.5.5"
         testInstrumentationRunner = "com.omersusin.pitube.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
