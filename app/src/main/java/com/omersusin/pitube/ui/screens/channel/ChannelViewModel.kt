@@ -299,11 +299,11 @@ class ChannelViewModel
                     val videosTab = currentVideosTab
                     if (videosTab != null) {
                         loadFirstPage(videosTab, channelInfo, _videosAll, isLive = false)
-                    } else if (currentPlaylistsTab != null && _uiState.value.selectedTab == 0) {
-                        // Auto-generated topic channels have no uploads tab at all —
-                        // land on Playlists (their albums/singles) instead of a dead
-                        // Videos tab. Structural check: locale-independent.
-                        _uiState.update { it.copy(selectedTab = PLAYLISTS_TAB_INDEX) }
+                    } else {
+                        // No Videos tab at all: topic channels ("X - Topic") expose a
+                        // single Home tab on www, so NewPipe can't list anything.
+                        // Their content lives on YT Music — fetch it anonymously.
+                        loadTopicChannelVideos(channelInfo)
                     }
 
                     // Create the paging flow for Shorts
@@ -616,6 +616,37 @@ class ChannelViewModel
                 } catch (e: Exception) {
                     Log.e(TAG, "Channel search continuation error", e)
                     _uiState.update { it.copy(isLoadingMoreSearch = false) }
+                }
+            }
+        }
+
+        /**
+         * Auto-generated topic channels have no Videos tab (single Home tab on
+         * www), so NewPipe returns nothing. Fetch their video carousel via the
+         * anonymous YT Music artist-page browse instead and populate the Videos
+         * tab. Falls back to Playlists only for the rare non-topic channel that
+         * lacks uploads but has playlists.
+         */
+        private fun loadTopicChannelVideos(channelInfo: ChannelInfo) {
+            _isLoadingAllVideos.value = true
+            viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                try {
+                    val content = YouTube.musicArtistContent(channelInfo.id).getOrNull()
+                    val videos = content?.videos.orEmpty()
+                    if (videos.isNotEmpty()) {
+                        Log.d(TAG, "Topic channel ${channelInfo.id}: ${videos.size} videos from music browse")
+                        videosChannelInfo = channelInfo
+                        videosNextPage = null
+                        videosPagesLoaded = 0
+                        _videosAll.value = videos
+                        _hasMoreVideos.value = false
+                    } else if (currentPlaylistsTab != null && _uiState.value.selectedTab == 0) {
+                        _uiState.update { it.copy(selectedTab = PLAYLISTS_TAB_INDEX) }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Topic channel music browse failed", e)
+                } finally {
+                    _isLoadingAllVideos.value = false
                 }
             }
         }

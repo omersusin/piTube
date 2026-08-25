@@ -22,11 +22,12 @@ import com.omersusin.pitube.innertube.models.response.channelVideoCountText
 import com.omersusin.pitube.innertube.models.response.GetTranscriptResponse
 import com.omersusin.pitube.innertube.models.response.NextResponse
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
+import com.omersusin.pitube.innertube.pages.MusicArtistContent
 import com.omersusin.pitube.innertube.pages.MusicArtistResponse
 import com.omersusin.pitube.innertube.pages.MusicSearchPage
 import com.omersusin.pitube.innertube.pages.MusicSearchResponse
+import com.omersusin.pitube.innertube.pages.toMusicArtistContent
 import com.omersusin.pitube.innertube.pages.toMusicSearchPage
-import com.omersusin.pitube.innertube.pages.toRelatedArtists
 import com.omersusin.pitube.innertube.pages.CommunityCommentsPage
 import com.omersusin.pitube.innertube.pages.CommunityPostsPage
 import com.omersusin.pitube.innertube.pages.HistoryPage
@@ -213,19 +214,19 @@ object YouTube {
         .onFailure { Log.w("MusicSearch", "query='$query' failed: ${it.message}") }
 
     /**
-     * Related artists from a YT Music artist page ("Fans might also like"
-     * carousel) — the same shelf the real app shows, ~10 entries. The shelf is
-     * located structurally (the artist-majority carousel), so it works in any
-     * display language. Works anonymously on topic channels too.
+     * Content from a YT Music artist page: the "Fans might also like" carousel
+     * (~10 related artists) plus the largest two-row video carousel. Shelves
+     * are located structurally (artist-majority / video-majority), so this
+     * works in any display language. Works anonymously on topic channels too.
      */
-    suspend fun musicArtistRelated(browseId: String): Result<List<com.omersusin.pitube.data.model.Channel>> = runCatching {
+    suspend fun musicArtistContent(browseId: String): Result<MusicArtistContent> = runCatching {
         val response = innerTube.browse(
             client = WEB_REMIX,
             browseId = browseId,
         ).body<MusicArtistResponse>()
-        response.toRelatedArtists()
-    }.onSuccess { Log.d("MusicSearch", "related of $browseId: ${it.size}") }
-        .onFailure { Log.w("MusicSearch", "related of $browseId failed: ${it.message}") }
+        response.toMusicArtistContent()
+    }.onSuccess { Log.d("MusicSearch", "artist page $browseId: related=${it.relatedArtists.size} videos=${it.videos.size}") }
+        .onFailure { Log.w("MusicSearch", "artist page $browseId failed: ${it.message}") }
 
     private suspend fun ensureVisitorData() {
         if (!visitorData.isNullOrBlank()) return

@@ -164,7 +164,6 @@ class SearchViewModel
                 enrichArtists()
             }
         }
-
         /**
          * Widen the artist list to YT Music parity: pull the "Fans might also
          * like" carousel (~10 entries) from the main artist's page. Falls back
@@ -183,8 +182,8 @@ class SearchViewModel
                 if (mainId != null) {
                     val related =
                         runCatching {
-                            com.omersusin.pitube.innertube.YouTube.musicArtistRelated(mainId).getOrNull()
-                        }.getOrNull().orEmpty()
+                            com.omersusin.pitube.innertube.YouTube.musicArtistContent(mainId).getOrNull()
+                        }.getOrNull()?.relatedArtists.orEmpty()
                     if (related.isNotEmpty()) {
                         relatedLoaded = true
                         merged = (merged + related).distinctBy { it.id }
@@ -241,6 +240,12 @@ class SearchViewModel
                         endReached = page.continuation == null,
                         mainArtist = page.mainArtist ?: _musicResults.value.mainArtist,
                     )
+                // First open lands directly on ARTISTS: the initial fetch above
+                // satisfies the empty-list guard in selectMusicCategory, so the
+                // related-shelf enrichment would never fire — chain it here.
+                if (_uiState.value.musicCategory == MusicCategory.ARTISTS) {
+                    enrichArtists()
+                }
             }
         }
 
