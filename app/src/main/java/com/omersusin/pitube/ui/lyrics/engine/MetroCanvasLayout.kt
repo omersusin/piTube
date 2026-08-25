@@ -173,6 +173,7 @@ fun MetroCanvasLayout(
 
         var flingJob by remember { mutableStateOf<Job?>(null) }
         val velocityTracker = VelocityTracker()
+        val decaySpec = androidx.compose.animation.core.exponentialDecay<Float>(frictionMultiplier = 1.2f)
 
         Box(
             modifier = Modifier
@@ -219,7 +220,7 @@ fun MetroCanvasLayout(
                         if (abs(velocity) > 100f) {
                             flingJob = scope.launch {
                                 val animState = AnimationState(initialValue = userManualOffset, initialVelocity = velocity)
-                                animState.animateDecay {
+                                animState.animateDecay(decaySpec) {
                                     if (value in clampMin..clampMax) {
                                         userManualOffset = value
                                     } else {
