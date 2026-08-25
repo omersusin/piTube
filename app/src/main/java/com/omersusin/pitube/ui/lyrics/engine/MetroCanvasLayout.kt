@@ -335,7 +335,7 @@ private fun MetroLineItem(
     }
     val words = if (isCurrent) line.toEngineWords() else null
 
-    Box(
+    androidx.compose.foundation.layout.Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) { onTap() }
