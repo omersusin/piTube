@@ -43,7 +43,7 @@ class LyricsRepository @Inject constructor(
         lastResort ?: LyricsFetchResult.NotFound
     }
 
-    private fun fetchFromProviders(
+    private suspend fun fetchFromProviders(
         order: String,
         title: String,
         artist: String,
