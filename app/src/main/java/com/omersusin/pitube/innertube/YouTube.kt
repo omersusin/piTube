@@ -22,9 +22,11 @@ import com.omersusin.pitube.innertube.models.response.channelVideoCountText
 import com.omersusin.pitube.innertube.models.response.GetTranscriptResponse
 import com.omersusin.pitube.innertube.models.response.NextResponse
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
+import com.omersusin.pitube.innertube.pages.MusicArtistResponse
 import com.omersusin.pitube.innertube.pages.MusicSearchPage
 import com.omersusin.pitube.innertube.pages.MusicSearchResponse
 import com.omersusin.pitube.innertube.pages.toMusicSearchPage
+import com.omersusin.pitube.innertube.pages.toRelatedArtists
 import com.omersusin.pitube.innertube.pages.CommunityCommentsPage
 import com.omersusin.pitube.innertube.pages.CommunityPostsPage
 import com.omersusin.pitube.innertube.pages.HistoryPage
@@ -185,15 +187,45 @@ object YouTube {
      * this behind the music-search-categories preference so no request leaves
      * the device while it is off.
      */
-    suspend fun musicSearch(query: String, continuation: String? = null): Result<MusicSearchPage> = runCatching {
+    /**
+     * YouTube Music search (WEB_REMIX against the music host, which is the
+     * InnerTube default base URL). Experimental opt-in surface — callers gate
+     * this behind the music-search-categories preference so no request leaves
+     * the device while it is off.
+     *
+     * [filterParams] optionally applies a YT Music search filter chip
+     * (e.g. the static artists token) to widen one category beyond what the
+     * mixed default response carries.
+     */
+    suspend fun musicSearch(
+        query: String,
+        continuation: String? = null,
+        filterParams: String? = null,
+    ): Result<MusicSearchPage> = runCatching {
         val response = innerTube.search(
             client = WEB_REMIX,
             query = query.takeIf { continuation == null },
+            params = filterParams.takeIf { continuation == null },
             continuation = continuation,
         ).body<MusicSearchResponse>()
         response.toMusicSearchPage()
     }.onSuccess { Log.d("MusicSearch", "query='$query' songs=${it.songs.size} artists=${it.artists.size} cont=${it.continuation != null}") }
         .onFailure { Log.w("MusicSearch", "query='$query' failed: ${it.message}") }
+
+    /**
+     * Related artists from a YT Music artist page ("Fans might also like"
+     * carousel) — the same shelf the real app shows, ~10 entries. The shelf is
+     * located structurally (the artist-majority carousel), so it works in any
+     * display language. Works anonymously on topic channels too.
+     */
+    suspend fun musicArtistRelated(browseId: String): Result<List<com.omersusin.pitube.data.model.Channel>> = runCatching {
+        val response = innerTube.browse(
+            client = WEB_REMIX,
+            browseId = browseId,
+        ).body<MusicArtistResponse>()
+        response.toRelatedArtists()
+    }.onSuccess { Log.d("MusicSearch", "related of $browseId: ${it.size}") }
+        .onFailure { Log.w("MusicSearch", "related of $browseId failed: ${it.message}") }
 
     private suspend fun ensureVisitorData() {
         if (!visitorData.isNullOrBlank()) return

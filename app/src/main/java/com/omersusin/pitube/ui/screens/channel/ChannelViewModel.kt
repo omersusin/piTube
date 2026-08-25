@@ -116,6 +116,7 @@ class ChannelViewModel
             /** Safety cap: stops loading beyond this many pages (~1500 videos) */
             private const val MAX_PAGES = 50
             private const val POSTS_TAB_INDEX = 4
+            private const val PLAYLISTS_TAB_INDEX = 3
         }
 
         /**
@@ -298,6 +299,11 @@ class ChannelViewModel
                     val videosTab = currentVideosTab
                     if (videosTab != null) {
                         loadFirstPage(videosTab, channelInfo, _videosAll, isLive = false)
+                    } else if (currentPlaylistsTab != null && _uiState.value.selectedTab == 0) {
+                        // Auto-generated topic channels have no uploads tab at all —
+                        // land on Playlists (their albums/singles) instead of a dead
+                        // Videos tab. Structural check: locale-independent.
+                        _uiState.update { it.copy(selectedTab = PLAYLISTS_TAB_INDEX) }
                     }
 
                     // Create the paging flow for Shorts
@@ -645,6 +651,14 @@ class ChannelViewModel
                             .filterIsInstance<StreamInfoItem>()
                             .map { it.toChannelVideo(channelInfo) }
                     target.value = firstPage
+                    if (!isLive && target === _videosAll && firstPage.isEmpty() &&
+                        currentPlaylistsTab != null && _uiState.value.selectedTab == 0
+                    ) {
+                        // Topic channels expose a Videos tab that is always empty;
+                        // their music lives under Playlists. Fall over once, so the
+                        // channel page never looks broken regardless of UI language.
+                        _uiState.update { it.copy(selectedTab = PLAYLISTS_TAB_INDEX) }
+                    }
                     val nextPage = initial.nextPage
                     if (isLive) {
                         liveNextPage = nextPage

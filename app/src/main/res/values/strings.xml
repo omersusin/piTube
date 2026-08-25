@@ -2250,4 +2250,6 @@
     <string name="settings_music_search_categories_desc">Adds Songs and Artists tabs to search. Off = no YouTube Music requests are made.</string>
     <string name="settings_external_downloader">External downloader handoff</string>
     <string name="settings_external_downloader_desc">Adds "Open with downloader" to video menus</string>
-    <string name="settings_external_downloader_package">Downloader package name (optional)</string></resources>
+    <string name="settings_external_downloader_package">Downloader package name (optional)</string>    <string name="music_main_artist">Main artist</string>
+    <string name="music_related_artists">Related artists</string>
+</resources>

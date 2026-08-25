@@ -1527,11 +1527,41 @@ private fun MusicResultsList(
                         )
                     }
                 } else {
-                    items(results.artists, key = { "ma_${it.id}" }, contentType = { "artist" }) { artist ->
+                    val mainArtist = results.mainArtist
+                    if (mainArtist != null) {
+                        item(key = "ma_main_${mainArtist.id}") {
+                            Column {
+                                Text(
+                                    stringResource(R.string.music_main_artist),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
+                                )
+                                SearchChannelCard(mainArtist, onClick = { onChannelClick(mainArtist) })
+                                HorizontalDivider(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                            }
+                        }
+                    }
+                    item(key = "ma_related_header") {
+                        Text(
+                            stringResource(R.string.music_related_artists),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
+                        )
+                    }
+                    val relatedArtists =
+                        remember(results.artists, mainArtist) {
+                            mainArtist?.let { main -> results.artists.filter { it.id != main.id } }
+                                ?: results.artists
+                        }
+                    items(relatedArtists, key = { "ma_${it.id}" }, contentType = { "artist" }) { artist ->
                         SearchChannelCard(artist, onClick = { onChannelClick(artist) })
                     }
                 }
-                if (!results.endReached) {
+                if (!results.endReached && category == MusicCategory.SONGS) {
                     item(key = "music_more") {
                         Box(Modifier.fillMaxWidth().padding(20.dp), Alignment.Center) {
                             OutlinedButton(onClick = onLoadMore, enabled = !results.isLoading) {

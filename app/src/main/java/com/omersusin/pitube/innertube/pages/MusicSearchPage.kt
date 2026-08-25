@@ -2,7 +2,9 @@ package com.omersusin.pitube.innertube.pages
 
 import com.omersusin.pitube.data.model.Channel
 import com.omersusin.pitube.data.model.Video
+import com.omersusin.pitube.innertube.models.BrowseEndpoint.BrowseEndpointContextSupportedConfigs.BrowseEndpointContextMusicConfig.Companion.MUSIC_PAGE_TYPE_ARTIST
 import com.omersusin.pitube.innertube.models.Continuation
+import com.omersusin.pitube.innertube.models.MusicCardShelfRenderer
 import com.omersusin.pitube.innertube.models.MusicResponsiveListItemRenderer
 import com.omersusin.pitube.innertube.models.MusicShelfRenderer
 import com.omersusin.pitube.innertube.models.SectionListRenderer
@@ -49,6 +51,8 @@ data class MusicSearchPage(
     val songs: List<Video>,
     val artists: List<Channel>,
     val continuation: String?,
+    /** The searched entity itself when it is an artist (Top-result card). */
+    val mainArtist: Channel? = null,
 )
 
 fun MusicSearchResponse.toMusicSearchPage(): MusicSearchPage {
@@ -88,6 +92,16 @@ fun MusicSearchResponse.toMusicSearchPage(): MusicSearchPage {
     val seenSongIds = mutableSetOf<String>()
     val seenArtistIds = mutableSetOf<String>()
 
+    // The "Top result" card carries the searched artist/song itself (it never
+    // appears in the shelves below) — parse it first so it leads the lists.
+    var mainArtist: Channel? = null
+    for (section in sections) {
+        section.musicCardShelfRenderer?.toTopResult()?.let { channel ->
+            mainArtist = channel
+            if (seenArtistIds.add(channel.id)) artists += channel
+        }
+    }
+
     for (renderer in renderers) {
         if (renderer.isArtist) {
             toChannel(renderer)?.let { channel ->
@@ -100,7 +114,12 @@ fun MusicSearchResponse.toMusicSearchPage(): MusicSearchPage {
         }
     }
 
-    return MusicSearchPage(songs = songs, artists = artists, continuation = continuation)
+    return MusicSearchPage(
+        songs = songs,
+        artists = artists,
+        continuation = continuation,
+        mainArtist = mainArtist,
+    )
 }
 
 private fun flexText(renderer: MusicResponsiveListItemRenderer, column: Int): String? =
@@ -152,6 +171,34 @@ private fun toChannel(renderer: MusicResponsiveListItemRenderer): Channel? {
         thumbnailUrl = thumbUrl(renderer),
         subscriberCount = 0,
         description = flexText(renderer, 1).orEmpty(),
+        url = "https://www.youtube.com/channel/$browseId",
+    )
+}
+
+/**
+ * The Top-result card only represents the searched entity itself (its
+ * [MusicCardShelfRenderer.onTap] points at it); when that entity is an
+ * artist, surface it as the first artist result.
+ */
+private fun MusicCardShelfRenderer.toTopResult(): Channel? {
+    val browse = onTap?.browseEndpoint ?: return null
+    val pageType =
+        browse.browseEndpointContextSupportedConfigs
+            ?.browseEndpointContextMusicConfig?.pageType
+    if (pageType != MUSIC_PAGE_TYPE_ARTIST) return null
+    val browseId = browse.browseId
+    if (!browseId.startsWith("UC")) return null
+    val name = title.runs?.firstOrNull()?.text.orEmpty()
+    if (name.isBlank()) return null
+    return Channel(
+        id = browseId,
+        name = name,
+        thumbnailUrl =
+            thumbnail.musicThumbnailRenderer?.getThumbnailUrl()
+                ?: thumbnail.croppedSquareThumbnailRenderer?.getThumbnailUrl()
+                ?: "",
+        subscriberCount = 0,
+        description = subtitle.runs?.joinToString(separator = "") { it.text }.orEmpty(),
         url = "https://www.youtube.com/channel/$browseId",
     )
 }

@@ -49,6 +49,8 @@ data class MusicResults(
     val songs: List<com.omersusin.pitube.data.model.Video> = emptyList(),
     val artists: List<com.omersusin.pitube.data.model.Channel> = emptyList(),
     val endReached: Boolean = false,
+    /** The searched artist itself (Top-result card) — shown hero-style above the related list. */
+    val mainArtist: com.omersusin.pitube.data.model.Channel? = null,
 )
 
 // ── ViewModel ─────────────────────────────────────────────────────────────────
@@ -73,6 +75,11 @@ class SearchViewModel
         private val _musicResults = MutableStateFlow(MusicResults())
         val musicResults: StateFlow<MusicResults> = _musicResults.asStateFlow()
         private var musicContinuation: String? = null
+
+        private companion object {
+            /** Static YT Music search-filter token for the "Artists" chip. */
+            const val MUSIC_ARTISTS_FILTER_PARAM = "EgWKAQIGAWoKEAkQChAFEAMQBA=="
+        }
 
         private val _savedPlaylistIds = MutableStateFlow<Set<String>>(emptySet())
 
@@ -136,9 +143,6 @@ class SearchViewModel
             val effectiveFilters = filters ?: SearchFilter()
             _uiState.value = SearchUiState(query = query, filters = effectiveFilters)
             _searchKey.value = SearchKey(query, buildContentFilters(effectiveFilters), effectiveFilters)
-            if (musicCategoriesEnabled.value) {
-                reloadMusicResults()
-            }
         }
 
         fun updateFilters(filters: SearchFilter) {
@@ -153,10 +157,54 @@ class SearchViewModel
         fun selectMusicCategory(category: MusicCategory?) {
             _uiState.value = _uiState.value.copy(musicCategory = category)
             if (category != null && _musicResults.value.songs.isEmpty() && _musicResults.value.artists.isEmpty()) {
+                // Lazy: nothing is fetched for regular searches — the YT Music
+                // request fires only when a music category is first opened.
                 reloadMusicResults()
+            } else if (category == MusicCategory.ARTISTS) {
+                enrichArtists()
             }
         }
 
+        /**
+         * Widen the artist list to YT Music parity: pull the "Fans might also
+         * like" carousel (~10 entries) from the main artist's page. Falls back
+         * to the filtered-search chip when no main artist was found.
+         */
+        private var artistsEnriched = false
+
+        private fun enrichArtists() {
+            val query = _uiState.value.query
+            if (artistsEnriched || query.isBlank()) return
+            artistsEnriched = true
+            viewModelScope.launch {
+                val mainId = _musicResults.value.mainArtist?.id
+                var merged = _musicResults.value.artists
+                var relatedLoaded = false
+                if (mainId != null) {
+                    val related =
+                        runCatching {
+                            com.omersusin.pitube.innertube.YouTube.musicArtistRelated(mainId).getOrNull()
+                        }.getOrNull().orEmpty()
+                    if (related.isNotEmpty()) {
+                        relatedLoaded = true
+                        merged = (merged + related).distinctBy { it.id }
+                    }
+                }
+                if (!relatedLoaded) {
+                    val page =
+                        runCatching {
+                            com.omersusin.pitube.innertube.YouTube.musicSearch(
+                                query,
+                                filterParams = MUSIC_ARTISTS_FILTER_PARAM,
+                            ).getOrNull()
+                        }.getOrNull()
+                    if (page != null) {
+                        merged = (merged + page.artists).distinctBy { it.id }
+                    }
+                }
+                _musicResults.value = _musicResults.value.copy(artists = merged)
+            }
+        }
         fun loadMoreMusicResults() {
             if (musicContinuation == null || _musicResults.value.isLoading) return
             fetchMusicPage()
@@ -191,6 +239,7 @@ class SearchViewModel
                         songs = (_musicResults.value.songs + page.songs).distinctBy { it.id },
                         artists = (_musicResults.value.artists + page.artists).distinctBy { it.id },
                         endReached = page.continuation == null,
+                        mainArtist = page.mainArtist ?: _musicResults.value.mainArtist,
                     )
             }
         }

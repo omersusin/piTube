@@ -2769,8 +2769,8 @@ class PlayerPreferences(context: Context) {
     val recognitionArtSize: Flow<Int> = context.playerPreferencesDataStore.data.map { it[Keys.RECOGNITION_ART_SIZE] ?: 72 }
     suspend fun setRecognitionArtSize(v: Int) { context.playerPreferencesDataStore.edit { it[Keys.RECOGNITION_ART_SIZE] = v.coerceIn(48, 96) } }
 
-    /** Experimental YouTube Music search categories (Songs/Artists) — off = no music-host requests at all. */
-    val musicSearchCategoriesEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.MUSIC_SEARCH_CATEGORIES] ?: false }
+    /** Experimental YouTube Music search categories (Songs/Artists) — lazy-loaded, so ON costs nothing until a category tab is opened. */
+    val musicSearchCategoriesEnabled: Flow<Boolean> = context.playerPreferencesDataStore.data.map { it[Keys.MUSIC_SEARCH_CATEGORIES] ?: true }
     suspend fun setMusicSearchCategoriesEnabled(v: Boolean) { context.playerPreferencesDataStore.edit { it[Keys.MUSIC_SEARCH_CATEGORIES] = v } }
 
     /** Hand a share intent to the user's preferred external downloader app. */
