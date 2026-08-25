@@ -33,6 +33,7 @@ import com.omersusin.pitube.player.quality.QualityManager
 import com.omersusin.pitube.player.stream.StreamMergeUtils
 import com.omersusin.pitube.player.stream.VideoCodecUtils
 import com.omersusin.pitube.innertube.YouTube
+import com.omersusin.pitube.innertube.models.StoryboardFrameset
 import com.omersusin.pitube.innertube.models.YouTubeClient
 import com.omersusin.pitube.innertube.pages.TranscriptLine
 import com.omersusin.pitube.player.error.PlayerDiagnostics
@@ -1687,6 +1688,39 @@ class VideoPlayerViewModel @Inject constructor(
                             Log.i("VideoPlayerViewModel", "Using InnerTube streams: ${innerTubeVideoStreams.size} video, ${innerTubeAudioStreams.size} audio (client=${innerTubeResult?.usedClient?.clientName})")
                         } else {
                             Log.d("VideoPlayerViewModel", "No direct-URL streams; relying on manifests/SABR (sabr=${innerTubeResult?.sabrInfo != null})")
+                        }
+
+                        // Ride the NewPipe extraction's own storyboard (same
+                        // data source Koda uses) instead of a separate IOS
+                        // /player probe whose spec can be sparser.
+                        val npFramesets = streamInfo.previewFrames.mapNotNull { f ->
+                            if (f.urls.isEmpty() || f.frameWidth <= 0 || f.frameHeight <= 0 ||
+                                f.totalCount <= 0 || f.durationPerFrame <= 0 ||
+                                f.framesPerPageX <= 0 || f.framesPerPageY <= 0
+                            ) {
+                                null
+                            } else {
+                                StoryboardFrameset(
+                                    urls = f.urls,
+                                    frameWidth = f.frameWidth,
+                                    frameHeight = f.frameHeight,
+                                    totalCount = f.totalCount,
+                                    durationPerFrame = f.durationPerFrame,
+                                    framesPerPageX = f.framesPerPageX,
+                                    framesPerPageY = f.framesPerPageY,
+                                )
+                            }
+                        }
+                        if (npFramesets.isNotEmpty()) {
+                            Log.d(
+                                "VideoPlayerViewModel",
+                                "NewPipe previewFrames: ${npFramesets.size} levels — " +
+                                    npFramesets.joinToString(" | ") {
+                                        "cell=${it.frameWidth}x${it.frameHeight} pages=${it.urls.size} total=${it.totalCount} dpf=${it.durationPerFrame}"
+                                    },
+                            )
+                            EnhancedPlayerManager.getInstance()
+                                .provideNewPipeStoryboardFrames(videoId, npFramesets)
                         }
 
                         val availableQualities = extractAvailableQualitiesFromStreams(effectiveVideoStreams)

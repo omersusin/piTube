@@ -1230,12 +1230,32 @@ class EnhancedPlayerManager private constructor() {
         }
     }
 
+    // Set when the NewPipe extraction itself delivered storyboard frames for
+    // this video — the InnerTube probe must then stay idle (NewPipe's
+    // maintained client chain can serve a denser spec than our IOS probe).
+    private var newPipeFramesVideoId: String? = null
+
+    /**
+     * Storyboards harvested from the NewPipe StreamInfo (same source Koda
+     * uses). Preferred over [refreshStoryboardsFor]'s separate /player call.
+     */
+    fun provideNewPipeStoryboardFrames(videoId: String, framesets: List<StoryboardFrameset>) {
+        if (framesets.isEmpty()) return
+        val cur = currentVideoId
+        if (!cur.isNullOrBlank() && cur != videoId) return
+        newPipeFramesVideoId = videoId
+        storyboardLoadJob?.cancel()
+        storyboardLoadJob = null
+        _storyboardFramesets.value = framesets
+    }
+
     private fun refreshStoryboardsFor(
         videoId: String,
         isShort: Boolean = false,
     ) {
         storyboardLoadJob?.cancel()
         storyboardLoadJob = null
+        newPipeFramesVideoId = null
         _storyboardFramesets.value = emptyList()
         if (videoId.isBlank() || videoId.startsWith("local_")) return
         // Shorts never render a storyboard preview (Shorts player has no seekbar
@@ -1250,6 +1270,9 @@ class EnhancedPlayerManager private constructor() {
             if (cur?.id == videoId && cur.isShort && cur.duration in 1..60) {
                 return@launch
             }
+            // NewPipe extraction already delivered frames for this video —
+            // skip the redundant InnerTube probe.
+            if (newPipeFramesVideoId == videoId) return@launch
             val result = YouTube.getStoryboards(videoId)
             if (!isActive) return@launch
             val framesets = result.getOrDefault(emptyList())
