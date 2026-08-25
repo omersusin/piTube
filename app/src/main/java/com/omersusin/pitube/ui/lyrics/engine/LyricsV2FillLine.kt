@@ -136,6 +136,23 @@ private fun AnimatedWordV2(
     val density = LocalDensity.current
     val fontWeight = if (isLineActive) FontWeight.Bold else FontWeight.SemiBold
 
+    // Single-layer fill: a trailing-feather gradient instead of the original
+    // dim-base + masked-overlay stack — eliminates the "ghost second copy"
+    // artifact while keeping the liquid sweep look.
+    val softEdge = 0.10f
+    val wordBrush = when {
+        isWordComplete -> Brush.horizontalGradient(listOf(accent, accent))
+        !isWordActive -> Brush.horizontalGradient(
+            listOf(inactiveColor.copy(alpha = inactiveAlpha), inactiveColor.copy(alpha = inactiveAlpha))
+        )
+        else -> Brush.horizontalGradient(
+            0f to accent,
+            (progress - softEdge).coerceIn(0f, 1f) to accent,
+            ((progress + softEdge)).coerceAtMost(1f) to accent.copy(alpha = if (progress > 0.9f) 1f else 0.35f),
+            1f to accent.copy(alpha = if (progress > 0.9f) 1f else 0.35f),
+        )
+    }
+
     Box(
         modifier = Modifier.graphicsLayer {
             translationY = floatOffset * density.density
@@ -148,37 +165,10 @@ private fun AnimatedWordV2(
             fontSize = fontSize.sp,
             fontWeight = fontWeight,
             lineHeight = lineHeight.sp,
-            color = inactiveColor.copy(alpha = inactiveAlpha),
+            style = androidx.compose.ui.text.TextStyle(
+                brush = wordBrush,
+                shadow = if (glowAlpha > 0f) Shadow(accent.copy(alpha = glowAlpha), Offset.Zero, glowRadius.coerceAtLeast(1f)) else null,
+            ),
         )
-
-        if (isWordComplete || isWordActive) {
-            Text(
-                text = word.text,
-                fontSize = fontSize.sp,
-                fontWeight = fontWeight,
-                lineHeight = lineHeight.sp,
-                color = accent,
-                style = androidx.compose.ui.text.TextStyle(shadow = if (glowAlpha > 0f) Shadow(accent.copy(alpha = glowAlpha), Offset.Zero, glowRadius.coerceAtLeast(1f)) else null),
-                modifier = if (isWordActive) {
-                    Modifier
-                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                        .drawWithContent {
-                            drawContent()
-                            val edgeWidth = 8.dp.toPx()
-                            val center = (size.width + edgeWidth * 2) * progress - edgeWidth
-                            drawRect(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(Color.Black, Color.Transparent),
-                                    startX = center - edgeWidth,
-                                    endX = center + edgeWidth,
-                                ),
-                                blendMode = BlendMode.DstIn,
-                            )
-                        }
-                } else {
-                    Modifier
-                }
-            )
-        }
     }
 }

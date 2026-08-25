@@ -164,7 +164,10 @@ private fun LyricsContent(
     if (anim == LyricsAnimationStyle.METRO_LYRICS) {
         MetroCanvasLayout(
             displayItems = displayItems,
-            currentIndex = currentIndex,
+            // Positions map is in DISPLAY-item space (lines + breaks); the line
+            // index must be translated or every item shifts when breaks exist.
+            currentDisplayIndex = lineToDisplay[currentIndex] ?: -1,
+            currentLineIndex = currentIndex,
             positionProvider = { smoothPosition.longValue },
             autoScroll = autoScroll,
             accent = accent,

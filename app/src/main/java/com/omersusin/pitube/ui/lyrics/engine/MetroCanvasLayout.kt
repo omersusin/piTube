@@ -68,7 +68,8 @@ private const val LINE_GAP_DP = 16f
 @Composable
 fun MetroCanvasLayout(
     displayItems: List<LyricsDisplayItem>,
-    currentIndex: Int,
+    currentDisplayIndex: Int,
+    currentLineIndex: Int,
     positionProvider: () -> Long,
     autoScroll: Boolean,
     accent: Color,
@@ -86,7 +87,7 @@ fun MetroCanvasLayout(
         val anchorY = maxHeightPx * ANCHOR_RATIO
         val scope = rememberCoroutineScope()
 
-        val activeIndex = currentIndex.coerceAtLeast(0)
+        val activeIndex = currentDisplayIndex.coerceAtLeast(0)
 
         // SnapshotStateMap: layout-measured heights invalidate composition, which
         // re-runs the position maps below — mirrors vivi's toMap() remember keys.
@@ -274,7 +275,7 @@ fun MetroCanvasLayout(
                             is LyricsDisplayItem.Line -> MetroLineItem(
                                 index = item.index,
                                 line = item.line,
-                                isCurrent = item.index == currentIndex,
+                                isCurrent = item.index == currentLineIndex,
                                 distance = distance,
                                 autoScrollActive = autoScroll,
                                 positionProvider = positionProvider,

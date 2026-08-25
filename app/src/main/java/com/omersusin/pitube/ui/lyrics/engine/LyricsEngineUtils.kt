@@ -74,7 +74,10 @@ fun buildDisplayItems(lines: List<LrcLine>, songDurationMs: Long = 0L): List<Lyr
         if (next != null) {
             val gap = next.timeMs - line.timeMs
             if (gap >= INTER_LINE_GAP_THRESHOLD_MS) {
-                items.add(LyricsDisplayItem.Break(InstrumentalGap(line.timeMs, gap)))
+                // Let the previous line finish singing before the note starts
+                // filling — avoids note + vocal line rendering simultaneously.
+                val singHoldMs = minOf(3500L, gap / 2)
+                items.add(LyricsDisplayItem.Break(InstrumentalGap(line.timeMs + singHoldMs, gap - singHoldMs)))
             }
         }
     }
