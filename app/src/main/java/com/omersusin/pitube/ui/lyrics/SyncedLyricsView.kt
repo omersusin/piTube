@@ -1,8 +1,10 @@
 package com.omersusin.pitube.ui.lyrics
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -27,9 +29,6 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +39,7 @@ import com.omersusin.pitube.data.local.LyricsTextPosition
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.lyrics.LrcLine
 import com.omersusin.pitube.data.lyrics.LyricsFetchResult
+import com.omersusin.pitube.ui.lyrics.engine.*
 
 @Composable
 fun SyncedLyricsView(
@@ -106,12 +106,9 @@ private fun LyricsContent(
     translations: Map<Long, String>,
     isPlaying: Boolean
 ) {
-    val listState = rememberLazyListState()
-    // VIVI-STYLE DEAD RECKONING (port of vivi Lyrics.kt:769-791): the external
-    // position ticker only fires every 250ms-1s; between ticks we advance an
-    // interpolated clock every frame so line changes never lag. A >350ms
-    // divergence means a seek or fresh tick — snap to it. While paused the
-    // external value wins.
+    // Frame-anchored dead reckoning: the external position ticker fires every
+    // 250ms-1s; between ticks an interpolated clock advances every frame so
+    // word fills never lag. Divergence >350ms means seek or fresh tick — snap.
     val positionState = rememberUpdatedState(currentPositionMs)
     val smoothPosition = remember { mutableLongStateOf(currentPositionMs) }
     LaunchedEffect(isPlaying) {
@@ -136,7 +133,7 @@ private fun LyricsContent(
             }
         }
     }
-    // +250ms lookahead when lines carry no word timings — vivi Lyrics.kt:798.
+
     val hasWordTimings = remember(lines) { lines.any { it.contentSpans.isNotEmpty() } }
     val currentIndex by remember(lines) {
         derivedStateOf {
@@ -144,10 +141,67 @@ private fun LyricsContent(
             lines.indexOfLast { it.timeMs <= pos }
         }
     }
-    LaunchedEffect(currentIndex, autoScroll) {
-        if (!autoScroll) return@LaunchedEffect
-        try { listState.animateScrollToItem(index = currentIndex.coerceAtLeast(0), scrollOffset = 0) } catch (_: Exception) {}
+
+    val displayItems = remember(lines) { buildDisplayItems(lines) }
+    val lineToDisplay = remember(displayItems) {
+        buildMap {
+            displayItems.forEachIndexed { i, item -> if (item is LyricsDisplayItem.Line) put(item.index, i) }
+        }
     }
+
+    val accent = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onSurface
+
+    fun handleTap(line: LrcLine) {
+        if (changeOnClick) {
+            onSeekTo(line.timeMs)
+        } else {
+            android.util.Log.w("SyncedLyricsView", "Lyric tap ignored — 'Change on tap' setting is off")
+        }
+    }
+
+    if (anim == LyricsAnimationStyle.METRO_LYRICS) {
+        MetroCanvasLayout(
+            displayItems = displayItems,
+            currentIndex = currentIndex,
+            positionProvider = { smoothPosition.longValue },
+            autoScroll = autoScroll,
+            accent = accent,
+            textColor = textColor,
+            textSizeSp = textSize,
+            lineHeightFactor = spacing.coerceIn(1.15f, 1.5f),
+            fadeTopDp = 48f,
+            fadeBottomDp = 64f,
+            onTapLine = { idx -> lines.getOrNull(idx)?.let(::handleTap) },
+            modifier = Modifier.fillMaxSize(),
+        )
+        return
+    }
+
+    val listState = rememberLazyListState()
+
+    // Centered smooth page-scroll (vivi performSmoothPageScroll, Lyrics.kt:886-910).
+    suspend fun centerOnItem(dispIndex: Int, duration: Int = 700) {
+        val info = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == dispIndex }
+        if (info != null) {
+            val viewportHeight = listState.layoutInfo.viewportEndOffset - listState.layoutInfo.viewportStartOffset
+            val center = listState.layoutInfo.viewportStartOffset + viewportHeight / 2
+            val offset = (info.offset + info.size / 2) - center
+            if (kotlin.math.abs(offset) > 10) {
+                listState.animateScrollBy(offset.toFloat(), tween(duration, easing = FastOutSlowInEasing))
+            }
+        } else {
+            listState.scrollToItem(dispIndex)
+        }
+    }
+
+    LaunchedEffect(currentIndex, autoScroll) {
+        if (!autoScroll || currentIndex < 0) return@LaunchedEffect
+        try {
+            lineToDisplay[currentIndex]?.let { centerOnItem(it) }
+        } catch (_: Exception) {}
+    }
+
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val centerPadding = when (textPos) {
             LyricsTextPosition.TOP -> 24.dp
@@ -167,10 +221,9 @@ private fun LyricsContent(
                 drag = 0f
             }) { _, d -> drag += d }
         } else Modifier
-        val isFluid = anim == LyricsAnimationStyle.VIVIMUSIC_FLUID || anim == LyricsAnimationStyle.LYRICS_V2_FLUID
+
         val spacingDp = when (anim) {
             LyricsAnimationStyle.LYRICS_V2_FLUID -> (24 * spacing).dp
-            LyricsAnimationStyle.METRO_LYRICS -> (16 * spacing).dp
             LyricsAnimationStyle.APPLE_MUSIC, LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> (36 * spacing).dp
             else -> (28 * spacing).dp
         }
@@ -180,40 +233,74 @@ private fun LyricsContent(
                 .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                 .drawWithContent {
                     drawContent()
-                    if (isFluid || anim == LyricsAnimationStyle.APPLE_MUSIC || anim == LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER) {
-                        drawRect(brush = Brush.verticalGradient(0f to Color.Transparent, 0.15f to Color.Black, 0.85f to Color.Black, 1f to Color.Transparent), blendMode = BlendMode.DstIn)
-                    } else {
-                        drawRect(brush = Brush.verticalGradient(0f to Color.Transparent, 0.18f to Color.Black, 0.82f to Color.Black, 1f to Color.Transparent), blendMode = BlendMode.DstIn)
-                    }
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            0.15f to Color.Black,
+                            0.85f to Color.Black,
+                            1f to Color.Transparent,
+                        ),
+                        blendMode = BlendMode.DstIn,
+                    )
                 },
             contentPadding = PaddingValues(top = centerPadding, bottom = centerPadding, start = 24.dp, end = 24.dp),
             verticalArrangement = Arrangement.spacedBy(spacingDp),
-            horizontalAlignment = if (anim == LyricsAnimationStyle.METRO_LYRICS) Alignment.Start else Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            itemsIndexed(lines, key = { i, l -> "${i}_${l.timeMs}" }) { idx, line ->
-                val nextTime = lines.getOrNull(idx + 1)?.timeMs ?: (line.timeMs + 4000L)
-                val duration = (nextTime - line.timeMs).coerceAtLeast(800L)
-                // Only the active line reads the ticking clock — every other item
-                // stays skipped between line changes instead of recomposing per tick.
-                LyricLine(line = line, lineDurationMs = duration, isCurrent = idx == currentIndex, isPast = idx < currentIndex, positionProvider = { smoothPosition.longValue }, anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal, onTap = {
-                    if (changeOnClick) {
-                        onSeekTo(line.timeMs)
-                    } else {
-                        // Diagnosis aid: "tap-to-seek is broken" reports are
-                        // usually just this pref being off.
-                        android.util.Log.w("SyncedLyricsView", "Lyric tap ignored — 'Change on tap' setting is off")
+            itemsIndexed(displayItems, key = { i, item ->
+                when (item) {
+                    is LyricsDisplayItem.Line -> "${item.index}_${item.line.timeMs}"
+                    is LyricsDisplayItem.Break -> "brk_${item.gap.startMs}"
+                }
+            }) { _, item ->
+                when (item) {
+                    is LyricsDisplayItem.Line -> LyricLine(
+                        line = item.line,
+                        lines = lines,
+                        isCurrent = item.index == currentIndex,
+                        isPast = item.index < currentIndex,
+                        positionProvider = { smoothPosition.longValue },
+                        anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal,
+                        accent = accent, textColor = textColor,
+                        onTap = { handleTap(item.line) },
+                        translatedText = translations[item.line.timeMs].takeIf { item.index == currentIndex },
+                    )
+                    is LyricsDisplayItem.Break -> Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        InstrumentalBreakItem(
+                            durationMs = item.gap.durationMs,
+                            currentPositionMs = smoothPosition.longValue,
+                            startTimeMs = item.gap.startMs,
+                            textColor = accent,
+                            inactiveAlpha = 0.35f,
+                            modifier = Modifier.size(48.dp),
+                        )
                     }
-                }, translatedText = translations[line.timeMs].takeIf { idx == currentIndex })
+                }
             }
         }
     }
 }
 
 @Composable
-private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, isPast: Boolean, positionProvider: () -> Long, anim: LyricsAnimationStyle, glow: Boolean, textSize: Float, spacing: Float, blurVal: Float, onTap: () -> Unit, translatedText: String? = null) {
-    // Reading the clock only while this line is active scopes per-tick recomposition
-    // to exactly one list item; inactive lines keep their stable -1 sentinel.
+private fun LyricLine(
+    line: LrcLine,
+    lines: List<LrcLine>,
+    isCurrent: Boolean,
+    isPast: Boolean,
+    positionProvider: () -> Long,
+    anim: LyricsAnimationStyle,
+    glow: Boolean,
+    textSize: Float,
+    spacing: Float,
+    blurVal: Float,
+    accent: Color,
+    textColor: Color,
+    onTap: () -> Unit,
+    translatedText: String? = null,
+) {
+    // Only the active line reads the ticking clock — other items stay skipped.
     val currentPositionMs = if (isCurrent) positionProvider() else -1L
+
     val scaleTarget = if (!isCurrent) 1f else when (anim) {
         LyricsAnimationStyle.NONE -> 1f
         LyricsAnimationStyle.FADE -> 1f
@@ -222,8 +309,8 @@ private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, i
         LyricsAnimationStyle.KARAOKE -> 1.14f
         LyricsAnimationStyle.APPLE_MUSIC -> 1.22f
         LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> 1.22f
-        LyricsAnimationStyle.VIVIMUSIC_FLUID -> 1.26f
-        LyricsAnimationStyle.LYRICS_V2_FLUID -> 1.20f
+        LyricsAnimationStyle.VIVIMUSIC_FLUID -> 1.05f
+        LyricsAnimationStyle.LYRICS_V2_FLUID -> 1f
         LyricsAnimationStyle.METRO_LYRICS -> 1f
     }
     val alphaTarget = if (isCurrent) 1f else when (anim) {
@@ -250,11 +337,13 @@ private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, i
     val offset by animateFloatAsState(targetValue = offsetTarget, animationSpec = spring<Float>(stiffness = Spring.StiffnessLow), label = "offset")
 
     val blurMod = when {
-        !isCurrent && anim == LyricsAnimationStyle.APPLE_MUSIC -> Modifier.blur(10.dp)
-        !isCurrent && anim == LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> Modifier.blur(10.dp)
+        !isCurrent && (anim == LyricsAnimationStyle.APPLE_MUSIC || anim == LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER) -> Modifier.blur(10.dp)
         blurVal > 0 && !isCurrent && (anim == LyricsAnimationStyle.FADE || anim == LyricsAnimationStyle.NONE) -> Modifier.blur((blurVal * 8).dp)
         else -> Modifier
     }
+
+    val inactiveColor = textColor.copy(alpha = 0.85f)
+    val lineHeightFactor = spacing
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -262,103 +351,133 @@ private fun LyricLine(line: LrcLine, lineDurationMs: Long, isCurrent: Boolean, i
             .then(blurMod)
             .clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null) { onTap() }
             .padding(vertical = 6.dp),
-        contentAlignment = if (anim == LyricsAnimationStyle.METRO_LYRICS) Alignment.CenterStart else Alignment.Center
+        contentAlignment = Alignment.Center
     ) {
-        androidx.compose.foundation.layout.Column(
-            horizontalAlignment = if (anim == LyricsAnimationStyle.METRO_LYRICS) Alignment.Start else Alignment.CenterHorizontally,
-        ) {
-        when (anim) {
-            LyricsAnimationStyle.KARAOKE, LyricsAnimationStyle.VIVIMUSIC_FLUID, LyricsAnimationStyle.LYRICS_V2_FLUID -> {
-                if (isCurrent && line.contentSpans.isNotEmpty()) {
-                    val ann = buildAnnotatedString {
-                        line.contentSpans.forEach { sp ->
-                            val passed = currentPositionMs >= sp.timeMs
-                            val color = if (passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
-                            val shadow = if (passed && glow) androidx.compose.ui.graphics.Shadow(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), blurRadius = if (anim == LyricsAnimationStyle.VIVIMUSIC_FLUID) 22f else 18f) else null
-                            withStyle(SpanStyle(color = color, fontSize = textSize.sp, fontWeight = if (passed) FontWeight.ExtraBold else FontWeight.Bold, shadow = shadow)) { append(sp.text) }
-                            append(" ")
-                        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            when (anim) {
+                LyricsAnimationStyle.KARAOKE -> {
+                    val words = if (isCurrent) line.toEngineWords() else emptyList()
+                    if (words.isNullOrEmpty()) {
+                        PlainStyledLine(line, isCurrent, isPast, glow, textSize, spacing, accent, textColor)
+                    } else {
+                        KaraokeDrawLine(
+                            lineText = line.text,
+                            words = words,
+                            isActiveLine = true,
+                            positionProvider = positionProvider,
+                            accent = accent,
+                            inactiveColor = inactiveColor,
+                            textSizeSp = textSize,
+                            lineHeightFactor = lineHeightFactor,
+                        )
                     }
-                    Text(text = ann, style = MaterialTheme.typography.headlineSmall.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp), textAlign = TextAlign.Center)
-                } else if (isCurrent) {
-                    Text(text = line.text, style = MaterialTheme.typography.headlineSmall.copy(fontSize = (textSize + 2).sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.ExtraBold, shadow = if (glow) androidx.compose.ui.graphics.Shadow(MaterialTheme.colorScheme.primary.copy(alpha = 0.45f), blurRadius = 18f) else null), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
-                } else {
-                    Text(text = line.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f), textAlign = TextAlign.Center)
                 }
-            }
-            LyricsAnimationStyle.APPLE_MUSIC -> {
-                if (isCurrent) {
-                    Text(text = line.text, style = MaterialTheme.typography.headlineMedium.copy(fontSize = (textSize + 4).sp, lineHeight = (textSize * spacing * 1.1f).sp, fontWeight = FontWeight.ExtraBold, shadow = if (glow) androidx.compose.ui.graphics.Shadow(MaterialTheme.colorScheme.primary.copy(alpha = 0.35f), blurRadius = 20f) else null), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
-                } else {
-                    Text(text = line.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f), textAlign = TextAlign.Center)
-                }
-            }
-            LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> {
-                if (isCurrent) {
-                    val ann = buildAnnotatedString {
-                        if (line.contentSpans.isNotEmpty()) {
-                            line.contentSpans.forEach { sp ->
-                                val wordLen = sp.text.length.coerceAtLeast(1)
-                                val perLetter = (sp.durationMs.coerceAtLeast(300L).toFloat() / wordLen)
-                                sp.text.forEachIndexed { li, ch ->
-                                    val letterTime = sp.timeMs + (perLetter * li).toLong()
-                                    val passed = currentPositionMs >= letterTime
-                                    val shadow = if (passed && glow) androidx.compose.ui.graphics.Shadow(MaterialTheme.colorScheme.primary.copy(alpha = 0.45f), blurRadius = 14f) else null
-                                    withStyle(SpanStyle(color = if (passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f), fontWeight = if (passed) FontWeight.ExtraBold else FontWeight.SemiBold, shadow = shadow)) { append(ch.toString()) }
-                                }
-                                append(" ")
-                            }
-                        } else {
-                            val letters = line.text.toList()
-                            val perLetter = lineDurationMs.toFloat() / letters.size.coerceAtLeast(1)
-                            letters.forEachIndexed { i, ch ->
-                                if (ch == ' ') { append(" "); return@forEachIndexed }
-                                val letterTime = line.timeMs + (perLetter * i).toLong()
-                                val passed = currentPositionMs >= letterTime
-                                val shadow = if (passed && glow) androidx.compose.ui.graphics.Shadow(MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), blurRadius = 12f) else null
-                                withStyle(SpanStyle(color = if (passed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f), fontWeight = if (passed) FontWeight.ExtraBold else FontWeight.SemiBold, shadow = shadow)) { append(ch.toString()) }
-                            }
-                        }
+
+                LyricsAnimationStyle.VIVIMUSIC_FLUID -> ViviFluidLine(
+                    line = line,
+                    lineDurationMs = lineDurationMs(lines, line),
+                    isActiveLine = isCurrent,
+                    positionMs = currentPositionMs,
+                    accent = accent,
+                    inactiveColor = inactiveColor,
+                    textSizeSp = textSize,
+                    lineHeightFactor = lineHeightFactor,
+                )
+
+                LyricsAnimationStyle.LYRICS_V2_FLUID -> LyricsV2FillLine(
+                    line = line,
+                    isActiveLine = isCurrent,
+                    isPast = isPast,
+                    positionMs = currentPositionMs,
+                    accent = accent,
+                    inactiveColor = textColor,
+                    inactiveAlpha = 0.45f,
+                    textSizeSp = textSize,
+                    lineHeightFactor = lineHeightFactor,
+                )
+
+                LyricsAnimationStyle.APPLE_MUSIC_V2_LETTER -> AppleV2LetterLine(
+                    line = line,
+                    isActiveLine = isCurrent,
+                    positionMs = currentPositionMs,
+                    accent = accent,
+                    inactiveColor = inactiveColor,
+                    textSizeSp = textSize,
+                    lineHeightFactor = lineHeightFactor,
+                )
+
+                LyricsAnimationStyle.NONE, LyricsAnimationStyle.FADE, LyricsAnimationStyle.GLOW,
+                LyricsAnimationStyle.SLIDE, LyricsAnimationStyle.APPLE_MUSIC -> {
+                    val words = line.toEngineWords()
+                    if (words != null && isCurrent) {
+                        WordLevelSpanLine(
+                            style = anim,
+                            line = line,
+                            isActiveLine = true,
+                            positionMs = currentPositionMs,
+                            accent = accent,
+                            inactiveColor = inactiveColor,
+                            textSizeSp = textSize,
+                            lineHeightFactor = lineHeightFactor,
+                        )
+                    } else {
+                        PlainStyledLine(line, isCurrent, isPast, glow, textSize, spacing, accent, textColor)
                     }
-                    Text(text = ann, style = MaterialTheme.typography.headlineSmall.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp), textAlign = TextAlign.Center)
-                } else {
-                    Text(text = line.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f), textAlign = TextAlign.Center)
                 }
+
+                LyricsAnimationStyle.METRO_LYRICS -> PlainStyledLine(line, isCurrent, isPast, glow, textSize, spacing, accent, textColor)
             }
-            LyricsAnimationStyle.GLOW -> {
-                if (isCurrent) {
-                    Text(text = line.text, style = MaterialTheme.typography.headlineSmall.copy(fontSize = (textSize + 2).sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.ExtraBold, shadow = androidx.compose.ui.graphics.Shadow(MaterialTheme.colorScheme.primary.copy(alpha = if (glow) 0.65f else 0.0f), blurRadius = 26f)), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
-                } else {
-                    Text(text = line.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.80f), textAlign = TextAlign.Center)
-                }
-            }
-            LyricsAnimationStyle.SLIDE -> {
-                if (isCurrent) {
-                    Text(text = line.text, style = MaterialTheme.typography.headlineSmall.copy(fontSize = (textSize + 2).sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Bold, shadow = if (glow) androidx.compose.ui.graphics.Shadow(MaterialTheme.colorScheme.primary.copy(alpha = 0.35f), blurRadius = 16f) else null), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
-                } else {
-                    Text(text = line.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.80f), textAlign = TextAlign.Center)
-                }
-            }
-            LyricsAnimationStyle.METRO_LYRICS -> {
-                Text(text = line.text.uppercase(), style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace, fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = if (isCurrent) FontWeight.Black else FontWeight.Medium), color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
-            }
-            LyricsAnimationStyle.FADE, LyricsAnimationStyle.NONE -> {
-                if (isCurrent) {
-                    Text(text = line.text, style = MaterialTheme.typography.headlineSmall.copy(fontSize = (textSize + 1).sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Bold, shadow = if (glow && anim == LyricsAnimationStyle.FADE) androidx.compose.ui.graphics.Shadow(MaterialTheme.colorScheme.primary.copy(alpha = 0.30f), blurRadius = 12f) else null), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
-                } else {
-                    Text(text = line.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp, lineHeight = (textSize * spacing).sp, fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f), textAlign = TextAlign.Center)
-                }
+
+            if (isCurrent && !translatedText.isNullOrBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = translatedText,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = (textSize * 0.62f).sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
-        if (isCurrent && !translatedText.isNullOrBlank()) {
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = translatedText,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = (textSize * 0.62f).sp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-        }
-        }
+    }
+}
+
+private fun lineDurationMs(lines: List<LrcLine>, line: LrcLine): Long {
+    val nextTime = lines.getOrNull(lines.indexOf(line) + 1)?.timeMs ?: (line.timeMs + 4000L)
+    return (nextTime - line.timeMs).coerceAtLeast(800L)
+}
+
+/** Fallback rendering for styles without word timings or engines needing none. */
+@Composable
+private fun PlainStyledLine(
+    line: LrcLine,
+    isCurrent: Boolean,
+    isPast: Boolean,
+    glow: Boolean,
+    textSize: Float,
+    spacing: Float,
+    accent: Color,
+    textColor: Color,
+) {
+    if (isCurrent) {
+        Text(
+            text = line.text,
+            fontSize = (textSize + 2).sp,
+            lineHeight = (textSize * spacing).sp,
+            fontWeight = FontWeight.ExtraBold,
+            shadow = if (glow) androidx.compose.ui.graphics.Shadow(accent.copy(alpha = 0.45f), blurRadius = 18f) else null,
+            color = accent,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    } else {
+        Text(
+            text = line.text,
+            fontSize = textSize.sp,
+            lineHeight = (textSize * spacing).sp,
+            fontWeight = FontWeight.Medium,
+            color = if (isPast) textColor.copy(alpha = 0.55f) else textColor.copy(alpha = 0.85f),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
