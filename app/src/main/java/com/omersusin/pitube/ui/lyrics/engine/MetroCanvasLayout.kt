@@ -70,6 +70,7 @@ fun MetroCanvasLayout(
     displayItems: List<LyricsDisplayItem>,
     currentDisplayIndex: Int,
     currentLineIndex: Int,
+    translations: Map<Long, String>,
     positionProvider: () -> Long,
     autoScroll: Boolean,
     accent: Color,
@@ -283,6 +284,7 @@ fun MetroCanvasLayout(
                                 textColor = textColor,
                                 textSizeSp = textSizeSp,
                                 lineHeightFactor = lineHeightFactor,
+                                translatedText = translations[item.line.timeMs].takeIf { item.index == currentLineIndex },
                                 onTap = { onTapLine(item.index) },
                             )
                             is LyricsDisplayItem.Break -> {
@@ -317,6 +319,7 @@ private fun MetroLineItem(
     textColor: Color,
     textSizeSp: Float,
     lineHeightFactor: Float,
+    translatedText: String?,
     onTap: () -> Unit,
 ) {
     val baseAlpha = when {
@@ -357,6 +360,17 @@ private fun MetroLineItem(
                 fontWeight = if (isCurrent) FontWeight.Black else FontWeight.Medium,
                 lineHeight = (textSizeSp * lineHeightFactor).sp,
                 color = if (isCurrent) accent else textColor.copy(alpha = baseAlpha),
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        if (!translatedText.isNullOrBlank()) {
+            androidx.compose.foundation.layout.Spacer(Modifier.padding(top = 4.dp))
+            Text(
+                text = translatedText,
+                fontSize = (textSizeSp * 0.62f).sp,
+                fontWeight = FontWeight.Medium,
+                color = if (isCurrent) accent.copy(alpha = 0.75f) else textColor.copy(alpha = baseAlpha * 0.8f),
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth(),
             )

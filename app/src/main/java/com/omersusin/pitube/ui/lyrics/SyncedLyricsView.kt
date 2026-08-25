@@ -168,6 +168,7 @@ private fun LyricsContent(
             // index must be translated or every item shifts when breaks exist.
             currentDisplayIndex = lineToDisplay[currentIndex] ?: -1,
             currentLineIndex = currentIndex,
+            translations = translations,
             positionProvider = { smoothPosition.longValue },
             autoScroll = autoScroll,
             accent = accent,
@@ -269,15 +270,28 @@ private fun LyricsContent(
                         onTap = { handleTap(item.line) },
                         translatedText = translations[item.line.timeMs].takeIf { item.index == currentIndex },
                     )
-                    is LyricsDisplayItem.Break -> Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        InstrumentalBreakItem(
-                            durationMs = item.gap.durationMs,
-                            currentPositionMs = smoothPosition.longValue,
-                            startTimeMs = item.gap.startMs,
-                            textColor = accent,
-                            inactiveAlpha = 0.35f,
-                            modifier = Modifier.size(48.dp),
-                        )
+                    is LyricsDisplayItem.Break -> {
+                        // Note appears ONLY while the instrumental is actually
+                        // playing; outside the window the slot stays reserved
+                        // (fixed height) but empty so scroll offsets don't jump.
+                        val pos = smoothPosition.longValue
+                        val noteVisible = pos >= item.gap.startMs &&
+                            pos < item.gap.startMs + item.gap.durationMs
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(72.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (noteVisible) {
+                                InstrumentalBreakItem(
+                                    durationMs = item.gap.durationMs,
+                                    currentPositionMs = pos,
+                                    startTimeMs = item.gap.startMs,
+                                    textColor = accent,
+                                    inactiveAlpha = 0.35f,
+                                    modifier = Modifier.size(48.dp),
+                                )
+                            }
+                        }
                     }
                 }
             }
