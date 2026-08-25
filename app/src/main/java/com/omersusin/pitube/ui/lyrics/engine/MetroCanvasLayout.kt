@@ -11,7 +11,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.calculateVelocity
 import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -123,13 +122,13 @@ fun MetroCanvasLayout(
         val totalBelow = remember(displayItems.size, activeIndex, itemHeights.toMap()) {
             (activeIndex until displayItems.size - 1).sumOf { i ->
                 (itemHeights[i]?.toFloat() ?: itemFallbackHeight(displayItems[i])).toDouble() +
-                    (if (displayItems.getOrNull(i + 1) !is LyricsDisplayItem.Break) (LINE_GAP_DP.dp.toPx()).toDouble() else 0.0)
+                    (if (displayItems.getOrNull(i + 1) !is LyricsDisplayItem.Break) (with(density) { LINE_GAP_DP.dp.toPx() }).toDouble() else 0.0)
             }.toFloat()
         }
         val totalAbove = remember(displayItems.size, activeIndex, itemHeights.toMap()) {
             (0 until activeIndex).sumOf { i ->
                 (itemHeights[i]?.toFloat() ?: itemFallbackHeight(displayItems[i])).toDouble() +
-                    (if (displayItems.getOrNull(i) !is LyricsDisplayItem.Break) (LINE_GAP_DP.dp.toPx()).toDouble() else 0.0)
+                    (if (displayItems.getOrNull(i) !is LyricsDisplayItem.Break) (with(density) { LINE_GAP_DP.dp.toPx() }).toDouble() else 0.0)
             }.toFloat()
         }
 
@@ -198,8 +197,10 @@ fun MetroCanvasLayout(
                         velocityTracker.resetTracking()
                         velocityTracker.addPosition(down.uptimeMillis, down.position)
 
+                        var lastY = down.position.y
                         verticalDrag(down.id) { change ->
-                            val dragAmount = change.positionChange().y
+                            val dragAmount = change.position.y - lastY
+                            lastY = change.position.y
                             velocityTracker.addPosition(change.uptimeMillis, change.position)
 
                             val newOffset = userManualOffset + dragAmount

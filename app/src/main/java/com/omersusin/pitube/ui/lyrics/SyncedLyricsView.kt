@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -461,10 +462,12 @@ private fun PlainStyledLine(
     if (isCurrent) {
         Text(
             text = line.text,
-            fontSize = (textSize + 2).sp,
-            lineHeight = (textSize * spacing).sp,
-            fontWeight = FontWeight.ExtraBold,
-            shadow = if (glow) androidx.compose.ui.graphics.Shadow(accent.copy(alpha = 0.45f), blurRadius = 18f) else null,
+            style = MaterialTheme.typography.headlineSmall.copy(
+                fontSize = (textSize + 2).sp,
+                lineHeight = (textSize * spacing).sp,
+                fontWeight = FontWeight.ExtraBold,
+                shadow = if (glow) androidx.compose.ui.graphics.Shadow(accent.copy(alpha = 0.45f), blurRadius = 18f) else null,
+            ),
             color = accent,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),

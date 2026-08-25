@@ -1,5 +1,6 @@
 package com.omersusin.pitube.ui.lyrics.engine
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -222,7 +223,7 @@ fun KaraokeDrawLine(
             TextAlign.Right -> Arrangement.End
             else -> Arrangement.Start
         },
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         words.forEachIndexed { index, word ->
             KaraokeWord(

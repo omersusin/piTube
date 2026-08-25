@@ -158,7 +158,7 @@ private fun AnimatedWordV2(
                 fontWeight = fontWeight,
                 lineHeight = lineHeight.sp,
                 color = accent,
-                shadow = if (glowAlpha > 0f) Shadow(accent.copy(alpha = glowAlpha), Offset.Zero, glowRadius.coerceAtLeast(1f)) else null,
+                style = androidx.compose.ui.text.TextStyle(shadow = if (glowAlpha > 0f) Shadow(accent.copy(alpha = glowAlpha), Offset.Zero, glowRadius.coerceAtLeast(1f)) else null),
                 modifier = if (isWordActive) {
                     Modifier
                         .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
