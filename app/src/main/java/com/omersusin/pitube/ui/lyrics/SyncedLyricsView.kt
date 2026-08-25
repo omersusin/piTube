@@ -152,6 +152,18 @@ private fun LyricsContent(
         }
     }
 
+    // While an instrumental break window is running, NO line is "current" —
+    // the previous vocal line must dim and let the music note stand alone.
+    val activeBreakIndex by remember(displayItems) {
+        derivedStateOf {
+            val pos = smoothPosition.longValue
+            displayItems.indexOfFirst {
+                it is LyricsDisplayItem.Break && pos >= it.gap.startMs && pos < it.gap.startMs + it.gap.durationMs
+            }
+        }
+    }
+    val inInstrumentalGap = activeBreakIndex >= 0
+
     val accent = MaterialTheme.colorScheme.primary
     val textColor = MaterialTheme.colorScheme.onSurface
 
@@ -169,7 +181,7 @@ private fun LyricsContent(
             // Positions map is in DISPLAY-item space (lines + breaks); the line
             // index must be translated or every item shifts when breaks exist.
             currentDisplayIndex = lineToDisplay[currentIndex] ?: -1,
-            currentLineIndex = currentIndex,
+            currentLineIndex = if (inInstrumentalGap) -1 else currentIndex,
             translations = translations,
             noteSizeDp = noteSizeDp,
             positionProvider = { smoothPosition.longValue },
@@ -265,8 +277,8 @@ private fun LyricsContent(
                     is LyricsDisplayItem.Line -> LyricLine(
                         line = item.line,
                         lines = lines,
-                        isCurrent = item.index == currentIndex,
-                        isPast = item.index < currentIndex,
+                        isCurrent = item.index == currentIndex && !inInstrumentalGap,
+                        isPast = item.index < currentIndex || inInstrumentalGap,
                         positionProvider = { smoothPosition.longValue },
                         anim = anim, glow = glow, textSize = textSize, spacing = spacing, blurVal = blurVal,
                         accent = accent, textColor = textColor,
