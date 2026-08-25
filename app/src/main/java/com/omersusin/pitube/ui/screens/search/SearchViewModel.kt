@@ -17,6 +17,7 @@ import com.omersusin.pitube.data.paging.SearchPagingSource
 import com.omersusin.pitube.data.paging.SearchResultItem
 import com.omersusin.pitube.data.repository.YouTubeRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -76,10 +77,33 @@ class SearchViewModel
         val musicResults: StateFlow<MusicResults> = _musicResults.asStateFlow()
         private var musicContinuation: String? = null
 
+        /** Filter chip the current music page was fetched with (null = unfiltered). */
+        private var musicFilterParam: String? = null
+        private var refineJob: Job? = null
+        private var artistsEnriched = false
+
         private companion object {
-            /** Static YT Music search-filter token for the "Artists" chip. */
+            /** Static YT Music search-filter tokens ("Songs" / "Artists" chips). */
+            const val MUSIC_SONGS_FILTER_PARAM = "EgWKAQIIAWoKEAkQBRAKEAMQBA=="
             const val MUSIC_ARTISTS_FILTER_PARAM = "EgWKAQIGAWoKEAkQChAFEAMQBA=="
+
+            /** Audience figure a look-alike channel needs to count as legit (collabs). */
+            const val COLLAB_AUDIENCE_FLOOR = 50_000L
+
+            /** "3.57M monthly audience" / "23 subscribers" / "12 B abone" → number+suffix. */
+            val AUDIENCE_REGEX = Regex("""(\d+(?:[.,]\d+)?)\s*(mn|mln|bin|[kmb])?""", RegexOption.IGNORE_CASE)
         }
+
+        /** Page-1 filtered fetch used by [ensureRefined]. */
+        private suspend fun fetchPage(
+            filterParam: String?,
+        ): com.omersusin.pitube.innertube.pages.MusicSearchPage? =
+            runCatching {
+                com.omersusin.pitube.innertube.YouTube.musicSearch(
+                    _uiState.value.query,
+                    filterParams = filterParam,
+                ).getOrNull()
+            }.getOrNull()
 
         private val _savedPlaylistIds = MutableStateFlow<Set<String>>(emptySet())
 
@@ -133,11 +157,10 @@ class SearchViewModel
             query: String,
             filters: SearchFilter? = null,
         ) {
+            resetMusicState()
             if (query.isBlank()) {
                 _uiState.value = SearchUiState()
                 _searchKey.value = null
-                _musicResults.value = MusicResults()
-                musicContinuation = null
                 return
             }
             val effectiveFilters = filters ?: SearchFilter()
@@ -148,61 +171,160 @@ class SearchViewModel
         fun updateFilters(filters: SearchFilter) {
             val currentQuery = _uiState.value.query
             _uiState.value = _uiState.value.copy(filters = filters, musicCategory = null)
+            resetMusicState()
             if (currentQuery.isNotBlank()) {
                 _searchKey.value = SearchKey(currentQuery, buildContentFilters(filters), filters)
             }
         }
 
+        /** Fresh query/filter → drop filtered-page bookkeeping and background jobs. */
+        private fun resetMusicState() {
+            refineJob?.cancel()
+            refineJob = null
+            musicContinuation = null
+            musicFilterParam = null
+            artistsEnriched = false
+            _musicResults.value = MusicResults()
+        }
+
         /** Switch between the experimental Songs/Artists views (null = regular results). */
         fun selectMusicCategory(category: MusicCategory?) {
             _uiState.value = _uiState.value.copy(musicCategory = category)
-            if (category != null && _musicResults.value.songs.isEmpty() && _musicResults.value.artists.isEmpty()) {
+            if (category == null) return
+            if (_musicResults.value.songs.isEmpty() && _musicResults.value.artists.isEmpty()) {
                 // Lazy: nothing is fetched for regular searches — the YT Music
-                // request fires only when a music category is first opened.
+                // request fires only when a music category is first opened. The
+                // first (unfiltered) paint also carries the Top-result card, i.e.
+                // the main-artist hero; fetchMusicPage chains the refinement.
                 reloadMusicResults()
-            } else if (category == MusicCategory.ARTISTS) {
-                enrichArtists()
+            } else {
+                ensureRefined(category)
             }
         }
+
+        /**
+         * The unfiltered mixed response pollutes the Songs list with videos and
+         * podcast episodes and the Artists list with fan channels. Once a
+         * category tab is open, silently swap its list for the server-filtered
+         * chip results ("Song"/"Artist" only). The other list and the hero card
+         * are preserved.
+         */
+        private fun ensureRefined(category: MusicCategory) {
+            val target =
+                when (category) {
+                    MusicCategory.SONGS -> MUSIC_SONGS_FILTER_PARAM
+                    MusicCategory.ARTISTS -> MUSIC_ARTISTS_FILTER_PARAM
+                }
+            if (!categoryActive(category)) return
+            if (musicFilterParam == target) {
+                if (category == MusicCategory.ARTISTS) enrichArtists()
+                return
+            }
+            refineJob?.cancel()
+            refineJob = viewModelScope.launch {
+                val page = fetchPage(target) ?: return@launch
+                musicContinuation = page.continuation
+                musicFilterParam = target
+                artistsEnriched = false
+                _musicResults.value =
+                    _musicResults.value.copy(
+                        songs = if (category == MusicCategory.SONGS) page.songs else _musicResults.value.songs,
+                        artists = if (category == MusicCategory.ARTISTS) page.artists else _musicResults.value.artists,
+                        endReached = page.continuation == null,
+                        isLoading = false,
+                        error = false,
+                    )
+                if (category == MusicCategory.ARTISTS) enrichArtists()
+            }
+        }
+
+        private fun categoryActive(category: MusicCategory): Boolean =
+            _uiState.value.musicCategory == category
+
         /**
          * Widen the artist list to YT Music parity: pull the "Fans might also
-         * like" carousel (~10 entries) from the main artist's page. Falls back
-         * to the filtered-search chip when no main artist was found.
+         * like" carousel (~10 entries) from the main artist's page, then drop
+         * junk look-alike channels (fan/topic clones of the searched artist)
+         * while KEEPING legitimate collab channels (Kx5, REZZMAU5 …) via two
+         * signals: names harvested from the songs' artist columns, and a large
+         * audience figure in the subtitle.
          */
-        private var artistsEnriched = false
-
         private fun enrichArtists() {
             val query = _uiState.value.query
             if (artistsEnriched || query.isBlank()) return
             artistsEnriched = true
             viewModelScope.launch {
-                val mainId = _musicResults.value.mainArtist?.id
-                var merged = _musicResults.value.artists
-                var relatedLoaded = false
-                if (mainId != null) {
+                val state = _musicResults.value
+                val main = state.mainArtist
+                val qNorm = normalizeName(query)
+                // No Top-result card? The searched artist may still sit in the
+                // list under its exact name — use it to unlock the page browse.
+                val mainResolvable =
+                    main?.id
+                        ?: state.artists.firstOrNull { normalizeName(it.name) == qNorm }?.id
+                var merged = state.artists
+                if (mainResolvable != null) {
                     val related =
                         runCatching {
-                            com.omersusin.pitube.innertube.YouTube.musicArtistContent(mainId).getOrNull()
+                            com.omersusin.pitube.innertube.YouTube.musicArtistContent(mainResolvable).getOrNull()
                         }.getOrNull()?.relatedArtists.orEmpty()
-                    if (related.isNotEmpty()) {
-                        relatedLoaded = true
-                        merged = (merged + related).distinctBy { it.id }
-                    }
+                    if (related.isNotEmpty()) merged = (merged + related).distinctBy { it.id }
                 }
-                if (!relatedLoaded) {
-                    val page =
-                        runCatching {
-                            com.omersusin.pitube.innertube.YouTube.musicSearch(
-                                query,
-                                filterParams = MUSIC_ARTISTS_FILTER_PARAM,
-                            ).getOrNull()
-                        }.getOrNull()
-                    if (page != null) {
-                        merged = (merged + page.artists).distinctBy { it.id }
+                val collabNames =
+                    state.songs
+                        .flatMap { song ->
+                            // Collab videos carry extra channel profiles — use
+                            // those plus the "A, B & C" artist column text.
+                            splitArtistNames(song.channelName) +
+                                song.collaborators.map { it.name }
+                        }
+                        .mapTo(mutableSetOf()) { normalizeName(it) }
+                val mainNorm = main?.name?.let(::normalizeName).orEmpty()
+                val cleaned =
+                    merged.filter { channel ->
+                        val id = channel.id
+                        if (main != null && id == main.id) return@filter true
+                        val norm = normalizeName(channel.name)
+                        val looksLikeTarget =
+                            (mainNorm.length >= 4 && (norm.contains(mainNorm) || mainNorm.contains(norm))) ||
+                                (qNorm.length >= 4 && (norm.contains(qNorm) || qNorm.contains(norm)))
+                        !looksLikeTarget ||
+                            normalizeName(channel.name) in collabNames ||
+                            audienceCount(channel.description) >= COLLAB_AUDIENCE_FLOOR
                     }
-                }
-                _musicResults.value = _musicResults.value.copy(artists = merged)
+                _musicResults.value = _musicResults.value.copy(artists = cleaned)
             }
+        }
+
+        /** Lowercase, letters+digits only — locale-proof name comparison. */
+        private fun normalizeName(name: String): String =
+            name.lowercase().filter { it.isLetterOrDigit() }
+
+        /**
+         * "Kx5, deadmau5 & Kaskade" → [Kx5, deadmau5, Kaskade] — collaborators
+         * harvested from song cards; their channels must survive junk-filtering.
+         */
+        private fun splitArtistNames(column: String): List<String> =
+            column.split(",", "&", "×", "/")
+                .map { it.trim() }
+                .filter { it.length >= 2 }
+
+        /**
+         * "3.57M monthly audience" / "23 subscribers" / "12 B abone" → count.
+         * Returns -1 when unparseable. Suffix letters are matched loosely so
+         * any display language works ("B" is read as Turkish bin/thousand —
+         * English billions are irrelevant at this floor's magnitude).
+         */
+        private fun audienceCount(description: String): Long {
+            val match = AUDIENCE_REGEX.find(description) ?: return -1
+            val number = match.groupValues[1].replace(',', '.').toDoubleOrNull() ?: return -1
+            val multiplier =
+                when (match.groupValues[2].lowercase()) {
+                    "m", "mn", "mln" -> 1_000_000L
+                    "", "-" -> 1L
+                    else -> 1_000L
+                }
+            return (number * multiplier).toLong()
         }
         fun loadMoreMusicResults() {
             if (musicContinuation == null || _musicResults.value.isLoading) return
@@ -221,7 +343,11 @@ class SearchViewModel
             viewModelScope.launch {
                 val page =
                     runCatching {
-                        com.omersusin.pitube.innertube.YouTube.musicSearch(query, musicContinuation).getOrNull()
+                        com.omersusin.pitube.innertube.YouTube.musicSearch(
+                            query,
+                            musicContinuation,
+                            filterParams = musicFilterParam,
+                        ).getOrNull()
                     }.getOrNull()
                 if (page == null) {
                     _musicResults.value =
@@ -240,12 +366,11 @@ class SearchViewModel
                         endReached = page.continuation == null,
                         mainArtist = page.mainArtist ?: _musicResults.value.mainArtist,
                     )
-                // First open lands directly on ARTISTS: the initial fetch above
-                // satisfies the empty-list guard in selectMusicCategory, so the
-                // related-shelf enrichment would never fire — chain it here.
-                if (_uiState.value.musicCategory == MusicCategory.ARTISTS) {
-                    enrichArtists()
-                }
+                // The first (unfiltered) paint carries videos/episodes in Songs
+                // and fan channels in Artists. Once loaded with the active
+                // category open, swap in the server-filtered chip results.
+                val active = _uiState.value.musicCategory ?: return@launch
+                if (musicFilterParam == null) ensureRefined(active)
             }
         }
 
