@@ -184,20 +184,23 @@ fun MetroCanvasLayout(
                 .clipToBounds()
                 .drawWithContent {
                     drawContent()
-                    // Eased multi-stop mask: a single linear ramp reads as a
-                    // hard dark band; stepped alpha + long ramp reads soft.
+                    // Continuous quadratic-ease mask sampled at many offsets —
+                    // reads as one smooth gradient with no visible bands.
                     val topEnd = (fadeTopDp / size.height).coerceIn(0.02f, 0.45f)
                     val botStart = 1f - (fadeBottomDp / size.height).coerceIn(0.02f, 0.45f)
+                    val steps = 28
+                    val stops = buildList {
+                        for (i in 0..steps) {
+                            val x = i.toFloat() / steps
+                            add((topEnd * x) to Color.Black.copy(alpha = x * x))
+                        }
+                        for (i in 0..steps) {
+                            val x = i.toFloat() / steps
+                            add((botStart + (1f - botStart) * x) to Color.Black.copy(alpha = (1f - x) * (1f - x)))
+                        }
+                    }.sortedBy { it.first }
                     drawRect(
-                        brush = Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            (topEnd * 0.30f) to Color.Black.copy(alpha = 0.12f),
-                            (topEnd * 0.65f) to Color.Black.copy(alpha = 0.45f),
-                            topEnd to Color.Black,
-                            botStart to Color.Black,
-                            (1f - (1f - botStart) * 0.65f) to Color.Black.copy(alpha = 0.45f),
-                            1f to Color.Transparent,
-                        ),
+                        brush = Brush.verticalGradient(*stops.toTypedArray()),
                         blendMode = BlendMode.DstIn,
                     )
                 }
