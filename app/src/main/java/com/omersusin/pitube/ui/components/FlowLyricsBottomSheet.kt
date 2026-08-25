@@ -64,6 +64,7 @@ fun FlowLyricsBottomSheet(
     modifier: Modifier = Modifier,
 ) {
     val configuration = LocalConfiguration.current
+    val context = LocalContext.current
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val latestOnDismiss by rememberUpdatedState(onDismiss)
@@ -76,7 +77,7 @@ fun FlowLyricsBottomSheet(
     var isAnimatingOut by remember { mutableStateOf(false) }
     var showSearchDialog by remember { mutableStateOf(false) }
     var showOffsetDialog by remember { mutableStateOf(false) }
-    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(LocalContext.current) }
+    val prefs = remember { com.omersusin.pitube.data.local.PlayerPreferences(context) }
     val currentSyncOffsetMs by prefs.lyricsSyncOffsetMs.collectAsState(initial = 0)
     val sheetProgress = if (expandedHeightPx > 0f) ((sheetHeightPx.value - collapsedHeightPx) / sheetProgressRangePx).coerceIn(0f, 1f) else 0f
     SideEffect { onSheetProgressChange(sheetProgress) }
