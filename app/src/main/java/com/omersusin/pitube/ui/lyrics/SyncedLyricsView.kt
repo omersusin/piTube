@@ -178,8 +178,8 @@ private fun LyricsContent(
             textColor = textColor,
             textSizeSp = textSize,
             lineHeightFactor = spacing.coerceIn(1.15f, 1.5f),
-            fadeTopDp = 48f,
-            fadeBottomDp = 64f,
+            fadeTopDp = 96f,
+            fadeBottomDp = 96f,
             onTapLine = { idx -> lines.getOrNull(idx)?.let(::handleTap) },
             modifier = Modifier.fillMaxSize(),
         )
