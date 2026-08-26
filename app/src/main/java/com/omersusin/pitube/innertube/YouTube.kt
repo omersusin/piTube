@@ -447,7 +447,9 @@ object YouTube {
                 is JsonArray -> element.forEach(::collect)
                 is JsonObject -> {
                     val url = (element["url"] as? JsonPrimitive)?.contentOrNull
-                    if (!url.isNullOrBlank() && url.contains("yt3.ggpht.com")) {
+                    if (!url.isNullOrBlank() &&
+                        (url.contains("yt3.ggpht.com") || url.contains("yt3.googleusercontent.com"))
+                    ) {
                         urls += url
                     }
                     element.values.forEach(::collect)

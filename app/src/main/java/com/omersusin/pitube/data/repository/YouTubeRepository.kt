@@ -24,6 +24,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -571,11 +572,13 @@ class YouTubeRepository
 
             val infos =
                 supervisorScope {
+                    // Bounded-concurrency fan-out: sequential chunking made a
+                    // full page take ~12s; six parallel slots land it in ~4s.
+                    val gate = Semaphore(6)
                     leftovers
-                        .chunked(3)
-                        .flatMap { batch ->
-                            batch.map { video ->
-                                async(Dispatchers.IO) {
+                        .map { video ->
+                            async(Dispatchers.IO) {
+                                gate.withPermit {
                                     val cached = songOwnerInfoCache.get(video.id)
                                     if (cached != null) {
                                         video.id to cached
@@ -588,8 +591,8 @@ class YouTubeRepository
                                         video.id to info
                                     }
                                 }
-                            }.awaitAll()
-                        }
+                            }
+                        }.awaitAll()
                 }.toMap()
 
             return filled.map { song ->
