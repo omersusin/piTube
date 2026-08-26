@@ -10,6 +10,10 @@ import com.omersusin.pitube.player.config.PlayerConfig
 import com.omersusin.pitube.R
 import com.omersusin.pitube.player.state.EnhancedPlayerState
 import com.omersusin.pitube.player.stream.VideoCodecUtils
+import com.omersusin.pitube.innertube.YouTube
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.VideoStream
@@ -234,6 +238,10 @@ class PlayerErrorHandler(
         )
         return when (httpCode) {
             403, 410 -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    runCatching { YouTube.refreshVisitorDataAfterPlaybackFailure() }
+                        .onSuccess { Log.d(TAG, "visitorData reminted after $httpCode: ${it?.take(12)}") }
+                }
                 if (onGatedCodecFallback(player?.currentPosition ?: 0L)) {
                     Log.w(TAG, "HTTP $httpCode on AV1 — switched to a compatible codec at the same resolution")
                     PlayerDiagnostics.logWarning(TAG, "AV1 stream CDN-gated (HTTP $httpCode) — switched to a compatible codec")
