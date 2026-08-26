@@ -549,10 +549,21 @@ class SearchViewModel
             val main = _mainArtist.value
             val byId = (artists + listOfNotNull(main)).associateBy { it.id }
             val byName = (artists + listOfNotNull(main)).associateBy { normalizeName(it.name) }
+            val known = (artists + listOfNotNull(main))
+                .map { normalizeName(it.name) }
+                .filter { it.length >= 3 }
             return songs.map { song ->
+                val songNorm = normalizeName(song.channelName)
+                val partial =
+                    known.firstOrNull { candidate ->
+                        songNorm.contains(candidate) || candidate.contains(songNorm)
+                    }?.let { byName[it] }
                 val match =
                     byId[song.channelId]
-                        ?: byName[normalizeName(song.channelName)]
+                        ?: byName[songNorm]
+                        // Partial match: the artist tab often lists "X" while a
+                        // song credits "X & Y" — either direction fills the avatar.
+                        ?: partial
                         ?: return@map song
                 song.copy(
                     channelId = song.channelId.ifBlank { match.id },

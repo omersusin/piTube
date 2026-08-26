@@ -2281,4 +2281,15 @@
     <string name="content_settings_chip_order_subtitle">Arama şeridini ve Keşfet konu-çiplerini sırala veya gizle</string>
     <string name="content_settings_chip_group_search">Arama şeridi</string>
     <string name="content_settings_chip_group_discover">Keşfet konuları</string>
+    <string name="filter_sheet_open">Video filtreleri</string>
+    <string name="filter_section_time">Zaman</string>
+    <string name="filter_section_duration">Süre</string>
+    <string name="filter_section_features">Özellikler</string>
+    <string name="feature_live">Canlı</string>
+    <string name="feature_hd">HD</string>
+    <string name="feature_4k">4K</string>
+    <string name="feature_hdr">HDR</string>
+    <string name="feature_subtitles">Altyazı</string>
+    <string name="feature_cc">Creative Commons</string>
+    <string name="feature_360">360°</string>
 </resources>

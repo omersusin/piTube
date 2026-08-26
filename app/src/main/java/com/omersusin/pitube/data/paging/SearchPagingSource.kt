@@ -90,7 +90,8 @@ class SearchPagingSource(
                     searchFilter.contentType != ContentType.PLAYLISTS && (
                     searchFilter.sortType != SortType.RELEVANCE ||
                         searchFilter.uploadDate != UploadDate.ANY ||
-                        searchFilter.duration != Duration.ANY
+                        searchFilter.duration != Duration.ANY ||
+                        searchFilter.features.isNotEmpty()
                     )
                 if (useServerPath) {
                     return@withContext loadServerFilteredPage(page)

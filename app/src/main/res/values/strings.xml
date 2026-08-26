@@ -2260,4 +2260,15 @@
     <string name="content_settings_chip_order_subtitle">Reorder or hide the search strip and Discover topic chips</string>
     <string name="content_settings_chip_group_search">Search strip</string>
     <string name="content_settings_chip_group_discover">Discover topics</string>
+    <string name="filter_sheet_open">Video filters</string>
+    <string name="filter_section_time">Time</string>
+    <string name="filter_section_duration">Duration</string>
+    <string name="filter_section_features">Features</string>
+    <string name="feature_live">Live</string>
+    <string name="feature_hd">HD</string>
+    <string name="feature_4k">4K</string>
+    <string name="feature_hdr">HDR</string>
+    <string name="feature_subtitles">Subtitles</string>
+    <string name="feature_cc">Creative Commons</string>
+    <string name="feature_360">360°</string>
 </resources>

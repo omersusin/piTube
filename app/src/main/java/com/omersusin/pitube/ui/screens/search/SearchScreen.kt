@@ -80,6 +80,7 @@ fun SearchScreen(
     val searchChipOrder by viewModel.searchChipOrder.collectAsState()
     val searchGridMode by viewModel.searchGridMode.collectAsState()
     val searchChipHidden by viewModel.searchChipHidden.collectAsState()
+    var showFilterSheet by remember { mutableStateOf(false) }
     val discoverViewModel: DiscoverViewModel = hiltViewModel()
     val discoverState by discoverViewModel.state.collectAsState()
     val discoverChipOrder by discoverViewModel.chipOrder.collectAsState()
@@ -374,36 +375,39 @@ fun SearchScreen(
 
         val hasQuery = uiState.query.isNotBlank()
 
-        SearchContentChips(
-            selectedContentType = selectedContentType,
-            onContentTypeSelected = { type ->
-                val base = uiState.filters ?: SearchFilter()
-                viewModel.updateFilters(base.copy(contentType = type))
-            },
-            musicCategory = uiState.musicCategory,
-            onMusicCategorySelected = viewModel::selectMusicCategory,
-            musicEnabled = musicEnabled,
-            chipOrder = searchChipOrder,
-            hiddenChips = searchChipHidden,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SearchContentChips(
+                selectedContentType = selectedContentType,
+                onContentTypeSelected = { type ->
+                    val base = uiState.filters ?: SearchFilter()
+                    viewModel.updateFilters(base.copy(contentType = type))
+                },
+                musicCategory = uiState.musicCategory,
+                onMusicCategorySelected = viewModel::selectMusicCategory,
+                musicEnabled = musicEnabled,
+                chipOrder = searchChipOrder,
+                hiddenChips = searchChipHidden,
+                modifier = Modifier.weight(1f),
+            )
+            if (selectedContentType == ContentType.VIDEOS && uiState.musicCategory == null) {
+                FilterFunnelButton(
+                    hasActiveFilters = (uiState.filters ?: SearchFilter()).hasActiveVideoFilters(),
+                    onClick = { showFilterSheet = true },
+                )
+            }
+        }
 
-        if (selectedContentType == ContentType.VIDEOS && uiState.musicCategory == null) {
-            VideoFilterChipRows(
-                selectedUploadDate = uiState.filters?.uploadDate ?: UploadDate.ANY,
-                onUploadDateSelected = { date ->
-                    val base = uiState.filters ?: SearchFilter()
-                    viewModel.updateFilters(base.copy(uploadDate = date))
+        if (showFilterSheet) {
+            VideoFilterBottomSheet(
+                current = uiState.filters ?: SearchFilter(),
+                onApply = { filters ->
+                    viewModel.updateFilters(filters)
+                    showFilterSheet = false
                 },
-                selectedDuration = uiState.filters?.duration ?: Duration.ANY,
-                onDurationSelected = { dur ->
-                    val base = uiState.filters ?: SearchFilter()
-                    viewModel.updateFilters(base.copy(duration = dur))
-                },
-                selectedSortType = uiState.filters?.sortType ?: SortType.RELEVANCE,
-                onSortTypeSelected = {
-                    val base = uiState.filters ?: SearchFilter()
-                    viewModel.updateFilters(base.copy(sortType = it))
-                },
+                onDismiss = { showFilterSheet = false },
             )
         }
 
@@ -800,79 +804,178 @@ private fun SearchContentChips(
     }
 }
 
+/**
+ * Funnel entry for the video-filter bottom sheet; the dot badge signals any
+ * non-default filter without opening it.
+ */
 @Composable
-private fun VideoFilterChipRows(
-    selectedUploadDate: UploadDate,
-    onUploadDateSelected: (UploadDate) -> Unit,
-    selectedDuration: Duration,
-    onDurationSelected: (Duration) -> Unit,
-    selectedSortType: SortType,
-    onSortTypeSelected: (SortType) -> Unit,
-    modifier: Modifier = Modifier,
+private fun FilterFunnelButton(
+    hasActiveFilters: Boolean,
+    onClick: () -> Unit,
 ) {
-    val uploadDateLabels =
-        listOf(
-            UploadDate.ANY to R.string.date_any,
-            UploadDate.TODAY to R.string.date_today,
-            UploadDate.THIS_WEEK to R.string.date_this_week,
-            UploadDate.THIS_MONTH to R.string.date_this_month,
-            UploadDate.THIS_YEAR to R.string.date_this_year,
-        )
-    val durationLabels =
-        listOf(
-            Duration.ANY to R.string.duration_any,
-            Duration.UNDER_4_MINUTES to R.string.duration_under_4,
-            Duration.FROM_4_TO_20_MINUTES to R.string.duration_4_20,
-            Duration.OVER_20_MINUTES to R.string.duration_over_20,
-        )
-    val sortTypeLabels =
-        listOf(
-            SortType.RELEVANCE to R.string.sort_relevance,
-            SortType.NEWEST to R.string.sort_newest,
-            SortType.VIEWS to R.string.sort_most_viewed,
-            SortType.RATING to R.string.sort_rating,
-        )
+    Box {
+        IconButton(onClick = onClick, modifier = Modifier.size(40.dp)) {
+            Icon(
+                Icons.Outlined.FilterList,
+                contentDescription = stringResource(R.string.filter_sheet_open),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (hasActiveFilters) {
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 8.dp, end = 8.dp)
+                        .size(8.dp)
+                        .background(MaterialTheme.colorScheme.primary, CircleShape),
+            )
+        }
+    }
+}
 
-    Column(
-        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(uploadDateLabels, key = { it.first.name }) { (value, labelRes) ->
-                ContentFilterChip(
-                    title = stringResource(labelRes),
-                    isSelected = value == selectedUploadDate,
-                    onClick = { onUploadDateSelected(value) },
+/** Radio row shared by the sheet's single-choice sections. */
+@Composable
+private fun <T> FilterRadioGroup(
+    options: List<Pair<T, String>>,
+    selected: T,
+    onSelect: (T) -> Unit,
+) {
+    Column {
+        options.forEach { (value, label) ->
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelect(value) }
+                        .padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = value == selected, onClick = { onSelect(value) })
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
         }
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+    }
+}
+
+/**
+ * Video search filters in a bottom sheet: upload date + duration radios and a
+ * multi-select feature group. Apply commits to the ViewModel (server-side
+ * InnerTube filtering); Reset clears the draft in place.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun VideoFilterBottomSheet(
+    current: SearchFilter,
+    onApply: (SearchFilter) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var draftDate by remember { mutableStateOf(current.uploadDate) }
+    var draftDuration by remember { mutableStateOf(current.duration) }
+    var draftFeatures by remember { mutableStateOf(current.features) }
+
+    val dateOptions =
+        listOf(
+            UploadDate.ANY to stringResource(R.string.date_any),
+            UploadDate.TODAY to stringResource(R.string.date_today),
+            UploadDate.THIS_WEEK to stringResource(R.string.date_this_week),
+            UploadDate.THIS_MONTH to stringResource(R.string.date_this_month),
+            UploadDate.THIS_YEAR to stringResource(R.string.date_this_year),
+        )
+    val durationOptions =
+        listOf(
+            Duration.ANY to stringResource(R.string.duration_any),
+            Duration.UNDER_4_MINUTES to stringResource(R.string.duration_under_4),
+            Duration.FROM_4_TO_20_MINUTES to stringResource(R.string.duration_4_20),
+            Duration.OVER_20_MINUTES to stringResource(R.string.duration_over_20),
+        )
+    val featureLabels =
+        mapOf(
+            SearchFeature.LIVE to R.string.feature_live,
+            SearchFeature.HD to R.string.feature_hd,
+            SearchFeature.FOUR_K to R.string.feature_4k,
+            SearchFeature.HDR to R.string.feature_hdr,
+            SearchFeature.SUBTITLES to R.string.feature_subtitles,
+            SearchFeature.CREATIVE_COMMONS to R.string.feature_cc,
+            SearchFeature.SPHERICAL_360 to R.string.feature_360,
+        )
+
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 24.dp)
+                    .verticalScroll(rememberScrollState()),
         ) {
-            items(durationLabels, key = { "d_${it.first.name}" }) { (value, labelRes) ->
-                ContentFilterChip(
-                    title = stringResource(labelRes),
-                    isSelected = value == selectedDuration,
-                    onClick = { onDurationSelected(value) },
-                )
+            Text(
+                text = stringResource(R.string.filter_section_time),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            FilterRadioGroup(dateOptions, draftDate) { draftDate = it }
+
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.filter_section_duration),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            FilterRadioGroup(durationOptions, draftDuration) { draftDuration = it }
+
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.filter_section_features),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                featureLabels.forEach { (feature, labelRes) ->
+                    val selected = feature in draftFeatures
+                    ContentFilterChip(
+                        title = stringResource(labelRes),
+                        isSelected = selected,
+                        onClick = {
+                            draftFeatures =
+                                if (selected) draftFeatures - feature else draftFeatures + feature
+                        },
+                    )
+                }
             }
-            item(key = "divider") {
-                VerticalDivider(
-                    modifier = Modifier.height(20.dp).padding(horizontal = 4.dp),
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
-                )
-            }
-            items(sortTypeLabels, key = { "s_${it.first.name}" }) { (value, labelRes) ->
-                ContentFilterChip(
-                    title = stringResource(labelRes),
-                    isSelected = value == selectedSortType,
-                    onClick = { onSortTypeSelected(value) },
-                )
+
+            Spacer(Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextButton(onClick = {
+                    draftDate = UploadDate.ANY
+                    draftDuration = Duration.ANY
+                    draftFeatures = emptySet()
+                }) {
+                    Text(stringResource(R.string.btn_reset))
+                }
+                Button(
+                    onClick = {
+                        onApply(
+                            current.copy(
+                                uploadDate = draftDate,
+                                duration = draftDuration,
+                                features = draftFeatures,
+                            ),
+                        )
+                    },
+                ) {
+                    Text(stringResource(R.string.btn_save))
+                }
             }
         }
     }

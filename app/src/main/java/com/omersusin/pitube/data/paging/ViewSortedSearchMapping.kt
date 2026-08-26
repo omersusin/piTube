@@ -3,6 +3,7 @@ package com.omersusin.pitube.data.paging
 import com.omersusin.pitube.data.local.ContentType
 import com.omersusin.pitube.data.local.Duration
 import com.omersusin.pitube.data.local.SearchFilter
+import com.omersusin.pitube.data.local.SearchFeature
 import com.omersusin.pitube.data.local.SortType
 import com.omersusin.pitube.data.local.UploadDate
 import com.omersusin.pitube.data.model.Channel
@@ -51,6 +52,21 @@ internal fun SearchFilter.toServerSearchParams(): String =
             }
         } else {
             null
+        },
+        features = if (contentType.supportsVideoFilters()) {
+            features.map { feature ->
+                when (feature) {
+                    SearchFeature.LIVE -> YouTubeSearchParams.Feature.LIVE
+                    SearchFeature.HD -> YouTubeSearchParams.Feature.HD
+                    SearchFeature.FOUR_K -> YouTubeSearchParams.Feature.FOUR_K
+                    SearchFeature.HDR -> YouTubeSearchParams.Feature.HDR
+                    SearchFeature.SUBTITLES -> YouTubeSearchParams.Feature.SUBTITLES
+                    SearchFeature.CREATIVE_COMMONS -> YouTubeSearchParams.Feature.CREATIVE_COMMONS
+                    SearchFeature.SPHERICAL_360 -> YouTubeSearchParams.Feature.SPHERICAL_360
+                }
+            }.toSet()
+        } else {
+            emptySet()
         },
         liveOnly = contentType == ContentType.LIVE,
     )

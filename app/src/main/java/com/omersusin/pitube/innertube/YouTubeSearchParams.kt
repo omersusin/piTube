@@ -31,6 +31,18 @@ internal object YouTubeSearchParams {
         VIEW_COUNT(3),
     }
 
+    /** Boolean feature flags inside the filter block (field numbers per the
+     *  shared Invidious/ViewTube schema — no private endpoints). */
+    enum class Feature(val protoField: Int) {
+        HD(4),
+        SUBTITLES(5),
+        CREATIVE_COMMONS(6),
+        LIVE(8),
+        FOUR_K(14),
+        SPHERICAL_360(15),
+        HDR(25),
+    }
+
     /**
      * Builds the base64 /search `params` protobuf: sort order (field 1) plus a
      * filter block (field 2) — the same values youtube.com's filter sheet puts
@@ -42,12 +54,14 @@ internal object YouTubeSearchParams {
         duration: Duration? = null,
         uploadDate: UploadDate? = null,
         liveOnly: Boolean = false,
+        features: Set<Feature> = emptySet(),
     ): String {
         val filters = ProtobufWriter.encode {
             uploadDate?.let { writeInt32(FILTER_DATE_FIELD, it.value) }
             contentType?.let { writeInt32(FILTER_TYPE_FIELD, it.value) }
             duration?.let { writeInt32(FILTER_DURATION_FIELD, it.value) }
             if (liveOnly) writeBool(FILTER_LIVE_FIELD, true)
+            features.forEach { feature -> writeBool(feature.protoField, true) }
         }
 
         val request = ProtobufWriter.encode {

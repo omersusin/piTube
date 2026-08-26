@@ -36,8 +36,31 @@ data class SearchFilter(
     val contentType: ContentType = ContentType.ALL,
     val duration: Duration = Duration.ANY,
     val uploadDate: UploadDate = UploadDate.ANY,
-    val sortType: SortType = SortType.RELEVANCE
-)
+    val sortType: SortType = SortType.RELEVANCE,
+    val features: Set<SearchFeature> = emptySet(),
+) {
+    /** True when anything differs from the untouched defaults (badge signal). */
+    fun hasActiveVideoFilters(): Boolean =
+        duration != Duration.ANY ||
+            uploadDate != UploadDate.ANY ||
+            sortType != SortType.RELEVANCE ||
+            features.isNotEmpty()
+}
+
+/**
+ * YouTube search feature flags (multi-select, server OR-semantics). Only
+ * flags with a documented protobuf field shared across open implementations
+ * (Invidious/ViewTube) are exposed — no private endpoints involved.
+ */
+enum class SearchFeature(val protoField: Int) {
+    LIVE(8),
+    HD(4),
+    FOUR_K(14),
+    HDR(25),
+    SUBTITLES(5),
+    CREATIVE_COMMONS(6),
+    SPHERICAL_360(15),
+}
 
 enum class ContentType {
     ALL, VIDEOS, SHORTS, CHANNELS, PLAYLISTS, LIVE
