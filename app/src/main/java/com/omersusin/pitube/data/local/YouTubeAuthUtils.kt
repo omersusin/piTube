@@ -63,4 +63,13 @@ object YouTubeAuthUtils {
         if (getCookieValue(cookieString, "SID") == null) missing += "SID"
         return missing
     }
+
+    fun getAuthorizationHeader(cookieString: String, origin: String = "https://music.youtube.com"): String? {
+        val sapisid = getSapisid(cookieString) ?: return null
+        val timestamp = System.currentTimeMillis() / 1000
+        val input = "$timestamp $sapisid $origin"
+        val digest = java.security.MessageDigest.getInstance("SHA-1")
+        val hash = digest.digest(input.toByteArray()).joinToString("") { "%02x".format(it) }
+        return "SAPISIDHASH ${timestamp}_$hash"
+    }
 }

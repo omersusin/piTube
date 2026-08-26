@@ -344,9 +344,9 @@ class InnerTube {
                     // Session index: signed requests must pin the Google
                     // account the cookies belong to (yt-dlp/Koda both do).
                     append("X-Goog-AuthUser", "0")
-                    if ("SAPISID" !in cookieMap) return@let
+                    val sapisid = cookieMap["SAPISID"] ?: cookieMap["__Secure-3PAPISID"] ?: return@let
                     val currentTime = System.currentTimeMillis() / 1000
-                    val sapisidHash = sha1("$currentTime ${cookieMap["SAPISID"]} $origin")
+                    val sapisidHash = sha1("$currentTime $sapisid $origin")
                     append("Authorization", "SAPISIDHASH ${currentTime}_$sapisidHash")
                 }
             }
@@ -520,6 +520,11 @@ class InnerTube {
         }
     }
 
+    suspend fun trendingBrowse() = signedWebBrowse(
+        client = YouTubeClient.WEB,
+        browseId = "FEtrending",
+    )
+
     /**
      * Signed JSON POST to an arbitrary InnerTube endpoint on www.youtube.com.
      * Same auth as [signedWebBrowse] (cookie + SAPISIDHASH for the
@@ -579,10 +584,10 @@ class InnerTube {
                     userAgent(YouTubeClient.WEB.userAgent)
                     cookie?.let { cookie ->
                         append("cookie", cookie)
-                        if ("SAPISID" in cookieMap) {
+                        val sapisid = cookieMap["SAPISID"] ?: cookieMap["__Secure-3PAPISID"]
+                        if (sapisid != null) {
                             val currentTime = System.currentTimeMillis() / 1000
-                            val sapisidHash =
-                                sha1("$currentTime ${cookieMap["SAPISID"]} ${YouTubeClient.ORIGIN_YOUTUBE}")
+                            val sapisidHash = sha1("$currentTime $sapisid ${YouTubeClient.ORIGIN_YOUTUBE}")
                             append("Authorization", "SAPISIDHASH ${currentTime}_$sapisidHash")
                             append("X-Goog-AuthUser", "0")
                         }

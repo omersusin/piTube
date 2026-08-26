@@ -289,7 +289,12 @@ class HomeViewModel @Inject constructor(
         "car reviews", "diy projects", "gardening", "meditation music", "study music",
         "lofi beats", "news analysis", "crypto explained", "true crime", "pets and animals",
         "learning english", "photography", "gadget comparisons", "vintage music", "nightcore",
-        "challenges", "pranks", "street food", "architecture", "psychology explained"
+        "challenges", "pranks", "street food", "architecture", "psychology explained",
+        "jazz classics", "hip hop", "k-pop", "classical music", "acoustic covers",
+        "electronic music", "indie music", "country hits", "reggaeton", "anime music",
+        "film analysis", "book reviews", "coding tutorial", "3d printing", "wildlife",
+        "ocean documentary", "ancient history", "philosophy", "economics explained", "investing",
+        "design inspiration", "street photography", "home decor", "tiny house", "urban exploration"
     )
 
     // Saved-interest enrichment sources + per-seed cooldown.
