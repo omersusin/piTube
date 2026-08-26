@@ -61,6 +61,8 @@ import com.omersusin.pitube.innertube.pages.NotificationPage
 import com.omersusin.pitube.innertube.pages.NewPipeExtractor
 import com.omersusin.pitube.innertube.pages.toNotificationPage
 import com.omersusin.pitube.data.model.Comment
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import com.omersusin.pitube.data.model.VideoCollaborator
 import com.omersusin.pitube.FlowApplication
 import com.omersusin.pitube.utils.avatarImageIdentityKey
@@ -2464,7 +2466,7 @@ object YouTube {
             .jsonPrimitive.content
     }
 
-    private val visitorMutex = kotlinx.coroutines.sync.Mutex()
+    private val visitorMutex = Mutex()
 
     fun isVisitorDataSuspect(json: kotlinx.serialization.json.JsonElement): Boolean {
         val obj = json.jsonObject
@@ -2474,8 +2476,9 @@ object YouTube {
     }
 
     suspend fun remintVisitorData(flagged: String): String = visitorMutex.withLock {
-        visitorData?.takeIf { it != flagged }?.let { return it }
-        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() } ?: return flagged
+        val current = visitorData
+        if (current != null && current != flagged) return@withLock current
+        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() } ?: return@withLock flagged
         visitorData = fresh
         fresh
     }
