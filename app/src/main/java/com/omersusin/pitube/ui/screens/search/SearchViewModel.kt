@@ -17,6 +17,7 @@ import com.omersusin.pitube.data.paging.SearchPagingSource
 import com.omersusin.pitube.data.paging.SearchResultItem
 import com.omersusin.pitube.data.repository.YouTubeRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
