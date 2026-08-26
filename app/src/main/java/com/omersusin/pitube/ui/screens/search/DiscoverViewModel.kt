@@ -69,13 +69,14 @@ class DiscoverViewModel
             continuation = null
             tasteSeedOffset = 0
             trendingNextPage = null
-            historyIds =
-                com.omersusin.pitube.data.local.ViewHistory
-                    .getInstance(context)
-                    .getAllHistoryIds()
             loadJob =
                 viewModelScope.launch {
                     _state.value = DiscoverState(isLoading = true)
+                    // getAllHistoryIds is suspend + returns a Set — normalize here.
+                    historyIds =
+                        ViewHistory.getInstance(context)
+                            .getAllHistoryIds()
+                            .toList()
                     // Race the async session restore so the signed-in verdict is
                     // computed from the restored cookie, not the pre-restore null.
                     withTimeoutOrNull(1_500L) { SessionManager.restored.await() }

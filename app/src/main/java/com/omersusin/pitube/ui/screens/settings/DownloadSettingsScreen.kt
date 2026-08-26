@@ -67,6 +67,19 @@ private enum class DownloadLocationTarget {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+/** Popular downloader packages that may not expose a text/plain SEND filter. */
+private val KNOWN_DOWNLOADER_PACKAGES =
+    listOf(
+        "com.junkfood.seal",
+        "com.ytdlnis.downloader",
+        "com.ab.downloadmanager",
+        "idm.internet.download.manager",
+        "idm.internet.download.manager.adfree",
+        "dv.adm",
+        "per.pqy.apktools",
+    )
+
+@Composable
 fun DownloadSettingsScreen(
     onNavigateBack: () -> Unit
 ) {
@@ -766,16 +779,16 @@ fun DownloadSettingsScreen(
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        LazyColumn(
+                        Column(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .heightIn(max = 220.dp)
+                                    .verticalScroll(rememberScrollState())
                                     .padding(vertical = 4.dp),
                         ) {
                             val allTargets = shareTargets + knownDownloaders
-                            items(allTargets.size) { index ->
-                                val (pkg, label) = allTargets[index]
+                            for ((pkg, label) in allTargets) {
                                 Row(
                                     modifier =
                                         Modifier
