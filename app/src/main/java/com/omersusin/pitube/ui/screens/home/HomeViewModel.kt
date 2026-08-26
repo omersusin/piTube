@@ -1170,20 +1170,19 @@ class HomeViewModel @Inject constructor(
                         val wave2FinalMixIds = finalMix.map { it.id }.toHashSet()
                         wave2Job = viewModelScope.launch(PerformanceDispatcher.networkIO) wave2@{
                             try {
-                                val wave2Raw = wave2Queries.map { q ->
-                                    async {
-                                        withTimeoutOrNull(6_000L) {
-                                            try {
-                                                repository.searchVideos(q).first
-                                            } catch (cancellation: CancellationException) {
-                                                throw cancellation
-                                            } catch (error: Exception) {
-                                                Log.d(TAG, "Wave 2 query failed for $q: ${error.message}")
-                                                emptyList()
-                                            }
-                                        } ?: emptyList()
-                                    }
-                                }.awaitAll().flatten()
+                                val limitedQueries = wave2Queries.take(12)
+                                val wave2Raw = PerformanceDispatcher.parallelMap(limitedQueries, 6) { q ->
+                                    withTimeoutOrNull(6_000L) {
+                                        try {
+                                            repository.searchVideos(q).first
+                                        } catch (cancellation: CancellationException) {
+                                            throw cancellation
+                                        } catch (error: Exception) {
+                                            Log.d(TAG, "Wave 2 query failed for $q: ${error.message}")
+                                            emptyList<Video>()
+                                        }
+                                    } ?: emptyList<Video>()
+                                }.flatten()
                                 val wave2Watched = watchedVideoIds.value
                                 val wave2Valid = wave2Raw.filterValid().filterWatched(wave2Watched)
                                     .filterUnplayable(unplayableVideoIds.value)
