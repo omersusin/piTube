@@ -300,6 +300,53 @@ object YouTube {
         root.findVideoOwnerCollaborators()
     }
 
+    /** Watch-page owner payload used to fill blank YT Music song rows. */
+    data class VideoOwnerInfo(
+        val channelId: String,
+        val avatarUrls: List<String>,
+        val viewCountText: String?,
+        val publishedTimeText: String?,
+    )
+
+    /**
+     * Owner channel id, avatar (single is enough here — [videoAvatarStack]
+     * deliberately filters size-1 stacks for collab detection), view count and
+     * publish date from ONE WEB /next call. Covers music videoIds whose rows
+     * ship without any of this metadata.
+     */
+    suspend fun videoOwnerInfo(videoId: String): Result<VideoOwnerInfo?> = runCatching {
+        val rawBody = innerTube.next(WEB, videoId, null, null, null, null, null).bodyAsText()
+        val root = json.parseToJsonElement(rawBody)
+        val owner = root.findFirstJsonObject("videoOwnerRenderer")
+        val avatars =
+            owner?.get("avatarStack")?.collectAvatarImageUrls().orEmpty()
+                .ifEmpty { owner?.collectAvatarImageUrls().orEmpty() }
+                .take(2)
+        VideoOwnerInfo(
+            channelId = owner?.findFirstString("browseId").orEmpty(),
+            avatarUrls = avatars,
+            viewCountText = root.findFirstJsonObject("videoViewCountRenderer")
+                ?.get("viewCount")?.textNode(),
+            publishedTimeText = root.findFirstJsonObject("dateText")?.textNode()
+                ?: root.findFirstJsonObject("relativeDateText")?.textNode(),
+        )
+    }
+
+    /** simpleText / first-run text out of a renderer value node. */
+    private fun JsonElement?.textNode(): String? {
+        when (this) {
+            is JsonObject -> {
+                (this["simpleText"] as? JsonPrimitive)?.contentOrNull?.let { return it }
+                (((this["runs"] as? JsonArray)?.firstOrNull()) as? JsonObject)?.let { run ->
+                    (run["text"] as? JsonPrimitive)?.contentOrNull?.let { return it }
+                }
+            }
+            is JsonPrimitive -> contentOrNull?.let { return it }
+            else -> Unit
+        }
+        return null
+    }
+
     /**
      * The signed-in user's like state for a video, parsed from the /next
      * frameworkUpdates (likeStatusEntity). Values: "LIKE" | "DISLIKE" |

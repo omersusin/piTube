@@ -61,6 +61,7 @@ class YouTubeRepository
         private val channelAvatarCache = LruCache<String, String>(300)
         private val videoAvatarStackCache = LruCache<String, List<String>>(300)
         private val songBulkAvatarStacksCache = LruCache<String, Map<String, List<String>>>(20)
+        private val songOwnerInfoCache = LruCache<String, YouTube.VideoOwnerInfo>(300)
         private val videoCollaboratorCache = LruCache<String, List<VideoCollaborator>>(300)
         private val videoChannelMetadataCache = LruCache<String, VideoChannelMetadata>(300)
 
@@ -568,23 +569,23 @@ class YouTubeRepository
             }
             Log.d("DEBUG-songav", "repo: leftovers=${leftovers.size} ids=${leftovers.take(3).map { it.id }}")
 
-            val stacks =
+            val infos =
                 supervisorScope {
                     leftovers
                         .chunked(3)
                         .flatMap { batch ->
                             batch.map { video ->
                                 async(Dispatchers.IO) {
-                                    val cached = videoAvatarStackCache[video.id]
+                                    val cached = songOwnerInfoCache.get(video.id)
                                     if (cached != null) {
                                         video.id to cached
                                     } else {
-                                        val urls =
-                                            withTimeoutOrNull(4_000L) {
-                                                YouTube.videoAvatarStack(video.id).getOrNull()
-                                            }.orEmpty()
-                                        if (urls.isNotEmpty()) videoAvatarStackCache.put(video.id, urls)
-                                        video.id to urls
+                                        val info =
+                                            withTimeoutOrNull(6_000L) {
+                                                YouTube.videoOwnerInfo(video.id).getOrNull()
+                                            }
+                                        if (info != null) songOwnerInfoCache.put(video.id, info)
+                                        video.id to info
                                     }
                                 }
                             }.awaitAll()
@@ -592,23 +593,30 @@ class YouTubeRepository
                 }.toMap()
 
             return filled.map { song ->
-                val stack = stacks[song.id].orEmpty()
-                if (song.channelThumbnailUrl.isNotBlank() || stack.isEmpty()) {
+                val info = infos[song.id]
+                if (song.channelThumbnailUrl.isNotBlank() || info == null) {
                     song
                 } else {
-                    val merged = mergeAvatarUrls(stack, song)
+                    val merged = mergeAvatarUrls(info.avatarUrls, song)
                     song.copy(
                         channelThumbnailUrl = merged.firstOrNull().orEmpty(),
                         channelThumbnailUrls = merged,
+                        channelId = song.channelId.ifBlank { info.channelId },
+                        // Views/date ride the same /next response (H1-c).
+                        viewCount = parseViewCountText(info.viewCountText),
+                        uploadDate = info.publishedTimeText.orEmpty(),
                     )
                 }
             }.also { result ->
                 Log.d(
                     "DEBUG-songav",
-                    "repo: perVideo stacks=${stacks.filterValues { it.isNotEmpty() }.size} filled=${result.count { it.channelThumbnailUrl.isNotBlank() }} stillBlank=${result.count { it.channelThumbnailUrl.isBlank() }}",
+                    "repo: ownerInfo hits=${infos.values.count { it?.avatarUrls?.isNotEmpty() == true }} filled=${result.count { it.channelThumbnailUrl.isNotBlank() }} stillBlank=${result.count { it.channelThumbnailUrl.isBlank() }} withViews=${result.count { it.viewCount >= 0 }} withDate=${result.count { it.uploadDate.isNotEmpty() }}",
                 )
             }
         }
+
+        private fun parseViewCountText(text: String?): Long =
+            text?.filter { it.isDigit() }?.takeIf { it.isNotEmpty() }?.toLongOrNull() ?: -1L
 
         private fun mergeAvatarUrls(
             stack: List<String>,
