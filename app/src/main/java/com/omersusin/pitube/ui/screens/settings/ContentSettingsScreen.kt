@@ -1147,7 +1147,7 @@ private fun ChipCustomizationDialog(
     var localDiscoverOrder by remember { mutableStateOf(discoverOrder.ifEmpty { DISCOVER_CHIP_DEFS.map { it.key } }) }
     var localDiscoverHidden by remember { mutableStateOf(discoverHidden) }
 
-    fun move(order: MutableList<String>, key: String, up: Boolean): List<String> {
+    fun move(order: List<String>, key: String, up: Boolean): List<String> {
         val from = order.indexOf(key)
         if (from == -1) return order
         val to = if (up) from - 1 else from + 1

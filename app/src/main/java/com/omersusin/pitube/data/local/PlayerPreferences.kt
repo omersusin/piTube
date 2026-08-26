@@ -381,9 +381,9 @@ class PlayerPreferences(context: Context) {
         val MUSIC_SEARCH_CATEGORIES = booleanPreferencesKey("music_search_categories_enabled")
         val EXTERNAL_DOWNLOADER_ENABLED = booleanPreferencesKey("external_downloader_enabled")
         val EXTERNAL_DOWNLOADER_PACKAGE = stringPreferencesKey("external_downloader_package")
-        val SEARCH_CHIP_ORDER = stringListPreferencesKey("search_chip_order")
+        val SEARCH_CHIP_ORDER = stringPreferencesKey("search_chip_order")
         val SEARCH_CHIP_HIDDEN = stringSetPreferencesKey("search_chip_hidden")
-        val DISCOVER_CHIP_ORDER = stringListPreferencesKey("discover_chip_order")
+        val DISCOVER_CHIP_ORDER = stringPreferencesKey("discover_chip_order")
         val DISCOVER_CHIP_HIDDEN = stringSetPreferencesKey("discover_chip_hidden")
     }
     
@@ -2784,14 +2784,16 @@ class PlayerPreferences(context: Context) {
     suspend fun setExternalDownloaderPackage(v: String) { context.playerPreferencesDataStore.edit { it[Keys.EXTERNAL_DOWNLOADER_PACKAGE] = v.trim() } }
 
     // Chip order/hide for the search strip and the Discover topic row. The
-    // stored list holds chip keys in display order; keys missing from it fall
-    // back to their default position, hidden keys are dropped at render time.
-    val searchChipOrder: Flow<List<String>> = context.playerPreferencesDataStore.data.map { it[Keys.SEARCH_CHIP_ORDER] ?: emptyList() }
-    suspend fun setSearchChipOrder(v: List<String>) { context.playerPreferencesDataStore.edit { it[Keys.SEARCH_CHIP_ORDER] = v } }
+    // order pref is a comma-joined key list; keys missing from it fall back
+    // to their default position, hidden keys are dropped at render time.
+    val searchChipOrder: Flow<List<String>> = context.playerPreferencesDataStore.data
+        .map { it[Keys.SEARCH_CHIP_ORDER]?.split(',')?.filter(String::isNotBlank) ?: emptyList() }
+    suspend fun setSearchChipOrder(v: List<String>) { context.playerPreferencesDataStore.edit { it[Keys.SEARCH_CHIP_ORDER] = v.joinToString(",") } }
     val searchChipHidden: Flow<Set<String>> = context.playerPreferencesDataStore.data.map { it[Keys.SEARCH_CHIP_HIDDEN] ?: emptySet() }
     suspend fun setSearchChipHidden(v: Set<String>) { context.playerPreferencesDataStore.edit { it[Keys.SEARCH_CHIP_HIDDEN] = v } }
-    val discoverChipOrder: Flow<List<String>> = context.playerPreferencesDataStore.data.map { it[Keys.DISCOVER_CHIP_ORDER] ?: emptyList() }
-    suspend fun setDiscoverChipOrder(v: List<String>) { context.playerPreferencesDataStore.edit { it[Keys.DISCOVER_CHIP_ORDER] = v } }
+    val discoverChipOrder: Flow<List<String>> = context.playerPreferencesDataStore.data
+        .map { it[Keys.DISCOVER_CHIP_ORDER]?.split(',')?.filter(String::isNotBlank) ?: emptyList() }
+    suspend fun setDiscoverChipOrder(v: List<String>) { context.playerPreferencesDataStore.edit { it[Keys.DISCOVER_CHIP_ORDER] = v.joinToString(",") } }
     val discoverChipHidden: Flow<Set<String>> = context.playerPreferencesDataStore.data.map { it[Keys.DISCOVER_CHIP_HIDDEN] ?: emptySet() }
     suspend fun setDiscoverChipHidden(v: Set<String>) { context.playerPreferencesDataStore.edit { it[Keys.DISCOVER_CHIP_HIDDEN] = v } }
 }

@@ -1354,9 +1354,9 @@ private fun DiscoverScreen(
         item {
             val topics =
                 EXPLORE_TOPICS
-                    .filter { (key, _) -> key !in discoverChipHidden }
+                    .filter { (key, _) -> key !in hiddenChips }
                     .sortedBy { (key, _) ->
-                        discoverChipOrder.indexOf(key).takeIf { it >= 0 } ?: Int.MAX_VALUE
+                        chipOrder.indexOf(key).takeIf { it >= 0 } ?: Int.MAX_VALUE
                     }
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
