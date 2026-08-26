@@ -1756,8 +1756,9 @@ class YouTubeRepository
             var durationSecs = if (duration > 0) duration.toInt() else 0
 
             val isShortUrl = rawUrl.contains("/shorts/")
+            val isShortHeuristic = isShortUrl || (durationSecs in 1..60)
 
-            if (isShortUrl && durationSecs == 0) {
+            if (isShortHeuristic && durationSecs == 0) {
                 durationSecs = 60
             }
 
@@ -1817,7 +1818,7 @@ class YouTubeRepository
                 channelThumbnailUrls = avatarUrls,
                 isUpcoming = streamType == StreamType.NONE,
                 isLive = isLiveStream,
-                isShort = isShortUrl,
+                isShort = isShortHeuristic && !isLiveStream,
                 isMusic = isMusicCandidate,
             )
         }

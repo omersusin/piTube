@@ -1921,11 +1921,15 @@ object YouTube {
                 badge.text?.contains("LIVE", ignoreCase = true) == true ||
                 badge.animatedText?.text?.contains("LIVE", ignoreCase = true) == true
         }
+        val durationVal = parseLengthText(durationText)
         val isShortBadge = badgeViewModels.any { badge ->
             badge.text?.contains("Shorts", ignoreCase = true) == true ||
                 badge.badgeStyle?.contains("SHORTS", ignoreCase = true) == true ||
                 badge.text?.equals("SHORTS", ignoreCase = true) == true
         }
+        val durationLooksShort = durationVal in 1..60 && liveBadge == null && !isLive
+        val isShort = isShortBadge || durationLooksShort
+        val finalDuration = if (isShort && durationVal == 0) 60 else durationVal
         val metadataRows = metadata.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
         val channelPart = metadataRows.firstOrNull()?.metadataParts?.firstOrNull()
         val resolvedChannelId = channelPart?.runs
@@ -1967,7 +1971,7 @@ object YouTube {
             channelName = resolvedChannelName,
             channelId = resolvedChannelId,
             thumbnailUrl = thumbnail,
-            duration = parseLengthText(durationText),
+            duration = finalDuration,
             viewCount = parseViewCountText(viewsText),
             uploadDate = uploadText,
             timestamp = parseRelativeUploadDate(uploadText) ?: 0L,
@@ -1975,7 +1979,7 @@ object YouTube {
             isLive = isLive || liveBadge != null
                 || viewsText?.contains("watching", ignoreCase = true) == true
                 || viewsText?.contains("izliyor", ignoreCase = true) == true,
-            isShort = isShortBadge,
+            isShort = isShort,
         )
     }
 
@@ -1994,19 +1998,23 @@ object YouTube {
         val viewsText = r.viewCountText?.textValue()
         val resolvedChannelName = r.ownerText?.textValue()?.takeIf { it.isNotBlank() } ?: channelName
         val avatarUrls = r.channelAvatarUrls(channelThumbnailUrl)
+        val durBrowse = parseLengthText(r.lengthText?.textValue())
+        val isShortBrowse = durBrowse in 1..60 && !isLive
+        val finalDurBrowse = if (isShortBrowse && durBrowse == 0) 60 else durBrowse
         return com.omersusin.pitube.data.model.Video(
             id = videoId,
             title = title,
             channelName = resolvedChannelName,
             channelId = channelId,
             thumbnailUrl = thumbnail,
-            duration = parseLengthText(r.lengthText?.textValue()),
+            duration = finalDurBrowse,
             viewCount = parseViewCountText(viewsText),
             uploadDate = uploadText,
             timestamp = parseRelativeUploadDate(uploadText) ?: 0L,
             channelThumbnailUrl = avatarUrls.firstOrNull().orEmpty(),
             channelThumbnailUrls = avatarUrls,
             isLive = isLive || viewsText?.contains("watching", ignoreCase = true) == true,
+            isShort = isShortBrowse,
         )
     }
 

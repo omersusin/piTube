@@ -85,12 +85,12 @@ internal fun homeFeedQuotas(
     }
     if (subCount > 0) {
         val subs = (slots * 0.65).toInt().coerceAtLeast(6)
-        val related = (slots * 0.18).toInt()
-        val discovery = (slots * 0.12).toInt()
+        val related = (slots * 0.24).toInt()
+        val discovery = (slots * 0.06).toInt()
         val viral = (slots - subs - related - discovery).coerceAtLeast(0)
         return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to subs, FeedSource.RELATED to related, FeedSource.DISCOVERY to discovery, FeedSource.VIRAL to viral)
     }
-    return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to 0, FeedSource.RELATED to (slots * 0.45).toInt(), FeedSource.DISCOVERY to (slots * 0.30).toInt(), FeedSource.VIRAL to (slots - (slots * 0.45).toInt() - (slots * 0.30).toInt()).coerceAtLeast(0))
+    return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to 0, FeedSource.RELATED to (slots * 0.60).toInt(), FeedSource.DISCOVERY to (slots * 0.15).toInt(), FeedSource.VIRAL to (slots - (slots * 0.60).toInt() - (slots * 0.15).toInt()).coerceAtLeast(0))
 }
 
 internal fun addUniqueVideo(
@@ -869,7 +869,7 @@ class HomeViewModel @Inject constructor(
                 // degrade the whole feed to trending/discovery. Seed a lane from
                 // the user's own watch history instead: latest watched videos →
                 // their related items → interleaved as RELATED content.
-                val tastePool = if (signedIn && personalizedPool.size < 5) {
+                val tastePool = if (personalizedPool.size < 5) {
                     withTimeoutOrNull(10_000L) {
                         runCatching {
                             val seeds = viewHistory?.getLatestUnfinishedVideo()
@@ -1565,9 +1565,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
      * Complements filterValid() by capturing what it discards.
      */
     private fun List<Video>.extractShorts(): List<Video> {
-        return this.filter { 
-            it.isShort || (it.duration in 1..120 && !it.isLive)
-        }
+        return this.filter { it.isShort }
     }
 
     private fun List<Video>.filterRecentHomeSuggestion(now: Long): List<Video> =
