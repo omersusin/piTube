@@ -149,6 +149,11 @@ class SessionManager(private val context: Context) {
      */
     fun isLoggedIn(): Boolean = !getCookies().isNullOrBlank()
 
+    fun saveDatasyncId(datasyncId: String) {
+        if (datasyncId.isBlank()) return
+        profileManager.updateIdentity(activeId(), datasyncId = datasyncId)
+    }
+
     fun saveUserName(name: String) {
         profileManager.updateIdentity(activeId(), name = name)
         runCatching { runMirror { it.updateYoutubeAccountInfo(name = name, email = null, thumbnailUrl = null) } }

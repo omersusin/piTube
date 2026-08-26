@@ -237,12 +237,20 @@ class ProfileManager(context: Context) {
     }
 
     /** Point the app at another profile. Invalidation is [AccountSwitcher]'s job. */
-    fun setActive(id: String) {
+    fun setActive(id: String, commitNow: Boolean = false) {
         if (get(id) == null) return
         val leaving = sharedActiveId!!.value
         if (leaving.isNotBlank() && leaving != id) sharedPreviousId.value = leaving
-        prefs.edit().putString(KEY_ACTIVE_PROFILE, id).apply()
+        val editor = prefs.edit().putString(KEY_ACTIVE_PROFILE, id)
+        if (commitNow) editor.commit() else editor.apply()
         sharedActiveId!!.value = id
+    }
+
+    fun restoreProfiles(restored: List<Profile>, commitNow: Boolean = false) {
+        val existing = sharedProfiles!!.value.associateBy { it.id }
+        val merged = restored.filter { it.id !in existing }
+        if (merged.isEmpty()) return
+        saveProfiles(sharedProfiles!!.value + merged, commitNow)
     }
 
     /**
@@ -325,10 +333,11 @@ class ProfileManager(context: Context) {
         return profile
     }
 
-    private fun saveProfiles(list: List<Profile>) {
+    private fun saveProfiles(list: List<Profile>, commitNow: Boolean = false) {
         val array = JSONArray()
         list.forEach { array.put(it.toJson()) }
-        prefs.edit().putString(KEY_PROFILES, array.toString()).apply()
+        val editor = prefs.edit().putString(KEY_PROFILES, array.toString())
+        if (commitNow) editor.commit() else editor.apply()
         sharedProfiles!!.value = list
     }
 
