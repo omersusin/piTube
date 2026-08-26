@@ -53,10 +53,10 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
         private const val UPLOADS_PER_CHANNEL = 15
 
         /** Max subscription channels to hit per refresh cycle */
-        private const val MAX_SUB_CHANNELS = 8
+        private const val MAX_SUB_CHANNELS = 5
 
         /** Min discovery search queries to run per refresh */
-        private const val MAX_DISCOVERY_QUERIES = 3
+        private const val MAX_DISCOVERY_QUERIES = 2
 
         /** Broad topics used for Shorts discovery searches */
         private val DEFAULT_DISCOVERY_TOPICS = listOf(

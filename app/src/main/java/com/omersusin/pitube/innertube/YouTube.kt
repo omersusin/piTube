@@ -848,16 +848,19 @@ object YouTube {
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
         val parsed = parseChannelVideosResponse(response, "", "", "", false)
         if (parsed.videos.isEmpty() && continuation == null) {
-            // Empty first page is THE symptom this lane exists to fix. Surface
-            // enough context for the diagnostics report to distinguish a
-            // bot-wall/login banner from a genuinely empty grid.
             val marker = when {
                 "signin" in rawBody || "LOGIN_REQUIRED" in rawBody -> "login-required banner"
                 "consistency" in rawBody || "botguard" in rawBody.lowercase() -> "bot-guard interstitial"
                 rawBody.length < 500 -> "suspiciously tiny body (${rawBody.length} chars)"
                 else -> "parsed-empty (body=${rawBody.length} chars)"
             }
-            Log.w("YouTube", "personalizedFeed($browseId): EMPTY response — $marker bodyLen=${rawBody.length} head=${rawBody.take(2000)}")
+            val status = httpResponse.status.value
+            val loggedIn = Regex("\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"([01])\"").find(rawBody)?.groupValues?.getOrNull(1)
+            val datasyncEcho = Regex("\"datasyncId\"\\s*:\\s*\"([^\"]+)\"").find(rawBody)?.groupValues?.getOrNull(1)
+            val visitorLen = innerTube.visitorData?.length ?: 0
+            val cookiePresent = !innerTube.cookie.isNullOrBlank()
+            val missing = com.omersusin.pitube.data.local.CookieRotation.missingRequiredCookies(innerTube.cookie)
+            Log.w("YouTube", "personalizedFeed($browseId): EMPTY — $marker status=$status logged_in=$loggedIn datasyncEcho=$datasyncEcho visitorLen=$visitorLen cookiePresent=$cookiePresent missing=${missing.joinToString(",")} bodyLen=${rawBody.length} head=${rawBody.take(2000)}")
         } else if (continuation == null) {
             Log.w("YouTube", "personalizedFeed($browseId): ${parsed.videos.size} videos, cont=${parsed.continuation != null}")
         }
@@ -1717,6 +1720,7 @@ object YouTube {
         val videos = mutableListOf<RemotePlaylistVideo>()
         var continuation: String? = null
         var pages = 0
+        val seenContinuations = mutableSetOf<String>()
         do {
             val response = if (continuation == null) {
                 innerTube.signedWebBrowse(client = client, browseId = browseId)
@@ -1727,13 +1731,36 @@ object YouTube {
                 Log.w("YouTube", "webPlaylistVideos($playlistId): HTTP ${response.status.value} on page $pages")
                 break
             }
-            val root = Json.parseToJsonElement(response.bodyAsText())
+            val bodyText = response.bodyAsText()
+            innerTube.noteResponseState(bodyText)
+            if (LOGGED_OUT_REGEX.containsMatchIn(bodyText)) {
+                Log.w("YouTube", "webPlaylistVideos($playlistId): signed-out body on page $pages — aborting")
+                break
+            }
+            val root = Json.parseToJsonElement(bodyText)
             val found = root.toRemotePlaylistVideos()
             if (found.isEmpty()) {
-                Log.w("YouTube", "webPlaylistVideos($playlistId): parser returned 0 videos on page $pages (body len ${response.bodyAsText().length})")
+                val isTiny = bodyText.length < 3000
+                val hasAlert = "\"alertRenderer\"" in bodyText || "does not exist" in bodyText
+                val marker = when {
+                    hasAlert -> "alert/error"
+                    isTiny -> "tiny-error-body (${bodyText.length})"
+                    else -> "parsed-empty (${bodyText.length})"
+                }
+                Log.w("YouTube", "webPlaylistVideos($playlistId): parser 0 videos on page $pages ($marker) head=${bodyText.take(500)}")
+                if (isTiny || hasAlert) break
             }
             videos += found
-            continuation = root.playlistVideoListContinuationToken() ?: root.browseContinuation()
+            val next = root.playlistVideoListContinuationToken() ?: root.browseContinuation()
+            if (next != null && !seenContinuations.add(next)) {
+                Log.w("YouTube", "webPlaylistVideos($playlistId): repeated continuation — aborting")
+                break
+            }
+            if (found.isEmpty() && next != null) {
+                Log.w("YouTube", "webPlaylistVideos($playlistId): 0 videos but continuation present — terminal")
+                break
+            }
+            continuation = next
             pages++
         } while (continuation != null && pages < maxPages)
         videos.distinctBy { it.id }

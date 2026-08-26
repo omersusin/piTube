@@ -43,7 +43,7 @@ object PerformanceDispatcher {
     // Uses more threads than CPU cores since network ops are I/O bound, but keeps
     // TLS/socket allocation pressure bounded on 256 MB heap devices.
     private val networkExecutor = Executors.newFixedThreadPool(
-        (availableProcessors * 2).coerceIn(4, 16)
+        (availableProcessors * 2).coerceIn(4, 8)
     ) { runnable ->
         Thread(runnable, "FlowNetwork-${networkThreadCounter.incrementAndGet()}").apply {
             isDaemon = true

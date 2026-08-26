@@ -279,7 +279,12 @@ class YouTubeRepository
 
                     Pair(enrichLikelyCollabAvatarStacks(videos), infoItems.nextPage)
                 } catch (e: Exception) {
-                    Log.w(TAG, "Trending unavailable: ${e.message}")
+                    Log.w(TAG, "Trending unavailable (NewPipe): ${e.message}")
+                    val fallback = runCatching { com.omersusin.pitube.innertube.YouTube.trendingFeed().getOrNull()?.videos.orEmpty() }.getOrElse { emptyList() }
+                    if (fallback.isNotEmpty()) {
+                        Log.w(TAG, "Trending FEtrending fallback: ${fallback.size} videos")
+                        return@withContext Pair(enrichLikelyCollabAvatarStacks(fallback), null)
+                    }
                     Pair(emptyList(), null)
                 }
             }

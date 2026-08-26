@@ -1170,8 +1170,8 @@ class HomeViewModel @Inject constructor(
                         val wave2FinalMixIds = finalMix.map { it.id }.toHashSet()
                         wave2Job = viewModelScope.launch(PerformanceDispatcher.networkIO) wave2@{
                             try {
-                                val limitedQueries = wave2Queries.take(12)
-                                val wave2Raw = PerformanceDispatcher.parallelMap(limitedQueries, 6) { q ->
+                                val limitedQueries = wave2Queries.take(6)
+                                val wave2Raw = PerformanceDispatcher.parallelMap(limitedQueries, 3) { q ->
                                     withTimeoutOrNull(6_000L) {
                                         try {
                                             repository.searchVideos(q).first
