@@ -782,6 +782,8 @@ private fun SearchContentChips(
                 chipOrder.indexOf(chip.key).takeIf { it >= 0 } ?: Int.MAX_VALUE
             }
         }
+    // Everything hidden → the strip disappears entirely (user request).
+    if (orderedChips.isEmpty()) return
 
     LazyRow(
         modifier = modifier.fillMaxWidth(),
@@ -1342,33 +1344,38 @@ private fun DiscoverScreen(
         contentPadding = PaddingValues(bottom = 90.dp),
     ) {
         // Explore topics — tap a chip to search that topic (Koda's video-mode explore).
-        item {
-            Text(
-                stringResource(R.string.discover_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            )
+        // Everything hidden → the whole section (title + row) disappears.
+        val visibleTopics =
+            EXPLORE_TOPICS
+                .filter { (key, _) -> key !in hiddenChips }
+                .sortedBy { (key, _) ->
+                    chipOrder.indexOf(key).takeIf { it >= 0 } ?: Int.MAX_VALUE
+                }
+        if (visibleTopics.isNotEmpty() || searchHistory.isNotEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.discover_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+            }
         }
-        item {
-            val topics =
-                EXPLORE_TOPICS
-                    .filter { (key, _) -> key !in hiddenChips }
-                    .sortedBy { (key, _) ->
-                        chipOrder.indexOf(key).takeIf { it >= 0 } ?: Int.MAX_VALUE
+        if (visibleTopics.isNotEmpty()) {
+            item {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(visibleTopics, key = { it.first }) { (_, res) ->
+                        val topicLabel = stringResource(res)
+                        ContentFilterChip(
+                            title = topicLabel,
+                            isSelected = false,
+                            onClick = { onTopicClick(topicLabel) },
+                        )
                     }
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(topics, key = { it.first }) { (_, res) ->
-                    val topicLabel = stringResource(res)
-                    ContentFilterChip(
-                        title = topicLabel,
-                        isSelected = false,
-                        onClick = { onTopicClick(topicLabel) },
-                    )
                 }
             }
         }

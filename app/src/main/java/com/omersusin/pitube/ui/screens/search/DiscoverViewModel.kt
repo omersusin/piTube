@@ -55,6 +55,11 @@ class DiscoverViewModel
         private var continuation: String? = null
         private var loadJob: kotlinx.coroutines.Job? = null
 
+        // Per-lane pagination state (only one lane is ever active per refresh).
+        private var historyIds: List<String> = emptyList()
+        private var tasteSeedOffset = 0
+        private var trendingNextPage: org.schabi.newpipe.extractor.Page? = null
+
         init {
             refresh()
         }
@@ -62,6 +67,12 @@ class DiscoverViewModel
         fun refresh() {
             loadJob?.cancel()
             continuation = null
+            tasteSeedOffset = 0
+            trendingNextPage = null
+            historyIds =
+                com.omersusin.pitube.data.local.ViewHistory
+                    .getInstance(context)
+                    .getAllHistoryIds()
             loadJob =
                 viewModelScope.launch {
                     _state.value = DiscoverState(isLoading = true)
@@ -87,10 +98,12 @@ class DiscoverViewModel
                     }
 
                     if (videos.isEmpty()) {
-                        videos =
-                            runCatching {
-                                repository.getTrendingVideos(playerPreferences.trendingRegion.first()).first
-                            }.getOrElse { emptyList() }
+                        runCatching {
+                            val (trending, nextPage) =
+                                repository.getTrendingVideos(playerPreferences.trendingRegion.first())
+                            videos = trending
+                            trendingNextPage = nextPage
+                        }
                         source = Source.TRENDING
                     }
 
@@ -99,33 +112,74 @@ class DiscoverViewModel
                             isLoading = false,
                             videos = videos.distinctBy { it.id }.take(30),
                             source = source,
-                            endReached = continuation == null && source != Source.PERSONALIZED || videos.isEmpty(),
+                            endReached = !hasMoreInLane(source),
                         )
                 }
         }
 
-        /** Personalized lane pages via the FEwhat_to_watch rich-grid continuation. */
+        /** Whether the ACTIVE lane can still produce another page. */
+        private fun hasMoreInLane(source: Source): Boolean =
+            when (source) {
+                Source.LOADING -> false
+                Source.PERSONALIZED -> continuation != null && _state.value.videos.isNotEmpty()
+                Source.TASTE -> tasteSeedOffset < historyIds.size
+                Source.TRENDING -> trendingNextPage != null
+            }
+
+        /** Page the ACTIVE lane: personalized continuation, more taste seeds, or trending pages. */
         fun loadMore() {
-            val token = continuation ?: return
-            if (_state.value.endReached || _state.value.isLoading) return
+            val source = _state.value.source
+            if (source == Source.LOADING || _state.value.endReached || _state.value.isLoading) return
             viewModelScope.launch {
                 _state.value = _state.value.copy(isLoading = true)
-                val next =
-                    runCatching {
-                        com.omersusin.pitube.innertube.YouTube.personalizedFeedContinuation(token).getOrNull()
-                    }.getOrNull()
-                if (next == null || next.videos.isEmpty()) {
-                    continuation = null
-                    _state.value = _state.value.copy(endReached = true, isLoading = false)
-                    return@launch
+                when (source) {
+                    Source.PERSONALIZED -> {
+                        val token = continuation
+                        if (token == null) {
+                            _state.value = _state.value.copy(endReached = true, isLoading = false)
+                            return@launch
+                        }
+                        val next =
+                            runCatching {
+                                com.omersusin.pitube.innertube.YouTube.personalizedFeedContinuation(token).getOrNull()
+                            }.getOrNull()
+                        if (next == null || next.videos.isEmpty()) {
+                            continuation = null
+                            _state.value = _state.value.copy(endReached = true, isLoading = false)
+                            return@launch
+                        }
+                        continuation = next.continuation
+                        _state.value =
+                            _state.value.copy(
+                                videos = (_state.value.videos + next.videos).distinctBy { it.id },
+                                endReached = !hasMoreInLane(source),
+                                isLoading = false,
+                            )
+                    }
+
+                    Source.TASTE -> appendTastePage()
+
+                    Source.TRENDING -> {
+                        val page = trendingNextPage
+                        if (page == null) {
+                            _state.value = _state.value.copy(endReached = true, isLoading = false)
+                            return@launch
+                        }
+                        val result =
+                            runCatching {
+                                repository.getTrendingVideos(playerPreferences.trendingRegion.first(), page)
+                            }.getOrElse { emptyList<Video>() to null }
+                        trendingNextPage = result.second
+                        _state.value =
+                            _state.value.copy(
+                                videos = (_state.value.videos + result.first).distinctBy { it.id },
+                                endReached = !hasMoreInLane(source),
+                                isLoading = false,
+                            )
+                    }
+
+                    Source.LOADING -> {}
                 }
-                continuation = next.continuation
-                _state.value =
-                    _state.value.copy(
-                        videos = (_state.value.videos + next.videos).distinctBy { it.id },
-                        endReached = next.continuation == null,
-                        isLoading = false,
-                    )
             }
         }
 
@@ -152,14 +206,12 @@ class DiscoverViewModel
          * "the feed followed my last search"), so it only ever contributes one
          * seed among several history picks. A per-channel cap then keeps any
          * single channel from dominating the mixed result.
+         *
+         * [appendPage] false = first batch (uses the blended head); true =
+         * next seed window for infinite scroll.
          */
         private suspend fun fetchTasteVideos(): List<Video> {
-            val viewHistory = ViewHistory.getInstance(context)
-            val seeds =
-                buildList {
-                    viewHistory.getLatestUnfinishedVideo()?.let { add(it.videoId) }
-                    addAll(viewHistory.getAllHistoryIds())
-                }.distinct().take(4)
+            val seeds = currentTasteSeeds()
             val collected =
                 seeds.flatMap { seedId ->
                     runCatching { repository.getRelatedVideos(seedId) }.getOrElse { emptyList() }
@@ -173,7 +225,36 @@ class DiscoverViewModel
             }
         }
 
+        /** The next SEEDS_PER_PAGE untried history ids (latest unfinished included up front). */
+        private suspend fun currentTasteSeeds(): List<String> {
+            val viewHistory = ViewHistory.getInstance(context)
+            val latest = viewHistory.getLatestUnfinishedVideo()?.videoId
+            return buildList {
+                if (tasteSeedOffset == 0) latest?.let(::add)
+                addAll(historyIds)
+            }.distinct().drop(tasteSeedOffset).take(SEEDS_PER_PAGE)
+                    .also { tasteSeedOffset += SEEDS_PER_PAGE }
+        }
+
+        /** Next taste seed-window, appended with the same diversity cap. */
+        private suspend fun appendTastePage() {
+            val next = fetchTasteVideos()
+            if (next.isEmpty()) {
+                _state.value = _state.value.copy(endReached = true, isLoading = false)
+                return
+            }
+            _state.value =
+                _state.value.copy(
+                    videos = (_state.value.videos + next).distinctBy { it.id },
+                    endReached = !hasMoreInLane(Source.TASTE),
+                    isLoading = false,
+                )
+        }
+
         private companion object {
+            /** History seeds consumed per taste page. */
+            const val SEEDS_PER_PAGE = 4
+
             /** One channel can't own more than this slice of the taste lane. */
             const val MAX_TASTE_VIDEOS_PER_CHANNEL = 5
         }

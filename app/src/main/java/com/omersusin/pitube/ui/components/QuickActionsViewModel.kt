@@ -355,11 +355,17 @@ class QuickActionsViewModel @Inject constructor(
                     putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=${video.id}")
                 }
             val pm = context.packageManager
+            // Application context cannot start activities without this flag —
+            // every launch below would throw AndroidRuntimeException and read
+            // as "app not found" even though resolution succeeded.
+            val newTaskFlags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             var launched = false
             if (packageName.isNotBlank()) {
                 runCatching {
                     pm.getLaunchIntentForPackage(packageName)?.let { launch ->
                         launch.putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=${video.id}")
+                        launch.addFlags(newTaskFlags)
                         context.startActivity(launch)
                         launched = true
                     }
@@ -368,6 +374,7 @@ class QuickActionsViewModel @Inject constructor(
                     runCatching {
                         val target = Intent(shareIntent).setPackage(packageName)
                         if (pm.queryIntentActivities(target, 0).isNotEmpty()) {
+                            target.addFlags(newTaskFlags)
                             context.startActivity(target)
                             launched = true
                         }
@@ -376,7 +383,9 @@ class QuickActionsViewModel @Inject constructor(
             }
             if (!launched) {
                 try {
-                    context.startActivity(Intent.createChooser(shareIntent, null))
+                    context.startActivity(
+                        Intent.createChooser(shareIntent, null).addFlags(newTaskFlags),
+                    )
                 } catch (_: Exception) {
                     Toast.makeText(context, R.string.downloader_not_installed_toast, Toast.LENGTH_SHORT).show()
                 }

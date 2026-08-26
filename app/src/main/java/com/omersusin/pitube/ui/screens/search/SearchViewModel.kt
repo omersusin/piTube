@@ -388,9 +388,10 @@ class SearchViewModel
                     val id = channel.id
                     if (main != null && id == main.id) return@filter true
                     val norm = normalizeName(channel.name)
+                    // 3+ so short artist names ("Sia") still catch their clones.
                     val looksLikeTarget =
-                        (mainNorm.length >= 4 && (norm.contains(mainNorm) || mainNorm.contains(norm))) ||
-                            (qNorm.length >= 4 && (norm.contains(qNorm) || qNorm.contains(norm)))
+                        (mainNorm.length >= 3 && (norm.contains(mainNorm) || mainNorm.contains(norm))) ||
+                            (qNorm.length >= 3 && (norm.contains(qNorm) || qNorm.contains(norm)))
                     !looksLikeTarget ||
                         normalizeName(channel.name) in collabNames ||
                         audienceCount(channel.description) >= COLLAB_AUDIENCE_FLOOR

@@ -736,6 +736,19 @@ fun DownloadSettingsScreen(
                         .sortedBy { it.second.lowercase() }
                 }.getOrDefault(emptyList())
             }
+        // Downloader apps whose SEND filter may not match text/plain (some
+        // builds declare different mimes) — surfaced whenever installed.
+        val knownDownloaders =
+            remember(shareTargets) {
+                KNOWN_DOWNLOADER_PACKAGES.mapNotNull { pkg ->
+                    if (shareTargets.any { it.first == pkg }) return@mapNotNull null
+                    val installed =
+                        runCatching {
+                            pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString().trim()
+                        }.getOrNull()
+                    if (installed.isNullOrBlank()) null else pkg to installed
+                }
+            }
         val manualPackageInstalled =
             packageValue.isBlank() ||
                 runCatching {
@@ -760,8 +773,9 @@ fun DownloadSettingsScreen(
                                     .heightIn(max = 220.dp)
                                     .padding(vertical = 4.dp),
                         ) {
-                            items(shareTargets.size) { index ->
-                                val (pkg, label) = shareTargets[index]
+                            val allTargets = shareTargets + knownDownloaders
+                            items(allTargets.size) { index ->
+                                val (pkg, label) = allTargets[index]
                                 Row(
                                     modifier =
                                         Modifier
