@@ -520,6 +520,11 @@ class InnerTube {
         }
     }
 
+    suspend fun trendingBrowse() = signedWebBrowse(
+        client = YouTubeClient.WEB,
+        browseId = "FEtrending",
+    )
+
     /**
      * Signed JSON POST to an arbitrary InnerTube endpoint on www.youtube.com.
      * Same auth as [signedWebBrowse] (cookie + SAPISIDHASH for the

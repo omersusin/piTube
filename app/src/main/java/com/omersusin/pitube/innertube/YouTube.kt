@@ -824,6 +824,14 @@ object YouTube {
         personalizedFeedPage(continuation = continuation)
     }
 
+    suspend fun trendingFeed(): Result<ChannelVideoSearchResult> = runCatching {
+        val httpResponse = innerTube.trendingBrowse()
+        val rawBody = httpResponse.bodyAsText()
+        innerTube.noteResponseState(rawBody)
+        val response = json.decodeFromString<ChannelVideosResponse>(rawBody)
+        parseChannelVideosResponse(response, "", "", "", false)
+    }
+
     private suspend fun personalizedFeedPage(
         browseId: String? = null,
         continuation: String? = null,
@@ -849,7 +857,7 @@ object YouTube {
                 rawBody.length < 500 -> "suspiciously tiny body (${rawBody.length} chars)"
                 else -> "parsed-empty (body=${rawBody.length} chars)"
             }
-            Log.w("YouTube", "personalizedFeed($browseId): EMPTY response — $marker")
+            Log.w("YouTube", "personalizedFeed($browseId): EMPTY response — $marker bodyLen=${rawBody.length} head=${rawBody.take(2000)}")
         } else if (continuation == null) {
             Log.w("YouTube", "personalizedFeed($browseId): ${parsed.videos.size} videos, cont=${parsed.continuation != null}")
         }
