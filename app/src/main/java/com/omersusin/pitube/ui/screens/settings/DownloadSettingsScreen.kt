@@ -65,8 +65,6 @@ private enum class DownloadLocationTarget {
     VIDEO
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 /** Popular downloader packages that may not expose a text/plain SEND filter. */
 private val KNOWN_DOWNLOADER_PACKAGES =
     listOf(
@@ -79,6 +77,7 @@ private val KNOWN_DOWNLOADER_PACKAGES =
         "per.pqy.apktools",
     )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DownloadSettingsScreen(
     onNavigateBack: () -> Unit
