@@ -2464,6 +2464,27 @@ object YouTube {
             .jsonPrimitive.content
     }
 
+    private val visitorMutex = kotlinx.coroutines.sync.Mutex()
+
+    fun isVisitorDataSuspect(json: kotlinx.serialization.json.JsonElement): Boolean {
+        val obj = json.jsonObject
+        val status = obj["playabilityStatus"]?.jsonObject?.get("status")?.jsonPrimitive?.contentOrNull
+        val streamingData = obj["streamingData"]
+        return status == "LOGIN_REQUIRED" || (status == "OK" && streamingData == null)
+    }
+
+    suspend fun remintVisitorData(flagged: String): String = visitorMutex.withLock {
+        visitorData?.takeIf { it != flagged }?.let { return it }
+        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() } ?: return flagged
+        visitorData = fresh
+        fresh
+    }
+
+    suspend fun refreshVisitorDataAfterPlaybackFailure(): String? {
+        val flagged = visitorData ?: return null
+        return remintVisitorData(flagged)
+    }
+
     /**
      * Rotate the anonymous visitor identity so personalized/dossier endpoints
      * (home discovery, trending) stop returning the same pinned items forever.

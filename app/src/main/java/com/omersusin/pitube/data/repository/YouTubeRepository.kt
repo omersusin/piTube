@@ -16,6 +16,8 @@ import com.omersusin.pitube.utils.ThumbnailUrlResolver
 import com.omersusin.pitube.utils.avatarImageIdentityKey
 import com.omersusin.pitube.utils.bestImageUrl
 import com.omersusin.pitube.utils.distinctBestImageUrls
+import com.omersusin.pitube.data.local.RssFeedParser
+import com.omersusin.pitube.innertube.models.YouTubeClient
 import com.omersusin.pitube.utils.parseToTimestamp
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -921,6 +923,62 @@ class YouTubeRepository
                 }
             }
 
+        private val rssClient by lazy { okhttp3.OkHttpClient() }
+
+        suspend fun getChannelFeedRss(channelId: String, avatarUrl: String? = null): List<Video> = withContext(Dispatchers.IO) {
+            try {
+                val request = okhttp3.Request.Builder()
+                    .url("https://www.youtube.com/feeds/videos.xml?channel_id=$channelId")
+                    .header("User-Agent", YouTubeClient.USER_AGENT_WEB)
+                    .build()
+                val body = rssClient.newCall(request).execute().use { resp ->
+                    if (!resp.isSuccessful) {
+                        Log.w(TAG, "channel feed $channelId HTTP ${resp.code}")
+                        return@withContext emptyList()
+                    }
+                    resp.body?.string()
+                } ?: return@withContext emptyList()
+                RssFeedParser.parse(body, avatarUrl)
+            } catch (e: Exception) {
+                Log.w(TAG, "getChannelFeedRss failed for $channelId: ${e.message}")
+                emptyList()
+            }
+        }
+
+        suspend fun getLocalSubscriptionsFeed(
+            channels: List<Pair<String, String?>>,
+            fastMode: Boolean = true,
+            maxPerChannel: Int = 15,
+            maxTotal: Int = 300,
+            onProgress: ((Int, Int) -> Unit)? = null
+        ): List<Video> = withContext(Dispatchers.IO) {
+            if (channels.isEmpty()) return@withContext emptyList()
+            val gate = Semaphore(6)
+            val completed = java.util.concurrent.atomic.AtomicInteger(0)
+            val total = channels.size
+            val perChannel = coroutineScope {
+                channels.map { (id, avatar) ->
+                    async {
+                        gate.acquire()
+                        try {
+                            val videos = if (fastMode) {
+                                getChannelFeedRss(id, avatar).ifEmpty {
+                                    try { getChannelUploads(id, maxPerChannel) } catch (_: Exception) { emptyList() }
+                                }
+                            } else {
+                                try { getChannelUploads(id, maxPerChannel) } catch (_: Exception) { emptyList() }
+                            }
+                            videos.take(maxPerChannel)
+                        } finally {
+                            gate.release()
+                            onProgress?.invoke(completed.incrementAndGet(), total)
+                        }
+                    }
+                }.map { it.await() }
+            }
+            perChannel.flatten().distinctBy { it.id }.sortedByDescending { it.timestamp.takeIf { v -> v != 0L } ?: Long.MIN_VALUE }.take(maxTotal)
+        }
+
         /**
          * NEW: Parallel fetch of multiple search queries
          * Executes all queries simultaneously for faster feed generation
@@ -1088,6 +1146,16 @@ class YouTubeRepository
                     TAG,
                     "Home subs fetch total=${channels.size}, selected=${selectedChannels.size}, cursor=$cursor->$newCursor",
                 )
+
+                val rssFeed = withTimeoutOrNull(12_000L) {
+                    getLocalSubscriptionsFeed(
+                        channels = selectedChannels.map { it to null },
+                        fastMode = true,
+                        maxPerChannel = 5,
+                        maxTotal = (channelsPerRefresh * 5).coerceAtMost(150)
+                    )
+                }
+                if (!rssFeed.isNullOrEmpty()) return@withContext rssFeed
 
                 getVideosForChannels(
                     channelIdsOrUrls = selectedChannels,
@@ -1917,6 +1985,9 @@ class YouTubeRepository
             private const val HOME_SUBS_MIN_CHANNELS = 10
             private const val HOME_SUBS_MEDIUM_CHANNELS = 14
             private const val HOME_SUBS_MAX_CHANNELS = 18
+            private const val FEED_CONCURRENCY = 6
+            private const val MAX_FEED_ITEMS_PER_CHANNEL = 15
+            private const val MAX_FEED_ITEMS = 300
             private const val COMMENT_AVATAR_FETCH_CONCURRENCY = 4
             private const val COMMENT_AVATAR_FETCH_TIMEOUT_MS = 6_000L
 

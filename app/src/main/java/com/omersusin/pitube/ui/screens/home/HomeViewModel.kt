@@ -878,11 +878,15 @@ class HomeViewModel @Inject constructor(
                             val historyIds = seeds.ifEmpty {
                                 viewHistory?.getAllHistoryIds()?.take(8).orEmpty()
                             }
-                            historyIds.take(4).flatMap { seedId ->
-                                runCatching {
-                                    repository.getRelatedVideos(seedId)
-                                }.getOrElse { emptyList() }
-                            }.filterSignedValid()
+                            val seedIds = historyIds.take(6)
+                            val perSeed = kotlinx.coroutines.coroutineScope {
+                                seedIds.map { seedId ->
+                                    async {
+                                        runCatching { repository.getRelatedVideos(seedId) }.getOrElse { emptyList() }
+                                    }
+                                }.awaitAll()
+                            }
+                            interleaveRoundRobin(perSeed).filterSignedValid()
                         }.getOrElse { emptyList() }
                     } ?: emptyList()
                 } else emptyList()
@@ -1539,6 +1543,19 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
      * every item without a duration is what silently emptied the personalized
      * feed. Only actual Shorts are removed.
      */
+    private fun <T> interleaveRoundRobin(lists: List<List<T>>): List<T> {
+        val result = mutableListOf<T>()
+        val iters = lists.map { it.iterator() }.toMutableList()
+        while (iters.any { it.hasNext() }) {
+            val it = iters.iterator()
+            while (it.hasNext()) {
+                val cur = it.next()
+                if (cur.hasNext()) result.add(cur.next()) else it.remove()
+            }
+        }
+        return result
+    }
+
     private fun List<Video>.filterSignedValid(): List<Video> {
         return this.filter { !it.isShort && !(it.duration in 1..120 && !it.isLive) }
     }
