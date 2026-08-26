@@ -17,7 +17,7 @@ import com.omersusin.pitube.data.paging.SearchPagingSource
 import com.omersusin.pitube.data.paging.SearchResultItem
 import com.omersusin.pitube.data.repository.YouTubeRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -294,6 +295,7 @@ class SearchViewModel
         private suspend fun loadSongs(retry: Boolean = false) {
             val query = _uiState.value.query
             if (query.isBlank() || !musicCategoriesEnabled.value) return
+            ensureSongAvatarWorker()
             if (!retry) {
                 _songsPage.value = SongsPage(loading = true, started = true)
             } else {
@@ -318,7 +320,6 @@ class SearchViewModel
                     started = true,
                 )
             fetchMainArtistCardIfNeeded()
-            refreshSongAvatars(query)
         }
 
         /**
@@ -505,7 +506,6 @@ class SearchViewModel
                     endReached = result.continuation == null,
                     loading = false,
                 )
-            refreshSongAvatars(query)
             return true
         }
 
@@ -585,52 +585,46 @@ class SearchViewModel
          * Avatar pass for song rows (blank by design in YT Music): bulk search
          * stacks + per-video fallbacks run off the critical path, then the list
          * is rewritten through decorateSongs so artist-matching still applies.
-         * Loops until no untried blanks remain so continuation pages appended
-         * mid-fetch are picked up; results merge by id, never clobbering rows.
+         * A persistent polling worker picks up continuation pages whenever they
+         * land, so no append can fall through an active-job race.
          */
-        private var songAvatarJob: Job? = null
         private var songAvatarAttemptsFor: String? = null
         private val songAvatarAttemptedIds = mutableSetOf<String>()
+        private var songAvatarWorkerStarted = false
 
-        private fun refreshSongAvatars(query: String) {
-            if (songAvatarAttemptsFor != query) {
-                songAvatarAttemptsFor = query
-                songAvatarAttemptedIds.clear()
-            }
-            android.util.Log.d(
-                "DEBUG-songav",
-                "vm: refresh q#${query.hashCode()} blanks=${_songsPage.value.items.count { it.channelThumbnailUrl.isBlank() }} active=${songAvatarJob?.isActive == true}",
-            )
-            if (songAvatarJob?.isActive == true) return
-            songAvatarJob =
-                viewModelScope.launch {
-                    var pass = 0
-                    while (_uiState.value.query == query) {
-                        val snapshot = _songsPage.value.items
-                        val targets =
-                            snapshot.filter {
-                                it.channelThumbnailUrl.isBlank() && it.id !in songAvatarAttemptedIds
-                            }
-                        if (targets.isEmpty()) break
-                        pass++
-                        android.util.Log.d(
-                            "DEBUG-songav",
-                            "vm: pass=$pass snapshot=${snapshot.size} targets=${targets.size} jobActive=${songAvatarJob?.isActive == true}",
-                        )
-                        songAvatarAttemptedIds.addAll(targets.map { it.id })
-                        val enriched = repository.enrichSongAvatars(query, snapshot)
-                        if (_uiState.value.query != query) return@launch
-                        val byId = enriched.associateBy { it.id }
-                        _songsPage.value =
-                            _songsPage.value.copy(
-                                items = decorateSongs(_songsPage.value.items.map { byId[it.id] ?: it }),
-                            )
-                        android.util.Log.d(
-                            "DEBUG-songav",
-                            "vm: pass=$pass wrote items=${_songsPage.value.items.size} blankLeft=${_songsPage.value.items.count { it.channelThumbnailUrl.isBlank() }}",
-                        )
+        private fun ensureSongAvatarWorker() {
+            if (songAvatarWorkerStarted) return
+            songAvatarWorkerStarted = true
+            viewModelScope.launch {
+                while (isActive) {
+                    val query = _uiState.value.query
+                    if (songAvatarAttemptsFor != query) {
+                        songAvatarAttemptsFor = query
+                        songAvatarAttemptedIds.clear()
                     }
+                    val snapshot = _songsPage.value.items
+                    val targets =
+                        snapshot.filter {
+                            it.channelThumbnailUrl.isBlank() && it.id !in songAvatarAttemptedIds
+                        }
+                    if (targets.isEmpty()) {
+                        delay(500)
+                        continue
+                    }
+                    android.util.Log.d(
+                        "DEBUG-songav",
+                        "vm: worker q#${query.hashCode()} targets=${targets.size} snapshot=${snapshot.size}",
+                    )
+                    songAvatarAttemptedIds.addAll(targets.map { it.id })
+                    val enriched = repository.enrichSongAvatars(query, snapshot)
+                    if (_uiState.value.query != query) continue
+                    val byId = enriched.associateBy { it.id }
+                    _songsPage.value =
+                        _songsPage.value.copy(
+                            items = decorateSongs(_songsPage.value.items.map { byId[it.id] ?: it }),
+                        )
                 }
+            }
         }
 
         private fun fetchMainArtistCardIfNeeded() {
