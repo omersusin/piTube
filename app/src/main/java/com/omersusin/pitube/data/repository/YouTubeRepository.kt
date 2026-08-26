@@ -60,6 +60,7 @@ class YouTubeRepository
         // Cache for channel avatar URLs to avoid redundant network calls
         private val channelAvatarCache = LruCache<String, String>(300)
         private val videoAvatarStackCache = LruCache<String, List<String>>(300)
+        private val songBulkAvatarStacksCache = LruCache<String, Map<String, List<String>>>(20)
         private val videoCollaboratorCache = LruCache<String, List<VideoCollaborator>>(300)
         private val videoChannelMetadataCache = LruCache<String, VideoChannelMetadata>(300)
 
@@ -532,10 +533,14 @@ class YouTubeRepository
         ): List<Video> {
             if (query.isBlank() || songs.none { it.channelThumbnailUrl.isBlank() }) return songs
 
+            val cachedBulk = songBulkAvatarStacksCache.get(query)
             val bulk =
-                withTimeoutOrNull(4_000L) {
-                    YouTube.searchVideoAvatarStacks(query).getOrNull()
-                }.orEmpty()
+                cachedBulk
+                    ?: withTimeoutOrNull(4_000L) {
+                        YouTube.searchVideoAvatarStacks(query).getOrNull()
+                    }.orEmpty().also { stacks ->
+                        songBulkAvatarStacksCache.put(query, stacks)
+                    }
 
             val filled =
                 songs.map { song ->

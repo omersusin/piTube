@@ -585,17 +585,36 @@ class SearchViewModel
          * Avatar pass for song rows (blank by design in YT Music): bulk search
          * stacks + per-video fallbacks run off the critical path, then the list
          * is rewritten through decorateSongs so artist-matching still applies.
+         * Loops until no untried blanks remain so continuation pages appended
+         * mid-fetch are picked up; results merge by id, never clobbering rows.
          */
         private var songAvatarJob: Job? = null
+        private var songAvatarAttemptsFor: String? = null
+        private val songAvatarAttemptedIds = mutableSetOf<String>()
 
         private fun refreshSongAvatars(query: String) {
-            if (_songsPage.value.items.none { it.channelThumbnailUrl.isBlank() }) return
+            if (songAvatarAttemptsFor != query) {
+                songAvatarAttemptsFor = query
+                songAvatarAttemptedIds.clear()
+            }
             if (songAvatarJob?.isActive == true) return
             songAvatarJob =
                 viewModelScope.launch {
-                    val enriched = repository.enrichSongAvatars(query, _songsPage.value.items)
-                    if (_uiState.value.query == query && enriched != _songsPage.value.items) {
-                        _songsPage.value = _songsPage.value.copy(items = decorateSongs(enriched))
+                    while (_uiState.value.query == query) {
+                        val snapshot = _songsPage.value.items
+                        val targets =
+                            snapshot.filter {
+                                it.channelThumbnailUrl.isBlank() && it.id !in songAvatarAttemptedIds
+                            }
+                        if (targets.isEmpty()) break
+                        songAvatarAttemptedIds.addAll(targets.map { it.id })
+                        val enriched = repository.enrichSongAvatars(query, snapshot)
+                        if (_uiState.value.query != query) return@launch
+                        val byId = enriched.associateBy { it.id }
+                        _songsPage.value =
+                            _songsPage.value.copy(
+                                items = decorateSongs(_songsPage.value.items.map { byId[it.id] ?: it }),
+                            )
                     }
                 }
         }
