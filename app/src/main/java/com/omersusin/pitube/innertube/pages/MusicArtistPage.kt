@@ -16,9 +16,16 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MusicArtistResponse(
     val contents: Contents?,
+    val microformat: Microformat?,
 ) {
     @Serializable
     data class Contents(val singleColumnBrowseResultsRenderer: SingleColumn?)
+
+    @Serializable
+    data class Microformat(val microformatDataRenderer: MicroformatData?)
+
+    @Serializable
+    data class MicroformatData(val urlCanonical: String? = null)
 
     @Serializable
     data class SingleColumn(val tabs: List<Tab>?)

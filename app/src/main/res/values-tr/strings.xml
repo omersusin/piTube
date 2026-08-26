@@ -2271,6 +2271,14 @@
     <string name="settings_music_search_categories_desc">Aramaya Şarkılar ve Sanatçılar sekmeleri ekler. Kapalıyken YouTube Music\'e hiç istek gitmez.</string>
     <string name="settings_external_downloader">Harici indiriciye gönder</string>
     <string name="settings_external_downloader_desc">Video menülerine "Harici indiriciyle aç" ekler</string>
-    <string name="settings_external_downloader_package">İndirici paket adı (isteğe bağlı)</string>    <string name="music_main_artist">Ana sanatçı</string>
+    <string name="settings_external_downloader_package">İndirici paket adı (isteğe bağlı)</string>
+    <string name="downloader_installed_apps_title">Kurulu uygulamalar</string>
+    <string name="downloader_package_not_installed_warning">Kurulu değil — bunun yerine sistem paylaş menüsü kullanılacak</string>
+    <string name="music_main_artist">Ana sanatçı</string>
     <string name="music_related_artists">İlgili sanatçılar</string>
+    <string name="content_settings_header_chips">Arama ve Keşfet çipleri</string>
+    <string name="content_settings_chip_order_title">Çip sırası ve görünürlüğü</string>
+    <string name="content_settings_chip_order_subtitle">Arama şeridini ve Keşfet konu-çiplerini sırala veya gizle</string>
+    <string name="content_settings_chip_group_search">Arama şeridi</string>
+    <string name="content_settings_chip_group_discover">Keşfet konuları</string>
 </resources>

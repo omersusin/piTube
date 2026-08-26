@@ -22,6 +22,7 @@ import com.omersusin.pitube.innertube.models.response.channelVideoCountText
 import com.omersusin.pitube.innertube.models.response.GetTranscriptResponse
 import com.omersusin.pitube.innertube.models.response.NextResponse
 import com.omersusin.pitube.innertube.models.response.PlayerResponse
+import com.omersusin.pitube.innertube.models.response.ResolveUrlResponse
 import com.omersusin.pitube.innertube.pages.MusicArtistContent
 import com.omersusin.pitube.innertube.pages.MusicArtistResponse
 import com.omersusin.pitube.innertube.pages.MusicSearchPage
@@ -228,8 +229,39 @@ object YouTube {
     }.onSuccess { Log.d("MusicSearch", "artist page $browseId: related=${it.relatedArtists.size} videos=${it.videos.size}") }
         .onFailure { Log.w("MusicSearch", "artist page $browseId failed: ${it.message}") }
 
-    private suspend fun ensureVisitorData() {
-        if (!visitorData.isNullOrBlank()) return
+    /**
+     * Music-artist page id → real www channel id. Music search results point
+     * at auto-generated "- Topic" pages whose id differs from the artist's
+     * actual channel. Two-step bridge (both anonymous): the music browse
+     * carries a canonical handle URL in its microformat, and Koda's
+     * `resolveChannelId` pattern turns that handle into the real UC id via
+     * `/navigation/resolve_url` on the www host.
+     */
+    suspend fun resolveRealChannelId(musicArtistId: String): String? =
+        runCatching {
+            val canonical =
+                innerTube.browse(client = WEB_REMIX, browseId = musicArtistId)
+                    .body<MusicArtistResponse>()
+                    .microformat?.microformatDataRenderer?.urlCanonical
+            val handle =
+                Regex("/(@[^/?]+)").find(canonical.orEmpty())?.groupValues?.get(1)
+            if (handle == null) {
+                Log.d("MusicSearch", "resolveRealChannelId: no handle for $musicArtistId")
+                return@runCatching null
+            }
+            val resolved =
+                innerTube.resolveUrl("https://www.youtube.com/$handle")
+                    .body<ResolveUrlResponse>()
+                    .endpoint?.browseEndpoint?.browseId
+                    ?.takeIf { it.startsWith("UC") && it != musicArtistId }
+            Log.d(
+                "MusicSearch",
+                "resolveRealChannelId: $musicArtistId -> ${resolved ?: "null"} ($handle)",
+            )
+            resolved
+        }.getOrNull()
+
+    private suspend fun ensureVisitorData() {        if (!visitorData.isNullOrBlank()) return
         visitorData().getOrNull()
             ?.takeIf(String::isNotBlank)
             ?.let { visitorData = it }

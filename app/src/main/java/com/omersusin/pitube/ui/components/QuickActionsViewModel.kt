@@ -336,8 +336,11 @@ class QuickActionsViewModel @Inject constructor(
 
     /**
      * Hand the video URL to the user's configured external downloader app
-     * (Seal / YTDLnis style handoff). No-ops with feedback when disabled,
-     * unconfigured or not installed.
+     * (Seal / YTDLnis style handoff). Resolution chain (strictest → loosest):
+     * launch-intent for the configured package → SEND-filtered activity in
+     * that package → system chooser. Many download managers (e.g. AB Download
+     * Manager) don't export a text/plain SEND handler, so a package hit alone
+     * must not produce "not installed" — only a total resolution failure does.
      */
     fun openWithExternalDownloader(video: Video) {
         viewModelScope.launch {
@@ -346,19 +349,37 @@ class QuickActionsViewModel @Inject constructor(
             if (!enabled) return@launch
             val packageName =
                 runCatching { playerPreferences.externalDownloaderPackage.first() }.getOrDefault("").trim()
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=${video.id}")
-            }
-            try {
-                if (packageName.isNotBlank()) {
-                    val target = Intent(intent).apply { setPackage(packageName) }
-                    context.startActivity(target)
-                } else {
-                    context.startActivity(Intent.createChooser(intent, null))
+            val shareIntent =
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=${video.id}")
                 }
-            } catch (_: Exception) {
-                Toast.makeText(context, R.string.downloader_not_installed_toast, Toast.LENGTH_SHORT).show()
+            val pm = context.packageManager
+            var launched = false
+            if (packageName.isNotBlank()) {
+                runCatching {
+                    pm.getLaunchIntentForPackage(packageName)?.let { launch ->
+                        launch.putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=${video.id}")
+                        context.startActivity(launch)
+                        launched = true
+                    }
+                }
+                if (!launched) {
+                    runCatching {
+                        val target = Intent(shareIntent).setPackage(packageName)
+                        if (pm.queryIntentActivities(target, 0).isNotEmpty()) {
+                            context.startActivity(target)
+                            launched = true
+                        }
+                    }
+                }
+            }
+            if (!launched) {
+                try {
+                    context.startActivity(Intent.createChooser(shareIntent, null))
+                } catch (_: Exception) {
+                    Toast.makeText(context, R.string.downloader_not_installed_toast, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

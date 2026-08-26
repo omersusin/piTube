@@ -767,8 +767,25 @@ class InnerTube {
         }
     }
 
-    suspend fun reel(
-        client: YouTubeClient,
+    /**
+     * Handle/vanity URL → canonical channel id. Only resolves on the www
+     * host (the music host doesn't serve navigation). Adapted from Koda's
+     * resolveChannelId — WEB client, works signed out.
+     */
+    suspend fun resolveUrl(url: String) =
+        withRetry {
+            httpClient.post("https://www.youtube.com/youtubei/v1/navigation/resolve_url") {
+                ytClient(YouTubeClient.WEB, apiUrl = YouTubeClient.API_URL_YOUTUBE)
+                setBody(
+                    ResolveUrlBody(
+                        context = YouTubeClient.WEB.toContext(locale, visitorData, null),
+                        url = url,
+                    ),
+                )
+            }
+        }
+
+    suspend fun reel(        client: YouTubeClient,
         params: String? = null,
         sequenceParams: String? = "CA8%3D", // Default for initial fetch
         continuation: String? = null, // Continuation token for load-more pages

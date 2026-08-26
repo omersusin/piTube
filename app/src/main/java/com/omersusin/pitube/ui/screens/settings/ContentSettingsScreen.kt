@@ -5,6 +5,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,6 +35,7 @@ import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.ViewQuilt
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.Title
 import androidx.compose.material3.*
@@ -105,6 +108,11 @@ fun ContentSettingsScreen(
     val disableShortsPlayer by preferences.disableShortsPlayer.collectAsState(initial = false)
     val showShortsPlayerPrompt by preferences.showShortsPlayerPrompt.collectAsState(initial = true)
     val showRegionPickerInExplore by preferences.showRegionPickerInExplore.collectAsState(initial = true)
+    val searchChipOrder by preferences.searchChipOrder.collectAsState(initial = emptyList())
+    val searchChipHidden by preferences.searchChipHidden.collectAsState(initial = emptySet())
+    val discoverChipOrder by preferences.discoverChipOrder.collectAsState(initial = emptyList())
+    val discoverChipHidden by preferences.discoverChipHidden.collectAsState(initial = emptySet())
+    var showChipCustomizationDialog by remember { mutableStateOf(false) }
     val videoTitleMaxLines by preferences.videoTitleMaxLines.collectAsState(initial = 1)
     val videoCardMarkWatchedEnabled by preferences.videoCardMarkWatchedEnabled.collectAsState(initial = false)
     val commentsEnabled by preferences.commentsEnabled.collectAsState(initial = true)
@@ -207,6 +215,38 @@ fun ContentSettingsScreen(
                                     }
                                 },
                                 modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Search-strip + Discover chip customization
+            item {
+                SectionHeader(text = stringResource(R.string.content_settings_header_chips))
+                SettingsGroup {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showChipCustomizationDialog = true }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Outlined.Tune,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = stringResource(R.string.content_settings_chip_order_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            Text(
+                                text = stringResource(R.string.content_settings_chip_order_subtitle),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -490,6 +530,28 @@ fun ContentSettingsScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+    }
+
+    if (showChipCustomizationDialog) {
+        ChipCustomizationDialog(
+            searchOrder = searchChipOrder,
+            searchHidden = searchChipHidden,
+            discoverOrder = discoverChipOrder,
+            discoverHidden = discoverChipHidden,
+            onSaveSearch = { order, hidden ->
+                coroutineScope.launch {
+                    preferences.setSearchChipOrder(order)
+                    preferences.setSearchChipHidden(hidden)
+                }
+            },
+            onSaveDiscover = { order, hidden ->
+                coroutineScope.launch {
+                    preferences.setDiscoverChipOrder(order)
+                    preferences.setDiscoverChipHidden(hidden)
+                }
+            },
+            onDismiss = { showChipCustomizationDialog = false },
+        )
     }
 
     if (showWatchedThresholdDialog) {
@@ -972,4 +1034,175 @@ private fun DismissedContentRow(
             }
         }
     }
+}
+
+private data class ChipDef(val key: String, val labelRes: Int)
+
+/** Search-strip chips, in their default display order. */
+private val SEARCH_CHIP_DEFS =
+    listOf(
+        ChipDef("all", R.string.tab_all),
+        ChipDef("videos", R.string.videos_header),
+        ChipDef("songs", R.string.tab_songs),
+        ChipDef("artists", R.string.tab_artists),
+        ChipDef("playlists", R.string.tab_playlists),
+        ChipDef("channels", R.string.channels_header),
+    )
+
+/** Discover topic chips, in their default display order. */
+private val DISCOVER_CHIP_DEFS =
+    listOf(
+        ChipDef("gaming", R.string.topic_gaming),
+        ChipDef("music", R.string.topic_music),
+        ChipDef("news", R.string.topic_news),
+        ChipDef("live", R.string.topic_live),
+        ChipDef("podcasts", R.string.topic_podcasts),
+        ChipDef("movies", R.string.topic_movies),
+        ChipDef("tech", R.string.topic_tech),
+        ChipDef("sports", R.string.topic_sports),
+        ChipDef("learning", R.string.topic_learning),
+    )
+
+/**
+ * Reorder (up/down) and hide/show rows for one chip group. The order list
+ * holds ALL keys — hidden ones keep their place so re-showing them restores
+ * the same position instead of appending.
+ */
+@Composable
+private fun ChipOrderGroup(
+    title: String,
+    defs: List<ChipDef>,
+    order: List<String>,
+    hidden: Set<String>,
+    onMove: (key: String, up: Boolean) -> Unit,
+    onToggleHidden: (key: String) -> Unit,
+) {
+    val ordered =
+        defs.sortedBy { def ->
+            order.indexOf(def.key).takeIf { it >= 0 } ?: Int.MAX_VALUE
+        }
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+    )
+    ordered.forEachIndexed { index, def ->
+        val isHidden = def.key in hidden
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(onClick = { onToggleHidden(def.key) }, modifier = Modifier.size(36.dp)) {
+                Icon(
+                    imageVector = if (isHidden) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                    contentDescription = null,
+                    tint = if (isHidden) {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
+                )
+            }
+            Text(
+                text = stringResource(def.labelRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isHidden) {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(
+                onClick = { onMove(def.key, true) },
+                enabled = index > 0 && !isHidden,
+                modifier = Modifier.size(36.dp),
+            ) {
+                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = null)
+            }
+            IconButton(
+                onClick = { onMove(def.key, false) },
+                enabled = index < ordered.lastIndex && !isHidden,
+                modifier = Modifier.size(36.dp),
+            ) {
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChipCustomizationDialog(
+    searchOrder: List<String>,
+    searchHidden: Set<String>,
+    discoverOrder: List<String>,
+    discoverHidden: Set<String>,
+    onSaveSearch: (List<String>, Set<String>) -> Unit,
+    onSaveDiscover: (List<String>, Set<String>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var localSearchOrder by remember { mutableStateOf(searchOrder.ifEmpty { SEARCH_CHIP_DEFS.map { it.key } }) }
+    var localSearchHidden by remember { mutableStateOf(searchHidden) }
+    var localDiscoverOrder by remember { mutableStateOf(discoverOrder.ifEmpty { DISCOVER_CHIP_DEFS.map { it.key } }) }
+    var localDiscoverHidden by remember { mutableStateOf(discoverHidden) }
+
+    fun move(order: MutableList<String>, key: String, up: Boolean): List<String> {
+        val from = order.indexOf(key)
+        if (from == -1) return order
+        val to = if (up) from - 1 else from + 1
+        if (to !in order.indices) return order
+        return order.toMutableList().apply {
+            removeAt(from)
+            add(to, key)
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.content_settings_chip_order_title)) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                ChipOrderGroup(
+                    title = stringResource(R.string.content_settings_chip_group_search),
+                    defs = SEARCH_CHIP_DEFS,
+                    order = localSearchOrder,
+                    hidden = localSearchHidden,
+                    onMove = { key, up -> localSearchOrder = move(localSearchOrder, key, up) },
+                    onToggleHidden = { key ->
+                        localSearchHidden =
+                            if (key in localSearchHidden) localSearchHidden - key else localSearchHidden + key
+                    },
+                )
+                HorizontalDivider(Modifier.padding(vertical = 10.dp))
+                ChipOrderGroup(
+                    title = stringResource(R.string.content_settings_chip_group_discover),
+                    defs = DISCOVER_CHIP_DEFS,
+                    order = localDiscoverOrder,
+                    hidden = localDiscoverHidden,
+                    onMove = { key, up -> localDiscoverOrder = move(localDiscoverOrder, key, up) },
+                    onToggleHidden = { key ->
+                        localDiscoverHidden =
+                            if (key in localDiscoverHidden) localDiscoverHidden - key else localDiscoverHidden + key
+                    },
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSaveSearch(localSearchOrder, localSearchHidden)
+                    onSaveDiscover(localDiscoverOrder, localDiscoverHidden)
+                    onDismiss()
+                },
+            ) {
+                Text(stringResource(R.string.btn_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        },
+    )
 }

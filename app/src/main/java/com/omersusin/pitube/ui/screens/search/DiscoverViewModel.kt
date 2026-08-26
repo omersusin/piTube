@@ -11,8 +11,10 @@ import com.omersusin.pitube.data.repository.YouTubeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -41,6 +43,14 @@ class DiscoverViewModel
 
         private val _state = MutableStateFlow(DiscoverState())
         val state = _state.asStateFlow()
+
+        /** User-ordered / user-hidden Discover topic chips (see PlayerPreferences). */
+        val chipOrder: kotlinx.coroutines.flow.StateFlow<List<String>> =
+            playerPreferences.discoverChipOrder
+                .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), emptyList())
+        val chipHidden: kotlinx.coroutines.flow.StateFlow<Set<String>> =
+            playerPreferences.discoverChipHidden
+                .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), emptySet())
 
         private var continuation: String? = null
         private var loadJob: kotlinx.coroutines.Job? = null
@@ -99,13 +109,14 @@ class DiscoverViewModel
             val token = continuation ?: return
             if (_state.value.endReached || _state.value.isLoading) return
             viewModelScope.launch {
+                _state.value = _state.value.copy(isLoading = true)
                 val next =
                     runCatching {
                         com.omersusin.pitube.innertube.YouTube.personalizedFeedContinuation(token).getOrNull()
                     }.getOrNull()
                 if (next == null || next.videos.isEmpty()) {
                     continuation = null
-                    _state.value = _state.value.copy(endReached = true)
+                    _state.value = _state.value.copy(endReached = true, isLoading = false)
                     return@launch
                 }
                 continuation = next.continuation
@@ -113,6 +124,7 @@ class DiscoverViewModel
                     _state.value.copy(
                         videos = (_state.value.videos + next.videos).distinctBy { it.id },
                         endReached = next.continuation == null,
+                        isLoading = false,
                     )
             }
         }
@@ -134,16 +146,35 @@ class DiscoverViewModel
             return fallback?.videos.orEmpty().also { continuation = fallback?.continuation }
         }
 
+        /**
+         * Taste lane. Seeds are always BLENDED — the latest unfinished video
+         * alone would flood the whole lane with one artist's content (reads as
+         * "the feed followed my last search"), so it only ever contributes one
+         * seed among several history picks. A per-channel cap then keeps any
+         * single channel from dominating the mixed result.
+         */
         private suspend fun fetchTasteVideos(): List<Video> {
             val viewHistory = ViewHistory.getInstance(context)
-            val seedIds =
-                viewHistory.getLatestUnfinishedVideo()
-                    ?.let { listOf(it.videoId) }
-                    .orEmpty()
-                    .ifEmpty { viewHistory.getAllHistoryIds().take(6).toList() }
-            return seedIds.take(4)
-                .flatMap { seedId ->
+            val seeds =
+                buildList {
+                    viewHistory.getLatestUnfinishedVideo()?.let { add(it.videoId) }
+                    addAll(viewHistory.getAllHistoryIds())
+                }.distinct().take(4)
+            val collected =
+                seeds.flatMap { seedId ->
                     runCatching { repository.getRelatedVideos(seedId) }.getOrElse { emptyList() }
                 }
+            val perChannel = mutableMapOf<String, Int>()
+            return collected.filter { video ->
+                val key = video.channelId.ifBlank { video.id }
+                val count = perChannel.getOrDefault(key, 0)
+                perChannel[key] = count + 1
+                count < MAX_TASTE_VIDEOS_PER_CHANNEL
+            }
+        }
+
+        private companion object {
+            /** One channel can't own more than this slice of the taste lane. */
+            const val MAX_TASTE_VIDEOS_PER_CHANNEL = 5
         }
     }

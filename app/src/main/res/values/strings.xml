@@ -2250,6 +2250,14 @@
     <string name="settings_music_search_categories_desc">Adds Songs and Artists tabs to search. Off = no YouTube Music requests are made.</string>
     <string name="settings_external_downloader">External downloader handoff</string>
     <string name="settings_external_downloader_desc">Adds "Open with downloader" to video menus</string>
-    <string name="settings_external_downloader_package">Downloader package name (optional)</string>    <string name="music_main_artist">Main artist</string>
+    <string name="settings_external_downloader_package">Downloader package name (optional)</string>
+    <string name="downloader_installed_apps_title">Installed apps</string>
+    <string name="downloader_package_not_installed_warning">Not installed — the system share sheet will be used instead</string>
+    <string name="music_main_artist">Main artist</string>
     <string name="music_related_artists">Related artists</string>
+    <string name="content_settings_header_chips">Search &amp; Discover chips</string>
+    <string name="content_settings_chip_order_title">Chip order &amp; visibility</string>
+    <string name="content_settings_chip_order_subtitle">Reorder or hide the search strip and Discover topic chips</string>
+    <string name="content_settings_chip_group_search">Search strip</string>
+    <string name="content_settings_chip_group_discover">Discover topics</string>
 </resources>

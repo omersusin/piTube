@@ -716,22 +716,99 @@ fun DownloadSettingsScreen(
 
     if (showDownloaderPackageDialog) {
         var packageValue by remember { mutableStateOf(externalDownloaderPackage) }
+        val pm = context.packageManager
+        // Installed apps that advertise a text/share handler — one-tap picks.
+        val shareTargets =
+            remember {
+                val intent = Intent(Intent.ACTION_SEND).apply { type = "text/plain" }
+                runCatching {
+                    pm.queryIntentActivities(intent, 0)
+                        .mapNotNull { info ->
+                            val label = info.loadLabel(pm)?.toString()?.trim().orEmpty()
+                            val pkg = info.activityInfo?.packageName?.trim().orEmpty()
+                            if (label.isBlank() || pkg.isBlank() || pkg == context.packageName) {
+                                null
+                            } else {
+                                pkg to label
+                            }
+                        }
+                        .distinctBy { it.first }
+                        .sortedBy { it.second.lowercase() }
+                }.getOrDefault(emptyList())
+            }
+        val manualPackageInstalled =
+            packageValue.isBlank() ||
+                runCatching {
+                    pm.getPackageInfo(packageValue.trim(), 0)
+                    true
+                }.getOrDefault(false)
         AlertDialog(
             onDismissRequest = { showDownloaderPackageDialog = false },
             title = { Text(stringResource(R.string.settings_external_downloader_package)) },
             text = {
-                OutlinedTextField(
-                    value = packageValue,
-                    onValueChange = { packageValue = it },
-                    placeholder = { Text("com.junkfood.seal / com.ytdlnis.downloader") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                )
+                Column {
+                    if (shareTargets.isNotEmpty()) {
+                        Text(
+                            stringResource(R.string.downloader_installed_apps_title),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        LazyColumn(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 220.dp)
+                                    .padding(vertical = 4.dp),
+                        ) {
+                            items(shareTargets.size) { index ->
+                                val (pkg, label) = shareTargets[index]
+                                Row(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .clickable { packageValue = pkg }
+                                            .padding(horizontal = 4.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    RadioButton(
+                                        selected = packageValue == pkg,
+                                        onClick = { packageValue = pkg },
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                    Column(Modifier.padding(start = 10.dp)) {
+                                        Text(label, style = MaterialTheme.typography.bodyMedium)
+                                        Text(
+                                            pkg,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        HorizontalDivider(Modifier.padding(vertical = 6.dp))
+                    }
+                    OutlinedTextField(
+                        value = packageValue,
+                        onValueChange = { packageValue = it },
+                        placeholder = { Text("com.junkfood.seal / com.ytdlnis.downloader") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                    )
+                    if (!manualPackageInstalled) {
+                        Text(
+                            stringResource(R.string.downloader_package_not_installed_warning),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 6.dp),
+                        )
+                    }
+                }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        coroutineScope.launch { preferences.setExternalDownloaderPackage(packageValue) }
+                        coroutineScope.launch { preferences.setExternalDownloaderPackage(packageValue.trim()) }
                         showDownloaderPackageDialog = false
                     },
                 ) {

@@ -96,6 +96,9 @@ class ChannelViewModel
 
         // Lazy-pagination continuation for the Videos/Live lists
         private var videosChannelInfo: ChannelInfo? = null
+
+        /** One topic→real-channel redirect per opened channel (loop guard). */
+        private var topicRedirectDone = false
         private var videosNextPage: Page? = null
         private var videosPagesLoaded = 0
         private val _isLoadingMoreVideos = MutableStateFlow(false)
@@ -127,6 +130,7 @@ class ChannelViewModel
                 _uiState.update { it.copy(error = appContext.getString(R.string.error_invalid_channel_url), isLoading = false) }
                 return
             }
+            topicRedirectDone = false
 
             viewModelScope.launch(PerformanceDispatcher.networkIO) {
                 _uiState.update {
@@ -622,14 +626,26 @@ class ChannelViewModel
 
         /**
          * Auto-generated topic channels have no Videos tab (single Home tab on
-         * www), so NewPipe returns nothing. Fetch their video carousel via the
-         * anonymous YT Music artist-page browse instead and populate the Videos
-         * tab. Falls back to Playlists only for the rare non-topic channel that
-         * lacks uploads but has playlists.
+         * www), so NewPipe returns nothing. First try to resolve the music
+         * page id into the artist's REAL channel (handle → resolve_url bridge)
+         * and reload everything from it — full videos/shorts/playlists tabs.
+         * If that fails, fall back to the YT Music artist-page video carousel.
          */
         private fun loadTopicChannelVideos(channelInfo: ChannelInfo) {
             _isLoadingAllVideos.value = true
             viewModelScope.launch(PerformanceDispatcher.networkIO) {
+                val realId = YouTube.resolveRealChannelId(channelInfo.id)
+                if (!topicRedirectDone && realId != null && realId != channelInfo.id) {
+                    Log.d(TAG, "Topic ${channelInfo.id} resolved to real channel $realId")
+                    topicRedirectDone = true
+                    // Wipe the topic page's state so the real channel renders fresh.
+                    _uiState.update { it.copy(selectedTab = 0) }
+                    _videosAll.value = emptyList()
+                    _hasMoreVideos.value = false
+                    _isLoadingAllVideos.value = false
+                    loadChannel("https://www.youtube.com/channel/$realId")
+                    return@launch
+                }
                 try {
                     val content = YouTube.musicArtistContent(channelInfo.id).getOrNull()
                     val videos = content?.videos.orEmpty()

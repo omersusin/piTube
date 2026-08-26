@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.*
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -76,8 +77,13 @@ fun SearchScreen(
     val savedPlaylistIds by viewModel.savedPlaylistIds.collectAsState()
     val musicEnabled by viewModel.musicCategoriesEnabled.collectAsState()
     val musicResults by viewModel.musicResults.collectAsState()
+    val searchChipOrder by viewModel.searchChipOrder.collectAsState()
+    val searchGridMode by viewModel.searchGridMode.collectAsState()
+    val searchChipHidden by viewModel.searchChipHidden.collectAsState()
     val discoverViewModel: DiscoverViewModel = hiltViewModel()
     val discoverState by discoverViewModel.state.collectAsState()
+    val discoverChipOrder by discoverViewModel.chipOrder.collectAsState()
+    val discoverChipHidden by discoverViewModel.chipHidden.collectAsState()
 
     var searchQuery by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
@@ -377,6 +383,8 @@ fun SearchScreen(
             musicCategory = uiState.musicCategory,
             onMusicCategorySelected = viewModel::selectMusicCategory,
             musicEnabled = musicEnabled,
+            chipOrder = searchChipOrder,
+            hiddenChips = searchChipHidden,
         )
 
         if (selectedContentType == ContentType.VIDEOS && uiState.musicCategory == null) {
@@ -403,6 +411,10 @@ fun SearchScreen(
             DiscoverScreen(
                 searchHistory = searchHistory,
                 discoverState = discoverState,
+                chipOrder = discoverChipOrder,
+                hiddenChips = discoverChipHidden,
+                isGrid = searchGridMode,
+                onToggleGrid = viewModel::toggleSearchGridMode,
                 onLoadMoreDiscover = discoverViewModel::loadMore,
                 onTopicClick = { topic ->
                     dismissKeyboard()
@@ -700,6 +712,8 @@ private fun SearchContentChips(
     musicCategory: MusicCategory?,
     onMusicCategorySelected: (MusicCategory?) -> Unit,
     musicEnabled: Boolean,
+    chipOrder: List<String>,
+    hiddenChips: Set<String>,
     modifier: Modifier = Modifier,
 ) {
     data class ChipRef(
@@ -757,12 +771,24 @@ private fun SearchContentChips(
             )
         }
 
+    // User customization wins: hidden chips dropped, then ordered (missing
+    // keys keep their default position after the explicitly ordered ones).
+    val visibleChips = chips.filter { it.key !in hiddenChips }
+    val orderedChips =
+        if (chipOrder.isEmpty()) {
+            visibleChips
+        } else {
+            visibleChips.sortedBy { chip ->
+                chipOrder.indexOf(chip.key).takeIf { it >= 0 } ?: Int.MAX_VALUE
+            }
+        }
+
     LazyRow(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(chips, key = { it.key }) { chip ->
+        items(orderedChips, key = { it.key }) { chip ->
             ContentFilterChip(
                 title = chip.label,
                 isSelected = chip.selected,
@@ -1284,21 +1310,25 @@ private fun ShimmerResultsScreen(
 
 private val EXPLORE_TOPICS =
     listOf(
-        R.string.topic_gaming,
-        R.string.topic_music,
-        R.string.topic_news,
-        R.string.topic_live,
-        R.string.topic_podcasts,
-        R.string.topic_movies,
-        R.string.topic_tech,
-        R.string.topic_sports,
-        R.string.topic_learning,
+        "gaming" to R.string.topic_gaming,
+        "music" to R.string.topic_music,
+        "news" to R.string.topic_news,
+        "live" to R.string.topic_live,
+        "podcasts" to R.string.topic_podcasts,
+        "movies" to R.string.topic_movies,
+        "tech" to R.string.topic_tech,
+        "sports" to R.string.topic_sports,
+        "learning" to R.string.topic_learning,
     )
 
 @Composable
 private fun DiscoverScreen(
     searchHistory: List<SearchHistoryItem>,
     discoverState: DiscoverViewModel.DiscoverState,
+    chipOrder: List<String>,
+    hiddenChips: Set<String>,
+    isGrid: Boolean,
+    onToggleGrid: () -> Unit,
     onLoadMoreDiscover: () -> Unit,
     onTopicClick: (String) -> Unit,
     onVideoClick: (Video) -> Unit,
@@ -1322,11 +1352,17 @@ private fun DiscoverScreen(
             )
         }
         item {
+            val topics =
+                EXPLORE_TOPICS
+                    .filter { (key, _) -> key !in discoverChipHidden }
+                    .sortedBy { (key, _) ->
+                        discoverChipOrder.indexOf(key).takeIf { it >= 0 } ?: Int.MAX_VALUE
+                    }
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(EXPLORE_TOPICS, key = { it }) { res ->
+                items(topics, key = { it.first }) { (_, res) ->
                     val topicLabel = stringResource(res)
                     ContentFilterChip(
                         title = topicLabel,
@@ -1393,6 +1429,20 @@ private fun DiscoverScreen(
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.weight(1f),
                 )
+                // Same grid/list switch the channel page uses (shared pref).
+                IconButton(onClick = onToggleGrid, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        imageVector = if (isGrid) Icons.AutoMirrored.Filled.ViewList else Icons.Default.GridView,
+                        contentDescription =
+                            if (isGrid) {
+                                stringResource(R.string.ui_list_view)
+                            } else {
+                                stringResource(R.string.ui_grid_view)
+                            },
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
         }
 
@@ -1415,33 +1465,41 @@ private fun DiscoverScreen(
                 key = { "d_${it.id}" },
                 contentType = { "discover_video" },
             ) { video ->
-                VideoCardHorizontal(
-                    video = video,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    onClick = { onVideoClick(video) },
-                    onChannelClick = { channelId ->
-                        channelId.takeIf { it.isNotBlank() }?.let {
-                            onChannelClick(
-                                Channel(
-                                    id = it,
-                                    name = video.channelName,
-                                    thumbnailUrl = video.channelThumbnailUrl,
-                                    subscriberCount = 0,
-                                    url = "https://www.youtube.com/channel/$it",
-                                ),
-                            )
-                        }
-                    },
-                )
+                if (isGrid) {
+                    VideoCardFullWidth(
+                        video = video,
+                        useInternalPadding = false,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        onClick = { onVideoClick(video) },
+                        onChannelClick = { channelId ->
+                            channelId.takeIf { it.isNotBlank() }?.let {
+                                onChannelClick(
+                                    Channel(
+                                        id = it,
+                                        name = video.channelName,
+                                        thumbnailUrl = video.channelThumbnailUrl,
+                                        subscriberCount = 0,
+                                        url = "https://www.youtube.com/channel/$it",
+                                    ),
+                                )
+                            }
+                        },
+                    )
+                } else {
+                    CompactVideoCard(
+                        video = video,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        onClick = { onVideoClick(video) },
+                    )
+                }
             }
             if (!discoverState.endReached) {
+                // Infinite scroll: composing the sentinel fires the next page;
+                // keyed on size so a visible sentinel re-fires after each page.
                 item(key = "discover_more") {
+                    LaunchedEffect(discoverState.videos.size) { onLoadMoreDiscover() }
                     Box(Modifier.fillMaxWidth().padding(vertical = 10.dp), Alignment.Center) {
-                        OutlinedButton(onClick = onLoadMoreDiscover) {
-                            Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(R.string.load_more))
-                        }
+                        CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp)
                     }
                 }
             }
