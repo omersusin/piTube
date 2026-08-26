@@ -2,9 +2,9 @@ name: Build piTube
 
 on:
   push:
-    branches: [ main, master, muse ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master, muse ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 # Two parallel jobs instead of one sequential chain: the release build
