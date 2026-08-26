@@ -521,6 +521,87 @@ class YouTubeRepository
             }
 
         /**
+         * YT Music song rows ship with blank avatars: one bulk WEB search keyed
+         * by videoId fills most, per-video lookups (same LRU cache as collab
+         * enrichment) cover the leftovers that don't appear in web results.
+         */
+        suspend fun enrichSongAvatars(
+            query: String,
+            songs: List<Video>,
+            perVideoFallbackLimit: Int = 8,
+        ): List<Video> {
+            if (query.isBlank() || songs.none { it.channelThumbnailUrl.isBlank() }) return songs
+
+            val bulk =
+                withTimeoutOrNull(4_000L) {
+                    YouTube.searchVideoAvatarStacks(query).getOrNull()
+                }.orEmpty()
+
+            val filled =
+                songs.map { song ->
+                    val stack = bulk[song.id].orEmpty()
+                    if (song.channelThumbnailUrl.isNotBlank() || stack.isEmpty()) {
+                        song
+                    } else {
+                        val merged = mergeAvatarUrls(stack, song)
+                        song.copy(
+                            channelThumbnailUrl = merged.firstOrNull() ?: song.channelThumbnailUrl,
+                            channelThumbnailUrls = merged,
+                        )
+                    }
+                }
+
+            val leftovers = filled.filter { it.channelThumbnailUrl.isBlank() }.take(perVideoFallbackLimit)
+            if (leftovers.isEmpty()) return filled
+
+            val stacks =
+                supervisorScope {
+                    leftovers
+                        .chunked(3)
+                        .flatMap { batch ->
+                            batch.map { video ->
+                                async(Dispatchers.IO) {
+                                    val cached = videoAvatarStackCache[video.id]
+                                    if (cached != null) {
+                                        video.id to cached
+                                    } else {
+                                        val urls =
+                                            withTimeoutOrNull(4_000L) {
+                                                YouTube.videoAvatarStack(video.id).getOrNull()
+                                            }.orEmpty()
+                                        if (urls.isNotEmpty()) videoAvatarStackCache.put(video.id, urls)
+                                        video.id to urls
+                                    }
+                                }
+                            }.awaitAll()
+                        }
+                }.toMap()
+
+            return filled.map { song ->
+                val stack = stacks[song.id].orEmpty()
+                if (song.channelThumbnailUrl.isNotBlank() || stack.isEmpty()) {
+                    song
+                } else {
+                    val merged = mergeAvatarUrls(stack, song)
+                    song.copy(
+                        channelThumbnailUrl = merged.firstOrNull().orEmpty(),
+                        channelThumbnailUrls = merged,
+                    )
+                }
+            }
+        }
+
+        private fun mergeAvatarUrls(
+            stack: List<String>,
+            song: Video,
+        ): List<String> =
+            (stack + song.channelThumbnailUrls + song.channelThumbnailUrl)
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .distinctBy { it.avatarImageIdentityKey() }
+                .take(3)
+
+        /**
          * Get search suggestions from YouTube
          */
         suspend fun getSearchSuggestions(query: String): List<String> =

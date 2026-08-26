@@ -318,6 +318,7 @@ class SearchViewModel
                     started = true,
                 )
             fetchMainArtistCardIfNeeded()
+            refreshSongAvatars(query)
         }
 
         /**
@@ -504,6 +505,7 @@ class SearchViewModel
                     endReached = result.continuation == null,
                     loading = false,
                 )
+            refreshSongAvatars(query)
             return true
         }
 
@@ -578,6 +580,25 @@ class SearchViewModel
          * mixed lists are discarded.
          */
         private var mainArtistCardFetchedFor: String? = null
+
+        /**
+         * Avatar pass for song rows (blank by design in YT Music): bulk search
+         * stacks + per-video fallbacks run off the critical path, then the list
+         * is rewritten through decorateSongs so artist-matching still applies.
+         */
+        private var songAvatarJob: Job? = null
+
+        private fun refreshSongAvatars(query: String) {
+            if (_songsPage.value.items.none { it.channelThumbnailUrl.isBlank() }) return
+            if (songAvatarJob?.isActive == true) return
+            songAvatarJob =
+                viewModelScope.launch {
+                    val enriched = repository.enrichSongAvatars(query, _songsPage.value.items)
+                    if (_uiState.value.query == query && enriched != _songsPage.value.items) {
+                        _songsPage.value = _songsPage.value.copy(items = decorateSongs(enriched))
+                    }
+                }
+        }
 
         private fun fetchMainArtistCardIfNeeded() {
             val query = _uiState.value.query
