@@ -597,9 +597,14 @@ class SearchViewModel
                 songAvatarAttemptsFor = query
                 songAvatarAttemptedIds.clear()
             }
+            android.util.Log.d(
+                "DEBUG-songav",
+                "vm: refresh q#${query.hashCode()} blanks=${_songsPage.value.items.count { it.channelThumbnailUrl.isBlank() }} active=${songAvatarJob?.isActive == true}",
+            )
             if (songAvatarJob?.isActive == true) return
             songAvatarJob =
                 viewModelScope.launch {
+                    var pass = 0
                     while (_uiState.value.query == query) {
                         val snapshot = _songsPage.value.items
                         val targets =
@@ -607,6 +612,11 @@ class SearchViewModel
                                 it.channelThumbnailUrl.isBlank() && it.id !in songAvatarAttemptedIds
                             }
                         if (targets.isEmpty()) break
+                        pass++
+                        android.util.Log.d(
+                            "DEBUG-songav",
+                            "vm: pass=$pass snapshot=${snapshot.size} targets=${targets.size} jobActive=${songAvatarJob?.isActive == true}",
+                        )
                         songAvatarAttemptedIds.addAll(targets.map { it.id })
                         val enriched = repository.enrichSongAvatars(query, snapshot)
                         if (_uiState.value.query != query) return@launch
@@ -615,6 +625,10 @@ class SearchViewModel
                             _songsPage.value.copy(
                                 items = decorateSongs(_songsPage.value.items.map { byId[it.id] ?: it }),
                             )
+                        android.util.Log.d(
+                            "DEBUG-songav",
+                            "vm: pass=$pass wrote items=${_songsPage.value.items.size} blankLeft=${_songsPage.value.items.count { it.channelThumbnailUrl.isBlank() }}",
+                        )
                     }
                 }
         }

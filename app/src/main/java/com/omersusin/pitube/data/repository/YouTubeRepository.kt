@@ -529,10 +529,11 @@ class YouTubeRepository
         suspend fun enrichSongAvatars(
             query: String,
             songs: List<Video>,
-            perVideoFallbackLimit: Int = 8,
+            perVideoFallbackLimit: Int = 20,
         ): List<Video> {
             if (query.isBlank() || songs.none { it.channelThumbnailUrl.isBlank() }) return songs
 
+            val blanksBefore = songs.count { it.channelThumbnailUrl.isBlank() }
             val cachedBulk = songBulkAvatarStacksCache.get(query)
             val bulk =
                 cachedBulk
@@ -541,6 +542,10 @@ class YouTubeRepository
                     }.orEmpty().also { stacks ->
                         songBulkAvatarStacksCache.put(query, stacks)
                     }
+            Log.d(
+                "DEBUG-songav",
+                "repo: q#${query.hashCode()} bulkCache=${cachedBulk != null} bulkKeys=${bulk.size} songs=${songs.size} blanks=$blanksBefore",
+            )
 
             val filled =
                 songs.map { song ->
@@ -557,7 +562,11 @@ class YouTubeRepository
                 }
 
             val leftovers = filled.filter { it.channelThumbnailUrl.isBlank() }.take(perVideoFallbackLimit)
-            if (leftovers.isEmpty()) return filled
+            if (leftovers.isEmpty()) {
+                Log.d("DEBUG-songav", "repo: bulk filled all, done")
+                return filled
+            }
+            Log.d("DEBUG-songav", "repo: leftovers=${leftovers.size} ids=${leftovers.take(3).map { it.id }}")
 
             val stacks =
                 supervisorScope {
@@ -593,6 +602,11 @@ class YouTubeRepository
                         channelThumbnailUrls = merged,
                     )
                 }
+            }.also { result ->
+                Log.d(
+                    "DEBUG-songav",
+                    "repo: perVideo stacks=${stacks.filterValues { it.isNotEmpty() }.size} filled=${result.count { it.channelThumbnailUrl.isNotBlank() }} stillBlank=${result.count { it.channelThumbnailUrl.isBlank() }}",
+                )
             }
         }
 
