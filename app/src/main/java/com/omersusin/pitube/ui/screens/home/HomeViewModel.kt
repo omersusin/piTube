@@ -85,13 +85,12 @@ internal fun homeFeedQuotas(
         return mapOf(FeedSource.PERSONAL to slots, FeedSource.SUBS to 0, FeedSource.RELATED to 0, FeedSource.DISCOVERY to 0, FeedSource.VIRAL to 0)
     }
     if (subCount > 0) {
-        val subs = (slots * 0.65).toInt().coerceAtLeast(6).coerceAtMost(slots)
-        val related = (slots * 0.24).toInt().coerceAtMost((slots - subs).coerceAtLeast(0))
-        val discovery = (slots * 0.06).toInt().coerceAtMost((slots - subs - related).coerceAtLeast(0))
-        val viral = (slots - subs - related - discovery).coerceAtLeast(0)
-        return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to subs, FeedSource.RELATED to related, FeedSource.DISCOVERY to discovery, FeedSource.VIRAL to viral)
+        val subs = (slots * 0.70).toInt().coerceAtLeast(8).coerceAtMost(slots)
+        val related = (slots * 0.25).toInt().coerceAtMost((slots - subs).coerceAtLeast(0))
+        val discovery = (slots - subs - related).coerceAtLeast(0)
+        return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to subs, FeedSource.RELATED to related, FeedSource.DISCOVERY to discovery, FeedSource.VIRAL to 0)
     }
-    return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to 0, FeedSource.RELATED to (slots * 0.60).toInt(), FeedSource.DISCOVERY to (slots * 0.15).toInt(), FeedSource.VIRAL to (slots - (slots * 0.60).toInt() - (slots * 0.15).toInt()).coerceAtLeast(0))
+    return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to 0, FeedSource.RELATED to (slots * 0.80).toInt(), FeedSource.DISCOVERY to (slots - (slots * 0.80).toInt()).coerceAtLeast(0), FeedSource.VIRAL to 0)
 }
 
 internal fun addUniqueVideo(
@@ -797,11 +796,6 @@ class HomeViewModel @Inject constructor(
                 }
 
                 val musicEnabled = runCatching { playerPreferences.musicSearchCategoriesEnabled.first() }.getOrDefault(false)
-                if (musicEnabled) {
-                    val shuffledMusic = MUSIC_DISCOVERY_QUERIES.shuffled(Random(discoveryRotationEpoch.toLong() * 31L + System.currentTimeMillis() % 1_000_000L))
-                    val existing = discoveryQueries.toHashSet()
-                    discoveryQueries.addAll(shuffledMusic.filterNot { it in existing })
-                }
 
                 // Cold starts race the application's async session restore; wait
                 withTimeoutOrNull(8000L) { SessionManager.restored.await() }
@@ -825,21 +819,7 @@ class HomeViewModel @Inject constructor(
                                 result.videos
                             }
                             .orEmpty()
-                        // FEmusic_home / WEB_REMIX second lane (upstream Flow's
-                        // combination) when the www-WEB lane is bot-walled empty.
-                        val videos = if (primary.isNotEmpty()) primary else {
-                            Log.w(TAG, "Feed personal lane: FEwhat_to_watch empty — trying FEmusic_home fallback")
-                            com.omersusin.pitube.innertube.YouTube.musicHomeFeed()
-                                .getOrNull()
-                                ?.let { result ->
-                                    if (result.videos.isNotEmpty()) {
-                                        personalizedContinuation = result.continuation
-                                    }
-                                    result.videos
-                                }
-                                .orEmpty()
-                                .also { Log.w(TAG, "Feed personal lane: music-home fallback fetched=${it.size}") }
-                        }
+                        val videos = primary
                         // KODA continuation-walk (HomeViewModel model): page 1 is
                         // quasi-static; on a forced refresh keep walking pages
                         // until ≥15 not-recently-shown items are collected.
@@ -976,11 +956,7 @@ class HomeViewModel @Inject constructor(
                         }.awaitAll().flatten()
                     }
                     
-                    val deferredViral = if (hasPersonalFeedEarly) null else async {
-                        runCatching {
-                             repository.getTrendingVideos(region).first
-                        }.getOrElse { emptyList() }
-                    }
+                    val deferredViral = null
 
                     Wave1FeedResults(
                         subs = deferredSubs.await(),

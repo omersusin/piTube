@@ -80,8 +80,7 @@ class PlaybackTracker(
             val bufferedPos = player.bufferedPosition
             val currentPos = player.currentPosition
             
-            // Debug log every 5 seconds (approx 10 ticks)
-            if (System.currentTimeMillis() % 5000 < PlayerConfig.POSITION_TRACKER_INTERVAL_MS * 2) {
+            if (currentPos % 10000L < PlayerConfig.POSITION_TRACKER_INTERVAL_MS * 2) {
                  Log.d(TAG, "Tracking position: $currentPos ms")
             }
             

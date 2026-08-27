@@ -406,9 +406,9 @@ object InnerTubeVideoStreamExtractor {
                     Log.d(TAG, "Skipping ${client.clientName} v${client.clientVersion}: bot-wall cooldown")
                     continue
                 }
-                if (client.clientName == "ANDROID_VR" && playerPoToken == null) {
-                    failureReasons.add("${client.clientName}: skipped (poToken null)")
-                    Log.d(TAG, "Skipping ${client.clientName} v${client.clientVersion}: poToken null")
+                if (client.clientName == "ANDROID_VR" && playerPoToken != null) {
+                    failureReasons.add("${client.clientName}: skipped (VR must be unauthenticated)")
+                    Log.d(TAG, "Skipping ${client.clientName} v${client.clientVersion}: VR poToken must be null")
                     continue
                 }
 
@@ -744,16 +744,18 @@ object InnerTubeVideoStreamExtractor {
         allowUntransformedN: Boolean,
     ): PlayerResponse.StreamingData.Format? {
         val rawUrl = url ?: return this
+        val hasN = extractNParameter(rawUrl) != null
         val transformed = transformNParamInUrlOrNull(videoId, rawUrl, "itag=$itag")
         return when {
             transformed != null -> copy(url = transformed)
+            !hasN -> this
             allowUntransformedN -> {
                 Log.w(TAG, "Using untransformed n URL as last-resort fallback for $videoId itag=$itag; playback may throttle")
                 this
             }
             else -> {
-                Log.w(TAG, "Using untransformed n URL as fallback for $videoId itag=$itag; playback may throttle")
-                this
+                Log.w(TAG, "Dropping throttled stream for $videoId itag=$itag (n-transform failed)")
+                null
             }
         }
     }
