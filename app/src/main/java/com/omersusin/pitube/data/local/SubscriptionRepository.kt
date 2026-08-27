@@ -265,7 +265,14 @@ class SubscriptionRepository private constructor(
             trimCorruptOrder(profileId)
             return getAllSubscriptionIds()
         }
-        val ids = orderString.splitToSequence(",").map { it.trim() }.filter { it.isNotEmpty() && it.length <= 64 && it.startsWith("UC") }.take(MAX_ORDER_IDS).toCollection(LinkedHashSet())
+        val rawIds = orderString.splitToSequence(",").map { it.trim() }.filter { it.isNotEmpty() && it.length <= 64 && it.startsWith("UC") }.take(MAX_ORDER_IDS).toList()
+        val ids = rawIds.toCollection(LinkedHashSet())
+        if (rawIds.size != ids.size) {
+            android.util.Log.w("SubscriptionRepository", "deduping order: raw=${rawIds.size} distinct=${ids.size} — repairing")
+            try {
+                context.subscriptionsDataStore.edit { prefs -> prefs[orderKey(profileId)] = ids.joinToString(",") }
+            } catch (_: Exception) {}
+        }
         if (ids.size >= MAX_ORDER_IDS) {
             android.util.Log.w("SubscriptionRepository", "subscription count capped at $MAX_ORDER_IDS")
         }

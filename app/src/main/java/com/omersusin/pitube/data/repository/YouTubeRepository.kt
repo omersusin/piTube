@@ -287,6 +287,11 @@ class YouTubeRepository
                         Log.w(TAG, "Trending FEtrending fallback: ${fallback.size} videos")
                         return@withContext Pair(enrichLikelyCollabAvatarStacks(fallback), null)
                     }
+                    val searchFallback = runCatching { searchVideos("trending videos ${java.time.Year.now().value}").first.take(20) }.getOrElse { emptyList() }
+                    if (searchFallback.isNotEmpty()) {
+                        Log.w(TAG, "Trending search fallback: ${searchFallback.size} videos")
+                        return@withContext Pair(enrichLikelyCollabAvatarStacks(searchFallback), null)
+                    }
                     Pair(emptyList(), null)
                 }
             }
@@ -889,7 +894,7 @@ class YouTubeRepository
                         // used to kill this after 8s, but sequential 5-wide chunks of
                         // up-to-8s fetches could take 4x that — so the subscription
                         // lane always timed out and the feed fell back to trending).
-                        val chunkSize = 10
+                        val chunkSize = 6
                         val combined = mutableListOf<Video>()
 
                         channelIdsOrUrls.chunked(chunkSize).forEach { chunk ->
@@ -1983,9 +1988,9 @@ class YouTubeRepository
 
         companion object {
             private const val TAG = "YouTubeRepository"
-            private const val HOME_SUBS_MIN_CHANNELS = 10
-            private const val HOME_SUBS_MEDIUM_CHANNELS = 14
-            private const val HOME_SUBS_MAX_CHANNELS = 18
+            private const val HOME_SUBS_MIN_CHANNELS = 6
+            private const val HOME_SUBS_MEDIUM_CHANNELS = 8
+            private const val HOME_SUBS_MAX_CHANNELS = 12
             private const val FEED_CONCURRENCY = 6
             private const val MAX_FEED_ITEMS_PER_CHANNEL = 15
             private const val MAX_FEED_ITEMS = 300
