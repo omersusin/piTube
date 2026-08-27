@@ -111,6 +111,9 @@ class AccountSwitcher(context: Context) {
                 .edit().clear().apply()
         }
         runCatching { com.omersusin.pitube.ui.screens.home.HomeFeedCache.clear() }
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            runCatching { YouTube.visitorData().getOrNull()?.let { YouTube.visitorData = it } }
+        }
         // Room wipe must not block the caller (this runs on the login path on
         // the main thread — runBlocking here froze the login screen for the
         // duration of a full cache-table delete). Fire-and-forget: the cache is
