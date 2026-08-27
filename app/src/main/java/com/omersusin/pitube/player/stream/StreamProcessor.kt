@@ -24,12 +24,12 @@ object StreamProcessor {
      */
     fun processVideoStreams(streams: List<VideoStream>): List<VideoStream> {
         return streams
-            .distinctBy { it.getContent() }
             .sortedWith(
                 compareByDescending<VideoStream> { VideoCodecUtils.qualityHeightFromStream(it) }
                     .thenBy { VideoCodecUtils.playbackCodecRank(it) }
                     .thenByDescending { it.bitrate }
             )
+            .distinctBy { "${VideoCodecUtils.qualityHeightFromStream(it)}_${VideoCodecUtils.playbackCodecRank(it)}_${it.bitrate}" }
             .also { Log.d(TAG, "Processed ${streams.size} video streams -> ${it.size} unique") }
     }
     

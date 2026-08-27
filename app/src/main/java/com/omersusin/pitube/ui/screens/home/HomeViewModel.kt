@@ -956,12 +956,10 @@ class HomeViewModel @Inject constructor(
                         }.awaitAll().flatten()
                     }
                     
-                    val deferredViral = null
-
                     Wave1FeedResults(
                         subs = deferredSubs.await(),
                         discovery = deferredDiscovery?.await() ?: emptyList(),
-                        viral = deferredViral?.await() ?: emptyList()
+                        viral = emptyList()
                     )
                 }
 
