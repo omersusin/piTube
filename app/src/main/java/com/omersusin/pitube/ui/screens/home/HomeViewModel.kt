@@ -890,8 +890,14 @@ class HomeViewModel @Inject constructor(
                                 lastRefreshTime = System.currentTimeMillis()
                             )
                         }
-                        HomeFeedCache.update(visible, _uiState.value.shorts, signedIn = true)
-                        persistentHomeFeedCache.saveLastFeed(visible)
+                        try {
+                            HomeFeedCache.update(visible, _uiState.value.shorts, signedIn = true)
+                            persistentHomeFeedCache.saveLastFeed(visible)
+                        } catch (ce: CancellationException) {
+                            throw ce
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Signed-in feed cache write failed (feed still visible): ${e.message}")
+                        }
                     }
                     return@launch
                 }
