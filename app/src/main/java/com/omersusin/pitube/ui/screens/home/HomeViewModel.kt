@@ -254,7 +254,7 @@ private fun Video.withChannelMetadataFrom(enriched: Video): Video {
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: YouTubeRepository,
-    private val subscriptionRepository: SubscriptionRepository, 
+    private val subscriptionRepository: SubscriptionRepository,
     private val shortsRepository: ShortsRepository,
     private val playerPreferences: com.omersusin.pitube.data.local.PlayerPreferences,
     @ApplicationContext private val appContext: Context
@@ -305,7 +305,7 @@ class HomeViewModel @Inject constructor(
     private val channelMetadataEnrichmentInFlight =
         java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
-    
+
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
         .map(HomeUiState::withUniqueLazyContent)
@@ -314,7 +314,7 @@ class HomeViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = _uiState.value.withUniqueLazyContent()
         )
-    
+
     private var currentPage: Page? = null
     private var isInitialized = false
     private val homePrefetchQueue = HomePrefetchQueue()
@@ -332,7 +332,7 @@ class HomeViewModel @Inject constructor(
             it.remove()
         }
     }
-    
+
     private var currentQueryIndex = 0
     private val discoveryQueries = mutableListOf<String>()
     private var wave2Job: Job? = null
@@ -440,14 +440,14 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    
+
 
     fun initialize(context: Context) {
         if (isInitialized) return
         isInitialized = true
-        
+
         viewHistory = ViewHistory.getInstance(context)
-        
+
         viewModelScope.launch(PerformanceDispatcher.diskIO) {
             combine(
                 viewHistory!!.getVideoHistoryFlow(),
@@ -734,13 +734,13 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    
+
 
     private fun updateVideosAndShorts(newVideos: List<Video>, append: Boolean = false) {
         val (newShorts, regularVideos) = newVideos.partition {
             it.isShort || (it.duration in 1..120 && !it.isLive)
         }
-        
+
         _uiState.update { state ->
             val watched = watchedVideoIds.value
             val unplayable = unplayableVideoIds.value
@@ -754,13 +754,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    
+
     fun loadFlowFeed(forceRefresh: Boolean = false) {
         if (_uiState.value.isLoading && !forceRefresh) return
-        
+
         wave2Job?.cancel()
         _uiState.update { it.copy(isLoading = true, error = null) }
-        
+
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
                 // Rotate the ANONYMOUS visitor identity on a forced refresh so the
@@ -784,12 +784,11 @@ class HomeViewModel @Inject constructor(
 
                 val signedIn = !com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()
 
-                // ── Signed-in lane: the account's own "What to watch" feed ──
-                // Fetched in parallel with discovery below; blended into the mix
-                // instead of short-circuiting so the feed rotates through fresh
-                // items instead of repeating the same personalized set. The
-                // continuation token is preserved so scrolling can pull the
-                // next personalized page (feedContinuation drives load-more).
+                // ── Signed-in: show the account's actual "What to watch" feed ──
+                // This must not be mixed with locally generated discovery, trending,
+                // subscriptions, or history lanes. Those sources are useful only for
+                // anonymous browsing; YouTube already curates them for this account.
+                // This was the only issue lol kinda
                 val personalizedPool = if (signedIn) {
                     withTimeoutOrNull(12_000L) {
                         val primary = com.omersusin.pitube.innertube.YouTube.personalizedFeed()
@@ -801,41 +800,29 @@ class HomeViewModel @Inject constructor(
                                 result.videos
                             }
                             .orEmpty()
-                        // FEmusic_home / WEB_REMIX second lane (upstream Flow's
-                        // combination) when the www-WEB lane is bot-walled empty.
-                        val videos = if (primary.isNotEmpty()) primary else {
-                            Log.w(TAG, "Feed personal lane: FEwhat_to_watch empty — trying FEmusic_home fallback")
-                            com.omersusin.pitube.innertube.YouTube.musicHomeFeed()
-                                .getOrNull()
-                                ?.let { result ->
-                                    if (result.videos.isNotEmpty()) {
-                                        personalizedContinuation = result.continuation
-                                    }
-                                    result.videos
-                                }
-                                .orEmpty()
-                                .also { Log.w(TAG, "Feed personal lane: music-home fallback fetched=${it.size}") }
-                        }
-                        // KODA continuation-walk (HomeViewModel model): page 1 is
-                        // quasi-static; on a forced refresh keep walking pages
-                        // until ≥15 not-recently-shown items are collected.
-                        var walked = videos
+
+                        // The first page is commonly the same on consecutive loads.
+                        // Count *unseen* videos, not all page-one videos: otherwise a
+                        // 20-item stale page prevents refresh from ever following its
+                        // continuation to new recommendations.
+                        var walked = primary.distinctBy { it.id }
                         var walkCont = personalizedContinuation
                         if (forceRefresh) {
                             var pages = 0
-                            while (walked.size < 15 && walkCont != null && pages < 3) {
+                            fun unseenCount() = walked.count { it.id !in shownVideoIds }
+                            while (unseenCount() < 15 && walkCont != null && pages < 3) {
                                 val next = runCatching {
                                     com.omersusin.pitube.innertube.YouTube.personalizedFeedContinuation(walkCont).getOrNull()
                                 }.getOrNull() ?: break
                                 if (next.videos.isEmpty()) break
                                 walked = walked + next.videos.filter { candidate ->
-                                    candidate.id !in shownVideoIds && walked.none { it.id == candidate.id }
+                                    walked.none { it.id == candidate.id }
                                 }
                                 personalizedContinuation = next.continuation
                                 walkCont = next.continuation
                                 pages++
                             }
-                            Log.w(TAG, "Feed personal lane: continuation-walk total=${walked.size} (+${walked.size - videos.size}) across $pages extra pages")
+                            Log.w(TAG, "Feed personal lane: continuation-walk total=${walked.size}, unseen=${unseenCount()} across $pages extra pages")
                         }
                         walked
                             .filterSignedValid()
@@ -861,6 +848,52 @@ class HomeViewModel @Inject constructor(
                     }
                 } else {
                     emptyList()
+                }
+
+                if (signedIn) {
+                    // Keep YouTube's order. A refresh prefers unseen items but falls
+                    // back to the returned page if the account has no new items.
+                    val refreshed = if (forceRefresh && shownVideoIds.isNotEmpty()) {
+                        personalizedPool.filterNot { it.id in shownVideoIds }
+                            .ifEmpty { personalizedPool }
+                    } else {
+                        personalizedPool
+                    }
+                    val visible = refreshed
+                        .filterWatched(watchedVideoIds.value)
+                        .filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
+                        .filterUnplayable(unplayableVideoIds.value)
+
+                    if (visible.isEmpty()) {
+                        Log.w(TAG, "Signed-in home feed returned no usable recommendations")
+                        _uiState.update { state ->
+                            state.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                isFlowFeed = true,
+                                hasMorePages = personalizedContinuation != null,
+                                feedContinuation = personalizedContinuation,
+                                error = appContext.getString(R.string.error_failed_to_load_feed)
+                            )
+                        }
+                    } else {
+                        rememberShown(visible.map { it.id })
+                        _uiState.update { state ->
+                            state.copy(
+                                videos = visible,
+                                isLoading = false,
+                                isRefreshing = false,
+                                hasMorePages = personalizedContinuation != null,
+                                isFlowFeed = true,
+                                feedContinuation = personalizedContinuation,
+                                error = null,
+                                lastRefreshTime = System.currentTimeMillis()
+                            )
+                        }
+                        HomeFeedCache.update(visible, _uiState.value.shorts, signedIn = true)
+                        persistentHomeFeedCache.saveLastFeed(visible)
+                    }
+                    return@launch
                 }
 
                 // ── Taste-profile fallback (Koda getTasteBasedVideos pattern) ──
@@ -942,8 +975,8 @@ class HomeViewModel @Inject constructor(
 
                     val deferredDiscovery = async {
                         wave1Queries.map { query ->
-                            async { 
-                                runCatching { 
+                            async {
+                                runCatching {
                                     withTimeoutOrNull(6_000L) {
                                         repository.searchVideos(query).first
                                     }.orEmpty()
@@ -951,7 +984,7 @@ class HomeViewModel @Inject constructor(
                             }
                         }.awaitAll().flatten()
                     }
-                    
+
                     val deferredViral = async {
                         runCatching {
                              repository.getTrendingVideos(region).first
@@ -1031,7 +1064,7 @@ class HomeViewModel @Inject constructor(
                         state.copy(shorts = (state.shorts + feedShorts).distinctBy { it.id })
                     }
                 }
-                
+
                 // Filter to regular videos for the main feed
                 val watched = watchedVideoIds.value
                 val unplayable = unplayableVideoIds.value
@@ -1228,7 +1261,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
             }
         }
     }
-    
+
 
     private suspend fun loadNextPrefetchPage(generation: Int): Boolean {
         try {
@@ -1291,7 +1324,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                         state.copy(shorts = (state.shorts + moreShorts).distinctBy { it.id })
                     }
                 }
-                
+
                 val newVideos = rawVideos.filterValid()
                     .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                     .filterUnplayable(unplayableVideoIds.value)
@@ -1418,7 +1451,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
             }
         }
     }
-    
+
 
     fun loadTrendingVideos() {
         if (_uiState.value.isLoading && _uiState.value.videos.isEmpty()) return
@@ -1465,7 +1498,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
             error = null
         )}
     }
-    
+
     fun refreshFeed() {
         resetHomePrefetch()
         wave2Job?.cancel()
@@ -1473,7 +1506,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
         _uiState.update { it.copy(isRefreshing = true) }
         loadFlowFeed(forceRefresh = true)
     }
-    
+
     fun retry() {
         resetHomePrefetch()
         wave2Job?.cancel()
@@ -1492,8 +1525,8 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
             .toList()
 
     private fun addUnique(
-        video: Video?, 
-        targetList: MutableList<Video>, 
+        video: Video?,
+        targetList: MutableList<Video>,
         channelCounts: MutableMap<String, Int>,
         usedVideoIds: MutableSet<String>,
         maxPerChannel: Int = 2
@@ -1529,11 +1562,11 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
 
         return false
     }
-    
+
     private fun List<Video>.filterValid(): List<Video> {
-        return this.filter { 
-            !it.isShort && 
-            ((it.duration > 120) || (it.duration == 0 && it.isLive)) 
+        return this.filter {
+            !it.isShort &&
+            ((it.duration > 120) || (it.duration == 0 && it.isLive))
         }
     }
 
