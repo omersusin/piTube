@@ -1,6 +1,7 @@
 package com.omersusin.pitube.data.local
 
 import android.content.Context
+import android.util.Log
 import com.omersusin.pitube.innertube.YouTube
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -111,17 +112,15 @@ class AccountSwitcher(context: Context) {
                 .edit().clear().apply()
         }
         runCatching { com.omersusin.pitube.ui.screens.home.HomeFeedCache.clear() }
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             runCatching { YouTube.visitorData().getOrNull()?.let { YouTube.visitorData = it } }
+                .onFailure { Log.w("AccountSwitcher", "visitorData refresh failed: ${it.message}") }
         }
-        // Room wipe must not block the caller (this runs on the login path on
-        // the main thread — runBlocking here froze the login screen for the
-        // duration of a full cache-table delete). Fire-and-forget: the cache is
-        // self-healing, and any entry read mid-wipe is only stale content.
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             runCatching {
                 com.omersusin.pitube.data.local.HomeFeedCacheRepository(appContext).clearAll()
-            }
+            }.onSuccess { Log.d("AccountSwitcher", "HomeFeedCacheRepository cleared") }
+                .onFailure { Log.w("AccountSwitcher", "clearAll failed: ${it.message}") }
         }
     }
 

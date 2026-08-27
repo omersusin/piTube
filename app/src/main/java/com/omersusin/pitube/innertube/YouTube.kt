@@ -949,6 +949,18 @@ object YouTube {
             val cookiePresent = !innerTube.cookie.isNullOrBlank()
             val missing = com.omersusin.pitube.data.local.CookieRotation.missingRequiredCookies(innerTube.cookie)
             Log.w("YouTube", "personalizedFeed($browseId): EMPTY — $marker status=$status logged_in=$loggedIn datasyncEcho=$datasyncEcho visitorLen=$visitorLen cookiePresent=$cookiePresent missing=${missing.joinToString(",")} bodyLen=${rawBody.length} head=${rawBody.take(2000)}")
+            if (cookiePresent && loggedIn == "0") {
+                cachedVisitorData = null
+                visitorDataFetchedAt = 0L
+                innerTube.visitorData = null
+                Log.w("YouTube", "personalizedFeed($browseId): visitorData reminted after logged_in=0, retrying without visitorData")
+                val retryResponse = innerTube.signedWebBrowse(client = client, browseId = browseId, continuation = continuation)
+                val retryBody = retryResponse.bodyAsText()
+                innerTube.noteResponseState(retryBody)
+                val retryParsed = parseChannelVideosResponse(json.decodeFromString<ChannelVideosResponse>(retryBody), "", "", "", false)
+                if (retryParsed.videos.isNotEmpty()) Log.w("YouTube", "personalizedFeed($browseId): retry recovered ${retryParsed.videos.size} videos")
+                return retryParsed
+            }
         } else if (continuation == null) {
             Log.w("YouTube", "personalizedFeed($browseId): ${parsed.videos.size} videos, cont=${parsed.continuation != null}")
         }
@@ -1958,12 +1970,16 @@ object YouTube {
         var nextContinuation: String? = null
         richItems.forEach { richItem ->
             val content = richItem.richItemRenderer?.content
-            content?.lockupViewModel
-                ?.let { parseLockupViewModel(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
-                ?.let { videos.add(it) }
-            content?.videoRenderer
-                ?.let { parseBrowseVideoRenderer(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
-                ?.let { videos.add(it) }
+            if (content != null && hasShortsLockup(content)) {
+                parseShortsLockupContent(content, resolvedThumbnail)?.let { videos.add(it) }
+            } else {
+                content?.lockupViewModel
+                    ?.let { parseLockupViewModel(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
+                    ?.let { videos.add(it) }
+                content?.videoRenderer
+                    ?.let { parseBrowseVideoRenderer(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
+                    ?.let { videos.add(it) }
+            }
             richItem.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
                 ?.let { nextContinuation = it }
         }
@@ -1973,6 +1989,71 @@ object YouTube {
             continuation = nextContinuation,
             channelVideoCountText = response.channelVideoCountText(),
         )
+    }
+
+    private fun hasShortsLockup(content: JsonObject): Boolean = content.containsKey("shortsLockupViewModel")
+
+    private fun hasShortsLockup(content: ChannelVideosResponse.RichItemContent): Boolean = content.shortsLockupViewModel != null
+
+    private fun parseShortsLockupContent(content: JsonObject, channelThumbnailUrl: String): com.omersusin.pitube.data.model.Video? {
+        val vm = (content["shortsLockupViewModel"] as? JsonObject) ?: content
+        var videoId = vm["onTap"]?.jsonObject?.get("innertubeCommand")?.jsonObject?.get("commandMetadata")?.jsonObject?.get("webCommandMetadata")?.jsonObject?.get("url")?.jsonPrimitive?.contentOrNull?.substringAfter("/shorts/")?.substringBefore("?")?.substringBefore("&")?.takeIf { it.length == 11 }
+        if (videoId == null) videoId = vm["videoId"]?.jsonPrimitive?.contentOrNull?.takeIf { it.length == 11 }
+        if (videoId == null) videoId = vm["contentId"]?.jsonPrimitive?.contentOrNull?.takeIf { it.length == 11 }
+        if (videoId == null) videoId = vm.findFirstStringDeep("videoId")?.takeIf { it.length == 11 }
+        if (videoId.isNullOrBlank()) return null
+        var title = vm["overlayMetadata"]?.jsonObject?.get("primaryText")?.jsonObject?.get("content")?.jsonPrimitive?.contentOrNull
+        if (title.isNullOrBlank()) title = vm["overlayMetadata"]?.jsonObject?.get("primaryText")?.jsonPrimitive?.contentOrNull
+        if (title.isNullOrBlank()) title = vm["headline"]?.jsonObject?.get("content")?.jsonPrimitive?.contentOrNull
+        if (title.isNullOrBlank()) title = vm["title"]?.jsonObject?.get("content")?.jsonPrimitive?.contentOrNull
+        if (title.isNullOrBlank()) title = vm["title"]?.jsonPrimitive?.contentOrNull
+        if (title.isNullOrBlank()) title = vm.findFirstStringDeep("content")?.takeIf { it.isNotBlank() }
+        if (title.isNullOrBlank()) return null
+        var thumbnail: String? = vm["thumbnailViewModel"]?.jsonObject?.get("image")?.jsonObject?.get("sources")?.jsonArray?.mapNotNull { (it as? JsonObject)?.get("url")?.jsonPrimitive?.contentOrNull?.let { url -> ((it as? JsonObject)?.get("width")?.jsonPrimitive?.contentOrNull?.toIntOrNull() ?: 0) to url } }?.maxByOrNull { it.first }?.second
+        if (thumbnail.isNullOrBlank()) thumbnail = vm.findFirstThumbnailUrl()
+        if (thumbnail.isNullOrBlank()) thumbnail = "https://i.ytimg.com/vi/$videoId/hq720.jpg"
+        return com.omersusin.pitube.data.model.Video(
+            id = videoId,
+            title = title,
+            channelName = "",
+            channelId = "",
+            thumbnailUrl = thumbnail,
+            duration = 60,
+            viewCount = 0L,
+            uploadDate = "",
+            timestamp = 0L,
+            channelThumbnailUrl = channelThumbnailUrl,
+            isShort = true,
+        )
+    }
+
+    private fun parseShortsLockupContent(content: ChannelVideosResponse.RichItemContent, channelThumbnailUrl: String): com.omersusin.pitube.data.model.Video? = content.shortsLockupViewModel?.let { parseShortsLockupContent(it, channelThumbnailUrl) }
+
+    private fun JsonObject.findFirstStringDeep(key: String): String? {
+        this[key]?.let { (it as? JsonPrimitive)?.contentOrNull?.let { v -> return v } }
+        for (v in values) {
+            when (v) {
+                is JsonObject -> v.findFirstStringDeep(key)?.let { return it }
+                is JsonArray -> v.forEach { e -> (e as? JsonObject)?.findFirstStringDeep(key)?.let { return it } }
+                else -> Unit
+            }
+        }
+        return null
+    }
+
+    private fun JsonObject.findFirstThumbnailUrl(): String? {
+        for (v in values) {
+            when (v) {
+                is JsonObject -> {
+                    val url = v["url"]?.let { (it as? JsonPrimitive)?.contentOrNull }
+                    if (!url.isNullOrBlank() && (url.contains("ytimg.com") || url.contains("ggpht.com") || url.contains("googleusercontent.com"))) return url
+                    v.findFirstThumbnailUrl()?.let { return it }
+                }
+                is JsonArray -> v.forEach { e -> (e as? JsonObject)?.findFirstThumbnailUrl()?.let { return it } }
+                else -> Unit
+            }
+        }
+        return null
     }
 
     private fun parseLockupViewModel(

@@ -241,6 +241,8 @@ class ShortsDiscoveryEngine private constructor(private val appContext: Context)
     }
 
     private suspend fun fetchShortsForChannel(channelId: String): List<Video> {
+        val rss = runCatching { youtubeRepository.getChannelFeedRss(channelId, null) }.getOrNull().orEmpty()
+        if (rss.isNotEmpty()) return rss.filter { it.duration in 1..120 || it.isShort }.take(UPLOADS_PER_CHANNEL).sortedByDescending { it.timestamp }
         val uploads = youtubeRepository.getChannelUploads(channelId, UPLOADS_PER_CHANNEL)
         return uploads.filter { v -> v.duration in 1..120 || v.isShort }
             .sortedByDescending { it.timestamp }

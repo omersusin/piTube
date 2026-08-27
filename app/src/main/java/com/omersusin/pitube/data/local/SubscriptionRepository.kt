@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.map
 
 private val Context.subscriptionsDataStore: DataStore<Preferences> by safePreferencesDataStore(name = "subscriptions")
 
+// TODO: SP migration helper placeholder — future SharedPreferences revert will add
+// migration helper here; keep DataStore as source of truth for now (partial revert later)
+
 /**
  * Local subscription list, isolated per profile.
  *

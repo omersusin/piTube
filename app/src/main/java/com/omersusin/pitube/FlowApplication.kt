@@ -154,6 +154,48 @@ class FlowApplication :
 
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
+                val preferences = com.omersusin.pitube.data.local.PlayerPreferences(this@FlowApplication)
+                val pm = com.omersusin.pitube.data.local.ProfileManager(this@FlowApplication)
+                val legacyCookie = preferences.youtubeCookie.first()
+                val legacyName = preferences.youtubeAccountName.first()
+                val legacyAvatar = preferences.youtubeAccountThumbnail.first()
+                if (pm.profiles.value.isEmpty()) {
+                    pm.ensureMigrated(legacyCookie, legacyName, legacyAvatar)
+                }
+                val cookie = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).getCookies()
+                YouTube.cookie = cookie
+                YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
+                val activeProfile = pm.active()
+                YouTube.dataSyncId = activeProfile.datasyncId.takeIf { !activeProfile.isLocal }
+                SessionManager.restored.complete(true)
+                Log.d(TAG, "YouTube session restored, signedIn=${!cookie.isNullOrEmpty()}")
+                if (!cookie.isNullOrBlank() && !HomeFeedCache.signedIn) {
+                    HomeFeedCache.invalidate()
+                }
+                if (cookie.isNullOrBlank()) {
+                    preferences.clearYoutubeAccount()
+                } else {
+                    preferences.refreshYoutubeCookie(cookie)
+                }
+                runCatching {
+                    com.omersusin.pitube.data.local.SubscriptionRepository
+                        .getInstance(this@FlowApplication).ensureScopeMigration()
+                }
+                runCatching { com.omersusin.pitube.data.local.LikedVideosRepository.getInstance(this@FlowApplication).ensureScopeMigration() }
+                runCatching { com.omersusin.pitube.data.local.SearchHistoryRepository(this@FlowApplication).ensureScopeMigration() }
+                launch {
+                    kotlinx.coroutines.delay(10_000L)
+                    runCatching { com.omersusin.pitube.data.local.ViewHistory.getInstance(this@FlowApplication).ensureScopeMigration() }
+                    runCatching { com.omersusin.pitube.data.local.PlaylistRepository(this@FlowApplication).ensureScopeMigration() }
+                }
+                if (!cookie.isNullOrEmpty()) {
+                    com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(applicationContext)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "session restore error: ${e.message}")
+                runCatching { SessionManager.restored.complete(false) }
+            }
+            try {
                 val now = System.currentTimeMillis()
                 val ivorPrefs = getSharedPreferences("ivor_visitor_data", MODE_PRIVATE)
                 var cached = ivorPrefs.getString("visitor_data", null)
@@ -196,87 +238,11 @@ class FlowApplication :
             } catch (e: Exception) {
                 Log.w(TAG, "visitorData init error: ${e.message}")
             }
-            try {
-                // Bring a pre-profiles install forward: someone already signed in
-                // has a cookie in the DataStore mirror but no encrypted profile
-                // yet, and that session must survive the upgrade.
-                val preferences = com.omersusin.pitube.data.local.PlayerPreferences(this@FlowApplication)
-                val pm = com.omersusin.pitube.data.local.ProfileManager(this@FlowApplication)
-                val legacyCookie = preferences.youtubeCookie.first()
-                val legacyName = preferences.youtubeAccountName.first()
-                val legacyAvatar = preferences.youtubeAccountThumbnail.first()
-                if (pm.profiles.value.isEmpty()) {
-                    pm.ensureMigrated(legacyCookie, legacyName, legacyAvatar)
-                }
-                // Rehouse any pre-profile install's liked/search rows into the
-                // active profile's namespace once (per-profile scoping).
-                runCatching {
-                    com.omersusin.pitube.data.local.SubscriptionRepository
-                        .getInstance(this@FlowApplication).ensureScopeMigration()
-                }
-                runCatching { com.omersusin.pitube.data.local.LikedVideosRepository.getInstance(this@FlowApplication).ensureScopeMigration() }
-                runCatching { com.omersusin.pitube.data.local.SearchHistoryRepository(this@FlowApplication).ensureScopeMigration() }
-                // NOTE: watch-history + playlist scope adoption (potentially large
-                // Room UPDATEs) moved BELOW the session-restore block and deferred:
-                // running them here delayed YouTube.cookie assignment long enough
-                // that early playback requests went out anonymous and hit BOT_WALL
-                // on every client ("internet is off" symptom).
-                // Restore the active profile's session. The source of truth is
-                // the encrypted per-profile store (ProfileManager); the DataStore
-                // key is only a mirror so existing UI that reads it stays in step.
-                val cookie = com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).getCookies()
-                YouTube.cookie = cookie
-                YouTube.useLoginForBrowse = !cookie.isNullOrEmpty()
-                // Adopt legacy device-wide watch history + playlists into the active
-                // profile — AFTER the session is live and deferred past startup so
-                // first-frame playback never waits behind Room writes.
-                launch {
-                    kotlinx.coroutines.delay(10_000L)
-                    runCatching { com.omersusin.pitube.data.local.ViewHistory.getInstance(this@FlowApplication).ensureScopeMigration() }
-                    runCatching { com.omersusin.pitube.data.local.PlaylistRepository(this@FlowApplication).ensureScopeMigration() }
-                }
-                // A session arriving after an anonymous process start invalidates
-                // any generic feed the pre-restore window could have cached, so
-                // the next Home visit re-fetches signed instead of trusting the
-                // signed-in flag of the anonymous cache entry.
-                if (!cookie.isNullOrBlank() && !HomeFeedCache.signedIn) {
-                    HomeFeedCache.invalidate()
-                }
-                // Identity that ties signed requests (like/subscribe write-back,
-                // personalized browse) to the active account. Without it innertube
-                // answers as the default session and writes can silently no-op.
-                val activeProfile = pm.active()
-                YouTube.dataSyncId = activeProfile.datasyncId.takeIf { !activeProfile.isLocal }
-                // Re-align the DataStore mirror with the restored active profile
-                // (migration/new profile stores control the session now).
-                if (cookie.isNullOrBlank()) {
-                    preferences.clearYoutubeAccount()
-                } else {
-                    preferences.refreshYoutubeCookie(cookie)
-                }
-                Log.d(TAG, "YouTube session restored, signedIn=${!cookie.isNullOrEmpty()}")
-                SessionManager.restored.complete(true)
-                // KODA-MODEL freshness: every app open re-pulls the account
-                // library (liked videos, playlists, Watch Later, subscriptions)
-                // so changes made on real YouTube appear within minutes — not
-                // on the next 12-hour worker tick.
-                if (!cookie.isNullOrEmpty()) {
-                    com.omersusin.pitube.sync.LibrarySyncLauncher.syncInBackground(applicationContext)
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "session restore error: ${e.message}")
-                SessionManager.restored.complete(false)
-            }
             YouTube.onCookieRotated = { merged ->
                 CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                    // Persist the rotated cookie against the active profile
-                    // (which also mirrors it to the DataStore key).
                     runCatching { com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).saveCookies(merged) }
                 }
             }
-            // Flag the active profile when YouTube answers its signed requests as
-            // anonymous (logged_in: 0), so the switcher can call out a dead
-            // session on the profile's own row; a 1 clears it again.
             YouTube.sessionStateListener = { loggedIn ->
                 CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                     runCatching {
@@ -285,11 +251,6 @@ class FlowApplication :
                     }
                 }
             }
-            // Multi-account self-heal: YouTube echoes the datasyncId of the
-            // account that actually answered in every signed response. Adopt it
-            // on the active profile whenever it differs, so cookies and identity
-            // can never drift apart (the "second account shows another account's
-            // feed / empty subscriptions" failure mode).
             YouTube.dataSyncIdListener = { healed ->
                 CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                     runCatching {
@@ -301,8 +262,6 @@ class FlowApplication :
                     }
                 }
             }
-            // Stage 2: PoToken prewarm spins up a BotGuard WebView — heavy enough
-            // to compete with the first frame on low-RAM devices. Defer 10s.
             launch {
                 kotlinx.coroutines.delay(10_000L)
                 try {
@@ -312,10 +271,6 @@ class FlowApplication :
                     Log.w(TAG, "WebPoTokenSession prewarm failed: ${e.message}")
                 }
             }
-            // Auto-sync of the account library is intentionally NOT run here:
-            // it fires a full account crawl (liked + playlists + subscriptions)
-            // that collided with cold-start work. FeedAndLibrarySyncWorker
-            // already performs this check with network constraint + backoff.
         }
 
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {

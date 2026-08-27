@@ -2,6 +2,7 @@ package com.omersusin.pitube.innertube.models.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Response model for YouTube WEB channel videos/live tabs.
@@ -379,6 +380,8 @@ data class ChannelVideosResponse(
             val lockupViewModel: LockupViewModel? = null,
             @SerialName("videoRenderer")
             val videoRenderer: VideoRenderer? = null,
+            @SerialName("shortsLockupViewModel")
+            val shortsLockupViewModel: JsonObject? = null,
         )
     }
 

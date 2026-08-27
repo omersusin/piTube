@@ -790,7 +790,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 // Cold starts race the application's async session restore; wait
-                withTimeoutOrNull(4000L) { SessionManager.restored.await() }
+                withTimeoutOrNull(8000L) { SessionManager.restored.await() }
 
                 val signedIn = !com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()
 
@@ -1184,6 +1184,10 @@ class HomeViewModel @Inject constructor(
                         val wave2FinalMixIds = finalMix.map { it.id }.toHashSet()
                         wave2Job = viewModelScope.launch(PerformanceDispatcher.networkIO) wave2@{
                             try {
+                                if (personalizedContinuation != null || finalMix.any { v -> personalizedPool.any { p -> p.id == v.id } }) {
+                                    Log.d(TAG, "Wave2 skipped personal")
+                                    return@wave2
+                                }
                                 val limitedQueries = wave2Queries.take(6)
                                 val wave2Raw = PerformanceDispatcher.parallelMap(limitedQueries, 3) { q ->
                                     withTimeoutOrNull(6_000L) {
@@ -1541,10 +1545,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
     }
     
     private fun List<Video>.filterValid(): List<Video> {
-        return this.filter { 
-            !it.isShort && 
-            ((it.duration > 120) || (it.duration == 0 && it.isLive)) 
-        }
+        return this.filter { !it.isShort }
     }
 
     /**
@@ -1567,7 +1568,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
     }
 
     private fun List<Video>.filterSignedValid(): List<Video> {
-        return this.filter { !it.isShort && !(it.duration in 1..120 && !it.isLive) }
+        return this.filter { !it.isShort }
     }
 
     /**

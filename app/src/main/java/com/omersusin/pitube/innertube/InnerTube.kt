@@ -619,7 +619,7 @@ class InnerTube {
         return try {
             block(requestVisitorData)
         } catch (error: ClientRequestException) {
-            if (error.response.status != HttpStatusCode.BadRequest) throw error
+            if (error.response.status !in setOf(HttpStatusCode.BadRequest, HttpStatusCode.Forbidden, HttpStatusCode.TooManyRequests)) throw error
             val response = block(null)
             if (visitorData == requestVisitorData) {
                 visitorData = null

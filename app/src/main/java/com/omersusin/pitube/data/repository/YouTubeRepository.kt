@@ -1169,8 +1169,39 @@ class YouTubeRepository
                 )
             }
 
+        suspend fun getSubscriptionFeedFull(allChannelIds: List<String>): List<Video> =
+            withContext(Dispatchers.IO) {
+                if (allChannelIds.isEmpty()) return@withContext emptyList()
+                val channels =
+                    allChannelIds
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+                        .distinct()
+                        .sorted()
+                if (channels.isEmpty()) return@withContext emptyList()
+                val selectedChannels = channels
+                Log.d(
+                    TAG,
+                    "Home subs full fetch total=${channels.size}, selected=${selectedChannels.size}",
+                )
+                val rssFeed = withTimeoutOrNull(12_000L) {
+                    getLocalSubscriptionsFeed(
+                        channels = selectedChannels.map { it to null },
+                        fastMode = true,
+                        maxPerChannel = 15,
+                        maxTotal = 300,
+                    )
+                }
+                if (!rssFeed.isNullOrEmpty()) return@withContext rssFeed
+                getVideosForChannels(
+                    channelIdsOrUrls = selectedChannels,
+                    perChannelLimit = 5,
+                    totalLimit = 300,
+                )
+            }
+
         /**
-         * Fetch lyrics for a video. Prefers the synced transcript from YT Music
+          * Fetch lyrics for a video. Prefers the synced transcript from YT Music
          * (`get_transcript`), falling back to the plain-text lyrics page
          * referenced by the watch-next lyrics tab.
          */
@@ -1761,7 +1792,7 @@ class YouTubeRepository
             var durationSecs = if (duration > 0) duration.toInt() else 0
 
             val isShortUrl = rawUrl.contains("/shorts/")
-            val isShortHeuristic = isShortUrl || (durationSecs in 1..60)
+            val isShortHeuristic = isShortUrl || (isShortFormContent == true)
 
             if (isShortHeuristic && durationSecs == 0) {
                 durationSecs = 60

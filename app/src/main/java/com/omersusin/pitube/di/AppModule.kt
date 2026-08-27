@@ -40,13 +40,13 @@ object AppModule {
             }.memoryCache {
                 MemoryCache
                     .Builder()
-                    .maxSizePercent(context, 0.07)
+                    .maxSizePercent(context, 0.15)
                     .build()
             }.diskCache {
                 DiskCache
                     .Builder()
                     .directory(context.cacheDir.resolve("image_cache").toOkioPath())
-                    .maxSizePercent(0.01)
+                    .maxSizePercent(0.10)
                     .build()
             }.crossfade(true)
             .apply { if (BuildConfig.DEBUG) logger(DebugLogger()) }
