@@ -837,12 +837,12 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    private fun homeSubsRotationCursorKey(): PreferencesKey<Int> {
+    private fun homeSubsRotationCursorKey(): Preferences.Key<Int> {
         val pid = runCatching { ProfileManager(context).active().id }.getOrNull()?.takeIf { it.isNotBlank() }
         return if (pid != null) intPreferencesKey("$pid|home_subs_rotation_cursor") else Keys.HOME_SUBS_ROTATION_CURSOR
     }
 
-    private fun youtubeLibrarySyncedAtKey(): PreferencesKey<Long> {
+    private fun youtubeLibrarySyncedAtKey(): Preferences.Key<Long> {
         val pid = runCatching { ProfileManager(context).active().id }.getOrNull()?.takeIf { it.isNotBlank() }
         return if (pid != null) longPreferencesKey("$pid|youtube_library_synced_at") else Keys.YOUTUBE_LIBRARY_SYNCED_AT
     }
@@ -2692,8 +2692,8 @@ class PlayerPreferences(context: Context) {
             preferences.remove(Keys.YOUTUBE_ACCOUNT_EMAIL)
             preferences.remove(Keys.YOUTUBE_ACCOUNT_THUMBNAIL)
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_AT)
-            preferences.remove(youtubeLibrarySyncedAtKey())
-            preferences.remove(homeSubsRotationCursorKey())
+            preferences.remove<Long>(youtubeLibrarySyncedAtKey())
+            preferences.remove<Int>(homeSubsRotationCursorKey())
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_LIKED)
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_PLAYLISTS)
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_CHANNELS)
