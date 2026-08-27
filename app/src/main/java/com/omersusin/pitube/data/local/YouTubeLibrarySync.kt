@@ -218,18 +218,15 @@ object YouTubeLibrarySync {
         val channels = crawl.channels
         val remoteIds = channels.mapTo(HashSet()) { it.id }
         var applied = 0
-        channels.forEach { channel ->
-            runCatching {
-                repository.subscribe(
-                    ChannelSubscription(
-                        channelId = channel.id,
-                        channelName = channel.name,
-                        channelThumbnail = channel.thumbnail,
-                        isMusic = false
-                    )
-                )
-            }.onSuccess { applied++ }
+        val toSubscribe = channels.map { channel ->
+            ChannelSubscription(
+                channelId = channel.id,
+                channelName = channel.name,
+                channelThumbnail = channel.thumbnail,
+                isMusic = false
+            )
         }
+        runCatching { repository.subscribeAll(toSubscribe) }.onSuccess { applied = toSubscribe.size }
         // The account is authoritative: drop local-only rows that are NOT in the
         // remote list. Without this, recommendation-shelf channels that slipped
         // into the local library before the parser scoping fix would stay

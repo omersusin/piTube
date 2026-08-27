@@ -293,6 +293,11 @@ class SabrOrchestrator(
 
         playerResponseReloads++
         playerResponseReloadJob = scope?.async(Dispatchers.IO) {
+            poTokenRefreshJob?.let { job ->
+                if (job.isActive) {
+                    try { job.await() } catch (_: Exception) {}
+                }
+            }
             val fresh = try {
                 resolver(event)
             } catch (e: kotlinx.coroutines.CancellationException) {

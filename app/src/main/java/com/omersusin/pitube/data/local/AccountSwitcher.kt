@@ -110,6 +110,16 @@ class AccountSwitcher(context: Context) {
             appContext.getSharedPreferences("home_feed_rotation", Context.MODE_PRIVATE)
                 .edit().clear().apply()
         }
+        runCatching {
+            kotlinx.coroutines.runBlocking {
+                PlayerPreferences(appContext).setHomeSubsRotationCursor(0)
+            }
+        }
+        runCatching {
+            kotlinx.coroutines.runBlocking {
+                PlayerPreferences(appContext).setYoutubeLibrarySyncedAt(0L)
+            }
+        }
         runCatching { com.omersusin.pitube.ui.screens.home.HomeFeedCache.clear() }
         runCatching {
             kotlinx.coroutines.runBlocking {

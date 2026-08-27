@@ -287,11 +287,6 @@ class YouTubeRepository
                         Log.w(TAG, "Trending FEtrending fallback: ${fallback.size} videos")
                         return@withContext Pair(enrichLikelyCollabAvatarStacks(fallback), null)
                     }
-                    val searchFallback = runCatching { searchVideos("trending videos ${java.time.Year.now().value}").first.take(20) }.getOrElse { emptyList() }
-                    if (searchFallback.isNotEmpty()) {
-                        Log.w(TAG, "Trending search fallback: ${searchFallback.size} videos")
-                        return@withContext Pair(enrichLikelyCollabAvatarStacks(searchFallback), null)
-                    }
                     Pair(emptyList(), null)
                 }
             }
@@ -1793,9 +1788,8 @@ class YouTubeRepository
 
             val isShortUrl = rawUrl.contains("/shorts/")
             val isLiveStream = streamType == StreamType.LIVE_STREAM
-            val durationLooksShort = durationSecs in 1..65 && !isLiveStream && isShortFormContent != false
-            val durationMediumLooksShort = durationSecs in 66..120 && isShortUrl && !isLiveStream
-            val isShortHeuristic = isShortUrl || isShortFormContent == true || durationLooksShort || durationMediumLooksShort
+            val durationLooksShort = durationSecs in 1..60 && !isLiveStream && isShortFormContent != false
+            val isShortHeuristic = isShortUrl || isShortFormContent == true || durationLooksShort
 
             if (isShortHeuristic && durationSecs == 0) {
                 durationSecs = 60
@@ -1808,13 +1802,32 @@ class YouTubeRepository
             // Logic to detect if it's a music video
             val nameLower = name?.lowercase() ?: ""
             val uploaderLower = uploaderName?.lowercase() ?: ""
-            val isMusicCandidate =
-                uploaderLower.contains("vevo") ||
+            val isMusicCandidate = run {
+                val songDetectorMatch = try {
+                    val clazz = Class.forName("com.omersusin.pitube.utils.SongVideoDetector")
+                    val method = clazz.methods.firstOrNull { it.name == "isSongVideoLenient" }
+                    if (method != null) {
+                        val result = method.invoke(null, name ?: "", uploaderName ?: "") as? Boolean
+                        result == true
+                    } else false
+                } catch (_: Exception) { false }
+                songDetectorMatch ||
+                    uploaderLower.contains("vevo") ||
                     uploaderLower.contains(" - topic") ||
+                    uploaderLower.contains("music") ||
+                    uploaderLower.contains("lofi") ||
+                    uploaderLower.contains("nightcore") ||
+                    uploaderLower.contains("k-pop") ||
+                    uploaderLower.contains("kpop") ||
                     nameLower.contains("official music video") ||
                     nameLower.contains("official video") ||
                     nameLower.contains("official audio") ||
-                    nameLower.contains("(official)")
+                    nameLower.contains("(official)") ||
+                    nameLower.contains("music") ||
+                    nameLower.contains("lofi") ||
+                    nameLower.contains("nightcore") ||
+                    nameLower.contains("k-pop")
+            }
 
             return Video(
                 id = videoId,

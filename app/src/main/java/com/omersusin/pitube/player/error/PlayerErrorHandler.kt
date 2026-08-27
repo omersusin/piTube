@@ -61,14 +61,15 @@ class PlayerErrorHandler(
 ) {
     companion object {
         private const val TAG = "PlayerErrorHandler"
-        private const val MAX_CONSECUTIVE_EXPIRY = 3
-        private const val EXPIRY_DEBOUNCE_MS = 1500L
+        private const val MAX_CONSECUTIVE_EXPIRY = 5
+        private const val EXPIRY_DEBOUNCE_MS = 4000L
     }
 
     private val expiryRetryLimiter = StreamExpiryRetryLimiter(
         maxConsecutiveFailures = MAX_CONSECUTIVE_EXPIRY,
         debounceMs = EXPIRY_DEBOUNCE_MS
     )
+    private var lastSeenVideoId: String? = null
 
     // ── Public entry point ────────────────────────────────────────────────────
 
@@ -281,6 +282,11 @@ class PlayerErrorHandler(
     }
 
     private fun handleStreamExpired(reason: String) {
+        val currentVideoId = stateFlow.value.currentVideoId
+        if (currentVideoId != lastSeenVideoId) {
+            expiryRetryLimiter.reset()
+            lastSeenVideoId = currentVideoId
+        }
         val context = buildFailureContext(reason)
 
         when (val decision = expiryRetryLimiter.record(context)) {

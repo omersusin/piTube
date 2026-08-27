@@ -837,15 +837,24 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    // Home subscription rotation cursor
+    private fun homeSubsRotationCursorKey(): PreferencesKey<Int> {
+        val pid = runCatching { ProfileManager(context).active().id }.getOrNull()?.takeIf { it.isNotBlank() }
+        return if (pid != null) intPreferencesKey("$pid|home_subs_rotation_cursor") else Keys.HOME_SUBS_ROTATION_CURSOR
+    }
+
+    private fun youtubeLibrarySyncedAtKey(): PreferencesKey<Long> {
+        val pid = runCatching { ProfileManager(context).active().id }.getOrNull()?.takeIf { it.isNotBlank() }
+        return if (pid != null) longPreferencesKey("$pid|youtube_library_synced_at") else Keys.YOUTUBE_LIBRARY_SYNCED_AT
+    }
+
     val homeSubsRotationCursor: Flow<Int> = context.playerPreferencesDataStore.data
         .map { preferences ->
-            preferences[Keys.HOME_SUBS_ROTATION_CURSOR] ?: 0
+            preferences[homeSubsRotationCursorKey()] ?: preferences[Keys.HOME_SUBS_ROTATION_CURSOR] ?: 0
         }
 
     suspend fun setHomeSubsRotationCursor(cursor: Int) {
         context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.HOME_SUBS_ROTATION_CURSOR] = cursor.coerceAtLeast(0)
+            preferences[homeSubsRotationCursorKey()] = cursor.coerceAtLeast(0)
         }
     }
 
@@ -2639,12 +2648,11 @@ class PlayerPreferences(context: Context) {
     }
 
     val youtubeLibrarySyncedAt: Flow<Long> = context.playerPreferencesDataStore.data
-        .map { preferences -> preferences[Keys.YOUTUBE_LIBRARY_SYNCED_AT] ?: 0L }
+        .map { preferences -> preferences[youtubeLibrarySyncedAtKey()] ?: preferences[Keys.YOUTUBE_LIBRARY_SYNCED_AT] ?: 0L }
 
-    /** Marks when the account library was last synced (used for auto-sync). */
     suspend fun setYoutubeLibrarySyncedAt(timestamp: Long = System.currentTimeMillis()) {
         context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.YOUTUBE_LIBRARY_SYNCED_AT] = timestamp
+            preferences[youtubeLibrarySyncedAtKey()] = timestamp
         }
     }
 
@@ -2684,6 +2692,8 @@ class PlayerPreferences(context: Context) {
             preferences.remove(Keys.YOUTUBE_ACCOUNT_EMAIL)
             preferences.remove(Keys.YOUTUBE_ACCOUNT_THUMBNAIL)
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_AT)
+            preferences.remove(youtubeLibrarySyncedAtKey())
+            preferences.remove(homeSubsRotationCursorKey())
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_LIKED)
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_PLAYLISTS)
             preferences.remove(Keys.YOUTUBE_LIBRARY_SYNCED_CHANNELS)

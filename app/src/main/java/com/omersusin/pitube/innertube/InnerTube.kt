@@ -519,7 +519,8 @@ class InnerTube {
                         client.toContext(
                             locale,
                             if (effectiveIncludeVisitor) visitorData else null,
-                            dataSyncId,
+                            if (browseId == "FEwhat_to_watch") null else dataSyncId,
+                            browseId,
                         ),
                     browseId = if (continuation == null) browseId else null,
                     params = null,

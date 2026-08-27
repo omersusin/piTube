@@ -2009,7 +2009,7 @@ object YouTube {
             if (videoId.length != 11) return@forEach
             val title = obj["title"]?.musicRunsText() ?: obj.findFirstStringDeepInElement("videoId")?.let { videoId } ?: return@forEach
             val thumb = obj.findFirstThumbnailUrlInElement() ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
-            videos.add(com.omersusin.pitube.data.model.Video(id = videoId, title = title.takeIf { it.isNotBlank() } ?: videoId, channelName = "", channelId = "", thumbnailUrl = thumb, duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = ""))
+            videos.add(com.omersusin.pitube.data.model.Video(id = videoId, title = title.takeIf { it.isNotBlank() } ?: videoId, channelName = "", channelId = "", thumbnailUrl = thumb, duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "", isMusic = true))
         }
         responsive.forEach { obj ->
             val videoId = obj["playlistItemData"]?.let { (it as? JsonObject)?.get("videoId")?.let { p -> (p as? JsonPrimitive)?.contentOrNull } }?.takeIf { it.length == 11 }
@@ -2019,20 +2019,20 @@ object YouTube {
             if (videos.any { it.id == videoId }) return@forEach
             val title = obj["flexColumns"]?.let { flex -> (flex as? JsonArray)?.firstOrNull()?.let { (it as? JsonObject)?.get("musicResponsiveListItemFlexColumnRenderer") }?.let { (it as? JsonObject)?.get("text") }?.musicRunsText() } ?: obj["title"]?.musicRunsText() ?: videoId
             val thumb = obj.findFirstThumbnailUrlInElement() ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
-            videos.add(com.omersusin.pitube.data.model.Video(id = videoId, title = title.takeIf { it.isNotBlank() } ?: videoId, channelName = "", channelId = "", thumbnailUrl = thumb, duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = ""))
+            videos.add(com.omersusin.pitube.data.model.Video(id = videoId, title = title.takeIf { it.isNotBlank() } ?: videoId, channelName = "", channelId = "", thumbnailUrl = thumb, duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "", isMusic = true))
         }
         if (videos.isEmpty()) {
             val generic = mutableListOf<JsonObject>()
             findMusicObjectsByKey(this, "videoId", generic)
             videos.addAll(generic.mapNotNull { holder ->
                 val vid = (holder["videoId"] as? JsonPrimitive)?.contentOrNull?.takeIf { it.length == 11 } ?: return@mapNotNull null
-                com.omersusin.pitube.data.model.Video(id = vid, title = vid, channelName = "", channelId = "", thumbnailUrl = "https://i.ytimg.com/vi/$vid/hq720.jpg", duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "")
+                com.omersusin.pitube.data.model.Video(id = vid, title = vid, channelName = "", channelId = "", thumbnailUrl = "https://i.ytimg.com/vi/$vid/hq720.jpg", duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "", isMusic = true)
             }.distinctBy { it.id })
         }
         if (videos.isEmpty()) {
             val ids = mutableSetOf<String>()
             collectVideoIds(this, ids)
-            videos.addAll(ids.map { vid -> com.omersusin.pitube.data.model.Video(id = vid, title = vid, channelName = "", channelId = "", thumbnailUrl = "https://i.ytimg.com/vi/$vid/hq720.jpg", duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "") })
+            videos.addAll(ids.map { vid -> com.omersusin.pitube.data.model.Video(id = vid, title = vid, channelName = "", channelId = "", thumbnailUrl = "https://i.ytimg.com/vi/$vid/hq720.jpg", duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "", isMusic = true) })
         }
         return ChannelVideoSearchResult(videos = videos.distinctBy { it.id }, continuation = null, channelVideoCountText = null)
     }
@@ -2171,8 +2171,8 @@ object YouTube {
                 badge.badgeStyle?.contains("SHORTS", ignoreCase = true) == true ||
                 badge.text?.equals("SHORTS", ignoreCase = true) == true
         }
-        val durationLooksShort = durationVal in 1..180 && liveBadge == null && !isLive
-        val hasReelEndpoint = badgeViewModels.any { it.badgeStyle?.contains("REEL", ignoreCase = true) == true } || durationVal in 1..180 && badgeViewModels.any { it.text?.contains("Shorts", ignoreCase = true) == true }
+        val durationLooksShort = durationVal in 1..60 && liveBadge == null && !isLive
+        val hasReelEndpoint = badgeViewModels.any { it.badgeStyle?.contains("REEL", ignoreCase = true) == true } || durationVal in 1..60 && badgeViewModels.any { it.text?.contains("Shorts", ignoreCase = true) == true }
         val isShort = isShortBadge || durationLooksShort || hasReelEndpoint
         val finalDuration = if (isShort && durationVal == 0) 60 else durationVal
         val metadataRows = metadata.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
@@ -2244,7 +2244,7 @@ object YouTube {
         val resolvedChannelName = r.ownerText?.textValue()?.takeIf { it.isNotBlank() } ?: channelName
         val avatarUrls = r.channelAvatarUrls(channelThumbnailUrl)
         val durBrowse = parseLengthText(r.lengthText?.textValue())
-        val isShortBrowse = durBrowse in 1..180 && !isLive
+        val isShortBrowse = durBrowse in 1..60 && !isLive
         val finalDurBrowse = if (isShortBrowse && durBrowse == 0) 60 else durBrowse
         return com.omersusin.pitube.data.model.Video(
             id = videoId,

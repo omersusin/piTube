@@ -26,7 +26,7 @@ data class YouTubeClient(
     val isEmbedded: Boolean = false,
     val useWebPoTokens: Boolean = false,
 ) {
-    fun toContext(locale: YouTubeLocale, visitorData: String?, dataSyncId: String?) = Context(
+    fun toContext(locale: YouTubeLocale, visitorData: String?, dataSyncId: String?, browseId: String? = null) = Context(
         client = Context.Client(
             clientName = clientName,
             clientVersion = clientVersion,
@@ -35,8 +35,8 @@ data class YouTubeClient(
             deviceMake = deviceMake,
             deviceModel = deviceModel,
             androidSdkVersion = androidSdkVersion,
-            originalUrl = originalUrl,
-            platform = platform,
+            originalUrl = if (browseId == "FEwhat_to_watch") "https://www.youtube.com/" else originalUrl,
+            platform = if (browseId == "FEwhat_to_watch") "DESKTOP" else platform,
             utcOffsetMinutes = utcOffsetMinutes,
             gl = locale.gl,
             hl = locale.hl,
@@ -77,7 +77,7 @@ data class YouTubeClient(
 
         val WEB = YouTubeClient(
             clientName = "WEB",
-            clientVersion = "2.20261107.01.00",
+            clientVersion = "2.20260817.01.00",
             clientId = "1",
             userAgent = USER_AGENT_WEB,
             originalUrl = ORIGIN_YOUTUBE,
@@ -105,7 +105,7 @@ data class YouTubeClient(
 
         val WEB_REMIX = YouTubeClient(
             clientName = "WEB_REMIX",
-            clientVersion = "1.20261106.05.00",
+            clientVersion = "1.20260816.07.00",
             clientId = "67",
             userAgent = USER_AGENT_WEB,
             loginSupported = true,

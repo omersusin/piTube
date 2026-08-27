@@ -131,6 +131,7 @@ fun HomeScreen(
             }
             lastVisibleVideoIndex
         }
+            .debounce(200)
             .distinctUntilChanged()
             .collect(viewModel::onHomeViewportChanged)
     }

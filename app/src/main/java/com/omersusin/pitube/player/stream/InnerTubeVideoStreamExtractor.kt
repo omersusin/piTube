@@ -406,6 +406,11 @@ object InnerTubeVideoStreamExtractor {
                     Log.d(TAG, "Skipping ${client.clientName} v${client.clientVersion}: bot-wall cooldown")
                     continue
                 }
+                if (client.clientName == "ANDROID_VR" && playerPoToken == null) {
+                    failureReasons.add("${client.clientName}: skipped (poToken null)")
+                    Log.d(TAG, "Skipping ${client.clientName} v${client.clientVersion}: poToken null")
+                    continue
+                }
 
                 Log.d(TAG, "Trying ${client.clientName} v${client.clientVersion}")
 
@@ -747,8 +752,8 @@ object InnerTubeVideoStreamExtractor {
                 this
             }
             else -> {
-                Log.w(TAG, "Rejecting untransformed n URL for $videoId itag=$itag; direct playback would likely throttle")
-                null
+                Log.w(TAG, "Using untransformed n URL as fallback for $videoId itag=$itag; playback may throttle")
+                this
             }
         }
     }

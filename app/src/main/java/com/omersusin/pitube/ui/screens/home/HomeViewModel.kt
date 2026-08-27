@@ -20,6 +20,7 @@ import com.omersusin.pitube.R
 import com.omersusin.pitube.SessionManager
 import com.omersusin.pitube.ui.components.FeedInvalidationBus
 import com.omersusin.pitube.utils.PerformanceDispatcher
+import com.omersusin.pitube.utils.ShortsDetector
 import kotlin.random.Random
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
@@ -274,28 +275,30 @@ class HomeViewModel @Inject constructor(
         private const val DISCOVERY_ROTATE_MS = 12L * 60L * 60L * 1000L
     }
 
-    // Broad discovery searches used to fill the home feed when there are no (or few)
-    // subscriptions. Plain queries — no engine involved. A wide, rotating pool so
-    // consecutive pulls surface genuinely different items instead of looping the
-    // same handful of canned searches.
-    private val DISCOVERY_QUERIES = listOf(
+    private val MUSIC_DISCOVERY_QUERIES = listOf(
+        "pop music", "lofi beats", "jazz classics", "hip hop", "k-pop", "classical music",
+        "acoustic covers", "electronic music", "indie music", "country hits", "reggaeton",
+        "anime music", "meditation music", "study music", "nightcore", "music videos", "live concert"
+    )
+
+    private val VIDEO_DISCOVERY_QUERIES = listOf(
         "viral", "trending now", "popular videos", "new releases", "best of the week",
-        "trending today", "viral videos", "music videos", "funny videos", "amazing videos",
+        "trending today", "viral videos", "funny videos", "amazing videos",
         "documentary", "gaming highlights", "science explained", "top 10", "daily news",
-        "pop music", "live concert", "movie trailers", "how to", "cooking recipes",
+        "movie trailers", "how to", "cooking recipes",
         "fitness workout", "travel vlog", "tech reviews", "AI explained", "history explained",
         "space science", "nature documentary", "short films", "comedy skits", "animation",
         "football highlights", "basketball", "e-sports", "reaction videos", "unboxing",
-        "car reviews", "diy projects", "gardening", "meditation music", "study music",
-        "lofi beats", "news analysis", "crypto explained", "true crime", "pets and animals",
-        "learning english", "photography", "gadget comparisons", "vintage music", "nightcore",
+        "car reviews", "diy projects", "gardening",
+        "news analysis", "crypto explained", "true crime", "pets and animals",
+        "learning english", "photography", "gadget comparisons", "vintage music",
         "challenges", "pranks", "street food", "architecture", "psychology explained",
-        "jazz classics", "hip hop", "k-pop", "classical music", "acoustic covers",
-        "electronic music", "indie music", "country hits", "reggaeton", "anime music",
         "film analysis", "book reviews", "coding tutorial", "3d printing", "wildlife",
         "ocean documentary", "ancient history", "philosophy", "economics explained", "investing",
         "design inspiration", "street photography", "home decor", "tiny house", "urban exploration"
     )
+
+    private val DISCOVERY_QUERIES = VIDEO_DISCOVERY_QUERIES + MUSIC_DISCOVERY_QUERIES
 
     // Saved-interest enrichment sources + per-seed cooldown.
     private val likedVideosRepository by lazy { LikedVideosRepository.getInstance(appContext) }
@@ -372,7 +375,9 @@ class HomeViewModel @Inject constructor(
         val persisted = discoveryPrefs
             .getString(DISCOVERY_ORDER_KEY, null)
             ?.split(',')
-            ?.takeIf { it.size == DISCOVERY_QUERIES.size }
+            ?.takeIf { it.size == VIDEO_DISCOVERY_QUERIES.size || it.size == DISCOVERY_QUERIES.size }
+            ?.let { list -> if (list.size == DISCOVERY_QUERIES.size) list.filterNot { it in MUSIC_DISCOVERY_QUERIES } else list }
+            ?.takeIf { it.size == VIDEO_DISCOVERY_QUERIES.size }
         val persistedEpoch = discoveryPrefs.getInt(DISCOVERY_EPOCH_KEY, 0)
         val lastRotated = discoveryPrefs.getLong(DISCOVERY_EPOCH_TIME_KEY, 0L)
         val stale = System.currentTimeMillis() - lastRotated > DISCOVERY_ROTATE_MS
@@ -380,7 +385,7 @@ class HomeViewModel @Inject constructor(
             if (shuffle || stale || persisted == null) {
                 val epoch = persistedEpoch + 1
                 discoveryRotationEpoch = epoch
-                DISCOVERY_QUERIES.shuffled(Random(epoch.toLong() * 31L + System.currentTimeMillis() % 1_000_000L))
+                VIDEO_DISCOVERY_QUERIES.shuffled(Random(epoch.toLong() * 31L + System.currentTimeMillis() % 1_000_000L))
             } else {
                 persisted
             }
@@ -790,6 +795,13 @@ class HomeViewModel @Inject constructor(
                     seedDiscoveryQueries(shuffle = false)
                 }
 
+                val musicEnabled = runCatching { playerPreferences.musicSearchCategoriesEnabled.first() }.getOrDefault(false)
+                if (musicEnabled) {
+                    val shuffledMusic = MUSIC_DISCOVERY_QUERIES.shuffled(Random(discoveryRotationEpoch.toLong() * 31L + System.currentTimeMillis() % 1_000_000L))
+                    val existing = discoveryQueries.toHashSet()
+                    discoveryQueries.addAll(shuffledMusic.filterNot { it in existing })
+                }
+
                 // Cold starts race the application's async session restore; wait
                 withTimeoutOrNull(8000L) { SessionManager.restored.await() }
 
@@ -902,11 +914,11 @@ class HomeViewModel @Inject constructor(
                     } ?: emptyList()
                 } else emptyList()
 
+                val hasPersonalFeedEarly = personalizedPool.size >= 3
                 val userSubs = subscriptionRepository.getValidSubscriptionIds()
                 val region = playerPreferences.trendingRegion.first()
                 val fetchStart = System.currentTimeMillis()
 
-                // ── Wave 1: first 2 queries + subs + trending ──
                 val wave1QueryCount = discoveryQueries.size.coerceAtMost(2)
                 val wave1Queries = discoveryQueries.take(wave1QueryCount)
                 currentQueryIndex = wave1QueryCount
@@ -951,7 +963,7 @@ class HomeViewModel @Inject constructor(
                         }
                     }
 
-                    val deferredDiscovery = async {
+                    val deferredDiscovery = if (hasPersonalFeedEarly) null else async {
                         wave1Queries.map { query ->
                             async { 
                                 runCatching { 
@@ -963,7 +975,7 @@ class HomeViewModel @Inject constructor(
                         }.awaitAll().flatten()
                     }
                     
-                    val deferredViral = async {
+                    val deferredViral = if (hasPersonalFeedEarly) null else async {
                         runCatching {
                              repository.getTrendingVideos(region).first
                         }.getOrElse { emptyList() }
@@ -971,8 +983,8 @@ class HomeViewModel @Inject constructor(
 
                     Wave1FeedResults(
                         subs = deferredSubs.await(),
-                        discovery = deferredDiscovery.await(),
-                        viral = deferredViral.await()
+                        discovery = deferredDiscovery?.await() ?: emptyList(),
+                        viral = deferredViral?.await() ?: emptyList()
                     )
                 }
 
@@ -1025,10 +1037,10 @@ class HomeViewModel @Inject constructor(
                 // Filter to regular videos for the main feed
                 val watched = watchedVideoIds.value
                 val unplayable = unplayableVideoIds.value
-                val subsPool = rawSubs.filterSignedValid().filterWatched(watched).filterUnplayable(unplayable).enrichAvatars().withFallbackNames()
-                val discoveryPool = rawDiscovery.filterValid().filterWatched(watched).filterUnplayable(unplayable)
+                val subsPool = rawSubs.filterSignedValid().filterWatched(watched).filterUnplayable(unplayable).filterNotMusicIfDisabled(musicEnabled).enrichAvatars().withFallbackNames()
+                val discoveryPool = rawDiscovery.filterValid().filterWatched(watched).filterUnplayable(unplayable).filterNotMusicIfDisabled(musicEnabled)
                     .filterRecentHomeSuggestion(now).enrichAvatars().withFallbackNames()
-                val viralPool = rawViral.filterValid().filterWatched(watched).filterUnplayable(unplayable)
+                val viralPool = rawViral.filterValid().filterWatched(watched).filterUnplayable(unplayable).filterNotMusicIfDisabled(musicEnabled)
                     .filterRecentHomeSuggestion(now).enrichAvatars().withFallbackNames()
 
                 Log.w(
@@ -1115,8 +1127,15 @@ class HomeViewModel @Inject constructor(
                 subsBacklog = subsByRecency.filterNot { usedVideoIds.contains(it.id) }
 
                 if (finalMix.isEmpty()) {
-                   loadTrendingFallback()
-                   return@launch
+                    if (tastePoolFiltered.isNotEmpty()) {
+                        val fallback = tastePoolFiltered.take(HOME_TARGET_SIZE)
+                        _uiState.update { it.copy(videos = fallback, isLoading = false, isRefreshing = false, hasMorePages = false, isFlowFeed = true, lastRefreshTime = now) }
+                        HomeFeedCache.update(fallback, _uiState.value.shorts, signedIn = signedIn)
+                        persistentHomeFeedCache.saveLastFeed(fallback)
+                        return@launch
+                    }
+                    loadTrendingFallback()
+                    return@launch
                 }
 
                 Log.w(
@@ -1192,7 +1211,7 @@ class HomeViewModel @Inject constructor(
                                 }.flatten()
                                 val wave2Watched = watchedVideoIds.value
                                 val wave2Valid = wave2Raw.filterValid().filterWatched(wave2Watched)
-                                    .filterUnplayable(unplayableVideoIds.value)
+                                    .filterUnplayable(unplayableVideoIds.value).filterNotMusicIfDisabled(musicEnabled)
                                     .filter { !wave2FinalMixIds.contains(it.id) }
                                 if (wave2Valid.isEmpty()) return@wave2
                                 val wave2Ranked = wave2Valid.take(15)
@@ -1295,9 +1314,10 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                     }
                 }
                 
+                val musicEnabledPrefetch = runCatching { playerPreferences.musicSearchCategoriesEnabled.first() }.getOrDefault(false)
                 val newVideos = rawVideos.filterValid()
                     .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
-                    .filterUnplayable(unplayableVideoIds.value)
+                    .filterUnplayable(unplayableVideoIds.value).filterNotMusicIfDisabled(musicEnabledPrefetch)
                     .filterRecentHomeSuggestion(now)
 
                 if (newVideos.isNotEmpty()) {
@@ -1533,7 +1553,12 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
     }
     
     private fun List<Video>.filterValid(): List<Video> {
-        return this.filter { !it.isShort && !(it.duration in 1..120 && !it.isLive) }
+        return this.filter { !ShortsDetector.isShort(it) }
+    }
+
+    private fun List<Video>.filterNotMusicIfDisabled(musicEnabled: Boolean): List<Video> {
+        if (musicEnabled) return this
+        return this.filter { !it.isMusic }
     }
 
     /**
@@ -1556,7 +1581,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
     }
 
     private fun List<Video>.filterSignedValid(): List<Video> {
-        return this.filter { !it.isShort && !(it.duration in 1..120 && !it.isLive) }
+        return this.filter { !it.isShort }
     }
 
     /**

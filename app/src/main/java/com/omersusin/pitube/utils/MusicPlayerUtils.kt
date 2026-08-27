@@ -233,6 +233,10 @@ object MusicPlayerUtils {
                 Log.d(TAG, "Skipping ${client.clientName} - requires login")
                 continue
             }
+            if (client.clientName == "ANDROID_VR" && poToken == null && getPoTokenForWebClient() == null) {
+                Log.d(TAG, "Skipping ${client.clientName} - poToken null")
+                continue
+            }
 
             Log.d(TAG, "Trying direct client ${index + 1}/${fastClients.size}: ${client.clientName}")
 
