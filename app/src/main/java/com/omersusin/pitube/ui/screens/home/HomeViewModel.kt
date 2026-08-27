@@ -566,6 +566,19 @@ class HomeViewModel @Inject constructor(
                             )
                         }
                     }
+                    is FeedInvalidationBus.Event.ProfileSwitched -> {
+                        shownVideoIds.clear()
+                        subsBacklog = emptyList()
+                        currentPage = null
+                        personalizedContinuation = null
+                        resetHomePrefetch()
+                        wave2Job?.cancel()
+                        HomeFeedCache.clear()
+                        _uiState.value = HomeUiState()
+                        hydratePersistentHomeFeed()
+                        loadFlowFeed(forceRefresh = true)
+                        loadHomeShorts()
+                    }
                 }
             }
         }
@@ -777,10 +790,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 // Cold starts race the application's async session restore; wait
-                // up to 1.5s so the signed-in verdict below is computed from the
-                // restored cookie instead of the pre-restore null (which would
-                // fall back to a generic anonymous feed and cache it).
-                withTimeoutOrNull(1500L) { SessionManager.restored.await() }
+                withTimeoutOrNull(4000L) { SessionManager.restored.await() }
 
                 val signedIn = !com.omersusin.pitube.innertube.YouTube.cookie.isNullOrBlank()
 

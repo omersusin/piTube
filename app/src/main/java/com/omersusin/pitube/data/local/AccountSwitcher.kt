@@ -96,6 +96,7 @@ class AccountSwitcher(context: Context) {
      * which one is active.
      */
     fun invalidateForProfileChange() {
+        com.omersusin.pitube.ui.components.FeedInvalidationBus.emit(com.omersusin.pitube.ui.components.FeedInvalidationBus.Event.ProfileSwitched)
         YouTube.visitorData = null
         runCatching { appContext.getSharedPreferences("ivor_visitor_data", Context.MODE_PRIVATE).edit().clear().apply() }
         runCatching {
