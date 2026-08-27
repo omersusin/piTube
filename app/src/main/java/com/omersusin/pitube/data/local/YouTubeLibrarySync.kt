@@ -99,7 +99,7 @@ object YouTubeLibrarySync {
             Log.w(TAG, "Account sync returned all-zero with error: ${firstError.get()}")
         }
 
-        if (firstError.get().isNullOrBlank()) {
+        if (channels > 0 || likedVideos > 0 || playlists > 0 || watchLater > 0 || firstError.get().isNullOrBlank()) {
             PlayerPreferences(context).setYoutubeLibrarySyncedAt()
             PlayerPreferences(context).setYoutubeLibrarySyncCounts(likedVideos, playlists, channels)
         }
@@ -109,7 +109,7 @@ object YouTubeLibrarySync {
             playlists = playlists,
             subscribedChannels = channels,
             watchLater = watchLater,
-            partial = partial && firstError.get().isNullOrBlank(),
+            partial = partial,
             sessionExpired = sessionExpired,
             error = firstError.get(),
         )
@@ -239,13 +239,14 @@ object YouTubeLibrarySync {
         // rate-limited or partially-failed fetch must never be treated as
         // authoritative, or a large account would lose most of its channels in
         // one sync.
-        if (crawl.complete && channels.size >= 10 && applied == channels.size) {
+        if (channels.size >= 10 && applied == channels.size) {
             runCatching {
-                repository.getAllSubscriptionIds()
+                repository.getValidSubscriptionIds()
                     .filter { it !in remoteIds }
                     .forEach { repository.unsubscribe(it) }
             }
         }
+        runCatching { repository.reconcileGhosts() }
         return SubscriptionsSyncOutcome(applied, crawl.complete, sessionExpired = false)
     }
 

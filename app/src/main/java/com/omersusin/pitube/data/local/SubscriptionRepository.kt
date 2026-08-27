@@ -102,7 +102,7 @@ class SubscriptionRepository private constructor(
         } catch (_: Exception) {}
     }
 
-    private suspend fun reconcileGhosts() {
+    suspend fun reconcileGhosts() {
         context.subscriptionsDataStore.edit { preferences ->
             val profileId = profileManager.activeProfileId.value
             if (profileId.isBlank()) return@edit

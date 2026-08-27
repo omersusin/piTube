@@ -83,7 +83,7 @@ class SyncDataAccess @Inject constructor(
     // by the UI. Export one synthetic "Subscriptions" group so device-to-device
     // sync carries the actual channels instead of an always-empty table.
     suspend fun readSubscriptions(hlc: String): List<CanonicalSubscriptionGroup> {
-        val channelIds = subscriptionRepository.getAllSubscriptionIds()
+        val channelIds = subscriptionRepository.getValidSubscriptionIds()
         if (channelIds.isEmpty()) return emptyList()
         return listOf(
             CanonicalSubscriptionGroup(
@@ -96,7 +96,7 @@ class SyncDataAccess @Inject constructor(
     }
 
     suspend fun writeSubscriptions(merged: List<CanonicalSubscriptionGroup>) {
-        val existing = subscriptionRepository.getAllSubscriptionIds()
+        val existing = subscriptionRepository.getValidSubscriptionIds()
         for (group in merged) {
             if (group.deleted) {
                 for (id in group.channelIds) subscriptionRepository.unsubscribe(id)

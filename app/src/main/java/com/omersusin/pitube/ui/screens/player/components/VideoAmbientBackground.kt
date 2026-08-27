@@ -234,7 +234,7 @@ private class AmbientPipeline {
                         cadence = base
                         // Heavy work off Main; withContext joins before anything is published, so
                         // the staging buffers are never read concurrently.
-                        val accepted = withContext(Dispatchers.Default) { computeTarget() }
+                        val accepted = withContext(Dispatchers.Default) { computeTarget(playing) }
                         if (accepted) {
                             stagingGrid.copyInto(targetGrid)
                             hasTarget = true
@@ -258,21 +258,17 @@ private class AmbientPipeline {
         }
     }
 
-    /** Runs on Default. Returns true when the frame differed enough to become a new target. */
-    private fun computeTarget(): Boolean {
+    private fun computeTarget(isPlaying: Boolean = true): Boolean {
+        if (!isPlaying) return false
         sample.getPixels(samplePixels, 0, SAMPLE_W, 0, 0, SAMPLE_W, SAMPLE_H)
         val changed =
             !hasPreviousSample ||
                 meanAbsDiff(samplePixels, previousPixels) >= FRAME_CHANGE_THRESHOLD
         if (!changed) return false
-        // previousPixels advances only on an accepted frame, so a slow fade accumulates against a
-        // fixed reference instead of never clearing the threshold.
         samplePixels.copyInto(previousPixels)
         hasPreviousSample = true
-
         decimateToLinear(samplePixels, stagingGrid)
         boxBlurLinear(stagingGrid, scratchGrid, DISPLAY_W, DISPLAY_H, BLUR_RADIUS_PX, BLUR_PASSES)
-
         val (base, accent) = extractColors(sample)
         base?.let { toLinear(it, targetBase) }
         accent?.let { toLinear(it, targetAccent) }

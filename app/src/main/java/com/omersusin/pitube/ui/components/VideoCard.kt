@@ -77,6 +77,7 @@ import com.omersusin.pitube.utils.formatPremiereDate
 import com.omersusin.pitube.utils.formatViewCount
 
 private const val AVATAR_TAG = "ChannelAvatarImage"
+private val AVATAR_SIZE_REGEX = Regex("=s\\d+")
 
 private fun Video.channelAvatarUrls(collaborators: List<VideoCollaborator> = emptyList()): List<String> {
     if (collaborators.size <= 1) {
@@ -1617,7 +1618,7 @@ fun ChannelAvatarImage(
                                 Log.e(AVATAR_TAG, "Expected String model but got ${currentModel::class.simpleName}")
                                 return@AsyncImage
                             }
-                        val lowRes = src.replace(Regex("=s\\d+"), "=s88")
+                        val lowRes = src.replace(AVATAR_SIZE_REGEX, "=s88")
                         if (lowRes != src) {
                             Log.w(AVATAR_TAG, "Failed '$src' ($errMsg) → retrying with '$lowRes'")
                             currentModel = lowRes
@@ -1642,7 +1643,7 @@ fun ChannelAvatarStack(
     avatarSize: androidx.compose.ui.unit.Dp,
     modifier: Modifier = Modifier,
 ) {
-    val avatarUrls = urls.ifEmpty { listOf("") }.take(3)
+    val avatarUrls = remember(urls) { urls.ifEmpty { listOf("") }.take(3) }
     val primaryUrl = avatarUrls.first()
     val secondaryUrl = avatarUrls.getOrNull(1)
     val tertiaryUrl = avatarUrls.getOrNull(2)

@@ -309,9 +309,10 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
         .map(HomeUiState::withUniqueLazyContent)
+        .distinctUntilChanged()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Eagerly,
+            started = SharingStarted.WhileSubscribed(5000),
             initialValue = _uiState.value.withUniqueLazyContent()
         )
     
@@ -461,7 +462,7 @@ class HomeViewModel @Inject constructor(
                     watchedThreshold = threshold,
                     continueWatchingEnabled = continueWatchingEnabled
                 )
-            }.collect { result ->
+            }.distinctUntilChanged().collect { result ->
                 watchedVideoIds.value = result.watchedVideoIds
                 _uiState.update { state ->
                     val videos = state.videos.filterWatched(result.watchedVideoIds)
@@ -968,31 +969,10 @@ class HomeViewModel @Inject constructor(
                         }.getOrElse { emptyList() }
                     }
 
-                    // ── Fast first paint ────────────────────────────────────────
-                    val viralResult = deferredViral.await()
-                    if (viralResult.isNotEmpty()) {
-                        val watched = watchedVideoIds.value
-                        val unplayable = unplayableVideoIds.value
-                        val quickFeed = viralResult.filterValid()
-                            .filterWatched(watched)
-                            .filterUnplayable(unplayable)
-                            .filterRecentHomeSuggestion(System.currentTimeMillis())
-                            .take(15)
-                        if (quickFeed.isNotEmpty()) {
-                            _uiState.update { state ->
-                                state.copy(
-                                    videos = quickFeed.filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value).filterUnplayable(unplayableVideoIds.value),
-                                    isLoading = true,
-                                    isFlowFeed = true
-                                )
-                            }
-                        }
-                    }
-
                     Wave1FeedResults(
                         subs = deferredSubs.await(),
                         discovery = deferredDiscovery.await(),
-                        viral = viralResult
+                        viral = deferredViral.await()
                     )
                 }
 
@@ -1096,12 +1076,21 @@ class HomeViewModel @Inject constructor(
                         "(strong=$hasPersonalFeed, signedLane=${_uiState.value.feedContinuation != null}), " +
                         "subsPool=${bestSubs.size}, taste=${tastePoolFiltered.size}"
                 )
-                val quotas = homeFeedQuotas(
+                val baseQuotas = homeFeedQuotas(
                     remaining,
                     userSubs.size,
                     watched.size,
                     hasPersonalFeed = hasPersonalFeed
                 )
+                val quotas = if (personalizedPool.size < 5 && tastePoolFiltered.isNotEmpty()) {
+                    baseQuotas.toMutableMap().apply {
+                        val subsQ = this[FeedSource.SUBS] ?: 0
+                        if (subsQ > 4) {
+                            this[FeedSource.SUBS] = 4
+                            this[FeedSource.RELATED] = (this[FeedSource.RELATED] ?: 0) + (subsQ - 4)
+                        }
+                    }
+                } else baseQuotas
                 val bestPersonal = personalizedPool.take(20)
                 // When the personalized lane is weak the taste lane takes its
                 // place as RELATED content — history-seeded instead of generic.
@@ -1483,7 +1472,6 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
     fun refreshFeed() {
         resetHomePrefetch()
         wave2Job?.cancel()
-        HomeFeedCache.clear()
         _uiState.update { it.copy(isRefreshing = true) }
         loadFlowFeed(forceRefresh = true)
     }
@@ -1545,7 +1533,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
     }
     
     private fun List<Video>.filterValid(): List<Video> {
-        return this.filter { !it.isShort }
+        return this.filter { !it.isShort && !(it.duration in 1..120 && !it.isLive) }
     }
 
     /**
@@ -1568,7 +1556,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
     }
 
     private fun List<Video>.filterSignedValid(): List<Video> {
-        return this.filter { !it.isShort }
+        return this.filter { !it.isShort && !(it.duration in 1..120 && !it.isLive) }
     }
 
     /**
@@ -1576,7 +1564,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
      * Complements filterValid() by capturing what it discards.
      */
     private fun List<Video>.extractShorts(): List<Video> {
-        return this.filter { it.isShort }
+        return this.filter { it.isShort || (it.duration in 1..120 && !it.isLive) }
     }
 
     private fun List<Video>.filterRecentHomeSuggestion(now: Long): List<Video> =

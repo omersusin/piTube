@@ -18,7 +18,9 @@ fun List<Image>?.distinctBestImageUrls(limit: Int = 2): List<String> =
         .take(limit)
         .toList()
 
+private val AVATAR_IDENTITY_REGEX = Regex("=s\\d+.*$")
+
 internal fun String?.avatarImageIdentityKey(): String =
     orEmpty()
         .substringBefore("?")
-        .replace(Regex("=s\\d+.*$"), "")
+        .replace(AVATAR_IDENTITY_REGEX, "")

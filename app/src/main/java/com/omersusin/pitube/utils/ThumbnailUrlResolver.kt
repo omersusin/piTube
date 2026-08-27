@@ -5,6 +5,8 @@ object ThumbnailUrlResolver {
         Regex("""(?:https?:)?//(?:i\d*\.ytimg\.com|img\.youtube\.com)/(?:vi|vi_webp)/([^/?#]+)/[^/?#]+""")
     private val googleCdnSizePattern = Regex("""w\d+-h\d+""")
     private val googleCdnParamStartPattern = Regex("""=(?:w|s|h)""")
+    private val googleCdnSingleParamPattern = Regex("""=([wsh])\d+""")
+    private val googleCdnAvatarSuffixPattern = Regex("=s\\d+.*$")
 
     /**
      * Undo JSON-escaped forward slashes. InnerTube responses often ship URLs
@@ -110,8 +112,7 @@ object ThumbnailUrlResolver {
         val isGoogleCdn = raw.contains("googleusercontent.com") || raw.contains("ggpht.com")
         if (!isGoogleCdn) return raw
 
-        val sizeParamRegex = Regex("""=([wsh])\d+""")
-        val match = sizeParamRegex.find(raw)
+        val match = googleCdnSingleParamPattern.find(raw)
         if (match != null) {
             val paramType = match.groupValues[1]
             return raw.replaceFirst(match.value, "=$paramType$targetWidth")
@@ -126,11 +127,6 @@ object ThumbnailUrlResolver {
         }
     }
 
-    /**
-     * Edge length for channel avatars on list/card surfaces, where they render at roughly
-     * 24-48 dp. 176 px stays sharp past 4x density while requesting ~8x fewer pixels than the
-     * previous 512 px default. Pass an explicit [size] for genuinely large avatar surfaces.
-     */
     const val AVATAR_SIZE_LIST = 176
 
     fun resolveChannelAvatar(rawUrl: String?, size: Int = AVATAR_SIZE_LIST): String {
@@ -144,8 +140,7 @@ object ThumbnailUrlResolver {
             return raw.replace(googleCdnSizePattern, "s$size")
         }
 
-        val sizeParamRegex = Regex("""=([wsh])\d+""")
-        val match = sizeParamRegex.find(raw)
+        val match = googleCdnSingleParamPattern.find(raw)
         if (match != null) {
             return raw.replaceFirst(match.value, "=s$size")
         }
@@ -162,8 +157,7 @@ object ThumbnailUrlResolver {
         val isGoogleCdn = raw.contains("googleusercontent.com") || raw.contains("ggpht.com")
         if (!isGoogleCdn) return raw
 
-        val sizeParamRegex = Regex("""=([wsh])\d+""")
-        sizeParamRegex.find(raw)?.let { match ->
+        googleCdnSingleParamPattern.find(raw)?.let { match ->
             return raw.replaceFirst(match.value, "=w$targetWidth")
         }
         val paramStart = googleCdnParamStartPattern.find(raw)?.range?.first

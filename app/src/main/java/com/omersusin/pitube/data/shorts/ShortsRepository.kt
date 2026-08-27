@@ -148,7 +148,7 @@ class ShortsRepository private constructor(private val context: Context) {
     }
 
     private suspend fun fetchDiscoveryFeed(): ShortsSequenceResult {
-        val userSubs = subscriptionRepository.getAllSubscriptionIds()
+        val userSubs = subscriptionRepository.getValidSubscriptionIds()
 
         // Discovery starts immediately in the background — never blocks the return path
         val discJob = repositoryScope.async {
@@ -297,7 +297,7 @@ class ShortsRepository private constructor(private val context: Context) {
         
         Log.d(TAG, "━━━ Loading More Shorts (continuation) ━━━")
 
-        val userSubs = subscriptionRepository.getAllSubscriptionIds()
+        val userSubs = subscriptionRepository.getValidSubscriptionIds()
 
         // InnerTube continuation (load-more pages carry a real continuation
         // token, which must be sent in the request's `continuation` field —

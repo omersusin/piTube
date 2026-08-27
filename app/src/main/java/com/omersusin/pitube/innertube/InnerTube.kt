@@ -331,19 +331,20 @@ class InnerTube {
         client: YouTubeClient,
         setLogin: Boolean = false,
         apiUrl: String? = null,
+        includeVisitor: Boolean = true,
     ) {
         val useMainSite = apiUrl != null && apiUrl != YouTubeClient.API_URL_YOUTUBE_MUSIC
         val origin = if (useMainSite) YouTubeClient.ORIGIN_YOUTUBE else YouTubeClient.ORIGIN_YOUTUBE_MUSIC
         val referer = if (useMainSite) YouTubeClient.REFERER_YOUTUBE else YouTubeClient.REFERER_YOUTUBE_MUSIC
         contentType(ContentType.Application.Json)
         headers {
-            append("X-Goog-Api-Format-Version", "1")
+            if (includeVisitor) append("X-Goog-Api-Format-Version", "1")
             append("X-YouTube-Client-Name", client.clientId)
             append("X-YouTube-Client-Version", client.clientVersion)
             append("X-Origin", origin)
             append("Origin", origin)
             append("Referer", referer)
-            visitorData?.let { append("X-Goog-Visitor-Id", it) }
+            if (includeVisitor) visitorData?.let { append("X-Goog-Visitor-Id", it) }
             if (setLogin && client.loginSupported) {
                 cookie?.let { cookie ->
                     append("cookie", cookie)
@@ -507,15 +508,17 @@ class InnerTube {
         client: YouTubeClient,
         browseId: String? = null,
         continuation: String? = null,
+        includeVisitor: Boolean = true,
     ) = withRetry {
+        val effectiveIncludeVisitor = if (browseId == "FEwhat_to_watch") false else includeVisitor
         httpClient.post("https://www.youtube.com/youtubei/v1/browse") {
-            ytClient(client, setLogin = true, apiUrl = YouTubeClient.API_URL_YOUTUBE)
+            ytClient(client, setLogin = true, apiUrl = YouTubeClient.API_URL_YOUTUBE, includeVisitor = effectiveIncludeVisitor)
             setBody(
                 BrowseBody(
                     context =
                         client.toContext(
                             locale,
-                            visitorData,
+                            if (effectiveIncludeVisitor) visitorData else null,
                             dataSyncId,
                         ),
                     browseId = if (continuation == null) browseId else null,

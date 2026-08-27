@@ -114,8 +114,7 @@ object YouTube {
     @Volatile private var visitorDataFetchedAt: Long = 0L
     private const val CHANNEL_LIVE_PARAMS = "EgdzdHJlYW1z8gYECgJ6AA%3D%3D"
     private const val CHANNEL_POSTS_PARAMS = "EgVwb3N0c_IGBAoCSgA="
-    /** Max FEchannels browse pages per crawl (safety cap; ~94 channels/page). */
-    private const val CHANNEL_PAGE_CAP = 50
+    private const val CHANNEL_PAGE_CAP = 500
     /** Signed-out marker YouTube embeds in authenticated response bodies. */
     private val LOGGED_OUT_REGEX = Regex("\"loggedIn\"\\s*:\\s*(false|0)|\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"0\"")
 
@@ -932,6 +931,7 @@ object YouTube {
             client = client,
             browseId = browseId,
             continuation = continuation,
+            includeVisitor = false,
         )
         val rawBody = httpResponse.bodyAsText()
         innerTube.noteResponseState(rawBody)
@@ -958,7 +958,7 @@ object YouTube {
                 visitorDataFetchedAt = 0L
                 innerTube.visitorData = null
                 Log.w("YouTube", "personalizedFeed($browseId): visitorData reminted after logged_in=$loggedIn botGuard=$isBotGuard, retrying without visitorData")
-                val retryResponse = innerTube.signedWebBrowse(client = client, browseId = browseId, continuation = continuation)
+                val retryResponse = innerTube.signedWebBrowse(client = client, browseId = browseId, continuation = continuation, includeVisitor = false)
                 val retryBody = retryResponse.bodyAsText()
                 innerTube.noteResponseState(retryBody)
                 val retryParsed = parseChannelVideosResponse(json.decodeFromString<ChannelVideosResponse>(retryBody), "", "", "", false)
@@ -2171,8 +2171,9 @@ object YouTube {
                 badge.badgeStyle?.contains("SHORTS", ignoreCase = true) == true ||
                 badge.text?.equals("SHORTS", ignoreCase = true) == true
         }
-        val durationLooksShort = durationVal in 1..60 && liveBadge == null && !isLive
-        val isShort = isShortBadge || durationLooksShort
+        val durationLooksShort = durationVal in 1..180 && liveBadge == null && !isLive
+        val hasReelEndpoint = badgeViewModels.any { it.badgeStyle?.contains("REEL", ignoreCase = true) == true } || durationVal in 1..180 && badgeViewModels.any { it.text?.contains("Shorts", ignoreCase = true) == true }
+        val isShort = isShortBadge || durationLooksShort || hasReelEndpoint
         val finalDuration = if (isShort && durationVal == 0) 60 else durationVal
         val metadataRows = metadata.metadata?.contentMetadataViewModel?.metadataRows.orEmpty()
         val channelPart = metadataRows.firstOrNull()?.metadataParts?.firstOrNull()
@@ -2243,7 +2244,7 @@ object YouTube {
         val resolvedChannelName = r.ownerText?.textValue()?.takeIf { it.isNotBlank() } ?: channelName
         val avatarUrls = r.channelAvatarUrls(channelThumbnailUrl)
         val durBrowse = parseLengthText(r.lengthText?.textValue())
-        val isShortBrowse = durBrowse in 1..60 && !isLive
+        val isShortBrowse = durBrowse in 1..180 && !isLive
         val finalDurBrowse = if (isShortBrowse && durBrowse == 0) 60 else durBrowse
         return com.omersusin.pitube.data.model.Video(
             id = videoId,

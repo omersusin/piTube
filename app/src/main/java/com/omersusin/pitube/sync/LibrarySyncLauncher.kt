@@ -7,57 +7,61 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-/**
- * App-scope launcher for the YouTube library sync.
- *
- * Sync must NEVER run on a composition scope (rememberCoroutineScope /
- * LaunchedEffect): navigating away mid-sync forgets that scope and cancels the
- * crawl mid-flight, surfacing as "Playlist sync failed …
- * ForgottenCoroutineScopeException" and leaving the fresh account half-synced.
- * UI layers call [syncAndNotify] and keep only their spinner state locally;
- * results are delivered through the persisted sync counters.
- */
 object LibrarySyncLauncher {
     private const val TAG = "LibrarySyncLauncher"
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    @Volatile
-    var isRunning: Boolean = false
-        private set
+    private val mutex = Mutex()
+    private var isRunning: Boolean = false
+    private val pending = mutableListOf<(com.omersusin.pitube.data.local.LibrarySyncResult) -> Unit>()
 
-    /**
-     * Fire-and-forget LIGHT refresh of the pinned lists (Watch Later + liked
-     * videos) — wired to Library screen entry for Koda-model freshness.
-     */
     fun refreshPinnedListsInBackground(context: Context) {
         scope.launch { runCatching { YouTubeLibrarySync.refreshPinnedLists(context.applicationContext) } }
     }
 
-    /**
-     * Fire-and-forget full library sync (liked videos, playlists, subscriptions).
-     * Safe to call repeatedly; concurrent calls are coalesced.
-     */
     fun syncInBackground(
         context: Context,
         onDone: ((com.omersusin.pitube.data.local.LibrarySyncResult) -> Unit)? = null,
     ) {
-        if (isRunning) {
-            Log.d(TAG, "Sync already running — coalescing request")
-            return
-        }
-        isRunning = true
         val appContext = context.applicationContext
         scope.launch {
-            val result = runCatching { YouTubeLibrarySync.sync(appContext) }
-                .getOrElse { r ->
-                    Log.w(TAG, "Library sync failed", r)
-                    com.omersusin.pitube.data.local.LibrarySyncResult(error = r.message)
+            val shouldStart: Boolean
+            mutex.withLock {
+                if (isRunning) {
+                    if (onDone != null) pending.add(onDone)
+                    shouldStart = false
+                } else {
+                    isRunning = true
+                    shouldStart = true
                 }
-            isRunning = false
-            withContext(Dispatchers.Main) { onDone?.invoke(result) }
+            }
+            if (!shouldStart) {
+                Log.d(TAG, "Sync already running — coalescing request")
+                return@launch
+            }
+            try {
+                val result = runCatching { YouTubeLibrarySync.sync(appContext) }
+                    .getOrElse { r ->
+                        Log.w(TAG, "Library sync failed", r)
+                        com.omersusin.pitube.data.local.LibrarySyncResult(error = r.message)
+                    }
+                val toNotify: List<(com.omersusin.pitube.data.local.LibrarySyncResult) -> Unit>
+                mutex.withLock {
+                    toNotify = pending.toList()
+                    pending.clear()
+                }
+                withContext(Dispatchers.Main) {
+                    onDone?.invoke(result)
+                    toNotify.forEach { it(result) }
+                }
+            } finally {
+                mutex.withLock { isRunning = false }
+            }
         }
     }
 }
