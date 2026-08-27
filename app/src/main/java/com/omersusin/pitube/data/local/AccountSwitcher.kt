@@ -97,6 +97,7 @@ class AccountSwitcher(context: Context) {
      */
     fun invalidateForProfileChange() {
         YouTube.visitorData = null
+        runCatching { appContext.getSharedPreferences("ivor_visitor_data", Context.MODE_PRIVATE).edit().clear().apply() }
         runCatching {
             val prefs = appContext.getSharedPreferences("flow_prefs", Context.MODE_PRIVATE)
             prefs.edit()

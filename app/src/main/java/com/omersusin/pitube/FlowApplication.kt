@@ -154,34 +154,44 @@ class FlowApplication :
 
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
-                val prefs = getSharedPreferences("flow_prefs", MODE_PRIVATE)
-                val cached = prefs.getString(VISITOR_DATA_KEY, null)
-                val cachedAt = prefs.getLong(VISITOR_DATA_FETCHED_AT_KEY, 0L)
-                val cacheIsFresh =
-                    cachedAt > 0L &&
-                        System.currentTimeMillis() - cachedAt < VISITOR_DATA_MAX_AGE_MS
+                val now = System.currentTimeMillis()
+                val ivorPrefs = getSharedPreferences("ivor_visitor_data", MODE_PRIVATE)
+                var cached = ivorPrefs.getString("visitor_data", null)
+                var cachedAt = ivorPrefs.getLong("visitor_data_at", 0L)
+                var cacheIsFresh = cachedAt != 0L && now - cachedAt in 0 until VISITOR_DATA_MAX_AGE_MS
+                var restored = false
                 if (!cached.isNullOrEmpty() && cacheIsFresh) {
                     YouTube.visitorData = cached
-                    Log.d(TAG, "visitorData restored from prefs")
+                    Log.d(TAG, "visitorData restored from ivor prefs")
+                    restored = true
                 } else {
-                    // Stale/missing visitorData needs a network fetch — defer it a
-                    // few seconds so it doesn't collide with first-frame work.
+                    val prefs = getSharedPreferences("flow_prefs", MODE_PRIVATE)
+                    cached = prefs.getString(VISITOR_DATA_KEY, null)
+                    cachedAt = prefs.getLong(VISITOR_DATA_FETCHED_AT_KEY, 0L)
+                    cacheIsFresh = cachedAt != 0L && System.currentTimeMillis() - cachedAt in 0 until VISITOR_DATA_MAX_AGE_MS
+                    if (!cached.isNullOrEmpty() && cacheIsFresh) {
+                        YouTube.visitorData = cached
+                        ivorPrefs.edit().putString("visitor_data", cached).putLong("visitor_data_at", cachedAt).apply()
+                        Log.d(TAG, "visitorData restored from prefs")
+                        restored = true
+                    }
+                }
+                if (!restored) {
                     kotlinx.coroutines.delay(5_000L)
-                    YouTube
-                        .visitorData()
-                        .onSuccess { data ->
-                            if (!data.isNullOrEmpty()) {
-                                prefs
-                                    .edit()
-                                    .putString(VISITOR_DATA_KEY, data)
-                                    .putLong(VISITOR_DATA_FETCHED_AT_KEY, System.currentTimeMillis())
-                                    .apply()
-                                YouTube.visitorData = data
-                                Log.d(TAG, "visitorData fetched and cached")
+                    val data = YouTube.getVisitorData()
+                    if (!data.isNullOrEmpty()) {
+                        Log.d(TAG, "visitorData fetched and cached")
+                    } else {
+                        YouTube.visitorData().onSuccess { fallback ->
+                            if (!fallback.isNullOrEmpty()) {
+                                val t = System.currentTimeMillis()
+                                ivorPrefs.edit().putString("visitor_data", fallback).putLong("visitor_data_at", t).apply()
+                                getSharedPreferences("flow_prefs", MODE_PRIVATE).edit().putString(VISITOR_DATA_KEY, fallback).putLong(VISITOR_DATA_FETCHED_AT_KEY, t).apply()
+                                YouTube.visitorData = fallback
+                                Log.d(TAG, "visitorData fetched via fallback and cached")
                             }
-                        }.onFailure { e ->
-                            Log.w(TAG, "visitorData fetch failed: ${e.message}")
-                        }
+                        }.onFailure { e -> Log.w(TAG, "visitorData fetch failed: ${e.message}") }
+                    }
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "visitorData init error: ${e.message}")
@@ -338,29 +348,16 @@ class FlowApplication :
             playerPreferences.trendingRegion.collectLatest { region ->
                 if (lastRegion != null && lastRegion != region) {
                     Log.d(TAG, "Trending region changed from $lastRegion to $region. Invalidate visitor data.")
+                    getSharedPreferences("ivor_visitor_data", MODE_PRIVATE).edit().clear().apply()
                     val prefs = getSharedPreferences("flow_prefs", MODE_PRIVATE)
-                    prefs
-                        .edit()
-                        .remove(VISITOR_DATA_KEY)
-                        .remove(VISITOR_DATA_FETCHED_AT_KEY)
-                        .apply()
+                    prefs.edit().remove(VISITOR_DATA_KEY).remove(VISITOR_DATA_FETCHED_AT_KEY).apply()
                     YouTube.visitorData = null
-
-                    YouTube
-                        .visitorData()
-                        .onSuccess { data ->
-                            if (!data.isNullOrEmpty()) {
-                                prefs
-                                    .edit()
-                                    .putString(VISITOR_DATA_KEY, data)
-                                    .putLong(VISITOR_DATA_FETCHED_AT_KEY, System.currentTimeMillis())
-                                    .apply()
-                                YouTube.visitorData = data
-                                Log.d(TAG, "Fresh visitorData fetched for region: $region")
-                            }
-                        }.onFailure { e ->
-                            Log.w(TAG, "Failed to fetch fresh visitorData: ${e.message}")
-                        }
+                    val data = YouTube.getVisitorData() ?: YouTube.visitorData().getOrNull()?.takeIf { it.isNotBlank() }
+                    if (!data.isNullOrEmpty()) {
+                        Log.d(TAG, "Fresh visitorData fetched for region: $region")
+                    } else {
+                        Log.w(TAG, "Failed to fetch fresh visitorData for region: $region")
+                    }
                 }
                 lastRegion = region
             }

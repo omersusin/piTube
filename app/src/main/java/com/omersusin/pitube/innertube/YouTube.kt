@@ -103,6 +103,15 @@ object YouTube {
     private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
     private val innerTube = InnerTube()
     private const val CHANNEL_VIDEOS_PARAMS = "EgZ2aWRlb3PyBgQKAjoA"
+    private const val VISITOR_DATA_TTL_MS = 6L * 60L * 60L * 1000L
+    private const val IVOR_PREFS_NAME = "ivor_visitor_data"
+    private const val IVOR_KEY_DATA = "visitor_data"
+    private const val IVOR_KEY_AT = "visitor_data_at"
+    private const val FLOW_PREFS_NAME = "flow_prefs"
+    private const val FLOW_KEY_DATA = "visitor_data"
+    private const val FLOW_KEY_AT = "visitor_data_fetched_at"
+    @Volatile private var cachedVisitorData: String? = null
+    @Volatile private var visitorDataFetchedAt: Long = 0L
     private const val CHANNEL_LIVE_PARAMS = "EgdzdHJlYW1z8gYECgJ6AA%3D%3D"
     private const val CHANNEL_POSTS_PARAMS = "EgVwb3N0c_IGBAoCSgA="
     /** Max FEchannels browse pages per crawl (safety cap; ~94 channels/page). */
@@ -119,6 +128,13 @@ object YouTube {
         get() = innerTube.visitorData
         set(value) {
             innerTube.visitorData = value
+            if (value.isNullOrBlank()) {
+                cachedVisitorData = null
+                visitorDataFetchedAt = 0L
+            } else {
+                cachedVisitorData = value
+                visitorDataFetchedAt = System.currentTimeMillis()
+            }
         }
     var dataSyncId: String?
         get() = innerTube.dataSyncId
@@ -263,10 +279,80 @@ object YouTube {
             resolved
         }.getOrNull()
 
-    private suspend fun ensureVisitorData() {        if (!visitorData.isNullOrBlank()) return
-        visitorData().getOrNull()
-            ?.takeIf(String::isNotBlank)
-            ?.let { visitorData = it }
+    private suspend fun ensureVisitorData() {
+        if (!visitorData.isNullOrBlank() && cachedVisitorData == visitorData && System.currentTimeMillis() - visitorDataFetchedAt in 0 until VISITOR_DATA_TTL_MS) return
+        getVisitorData()?.let { visitorData = it }
+    }
+
+    private fun readPersistedVisitorData(): Pair<String?, Long> {
+        return try {
+            val ctx = FlowApplication.appContext
+            val now = System.currentTimeMillis()
+            val ivor = ctx.getSharedPreferences(IVOR_PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            var data = ivor.getString(IVOR_KEY_DATA, null)
+            var at = ivor.getLong(IVOR_KEY_AT, 0L)
+            if (!data.isNullOrBlank() && at != 0L) {
+                val age = now - at
+                if (age in 0 until VISITOR_DATA_TTL_MS) return data to at
+            }
+            val flow = ctx.getSharedPreferences(FLOW_PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            data = flow.getString(FLOW_KEY_DATA, null)
+            at = flow.getLong(FLOW_KEY_AT, 0L)
+            if (!data.isNullOrBlank() && at != 0L) {
+                val age = now - at
+                if (age in 0 until VISITOR_DATA_TTL_MS) return data to at
+            }
+            null to 0L
+        } catch (_: Exception) { null to 0L }
+    }
+
+    private fun persistVisitorData(data: String) {
+        val now = System.currentTimeMillis()
+        cachedVisitorData = data
+        visitorDataFetchedAt = now
+        innerTube.visitorData = data
+        try {
+            val ctx = FlowApplication.appContext
+            ctx.getSharedPreferences(IVOR_PREFS_NAME, android.content.Context.MODE_PRIVATE).edit().putString(IVOR_KEY_DATA, data).putLong(IVOR_KEY_AT, now).apply()
+            ctx.getSharedPreferences(FLOW_PREFS_NAME, android.content.Context.MODE_PRIVATE).edit().putString(FLOW_KEY_DATA, data).putLong(FLOW_KEY_AT, now).apply()
+        } catch (_: Exception) { }
+    }
+
+    private suspend fun fetchVisitorDataRaw(): String? {
+        innerTube.fetchVisitorId()?.takeIf { it.isNotBlank() }?.let { return it }
+        innerTube.fetchBootstrapVisitorData()?.takeIf { it.isNotBlank() }?.let { return it }
+        return null
+    }
+
+    suspend fun getVisitorData(): String? {
+        cachedVisitorData?.let { cached ->
+            if (cached.isNotBlank() && System.currentTimeMillis() - visitorDataFetchedAt in 0 until VISITOR_DATA_TTL_MS) return cached
+        }
+        visitorData?.takeIf { it.isNotBlank() }?.let { cur ->
+            if (cachedVisitorData == cur && System.currentTimeMillis() - visitorDataFetchedAt in 0 until VISITOR_DATA_TTL_MS) return cur
+        }
+        val (persisted, persistedAt) = readPersistedVisitorData()
+        if (!persisted.isNullOrBlank()) {
+            cachedVisitorData = persisted
+            visitorDataFetchedAt = persistedAt
+            innerTube.visitorData = persisted
+            return persisted
+        }
+        return visitorMutex.withLock {
+            cachedVisitorData?.let { cached ->
+                if (cached.isNotBlank() && System.currentTimeMillis() - visitorDataFetchedAt in 0 until VISITOR_DATA_TTL_MS) return@withLock cached
+            }
+            val (p2, at2) = readPersistedVisitorData()
+            if (!p2.isNullOrBlank()) {
+                cachedVisitorData = p2
+                visitorDataFetchedAt = at2
+                innerTube.visitorData = p2
+                return@withLock p2
+            }
+            val fetched = fetchVisitorDataRaw() ?: return@withLock null
+            persistVisitorData(fetched)
+            fetched
+        }
     }
 
     private suspend fun currentWebClient(): YouTubeClient = withContext(Dispatchers.IO) {
@@ -2463,6 +2549,7 @@ object YouTube {
     }
 
     suspend fun visitorData(): Result<String> = runCatching {
+        fetchVisitorDataRaw()?.takeIf { it.isNotBlank() }?.let { return@runCatching it }
         Json.parseToJsonElement(innerTube.getSwJsData().bodyAsText().substring(5))
             .jsonArray[0]
             .jsonArray[2]
@@ -2484,15 +2571,33 @@ object YouTube {
     }
 
     suspend fun remintVisitorData(flagged: String): String = visitorMutex.withLock {
-        val current = visitorData
-        if (current != null && current != flagged) return@withLock current
-        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() } ?: return@withLock flagged
-        visitorData = fresh
+        val cur = cachedVisitorData ?: visitorData
+        if (cur != null && cur != flagged) return@withLock cur
+        try {
+            val ctx = FlowApplication.appContext
+            val ivorData = ctx.getSharedPreferences(IVOR_PREFS_NAME, android.content.Context.MODE_PRIVATE).getString(IVOR_KEY_DATA, null)
+            val flowData = ctx.getSharedPreferences(FLOW_PREFS_NAME, android.content.Context.MODE_PRIVATE).getString(FLOW_KEY_DATA, null)
+            val stored = ivorData ?: flowData
+            if (!stored.isNullOrBlank() && stored != flagged) {
+                cachedVisitorData = stored
+                innerTube.visitorData = stored
+                return@withLock stored
+            }
+            if (stored == flagged) {
+                ctx.getSharedPreferences(IVOR_PREFS_NAME, android.content.Context.MODE_PRIVATE).edit().remove(IVOR_KEY_DATA).remove(IVOR_KEY_AT).apply()
+                ctx.getSharedPreferences(FLOW_PREFS_NAME, android.content.Context.MODE_PRIVATE).edit().remove(FLOW_KEY_DATA).remove(FLOW_KEY_AT).apply()
+                cachedVisitorData = null
+                visitorDataFetchedAt = 0L
+                innerTube.visitorData = null
+            }
+        } catch (_: Exception) { }
+        val fresh = fetchVisitorDataRaw()?.takeIf { it.isNotBlank() } ?: return@withLock flagged
+        persistVisitorData(fresh)
         fresh
     }
 
     suspend fun refreshVisitorDataAfterPlaybackFailure(): String? {
-        val flagged = visitorData ?: return null
+        val flagged = cachedVisitorData ?: visitorData ?: return null
         return remintVisitorData(flagged)
     }
 
@@ -2503,8 +2608,8 @@ object YouTube {
      * new value, or null when the fetch failed (caller keeps the old one).
      */
     suspend fun rotateVisitorData(): String? {
-        val fresh = visitorData().getOrNull()?.takeIf { it.isNotBlank() } ?: return null
-        visitorData = fresh
+        val fresh = fetchVisitorDataRaw()?.takeIf { it.isNotBlank() } ?: visitorData().getOrNull()?.takeIf { it.isNotBlank() } ?: return null
+        persistVisitorData(fresh)
         return fresh
     }
 

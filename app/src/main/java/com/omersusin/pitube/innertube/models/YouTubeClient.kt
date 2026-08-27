@@ -171,20 +171,36 @@ data class YouTubeClient(
             useSignatureTimestamp = false
         )
 
-        val ANDROID_VR_1_61_48 = YouTubeClient(
+        val ANDROID_VR = YouTubeClient(
             clientName = "ANDROID_VR",
-            clientVersion = "1.61.48",
+            clientVersion = "1.65.10",
             clientId = "28",
-            userAgent = "com.google.android.apps.youtube.vr.oculus/1.61.48 (Linux; U; Android 12; en_US; Quest 3; Build/SQ3A.220605.009.A1; Cronet/132.0.6808.3)",
+            userAgent = "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
             osName = "Android",
             osVersion = "12",
             deviceMake = "Oculus",
             deviceModel = "Quest 3",
             androidSdkVersion = "32",
             buildId = "SQ3A.220605.009.A1",
-            cronetVersion = "132.0.6808.3",
             packageName = "com.google.android.apps.youtube.vr.oculus",
-            friendlyName = "Android VR 1.61",
+            friendlyName = "Android VR",
+            loginSupported = false,
+            useSignatureTimestamp = false
+        )
+
+        val ANDROID_VR_1_61_48 = YouTubeClient(
+            clientName = "ANDROID_VR",
+            clientVersion = "1.65.10",
+            clientId = "28",
+            userAgent = "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
+            osName = "Android",
+            osVersion = "12",
+            deviceMake = "Oculus",
+            deviceModel = "Quest 3",
+            androidSdkVersion = "32",
+            buildId = "SQ3A.220605.009.A1",
+            packageName = "com.google.android.apps.youtube.vr.oculus",
+            friendlyName = "Android VR 1.65",
             loginSupported = false,
             useSignatureTimestamp = false
         )
@@ -206,6 +222,8 @@ data class YouTubeClient(
             loginSupported = false,
             useSignatureTimestamp = false
         )
+
+        val ANDROID_VR_1_65_10 = ANDROID_VR
 
         val ANDROID_CREATOR = YouTubeClient(
             clientName = "ANDROID_CREATOR",

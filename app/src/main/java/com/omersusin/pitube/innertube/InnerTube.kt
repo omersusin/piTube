@@ -27,8 +27,14 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -913,6 +919,43 @@ suspend fun getLiveChat(
     }
 
     suspend fun getSwJsData() = httpClient.get("https://music.youtube.com/sw.js_data")
+
+    suspend fun fetchVisitorId(): String? = try {
+        val response = httpClient.post("https://www.youtube.com/youtubei/v1/visitor_id") {
+            headers {
+                append("X-Goog-Api-Format-Version", "1")
+                append("X-YouTube-Client-Name", YouTubeClient.WEB.clientId)
+                append("X-YouTube-Client-Version", YouTubeClient.WEB.clientVersion)
+                append("X-Origin", YouTubeClient.ORIGIN_YOUTUBE)
+                append("Origin", YouTubeClient.ORIGIN_YOUTUBE)
+                append("Referer", YouTubeClient.REFERER_YOUTUBE)
+            }
+            contentType(ContentType.Application.Json)
+            userAgent(YouTubeClient.WEB.userAgent)
+            parameter("prettyPrint", false)
+            setBody(buildJsonObject { put("context", Json { ignoreUnknownKeys = true; explicitNulls = false }.encodeToJsonElement(YouTubeClient.WEB.toContext(locale, null, null)).jsonObject) })
+        }
+        val body = response.bodyAsText()
+        val json = Json { ignoreUnknownKeys = true }.parseToJsonElement(body).jsonObject
+        json["responseContext"]?.jsonObject?.get("visitorData")?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+            ?: json["visitorData"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+            ?: Regex("\"visitorData\"\\s*:\\s*\"([^\"]+)\"").find(body)?.groupValues?.get(1)?.let { unescapeVisitorData(it) }
+    } catch (_: Exception) { null }
+
+    suspend fun fetchBootstrapVisitorData(): String? = try {
+        val response = httpClient.get("https://www.youtube.com/") {
+            headers {
+                append("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                append("Accept-Language", "en-US,en;q=0.9")
+            }
+            userAgent(YouTubeClient.WEB.userAgent)
+        }
+        val html = response.bodyAsText()
+        val raw = Regex("\"visitorData\"\\s*:\\s*\"(.*?)\"").find(html)?.groupValues?.get(1) ?: return null
+        unescapeVisitorData(raw).takeIf { it.isNotBlank() }
+    } catch (_: Exception) { null }
+
+    private fun unescapeVisitorData(raw: String): String = raw.replace("\\u003d", "=").replace("\\u003D", "=").replace("%3D", "=").replace("%3d", "=")
 
     suspend fun accountMenu(client: YouTubeClient) =
         httpClient.post("account/account_menu") {
