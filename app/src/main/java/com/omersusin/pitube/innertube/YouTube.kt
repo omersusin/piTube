@@ -903,7 +903,10 @@ object YouTube {
         val rawBody = httpResponse.bodyAsText()
         innerTube.noteResponseState(rawBody)
         val response = json.decodeFromString<ChannelVideosResponse>(rawBody)
-        parseChannelVideosResponse(response, "", "", "", false)
+        val parsed = parseChannelVideosResponse(response, "", "", "", false)
+        if (parsed.videos.isNotEmpty()) return@runCatching parsed
+        val musicParsed = Json.parseToJsonElement(rawBody).findVideosFromMusicJson()
+        if (musicParsed.videos.isNotEmpty()) musicParsed else parsed
     }
 
     suspend fun personalizedFeedContinuation(
@@ -949,11 +952,12 @@ object YouTube {
             val cookiePresent = !innerTube.cookie.isNullOrBlank()
             val missing = com.omersusin.pitube.data.local.CookieRotation.missingRequiredCookies(innerTube.cookie)
             Log.w("YouTube", "personalizedFeed($browseId): EMPTY — $marker status=$status logged_in=$loggedIn datasyncEcho=$datasyncEcho visitorLen=$visitorLen cookiePresent=$cookiePresent missing=${missing.joinToString(",")} bodyLen=${rawBody.length} head=${rawBody.take(2000)}")
-            if (cookiePresent && loggedIn == "0") {
+            val isBotGuard = "consistency" in rawBody || "botguard" in rawBody.lowercase()
+            if (cookiePresent && (loggedIn == "0" || isBotGuard)) {
                 cachedVisitorData = null
                 visitorDataFetchedAt = 0L
                 innerTube.visitorData = null
-                Log.w("YouTube", "personalizedFeed($browseId): visitorData reminted after logged_in=0, retrying without visitorData")
+                Log.w("YouTube", "personalizedFeed($browseId): visitorData reminted after logged_in=$loggedIn botGuard=$isBotGuard, retrying without visitorData")
                 val retryResponse = innerTube.signedWebBrowse(client = client, browseId = browseId, continuation = continuation)
                 val retryBody = retryResponse.bodyAsText()
                 innerTube.noteResponseState(retryBody)
@@ -1988,6 +1992,118 @@ object YouTube {
             continuation = nextContinuation,
             channelVideoCountText = response.channelVideoCountText(),
         )
+    }
+
+    private fun JsonElement.findVideosFromMusicJson(): ChannelVideoSearchResult {
+        val twoRows = mutableListOf<JsonObject>()
+        findMusicObjectsByKey(this, "musicTwoRowItemRenderer", twoRows)
+        val responsive = mutableListOf<JsonObject>()
+        findMusicObjectsByKey(this, "musicResponsiveListItemRenderer", responsive)
+        val carousel = mutableListOf<JsonObject>()
+        findMusicObjectsByKey(this, "musicCarouselShelfRenderer", carousel)
+        val shelf = mutableListOf<JsonObject>()
+        findMusicObjectsByKey(this, "musicShelfRenderer", shelf)
+        val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
+        twoRows.forEach { obj ->
+            val videoId = obj["navigationEndpoint"].musicVideoId() ?: obj.findFirstStringDeepInElement("videoId")?.takeIf { it.length == 11 } ?: return@forEach
+            if (videoId.length != 11) return@forEach
+            val title = obj["title"]?.musicRunsText() ?: obj.findFirstStringDeepInElement("videoId")?.let { videoId } ?: return@forEach
+            val thumb = obj.findFirstThumbnailUrlInElement() ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
+            videos.add(com.omersusin.pitube.data.model.Video(id = videoId, title = title.takeIf { it.isNotBlank() } ?: videoId, channelName = "", channelId = "", thumbnailUrl = thumb, duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = ""))
+        }
+        responsive.forEach { obj ->
+            val videoId = obj["playlistItemData"]?.let { (it as? JsonObject)?.get("videoId")?.let { p -> (p as? JsonPrimitive)?.contentOrNull } }?.takeIf { it.length == 11 }
+                ?: obj["navigationEndpoint"].musicVideoId()
+                ?: obj.findFirstStringDeepInElement("videoId")?.takeIf { it.length == 11 } ?: return@forEach
+            if (videoId.length != 11) return@forEach
+            if (videos.any { it.id == videoId }) return@forEach
+            val title = obj["flexColumns"]?.let { flex -> (flex as? JsonArray)?.firstOrNull()?.let { (it as? JsonObject)?.get("musicResponsiveListItemFlexColumnRenderer") }?.let { (it as? JsonObject)?.get("text") }?.musicRunsText() } ?: obj["title"]?.musicRunsText() ?: videoId
+            val thumb = obj.findFirstThumbnailUrlInElement() ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
+            videos.add(com.omersusin.pitube.data.model.Video(id = videoId, title = title.takeIf { it.isNotBlank() } ?: videoId, channelName = "", channelId = "", thumbnailUrl = thumb, duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = ""))
+        }
+        if (videos.isEmpty()) {
+            val generic = mutableListOf<JsonObject>()
+            findMusicObjectsByKey(this, "videoId", generic)
+            videos.addAll(generic.mapNotNull { holder ->
+                val vid = (holder["videoId"] as? JsonPrimitive)?.contentOrNull?.takeIf { it.length == 11 } ?: return@mapNotNull null
+                com.omersusin.pitube.data.model.Video(id = vid, title = vid, channelName = "", channelId = "", thumbnailUrl = "https://i.ytimg.com/vi/$vid/hq720.jpg", duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "")
+            }.distinctBy { it.id })
+        }
+        if (videos.isEmpty()) {
+            val ids = mutableSetOf<String>()
+            collectVideoIds(this, ids)
+            videos.addAll(ids.map { vid -> com.omersusin.pitube.data.model.Video(id = vid, title = vid, channelName = "", channelId = "", thumbnailUrl = "https://i.ytimg.com/vi/$vid/hq720.jpg", duration = 0, viewCount = -1L, uploadDate = "", timestamp = 0L, channelThumbnailUrl = "") })
+        }
+        return ChannelVideoSearchResult(videos = videos.distinctBy { it.id }, continuation = null, channelVideoCountText = null)
+    }
+
+    private fun JsonElement.musicRunsText(): String? {
+        val obj = this as? JsonObject ?: return null
+        obj["simpleText"]?.let { (it as? JsonPrimitive)?.contentOrNull?.takeIf { s -> s.isNotBlank() }?.let { return it } }
+        obj["runs"]?.let { runs -> (runs as? JsonArray)?.firstOrNull()?.let { (it as? JsonObject)?.get("text") }?.let { (it as? JsonPrimitive)?.contentOrNull?.takeIf { s -> s.isNotBlank() }?.let { return it } } }
+        return null
+    }
+
+    private fun JsonElement?.musicVideoId(): String? {
+        val obj = (this as? JsonObject) ?: return null
+        obj["watchEndpoint"]?.let { (it as? JsonObject)?.get("videoId")?.let { p -> (p as? JsonPrimitive)?.contentOrNull?.takeIf { s -> s.length == 11 }?.let { return it } } }
+        obj["videoId"]?.let { (it as? JsonPrimitive)?.contentOrNull?.takeIf { s -> s.length == 11 }?.let { return it } }
+        return null
+    }
+
+    private fun JsonObject.findFirstStringDeepInElement(key: String): String? {
+        this[key]?.let { (it as? JsonPrimitive)?.contentOrNull?.let { v -> return v } }
+        for (v in values) {
+            when (v) {
+                is JsonObject -> v.findFirstStringDeepInElement(key)?.let { return it }
+                is JsonArray -> v.forEach { e -> (e as? JsonObject)?.findFirstStringDeepInElement(key)?.let { return it } }
+                else -> Unit
+            }
+        }
+        return null
+    }
+
+    private fun JsonElement.findFirstThumbnailUrlInElement(): String? {
+        when (this) {
+            is JsonObject -> {
+                for ((k, v) in this) {
+                    if (k == "url" && v is JsonPrimitive) {
+                        val url = v.contentOrNull
+                        if (!url.isNullOrBlank() && (url.contains("ytimg.com") || url.contains("ggpht.com") || url.contains("googleusercontent.com"))) return url
+                    }
+                    when (v) {
+                        is JsonObject -> v.findFirstThumbnailUrlInElement()?.let { return it }
+                        is JsonArray -> v.forEach { e -> e.findFirstThumbnailUrlInElement()?.let { return it } }
+                        else -> Unit
+                    }
+                }
+            }
+            is JsonArray -> forEach { it.findFirstThumbnailUrlInElement()?.let { return it } }
+            else -> Unit
+        }
+        return null
+    }
+
+    private fun findMusicObjectsByKey(node: JsonElement?, key: String, results: MutableList<JsonObject>) {
+        when (node) {
+            is JsonObject -> {
+                node[key]?.let { if (it is JsonObject) results.add(it) else if (key == "videoId" && it is JsonPrimitive) results.add(node) }
+                node.values.forEach { child -> if (child is JsonObject || child is JsonArray) findMusicObjectsByKey(child, key, results) }
+            }
+            is JsonArray -> node.forEach { findMusicObjectsByKey(it, key, results) }
+            else -> Unit
+        }
+    }
+
+    private fun collectVideoIds(node: JsonElement?, results: MutableSet<String>) {
+        when (node) {
+            is JsonObject -> {
+                node["videoId"]?.let { (it as? JsonPrimitive)?.contentOrNull?.takeIf { s -> s.length == 11 }?.let { results.add(it) } }
+                node.values.forEach { collectVideoIds(it, results) }
+            }
+            is JsonArray -> node.forEach { collectVideoIds(it, results) }
+            else -> Unit
+        }
     }
 
     private fun JsonObject.findFirstStringDeep(key: String): String? {

@@ -84,9 +84,9 @@ internal fun homeFeedQuotas(
         return mapOf(FeedSource.PERSONAL to slots, FeedSource.SUBS to 0, FeedSource.RELATED to 0, FeedSource.DISCOVERY to 0, FeedSource.VIRAL to 0)
     }
     if (subCount > 0) {
-        val subs = (slots * 0.65).toInt().coerceAtLeast(6)
-        val related = (slots * 0.24).toInt()
-        val discovery = (slots * 0.06).toInt()
+        val subs = (slots * 0.65).toInt().coerceAtLeast(6).coerceAtMost(slots)
+        val related = (slots * 0.24).toInt().coerceAtMost((slots - subs).coerceAtLeast(0))
+        val discovery = (slots * 0.06).toInt().coerceAtMost((slots - subs - related).coerceAtLeast(0))
         val viral = (slots - subs - related - discovery).coerceAtLeast(0)
         return mapOf(FeedSource.PERSONAL to 0, FeedSource.SUBS to subs, FeedSource.RELATED to related, FeedSource.DISCOVERY to discovery, FeedSource.VIRAL to viral)
     }
@@ -901,7 +901,7 @@ class HomeViewModel @Inject constructor(
                     } ?: emptyList()
                 } else emptyList()
 
-                val userSubs = subscriptionRepository.getAllSubscriptionIds()
+                val userSubs = subscriptionRepository.getValidSubscriptionIds()
                 val region = playerPreferences.trendingRegion.first()
                 val fetchStart = System.currentTimeMillis()
 
@@ -1089,7 +1089,7 @@ class HomeViewModel @Inject constructor(
                 // "Strong" personal feed only when it can actually fill the
                 // page; a weak one (bot-walled / fresh account) must fall back
                 // to the SUBS/TASTE quota mix instead of hogging all slots.
-                val hasPersonalFeed = personalizedPool.size >= 5
+                val hasPersonalFeed = personalizedPool.size >= 3
                 Log.w(
                     TAG,
                     "Feed lane decision: personalized=${personalizedPool.size} " +
@@ -1270,7 +1270,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                     return false
                 }
 
-                val userSubs = subscriptionRepository.getAllSubscriptionIds()
+                val userSubs = subscriptionRepository.getValidSubscriptionIds()
                 val page = mutableListOf<Video>()
                 val channelCounts = HashMap<String, Int>()
                 val pageIds = HashSet<String>(currentIds).apply { addAll(shownVideoIds) }

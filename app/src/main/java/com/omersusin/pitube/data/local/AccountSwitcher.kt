@@ -97,7 +97,6 @@ class AccountSwitcher(context: Context) {
      * which one is active.
      */
     fun invalidateForProfileChange() {
-        com.omersusin.pitube.ui.components.FeedInvalidationBus.emit(com.omersusin.pitube.ui.components.FeedInvalidationBus.Event.ProfileSwitched)
         YouTube.visitorData = null
         runCatching { appContext.getSharedPreferences("ivor_visitor_data", Context.MODE_PRIVATE).edit().clear().apply() }
         runCatching {
@@ -112,16 +111,13 @@ class AccountSwitcher(context: Context) {
                 .edit().clear().apply()
         }
         runCatching { com.omersusin.pitube.ui.screens.home.HomeFeedCache.clear() }
-        CoroutineScope(Dispatchers.IO).launch {
-            runCatching { YouTube.visitorData().getOrNull()?.let { YouTube.visitorData = it } }
-                .onFailure { Log.w("AccountSwitcher", "visitorData refresh failed: ${it.message}") }
-        }
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            runCatching {
+        runCatching {
+            kotlinx.coroutines.runBlocking {
                 com.omersusin.pitube.data.local.HomeFeedCacheRepository(appContext).clearAll()
-            }.onSuccess { Log.d("AccountSwitcher", "HomeFeedCacheRepository cleared") }
-                .onFailure { Log.w("AccountSwitcher", "clearAll failed: ${it.message}") }
-        }
+            }
+        }.onSuccess { Log.d("AccountSwitcher", "HomeFeedCacheRepository cleared") }
+            .onFailure { Log.w("AccountSwitcher", "clearAll failed: ${it.message}") }
+        com.omersusin.pitube.ui.components.FeedInvalidationBus.emit(com.omersusin.pitube.ui.components.FeedInvalidationBus.Event.ProfileSwitched)
     }
 
     /** Create a device-only profile and switch to it. */

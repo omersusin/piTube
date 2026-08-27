@@ -26,8 +26,10 @@ import com.omersusin.pitube.utils.potoken.NewPipePoTokenProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
@@ -70,6 +72,7 @@ class FlowApplication :
         super.attachBaseContext(AppLanguageManager.wrapContext(base, selectedLanguage))
     }
 
+    @OptIn(FlowPreview::class)
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
@@ -152,6 +155,31 @@ class FlowApplication :
             }
         }
 
+        YouTube.onCookieRotated = { merged ->
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                runCatching { com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).saveCookies(merged) }
+            }
+        }
+        YouTube.sessionStateListener = { loggedIn ->
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                runCatching {
+                    com.omersusin.pitube.data.local.SessionManager(this@FlowApplication)
+                        .setSessionExpired(!loggedIn)
+                }
+            }
+        }
+        YouTube.dataSyncIdListener = { healed ->
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                runCatching {
+                    val pm = com.omersusin.pitube.data.local.ProfileManager(this@FlowApplication)
+                    val profile = pm.active()
+                    if (profile.datasyncId != healed) {
+                        pm.updateIdentity(profile.id, datasyncId = healed)
+                    }
+                }
+            }
+        }
+
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 val preferences = com.omersusin.pitube.data.local.PlayerPreferences(this@FlowApplication)
@@ -219,7 +247,6 @@ class FlowApplication :
                     }
                 }
                 if (!restored) {
-                    kotlinx.coroutines.delay(5_000L)
                     val data = YouTube.getVisitorData()
                     if (!data.isNullOrEmpty()) {
                         Log.d(TAG, "visitorData fetched and cached")
@@ -237,30 +264,6 @@ class FlowApplication :
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "visitorData init error: ${e.message}")
-            }
-            YouTube.onCookieRotated = { merged ->
-                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                    runCatching { com.omersusin.pitube.data.local.SessionManager(this@FlowApplication).saveCookies(merged) }
-                }
-            }
-            YouTube.sessionStateListener = { loggedIn ->
-                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                    runCatching {
-                        com.omersusin.pitube.data.local.SessionManager(this@FlowApplication)
-                            .setSessionExpired(!loggedIn)
-                    }
-                }
-            }
-            YouTube.dataSyncIdListener = { healed ->
-                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                    runCatching {
-                        val pm = com.omersusin.pitube.data.local.ProfileManager(this@FlowApplication)
-                        val profile = pm.active()
-                        if (profile.datasyncId != healed) {
-                            pm.updateIdentity(profile.id, datasyncId = healed)
-                        }
-                    }
-                }
             }
             launch {
                 kotlinx.coroutines.delay(10_000L)
@@ -292,7 +295,7 @@ class FlowApplication :
                 val glCode = normalizeYouTubeCountry(region)
                 val hlCode = normalizeYouTubeHostLanguage(lang)
                 YouTubeLocale(gl = glCode, hl = hlCode)
-            }.collectLatest { newLocale ->
+            }.distinctUntilChanged().debounce(5_000).collectLatest { newLocale ->
                 YouTube.locale = newLocale
                 Log.d(TAG, "Dynamic YouTube Locale updated: gl=${newLocale.gl}, hl=${newLocale.hl}")
             }
@@ -392,6 +395,5 @@ class FlowApplication :
                 okHttpClient.connectionPool.evictAll()
             }
         }
-        System.gc()
     }
 }
