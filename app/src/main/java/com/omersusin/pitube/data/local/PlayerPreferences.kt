@@ -837,10 +837,7 @@ class PlayerPreferences(context: Context) {
         }
     }
 
-    private fun homeSubsRotationCursorKey(): Preferences.Key<Int> {
-        val pid = runCatching { ProfileManager(context).active().id }.getOrNull()?.takeIf { it.isNotBlank() }
-        return if (pid != null) intPreferencesKey("$pid|home_subs_rotation_cursor") else Keys.HOME_SUBS_ROTATION_CURSOR
-    }
+    private fun homeSubsRotationCursorKey(): Preferences.Key<Int> = Keys.HOME_SUBS_ROTATION_CURSOR
 
     private fun youtubeLibrarySyncedAtKey(): Preferences.Key<Long> {
         val pid = runCatching { ProfileManager(context).active().id }.getOrNull()?.takeIf { it.isNotBlank() }

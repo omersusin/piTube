@@ -317,13 +317,6 @@ fun HomeScreen(
                                 items = videosBeforeShorts,
                                 key = { it.id }
                             ) { video ->
-                                LaunchedEffect(
-                                    video.id,
-                                    video.channelId,
-                                    video.channelThumbnailUrl
-                                ) {
-                                    viewModel.enrichChannelMetadataIfMissing(video.id)
-                                }
                                 if (isListView) {
                                     VideoCardHorizontal(
                                         video = video,
@@ -393,13 +386,6 @@ fun HomeScreen(
                                 items = videosAfterShorts,
                                 key = { it.id }
                             ) { video ->
-                                LaunchedEffect(
-                                    video.id,
-                                    video.channelId,
-                                    video.channelThumbnailUrl
-                                ) {
-                                    viewModel.enrichChannelMetadataIfMissing(video.id)
-                                }
                                 if (isListView) {
                                     VideoCardHorizontal(
                                         video = video,

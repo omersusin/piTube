@@ -307,6 +307,7 @@ class HomeViewModel @Inject constructor(
     private val persistentHomeFeedCache by lazy { HomeFeedCacheRepository(appContext) }
     private val channelMetadataEnrichmentInFlight =
         java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+    private val channelMetadataEnrichmentSemaphore = kotlinx.coroutines.sync.Semaphore(2)
 
     
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -1411,18 +1412,18 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
 
     fun enrichChannelMetadataIfMissing(videoId: String) {
         val video = _uiState.value.videos.firstOrNull { it.id == videoId } ?: return
-        val needsMetadata = video.channelId.isBlank() ||
-            !video.channelId.startsWith("UC") ||
-            video.channelThumbnailUrl.isBlank()
-        if (!needsMetadata || !channelMetadataEnrichmentInFlight.add(videoId)) return
-
+        if (video.channelThumbnailUrl.isNotBlank()) return
+        if (!channelMetadataEnrichmentInFlight.add(videoId)) return
+        if (!channelMetadataEnrichmentSemaphore.tryAcquire()) {
+            channelMetadataEnrichmentInFlight.remove(videoId)
+            return
+        }
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
                 val enriched = repository.enrichMissingChannelMetadata(listOf(video), limit = 1)
                     .firstOrNull()
                     ?: return@launch
                 if (enriched == video) return@launch
-
                 _uiState.update { state ->
                     val updated = state.videos.map { current ->
                         if (current.id != videoId) {
@@ -1437,6 +1438,7 @@ HomeFeedCache.update(updated, state.shorts, signedIn = com.omersusin.pitube.inne
                     }
                 }
             } finally {
+                channelMetadataEnrichmentSemaphore.release()
                 channelMetadataEnrichmentInFlight.remove(videoId)
             }
         }

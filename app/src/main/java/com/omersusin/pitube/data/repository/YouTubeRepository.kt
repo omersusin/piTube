@@ -1,5 +1,7 @@
 package com.omersusin.pitube.data.repository
 
+import android.app.ActivityManager
+import android.content.Context
 import android.util.Log
 import android.util.LruCache
 import com.omersusin.pitube.data.local.PlayerPreferences
@@ -455,10 +457,16 @@ class YouTubeRepository
             limit: Int = 10,
         ): List<Video> =
             supervisorScope {
+                val isLowRam = try {
+                    val appContext = com.omersusin.pitube.FlowApplication.appContext
+                    val am = appContext.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                    am?.isLowRamDevice == true
+                } catch (_: Exception) { false }
+                val effectiveLimit = if (isLowRam) minOf(limit, 4) else limit
                 val candidates =
                     videos
                         .filter { it.needsCollaboratorResolution() }
-                        .take(limit)
+                        .take(effectiveLimit)
 
                 if (candidates.isEmpty()) return@supervisorScope videos
 

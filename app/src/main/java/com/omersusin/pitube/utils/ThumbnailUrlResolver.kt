@@ -7,6 +7,7 @@ object ThumbnailUrlResolver {
     private val googleCdnParamStartPattern = Regex("""=(?:w|s|h)""")
     private val googleCdnSingleParamPattern = Regex("""=([wsh])\d+""")
     private val googleCdnAvatarSuffixPattern = Regex("=s\\d+.*$")
+    private val avatarCache = android.util.LruCache<String, String>(100)
 
     /**
      * Undo JSON-escaped forward slashes. InnerTube responses often ship URLs
@@ -132,22 +133,24 @@ object ThumbnailUrlResolver {
     fun resolveChannelAvatar(rawUrl: String?, size: Int = AVATAR_SIZE_LIST): String {
         val raw = normalizeUrl(rawUrl)
         if (raw.isEmpty()) return ""
-
+        val cacheKey = "$raw|$size"
+        synchronized(avatarCache) { avatarCache.get(cacheKey) }?.let { return it }
         val isGoogleCdn = raw.contains("googleusercontent.com") || raw.contains("ggpht.com")
         if (!isGoogleCdn) return raw
-
-        if (googleCdnSizePattern.containsMatchIn(raw)) {
-            return raw.replace(googleCdnSizePattern, "s$size")
+        val resolved = when {
+            googleCdnSizePattern.containsMatchIn(raw) -> raw.replace(googleCdnSizePattern, "s$size")
+            googleCdnSingleParamPattern.find(raw) != null -> {
+                val match = googleCdnSingleParamPattern.find(raw)!!
+                raw.replaceFirst(match.value, "=s$size")
+            }
+            else -> {
+                val paramStart = googleCdnParamStartPattern.find(raw)?.range?.first
+                val baseUrl = if (paramStart != null) raw.substring(0, paramStart) else raw
+                "$baseUrl=s$size"
+            }
         }
-
-        val match = googleCdnSingleParamPattern.find(raw)
-        if (match != null) {
-            return raw.replaceFirst(match.value, "=s$size")
-        }
-
-        val paramStart = googleCdnParamStartPattern.find(raw)?.range?.first
-        val baseUrl = if (paramStart != null) raw.substring(0, paramStart) else raw
-        return "$baseUrl=s$size"
+        synchronized(avatarCache) { avatarCache.put(cacheKey, resolved) }
+        return resolved
     }
 
     fun resolveCommunityPostImage(rawUrl: String?, targetWidth: Int = 2048): String {

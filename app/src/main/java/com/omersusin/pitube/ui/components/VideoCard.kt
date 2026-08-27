@@ -93,7 +93,7 @@ private fun Video.channelAvatarUrls(collaborators: List<VideoCollaborator> = emp
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .distinctBy { it.avatarImageIdentityKey() }
-        .take(3)
+        .take(1)
 }
 
 internal fun Video.collaboratorItems(resolvedCollaborators: List<VideoCollaborator> = emptyList()): List<VideoCollaborator> =
@@ -1643,79 +1643,21 @@ fun ChannelAvatarStack(
     avatarSize: androidx.compose.ui.unit.Dp,
     modifier: Modifier = Modifier,
 ) {
-    val avatarUrls = remember(urls) { urls.ifEmpty { listOf("") }.take(3) }
+    val avatarUrls = remember(urls) { urls.ifEmpty { listOf("") }.take(1) }
     val primaryUrl = avatarUrls.first()
-    val secondaryUrl = avatarUrls.getOrNull(1)
-    val tertiaryUrl = avatarUrls.getOrNull(2)
-    val stackedAvatarSize =
-        when {
-            !tertiaryUrl.isNullOrBlank() -> avatarSize * 0.64f
-            !secondaryUrl.isNullOrBlank() -> avatarSize * 0.78f
-            else -> avatarSize
-        }
-
     Box(
         modifier =
             modifier
                 .size(avatarSize),
     ) {
-        if (!tertiaryUrl.isNullOrBlank()) {
-            ChannelAvatarImage(
-                url = tertiaryUrl,
-                contentDescription = contentDescription,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(stackedAvatarSize)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .border(
-                            width = 1.5.dp,
-                            color = MaterialTheme.colorScheme.background,
-                            shape = CircleShape,
-                        ),
-            )
-        }
-
-        if (!secondaryUrl.isNullOrBlank()) {
-            ChannelAvatarImage(
-                url = secondaryUrl,
-                contentDescription = contentDescription,
-                modifier =
-                    Modifier
-                        .align(if (tertiaryUrl.isNullOrBlank()) Alignment.BottomEnd else Alignment.BottomStart)
-                        .size(stackedAvatarSize)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .border(
-                            width = 1.5.dp,
-                            color = MaterialTheme.colorScheme.background,
-                            shape = CircleShape,
-                        ),
-            )
-        }
-
         ChannelAvatarImage(
             url = primaryUrl,
             contentDescription = contentDescription,
             modifier =
                 Modifier
-                    .align(if (tertiaryUrl.isNullOrBlank()) Alignment.TopStart else Alignment.TopCenter)
-                    .size(stackedAvatarSize)
+                    .size(avatarSize)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .then(
-                        if (!secondaryUrl.isNullOrBlank()) {
-                            Modifier
-                                .border(
-                                    width = 1.5.dp,
-                                    color = MaterialTheme.colorScheme.background,
-                                    shape = CircleShape,
-                                )
-                        } else {
-                            Modifier
-                        },
-                    ),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
         )
     }
 }

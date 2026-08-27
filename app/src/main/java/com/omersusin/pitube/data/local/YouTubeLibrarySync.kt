@@ -238,9 +238,8 @@ object YouTubeLibrarySync {
         // one sync.
         if (channels.size >= 10 && applied == channels.size) {
             runCatching {
-                repository.getValidSubscriptionIds()
-                    .filter { it !in remoteIds }
-                    .forEach { repository.unsubscribe(it) }
+                val toPrune = repository.getValidSubscriptionIds().filter { it !in remoteIds }
+                if (toPrune.isNotEmpty()) repository.unsubscribeAll(toPrune)
             }
         }
         runCatching { repository.reconcileGhosts() }

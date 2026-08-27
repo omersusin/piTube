@@ -201,29 +201,21 @@ class SubscriptionRepository private constructor(
 
     suspend fun subscribeAll(channels: Collection<ChannelSubscription>) {
         if (channels.isEmpty()) return
-
+        val distinct = channels.distinctBy { it.channelId }
+        if (distinct.isEmpty()) return
         context.subscriptionsDataStore.edit { preferences ->
             val profileId = profileManager.activeProfileId.value
             if (profileId.isBlank()) return@edit
-            val currentOrder =
-                preferences[orderKey(profileId)]
-                    .orEmpty()
-                    .split(",")
-                    .filter { it.isNotEmpty() }
-            val knownIds = currentOrder.toMutableSet()
+            val currentOrder = preferences[orderKey(profileId)].orEmpty().split(",").filter { it.isNotEmpty() }
+            val knownIds = currentOrder.toSet()
             val newIds = mutableListOf<String>()
-
-            channels.forEach { channel ->
+            distinct.forEach { channel ->
                 val safeChannel = channel.withPreservedThumbnail(preferences, profileId)
                 preferences[channelKey(profileId, safeChannel.channelId)] = serializeChannel(safeChannel)
-                if (knownIds.add(safeChannel.channelId)) {
-                    newIds += safeChannel.channelId
-                }
+                if (safeChannel.channelId !in knownIds && safeChannel.channelId !in newIds) newIds += safeChannel.channelId
             }
-
             if (newIds.isNotEmpty()) {
-                preferences[orderKey(profileId)] =
-                    (newIds.asReversed() + currentOrder).joinToString(",")
+                preferences[orderKey(profileId)] = (newIds.asReversed() + currentOrder).joinToString(",")
             }
         }
     }
@@ -247,9 +239,22 @@ class SubscriptionRepository private constructor(
         }
     }
 
-    /**
-     * Check if subscribed to a channel
-     */
+    suspend fun unsubscribeAll(channelIds: Collection<String>) {
+        if (channelIds.isEmpty()) return
+        val toRemove = channelIds.filter { it.isNotBlank() }.toSet()
+        if (toRemove.isEmpty()) return
+        context.subscriptionsDataStore.edit { preferences ->
+            val profileId = profileManager.activeProfileId.value
+            if (profileId.isBlank()) return@edit
+            toRemove.forEach { preferences.remove(channelKey(profileId, it)) }
+            val currentOrder = preferences[orderKey(profileId)] ?: ""
+            if (currentOrder.isNotEmpty()) {
+                val filtered = currentOrder.split(",").filter { it.isNotEmpty() && it !in toRemove }
+                preferences[orderKey(profileId)] = filtered.joinToString(",")
+            }
+        }
+    }
+
     fun isSubscribed(channelId: String): Flow<Boolean> =
         combine(profileManager.activeProfileId, context.subscriptionsDataStore.data) { profileId, preferences ->
             profileId.isNotBlank() && preferences.contains(channelKey(profileId, channelId))
