@@ -998,7 +998,13 @@ class HomeViewModel @Inject constructor(
 
                 val now = System.currentTimeMillis()
 
-                val feedShorts = (rawSubs.extractShorts() + rawDiscovery.extractShorts() + rawViral.extractShorts())
+                // The signed home response's own Shorts shelf (harvested by the
+                // home parser) joins the shorts lane so the shelf reflects the
+                // account's personalized shorts, not just subs/discovery spill.
+                val homeShelfShorts = if (signedIn) {
+                    com.omersusin.pitube.innertube.YouTube.lastHomeShortsShelf
+                } else emptyList()
+                val feedShorts = (homeShelfShorts + rawSubs.extractShorts() + rawDiscovery.extractShorts() + rawViral.extractShorts())
                     .distinctBy { it.id }
                     .filterWatched(watchedVideoIds.value).filterSuppressed(hiddenVideoIds.value, blockedChannelIds.value)
                     .filterUnplayable(unplayableVideoIds.value)

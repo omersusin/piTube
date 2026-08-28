@@ -266,7 +266,12 @@ class FlowApplication :
                 Log.w(TAG, "visitorData init error: ${e.message}")
             }
             launch {
-                kotlinx.coroutines.delay(10_000L)
+                // Deferred far past cold start: the prewarm spins up the
+                // BotGuard WebView (chromium). Loading it while the user is
+                // still settling on the home screen added to startup heating;
+                // an on-demand mint serves playback that starts earlier, and
+                // this then keeps the session warm for later.
+                kotlinx.coroutines.delay(45_000L)
                 try {
                     com.omersusin.pitube.utils.potoken.WebPoTokenSession
                         .prewarm()

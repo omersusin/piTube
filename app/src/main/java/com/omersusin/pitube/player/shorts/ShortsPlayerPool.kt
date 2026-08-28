@@ -21,13 +21,17 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
 import com.omersusin.pitube.data.local.PlayerPreferences
 import com.omersusin.pitube.data.model.ShortVideo
+import com.omersusin.pitube.data.shorts.ShortsRepository
 import com.omersusin.pitube.player.analytics.PlaybackAnalyticsLogger
 import com.omersusin.pitube.player.config.PlayerConfig
 import com.omersusin.pitube.player.datasource.YouTubeHttpDataSource
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -61,6 +65,7 @@ class ShortsPlayerPool private constructor() {
         private const val BUFFER_FOR_PLAYBACK_MS = 250
         private const val BUFFER_FOR_REBUFFER_MS = 750
         private const val BACK_BUFFER_MS = 2_000
+        private const val MAX_STREAM_RECOVERIES = 2
 
         @Volatile
         private var instance: ShortsPlayerPool? = null
@@ -87,6 +92,17 @@ class ShortsPlayerPool private constructor() {
     private var preferredAudioLanguage: String = "original"
     private var shortsPlaybackMode: String = "loop"
     private var basePlaybackSpeed: Float = 1f
+    private var appContextRef: Context? = null
+
+    // ── 403/410 stream-expiry recovery ───────────────────────────────────────
+    // Shorts playback used to die on the first expired-URL 403 (logcat:
+    // "Playback error ... InvalidResponseCodeException: Response code: 403")
+    // because the pool had no error listener at all. Now the failed video's
+    // cached streams are evicted, re-resolved, and hot-swapped in place —
+    // the main player already does the same through PlayerErrorHandler.
+    private val recoveryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val recoveryAttempts = mutableMapOf<String, Int>()
+    private val recoveryInFlight = mutableSetOf<String>()
 
     private val preferenceObservers = ShortsPreferenceObservers()
 
@@ -111,6 +127,7 @@ class ShortsPlayerPool private constructor() {
         if (isInitialized) return
 
         val appContext = context.applicationContext
+        appContextRef = appContext
         Log.d(TAG, "Initializing 3-player pool for Shorts")
         dataSourceFactory = DefaultDataSource.Factory(appContext, YouTubeHttpDataSource.Factory())
         val preferences = PlayerPreferences(appContext)
@@ -133,7 +150,7 @@ class ShortsPlayerPool private constructor() {
 
         try {
             for (i in 0 until POOL_SIZE) {
-                players[i] = createShortsPlayer(appContext)
+                players[i] = createShortsPlayer(appContext, i)
                 playerOwnerIndices[i] = null
                 playerVideoIds[i] = null
             }
@@ -164,7 +181,7 @@ class ShortsPlayerPool private constructor() {
 
     // setViewportSizeToPhysicalDisplaySize has no non-deprecated API 35 replacement.
     @Suppress("DEPRECATION")
-    private fun createShortsPlayer(context: Context): ExoPlayer {
+    private fun createShortsPlayer(context: Context, slot: Int): ExoPlayer {
         val allocator = DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE)
         val (maxVideoWidth, maxVideoHeight) = maxVideoSizeForHeap(context)
 
@@ -221,7 +238,69 @@ class ShortsPlayerPool private constructor() {
                 playWhenReady = false
                 videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
                 addAnalyticsListener(PlaybackAnalyticsLogger(TAG) { _currentVideoId.value })
+                addListener(object : Player.Listener {
+                    override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                        handlePoolPlayerError(slot, error)
+                    }
+
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        // A slot that reached READY is playing fine — renew its
+                        // future recovery budget so an hours-later expiry can
+                        // still recover.
+                        if (playbackState == Player.STATE_READY) {
+                            playerVideoIds[slot]?.let { recoveryAttempts.remove(it) }
+                        }
+                    }
+                })
             }
+    }
+
+    /**
+     * Expired-URL (403/410) recovery for a pool player: evict the failed
+     * video's cached streams, re-resolve fresh URLs, and hot-swap them into
+     * the same slot at the same position. Max 2 recoveries per video, then
+     * the error surfaces (matching the main player's limiter behavior).
+     */
+    private fun handlePoolPlayerError(slot: Int, error: androidx.media3.common.PlaybackException) {
+        val causeText = error.cause?.message.orEmpty()
+        val isExpiredUrl = error.errorCode == androidx.media3.common.PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS &&
+            (causeText.contains("Response code: 403") || causeText.contains("Response code: 410")) ||
+            ((error.errorCode == androidx.media3.common.PlaybackException.ERROR_CODE_IO_UNSPECIFIED ||
+                error.errorCode == androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED) &&
+                (causeText.contains("Response code: 403") || causeText.contains("Response code: 410")))
+        if (!isExpiredUrl) return
+
+        val videoId = playerVideoIds[slot] ?: return
+        val index = playerOwnerIndices[slot] ?: return
+        val attempts = (recoveryAttempts[videoId] ?: 0) + 1
+        recoveryAttempts[videoId] = attempts
+        if (attempts > MAX_STREAM_RECOVERIES || videoId in recoveryInFlight) {
+            Log.w(TAG, "Stream recovery for $videoId skipped (attempt $attempts, inFlight=${videoId in recoveryInFlight})")
+            return
+        }
+
+        Log.w(TAG, "Stream 403/410 for short $videoId — evicting cache and re-resolving (attempt $attempts/$MAX_STREAM_RECOVERIES)")
+        val context = appContextRef ?: return
+        recoveryInFlight.add(videoId)
+        recoveryScope.launch {
+            try {
+                val repository = ShortsRepository.getInstance(context)
+                repository.evictStreamsFor(videoId)
+                val fresh = repository.resolvePlaybackStreams(videoId, 0, preferredAudioLanguage)
+                if (fresh != null) {
+                    withContext(Dispatchers.Main) {
+                        reloadWithUrls(index, videoId, fresh.videoUrl, fresh.audioUrl)
+                        Log.w(TAG, "Stream recovery for $videoId succeeded — hot-swapped fresh URLs")
+                    }
+                } else {
+                    Log.e(TAG, "Stream recovery for $videoId failed to resolve fresh URLs")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Stream recovery for $videoId crashed: ${e.message}")
+            } finally {
+                recoveryInFlight.remove(videoId)
+            }
+        }
     }
 
     private fun maxVideoSizeForHeap(context: Context): Pair<Int, Int> {
@@ -415,6 +494,31 @@ class ShortsPlayerPool private constructor() {
         player.setPlaybackSpeed(basePlaybackSpeed)
         player.playWhenReady = wasPlaying
         player.seekTo(position)
+        player.repeatMode = if (shortsPlaybackMode == "loop") Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+    }
+
+    /**
+     * Hot-swap BOTH video and audio URLs for an already-prepared player slot
+     * (stream-expiry recovery). Keeps position and playback state.
+     */
+    fun reloadWithUrls(index: Int, videoId: String, newVideoUrl: String, newAudioUrl: String?) {
+        if (!isInitialized || index < 0) return
+        val slot = index % POOL_SIZE
+        val player = players[slot] ?: return
+        if (playerOwnerIndices[slot] != index) return
+
+        val wasPlaying = player.isPlaying || player.playWhenReady
+        val position = player.currentPosition
+
+        player.stop()
+        player.clearMediaItems()
+        playerVideoUrls[slot] = newVideoUrl
+        playerAudioUrls[slot] = newAudioUrl
+
+        preparePlayerInternal(player, newVideoUrl, newAudioUrl)
+        player.setPlaybackSpeed(basePlaybackSpeed)
+        player.playWhenReady = wasPlaying
+        if (position > 0) player.seekTo(position)
         player.repeatMode = if (shortsPlaybackMode == "loop") Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
     }
 
