@@ -6,6 +6,7 @@
 
 <p align="center">
   <strong>Private, fast and ad-free YouTube for Android</strong><br/>
+  A <a href="https://github.com/A-EDev/Flow">Flow</a> fork — heavily reworked.<br/>
   Sign in — your feed, subs, history & playlists appear instantly.
 </p>
 
@@ -15,7 +16,7 @@
   <a href="https://github.com/omersusin/piTube/releases"><img src="https://img.shields.io/github/downloads/omersusin/piTube/total?label=downloads" alt="Downloads"/></a>
   <a href="https://github.com/omersusin/piTube/actions"><img src="https://img.shields.io/github/actions/workflow/status/omersusin/piTube/build.yml?branch=main" alt="CI"/></a>
   <img src="https://img.shields.io/badge/minSdk-26%20%7C%20Android%208%2B-green" alt="minSdk 26"/>
-  <img src="https://img.shields.io/badge/version-3.9.8%20%28137%29-blueviolet" alt="Version 3.9.8"/>
+  <img src="https://img.shields.io/badge/version-1.0.0%20%281%29-blueviolet" alt="Version 1.0.0"/>
   <img src="https://img.shields.io/github/stars/omersusin/piTube?style=social" alt="Stars"/>
 </p>
 
@@ -31,9 +32,7 @@
 
 ## Why piTube?
 
-piTube is a native Android YouTube client that feels like the official app — without ads, without tracking bloat, and with your data staying on-device. Unlike wrappers, it speaks YouTube's own **InnerTube** API (WEB / WEB_REMIX / ANDROID_VR) directly, so login is instant, the home feed is truly personal, and playback is reliable.
-
-> **Current branch:** `muse` (`3.9.8/137`) — Koda-parity home feed, zero-heat session, 10 lyrics engines. `main` is `3.9.7`.
+piTube is a **fork of [Flow](https://github.com/A-EDev/Flow)** — privacy-respecting, feature-rich, and heavily reworked. The codebase has been stripped of legacy Flow surfaces (TV/Leanback UI, Discord presence, RSS feeds, neural-engine sync, music-library import) and rebuilt around **NewPipeExtractor** plus features ported from the wider free-software ecosystem. Unlike wrappers, it speaks YouTube's own **InnerTube** API (WEB / WEB_REMIX / ANDROID_VR) directly, so login is instant, the home feed is truly personal, and playback is reliable.
 
 ---
 
@@ -106,17 +105,17 @@ piTube **adapts** — not copy-pastes — patterns from the best open-source pla
 
 | Project | What we learned / reused |
 |---|---|
+| [**Flow**](https://github.com/A-EDev/Flow) ★ | **Upstream fork** — base architecture & design; piTube is a heavily reworked fork (see `package.json` description) |
 | [**Koda**](https://github.com/Ivorisnoob/Koda) ★ | Auth/session/visitorData 6h, feed backend, profile isolation — primary reference |
 | [**SmartTube**](https://github.com/yuliskov/SmartTube) ★ | Subscriptions & Library structure |
 | [**Seal**](https://github.com/JunkFood02/Seal) · [**YTDLnis**](https://github.com/deniscerri/ytdlnis) · [**yt-dlp**](https://github.com/yt-dlp/yt-dlp) ★ | Download pipeline (FAZ A3) |
 | [**ArchiveTune**](https://github.com/rukamori/ArchiveTune) ★ | 7-provider lyrics set + AiLyricsTranslator / shazamkit |
 | [**vivi-music**](https://github.com/vfsfitvnm/ViMusic) fork chain · [**ViMusic**](https://github.com/vfsfitvnm/ViMusic) · [**InnerTune**](https://github.com/z-huang/InnerTune) · [**OuterTune**](https://github.com/OuterTune/OuterTune) · [**RiMusic**](https://github.com/fast4x/RiMusic) · [**Metrolist**](https://github.com/mostafaalban/Metrolist) | Lyrics engines, player UI, Material theming |
-| [**NewPipe**](https://github.com/TeamNewPipe/NewPipe) · [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor) · [**Piped**](https://github.com/TeamPiped/Piped) · [**Invidious**](https://github.com/iv-org/invidious) · [**LibreTube**](https://github.com/libre-tube/LibreTube) | Extraction & API design |
+| [**NewPipe**](https://github.com/TeamNewPipe/NewPipe) · [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor) · [**Piped**](https://github.com/TeamPiped/Piped) · [**Invidious**](https://github.com/iv-org/invidious) · [**LibreTube**](https://github.com/libre-tube/LibreTube) | Extraction & API design (NewPipeExtractor pipeline) |
 | [**Grayjay**](https://github.com/futo-org/Grayjay) · [GrayjayDesktop](https://github.com/futo-org/GrayjayDesktop) | Client architecture |
 | [**TranslateYou**](https://github.com/you-apps/TranslateYou) | Translation engine catalog (Mozhi > MyMemory > Apertium) |
 | **Audile** (local clone) | Recognition timing recipe |
 | [Beatbump](https://github.com/snuffydev/Beatbump) · [ytmusicapi](https://github.com/sigma67/ytmusicapi) · [ReVanced](https://github.com/ReVanced) | Feed & API references |
-| **Flow** (upstream) | Original codebase |
 
 If we missed you, please open an issue — credits matter.
 
@@ -138,4 +137,4 @@ piTube is **not affiliated with Google or YouTube**. It is an independent client
 
 ## Changelog
 
-Full history: `git log` / [**Releases**](https://github.com/omersusin/piTube/releases). Current: **3.9.8 (137)** — *home feed parser + discovery music-leak + shorts storms + 403 recovery + startup heating*.
+Full history: `git log` / [**Releases**](https://github.com/omersusin/piTube/releases). Current: **1.0.0 (1)** — *first stable, Flow fork heavily reworked (581 commits)*.
