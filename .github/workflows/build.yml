@@ -62,6 +62,8 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -116,3 +118,10 @@ jobs:
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Publish to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/release/*.apk
+          fail_on_unmatched_files: true
