@@ -189,16 +189,7 @@ class DiscoverViewModel
                 withContext(kotlinx.coroutines.Dispatchers.IO) {
                     com.omersusin.pitube.innertube.YouTube.personalizedFeed().getOrNull()
                 }
-            val firstLane =
-                primary?.videos?.also { continuation = primary.continuation }.orEmpty()
-            if (firstLane.isNotEmpty()) return firstLane
-
-            // FEmusic_home / WEB_REMIX second lane when www-WEB is bot-walled empty.
-            val fallback =
-                withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    com.omersusin.pitube.innertube.YouTube.musicHomeFeed().getOrNull()
-                }
-            return fallback?.videos.orEmpty().also { continuation = fallback?.continuation }
+            return primary?.videos.also { continuation = primary?.continuation }.orEmpty()
         }
 
         /**

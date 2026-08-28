@@ -935,6 +935,22 @@ object YouTube {
         )
         val rawBody = httpResponse.bodyAsText()
         innerTube.noteResponseState(rawBody)
+        // Home feeds are shape-unstable: loose richItemRenderers alternate with
+        // richSectionRenderer shelves, payloads flip between videoRenderer and
+        // lockupViewModel, and a typed decode failure turns into a silent
+        // Result failure (parsed-empty with no diagnostics). Parse the body
+        // dynamically first — the typed channel parser stays as fallback.
+        val homeParsed = runCatching {
+            parseHomeFeedJson(rawBody, isContinuation = continuation != null)
+        }.getOrNull()
+        if (homeParsed != null && homeParsed.videos.isNotEmpty()) {
+            Log.w(
+                "YouTube",
+                "personalizedFeed($browseId): home parser ${homeParsed.videos.size} videos " +
+                    "(+${lastHomeShortsShelf.size} shorts shelf), cont=${homeParsed.continuation != null}",
+            )
+            return homeParsed
+        }
         val lenientJson = json
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
         val parsed = parseChannelVideosResponse(response, "", "", "", false)
@@ -961,6 +977,13 @@ object YouTube {
                 val retryResponse = innerTube.signedWebBrowse(client = client, browseId = browseId, continuation = continuation, includeVisitor = false)
                 val retryBody = retryResponse.bodyAsText()
                 innerTube.noteResponseState(retryBody)
+                val retryHome = runCatching {
+                    parseHomeFeedJson(retryBody, isContinuation = continuation != null)
+                }.getOrNull()
+                if (retryHome != null && retryHome.videos.isNotEmpty()) {
+                    Log.w("YouTube", "personalizedFeed($browseId): retry (dynamic) recovered ${retryHome.videos.size} videos")
+                    return retryHome
+                }
                 val retryParsed = parseChannelVideosResponse(json.decodeFromString<ChannelVideosResponse>(retryBody), "", "", "", false)
                 if (retryParsed.videos.isNotEmpty()) Log.w("YouTube", "personalizedFeed($browseId): retry recovered ${retryParsed.videos.size} videos")
                 return retryParsed
@@ -969,6 +992,153 @@ object YouTube {
             Log.w("YouTube", "personalizedFeed($browseId): ${parsed.videos.size} videos, cont=${parsed.continuation != null}")
         }
         return parsed
+    }
+
+    // ── Home-feed ("What to watch") dynamic parser — Koda port ────────────────
+    //
+    // Mirrors Koda's verified (August 2026) home parsing: the signed WEB
+    // response is walked dynamically so unknown shapes can never break the
+    // whole feed, shelves are entered (richSectionRenderer), and both the
+    // classic videoRenderer and the modern lockupViewModel payload are read.
+    // Shorts shelf lockups are harvested separately — they feed the home
+    // shorts shelf and seed the personalized shorts sequence (sequenceParams),
+    // replacing the hardcoded "CA8%3D" cursor.
+
+    /** Shorts shelf harvested from the last successful home response. */
+    @Volatile
+    var lastHomeShortsShelf: List<com.omersusin.pitube.data.model.Video> = emptyList()
+        private set
+
+    /**
+     * sequenceParams seed from the last home shorts shelf. Refreshed whenever
+     * a signed home feed parses; the shorts feed consumes it so the initial
+     * reel sequence is the account's personalized one instead of a static
+     * default cursor.
+     */
+    @Volatile
+    var lastShortsSequenceSeed: String? = null
+        private set
+
+    private fun JsonElement?.homeObj(): JsonObject? = this as? JsonObject
+    private fun JsonElement?.homeArr(): JsonArray? = this as? JsonArray
+    private fun JsonElement?.homeStr(): String? =
+        (this as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
+
+    private fun parseHomeFeedJson(
+        body: String,
+        isContinuation: Boolean,
+    ): ChannelVideoSearchResult {
+        val root = runCatching { Json.parseToJsonElement(body) }.getOrNull()
+            ?: return ChannelVideoSearchResult(emptyList(), null, null)
+        val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
+        val shorts = mutableListOf<com.omersusin.pitube.data.model.Video>()
+        var nextContinuation: String? = null
+
+        fun walkItem(itemEl: JsonElement) {
+            val obj = itemEl.homeObj() ?: return
+            // 1. Loose grid item: richItemRenderer.content
+            obj["richItemRenderer"].homeObj()?.get("content").homeObj()?.let { content ->
+                parseHomeContent(content, videos, shorts)
+            }
+            // 2. Flat section item (e.g. date-grouped lists)
+            obj["itemSectionRenderer"].homeObj()?.get("contents").homeArr()?.forEach { sectionEl ->
+                sectionEl.homeObj()?.let { parseHomeContent(it, videos, shorts) }
+            }
+            // 3. Shelf ("Shorts", topic rows): walk the richItems inside
+            obj["richSectionRenderer"].homeObj()?.get("content").homeObj()?.let { shelf ->
+                val shelfItems = mutableListOf<JsonObject>()
+                findMusicObjectsByKey(shelf, "richItemRenderer", shelfItems)
+                shelfItems.forEach { richItem ->
+                    richItem["content"].homeObj()?.let { parseHomeContent(it, videos, shorts) }
+                }
+            }
+            // 4. Trailing continuation token
+            obj["continuationItemRenderer"].homeObj()
+                ?.get("continuationEndpoint").homeObj()
+                ?.get("continuationCommand").homeObj()
+                ?.get("token").homeStr()?.let { nextContinuation = it }
+        }
+
+        if (isContinuation) {
+            root.homeObj()?.get("onResponseReceivedActions").homeArr()?.forEach { action ->
+                action.homeObj()?.get("appendContinuationItemsAction").homeObj()
+                    ?.get("continuationItems").homeArr()?.forEach { itemEl -> walkItem(itemEl) }
+            }
+        } else {
+            val contents = root.homeObj()?.get("contents").homeObj()
+            val tabs = contents?.get("twoColumnBrowseResultsRenderer").homeObj()?.get("tabs").homeArr()
+                ?: contents?.get("singleColumnBrowseResultsRenderer").homeObj()?.get("tabs").homeArr()
+            val tabContent = tabs?.firstOrNull()?.homeObj()?.get("tabRenderer").homeObj()?.get("content").homeObj()
+            val gridContents = tabContent?.get("richGridRenderer").homeObj()?.get("contents").homeArr()
+                ?: tabContent?.get("sectionListRenderer").homeObj()?.get("contents").homeArr()
+            gridContents?.forEach { itemEl -> walkItem(itemEl) }
+        }
+
+        lastHomeShortsShelf = shorts
+        return ChannelVideoSearchResult(
+            videos = videos.distinctBy { it.id },
+            continuation = nextContinuation,
+        )
+    }
+
+    private fun parseHomeContent(
+        content: JsonObject,
+        videos: MutableList<com.omersusin.pitube.data.model.Video>,
+        shorts: MutableList<com.omersusin.pitube.data.model.Video>,
+    ) {
+        content["lockupViewModel"].homeObj()?.let { lockup ->
+            val typed = runCatching {
+                json.decodeFromJsonElement(ChannelVideosResponse.LockupViewModel.serializer(), lockup)
+            }.getOrNull()
+            typed?.let { parseLockupViewModel(it, "", "", "", false) }?.let(videos::add)
+        }
+        (content["videoRenderer"] ?: content["gridVideoRenderer"]).homeObj()?.let { vr ->
+            val typed = runCatching {
+                json.decodeFromJsonElement(ChannelVideosResponse.VideoRenderer.serializer(), vr)
+            }.getOrNull()
+            typed?.let { parseBrowseVideoRenderer(it, "", "", "", false) }?.let(videos::add)
+        }
+        content["shortsLockupViewModel"].homeObj()?.let { lockup ->
+            parseHomeShortsLockup(lockup)?.let(shorts::add)
+        }
+    }
+
+    /**
+     * shortsLockupViewModel: videoId + sequenceParams live in
+     * onTap.innertubeCommand.reelWatchEndpoint; title/views in
+     * overlayMetadata; portrait thumbnail in thumbnailViewModel.
+     */
+    private fun parseHomeShortsLockup(lockup: JsonObject): com.omersusin.pitube.data.model.Video? {
+        val reel = lockup["onTap"].homeObj()?.get("innertubeCommand").homeObj()?.get("reelWatchEndpoint").homeObj()
+            ?: return null
+        val videoId = reel["videoId"].homeStr()?.takeIf { it.length == 11 } ?: return null
+        val seed = reel["sequenceParams"].homeStr()
+        if (!seed.isNullOrBlank() && lastShortsSequenceSeed.isNullOrBlank()) {
+            lastShortsSequenceSeed = seed
+        }
+        val overlay = lockup["overlayMetadata"].homeObj()
+        val title = overlay?.get("primaryText").homeObj()?.get("content").homeStr().orEmpty()
+            .ifBlank { videoId }
+        val viewsText = overlay?.get("secondaryText").homeObj()?.get("content").homeStr().orEmpty()
+        val sources = lockup["thumbnailViewModel"].homeObj()?.get("image").homeObj()?.get("sources").homeArr()
+        val thumbnail = sources
+            ?.mapNotNull { it.homeObj()?.get("url").homeStr() }
+            ?.lastOrNull()
+            ?: reel["thumbnail"].homeObj()?.get("thumbnails").homeArr()
+                ?.firstOrNull()?.homeObj()?.get("url").homeStr()
+            ?: "https://i.ytimg.com/vi/$videoId/hq720.jpg"
+        return com.omersusin.pitube.data.model.Video(
+            id = videoId,
+            title = title,
+            channelName = "",
+            channelId = "",
+            thumbnailUrl = thumbnail,
+            duration = 0,
+            viewCount = parseViewCountText(viewsText),
+            uploadDate = "",
+            channelThumbnailUrl = "",
+            isShort = true,
+        )
     }
 
     // ============================================================
@@ -2871,9 +3041,12 @@ object YouTube {
         sequenceParams: String? = null,
         continuation: String? = null,
     ): Result<ShortsPage> = runCatching {
+        // Prefer the personalized seed harvested from the signed home feed's
+        // shorts shelf (Koda pattern) over the static default cursor: the
+        // hardcoded "CA8%3D" pins the same sequence for every session.
         innerTube.reel(
             client = YouTubeClient.ANDROID,
-            sequenceParams = sequenceParams ?: "CA8%3D",
+            sequenceParams = sequenceParams ?: lastShortsSequenceSeed ?: "CA8%3D",
             continuation = continuation
         ).toShortsPage()
     }

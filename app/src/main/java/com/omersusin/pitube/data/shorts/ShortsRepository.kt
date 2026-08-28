@@ -80,6 +80,23 @@ class ShortsRepository private constructor(private val context: Context) {
     private var cachedInitialFeed: ShortsSequenceResult? = null
     private var cachedFeedTimestamp = 0L
     private val CACHE_TTL_MS = 5 * 60 * 1000L // 5 minutes
+
+    // Single-flight: concurrent getShortsFeed(seed=null) callers share one
+    // in-flight fetch instead of each running the whole discovery pipeline
+    // (logcat showed 2 parallel pipelines at cold start and 7 after a
+    // profile switch — the main heating contributor).
+    private val initialFeedMutex = Mutex()
+    private var initialFeedInFlight: Deferred<ShortsSequenceResult>? = null
+
+    // Enrich-once bookkeeping: shorts whose metadata/avatar enrichment already
+    // completed are not re-enriched on later cache hits.
+    private val enrichedIds = mutableSetOf<String>()
+    private val avatarEnrichedChannels = mutableSetOf<String>()
+
+    // Stream URL lifetime guard: googlevideo URLs expire (~6h); a cached
+    // entry older than TTL is re-resolved instead of played into a 403.
+    private val streamResolvedAt = mutableMapOf<String, Long>()
+    private val STREAM_URL_TTL_MS = 4 * 60 * 60 * 1000L
     
     // Progressive enrichment events — UI observes this to update metadata live 
     private val _enrichmentUpdates = MutableSharedFlow<List<ShortVideo>>(extraBufferCapacity = 16)
@@ -100,6 +117,7 @@ class ShortsRepository private constructor(private val context: Context) {
         private const val ENRICHMENT_TIMEOUT_MS = 12_000L
         private const val MAX_RECENTLY_SHOWN = 100
         private const val MIN_POOL_SIZE = 10
+        private const val PRE_RESOLVE_LIMIT = 2
         
         @Volatile
         private var INSTANCE: ShortsRepository? = null
@@ -125,7 +143,7 @@ class ShortsRepository private constructor(private val context: Context) {
                 val filtered = cached.copy(shorts = filterWatchedShorts(cached.shorts))
                 if (filtered.shorts.isNotEmpty()) return@withContext filtered
             }
-            return@withContext fetchDiscoveryFeed()
+            return@withContext fetchDiscoveryFeedSingleFlight()
         }
 
         val rawResult = try {
@@ -145,6 +163,25 @@ class ShortsRepository private constructor(private val context: Context) {
 
         Log.w(TAG, "InnerTube seed failed — falling back to discovery feed")
         fetchDiscoveryFeed()
+    }
+
+    /**
+     * Single-flight wrapper around [fetchDiscoveryFeed]: the first caller
+     * runs the pipeline; everyone else awaits (and re-checks the cache once
+     * it lands) instead of racing duplicate discovery/enrichment work.
+     */
+    private suspend fun fetchDiscoveryFeedSingleFlight(): ShortsSequenceResult {
+        val existing = initialFeedMutex.withLock {
+            initialFeedInFlight ?: repositoryScope.async { fetchDiscoveryFeed() }
+                .also { initialFeedInFlight = it }
+        }
+        return try {
+            existing.await()
+        } finally {
+            initialFeedMutex.withLock {
+                if (initialFeedInFlight === existing) initialFeedInFlight = null
+            }
+        }
     }
 
     private suspend fun fetchDiscoveryFeed(): ShortsSequenceResult {
@@ -179,7 +216,11 @@ class ShortsRepository private constructor(private val context: Context) {
             markAsShown(itShorts.map { it.id })
             itShorts.forEach { shortsCache.put(it.id, it) }
 
-            repositoryScope.launch { preResolveStreams(itShorts.take(2).map { it.id }) }
+            // No speculative stream pre-resolve here: the shorts pager's own
+            // prefetch (ShortsViewModel.prefetchPlaybackStreams /
+            // preResolveStreams) resolves current+next on demand. Resolving
+            // here instead spun up the poToken WebView during cold start
+            // while the user was still on the home screen.
 
             val earlyResult = ShortsSequenceResult(itShorts, innerTubeResult.continuation)
             cachedInitialFeed = earlyResult
@@ -213,6 +254,13 @@ class ShortsRepository private constructor(private val context: Context) {
                         enriched.forEach { shortsCache.put(it.id, it) }
                         val withAvatars = enrichAvatarsForShorts(enriched)
                         withAvatars.forEach { shortsCache.put(it.id, it) }
+                        // Persist the ENRICHED feed so later cache hits don't
+                        // re-run player()/avatar enrichment for the same shorts.
+                        cachedInitialFeed = ShortsSequenceResult(
+                            withAvatars,
+                            innerTubeResult.continuation
+                        )
+                        cachedFeedTimestamp = System.currentTimeMillis()
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Background enrichment failed: ${e.message}")
@@ -436,13 +484,13 @@ class ShortsRepository private constructor(private val context: Context) {
      * Results are cached to avoid re-resolution on swipe-back.
      */
     suspend fun resolveStreamInfo(videoId: String): StreamInfo? = withContext(Dispatchers.IO) {
-        streamInfoCache.get(videoId)?.let {
+        streamInfoCache.get(videoId)?.takeIf { isStreamCacheFresh(videoId) }?.let {
             Log.d(TAG, "♻ Stream cache hit: $videoId")
             return@withContext it
         }
-        
+
         Log.d(TAG, "⟳ Resolving stream: $videoId")
-        
+
         val streamInfo = try {
             withTimeoutOrNull(STREAM_RESOLVE_TIMEOUT_MS) {
                 youtubeRepository.getVideoStreamInfo(videoId)
@@ -451,14 +499,15 @@ class ShortsRepository private constructor(private val context: Context) {
             Log.w(TAG, "Stream resolution failed for $videoId: ${e.message}")
             null
         }
-        
+
         if (streamInfo != null) {
             streamInfoCache.put(videoId, streamInfo)
+            noteStreamResolved(videoId)
             Log.d(TAG, "✓ Resolved streams for $videoId")
         } else {
             Log.e(TAG, "✗ Failed to resolve streams for $videoId")
         }
-        
+
         streamInfo
     }
     
@@ -469,7 +518,7 @@ class ShortsRepository private constructor(private val context: Context) {
     ): ShortPlaybackStreams? = withContext(Dispatchers.IO) {
         val preferredCodecKey = PlayerPreferences(context).defaultVideoCodec.first().codecKey
         val cacheKey = "$videoId|$targetHeight|$preferredAudioLanguage|$preferredCodecKey"
-        playbackStreamsCache.get(cacheKey)?.let { return@withContext it }
+        playbackStreamsCache.get(cacheKey)?.takeIf { isStreamCacheFresh(cacheKey) }?.let { return@withContext it }
 
         val inFlight = streamResolveMutex.withLock {
             playbackStreamsInFlight[cacheKey]?.let { return@withLock it }
@@ -479,7 +528,10 @@ class ShortsRepository private constructor(private val context: Context) {
         }
 
         try {
-            inFlight.await()?.also { playbackStreamsCache.put(cacheKey, it) }
+            inFlight.await()?.also {
+                playbackStreamsCache.put(cacheKey, it)
+                noteStreamResolved(cacheKey)
+            }
         } finally {
             streamResolveMutex.withLock {
                 if (playbackStreamsInFlight[cacheKey] === inFlight) {
@@ -734,27 +786,57 @@ class ShortsRepository private constructor(private val context: Context) {
     }
 
     /**
-     * Pre-resolve streams for multiple video IDs concurrently.
-     * Used to pre-buffer adjacent shorts in the pager.
+     * Pre-resolve streams for multiple video IDs — only what the pager will
+     * actually touch next (current + 1), serialized, and skipping entries
+     * that are still fresh. The old all-parallel pre-resolve of whole pages
+     * was a large share of cold-start network/GC churn.
      */
     suspend fun preResolveStreams(videoIds: List<String>) = supervisorScope {
-        val uncached = videoIds.filter { streamInfoCache.get(it) == null }
+        val uncached = videoIds.take(PRE_RESOLVE_LIMIT).filter {
+            streamInfoCache.get(it) == null || !isStreamCacheFresh(it)
+        }
         if (uncached.isEmpty()) return@supervisorScope
-        
+
         Log.d(TAG, "⟳ Pre-resolving ${uncached.size} streams: ${uncached.joinToString()}")
-        
-        uncached.map { videoId ->
-            async(Dispatchers.IO) {
-                try {
-                    withTimeoutOrNull(STREAM_RESOLVE_TIMEOUT_MS) {
-                        resolveStreamInfo(videoId)
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Pre-resolve failed for $videoId")
-                    null
+
+        for (videoId in uncached) {
+            try {
+                withTimeoutOrNull(STREAM_RESOLVE_TIMEOUT_MS) {
+                    resolveStreamInfo(videoId)
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "Pre-resolve failed for $videoId")
             }
-        }.forEach { it.await() } 
+        }
+    }
+
+    // ── Stream URL lifetime helpers ──────────────────────────────────────────
+    // googlevideo URLs expire (~6h). Cached entries older than the TTL must
+    // be re-resolved instead of played straight into a mid-stream 403.
+
+    private fun isStreamCacheFresh(key: String): Boolean {
+        val resolvedAt = streamResolvedAt[key] ?: return false
+        return System.currentTimeMillis() - resolvedAt < STREAM_URL_TTL_MS
+    }
+
+    private fun noteStreamResolved(key: String) {
+        streamResolvedAt[key] = System.currentTimeMillis()
+        if (streamResolvedAt.size > 200) {
+            val cutoff = System.currentTimeMillis() - STREAM_URL_TTL_MS
+            streamResolvedAt.entries.removeIf { it.value < cutoff }
+        }
+    }
+
+    /** Drop cached streams for [videoId] (e.g. after a 403) so the next resolve is fresh. */
+    fun evictStreamsFor(videoId: String) {
+        streamResolvedAt.remove(videoId)
+        streamInfoCache.remove(videoId)
+        val keys = playbackStreamsCache.snapshot().keys.filter { it.startsWith("$videoId|") }
+        keys.forEach {
+            playbackStreamsCache.remove(it)
+            streamResolvedAt.remove(it)
+        }
+        Log.d(TAG, "⟳ Evicted cached streams for $videoId (stale/403)")
     }
     
     // HOME FEED SHORTS — For the Home screen's Shorts shelf
@@ -793,18 +875,19 @@ class ShortsRepository private constructor(private val context: Context) {
         return ShortsSequenceResult(shorts, page.continuation)
     }
     
-    // INTERNAL — Metadata Enrichment    
+    // INTERNAL — Metadata Enrichment
     private suspend fun enrichMissingMetadata(shorts: List<ShortVideo>): List<ShortVideo> = supervisorScope {
-        val needsEnrichment = shorts.filter { 
-            it.title == "Short" || it.channelName == "Unknown" || it.channelName.isBlank() 
+        val needsEnrichment = shorts.filter {
+            (it.title == "Short" || it.channelName == "Unknown" || it.channelName.isBlank()) &&
+                it.id !in enrichedIds
         }
-        
+
         if (needsEnrichment.isEmpty()) return@supervisorScope shorts
-        
+
         Log.d(TAG, "⟳ Enriching metadata for ${needsEnrichment.size}/${shorts.size} shorts via player() endpoint")
-        
+
         val enrichedMap = mutableMapOf<String, ShortVideo>()
-        
+
         needsEnrichment.chunked(5).forEach { batch ->
             val batchResults = batch.map { short ->
                 async(Dispatchers.IO) {
@@ -850,13 +933,20 @@ class ShortsRepository private constructor(private val context: Context) {
                     }
                 }
             }.awaitAll()
-            
+
             batchResults.forEach { enrichedMap[it.id] = it }
-            
+
             val partiallyEnriched = shorts.map { enrichedMap[it.id] ?: it }
             _enrichmentUpdates.tryEmit(partiallyEnriched)
         }
-        
+
+        // A short with a real title AND channel is done: record it so cache
+        // hits never re-run the player()/next enrichment for it.
+        shorts.forEach { short ->
+            if (short.title != "Short" && short.channelName.isNotBlank() && short.channelName != "Unknown") {
+                enrichedIds.add(short.id)
+            }
+        }
         val result = shorts.map { enrichedMap[it.id] ?: it }
         Log.d(TAG, "✓ Enriched ${enrichedMap.size}/${needsEnrichment.size} shorts via player() endpoint")
         result
@@ -877,7 +967,7 @@ class ShortsRepository private constructor(private val context: Context) {
      */
     private suspend fun enrichAvatarsForShorts(shorts: List<ShortVideo>): List<ShortVideo> = supervisorScope {
         val channelIds = shorts
-            .filter { it.channelThumbnailUrl.isEmpty() && it.channelId.isNotEmpty() }
+            .filter { it.channelThumbnailUrl.isEmpty() && it.channelId.isNotEmpty() && it.channelId !in avatarEnrichedChannels }
             .map { it.channelId }
             .distinct()
 
@@ -889,7 +979,10 @@ class ShortsRepository private constructor(private val context: Context) {
             batch.map { id ->
                 async(Dispatchers.IO) { withTimeoutOrNull(6_000L) { id to youtubeRepository.fetchChannelAvatarById(id) } }
             }.awaitAll().forEach { pair ->
-                pair?.let { (id, url) -> if (url.isNotEmpty()) avatarMap[id] = url }
+                pair?.let { (id, url) ->
+                    avatarEnrichedChannels.add(id)
+                    if (url.isNotEmpty()) avatarMap[id] = url
+                }
             }
         }
 
@@ -961,6 +1054,9 @@ class ShortsRepository private constructor(private val context: Context) {
         streamInfoCache.evictAll()
         playbackStreamsCache.evictAll()
         shortsCache.evictAll()
+        streamResolvedAt.clear()
+        enrichedIds.clear()
+        avatarEnrichedChannels.clear()
         recentlyShownIds.clear()
         cachedInitialFeed = null
         cachedFeedTimestamp = 0L
