@@ -114,7 +114,7 @@ piTube **adapts** — not copy-pastes — patterns from the best open-source pla
 | [**NewPipe**](https://github.com/TeamNewPipe/NewPipe) · [NewPipeExtractor](https://github.com/TeamNewPipe/NewPipeExtractor) · [**Piped**](https://github.com/TeamPiped/Piped) · [**Invidious**](https://github.com/iv-org/invidious) · [**LibreTube**](https://github.com/libre-tube/LibreTube) | Extraction & API design (NewPipeExtractor pipeline) |
 | [**Grayjay**](https://github.com/futo-org/Grayjay) · [GrayjayDesktop](https://github.com/futo-org/GrayjayDesktop) | Client architecture |
 | [**TranslateYou**](https://github.com/you-apps/TranslateYou) | Translation engine catalog (Mozhi > MyMemory > Apertium) |
-| **Audile** (local clone) | Recognition timing recipe |
+| [**Audile**](https://github.com/aleksey-saenko/MusicRecognizer) · [AudileTeam](https://github.com/AudileTeam/Audile) | Recognition timing recipe (AudD/ACRCloud/Shazam progressive 4/8/12s) |
 | [Beatbump](https://github.com/snuffydev/Beatbump) · [ytmusicapi](https://github.com/sigma67/ytmusicapi) · [ReVanced](https://github.com/ReVanced) | Feed & API references |
 
 If we missed you, please open an issue — credits matter.
