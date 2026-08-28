@@ -63,25 +63,25 @@ class HomeFeedLogicTest {
             .containsExactly(
                 FeedSource.PERSONAL, 0,
                 FeedSource.SUBS, 0,
-                FeedSource.RELATED, 24,
-                FeedSource.DISCOVERY, 6,
-                FeedSource.VIRAL, 10
+                FeedSource.RELATED, 32,
+                FeedSource.DISCOVERY, 8,
+                FeedSource.VIRAL, 0
             )
         assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 20))
             .containsExactly(
                 FeedSource.PERSONAL, 0,
-                FeedSource.SUBS, 26,
-                FeedSource.RELATED, 9,
+                FeedSource.SUBS, 28,
+                FeedSource.RELATED, 10,
                 FeedSource.DISCOVERY, 2,
-                FeedSource.VIRAL, 3
+                FeedSource.VIRAL, 0
             )
         assertThat(homeFeedQuotas(40, subCount = 12, totalInteractions = 200))
             .containsExactly(
                 FeedSource.PERSONAL, 0,
-                FeedSource.SUBS, 26,
-                FeedSource.RELATED, 9,
+                FeedSource.SUBS, 28,
+                FeedSource.RELATED, 10,
                 FeedSource.DISCOVERY, 2,
-                FeedSource.VIRAL, 3
+                FeedSource.VIRAL, 0
             )
     }
 
