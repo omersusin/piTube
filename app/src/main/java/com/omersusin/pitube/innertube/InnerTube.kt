@@ -62,6 +62,9 @@ private val LOGGED_IN_TRACKING_PARAM =
 private val DATASYNC_ID_IN_BODY =
     Regex("\"datasyncId\"\\s*:\\s*\"([^\"]+)\"")
 
+/** Koda's WEB_VERSION — the version its verified home/Shorts payloads use. */
+internal const val KODA_WEB_VERSION = "2.20260903.01.00"
+
 /**
  * Provide access to InnerTube endpoints.
  * For making HTTP requests, not parsing response.
@@ -510,15 +513,19 @@ class InnerTube {
         continuation: String? = null,
         includeVisitor: Boolean = true,
     ) = withRetry {
-        val effectiveIncludeVisitor = if (browseId == "FEwhat_to_watch") false else includeVisitor
+        // Koda split: initial FEwhat_to_watch BODY omits visitorData (their
+        // verified payload carries neither visitor nor datasync). The header
+        // follows the caller's includeVisitor flag; the bot-guard retry passes
+        // false AND nulls the global visitorData, so it truly goes without.
+        val omitVisitorFromBody = browseId == "FEwhat_to_watch" || !includeVisitor
         httpClient.post("https://www.youtube.com/youtubei/v1/browse") {
-            ytClient(client, setLogin = true, apiUrl = YouTubeClient.API_URL_YOUTUBE, includeVisitor = effectiveIncludeVisitor)
+            ytClient(client, setLogin = true, apiUrl = YouTubeClient.API_URL_YOUTUBE, includeVisitor = includeVisitor)
             setBody(
                 BrowseBody(
                     context =
                         client.toContext(
                             locale,
-                            if (effectiveIncludeVisitor) visitorData else null,
+                            if (omitVisitorFromBody) null else visitorData,
                             if (browseId == "FEwhat_to_watch") null else dataSyncId,
                             browseId,
                         ),
@@ -826,6 +833,68 @@ class InnerTube {
                     ),
                 )
             }.body<ReelWatchSequenceResponse>()
+    }
+
+    /**
+     * Direct port of Koda's WEB request builders (`postWatchApi` and
+     * `getPersonalizedVideoRecommendations`): a raw JSON body, the browser
+     * headers Koda sends, and cookie + www-origin SAPISIDHASH when signed in.
+     * Never throws on an HTTP status — returns it so callers can log what
+     * YouTube actually answered instead of swallowing a ResponseException.
+     *
+     * [clientHeaders] = X-YouTube-Client-Name/Version + X-Goog-Visitor-Id
+     * (postWatchApi); false = the bare FEwhat_to_watch header set.
+     */
+    suspend fun kodaWebPost(
+        endpoint: String,
+        body: String,
+        clientHeaders: Boolean = true,
+        userAgent: String = YouTubeClient.USER_AGENT_WEB,
+        withApiKey: Boolean = false,
+    ): Pair<Int, String> {
+        val origin = YouTubeClient.ORIGIN_YOUTUBE
+        val response = httpClient.post("https://www.youtube.com/youtubei/v1/$endpoint") {
+            expectSuccess = false
+            if (withApiKey) parameter("key", "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")
+            parameter("prettyPrint", false)
+            contentType(ContentType.Application.Json)
+            headers {
+                append("User-Agent", userAgent)
+                append("Origin", origin)
+                append("X-Origin", origin)
+                if (clientHeaders) {
+                    append("X-YouTube-Client-Name", "1")
+                    append("X-YouTube-Client-Version", KODA_WEB_VERSION)
+                    visitorData?.let { append("X-Goog-Visitor-Id", it) }
+                } else {
+                    append("Referer", "$origin/")
+                    append("Accept", "*/*")
+                    append("Accept-Language", "en-US,en;q=0.9")
+                }
+                cookie?.takeIf { it.isNotBlank() }?.let { c ->
+                    append("Cookie", c)
+                    val sapisid = cookieMap["SAPISID"] ?: cookieMap["__Secure-3PAPISID"]
+                    if (sapisid != null) {
+                        val now = System.currentTimeMillis() / 1000
+                        append("Authorization", "SAPISIDHASH ${now}_${sha1("$now $sapisid $origin")}")
+                        append("X-Goog-AuthUser", "0")
+                    }
+                }
+            }
+            setBody(body)
+        }
+        return response.status.value to response.bodyAsText()
+    }
+
+    /** Koda's webContext(): WEB client + hl/gl, visitorData when cached. */
+    fun kodaWebContext(): JsonObject = buildJsonObject {
+        put("client", buildJsonObject {
+            put("clientName", kotlinx.serialization.json.JsonPrimitive("WEB"))
+            put("clientVersion", kotlinx.serialization.json.JsonPrimitive(KODA_WEB_VERSION))
+            put("hl", kotlinx.serialization.json.JsonPrimitive("en"))
+            put("gl", kotlinx.serialization.json.JsonPrimitive(locale.gl))
+            visitorData?.let { put("visitorData", kotlinx.serialization.json.JsonPrimitive(it)) }
+        })
     }
 
     suspend fun next(

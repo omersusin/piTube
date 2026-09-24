@@ -66,6 +66,10 @@ class ShortsViewModel @Inject constructor(
     val uiState: StateFlow<ShortsUiState> = _uiState.asStateFlow()
     
     private var isLoadingMore = false
+    // Auth generation of the currently loaded reel: sign-in/out within the same
+    // profile must not early-return the previous identity's feed.
+    @Volatile
+    private var lastFeedSignedIn: Boolean? = null
     
     private val _commentsState = MutableStateFlow<List<com.omersusin.pitube.data.model.Comment>>(emptyList())
     val commentsState: StateFlow<List<com.omersusin.pitube.data.model.Comment>> = _commentsState.asStateFlow()
@@ -127,6 +131,19 @@ class ShortsViewModel @Inject constructor(
                 }
             }
         }
+
+        // Account switch: the repo cache is cleared by HomeViewModel, but this
+        // ViewModel's in-memory pager would otherwise keep serving the previous
+        // account's reel (early-return on non-empty). Reset and reload.
+        viewModelScope.launch {
+            FeedInvalidationBus.events.collect { event ->
+                if (event is FeedInvalidationBus.Event.ProfileSwitched) {
+                    lastFeedSignedIn = null
+                    _uiState.value = ShortsUiState()
+                    loadShorts()
+                }
+            }
+        }
     }
 
     // REACTIVE STATE — Single Source of Truth
@@ -178,8 +195,9 @@ class ShortsViewModel @Inject constructor(
     fun loadShorts(startVideoId: String? = null) {
         if (_uiState.value.isLoading) return
 
+        val signedIn = !YouTube.cookie.isNullOrBlank()
         val existing = _uiState.value.shorts
-        if (existing.isNotEmpty()) {
+        if (existing.isNotEmpty() && lastFeedSignedIn == signedIn) {
             if (startVideoId != null) {
                 val idx = existing.indexOfFirst { it.id == startVideoId }
                 if (idx >= 0) {
@@ -234,6 +252,9 @@ class ShortsViewModel @Inject constructor(
                     hasMorePages = result.continuation != null,
                     continuation = result.continuation
                 )
+                // Stamp the entry generation, not a re-read: sign-in/out
+                // mid-fetch must not tag the previous identity's reel.
+                lastFeedSignedIn = signedIn
 
                 // Pre-resolve the first two shorts so the pager's prepare pass is a cache hit.
                 prefetchPlaybackStreams(shorts.take(2).map { it.id })
@@ -256,6 +277,7 @@ class ShortsViewModel @Inject constructor(
         
         isLoadingMore = true
         _uiState.value = _uiState.value.copy(isLoadingMore = true)
+        val entrySignedIn = !YouTube.cookie.isNullOrBlank()
         
         viewModelScope.launch(PerformanceDispatcher.networkIO) {
             try {
@@ -273,6 +295,7 @@ class ShortsViewModel @Inject constructor(
                         isLoadingMore = false,
                         hasMorePages = result.continuation != null
                     )
+                    lastFeedSignedIn = entrySignedIn
                 } else {
                     val fresh = withTimeoutOrNull(12_000L) {
                         shortsRepository.forceRefresh()
@@ -287,6 +310,7 @@ class ShortsViewModel @Inject constructor(
                             isLoadingMore = false,
                             hasMorePages = fresh.continuation != null
                         )
+                        lastFeedSignedIn = entrySignedIn
                     } else {
                         _uiState.value = _uiState.value.copy(
                             isLoadingMore = false,

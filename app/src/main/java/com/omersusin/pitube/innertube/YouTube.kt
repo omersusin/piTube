@@ -37,6 +37,7 @@ import com.omersusin.pitube.innertube.pages.PlaylistPage
 import com.omersusin.pitube.innertube.pages.SearchShortItem
 import com.omersusin.pitube.innertube.pages.TranscriptLine
 import com.omersusin.pitube.innertube.pages.SearchVideosPage
+import com.omersusin.pitube.innertube.pages.ShortsItem
 import com.omersusin.pitube.innertube.pages.ShortsPage
 import com.omersusin.pitube.innertube.pages.toSearchShorts
 import com.omersusin.pitube.innertube.pages.toSearchVideosPage
@@ -922,75 +923,76 @@ object YouTube {
         parseChannelVideosResponse(response, "", "", "", false)
     }
 
+    /**
+     * Koda port. Initial page = Koda `getPersonalizedVideoRecommendations`
+     * (bare WEB body: no visitorData, no datasync, `user.lockedSafetyMode`,
+     * Chrome UA, API key, no X-YouTube-Client headers). Continuation pages =
+     * Koda `getVideoFeedContinuation` (postWatchApi + webContext()).
+     * HTTP status and YouTube's logged_in verdict are always logged — the old
+     * typed path threw a ResponseException that runCatching swallowed.
+     */
     private suspend fun personalizedFeedPage(
         browseId: String? = null,
         continuation: String? = null,
     ): ChannelVideoSearchResult {
-        val client = currentWebClient()
-        val httpResponse = innerTube.signedWebBrowse(
-            client = client,
-            browseId = browseId,
-            continuation = continuation,
-            includeVisitor = false,
-        )
-        val rawBody = httpResponse.bodyAsText()
+        val (status, rawBody) = if (continuation == null) {
+            val body = buildJsonObject {
+                put("context", buildJsonObject {
+                    put("client", buildJsonObject {
+                        put("clientName", JsonPrimitive("WEB"))
+                        put("clientVersion", JsonPrimitive(KODA_WEB_VERSION))
+                        put("hl", JsonPrimitive("en"))
+                        put("gl", JsonPrimitive(innerTube.locale.gl))
+                        put("originalUrl", JsonPrimitive("https://www.youtube.com/"))
+                        put("platform", JsonPrimitive("DESKTOP"))
+                    })
+                    put("user", buildJsonObject { put("lockedSafetyMode", JsonPrimitive(false)) })
+                })
+                put("browseId", JsonPrimitive(browseId ?: "FEwhat_to_watch"))
+            }
+            innerTube.kodaWebPost(
+                endpoint = "browse",
+                body = body.toString(),
+                clientHeaders = false,
+                userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                withApiKey = true,
+            )
+        } else {
+            val body = buildJsonObject {
+                put("context", innerTube.kodaWebContext())
+                put("continuation", JsonPrimitive(continuation))
+            }
+            innerTube.kodaWebPost(endpoint = "browse", body = body.toString())
+        }
+        val loggedIn = Regex("\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"([01])\"")
+            .find(rawBody)?.groupValues?.getOrNull(1)
+        if (status !in 200..299) {
+            Log.w("YouTube", "personalizedFeed($browseId, cont=${continuation != null}): HTTP $status logged_in=$loggedIn head=${rawBody.take(600)}")
+            throw java.io.IOException("personalizedFeed HTTP $status")
+        }
         innerTube.noteResponseState(rawBody)
-        // Home feeds are shape-unstable: loose richItemRenderers alternate with
-        // richSectionRenderer shelves, payloads flip between videoRenderer and
-        // lockupViewModel, and a typed decode failure turns into a silent
-        // Result failure (parsed-empty with no diagnostics). Parse the body
-        // dynamically first — the typed channel parser stays as fallback.
         val homeParsed = runCatching {
             parseHomeFeedJson(rawBody, isContinuation = continuation != null)
+        }.onFailure {
+            Log.w("YouTube", "personalizedFeed: home parser threw ${it.javaClass.simpleName}: ${it.message}")
         }.getOrNull()
         if (homeParsed != null && homeParsed.videos.isNotEmpty()) {
             Log.w(
                 "YouTube",
-                "personalizedFeed($browseId): home parser ${homeParsed.videos.size} videos " +
+                "personalizedFeed($browseId): HTTP $status logged_in=$loggedIn → ${homeParsed.videos.size} videos " +
                     "(+${lastHomeShortsShelf.size} shorts shelf), cont=${homeParsed.continuation != null}",
             )
             return homeParsed
         }
-        val lenientJson = json
-        val response = lenientJson.decodeFromString<ChannelVideosResponse>(rawBody)
-        val parsed = parseChannelVideosResponse(response, "", "", "", false)
-        if (parsed.videos.isEmpty() && continuation == null) {
-            val marker = when {
-                "signin" in rawBody || "LOGIN_REQUIRED" in rawBody -> "login-required banner"
-                "consistency" in rawBody || "botguard" in rawBody.lowercase() -> "bot-guard interstitial"
-                rawBody.length < 500 -> "suspiciously tiny body (${rawBody.length} chars)"
-                else -> "parsed-empty (body=${rawBody.length} chars)"
-            }
-            val status = httpResponse.status.value
-            val loggedIn = Regex("\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"([01])\"").find(rawBody)?.groupValues?.getOrNull(1)
-            val datasyncEcho = Regex("\"datasyncId\"\\s*:\\s*\"([^\"]+)\"").find(rawBody)?.groupValues?.getOrNull(1)
-            val visitorLen = innerTube.visitorData?.length ?: 0
-            val cookiePresent = !innerTube.cookie.isNullOrBlank()
-            val missing = com.omersusin.pitube.data.local.CookieRotation.missingRequiredCookies(innerTube.cookie)
-            Log.w("YouTube", "personalizedFeed($browseId): EMPTY — $marker status=$status logged_in=$loggedIn datasyncEcho=$datasyncEcho visitorLen=$visitorLen cookiePresent=$cookiePresent missing=${missing.joinToString(",")} bodyLen=${rawBody.length} head=${rawBody.take(2000)}")
-            val isBotGuard = "consistency" in rawBody || "botguard" in rawBody.lowercase()
-            if (cookiePresent && (loggedIn == "0" || isBotGuard)) {
-                cachedVisitorData = null
-                visitorDataFetchedAt = 0L
-                innerTube.visitorData = null
-                Log.w("YouTube", "personalizedFeed($browseId): visitorData reminted after logged_in=$loggedIn botGuard=$isBotGuard, retrying without visitorData")
-                val retryResponse = innerTube.signedWebBrowse(client = client, browseId = browseId, continuation = continuation, includeVisitor = false)
-                val retryBody = retryResponse.bodyAsText()
-                innerTube.noteResponseState(retryBody)
-                val retryHome = runCatching {
-                    parseHomeFeedJson(retryBody, isContinuation = continuation != null)
-                }.getOrNull()
-                if (retryHome != null && retryHome.videos.isNotEmpty()) {
-                    Log.w("YouTube", "personalizedFeed($browseId): retry (dynamic) recovered ${retryHome.videos.size} videos")
-                    return retryHome
-                }
-                val retryParsed = parseChannelVideosResponse(json.decodeFromString<ChannelVideosResponse>(retryBody), "", "", "", false)
-                if (retryParsed.videos.isNotEmpty()) Log.w("YouTube", "personalizedFeed($browseId): retry recovered ${retryParsed.videos.size} videos")
-                return retryParsed
-            }
-        } else if (continuation == null) {
-            Log.w("YouTube", "personalizedFeed($browseId): ${parsed.videos.size} videos, cont=${parsed.continuation != null}")
-        }
+        val parsed = runCatching {
+            parseChannelVideosResponse(json.decodeFromString<ChannelVideosResponse>(rawBody), "", "", "", false)
+        }.getOrElse { ChannelVideoSearchResult(emptyList(), null) }
+        Log.w(
+            "YouTube",
+            "personalizedFeed($browseId, cont=${continuation != null}): HTTP $status logged_in=$loggedIn " +
+                "fallback parser ${parsed.videos.size} videos, bodyLen=${rawBody.length}" +
+                if (parsed.videos.isEmpty()) " head=${rawBody.take(1500)}" else "",
+        )
         return parsed
     }
 
@@ -1018,6 +1020,9 @@ object YouTube {
     @Volatile
     var lastShortsSequenceSeed: String? = null
         private set
+    /** Auth generation that minted [lastShortsSequenceSeed]; never consume cross-auth. */
+    @Volatile
+    private var lastShortsSeedSignedIn: Boolean? = null
 
     private fun JsonElement?.homeObj(): JsonObject? = this as? JsonObject
     private fun JsonElement?.homeArr(): JsonArray? = this as? JsonArray
@@ -1033,6 +1038,7 @@ object YouTube {
         val videos = mutableListOf<com.omersusin.pitube.data.model.Video>()
         val shorts = mutableListOf<com.omersusin.pitube.data.model.Video>()
         var nextContinuation: String? = null
+        homeLockupsSeen = 0
 
         fun walkItem(itemEl: JsonElement) {
             val obj = itemEl.homeObj() ?: return
@@ -1050,6 +1056,15 @@ object YouTube {
                 findMusicObjectsByKey(shelf, "richItemRenderer", shelfItems)
                 shelfItems.forEach { richItem ->
                     richItem["content"].homeObj()?.let { parseHomeContent(it, videos, shorts) }
+                }
+                // Koda parseItemsFromShelf: some shelves hold bare lockups /
+                // renderers with no richItemRenderer wrapper.
+                if (shelfItems.isEmpty()) {
+                    listOf("lockupViewModel", "videoRenderer", "gridVideoRenderer", "shortsLockupViewModel").forEach { key ->
+                        val found = mutableListOf<JsonObject>()
+                        findMusicObjectsByKey(shelf, key, found)
+                        found.forEach { parseHomeContent(buildJsonObject { put(key, it) }, videos, shorts) }
+                    }
                 }
             }
             // 4. Trailing continuation token
@@ -1071,8 +1086,16 @@ object YouTube {
             val tabContent = tabs?.firstOrNull()?.homeObj()?.get("tabRenderer").homeObj()?.get("content").homeObj()
             val gridContents = tabContent?.get("richGridRenderer").homeObj()?.get("contents").homeArr()
                 ?: tabContent?.get("sectionListRenderer").homeObj()?.get("contents").homeArr()
+            if (gridContents == null) {
+                Log.w("YouTube", "home parser: no grid — contents keys=${contents?.keys} tab keys=${tabContent?.keys}")
+            }
             gridContents?.forEach { itemEl -> walkItem(itemEl) }
         }
+        Log.w(
+            "YouTube",
+            "home parser: lockups=$homeLockupsSeen → videos=${videos.size} shorts=${shorts.size} " +
+                "noChannel=${videos.count { it.channelId.isBlank() }} cont=${nextContinuation != null}",
+        )
 
         lastHomeShortsShelf = shorts
         return ChannelVideoSearchResult(
@@ -1087,10 +1110,17 @@ object YouTube {
         shorts: MutableList<com.omersusin.pitube.data.model.Video>,
     ) {
         content["lockupViewModel"].homeObj()?.let { lockup ->
+            homeLockupsSeen++
             val typed = runCatching {
                 json.decodeFromJsonElement(ChannelVideosResponse.LockupViewModel.serializer(), lockup)
             }.getOrNull()
-            typed?.let { parseLockupViewModel(it, "", "", "", false) }?.let(videos::add)
+            // The typed model silently rejects schema drift (a decode failure or
+            // a missing channel run); Koda parses the lockup dynamically, so
+            // fall back to that port rather than dropping the item.
+            val parsed = typed?.let { parseLockupViewModel(it, "", "", "", false) }
+                ?.takeIf { it.channelId.isNotBlank() }
+                ?: kodaParseLockup(lockup)
+            parsed?.let(videos::add)
         }
         (content["videoRenderer"] ?: content["gridVideoRenderer"]).homeObj()?.let { vr ->
             val typed = runCatching {
@@ -1103,6 +1133,133 @@ object YouTube {
         }
     }
 
+    /** Per-parse counter for the home diagnostics log. */
+    private var homeLockupsSeen = 0
+
+    /**
+     * Koda `parseLockupViewModel` port (dynamic JSON). Reads the channel from
+     * the byline's commandRuns, the legacy runs, or the creator avatar's
+     * rendererContext — whichever the response carries (verified Sept 2026).
+     */
+    private fun kodaParseLockup(lockup: JsonObject): com.omersusin.pitube.data.model.Video? {
+        val contentId = lockup["contentId"].homeStr()?.takeIf { it.length == 11 } ?: return null
+        val metadata = lockup["metadata"].homeObj()?.get("lockupMetadataViewModel").homeObj()
+        val titleObj = metadata?.get("title").homeObj()
+        val title = titleObj?.get("content").homeStr()?.takeIf { it.isNotBlank() } ?: return null
+        val rows = metadata?.get("metadata").homeObj()
+            ?.get("contentMetadataViewModel").homeObj()
+            ?.get("metadataRows").homeArr().orEmpty()
+
+        fun partTexts(row: JsonElement?): List<String> =
+            row.homeObj()?.get("metadataParts").homeArr().orEmpty()
+                .mapNotNull { it.homeObj()?.get("text").homeObj()?.get("content").homeStr() }
+                .filter { it.isNotBlank() }
+
+        var channelName = ""
+        var channelId: String? = null
+        val statSegments = mutableListOf<String>()
+        rows.forEachIndexed { index, row ->
+            val texts = partTexts(row)
+            if (index == 0) {
+                val first = texts.firstOrNull().orEmpty()
+                val firstIsStats = looksLikeRelativeDate(first) ||
+                    first.contains("view", ignoreCase = true) ||
+                    first.contains("watching", ignoreCase = true)
+                if (firstIsStats) {
+                    statSegments += texts
+                } else {
+                    channelName = first
+                    val textObj = row.homeObj()?.get("metadataParts").homeArr()
+                        ?.firstOrNull().homeObj()?.get("text").homeObj()
+                    channelId = textObj?.get("commandRuns").homeArr()?.firstOrNull().homeObj()
+                        ?.get("onTap").homeObj()?.get("innertubeCommand").homeObj()
+                        ?.get("browseEndpoint").homeObj()?.get("browseId").homeStr()
+                        ?.takeIf { it.isNotBlank() }
+                        ?: textObj?.get("runs").homeArr()?.firstOrNull().homeObj()
+                            ?.get("navigationEndpoint").homeObj()
+                            ?.get("browseEndpoint").homeObj()?.get("browseId").homeStr()
+                            ?.takeIf { it.isNotBlank() }
+                }
+            } else {
+                statSegments += texts
+            }
+        }
+        val image = metadata?.get("image").homeObj()
+        val decoratedAvatar = image?.get("decoratedAvatarViewModel").homeObj()
+        val avatarStack = image?.get("avatarStackViewModel").homeObj()
+        if (channelId == null) {
+            channelId = decoratedAvatar?.get("rendererContext").homeObj()
+                ?.get("commandContext").homeObj()?.get("onTap").homeObj()
+                ?.get("innertubeCommand").homeObj()?.get("browseEndpoint").homeObj()
+                ?.get("browseId").homeStr()?.takeIf { it.isNotBlank() }
+        }
+
+        fun bestSource(sources: JsonArray?): String? = sources
+            ?.mapNotNull { it.homeObj() }
+            ?.maxByOrNull { (it["width"] as? JsonPrimitive)?.contentOrNull?.toIntOrNull() ?: 0 }
+            ?.get("url").homeStr()?.takeIf { it.isNotBlank() }
+
+        val channelIcon = bestSource(
+            decoratedAvatar?.get("avatar").homeObj()?.get("avatarViewModel").homeObj()
+                ?.get("image").homeObj()?.get("sources").homeArr(),
+        ) ?: bestSource(
+            avatarStack?.get("avatars").homeArr()?.firstOrNull().homeObj()
+                ?.get("avatarViewModel").homeObj()?.get("image").homeObj()?.get("sources").homeArr(),
+        )
+
+        val contentImage = lockup["contentImage"].homeObj()
+        val thumbVm = contentImage?.get("collectionThumbnailViewModel").homeObj()
+            ?.get("primaryThumbnail").homeObj()?.get("thumbnailViewModel").homeObj()
+            ?: contentImage?.get("thumbnailViewModel").homeObj()
+        val thumbnail = bestSource(thumbVm?.get("image").homeObj()?.get("sources").homeArr())
+            ?: "https://i.ytimg.com/vi/$contentId/hqdefault.jpg"
+
+        var durationText = ""
+        var hasLiveBadge = false
+        var hasShortsBadge = false
+        thumbVm?.get("overlays").homeArr()?.forEach { overlayEl ->
+            val overlay = overlayEl.homeObj() ?: return@forEach
+            val badges = overlay["thumbnailOverlayBadgeViewModel"].homeObj()?.get("thumbnailBadges").homeArr().orEmpty() +
+                overlay["thumbnailBottomOverlayViewModel"].homeObj()?.get("badges").homeArr().orEmpty()
+            badges.forEach { b ->
+                val badge = b.homeObj()?.get("thumbnailBadgeViewModel").homeObj() ?: return@forEach
+                val text = badge["text"].homeStr().orEmpty()
+                val style = badge["badgeStyle"].homeStr().orEmpty()
+                if (style.contains("LIVE") || text.equals("LIVE", ignoreCase = true)) hasLiveBadge = true
+                if (style.contains("SHORTS", ignoreCase = true) || text.equals("SHORTS", ignoreCase = true)) hasShortsBadge = true
+                if (durationText.isEmpty() && text.contains(":")) durationText = text
+            }
+            overlay["thumbnailOverlayTimeStatusRenderer"].homeObj()?.get("text").homeObj()
+                ?.get("simpleText").homeStr()?.takeIf { durationText.isEmpty() && it.contains(":") }
+                ?.let { durationText = it }
+        }
+        if (durationText.isEmpty()) {
+            val label = titleObj?.get("accessibility").homeObj()?.get("label").homeStr().orEmpty()
+            Regex("(\\d+):(\\d+)(?::(\\d+))?").find(label)?.let { durationText = it.value }
+        }
+        val duration = parseLengthText(durationText)
+        val segments = statSegments.flatMap { it.split("•").map(String::trim).filter(String::isNotBlank) }
+        val viewsText = segments.firstOrNull { it.any(Char::isDigit) && !looksLikeRelativeDate(it) }
+        val uploadText = segments.firstOrNull { looksLikeRelativeDate(it) }.orEmpty()
+        val isLive = hasLiveBadge || viewsText?.contains("watching", ignoreCase = true) == true
+        val isShort = hasShortsBadge || (duration in 1..60 && !isLive)
+
+        return com.omersusin.pitube.data.model.Video(
+            id = contentId,
+            title = title,
+            channelName = channelName.ifBlank { "Unknown Channel" },
+            channelId = channelId.orEmpty(),
+            thumbnailUrl = thumbnail,
+            duration = if (isShort && duration == 0) 60 else duration,
+            viewCount = parseViewCountText(viewsText),
+            uploadDate = uploadText,
+            timestamp = parseRelativeUploadDate(uploadText) ?: 0L,
+            channelThumbnailUrl = channelIcon.orEmpty(),
+            isLive = isLive,
+            isShort = isShort,
+        )
+    }
+
     /**
      * shortsLockupViewModel: videoId + sequenceParams live in
      * onTap.innertubeCommand.reelWatchEndpoint; title/views in
@@ -1113,8 +1270,13 @@ object YouTube {
             ?: return null
         val videoId = reel["videoId"].homeStr()?.takeIf { it.length == 11 } ?: return null
         val seed = reel["sequenceParams"].homeStr()
+        // Fill-once per process (HEAD behavior): the seedless reel_item_watch
+        // bootstrap below is the fresh-per-session source. Harvesting every
+        // home parse let an anonymous shelf overwrite the signed seed and
+        // vice versa.
         if (!seed.isNullOrBlank() && lastShortsSequenceSeed.isNullOrBlank()) {
             lastShortsSequenceSeed = seed
+            lastShortsSeedSignedIn = !cookie.isNullOrBlank()
         }
         val overlay = lockup["overlayMetadata"].homeObj()
         val title = overlay?.get("primaryText").homeObj()?.get("content").homeStr().orEmpty()
@@ -1953,7 +2115,7 @@ object YouTube {
         }
         val lenientJson = json
         val response = lenientJson.decodeFromString<ChannelVideosResponse>(httpResponse.bodyAsText())
-        parseChannelVideosResponse(response, "", "", "", false)
+        parseChannelVideosResponse(response, "", "", "", false, includeShorts = true)
     }
 
     /** The user's playlists from FEplaylist_aggregation (Watch Later / Liked pinned elsewhere). */
@@ -2107,6 +2269,7 @@ object YouTube {
         channelName: String,
         channelThumbnailUrl: String,
         isLive: Boolean,
+        includeShorts: Boolean = false,
     ): ChannelVideoSearchResult {
         val metadata = response.metadata?.channelMetadataRenderer
         val resolvedChannelId = metadata?.externalChannelId
@@ -2144,15 +2307,26 @@ object YouTube {
         var nextContinuation: String? = null
         richItems.forEach { richItem ->
             val content = richItem.richItemRenderer?.content
-            if (content?.shortsLockupViewModel != null) {
-            } else {
-                content?.lockupViewModel
-                    ?.let { parseLockupViewModel(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
-                    ?.let { videos.add(it) }
-                content?.videoRenderer
-                    ?.let { parseBrowseVideoRenderer(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
-                    ?.let { videos.add(it) }
+            // Only the subscriptions feed opts into Shorts harvesting: its grid
+            // carries Shorts as shortsLockupViewModel and the home shelf split
+            // needs them as isShort videos. Channel/music/trending surfaces keep
+            // HEAD behavior (ignore) so their shape never changes for anyone.
+            if (includeShorts) {
+                content?.shortsLockupViewModel?.let { shortsLockup ->
+                    val parsed = runCatching { parseHomeShortsLockup(shortsLockup) }.getOrNull()
+                    if (parsed == null) {
+                        Log.w("YouTube", "subs shorts lockup parse failed")
+                    } else {
+                        videos.add(parsed)
+                    }
+                }
             }
+            content?.lockupViewModel
+                ?.let { parseLockupViewModel(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
+                ?.let { videos.add(it) }
+            content?.videoRenderer
+                ?.let { parseBrowseVideoRenderer(it, resolvedChannelId, resolvedChannelName, resolvedThumbnail, isLive) }
+                ?.let { videos.add(it) }
             richItem.continuationItemRenderer?.continuationEndpoint?.continuationCommand?.token
                 ?.let { nextContinuation = it }
         }
@@ -3040,28 +3214,179 @@ object YouTube {
     suspend fun shorts(
         sequenceParams: String? = null,
         continuation: String? = null,
-    ): Result<ShortsPage> = runCatching {
-        // Prefer the personalized seed harvested from the signed home feed's
-        // shorts shelf (Koda pattern) over the static default cursor: the
-        // hardcoded "CA8%3D" pins the same sequence for every session.
-        innerTube.reel(
-            client = YouTubeClient.ANDROID,
-            sequenceParams = sequenceParams ?: lastShortsSequenceSeed ?: "CA8%3D",
-            continuation = continuation
-        ).toShortsPage()
+    ): Result<ShortsPage> {
+        // No runCatching wrapper: it catches CancellationException and breaks
+        // structured concurrency.
+        try {
+            val signedIn = !cookie.isNullOrBlank()
+            if (signedIn) {
+                // Koda: seed params and continuation tokens use the same
+                // `sequenceParams` field on reel_watch_sequence (verified Sept 2026).
+                val token = continuation ?: sequenceParams
+                return Result.success(
+                    if (token != null) kodaShortsSequence(token) else kodaShortsFeed(),
+                )
+            }
+            // Signed out: unchanged anonymous ANDROID reel.
+            return Result.success(
+                innerTube.reel(
+                    client = YouTubeClient.ANDROID,
+                    sequenceParams = if (continuation != null) null else (sequenceParams ?: "CA8%3D"),
+                    continuation = continuation,
+                    setLogin = false,
+                ).toShortsPage(),
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w("YouTube", "shorts failed: ${e.javaClass.simpleName}: ${e.message}")
+            return Result.failure(e)
+        }
+    }
+
+    /**
+     * Koda `getShortsFeed` (signed in): seedless `reel/reel_item_watch` on the
+     * WEB client, then one `reel_watch_sequence` page from the seed's
+     * sequenceContinuation. Seed + page are merged and every item carries the
+     * latest continuation so any tap continues the same account sequence.
+     */
+    private suspend fun kodaShortsFeed(): ShortsPage {
+        val body = buildJsonObject {
+            put("context", innerTube.kodaWebContext())
+            put("params", JsonPrimitive("CA8%3D"))
+            put("inputType", JsonPrimitive("REEL_WATCH_INPUT_TYPE_SEEDLESS"))
+            put("disablePlayerResponse", JsonPrimitive(true))
+        }
+        val raw = kodaShortsPost("reel/reel_item_watch", body.toString())
+        val root = Json.parseToJsonElement(raw).homeObj()
+            ?: throw java.io.IOException("YouTube returned no Shorts seed")
+        // Koda parseShortsSeed
+        if (root["status"].homeStr() != "REEL_ITEM_WATCH_STATUS_SUCCEEDED") {
+            throw java.io.IOException("YouTube did not return a Shorts seed (${root["status"].homeStr()})")
+        }
+        val seedContinuation = root["sequenceContinuation"].homeStr()?.takeIf { it.isNotBlank() }
+        val reel = root["replacementEndpoint"].homeObj()?.get("reelWatchEndpoint").homeObj()
+        val seedBase = reel?.let { kodaParseShortsEndpoint(it) }
+            ?: throw java.io.IOException("YouTube returned no Shorts replacement endpoint")
+        val header = kodaShortsDescriptionHeader(root)
+        val seedItem = seedBase.copy(
+            title = kodaShortsText(header?.get("title").homeObj()).ifBlank { seedBase.title },
+            viewCountText = kodaShortsText(header?.get("views").homeObj()).ifBlank { null },
+        )
+        lastShortsSequenceSeed = seedContinuation
+        lastShortsSeedSignedIn = true
+        val page = seedContinuation?.let { kodaShortsSequence(it) }
+        val cont = if (page != null) page.continuation else seedContinuation
+        val items = (listOf(seedItem) + page?.items.orEmpty())
+            .distinctBy { it.id }
+            .map { it.copy(sequenceParams = cont) }
+        Log.w("YouTube", "shorts (koda seedless): ${items.size} items, cont=${cont != null}")
+        return ShortsPage(items, cont)
+    }
+
+    /** Koda `requestShortsSequence`: one account-aware reel_watch_sequence page. */
+    private suspend fun kodaShortsSequence(sequenceParams: String): ShortsPage {
+        val body = buildJsonObject {
+            put("context", innerTube.kodaWebContext())
+            put("sequenceParams", JsonPrimitive(sequenceParams))
+        }
+        val raw = kodaShortsPost("reel/reel_watch_sequence", body.toString())
+        val root = Json.parseToJsonElement(raw).homeObj()
+            ?: throw java.io.IOException("YouTube returned no Shorts sequence")
+        // Koda parseShortsSequence: only top-level entries belong to this page.
+        val entries = root["entries"].homeArr()
+            ?: throw java.io.IOException("YouTube returned no Shorts sequence entries")
+        val items = entries.mapNotNull { entry ->
+            entry.homeObj()?.get("command").homeObj()?.get("reelWatchEndpoint").homeObj()
+                ?.let { kodaParseShortsEndpoint(it) }
+        }.distinctBy { it.id }
+        val cont = root["continuationEndpoint"].homeObj()
+            ?.get("continuationCommand").homeObj()
+            ?.get("token").homeStr()?.takeIf { it.isNotBlank() }
+        return ShortsPage(items, cont)
+    }
+
+    /** Koda postWatchApi + the logged_in=0 "session rejected" gate. */
+    private suspend fun kodaShortsPost(endpoint: String, body: String): String {
+        val (status, raw) = innerTube.kodaWebPost(endpoint, body)
+        val loggedIn = Regex("\"logged_in\"\\s*,\\s*\"value\"\\s*:\\s*\"([01])\"")
+            .find(raw)?.groupValues?.getOrNull(1)
+        if (status !in 200..299) {
+            Log.w("YouTube", "shorts $endpoint HTTP $status logged_in=$loggedIn head=${raw.take(600)}")
+            throw java.io.IOException("Shorts $endpoint HTTP $status")
+        }
+        innerTube.noteResponseState(raw)
+        if (loggedIn == "0") {
+            Log.w("YouTube", "shorts $endpoint: logged_in=0 (session rejected)")
+            throw java.io.IOException("YouTube rejected the Shorts session")
+        }
+        return raw
+    }
+
+    /** Koda parseShortsEndpoint. Never uses the WEB prefetch stream URLs. */
+    private fun kodaParseShortsEndpoint(reel: JsonObject): ShortsItem? {
+        val videoId = reel["videoId"].homeStr()?.takeIf { it.length == 11 } ?: return null
+        val thumbnail = reel["thumbnail"].homeObj()?.get("thumbnails").homeArr()
+            ?.firstOrNull().homeObj()?.get("url").homeStr()?.takeIf { it.isNotBlank() }
+        val details = reel["unserializedPrefetchData"].homeObj()
+            ?.get("playerResponse").homeObj()
+            ?.get("videoDetails").homeObj()
+            ?.takeIf { it["videoId"].homeStr() == videoId }
+        return ShortsItem(
+            id = videoId,
+            title = details?.get("title").homeStr().orEmpty(),
+            thumbnail = thumbnail ?: "https://i.ytimg.com/vi/$videoId/oar2.jpg",
+            channelName = details?.get("author").homeStr().orEmpty(),
+            channelId = details?.get("channelId").homeStr()?.takeIf { it.startsWith("UC") },
+            channelThumbnailUrl = null,
+            viewCountText = null,
+            likeCountText = null,
+            commentCountText = null,
+            params = null,
+            playerParams = null,
+            sequenceParams = reel["sequenceParams"].homeStr()?.takeIf { it.isNotBlank() },
+        )
+    }
+
+    private fun kodaShortsDescriptionHeader(root: JsonObject): JsonObject? {
+        root["engagementPanels"].homeArr()?.forEach { panel ->
+            panel.homeObj()?.get("engagementPanelSectionListRenderer").homeObj()
+                ?.get("content").homeObj()
+                ?.get("structuredDescriptionContentRenderer").homeObj()
+                ?.get("items").homeArr()
+                ?.forEach { item ->
+                    item.homeObj()?.get("videoDescriptionHeaderRenderer").homeObj()?.let { return it }
+                }
+        }
+        return null
+    }
+
+    private fun kodaShortsText(text: JsonObject?): String {
+        text ?: return ""
+        text["simpleText"].homeStr()?.takeIf { it.isNotBlank() }?.let { return it }
+        return text["runs"].homeArr()?.joinToString("") { it.homeObj()?.get("text").homeStr().orEmpty() }.orEmpty()
     }
 
     /**
      * Fetch a Shorts reel sequence starting from a specific video.
      * Uses 'params' to seed the sequence from a particular video ID.
      */
-    suspend fun shortsFromVideo(videoId: String): Result<ShortsPage> = runCatching {
-        val seedParams = buildShortsParams(videoId)
-        innerTube.reel(
-            client = YouTubeClient.ANDROID,
-            params = seedParams,
-            sequenceParams = null
-        ).toShortsPage()
+    suspend fun shortsFromVideo(videoId: String): Result<ShortsPage> {
+        try {
+            val seedParams = buildShortsParams(videoId)
+            return Result.success(
+                innerTube.reel(
+                    client = YouTubeClient.ANDROID,
+                    params = seedParams,
+                    sequenceParams = null,
+                    setLogin = !cookie.isNullOrBlank(),
+                ).toShortsPage(),
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
     }
 
     /**

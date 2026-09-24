@@ -75,10 +75,17 @@ class ShortsRepository private constructor(private val context: Context) {
     // Track recently shown to prevent immediate repeats within a session
     private val recentlyShownIds = mutableSetOf<String>()
     
-    // Cached home/initial feed to avoid duplicate API calls
+    // Cached home/initial feed to avoid duplicate API calls.
+    // Signed-in state is part of the cache key: an anonymous reel must never
+    // satisfy a signed-in caller and vice versa. Single volatile holder so
+    // readers never see a torn feed+timestamp+tag combination.
+    private data class CachedShortsFeed(
+        val feed: ShortsSequenceResult,
+        val timestamp: Long,
+        val signedIn: Boolean,
+    )
     @Volatile
-    private var cachedInitialFeed: ShortsSequenceResult? = null
-    private var cachedFeedTimestamp = 0L
+    private var cachedFeed: CachedShortsFeed? = null
     private val CACHE_TTL_MS = 5 * 60 * 1000L // 5 minutes
 
     // Single-flight: concurrent getShortsFeed(seed=null) callers share one
@@ -134,11 +141,14 @@ class ShortsRepository private constructor(private val context: Context) {
     ): ShortsSequenceResult = withContext(Dispatchers.IO) {
         Log.d(TAG, "━━━ Fetching Shorts Feed (seed=$seedVideoId) ━━━")
         if (seedVideoId == null) {
-            val cached = cachedInitialFeed
-            if (cached != null &&
-                System.currentTimeMillis() - cachedFeedTimestamp < CACHE_TTL_MS &&
-                cached.shorts.isNotEmpty()
-            ) {
+            val signedIn = !YouTube.cookie.isNullOrBlank()
+            val snapshot = cachedFeed
+            val cached = snapshot?.takeIf {
+                it.signedIn == signedIn &&
+                System.currentTimeMillis() - it.timestamp < CACHE_TTL_MS &&
+                it.feed.shorts.isNotEmpty()
+            }?.feed
+            if (cached != null) {
                 Log.d(TAG, "♻ Using cached feed (${cached.shorts.size} shorts)")
                 val filtered = cached.copy(shorts = filterWatchedShorts(cached.shorts))
                 if (filtered.shorts.isNotEmpty()) return@withContext filtered
@@ -186,6 +196,10 @@ class ShortsRepository private constructor(private val context: Context) {
 
     private suspend fun fetchDiscoveryFeed(): ShortsSequenceResult {
         val userSubs = subscriptionRepository.getValidSubscriptionIds()
+        // Capture the auth generation once per fetch and reuse for every cache
+        // write from this fetch — re-reading at enrichment completion mis-stamps
+        // the feed when sign-in/out happens mid-fetch.
+        val fetchSignedIn = !YouTube.cookie.isNullOrBlank()
 
         // Discovery starts immediately in the background — never blocks the return path
         val discJob = repositoryScope.async {
@@ -223,8 +237,7 @@ class ShortsRepository private constructor(private val context: Context) {
             // while the user was still on the home screen.
 
             val earlyResult = ShortsSequenceResult(itShorts, innerTubeResult.continuation)
-            cachedInitialFeed = earlyResult
-            cachedFeedTimestamp = System.currentTimeMillis()
+            cachedFeed = CachedShortsFeed(earlyResult, System.currentTimeMillis(), fetchSignedIn)
             Log.i(TAG, "✓ InnerTube fast-path: ${itShorts.size} shorts — returning immediately")
 
             repositoryScope.launch {
@@ -242,12 +255,14 @@ class ShortsRepository private constructor(private val context: Context) {
                     markAsShown(newCandidates.map { it.id })
                     newCandidates.forEach { shortsCache.put(it.id, it) }
                     _discoveryFeedUpdate.tryEmit(newCandidates)
-                    cachedInitialFeed = ShortsSequenceResult(
-                        itShorts + newCandidates, innerTubeResult.continuation
+                    cachedFeed = CachedShortsFeed(
+                        ShortsSequenceResult(itShorts + newCandidates, innerTubeResult.continuation),
+                        System.currentTimeMillis(),
+                        fetchSignedIn,
                     )
                 }
 
-                val allShorts = cachedInitialFeed?.shorts ?: itShorts
+                val allShorts = cachedFeed?.feed?.shorts ?: itShorts
                 try {
                     withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) {
                         val enriched = enrichMissingMetadata(allShorts)
@@ -256,11 +271,11 @@ class ShortsRepository private constructor(private val context: Context) {
                         withAvatars.forEach { shortsCache.put(it.id, it) }
                         // Persist the ENRICHED feed so later cache hits don't
                         // re-run player()/avatar enrichment for the same shorts.
-                        cachedInitialFeed = ShortsSequenceResult(
-                            withAvatars,
-                            innerTubeResult.continuation
+                        cachedFeed = CachedShortsFeed(
+                            ShortsSequenceResult(withAvatars, innerTubeResult.continuation),
+                            System.currentTimeMillis(),
+                            fetchSignedIn,
                         )
-                        cachedFeedTimestamp = System.currentTimeMillis()
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Background enrichment failed: ${e.message}")
@@ -290,8 +305,7 @@ class ShortsRepository private constructor(private val context: Context) {
                 val result = newPipeResult.copy(shorts = reRanked)
                 result.shorts.forEach { shortsCache.put(it.id, it) }
                 markAsShown(result.shorts.map { it.id })
-                cachedInitialFeed = result
-                cachedFeedTimestamp = System.currentTimeMillis()
+                cachedFeed = CachedShortsFeed(result, System.currentTimeMillis(), fetchSignedIn)
                 return result
             }
             Log.e(TAG, "✗ All Shorts sources failed — returning empty")
@@ -309,8 +323,7 @@ class ShortsRepository private constructor(private val context: Context) {
         candidateShorts.forEach { shortsCache.put(it.id, it) }
 
         val result = ShortsSequenceResult(candidateShorts, null)
-        cachedInitialFeed = result
-        cachedFeedTimestamp = System.currentTimeMillis()
+        cachedFeed = CachedShortsFeed(result, System.currentTimeMillis(), fetchSignedIn)
         Log.i(TAG, "✓ Discovery-only feed: ${candidateShorts.size} shorts")
 
         repositoryScope.launch {
@@ -1058,18 +1071,17 @@ class ShortsRepository private constructor(private val context: Context) {
         enrichedIds.clear()
         avatarEnrichedChannels.clear()
         recentlyShownIds.clear()
-        cachedInitialFeed = null
-        cachedFeedTimestamp = 0L
+        cachedFeed = null
         shortsDiscovery.clearCaches()
         Log.d(TAG, "All caches cleared")
     }
 
     fun evictChannel(channelId: String) {
         shortsDiscovery.evictChannel(channelId)
-        val current = cachedInitialFeed
-        if (current != null) {
-            val filtered = current.shorts.filter { it.channelId != channelId }
-            cachedInitialFeed = current.copy(shorts = filtered)
+        val snapshot = cachedFeed
+        if (snapshot != null) {
+            val filtered = snapshot.feed.shorts.filter { it.channelId != channelId }
+            cachedFeed = snapshot.copy(feed = snapshot.feed.copy(shorts = filtered))
         }
         Log.d(TAG, "Evicted channel $channelId from Shorts caches")
     }
